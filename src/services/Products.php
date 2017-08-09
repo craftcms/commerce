@@ -21,32 +21,6 @@ use yii\base\Component;
  */
 class Products extends Component
 {
-    // Constants
-    // =========================================================================
-
-    /**
-     * @event ProductEvent The event that is raised before a product is saved.
-     */
-    const EVENT_BEFORE_SAVE_PRODUCT = 'beforeSaveProduct';
-
-    /**
-     * @event ProductEvent The event that is raised after a product is saved.
-     */
-    const EVENT_AFTER_SAVE_PRODUCT = 'afterSaveProduct';
-
-    /**
-     * @event ProductEvent This event is raised when a new product is created from a purchasable
-     *
-     * You may set [[ProductEvent::isValid]] to `false` to prevent the product from being deleted.
-     */
-    const EVENT_BEFORE_DELETE_PRODUCT = 'beforeDeleteProduct';
-
-    /**
-     * @event ProductEvent This event is raised when a new product is populated from a purchasable
-
-     */
-    const EVENT_AFTER_DELETE_PRODUCT = 'afterDeleteProduct';
-
     // Public Methods
     // =========================================================================
 

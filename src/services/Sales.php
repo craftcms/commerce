@@ -5,6 +5,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\SaleEvent;
+use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -23,9 +25,16 @@ use yii\base\Component;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
+ *
+ * @property \craft\commerce\models\Sale[] $allSales
  */
 class Sales extends Component
 {
+    /**
+     * @event SaleEvent This event is raised after a sale has matched all other conditions
+     */
+    const EVENT_BEFORE_MATCH_PRODUCT_SALE = 'beforeMatchProductSale';
+
     /**
      * @var Sale[]
      */
@@ -229,7 +238,14 @@ class Sales extends Component
             }
         }
 
-        return true;
+        $saleMatchEvent = new SaleMatchEvent(['sale' => $this]);
+
+        // Raising the 'beforeMatchProductSale' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PRODUCT_SALE)) {
+            $this->trigger(self::EVENT_BEFORE_MATCH_PRODUCT_SALE, $saleMatchEvent);
+        }
+
+        return $saleMatchEvent->isValid;
     }
 
     /**
@@ -237,7 +253,7 @@ class Sales extends Component
      *
      * @return Sale[]
      */
-    public function getSalesForVariant(Variant $variant)
+    public function getSalesForVariant(Variant $variant): array
     {
         $matchedSales = [];
         foreach ($this->_getAllActiveSales() as $sale) {

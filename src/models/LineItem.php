@@ -12,6 +12,7 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\helpers\Html;
 
 /**
  * Line Item model representing a line item on an order.
@@ -360,17 +361,18 @@ class LineItem extends Model
     /**
      * @return bool
      */
-    public function getOnSale()
+    public function getOnSale(): bool
     {
-        return null === $this->salePrice ? false : ($this->salePrice != $this->price);
+        return null === $this->salePrice ? false : (CurrencyHelper::round($this->salePrice) != CurrencyHelper::round($this->price));
     }
 
     /**
      * Returns the description from the snapshot of the purchasable
      */
-    public function getDescription()
+    public function getDescription(): string
     {
-        return $this->purchasable->getDescription() ?? '';
+        $description = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
+        return $this->getPurchasable()->getDescription() ?? $description;
     }
 
     /**
@@ -378,7 +380,8 @@ class LineItem extends Model
      */
     public function getSku()
     {
-        return $this->purchasable->getSku() ?? '';
+        $sku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
+        return $this->getPurchasable()->getSku() ?? $sku;
     }
 
     /**

@@ -56,7 +56,7 @@ class ShippingRule extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['name'], 'unique']
+            ['name', 'targetAttribute' => ['name', 'methodId']]
         ];
     }
 

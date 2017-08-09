@@ -77,6 +77,7 @@ class LineItems extends Component
 
             foreach ($results as $result) {
                 $result['options'] = Json::decodeIfJson($result['options']);
+                $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
                 $lineItems[] = new LineItem($result);
             }
 

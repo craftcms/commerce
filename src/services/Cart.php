@@ -79,8 +79,6 @@ class Cart extends Component
      */
     public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error = '')
     {
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
 
         $isNewLineItem = false;
 
@@ -88,6 +86,9 @@ class Cart extends Component
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
+
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         //filling item model
         $plugin = Plugin::getInstance();
@@ -260,7 +261,7 @@ class Cart extends Component
 
         $method = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-        if (!$method) {
+        if (!$method || !$method->frontendEnabled) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
 
             return false;
@@ -272,14 +273,15 @@ class Cart extends Component
         return true;
     }
 
+
     /**
-     * @param Order               $cart
-     * @param                     $email
-     * @param string              $error
+     * @param Order  $cart
+     * @param        $email
+     * @param string $error
      *
      * @return bool
      */
-    public function setEmail(Order $cart, $email, &$error = "")
+    public function setEmail(Order $cart, $email, &$error = ""): bool
     {
 
         $validator = new EmailValidator();
@@ -290,16 +292,14 @@ class Cart extends Component
             return false;
         }
 
+        if ($cart->getCustomer() && $cart->getCustomer()->getUser()) {
+            $error = Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.');
+            return false;
+        }
+
         try {
-            // we need to force a persisted customer so get a customer id
-            $this->getCart()->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
-            $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if (!$customer->userId) {
-                $customer->email = $email;
-                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
-                $cart->email = $customer->email;
-                Craft::$app->getElements()->saveElement($cart);
-            }
+            $cart->setEmail($email);
+            Craft::$app->getElements()->saveElement($cart);
         } catch (Exception $e) {
             $error = $e->getMessage();
 
@@ -314,7 +314,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function getCart()
+    public function getCart(): Order
     {
 
         if (null === $this->_cart) {
@@ -339,20 +339,39 @@ class Cart extends Component
             $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
             // Payment currency is always set to the stores primary currency unless it is set to an allowed currency.
-            $currencies = \array_column(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
+            $allCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+            $currencies = [];
+
+            foreach ($allCurrencies as $currency)
+            {
+                $currencies[] = $currency->iso;
+            }
 
             if (defined('COMMERCE_PAYMENT_CURRENCY')) {
                 $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                if (in_array($currency, $currencies)) {
+                if (in_array($currency, $currencies, false)) {
                     $this->_cart->paymentCurrency = $currency;
                 }
             }
 
             $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
+            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+
+                if (!$this->_cart->shippingAddressId && $this->_cart->customer->lastUsedShippingAddressId) {
+                    $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->customer->lastUsedShippingAddressId);
+                    $this->_cart->setShippingAddress($address);
+                }
+
+                if (!$this->_cart->billingAddressId && $this->_cart->customer->lastUsedBillingAddressId) {
+                    $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->customer->lastUsedBillingAddressId);
+                    $this->_cart->setBillingAddress($address);
+                }
+            }
+
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if (!$this->_cart->isEmpty() && $this->_cart->customerId != $customer->id) {
+            if ($this->_cart->customerId != $customer->id) {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;

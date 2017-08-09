@@ -33,6 +33,7 @@ class BaseFrontEndController extends BaseController
         $data['itemTotal'] = $cart->itemTotal;
         $data['baseDiscount'] = $cart->baseDiscount;
         $data['baseTax'] = $cart->baseTax;
+        $data['baseTaxIncluded'] = $cart->baseTaxIncluded;
         $data['baseShippingCost'] = $cart->baseShippingCost;
         $data['totalPrice'] = $cart->totalPrice;
         $data['totalPaid'] = $cart->totalPaid;
@@ -55,7 +56,7 @@ class BaseFrontEndController extends BaseController
         $data['totalQty'] = $cart->totalQty;
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
         $data['isEmpty'] = $cart->isEmpty();
-        $data['itemSubtotal'] = $cart->itemSubtotal;
+        $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->totalWeight;
         $data['totalWidth'] = $cart->totalWidth;
         $data['totalHeight'] = $cart->totalHeight;

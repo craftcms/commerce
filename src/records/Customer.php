@@ -9,7 +9,6 @@ use yii\db\ActiveQueryInterface;
  * Customer record.
  *
  * @property int               $id
- * @property string            $email
  * @property int               $userId
  * @property int               $lastUsedBillingAddressId
  * @property int               $lastUsedShippingAddressId

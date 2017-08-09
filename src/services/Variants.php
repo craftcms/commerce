@@ -8,6 +8,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchaseVariantEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use yii\base\Component;
@@ -137,10 +138,10 @@ class Variants extends Component
         $record->sku = $model->sku;
 
         $record->price = $model->price;
-        $record->width = $model->width * 1;
-        $record->height = $model->height * 1;
-        $record->length = $model->length * 1;
-        $record->weight = $model->weight * 1;
+        $record->width = (float) $model->width;
+        $record->height = (float) $model->height;
+        $record->length = (float) $model->length;
+        $record->weight = (float) $model->weight;
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
@@ -226,7 +227,7 @@ class Variants extends Component
         // reset the salePrice to be the same as price, and clear any sales applied.
         foreach ($variants as $variant) {
             $variant->setSalesApplied([]);
-            $variant->setSalePrice($variant->price);
+            $variant->setSalePrice(Currency::round($variant->price));
         }
 
         // Only bother calculating if the product is persisted and promotable.
@@ -237,7 +238,7 @@ class Variants extends Component
                 foreach ($variants as $variant) {
                     $variant->setSalesApplied($sales);
 
-                    $variant->setSalePrice($variant->getSalePrice() + $sale->calculateTakeoff($variant->price));
+                    $variant->setSalePrice(Currency::round($variant->getSalePrice() + $sale->calculateTakeoff($variant->price)));
                     if ($variant->getSalePrice() < 0) {
                         $variant->setSalePrice(0);
                     }

@@ -59,6 +59,11 @@ class OrderQuery extends ElementQuery
     public $expiryDate;
 
     /**
+     * @var mixed The date the order was paid.
+     */
+    public $datePaid;
+
+    /**
      * @var OrderStatus|int The Order Status that the resulting orders must have.
      */
     public $orderStatus;
@@ -107,7 +112,6 @@ class OrderQuery extends ElementQuery
      * @var PurchasableInterface[] The resulting orders must contain these Purchasables.
      */
     public $hasPurchasables;
-
 
     /**
      * @inheritdoc
@@ -197,6 +201,20 @@ class OrderQuery extends ElementQuery
     public function dateOrdered($value)
     {
         $this->dateOrdered = $value;
+
+        return $this;
+    }
+
+    /**
+     * Sets the [[datePaid]] property.
+     *
+     * @param mixed $value The property value
+     *
+     * @return static self reference
+     */
+    public function datePaid($value)
+    {
+        $this->datePaid = $value;
 
         return $this;
     }
@@ -486,6 +504,10 @@ class OrderQuery extends ElementQuery
 
         if ($this->dateOrdered) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateOrdered', $this->dateOrdered));
+        }
+
+        if ($this->datePaid) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.datePaid', $this->datePaid));
         }
 
         if ($this->expiryDate) {

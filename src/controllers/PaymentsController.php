@@ -79,6 +79,20 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
+        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
+            $error = Craft::t('commerce', 'Billing address required.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+
+            return null;
+        }
+
+
+
         // These are used to compare if the order changed during it's final
         // recalculation before payment.
         $originalTotalPrice = $order->outstandingBalance();
@@ -200,10 +214,10 @@ class PaymentsController extends BaseFrontEndController
         $redirect = '';
         $paymentForm->validate();
 
-        if (!$paymentForm->hasErrors()) {
+        if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             $success = $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $customError);
         } else {
-            $customError = Craft::t('commerce', 'Payment information submitted is invalid.');
+            $customError = Craft::t('commerce', 'Invalid payment or order. Please review.');
             $success = false;
         }
 
@@ -245,15 +259,15 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionCompletePayment()
     {
-        $id = Craft::$app->getRequest()->getParam('commerceTransactionHash');
+        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
-        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($id);
+        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($hash);
 
         if (!$transaction) {
-            throw new HttpException(400, Craft::t("commerce", "Can not complete payment for missing transaction."));
+            throw new HttpException(400, Craft::t('commerce', 'Can not complete payment for missing transaction.'));
         }
 
-        $customError = "";
+        $customError = '';
         $success = Plugin::getInstance()->getPayments()->completePayment($transaction, $customError);
 
         if ($success) {
@@ -272,11 +286,11 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionAcceptNotification()
     {
-        $id = Craft::$app->getRequest()->getParam('commerceTransactionHash');
+        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
         Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT), __METHOD__);
 
-        Plugin::getInstance()->getPayments()->acceptNotification($id);
+        Plugin::getInstance()->getPayments()->acceptNotification($hash);
     }
 
 }

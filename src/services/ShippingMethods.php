@@ -192,10 +192,10 @@ class ShippingMethods extends Component
                     }
                 }
 
-                $amount = max($amount, $rule->getMinRate() * 1);
+                $amount = max($amount, $rule->getMinRate());
 
-                if ($rule->getMaxRate() * 1) {
-                    $amount = min($amount, $rule->getMaxRate() * 1);
+                if ($rule->getMaxRate()) {
+                    $amount = min($amount, $rule->getMaxRate());
                 }
 
                 $availableMethods[$method->getHandle()] = [

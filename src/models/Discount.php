@@ -5,6 +5,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\UrlHelper;
 
 /**
@@ -12,6 +13,11 @@ use craft\helpers\UrlHelper;
  *
  * @property \craft\commerce\elements\Product[]   $products
  * @property \craft\commerce\models\ProductType[] $productTypes
+ * @property array                                $userGroupIds
+ * @property string                               $percentDiscountAsPercent
+ * @property array                                $productIds
+ * @property array                                $productTypeIds
+ * @property string|false                         $cpEditUrl
  * @property \craft\models\UserGroup[]            $userGroups
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -107,6 +113,11 @@ class Discount extends Model
     public $percentDiscount;
 
     /**
+     * @var string Whether the discount is off the original price, or the already discount price.
+     */
+    public $percentageOffSubject;
+
+    /**
      * @var bool Exclude on sale purchasables
      */
     public $excludeOnSale;
@@ -160,32 +171,6 @@ class Discount extends Model
      * @var int[] Group IDs
      */
     private $_userGroupIds;
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        $rules = [
-            [['name'], 'required'],
-            [['purchaseTotal'], 'required'],
-            [['purchaseQty'], 'required'],
-            [['maxPurchaseQty'], 'required'],
-            [['baseDiscount'], 'required'],
-            [['perItemDiscount'], 'required'],
-            [['perUserLimit'], 'required'],
-            [['percentDiscount'], 'required'],
-            [['excludeOnSale'], 'required'],
-            [['freeShipping'], 'required'],
-            [['allGroups'], 'required'],
-            [['allProducts'], 'required'],
-            [['allProductTypes'], 'required'],
-            [['enabled'], 'required'],
-            [['stopProcessing'], 'required']
-        ];
-
-        return $rules;
-    }
 
     /**
      * @inheritdoc
@@ -292,12 +277,13 @@ class Discount extends Model
     /**
      * @return string
      */
-    public function getPercentDiscountAsPercent()
+    public function getPercentDiscountAsPercent(): string
     {
-        if ($this->percentDiscount) {
-            return Craft::$app->formatter->asPercent($this->percentDiscount);
+        if ($this->percentDiscount != 0)
+        {
+            return Craft::$app->formatter->asPercent(-$this->percentDiscount);
         }
 
-        return "";
+        return Craft::$app->formatter->asPercent(0);
     }
 }

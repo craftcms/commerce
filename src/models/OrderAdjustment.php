@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 
 /**
  * Order adjustment model.

@@ -45,6 +45,7 @@ use yii\base\Exception;
  * @property float                   $baseDiscount
  * @property float                   $baseShippingCost
  * @property float                   $baseTax
+ * @property float                   $baseTaxIncluded
  * @property string                  $email
  * @property bool                    $isCompleted
  * @property \DateTime               $dateOrdered
@@ -142,6 +143,11 @@ class Order extends Element
      * @var float Base Tax
      */
     public $baseTax = 0;
+
+    /**
+     * @var float Base Tax Included
+     */
+    public $baseTaxIncluded = 0;
 
     /**
      * @var string Email
@@ -248,6 +254,16 @@ class Order extends Element
      */
     private $_orderAdjustments;
 
+    /**
+     * @var string Email
+     */
+    private $_email;
+
+    /**
+     * @var bool Should the order recalculate?
+     */
+    private $_relcalculate;
+
 
     /**
      * @inheritdoc
@@ -284,7 +300,11 @@ class Order extends Element
             }
         }
 
+        // Lock for recalculation
+        $originalShouldRecalculate = $this->getShouldRecalculateAdjustments();
+        $this->setShouldRecalculateAdjustments(false);
         Craft::$app->getElements()->saveElement($this);
+
 
         if (!$this->isCompleted) {
             if ($this->isPaid()) {
@@ -297,6 +317,34 @@ class Order extends Element
                 }
             }
         }
+
+        // restore recalculation lock state
+        $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalTaxablePrice()
+    {
+        return $this->getItemSubtotal() + $this->getTotalDiscount() + $this->getTotalShippingCost();
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function getShouldRecalculateAdjustments()
+    {
+        return $this->_relcalculate;
+    }
+
+    /**
+     * @param bool $value
+     */
+    public function setShouldRecalculateAdjustments(bool $value)
+    {
+        $this->_relcalculate = $value;
     }
 
     /**
@@ -372,13 +420,14 @@ class Order extends Element
     public function recalculate()
     {
         // Don't recalc the totals of completed orders.
-        if (!$this->id || $this->isCompleted) {
+        if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments()) {
             return;
         }
 
         $this->baseTax = 0;
         $this->baseShippingCost = 0;
         $this->baseDiscount = 0;
+        $this->baseTaxIncluded = 0;
         foreach ($this->getLineItems() as $key => $item) {
             if (!$item->refreshFromPurchasable()) {
                 $this->removeLineItem($item);
@@ -462,7 +511,7 @@ class Order extends Element
     public function afterSave(bool $isNew)
     {
         // TODO: Move the recalculate to somewhere else. Saving should be saving only
-        // Right now orders always recalc when saved and not completed but that shouln't be the case.
+        // Right now orders always recalc when saved and not completed but that shouldn't be the case.
         $this->recalculate();
 
         if (!$isNew) {
@@ -480,7 +529,7 @@ class Order extends Element
 
         $orderRecord->number = $this->number;
         $orderRecord->itemTotal = $this->getItemTotal();
-        $orderRecord->email = $this->email;
+        $orderRecord->email = $this->getEmail();
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
         $orderRecord->datePaid = $this->datePaid;
@@ -493,6 +542,7 @@ class Order extends Element
         $orderRecord->baseDiscount = $this->baseDiscount;
         $orderRecord->baseShippingCost = $this->baseShippingCost;
         $orderRecord->baseTax = $this->baseTax;
+        $orderRecord->baseTaxIncluded = $this->baseTaxIncluded;
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
@@ -652,11 +702,33 @@ class Order extends Element
     }
 
     /**
+     * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        if ($this->getCustomer() && $this->getCustomer()->getUser()) {
+            $this->setEmail($this->getCustomer()->getUser()->email);
+        }
+
+        return $this->_email ?? '';
+    }
+
+    /**
+     * Sets the orders email address. Will have no affect if the order's customer is a registered user.
+     * @param $value
+     */
+    public function setEmail($value)
+    {
+        $this->_email = $value;
+    }
+
+    /**
      * @return bool
      */
     public function isPaid(): bool
     {
-        return (bool)$this->outstandingBalance() <= 0;
+        return (bool) ($this->outstandingBalance() <= 0);
     }
 
     /**
@@ -674,7 +746,10 @@ class Order extends Element
      */
     public function outstandingBalance()
     {
-        return $this->getTotalPrice() - $this->getTotalPaid();
+        $totalPaid = Currency::round($this->totalPaid);
+        $totalPrice = Currency::round($this->totalPrice);
+
+        return $totalPrice - $totalPaid;
     }
 
     public function getTotalPaid()
@@ -687,7 +762,7 @@ class Order extends Element
      */
     public function isUnpaid(): bool
     {
-        return (bool)$this->outstandingBalance() > 0;
+        return (bool) ($this->outstandingBalance() > 0);
     }
 
     /**
@@ -770,7 +845,7 @@ class Order extends Element
             $tax += $item->taxIncluded;
         }
 
-        return $tax;
+        return $tax + $this->baseTaxIncluded;
     }
 
     /**
@@ -1092,11 +1167,7 @@ class Order extends Element
             case 'totalShippingCost':
             case 'totalDiscount': {
 
-                if ($this->$attribute == 0) {
-                    return '';
-                }
-
-                if ($this->$attribute > 0) {
+                if ($this->$attribute >= 0) {
                     return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
                 }
 

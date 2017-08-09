@@ -131,6 +131,10 @@ class Transaction extends Model
      */
     private $_parentTransaction;
 
+    /**
+     * @var Order
+     */
+    private $_order;
 
     /**
      * @param null $attributes
@@ -176,7 +180,21 @@ class Transaction extends Model
      */
     public function getOrder()
     {
-        return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+        if(null === $this->_order)
+        {
+            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+        }
+
+        return $this->_order;
+    }
+
+    /**
+     * @param Order $order
+     */
+    public function setOrder(Order $order)
+    {
+        $this->_order = $order;
+        $this->orderId = $order->id;
     }
 
     /**

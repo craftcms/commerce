@@ -60,6 +60,16 @@ class Settings extends Model
     public $orderPdfPath;
 
     /**
+     * @var string Order PDF Size
+     */
+    public $pdfPaperSize = 'letter';
+
+    /**
+     * @var string Order PDF Orientation
+     */
+    public $pdfPaperOrientation = 'portrait';
+
+    /**
      * @var string Order PDF file name format
      */
     public $orderPdfFilenameFormat;
@@ -120,6 +130,16 @@ class Settings extends Model
     public $requireShippingAddressAtCheckout = false;
 
     /**
+     * @var bool
+     */
+    public $requireBillingAddressAtCheckout = false;
+
+    /**
+     * @var bool
+     */
+    public $autoSetNewCartAddresses = true;
+
+    /**
      * @var array
      */
     public $gatewaySettings = [];
@@ -127,7 +147,7 @@ class Settings extends Model
     /**
      * @return array
      */
-    public function getWeightUnitsOptions()
+    public function getWeightUnitsOptions(): array
     {
         return [
             'g' => Craft::t('commerce', 'Grams (g)'),
@@ -139,7 +159,7 @@ class Settings extends Model
     /**
      * @return array
      */
-    public function getDimensionUnits()
+    public function getDimensionUnits(): array
     {
         return [
             'mm' => Craft::t('commerce', 'Millimeters (mm)'),

@@ -35,6 +35,15 @@ use yii\base\InvalidConfigException;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  *
+ *
+ * @property null|\craft\commerce\models\ShippingCategory $shippingCategory
+ * @property string                                       $eagerLoadedElements
+ * @property \craft\commerce\elements\Variant[]|array     $variants
+ * @property string                                       $editorHtml
+ * @property \craft\commerce\elements\Variant             $defaultVariant
+ * @property int                                          $totalStock
+ * @property string                                       $snapshot
+ * @property bool                                         $unlimitedStock
  */
 class Product extends Element
 {
@@ -836,11 +845,11 @@ class Product extends Element
         $record->shippingCategoryId = $this->shippingCategoryId;
 
         $record->defaultSku = $this->getDefaultVariant()->sku;
-        $record->defaultPrice = $this->getDefaultVariant()->price;
-        $record->defaultHeight = $this->getDefaultVariant()->height;
-        $record->defaultLength = $this->getDefaultVariant()->length;
-        $record->defaultWidth = $this->getDefaultVariant()->width;
-        $record->defaultWeight = $this->getDefaultVariant()->weight;
+        $record->defaultPrice = (float) $this->getDefaultVariant()->price;
+        $record->defaultHeight = (float) $this->getDefaultVariant()->height;
+        $record->defaultLength = (float) $this->getDefaultVariant()->length;
+        $record->defaultWidth = (float) $this->getDefaultVariant()->width;
+        $record->defaultWeight = (float) $this->getDefaultVariant()->weight;
 
         $record->save(false);
 

@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
@@ -362,7 +363,7 @@ class Variant extends Purchasable
      */
     public function getOnSale()
     {
-        return null === $this->salePrice ? false : ($this->salePrice != $this->price);
+        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
     }
 
     /**
@@ -406,11 +407,21 @@ class Variant extends Purchasable
     }
 
     /**
+     * Does this variant have stock?
+     *
+     * @return bool
+     */
+    public function hasStock(): bool
+    {
+        return (bool) ($this->stock > 0 || $this->unlimitedStock);
+    }
+
+    /**
      * Does this variants product has free shipping set.
      *
      * @return bool
      */
-    public function hasFreeShipping()
+    public function hasFreeShipping(): bool
     {
         return $this->getProduct()->freeShipping;
     }
@@ -440,9 +451,16 @@ class Variant extends Purchasable
                 if (!isset($qty[$item->purchasableId])) {
                     $qty[$item->purchasableId] = 0;
                 }
+
+                // count new line items
+                if ($lineItem->id === null) {
+                    $qty[$item->purchasableId] = $lineItem->qty;
+                }
+
                 if ($item->id == $lineItem->id) {
                     $qty[$item->purchasableId] += $lineItem->qty;
                 } else {
+                    // count other line items with same purchasableId
                     $qty[$item->purchasableId] += $item->qty;
                 }
             }
@@ -520,10 +538,10 @@ class Variant extends Purchasable
             $lineItem->qty = $this->stock;
         }
 
-        $lineItem->weight = $this->weight * 1; //converting nulls
-        $lineItem->height = $this->height * 1; //converting nulls
-        $lineItem->length = $this->length * 1; //converting nulls
-        $lineItem->width = $this->width * 1; //converting nulls
+        $lineItem->weight = (float) $this->weight; //converting nulls
+        $lineItem->height = (float) $this->height; //converting nulls
+        $lineItem->length = (float) $this->length; //converting nulls
+        $lineItem->width = (float) $this->width; //converting nulls
 
         $sales = Plugin::getInstance()->getSales()->getSalesForVariant($this);
 

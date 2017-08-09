@@ -128,7 +128,8 @@ class DiscountsController extends BaseCpController
             'code',
             'perUserLimit',
             'perEmailLimit',
-            'totalUseLimit'
+            'totalUseLimit',
+            'percentageOffSubject'
         ];
         $request = Craft::$app->getRequest();
         foreach ($fields as $field) {
@@ -140,7 +141,7 @@ class DiscountsController extends BaseCpController
             'perItemDiscount'
         ];
         foreach ($discountAmountsFields as $field) {
-            $discount->$field = $request->getParam($field) * -1;
+            $discount->$field = (float) $request->getParam($field) * -1;
         }
 
         $dateFields = [

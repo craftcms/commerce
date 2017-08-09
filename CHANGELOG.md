@@ -1,6 +1,134 @@
 Commerce Changelog
 ==================
 
+## Unreleased
+
+### Fixed
+- Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
+
+### Changed
+- The order email address now always returns the user’s email address if the order was made as a registered user, even after the user changes their email address.
+
+
+## 1.2.1346 - 2017-07-24
+
+### Added
+- Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
+
+### Fixed
+- Fixed an API authentication error when making payments using the Stripe gateway.
+- Fixed a bug where the `commerce/payments/pay` action was still processing the payment even if the cart had errors placed on it by other plugins.
+- Fixed a bug where `LineItemModel::onSale()` could sometimes return an incorrect response due to rounding errors.
+- Fixed a PHP error that could occur if a purchasable invalidated a line item when it was being added to a new cart.
+- Fixed an issue where credit card forms’ First/Last Name fields were getting overridden by billing addresses’ values for some gateways.
+- Fixed a bug where adding to cart with invalid `options` params would pass stock validation.
+
+### Changed
+- Updated the Migs omnipay driver to 2.2.2
+- Updated the Stripe omnipay driver to 2.4.7
+
+## 1.2.1345 - 2017-06-26
+
+### Added
+- Percentage-based discounts now have the option to be applied to the item’s original price or its discounted price (if other discounts were already applied).
+
+## Changed
+- Ajax requests to `commerce/cart/*` actions will now get a `itemSubtotal` key in the response JSON.
+- Updated the Omnipay Stripe driver to 2.4.6.
+- Updated the Omnipay Payment Express driver to 2.2.1.
+- Updated the Omnipay MultiSafePay driver to 2.3.6.
+- Updated the Omnipay Worldpay driver to 2.2.1.
+
+### Fixed
+- Fixed a bug where email address limits on discounts were able to by circumvented if the customer changed the casing of the coupon code.
+- Fixed a PHP error that occurred when viewing a cart in the Control Panel if no payment methods had been created yet.
+- Fixed a bug where discounts based on user group were not being added/removed after the user logged in/out.
+- Fixed a bug where variants’ sale prices were only getting rounded when at least one sale was applied.
+- Fixed a bug where special characters in Tax and Shipping Category names could break some form inputs in the Control Panel.
+- Fixed a validation error that occurred when saving two shipping rules with the same name.
+
+## 1.2.1343 - 2017-06-09
+
+### Added
+- Added the [`pdfPaperSize`](https://craftcommerce.com/docs/configuration#pdfpapersize) config setting.
+- Added the [`pdfPaperOrientation`](https://craftcommerce.com/docs/configuration#pdfpaperorientation) config setting.
+- Added a new Stripe gateway setting that determines whether the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) param should be sent in payment requests.
+- Added the [`commerce_transactions.onCreateTransaction`](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly-created transaction model.
+
+### Changed
+- Updated the Buckeroo driver to 2.2.
+- Updated the Stripe driver to 2.4.5.
+- Enabled the Buckeroo Credit Card Gateway within the Buckeroo Omnipay driver.
+
+## 1.2.1342 - 2017-05-24
+
+### Added
+- Added support for Worldpay's new `v1` API.
+
+### Fixed
+- Fixed a bug where `VariantModel:onSale()` could sometimes return an incorrect response due to rounding errors.
+- Fixed a PHP error that occurred when saving a product with an empty dimension input on servers running PHP 7.
+- Fixed a issue where orders were getting recalculated after receiving a completion response, when using the Sage Pay gateway.
+- Fixed a PHP error that occurred when a plugin prevented a purchasable from getting added to the cart.
+
+## 1.2.1341 - 2017-05-02
+
+### Changed
+- Increased the tax rate decimal storage length to allow 3 decimal places in tax rate percentages.
+- The `CommerceDbHelper` class has be deprecated.
+
+### Fixed
+- Fixed a bug where some characters in product names were getting double-encoded on Edit Order pages.
+- Fixed a bug where orders were incorrectly recalculating their adjustments when receiving notifications from the SagePay payment gateway.
+- Fixed a tax calculation bug that occurred when using the “Total Order Price” taxable subject.
+
+## 1.2.1339 - 2017-04-24
+
+### Added
+- Added new “Taxable Subject” options to Tax Rates, enabling taxes to be applied at the order level.
+- Added the [`datePaid`](https://craftcommerce.com/docs/craft-commerce-orders#datepaid) order element criteria attribute.
+
+### Changed
+- Updated the Dompdf package to 0.8.
+- Updated the Omnipay Mollie driver to 3.2.
+- Updated the Omnipay Authorize.net driver to 2.5.
+- Updated the Omnipay MultiSafePay driver to 2.3.4.
+
+### Fixed
+- Fixed some PHP errors that occurred when rendering PDFs on servers running PHP 7.1.
+
+## 1.2.1338 - 2017-04-04
+
+### Added
+- Added the [`requireBillingAddressAtCheckout`](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
+- Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
+- Added [`Commerce_VariantModel::hasStock()`](https://craftcommerce.com/docs/variant-model#hasstock).
+
+### Fixed
+- Fixed some PHP errors that occurred when saving products on servers running PHP 7.1.
+- Fixed a bug where the `commerce/payments/pay` action was not blocking disabled payment methods.
+- Fixed a bug where old carts did not default to the primary payment currency when their current payment currency was no longer valid.
+
+## 1.2.1337 - 2017-03-08
+
+### Added
+- Added the [commerce_sale.onBeforeMatchProductAndSale](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) event, which enables plugins to add custom matching logic to sales.
+- Added the [commerce_products.onBeforeEditProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct) event.
+- Added the `cp.commerce.product.edit` template hook to the Edit Product page.
+
+### Changed
+- If a product SKU can’t be generated from its product type’s Automatic SKU Format, Commerce now logs why.
+
+### Fixed
+- Fixed some PHP errors that occurred on servers running PHP 7.1.
+- Fixed a bug where line items could be removed if their `qty` param was missing from a `commerce/cart/updateLineItem` request.
+- The Orders index page now displays zero-value currency amounts, instead of leaving the cell blank.
+- Fixed bug where duplicate products could be displayed when editing sales when the User Groups condition was in use.
+- Fixed a bug where the `isUnpaid` and `isPaid` order element criteria params did not work correctly.
+- Fixed a PHP error that occurred if a plugin’s custom shipping method object didn’t inherit `BaseModel`.
+- Fixed a bug where payments made with MultiSafepay would be marked as successful before the user was redirected to the offsite gateway.
+- Fixed a bug where shipping rule names were required to be unique across the entire installation, rather than per-shipping method.
+
 ## 1.2.1334 - 2017-01-30
 
 ### Added
@@ -287,7 +415,7 @@ Commerce Changelog
 ## 1.1.1202 - 2016-05-03
 
 ### Added
-- Added the [commerce_lineItems.onCreateLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.oncreatelineitem) event.  
+- Added the [commerce_lineItems.onCreateLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.oncreatelineitem) event.
 - Added the [hasStock](https://craftcommerce.com/docs/craft-commerce-products#hasstock) variant criteria param, which can be set to `true` to find variants that have stock (including variants with unlimited stock).
 
 ### Changed

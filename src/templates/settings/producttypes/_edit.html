@@ -266,9 +266,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     });
 
     window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
-    window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) {
-        return [value]
-    });
+    window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode(constant('JSON_HEX_APOS'))|raw }}'), function(value, index) { return [value] });
 
     $.each(window.shippingCategories, function(key, shippingCategory) {
         if (shippingCategory.default == 1) {
@@ -294,9 +292,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     });
 
     window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
-    window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode|raw }}'), function(value, index) {
-        return [value]
-    });
+    window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode(constant('JSON_HEX_APOS'))|raw }}'), function(value, index) { return [value] });
 
     $.each(window.taxCategories, function(key, taxCategory) {
         if (taxCategory.default == 1) {

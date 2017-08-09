@@ -84,10 +84,10 @@ class Shipping implements AdjusterInterface
 
             //amount for displaying in adjustment
             $amount = Currency::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
-            $amount = max($amount, Currency::round($rule->getMinRate() * 1));
+            $amount = max($amount, Currency::round($rule->getMinRate()));
 
-            if ($rule->getMaxRate() * 1) {
-                $amount = min($amount, Currency::round($rule->getMaxRate() * 1));
+            if ($rule->getMaxRate()) {
+                $amount = min($amount, Currency::round($rule->getMaxRate()));
             }
 
             $adjustment->amount = $amount;

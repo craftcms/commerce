@@ -72,9 +72,6 @@ class CustomersController extends BaseCpController
             throw new HttpException(400, Craft::t('commerce', 'Cannot find customer.'));
         }
 
-        // Shared attributes
-        $customer->email = Craft::$app->getRequest()->getParam('email');
-
         // Save it
         if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Customer saved.'));

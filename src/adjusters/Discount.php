@@ -9,6 +9,7 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
+use craft\commerce\records\Discount as DiscountRecord;
 
 /**
  * Discount Adjuster
@@ -25,7 +26,7 @@ class Discount implements AdjusterInterface
      *
      * @return \craft\commerce\models\OrderAdjustment[]
      */
-    public function adjust(Order &$order, array $lineItems = [])
+    public function adjust(Order &$order, array $lineItems = []): array
     {
         if (empty($lineItems)) {
             return [];
@@ -115,9 +116,24 @@ class Discount implements AdjusterInterface
         $matchingLineIds = [];
         foreach ($lineItems as $item) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
-                $matchingLineIds[] = $item->id;
-                $matchingQty += $item->qty;
-                $matchingTotal += $item->getSubtotal();
+                if (!$discount->allGroups)
+                {
+                    $customer = $order->getCustomer();
+                    $user = $customer ? $customer->getUser() : null;
+                    $userGroups = Plugin::getInstance()->getDiscounts()->getCurrentUserGroupIds($user);
+                    if ($user && array_intersect($userGroups, $discount->getGroupIds()))
+                    {
+                        $matchingLineIds[] = $item->id;
+                        $matchingQty += $item->qty;
+                        $matchingTotal += $item->getSubtotal();
+                    }
+                }
+                else
+                {
+                    $matchingLineIds[] = $item->id;
+                    $matchingQty += $item->qty;
+                    $matchingTotal += $item->getSubtotal();
+                }
             }
         }
 
@@ -146,7 +162,12 @@ class Discount implements AdjusterInterface
         foreach ($lineItems as $item) {
             if (in_array($item->id, $matchingLineIds)) {
                 $amountPerItem = Currency::round($discount->perItemDiscount * $item->qty);
-                $amountPercentage = Currency::round($discount->percentDiscount * $item->getSubtotal());
+                //Default is off discounted price
+                $amountPercentage = Currency::round($discount->percentDiscount * ($item->getSubtotal() + $item->discount));
+
+                if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
+                    $amountPercentage = Currency::round($discount->percentDiscount * $item->getSubtotal());
+                }
 
                 $amount += $amountPerItem + $amountPercentage;
                 $item->discount += $amountPerItem + $amountPercentage;

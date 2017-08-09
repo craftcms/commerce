@@ -11,6 +11,7 @@
 
 {% set pdfUrl = order.getPdfUrl() %}
 
+{% hook "cp.commerce.order.edit" %}
 
 {% block main %}
     <div class="pane">
@@ -157,14 +158,14 @@
                             <td>
                                 {% if lineItem.purchasable %}
                                     {% if lineItem.purchasable.cpEditUrl %}
-                                        <a href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+                                        <a class="purchasable-link" href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
                                     {% else %}
-                                        {{ lineItem.description }}
+                                        <span class="description">{{ lineItem.description }}</span>
                                     {% endif %}
                                 {% else %}
-                                    {{ lineItem.description }}
+                                    <span class="description">{{ lineItem.description }}</span>
                                 {% endif %}
-                                <br>{{ lineItem.sku }}
+                                <br><span clas="sku">{{ lineItem.sku }}</span>
                                 {% if lineItem.options|length %}
                                     <a class="fieldtoggle first last"
                                        data-target="info-{{ lineItem.id }}">{{ "Options"|t('commerce') }}</a>
@@ -315,7 +316,7 @@
         </form>
     {% endif %}
 
-    {% hook "cp.commerce.order.edit" %}
+    {% hook "cp.commerce.order.edit.main-pane" %}
 
     {% if order.histories|length %}
         <div class="pane">
@@ -326,7 +327,7 @@
                 <tr>
                     <th scope="col">{{ 'Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Customer'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
                     <th scope="col">{{ 'Message'|t('commerce') }}</th>
                     <th scope="col">{{ 'Date'|t('commerce') }}</th>
                 </tr>

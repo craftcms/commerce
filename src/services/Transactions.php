@@ -12,6 +12,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Transaction service.
@@ -31,6 +32,11 @@ class Transactions extends Component
      * @event TransactionEvent The event that is triggered after a transaction has been saved.
      */
     const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
+
+    /**
+     * @event TransactionEvent The event that is triggered after a transaction has been saved.
+     */
+    const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
     // Public Methods
     // =========================================================================
@@ -156,7 +162,7 @@ class Transactions extends Component
      *
      * @return Transaction
      */
-    public function createTransaction(Order $order)
+    public function createTransaction(Order $order): Transaction
     {
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
@@ -164,9 +170,9 @@ class Transactions extends Component
         $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
 
         $transaction = new Transaction();
+        $transaction->setOrder($order);
         $transaction->status = TransactionRecord::STATUS_PENDING;
         $transaction->amount = $order->outstandingBalance();
-        $transaction->orderId = $order->id;
         $transaction->currency = $currency->iso;
         $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
         $transaction->paymentCurrency = $paymentCurrency->iso;
@@ -179,6 +185,13 @@ class Transactions extends Component
             $transaction->userId = $user->id;
         }
 
+        // Raise 'afterSaveTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
+
         return $transaction;
     }
 
@@ -188,14 +201,13 @@ class Transactions extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveTransaction(Transaction $model)
+    public function saveTransaction(Transaction $model): bool
     {
         if ($model->id) {
             $record = TransactionRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No transaction exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No transaction exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new TransactionRecord();

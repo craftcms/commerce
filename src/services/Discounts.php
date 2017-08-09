@@ -15,6 +15,7 @@ use craft\commerce\records\DiscountProduct as DiscountProductRecord;
 use craft\commerce\records\DiscountProductType as DiscountProductTypeRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\db\Query;
+use craft\elements\User;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
@@ -28,6 +29,8 @@ use yii\base\Exception;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
+ *
+ * @property array|\craft\commerce\models\Discount[] $allDiscounts
  */
 class Discounts extends Component
 {
@@ -73,7 +76,7 @@ class Discounts extends Component
     /**
      * @return Discount[]
      */
-    public function getAllDiscounts()
+    public function getAllDiscounts(): array
     {
         if (null === $this->_allDiscounts) {
             $discounts = $this->_createDiscountQuery()
@@ -292,11 +295,11 @@ class Discounts extends Component
     /**
      * Returns the user groups of the user param but defaults to the current user
      *
-     * @param UserModel $user
+     * @param User $user
      *
      * @return array
      */
-    public function getCurrentUserGroupIds($user = null)
+    public function getCurrentUserGroupIds(User $user = null): array
     {
         $groupIds = [];
         $currentUser = $user ?: Craft::$app->getUser()->getIdentity();
@@ -353,16 +356,6 @@ class Discounts extends Component
             }
         }
 
-        if (!$discount->allGroups) {
-            $customer = $lineItem->getOrder()->getCustomer();
-            $user = $customer ? $customer->getUser() : null;
-            $userGroups = $this->getCurrentUserGroupIds($user);
-            if (!$user || !array_intersect($userGroups, $discount->getUserGroupIds())) {
-                return false;
-            }
-        }
-
-
         // Raise the 'beforeMatchLineItem' event
         $event = new MatchLineItemEvent([
             'lineItem' => $lineItem,
@@ -409,6 +402,7 @@ class Discounts extends Component
             'baseDiscount',
             'perItemDiscount',
             'percentDiscount',
+            'percentageOffSubject',
             'freeShipping',
             'excludeOnSale',
             'perUserLimit',
@@ -597,6 +591,7 @@ class Discounts extends Component
             discounts.baseDiscount,
             discounts.perItemDiscount,
             discounts.percentDiscount,
+            discounts.percentageOffSubject,
             discounts.excludeOnSale,
             discounts.freeShipping,
             discounts.allGroups,

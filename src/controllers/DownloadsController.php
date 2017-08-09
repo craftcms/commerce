@@ -75,6 +75,13 @@ class DownloadsController extends BaseFrontEndController
         $options->setTempDir($dompdfTempDir);
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
+
+        // Paper Size and Orientation
+        $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
+        $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
+        $options->setDefaultPaperOrientation($pdfPaperOrientation);
+        $options->setDefaultPaperSize($pdfPaperSize);
+
         $dompdf->setOptions($options);
 
         $dompdf->loadHtml($html);

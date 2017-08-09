@@ -5,13 +5,17 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\elements\User;
 
 /**
  * Customer model
  *
- * @property \craft\commerce\models\Address[] $addresses
- * @property \craft\commerce\models\Orders[]  $orders
- * @property \craft\elements\User             $user
+ * @property \craft\commerce\models\Address[]    $addresses
+ * @property \craft\commerce\models\Orders[]     $orders
+ * @property string                              $email
+ * @property null|\craft\commerce\models\Address $lastUsedBillingAddress
+ * @property null|\craft\commerce\models\Address $lastUsedShippingAddress
+ * @property \craft\elements\User                $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
@@ -37,11 +41,6 @@ class Customer extends Model
     public $userId;
 
     /**
-     * @var string Email
-     */
-    public $email;
-
-    /**
      * @var int The last used billing address
      */
     public $lastUsedBillingAddressId;
@@ -63,7 +62,7 @@ class Customer extends Model
      */
     public function __toString()
     {
-        return $this->email;
+        return $this->getEmail();
     }
 
     /**
@@ -82,11 +81,41 @@ class Customer extends Model
     }
 
     /**
+     * Sets the user this customer is related to.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function setUser(User $user)
+    {
+        $this->_user = $user;
+        $this->userId = $user->id;
+    }
+
+    /**
+     * Returns the customers email address if it is related to a user.
+     *
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        $user = $this->getUser();
+
+        if($user)
+        {
+            return $user->email;
+        }
+
+        return '';
+    }
+
+    /**
      * Returns the addresses associated with this customer.
      *
      * @return \craft\commerce\models\address[]
      */
-    public function getAddresses()
+    public function getAddresses(): array
     {
         return Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
     }
@@ -96,7 +125,7 @@ class Customer extends Model
      *
      * @return \craft\commerce\elements\Order[]
      */
-    public function getOrders()
+    public function getOrders(): array
     {
         return Plugin::getInstance()->getOrders()->getOrdersByCustomer($this);
     }
@@ -117,7 +146,6 @@ class Customer extends Model
 
         return null;
     }
-
 
     /**
      * Returns the last used Shipping Address used by the customer if it exists.

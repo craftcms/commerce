@@ -132,24 +132,21 @@ class Sale extends Model
     /**
      * @return string
      */
-    public function getDiscountAmountAsPercent()
+    public function getDiscountAmountAsPercent():string
     {
-        $localeData = Craft::$app->getLocale();
-        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
         if ($this->discountAmount != 0) {
-            return -$this->discountAmount * 100 ."".$percentSign;
+            return Craft::$app->formatter->asPercent(-$this->discountAmount);
         }
 
-        return "0".$percentSign;
+        return Craft::$app->formatter->asPercent(0);
     }
 
     /**
      * @return string
      */
-    public function getDiscountAmountAsFlat()
+    public function getDiscountAmountAsFlat(): string
     {
-        return $this->discountAmount != 0 ? $this->discountAmount * -1 : 0;
+        return $this->discountAmount != 0 ? (string) $this->discountAmount * -1 : '0';
     }
 
     /**

@@ -214,6 +214,8 @@ class ProductsController extends BaseCpController
                 $variables['enabledSiteIds'][] = $site;
             }
         }
+
+
     }
 
     /**

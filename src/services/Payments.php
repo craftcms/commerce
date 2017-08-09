@@ -192,6 +192,7 @@ class Payments extends Component
      * @return void
      */
     private function updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
+
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isRedirect()) {
@@ -337,6 +338,7 @@ class Payments extends Component
         // ignore already processed transactions
         if ($transaction->status != TransactionRecord::STATUS_REDIRECT) {
             if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
+                $transaction->order->updateOrderPaidTotal();
                 return true;
             } else {
                 $customError = $transaction->message;

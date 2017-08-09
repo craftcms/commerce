@@ -361,7 +361,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getBaseRate()
     {
-        return $this->baseRate;
+        return (float) $this->baseRate;
     }
 
     /**
@@ -369,7 +369,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getMaxRate()
     {
-        return $this->maxRate;
+        return (float) $this->maxRate;
     }
 
     /**
@@ -377,7 +377,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getMinRate()
     {
-        return $this->minRate;
+        return (float) $this->minRate;
     }
 
     /**

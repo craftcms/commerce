@@ -34,7 +34,7 @@ class CartController extends BaseFrontEndController
 
         $this->_cart = Plugin::getInstance()->getCart()->getCart();
         $lineItemId = Craft::$app->getRequest()->getParam('lineItemId');
-        $qty = Craft::$app->getRequest()->getParam('qty', 0);
+        $qty = Craft::$app->getRequest()->getParam('qty');
         $note = Craft::$app->getRequest()->getParam('note');
 
         $this->_cart->setFieldValuesFromRequest('fields');
@@ -55,8 +55,9 @@ class CartController extends BaseFrontEndController
             $this->redirectToPostedUrl();
         }
 
-        $lineItem->qty = $qty;
-        $lineItem->note = $note;
+        // Only update if it was provided in the POST data
+        $lineItem->qty = ($qty === null) ? $lineItem->qty : (int) $qty;
+        $lineItem->note = ($note === null) ? $lineItem->note : (string) $note;
 
         // If the options param exists, set it
         if (null !== Craft::$app->getRequest()->getParam('options')) {
@@ -209,9 +210,14 @@ class CartController extends BaseFrontEndController
             $shippingAddress = new Address();
             $shippingAddress->setAttributes($request->getParam('shippingAddress'), false);
             if (!$sameAddress) {
-                if ($billingAddressId = $request->getParam('billingAddressId')) {
-                    $billingAddress = $plugin->getAddresses()->getAddressById($billingAddressId);
-                } else {
+                $billingAddressId = $request->getParam('billingAddressId');
+                $billingAddress = null;
+
+                if (is_numeric($billingAddressId)) {
+                    $billingAddress = $plugin->getAddresses()->getAddressById((int) $billingAddressId);
+                }
+
+                if (!$billingAddress) {
                     $billingAddress = new Address();
                     $billingAddress->setAttributes($request->getParam('billingAddress'));
                 }

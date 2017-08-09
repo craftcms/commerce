@@ -104,7 +104,6 @@ class Customers extends Component
 
                 if ($user) {
                     $record->userId = $user->id;
-                    $record->email = $user->email;
                 }
             }
 
@@ -185,7 +184,6 @@ class Customers extends Component
             }
         }
 
-        $customerRecord->email = $customer->email;
         $customerRecord->userId = $customer->userId;
         $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
         $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
@@ -217,22 +215,6 @@ class Customers extends Component
         }
 
         return $ids;
-    }
-
-    /**
-     * Gets all customers by email address.
-     *
-     * @param $email
-     *
-     * @return array
-     */
-    public function getAllCustomersByEmail($email)
-    {
-        $results = CustomerRecord::find()->where(['email' => $email])->all();
-
-        return ArrayHelper::map($results, 'id', function($record) {
-            return $this->_createCustomerFromCustomerRecord($record);
-        });
     }
 
     /**
@@ -277,7 +259,7 @@ class Customers extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function consolidateOrdersToUser($username)
+    public function consolidateOrdersToUser($username): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -287,14 +269,24 @@ class Customers extends Component
             /** @var User $user */
             $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($username);
 
+            if (!$user) {
+               return false;
+            }
+            
             $toCustomer = $this->getCustomerByUserId($user->id);
 
             // The user has no previous customer record, create one.
             if (!$toCustomer) {
                 $toCustomer = new Customer();
-                $toCustomer->email = $user->email;
-                $toCustomer->userId = $user->id;
-                $this->saveCustomer($toCustomer);
+                $toCustomer->setUser($user);
+                if (!$this->saveCustomer($toCustomer)) {
+                    return false;
+                }
+            }
+
+            // Shouldn't really happen as all users should have an email.
+            if (!$toCustomer->email) {
+                return false;
             }
 
             // Grab all the orders for the customer.
@@ -302,10 +294,12 @@ class Customers extends Component
 
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
-                // Only consolidate completed orders, not carts
-                if ($order->isCompleted) {
+
+                $belongsToAnotherUser = (bool) ($order->getCustomer() && $order->getCustomer()->getUser());
+                // Only consolidate completed orders, not carts and orders that don't belong to another user.
+
+                if ($order->isCompleted && !$belongsToAnotherUser) {
                     $order->customerId = $toCustomer->id;
-                    $order->email = $toCustomer->email;
                     Craft::$app->getElements()->saveElement($order);
                 }
             }
@@ -314,7 +308,7 @@ class Customers extends Component
 
             return true;
         } catch (\Exception $e) {
-            Craft::error("Could not consolidate orders to username: ".$username.". Reason: ".$e->getMessage(), __METHOD__);
+            Craft::error('Could not consolidate orders to username: '.$username.'. Reason: '.$e->getMessage(), __METHOD__);
             $transaction->rollBack();
         }
 
@@ -480,20 +474,11 @@ class Customers extends Component
 
         // Sync the users email with the customer record.
         if ($customer) {
-            if ($customer->email != $user->email) {
-                $customer->email = $user->email;
-                if (!$this->saveCustomer($customer)) {
-                    $error = Craft::t('commerce', 'Could not sync user’s email to customers record. CustomerId:{customerId} UserId:{userId}',
-                        ['customerId' => $customer->id, 'userId' => $user->id]);
-                    Craft::error($error, __METHOD__);
-                };
-            }
 
             $orders = Plugin::getInstance()->getOrders()->getOrdersByCustomer($customer);
 
             foreach ($orders as $order) {
-
-                $order->email = $user->email;
+                // Email will be set to the users email since on re-save as $order->getEmail() returns the related registered user's email.
                 Craft::$app->getElements()->saveElement($order);
             }
         }
@@ -519,8 +504,7 @@ class Customers extends Component
             'id',
             'userId',
             'lastUsedBillingAddressId',
-            'lastUsedShippingAddressId',
-            'email'
+            'lastUsedShippingAddressId'
         ]));
     }
 }
