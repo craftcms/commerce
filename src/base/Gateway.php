@@ -11,7 +11,6 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\Transaction;
 use craft\errors\GatewayRequestCancelledException;
 use craft\helpers\UrlHelper;
@@ -169,11 +168,11 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Prepare a request for execution by transaction and a populated payment form.
      *
      * @param Transaction     $transaction
-     * @param BasePaymentForm $form
+     * @param BasePaymentForm $form        Optional for capture/refund requests.
      *
      * @return mixed
      */
-    abstract protected function getRequest(Transaction $transaction, BasePaymentForm $form);
+    abstract protected function getRequest(Transaction $transaction, BasePaymentForm $form = null);
 
     /**
      * Perform a request and return the response.
@@ -206,6 +205,25 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * Prep request to be used as an authorize request.
+     *
+     * @param mixed $request
+     *
+     * @return mixed
+     */
+    abstract protected function prepareAuthorizeRequest($request);
+
+    /**
+     * Prep request to be used as a capture request.
+     *
+     * @param        $request
+     * @param string $reference Reference for the transaction to be captured
+     *
+     * @return mixed
+     */
+    abstract protected function prepareCaptureRequest($request, string $reference);
+    
+    /**
      * Prep request to be used as a purchase request.
      *
      * @param mixed $request
@@ -215,13 +233,14 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     abstract protected function preparePurchaseRequest($request);
 
     /**
-     * Prep request to be used as an authorize request.
-     *
-     * @param mixed $request
+     * Prep request to be used as a refund request.
+     * 
+     * @param        $request
+     * @param string $reference Reference for the transaction to be refunded
      *
      * @return mixed
      */
-    abstract protected function prepareAuthorizeRequest($request);
+    abstract protected function prepareRefundRequest($request, string $reference);
 
     /**
      * Prepare a gateway's response to fit the interface.
@@ -254,15 +273,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         return (string)$this->name;
     }
 
-    public function refund(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
-{
-    
-}
-    public function capture(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
-    {
-
-    }
-
     /**
      * @inheritdocs
      */
@@ -277,7 +287,22 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
         return $this->performRequest($authorizeRequest, $transaction);
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        if (!$this->supportsCapture()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Capturing is not supported by this gateway'));
+        }
+
+        $request = $this->getRequest($transaction);
+        $captureRequest = $this->prepareCaptureRequest($request, $reference);
+
+        return $this->performRequest($captureRequest, $transaction);
+    }
+
     /**
      * Whether this gateway allows pamyents in control panel.
      *
@@ -340,6 +365,20 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         return $this->performRequest($purchaseRequest, $transaction);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function refund(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        if (!$this->supportsRefund()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Refunding is not supported by this gateway'));
+        }
+
+        $request = $this->getRequest($transaction);
+        $refundRequest = $this->prepareRefundRequest($request, $reference);
+
+        return $this->performRequest($refundRequest, $transaction);
+    }
     
     /**
      * @inheritdoc
