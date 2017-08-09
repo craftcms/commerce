@@ -1598,12 +1598,14 @@ class Install extends Migration
 
             }
 
+            $count++;
+
             // Prep data for variant and product
             $variantData = [
                 'productId' => $productId,
                 'id' => $variantId,
                 'sku' => $productName,
-                'price' => 10 * $count++,
+                'price' => 10 * $count,
                 'unlimitedStock' => true,
                 'isDefault' => true
             ];
@@ -1614,6 +1616,8 @@ class Install extends Migration
                 'postDate' => DateTimeHelper::toIso8601(DateTimeHelper::currentUTCDateTime()),
                 'expiryDate' => null,
                 'promotable' => true,
+                'defaultPrice' => 10 * $count,
+                'defaultSku' => $productName,
                 'taxCategoryId' => $taxCategoryId,
                 'shippingCategoryId' => $shippingCategoryId,
             ];
