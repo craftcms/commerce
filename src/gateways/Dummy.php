@@ -70,7 +70,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    protected function getRequest(Transaction $transaction, BasePaymentForm $form)
+    protected function getRequest(Transaction $transaction, BasePaymentForm $form = null)
     {
     }
 
