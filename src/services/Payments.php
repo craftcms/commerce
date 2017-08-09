@@ -151,6 +151,7 @@ class Payments extends Component
                 return false;
             }
 
+            $order->updateOrderPaidTotal();
             $success = true;
         } catch (GatewayRequestCancelledException $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
