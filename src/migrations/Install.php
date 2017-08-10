@@ -222,6 +222,7 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'frontendEnabled' => $this->boolean(),
+            'sendCartInfo' => $this->boolean(),
             'isArchived' => $this->boolean(),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),

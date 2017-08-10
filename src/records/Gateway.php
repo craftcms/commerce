@@ -14,6 +14,7 @@ use craft\db\ActiveRecord;
  * @property array  $settings
  * @property string $type
  * @property bool   $frontendEnabled
+ * @property bool   $sendCartInfo
  * @property bool   $isArchived
  * @property bool   $dateArchived
  *

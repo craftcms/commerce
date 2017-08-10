@@ -36,7 +36,7 @@ trait GatewayTrait
     /**
      * @var bool Whether the gateway can send cart info to payment processor
      */
-    public $canSendCartInfo = true;
+    public $sendCartInfo = true;
 
     /**
      * @var bool Enabled on the frontend

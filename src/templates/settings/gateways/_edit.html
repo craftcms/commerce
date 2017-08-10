@@ -43,6 +43,15 @@
         required: true,
     }) }}
 
+    {{ forms.lightswitchField({
+        label: "Should gateway send cart information to gateway when making transactions."|t('commerce'),
+        instructions: "If turned off, gateway will never know the contents of the order. Some gateways might require this to be on."|t('commerce'),
+        id: 'sendCartInfo',
+        name: 'sendCartInfo',
+        on: gateway.sendCartInfo,
+        errors: gateway.getErrors('sendCartInfo'),
+    }) }}
+
     <hr>
 
     {{ forms.selectField({
@@ -76,10 +85,10 @@
 
     <hr>
 
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "Enabled for customers to select during checkout?"|t('commerce'),
         name: 'frontendEnabled',
-        checked: gateway.frontendEnabled,
+        on: gateway.frontendEnabled,
         errors: gateway.getErrors('frontendEnabled'),
     }) }}
 

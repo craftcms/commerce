@@ -20,7 +20,6 @@ use Craft;
  * @property bool   purgeInactiveCarts
  * @property bool   purgeInactiveCartsDuration
  * @property string gatewayPostRedirectTemplate
- * @property bool   sendCartInfoToGateways
  * @property bool   requireEmailForAnonymousPayments
  * @property bool   useBillingAddressForTax
  * @property bool   requireShippingAddressAtCheckout
@@ -108,11 +107,6 @@ class Settings extends Model
      * @var string
      */
     public $gatewayPostRedirectTemplate = '';
-
-    /**
-     * @var bool
-     */
-    public $sendCartInfoToGateways = true;
 
     /**
      * @var bool

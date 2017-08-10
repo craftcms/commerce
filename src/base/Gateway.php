@@ -27,6 +27,7 @@ use yii\base\NotSupportedException;
  * @property string             $paymentType
  * @property array              $settings
  * @property bool               $frontendEnabled
+ * @property bool               $sendCartInfo
  * @property bool               $isArchived
  * @property bool               $dateArchived
  *

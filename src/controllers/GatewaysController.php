@@ -3,9 +3,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\gateways\base\Gateway;
+use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\gateways\base\GatewayInterface;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\web\HttpException;
@@ -116,6 +116,7 @@ class GatewaysController extends BaseAdminController
             'handle' => $request->getBodyParam('handle'),
             'paymentType' => $request->getRequiredParam('paymentType'),
             'frontendEnabled' => $request->getParam('frontendEnabled'),
+            'sendCartInfo' => $request->getParam('sendCartInfo'),
             'settings' => $request->getBodyParam('types.'.$type),
         ];
 

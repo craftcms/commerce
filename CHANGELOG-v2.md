@@ -5,7 +5,7 @@
 ### Changed
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
-
+- `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
