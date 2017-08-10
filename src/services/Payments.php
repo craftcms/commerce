@@ -5,7 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\events\GatewayRequestEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\base\Gateway;
 use craft\commerce\models\payments\BasePaymentForm;
@@ -86,7 +85,6 @@ class Payments extends Component
      * @param string|null     &$customError
      *
      * @return bool
-     * @throws Exception
      * @throws \Exception
      */
     public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$customError = null) {
