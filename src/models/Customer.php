@@ -121,6 +121,26 @@ class Customer extends Model
     }
 
     /**
+     * Gets a single address of a customer by address id
+     *
+     * @param int|null $id
+     *
+     * @return Address|null
+     */
+    public function getAddress($id = null)
+    {
+        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        foreach ($addresses as $address) {
+            if ($id == $address->id) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns the order elements associated with this customer.
      *
      * @return \craft\commerce\elements\Order[]
