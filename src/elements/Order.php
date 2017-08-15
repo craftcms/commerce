@@ -1325,9 +1325,35 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function getSearchKeywords(string $attribute): string
+    {
+        if ($attribute == 'shortNumber' && $this->getShortNumber()) {
+            return $this->getShortNumber();
+        }
+
+        if ($attribute == 'billingFirstName' && $this->getBillingAddress() && $this->getBillingAddress()->firstName) {
+            return $this->billingAddress->firstName;
+        }
+
+        if ($attribute == 'billingLastName' && $this->getBillingAddress() && $this->getBillingAddress()->lastName) {
+            return $this->billingAddress->firstName;
+        }
+
+        return parent::getSearchKeywords($attribute);
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineSearchableAttributes(): array
     {
-        return ['number', 'email'];
+        return [
+            'number',
+            'email',
+            'billingFirstName',
+            'billingLastName',
+            'shortNumber'
+        ];
     }
 
     /**
