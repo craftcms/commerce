@@ -1327,16 +1327,24 @@ class Order extends Element
      */
     public function getSearchKeywords(string $attribute): string
     {
-        if ($attribute == 'shortNumber' && $this->getShortNumber()) {
+        if ($attribute === 'shortNumber') {
             return $this->getShortNumber();
         }
 
-        if ($attribute == 'billingFirstName' && $this->getBillingAddress() && $this->getBillingAddress()->firstName) {
-            return $this->billingAddress->firstName;
+        if ($attribute === 'billingFirstName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
+                return $this->billingAddress->firstName;
+            }
+
+            return '';
         }
 
-        if ($attribute == 'billingLastName' && $this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-            return $this->billingAddress->firstName;
+        if ($attribute === 'billingLastName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
+                return $this->billingAddress->firstName;
+            }
+            
+            return '';
         }
 
         return parent::getSearchKeywords($attribute);
