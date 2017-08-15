@@ -423,7 +423,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        return $this->getProduct()->freeShipping;
+        return (bool) $this->getProduct()->freeShipping;
     }
 
     /**

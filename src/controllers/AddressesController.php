@@ -71,7 +71,7 @@ class AddressesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = (int) Craft::$app->getRequest()->getRequiredParam('id');
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 

@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
@@ -259,9 +260,10 @@ class Cart extends Component
             return false;
         }
 
-        $method = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        /** @var Gateway $gateway */
+        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-        if (!$method || !$method->frontendEnabled) {
+        if (!$gateway || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
 
             return false;
@@ -358,12 +360,12 @@ class Cart extends Component
 
             if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
 
-                if (!$this->_cart->shippingAddressId && $this->_cart->customer->lastUsedShippingAddressId) {
+                if (!$this->_cart->shippingAddressId && ($this->_cart->customer && $this->_cart->customer->lastUsedShippingAddressId)) {
                     $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->customer->lastUsedShippingAddressId);
                     $this->_cart->setShippingAddress($address);
                 }
 
-                if (!$this->_cart->billingAddressId && $this->_cart->customer->lastUsedBillingAddressId) {
+                if (!$this->_cart->billingAddressId && ($this->_cart->customer && $this->_cart->customer->lastUsedBillingAddressId)) {
                     $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->customer->lastUsedBillingAddressId);
                     $this->_cart->setBillingAddress($address);
                 }
@@ -371,7 +373,7 @@ class Cart extends Component
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if ($this->_cart->customerId != $customer->id) {
+            if ($customer && $this->_cart->customerId != $customer->id) {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
