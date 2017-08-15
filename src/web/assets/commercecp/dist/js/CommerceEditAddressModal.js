@@ -32,11 +32,11 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.$body = $('<div class="body"></div>').appendTo(this.$form);
 
             if (!this.address.id) {
-                this.modalTitle = Craft.t('Add Address');
-                this.submitLabel = Craft.t('Add');
+                this.modalTitle = Craft.t('commerce', 'Add Address') ;
+                this.submitLabel = Craft.t('commerce', 'Add') ;
             } else {
-                this.modalTitle = Craft.t('Update Address');
-                this.submitLabel = Craft.t('Update');
+                this.modalTitle = Craft.t('commerce', 'Update Address') ;
+                this.submitLabel = Craft.t('commerce', 'Update') ;
             }
 
             this._renderFields();
@@ -47,7 +47,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
             this.$updateBtn = $('<input type="button" class="btn submit" value="' + this.submitLabel + '"/>').appendTo($mainBtnGroup);
             this.$footerSpinner = $('<div class="spinner right hidden"/>').appendTo($footer);
-            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('Cancel') + '"/>').appendTo($btnGroup);
+            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel')  + '"/>').appendTo($btnGroup);
 
             this.addListener(this.$cancelBtn, 'click', 'hide');
             this.addListener(this.$updateBtn, 'click', function(ev) {
@@ -67,44 +67,44 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             $('<input name="id" type="hidden" value="' + this.address.id + '">').appendTo($inputs);
 
             this.addressFields = [
-                {field: 'attention', label: Craft.t('Attention'), type: 'Text'},
-                {field: 'title', label: Craft.t('Title'), type: 'Text'},
+                {field: 'attention', label: Craft.t('commerce', 'Attention') , type: 'Text'},
+                {field: 'title', label: Craft.t('commerce', 'Title') , type: 'Text'},
                 {
                     field: 'firstName',
-                    label: Craft.t('First Name'),
+                    label: Craft.t('commerce', 'First Name') ,
                     required: true,
                     autofocus: true,
                     type: 'Text'
                 },
                 {
                     field: 'lastName',
-                    label: Craft.t('Last Name'),
+                    label: Craft.t('commerce', 'Last Name') ,
                     required: true,
                     type: 'Text'
                 },
-                {field: 'address1', label: Craft.t('Address 1'), type: 'Text'},
-                {field: 'address2', label: Craft.t('Address 2'), type: 'Text'},
-                {field: 'city', label: Craft.t('City'), type: 'Text'},
-                {field: 'zipCode', label: Craft.t('Zip Code'), type: 'Text'},
-                {field: 'phone', label: Craft.t('Phone'), type: 'Text'},
+                {field: 'address1', label: Craft.t('commerce', 'Address 1') , type: 'Text'},
+                {field: 'address2', label: Craft.t('commerce', 'Address 2') , type: 'Text'},
+                {field: 'city', label: Craft.t('commerce', 'City') , type: 'Text'},
+                {field: 'zipCode', label: Craft.t('commerce', 'Zip Code') , type: 'Text'},
+                {field: 'phone', label: Craft.t('commerce', 'Phone') , type: 'Text'},
                 {
                     field: 'alternativePhone',
-                    label: Craft.t('Phone (Alt)'),
+                    label: Craft.t('commerce', 'Phone (Alt)') ,
                     type: 'Text'
                 },
                 {
                     field: 'businessName',
-                    label: Craft.t('Business Name'),
+                    label: Craft.t('commerce', 'Business Name') ,
                     type: 'Text'
                 },
                 {
                     field: 'businessTaxId',
-                    label: Craft.t('Business Tax ID'),
+                    label: Craft.t('commerce', 'Business Tax ID') ,
                     type: 'Text'
                 },
                 {
                     field: 'businessId',
-                    label: Craft.t('Business ID'),
+                    label: Craft.t('commerce', 'Business ID') ,
                     type: 'Text'
                 }
             ];
@@ -129,14 +129,14 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             var stateValueInput = $("<select id='" + this.id + "stateValue' name='" + this.id + "stateValue'/>");
             this.fields['stateValue'] = Craft.ui.createField(stateValueInput, {
                 id: this.id + 'stateValue',
-                label: Craft.t('State'),
+                label: Craft.t('commerce', 'State') ,
                 name: this.id + 'stateValue'
             });
 
             var countryIdInput = $("<select id='" + this.id + "countryId' name='" + this.id + "countryId'/>");
             this.fields['countryId'] = Craft.ui.createField(countryIdInput, {
                 id: this.id + 'countryId',
-                label: Craft.t('Country'),
+                label: Craft.t('commerce', 'Country') ,
                 name: this.id + 'countryId',
                 required: true,
                 errors: this.errors['countryId']

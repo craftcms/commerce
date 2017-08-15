@@ -341,7 +341,7 @@ $(function() {
                 }, function (result) {
                     $('#clear-coupon-history-spinner').toggleClass('hidden');
                     $('#total-coupon-use-counter').val(0);
-                    alert(Craft.t('All coupon usage counters have been cleared'));
+                    alert(Craft.t('commerce', 'All coupon usage counters have been cleared') );
                     $('#clear-coupon-history').hide();
                 });
         }

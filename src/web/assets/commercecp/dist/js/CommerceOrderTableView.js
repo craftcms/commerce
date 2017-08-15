@@ -47,7 +47,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
-                $totalLabel = $('<div class="total-label light">' + Craft.t('Total Revenue') + '</div>').appendTo($total),
+                $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue')  + '</div>').appendTo($total),
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
             $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
@@ -167,7 +167,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                     this.$totalValue.html(response.totalHtml);
                 }
                 else {
-                    var msg = Craft.t('An unknown error occurred.');
+                    var msg = Craft.t('commerce', 'An unknown error occurred.') ;
 
                     if (typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined') {
                         msg = response.error;

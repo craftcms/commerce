@@ -25,9 +25,9 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Set the edit button label
         if (!this.address.id) {
-            var editLabel = Craft.t("New");
+            var editLabel = Craft.t('commerce', "New") ;
         } else {
-            var editLabel = Craft.t("Edit");
+            var editLabel = Craft.t('commerce', "Edit") ;
         }
 
         $header.html("");
@@ -39,7 +39,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         if (this.address.id) {
             var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
             var addressStr = address.join(' ');
-            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('Map') + "</a>").appendTo($buttons);
+            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map')  + "</a>").appendTo($buttons);
         }
 
         // Edit button
@@ -108,7 +108,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         }
 
         if (!this.address.id) {
-            $("<span class='newAddress'>" + Craft.t("No address") + "<br></span>").appendTo(this.$address);
+            $("<span class='newAddress'>" + Craft.t('commerce', "No address")  + "<br></span>").appendTo(this.$address);
         }
 
         this._attachListeners();
@@ -127,7 +127,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
                 this.address = response.address;
                 this.settings.onChange(response.address);
                 this._renderAddress();
-                Craft.cp.displayNotice(Craft.t('Address Updated.'));
+                Craft.cp.displayNotice(Craft.t('commerce', 'Address Updated.') );
                 this.editorModal.hide();
                 this.editorModal.destroy();
             } else {

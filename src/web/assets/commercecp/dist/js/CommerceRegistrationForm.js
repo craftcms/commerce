@@ -92,7 +92,7 @@
                     this.setLicenseKeyStatus(response.licenseKeyStatus);
                 } else {
                     $('#loading-graphic').addClass('error');
-                    $('#loading-status').removeClass('light').text(Craft.t('Unable to load registration status at this time. Please try again later.'));
+                    $('#loading-status').removeClass('light').text(Craft.t('commerce', 'Unable to load registration status at this time. Please try again later.') );
                 }
             }, this));
         },
@@ -192,7 +192,7 @@
                         this.setLicenseKey(response.licenseKey);
                         this.setLicenseKeyStatus(response.licenseKeyStatus);
                     } else {
-                        this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('An unknown error occurred.'));
+                        this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('commerce', 'An unknown error occurred.') );
                     }
                 }
             }, this));

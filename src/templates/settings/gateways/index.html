@@ -59,7 +59,7 @@ new Craft.AdminTable({
     minObjects: 0,
     sortable: true,
     reorderAction: 'commerce/gateways/reorder',
-    reorderSuccessMessage: Craft.t('Gateways reordered.'),
-    reorderFailMessage:    Craft.t('Couldn’t reorder gateways..')
+    reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways..')
 });
 {% endjs %}

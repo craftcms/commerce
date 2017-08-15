@@ -53,7 +53,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                             var error = response.error;
                         }
                         else {
-                            var error = Craft.t('An unknown error occurred.');
+                            var error = Craft.t('commerce', 'An unknown error occurred.') ;
                         }
 
                         this.$container.append('<div class="body">' + error + '</div>');
