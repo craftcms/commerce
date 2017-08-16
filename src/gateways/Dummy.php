@@ -8,6 +8,7 @@ use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\Transaction;
 
 /**
@@ -22,8 +23,6 @@ use craft\commerce\models\Transaction;
  */
 class Dummy extends Gateway
 {
-    use CreditCardGatewayTrait;
-
     // Public Methods
     // =========================================================================
 
@@ -66,12 +65,43 @@ class Dummy extends Gateway
     {
         return true;
     }
-    
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsCompleteAuthorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsCompletePurchase(): bool
+    {
+        return false;
+    }
+
     /**
      * @inheritdoc
      */
     protected function getRequest(Transaction $transaction, BasePaymentForm $form = null)
     {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentFormHtml(array $params)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentFormModel()
+    {
+        return new OffsitePaymentForm();
     }
 
     /**
@@ -102,6 +132,20 @@ class Dummy extends Gateway
     {
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected function prepareCompleteAuthorizeRequest($request)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function prepareCompletePurchaseRequest($request)
+    {
+    }
+    
     /**
      * @inheritdoc
      */

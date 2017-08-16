@@ -173,6 +173,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @return mixed
      */
+    // TODO seems that "createRequest" would be a better name here.
     abstract protected function getRequest(Transaction $transaction, BasePaymentForm $form = null);
 
     /**
@@ -215,6 +216,24 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     abstract protected function prepareAuthorizeRequest($request);
 
     /**
+     * Prep request to be used as a completing authorization request.
+     *
+     * @param        $request
+     *
+     * @return mixed
+     */
+    abstract protected function prepareCompleteAuthorizeRequest($request);
+
+    /**
+     * Prep request to be used as a completing purchase request.
+     *
+     * @param        $request
+     *
+     * @return mixed
+     */
+    abstract protected function prepareCompletePurchaseRequest($request);
+
+    /**
      * Prep request to be used as a capture request.
      *
      * @param        $request
@@ -223,7 +242,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * @return mixed
      */
     abstract protected function prepareCaptureRequest($request, string $reference);
-    
+
     /**
      * Prep request to be used as a purchase request.
      *
@@ -302,6 +321,36 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $captureRequest = $this->prepareCaptureRequest($request, $reference);
 
         return $this->performRequest($captureRequest, $transaction);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function completeAuthorize(Transaction $transaction): RequestResponseInterface
+    {
+        if (!$this->supportsCompleteAuthorize()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Completing authorization is not supported by this gateway'));
+        }
+
+        $request = $this->getRequest($transaction);
+        $completeRequest = $this->prepareCompleteAuthorizeRequest($request);
+
+        return $this->performRequest($completeRequest, $transaction);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function completePurchase(Transaction $transaction): RequestResponseInterface
+    {
+        if (!$this->supportsCompletePurchase()) {
+            throw new NotSupportedException(Craft::t('commerce', 'Completing purchase is not supported by this gateway'));
+        }
+
+        $request = $this->getRequest($transaction);
+        $completeRequest = $this->prepareCompletePurchaseRequest($request);
+
+        return $this->performRequest($completeRequest, $transaction);
     }
 
     /**

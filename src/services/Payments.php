@@ -227,107 +227,91 @@ class Payments extends Component
      * @return bool
      * @throws Exception
      */
-    public function completePayment(
-        Transaction $transaction,
-        &$customError = null
-    ) {
+    public function completePayment(Transaction $transaction, &$customError = null) {
         $order = $transaction->order;
 
         // ignore already processed transactions
         if ($transaction->status != TransactionRecord::STATUS_REDIRECT) {
             if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
                 return true;
-            } else {
-                $customError = $transaction->message;
-
-                return false;
             }
+
+            $customError = $transaction->message;
+
+            return false;
         }
 
         // Load payment driver for the transaction we are trying to complete
-        $gateway = $transaction->paymentMethod->getGateway();
+        $gateway = $transaction->getGateway();
 
-        // Check if the driver supports completePurchase or completeAuthorize
-        $action = 'complete'.ucfirst($transaction->type);
-
-        $supportsAction = 'supports'.ucfirst($action);
-        if (!$gateway->$supportsAction()) {
-            $message = 'Payment Gateway does not support: '.$supportsAction;
-            Craft::error($message, __METHOD__);
-            throw new Exception($message);
+        switch ($transaction->type) {
+            case TransactionRecord::TYPE_PURCHASE:
+                $response = $gateway->completePurchase($transaction);
+                break;
+            case TransactionRecord::TYPE_AUTHORIZE:
+                $response = $gateway->completeAuthorize($transaction);
+                break;
+            default:
+                return false;
         }
 
-        // Some gateways need the cart data again on the order complete
-        $itemBag = $this->createItemBag($order);
-        $params = $this->buildPaymentRequest($transaction, null, $itemBag);
-
-        // If MOLLIE, the transactionReference will be theirs
-        // Netbanx Hosted requires the transactionReference is the same
-        // Authorize.net SIM https://github.com/thephpleague/omnipay-authorizenet/issues/19
-        // TODO: Move this into the gateway adapter.
-        $handle = $transaction->paymentMethod->getGatewayAdapter()->handle();
-        if ($handle == 'Mollie_Ideal' || $handle == 'Mollie' || $handle == 'NetBanx_Hosted' || $handle == 'AuthorizeNet_SIM') {
-            $params['transactionReference'] = $transaction->reference;
-        }
-
-        // Don't send notifyUrl for completePurchase or completeAuthorize
-        unset($params['notifyUrl']);
-
-        $request = $gateway->$action($params);
-
+        $this->_updateTransaction($transaction, $response);
+        
         // Success can mean 2 things in this context.
         // 1) The transaction completed successfully with the gateway, and is now marked as complete.
         // 2) The result of the gateway request was successful but also got a redirect response. We now need to redirect if $redirect is not null.
-        $success = $this->sendPaymentRequest($order, $request, $transaction, $redirect, $customError);
+        $success = $response->isSuccessful();
 
-        if ($success && $transaction->status == TransactionRecord::STATUS_SUCCESS) {
+        if ($success && $transaction->status === TransactionRecord::STATUS_SUCCESS) {
             $transaction->order->updateOrderPaidTotal();
         }
 
-        // For gateways that call us directly and usually do not like redirects.
-        // TODO: Move this into the gateway adapter interface.
-        $gateways = [
-            'AuthorizeNet_SIM',
-            'Realex_Redirect',
-            'SecurePay_DirectPost',
-            'WorldPay',
-        ];
-
-        if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
-
-            // Need to turn devMode off so the redirect template does not have any debug data attached.
-            Craft::$app->getConfig()->set('devMode', false);
-
-            // We redirect to a place that take us back to the completePayment endpoint, but this is ok
-            // as complete payment can return early if the transaction was marked successful the previous time.
-            $url = UrlHelper::getActionUrl('commerce/payments/completePayment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-            $url = htmlspecialchars($url, ENT_QUOTES);
-
-            $template = <<<EOF
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="refresh" content="1;URL=$url" />
-    <title>Redirecting...</title>
-</head>
-<body onload="document.payment.submit();">
-    <p>Please wait while we redirect you back...</p>
-    <form name="payment" action="$url" method="post">
-        <p><input type="submit" value="Continue" /></p>
-    </form>
-</body>
-</html>
-EOF;
-
-            ob_start();
-            echo $template;
+        if ($success && $response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
+            $this->_handleRedirect($response, $redirect);
+            Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }
 
-        if ($success && $redirect && $transaction->status == TransactionRecord::STATUS_REDIRECT) {
-            Craft::$app->getRequest()->redirect($redirect);
-        }
-
+//        // For gateways that call us directly and usually do not like redirects.
+//        // TODO: Move this into the gateway adapter interface.
+//        $gateways = [
+//            'AuthorizeNet_SIM',
+//            'Realex_Redirect',
+//            'SecurePay_DirectPost',
+//            'WorldPay',
+//        ];
+//
+//        if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
+//
+//            // Need to turn devMode off so the redirect template does not have any debug data attached.
+//            Craft::$app->getConfig()->set('devMode', false);
+//
+//            // We redirect to a place that take us back to the completePayment endpoint, but this is ok
+//            // as complete payment can return early if the transaction was marked successful the previous time.
+//            $url = UrlHelper::getActionUrl('commerce/payments/complete-payment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
+//            $url = htmlspecialchars($url, ENT_QUOTES);
+//
+//            $template = <<<EOF
+//<!DOCTYPE html>
+//<html>
+//<head>
+//    <meta http-equiv="refresh" content="1;URL=$url" />
+//    <title>Redirecting...</title>
+//</head>
+//<body onload="document.payment.submit();">
+//    <p>Please wait while we redirect you back...</p>
+//    <form name="payment" action="$url" method="post">
+//        <p><input type="submit" value="Continue" /></p>
+//    </form>
+//</body>
+//</html>
+//EOF;
+//
+//            ob_start();
+//            echo $template;
+//            Craft::$app->end();
+//        }
+        
         return $success;
     }
 
@@ -382,7 +366,7 @@ EOF;
             $transaction->order->updateOrderPaidTotal();
         }
 
-        $url = UrlHelper::actionUrl('commerce/payments/completePayment', [
+        $url = UrlHelper::actionUrl('commerce/payments/complete-payment', [
             'commerceTransactionId' => $transaction->id,
             'commerceTransactionHash' => $transaction->hash
         ]);
@@ -456,6 +440,8 @@ EOF;
      *
      * @param RequestResponseInterface $response
      * @param string|null              $redirect
+     * 
+     * @return bool
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect = null)
     {
@@ -499,6 +485,8 @@ EOF;
             // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
+        
+        return true;
     }
 
     /**

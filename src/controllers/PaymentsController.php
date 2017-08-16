@@ -231,7 +231,7 @@ class PaymentsController extends BaseFrontEndController
             }
 
             if ($redirect) {
-                $this->redirect($redirect);
+                return $this->redirect($redirect);
             } else {
                 if ($order->returnUrl) {
                     $this->redirect($order->returnUrl);
@@ -271,11 +271,11 @@ class PaymentsController extends BaseFrontEndController
         $success = Plugin::getInstance()->getPayments()->completePayment($transaction, $customError);
 
         if ($success) {
-            $this->redirect($transaction->order->returnUrl);
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));
-            $this->redirect($transaction->order->cancelUrl);
+            return $this->redirect($transaction->order->returnUrl);
         }
+
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));
+        return $this->redirect($transaction->order->cancelUrl);
     }
 
     /**
