@@ -262,7 +262,7 @@ class Order extends Element
     /**
      * @var bool Should the order recalculate?
      */
-    private $_relcalculate;
+    private $_relcalculate = false;
 
 
     /**
