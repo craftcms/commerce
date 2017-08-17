@@ -2,13 +2,11 @@
 
 namespace craft\commerce\gateways;
 
-use Craft;
-use craft\commerce\base\CreditCardGatewayTrait;
 use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\OffsitePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\Transaction;
 
 /**
@@ -26,138 +24,72 @@ class Dummy extends Gateway
     // Public Methods
     // =========================================================================
 
-    /**
-     * @inheritdoc
-     */
-    public static function displayName(): string
+    public function getPaymentFormHtml(array $params)
     {
-        return Craft::t('commerce', 'Dummy gateway');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function supportsPurchase(): bool
+    public function getPaymentFormModel()
     {
-        return true;
+        return new CreditCardPaymentForm();
     }
 
-    /**
-     * @inheritdoc
-     */
+    public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    public function completeAuthorize(Transaction $transaction): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    public function completePurchase(Transaction $transaction): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
+    public function refund(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        return new DummyRequestResponse();
+    }
+
     public function supportsAuthorize(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function supportsRefund(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function supportsCapture(): bool
     {
         return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function supportsCompleteAuthorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function supportsCompletePurchase(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function getRequest(Transaction $transaction, BasePaymentForm $form = null)
+    public function supportsPurchase(): bool
     {
+        return true;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getPaymentFormHtml(array $params)
+    public function supportsRefund(): bool
     {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPaymentFormModel()
-    {
-        return new OffsitePaymentForm();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareCaptureRequest($request, string $reference)
-    {
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    protected function prepareAuthorizeRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function preparePurchaseRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareRefundRequest($request, string $reference)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareCompleteAuthorizeRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareCompletePurchaseRequest($request)
-    {
-    }
-    
-    /**
-     * @inheritdoc
-     */
-    protected function prepareResponse($response): RequestResponseInterface
-    {
-        return new DummyRequestResponse();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function sendRequest($request)
-    {
+        return true;
     }
 }
