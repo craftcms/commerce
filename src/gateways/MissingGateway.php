@@ -7,11 +7,7 @@ use craft\base\MissingComponentTrait;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\Transaction;
-use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\CreditCard;
-use Omnipay\Common\Message\AbstractRequest;
 
 /**
  * MissingGateway represents a gateway with an invalid class.
@@ -33,94 +29,60 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 
     use MissingComponentTrait;
 
-    // Public Methods
-    // =========================================================================
-    /**
-     * @inheritdoc
-     */
-    protected function getRequest(Transaction $transaction, BasePaymentForm $form)
-    {
-    }
 
-    protected function prepareCaptureRequest($request, string $reference)
-    {
-    }
-
-    protected function prepareRefundRequest($request, string $reference)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function preparePurchaseRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareAuthorizeRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function prepareResponse($response): RequestResponseInterface
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function sendRequest($request)
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormHtml(array $params)
     {
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getPaymentFormModel()
     {
     }
 
-    /**
-     * @inheritdoc
-     */
+    public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+    }
+
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+    }
+
+    public function completeAuthorize(Transaction $transaction): RequestResponseInterface
+    {
+    }
+
+    public function completePurchase(Transaction $transaction): RequestResponseInterface
+    {
+    }
+
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+    }
+
+    public function refund(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+    }
+
     public function supportsAuthorize(): bool
     {
-        return false;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function supportsPurchase(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function supportsCapture(): bool
     {
-        return false;
     }
 
-    /**
-     * @inheritdoc
-     */
+    public function supportsCompleteAuthorize(): bool
+    {
+    }
+
+    public function supportsCompletePurchase(): bool
+    {
+    }
+
+    public function supportsPurchase(): bool
+    {
+    }
+
     public function supportsRefund(): bool
     {
-        return false;
     }
 }

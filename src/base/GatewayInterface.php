@@ -21,16 +21,6 @@ interface GatewayInterface extends SavableComponentInterface
     // =========================================================================
 
     /**
-     * Make a purchase request.
-     *
-     * @param Transaction     $transaction The purchase transaction
-     * @param BasePaymentForm $form        A form filled with payment info
-     *
-     * @return RequestResponseInterface
-     */
-    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
-
-    /**
      * Make an authorize request.
      *
      * @param Transaction     $transaction The authorize transaction
@@ -39,16 +29,6 @@ interface GatewayInterface extends SavableComponentInterface
      * @return RequestResponseInterface
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
-
-    /**
-     * Make an refund request.
-     *
-     * @param Transaction     $transaction The refund transaction
-     * @param string          $reference   Reference for the transaction being refunded.
-     *
-     * @return RequestResponseInterface
-     */
-    public function refund(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
      * Make a capture request.
@@ -61,11 +41,42 @@ interface GatewayInterface extends SavableComponentInterface
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
-     * Return true if gateway supports purchase requests.
+     * Make a complete authorize request.
      *
-     * @return bool
+     * @param Transaction  $transaction The transaction
+     *
+     * @return RequestResponseInterface
      */
-    public function supportsPurchase(): bool;
+    public function completeAuthorize(Transaction $transaction): RequestResponseInterface;
+
+    /**
+     * Make a complete purchase request.
+     *
+     * @param Transaction  $transaction The transaction
+     *
+     * @return RequestResponseInterface
+     */
+    public function completePurchase(Transaction $transaction): RequestResponseInterface;
+
+    /**
+     * Make a purchase request.
+     *
+     * @param Transaction     $transaction The purchase transaction
+     * @param BasePaymentForm $form        A form filled with payment info
+     *
+     * @return RequestResponseInterface
+     */
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface;
+
+    /**
+     * Make an refund request.
+     *
+     * @param Transaction     $transaction The refund transaction
+     * @param string          $reference   Reference for the transaction being refunded.
+     *
+     * @return RequestResponseInterface
+     */
+    public function refund(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
      * Return true if gateway supports authorize requests.
@@ -75,16 +86,37 @@ interface GatewayInterface extends SavableComponentInterface
     public function supportsAuthorize(): bool;
 
     /**
-     * Return true if gateway supports refund requests.
-     *
-     * @return bool
-     */
-    public function supportsRefund(): bool;
-
-    /**
      * Return true if gateway supports capture requests.
      *
      * @return bool
      */
     public function supportsCapture(): bool;
+
+    /**
+     * Return true if gateway supports completing authorize requests
+     *
+     * @return bool
+     */
+    public function supportsCompleteAuthorize(): bool;
+
+    /**
+     * Return true if gateway supports completing purchase requests
+     *
+     * @return bool
+     */
+    public function supportsCompletePurchase(): bool;
+
+    /**
+     * Return true if gateway supports purchase requests.
+     *
+     * @return bool
+     */
+    public function supportsPurchase(): bool;
+
+    /**
+     * Return true if gateway supports refund requests.
+     *
+     * @return bool
+     */
+    public function supportsRefund(): bool;
 }
