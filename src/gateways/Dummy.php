@@ -2,6 +2,7 @@
 
 namespace craft\commerce\gateways;
 
+use Craft;
 use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
@@ -26,6 +27,14 @@ class Dummy extends Gateway
 
     public function getPaymentFormHtml(array $params)
     {
+        $defaults = [
+            'gateway' => $this,
+            'paymentForm' => $this->getPaymentFormModel()
+        ];
+
+        $params = array_merge($defaults, $params);
+
+        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/common/offsitePaymentForm', $params);
     }
 
     public function getPaymentFormModel()
