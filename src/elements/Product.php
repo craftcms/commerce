@@ -24,6 +24,7 @@ use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use craft\commerce\helpers\Product as ProductHelper;
 
 /**
  * Product model.
@@ -414,9 +415,17 @@ class Product extends Element
     }
 
     /**
-     * @param $variants
+     * @param array $variants
      */
-    public function setVariants($variants)
+    public function setVariantsPost($variants)
+    {
+        ProductHelper::populateProductVariantModels($this, $variants);
+    }
+
+    /**
+     * @param Variant[] $variants
+     */
+    public function setVariants(array $variants)
     {
         Plugin::getInstance()->getVariants()->setProductOnVariants($this, $variants);
         $this->_variants = $variants;
@@ -604,9 +613,9 @@ class Product extends Element
             ]);
         } else {
             /** @var Variant $variant */
-            $variant = $this->getVariants();
+            $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
+            $newNamespace = 'variantsPost['.($variant->id ?: 'new1').']';
             $viewService->setNamespace($newNamespace);
             $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
 
@@ -615,7 +624,7 @@ class Product extends Element
             }
 
             $viewService->setNamespace($namespace);
-            $viewService->includeJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
+            $viewService->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
         }
 
         return $html;

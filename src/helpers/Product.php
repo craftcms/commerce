@@ -56,7 +56,7 @@ class Product
      * @param ProductModel $product
      * @param              $data
      */
-    public static function populateProductVariantModels(ProductModel &$product, $data)
+    public static function populateProductVariantModels(ProductModel $product, $data)
     {
         $variantData = $data;
         $variants = [];
