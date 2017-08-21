@@ -8,14 +8,18 @@ use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\variables\Commerce;
 use craft\commerce\web\twig\Extension;
+use craft\commerce\widgets\Orders;
+use craft\commerce\widgets\Revenue;
 use craft\enums\LicenseKeyStatus;
 use craft\events\DefineComponentsEvent;
+use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterRichTextLinkOptionsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fields\RichText;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
+use craft\services\Dashboard;
 use craft\services\Sites;
 use craft\elements\User as UserElement;
 use craft\services\UserPermissions;
@@ -60,6 +64,7 @@ class Plugin extends \craft\base\Plugin
         $this->_registerPermissions();
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
+        $this->_registerWidgets();
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
@@ -271,5 +276,16 @@ class Plugin extends \craft\base\Plugin
 //                $event->types[] = ManField::class;
 //            }
 //        );
+    }
+
+    /**
+     * Register Commerce’s widgets.
+     */
+    private function _registerWidgets()
+    {
+        Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Orders::class;
+            $event->types[] = Revenue::class;
+        });
     }
 }

@@ -9,7 +9,7 @@
         <div class="input ltr">
 
             <input type="hidden" class="status-input" name="orderStatusId"
-                   value="{{ settings.orderStatusId }}"/>
+                   value="{{ widget.orderStatusId }}"/>
 
             <a class="btn menubtn"><span class="status"></span> {{ "All"|t('commerce') }}
             </a>
@@ -34,9 +34,9 @@
     {{ forms.textField({
         label: "Limit"|t('commerce'),
         name: 'limit',
-        value: settings.limit,
+        value: widget.limit,
         size: 2,
-        errors: settings.getErrors('limit')
+        errors: widget.getErrors('limit')
     }) }}
 
 </div>

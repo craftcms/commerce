@@ -145,7 +145,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             this.$chart.removeClass('error');
 
 
-            Craft.postActionRequest('commerce/charts/getRevenueData', requestData, $.proxy(function(response, textStatus) {
+            Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
                 this.$spinner.addClass('hidden');
 
                 if (textStatus == 'success' && typeof(response.error) == 'undefined') {

@@ -56,7 +56,7 @@
                     elementType: '\\craft\\commerce\\elements\\Order'
                 };
 
-                Craft.postActionRequest('commerce/charts/getRevenueData', requestData, $.proxy(function(response, textStatus) {
+                Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
                     if (textStatus == 'success' && typeof(response.error) == 'undefined') {
                         this.$infos.removeClass('hidden');
                         this.$chart.removeClass('hidden');

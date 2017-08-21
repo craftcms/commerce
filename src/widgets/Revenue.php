@@ -4,9 +4,20 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\web\assets\revenuewidget\RevenueWidgetAsset;
+use craft\helpers\ChartHelper;
+use craft\helpers\Json;
 
 class Revenue extends Widget
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var string
+     */
+    public $dateRange;
+
     // Public Methods
     // =========================================================================
 
@@ -30,13 +41,13 @@ class Revenue extends Widget
     }
 
     /**
-     * @inheritDoc IWidget::getIconPath()
+     * @inheritDoc
      *
      * @return string
      */
-    public function getIconPath()
+    public static function iconPath()
     {
-        return craft()->path->getPluginsPath().'commerce/resources/icon-mask.svg';
+        return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
     /**
@@ -46,26 +57,16 @@ class Revenue extends Widget
      */
     public function getBodyHtml()
     {
-        $dateRange = false;
-
-        $settings = $this->getSettings();
-
-        $dateRanges = ChartHelper::getDateRanges();
-
-        if (!empty($dateRanges[$settings->dateRange])) {
-            $dateRange = $dateRanges[$settings->dateRange]['label'];
-        }
-
         $options = [
-            'dateRange' => $settings->dateRange
+            'dateRange' => $this->dateRange
         ];
 
-        Craft::$app->getView()->registerCssFile('commerce/CommerceRevenueWidget.css');
-        Craft::$app->getView()->registerJsFile('commerce/js/CommerceRevenueWidget.js');
+        $view = Craft::$app->getView();
+        $view->registerAssetBundle(RevenueWidgetAsset::class);
 
-        $js = 'new Craft.Commerce.RevenueWidget('.$this->model->id.', '.JsonHelper::encode($options).');';
+        $js = 'new Craft.Commerce.RevenueWidget('.$this->id.', '.Json::encode($options).');';
 
-        Craft::$app->getView()->includeJs($js);
+        $view->registerJs($js);
 
         return '<div class="chart hidden"></div>';
     }
@@ -77,7 +78,7 @@ class Revenue extends Widget
      */
     public function getSettingsHtml()
     {
-        $dateRanges = ChartHelper::getDateRanges();
+        $dateRanges = ChartHelper::dateRanges();
 
         $dateRangeOptions = [];
 
@@ -88,24 +89,9 @@ class Revenue extends Widget
             ];
         }
 
-        return Craft::$app->getView()->render('commerce/_components/widgets/Revenue/settings', [
-            'settings' => $this->getSettings(),
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Revenue/settings', [
+            'widget' => $this,
             'dateRangeOptions' => $dateRangeOptions
         ]);
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * @inheritDoc BaseSavableComponentType::defineSettings()
-     *
-     * @return array
-     */
-    protected function defineSettings()
-    {
-        return [
-            'dateRange' => AttributeType::String,
-        ];
     }
 }

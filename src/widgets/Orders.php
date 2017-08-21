@@ -5,10 +5,25 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
+use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
 use craft\helpers\StringHelper;
 
 class Orders extends Widget
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var int|null
+     */
+    public $orderStatusId;
+
+    /**
+     * @var int
+     */
+    public $limit = 10;
+
     // Public Methods
     // =========================================================================
 
@@ -32,13 +47,13 @@ class Orders extends Widget
     }
 
     /**
-     * @inheritDoc IWidget::getIconPath()
+     * @inheritDoc
      *
      * @return string
      */
-    public function getIconPath()
+    public static function iconPath()
     {
-        return craft()->path->getPluginsPath().'commerce/resources/icon-mask.svg';
+        return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
 
     /**
@@ -48,7 +63,7 @@ class Orders extends Widget
      */
     public function getTitle(): string
     {
-        if ($orderStatusId = $this->getSettings()->orderStatusId) {
+        if ($orderStatusId = $this->orderStatusId) {
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
@@ -68,9 +83,9 @@ class Orders extends Widget
     {
         $orders = $this->_getOrders();
 
-        return Craft::$app->getView()->render('commerce/_components/widgets/Orders/body', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/body', [
             'orders' => $orders,
-            'showStatuses' => empty($this->getSettings()->orderStatusId)
+            'showStatuses' => empty($this->orderStatusId)
         ]);
     }
 
@@ -81,8 +96,8 @@ class Orders extends Widget
      */
     private function _getOrders()
     {
-        $orderStatusId = $this->getSettings()->orderStatusId;
-        $limit = $this->getSettings()->limit;
+        $orderStatusId = $this->orderStatusId;
+        $limit = $this->limit;
 
         $query = Order::find();
         $query->isCompleted(true);
@@ -109,30 +124,17 @@ class Orders extends Widget
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 
-        Craft::$app->getView()->registerJsFile('commerce/js/CommerceOrdersWidgetSettings.js');
+        Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
 
         $id = 'analytics-settings-'.StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
 
-        return Craft::$app->getView()->render('commerce/_components/widgets/Orders/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
             'id' => $id,
-            'settings' => $this->getSettings(),
+            'widget' => $this,
             'orderStatuses' => $orderStatuses,
         ]);
-    }
-
-    /**
-     * @inheritDoc BaseSavableComponentType::defineSettings()
-     *
-     * @return array
-     */
-    protected function defineSettings()
-    {
-        return [
-            'orderStatusId' => AttributeType::Number,
-            'limit' => [AttributeType::Number, 'default' => 10],
-        ];
     }
 }

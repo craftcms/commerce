@@ -7,6 +7,7 @@ use craft\commerce\Plugin;
 use craft\controllers\ElementIndexesController;
 use craft\helpers\ChartHelper;
 use craft\helpers\DateTimeHelper;
+use craft\i18n\Locale;
 
 /**
  * Class Charts Controller
@@ -25,8 +26,6 @@ class ChartsController extends ElementIndexesController
 
     /**
      * Returns the data needed to display a Revenue chart.
-     *
-     * @return void
      */
     public function actionGetRevenueData()
     {
@@ -39,22 +38,17 @@ class ChartsController extends ElementIndexesController
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
 
-        // Prep the query
-        $criteria = $this->getElementCriteria();
-        $criteria->limit = null;
-
-        // Don't use the search
-        $criteria->search = null;
-
-        $query = Craft::$app->getElements()->buildElementsQuery($criteria)
-            ->select('sum(orders.totalPrice) as value');
+        $query = clone $this->getElementQuery()
+            ->search(null)
+            ->select(['sum([[commerce_orders.totalPrice]]) as [[value]]']);
 
         // Get the chart data table
-        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'orders.dateOrdered', [
+        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', [
             'intervalUnit' => $intervalUnit,
             'valueLabel' => Craft::t('commerce', 'Revenue'),
             'valueType' => 'currency',
         ]);
+
 
         // Get the total revenue
         $total = 0;
@@ -67,7 +61,7 @@ class ChartsController extends ElementIndexesController
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($currency));
 
-        $this->asJson([
+        return $this->asJson([
             'dataTable' => $dataTable,
             'total' => $total,
             'totalHtml' => $totalHtml,
@@ -91,7 +85,7 @@ class ChartsController extends ElementIndexesController
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
         $currencySymbol = Craft::$app->getLocale()->getCurrencySymbol($currency);
-        $currencyFormat = Craft::$app->getLocale()->getCurrencyFormat();
+        $currencyFormat = Craft::$app->getLocale()->getNumberPattern(Locale::STYLE_CURRENCY);
 
         if (strpos($currencyFormat, ";") > 0) {
             $currencyFormatArray = explode(";", $currencyFormat);
