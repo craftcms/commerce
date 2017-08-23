@@ -81,7 +81,7 @@ class Commerce_CustomerAddressesController extends Commerce_BaseFrontEndControll
             $this->redirectToPostedUrl();
         } else {
             if (craft()->request->isAjaxRequest) {
-                $this->returnJson(['error' => $address->getAllErrors()]);
+                $this->returnJson(['error' => $address->getErrors()]);
             }
             craft()->urlManager->setRouteVariables([
                 'address' => $address,
