@@ -9,6 +9,7 @@ Commerce Changelog
 
 ### Fixed
 - Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
+- Fixed the error array returned from `commerce/customerAddresses/save` to include field names as the error keys.
 
 ### Changed
 - The order email address now always returns the user’s email address if the order was made as a registered user, even after the user changes their email address.
