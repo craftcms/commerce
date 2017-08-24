@@ -52,6 +52,14 @@
         errors: gateway.getErrors('sendCartInfo'),
     }) }}
 
+    {% if gateway.supportsWebhooks() %}
+        {{ forms.textField({
+            label: "Webhook URL",
+            instructions: "The webhook URL for this gateway.",
+            disabled: true,
+            value: gateway.webhookUrl
+        }) }}
+    {% endif %}
     <hr>
 
     {{ forms.selectField({

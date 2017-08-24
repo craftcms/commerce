@@ -9,6 +9,7 @@ use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\Transaction;
+use craft\web\Response;
 
 /**
  * Dummy represents a dummy gateway.
@@ -67,6 +68,11 @@ class Dummy extends Gateway
         return new DummyRequestResponse();
     }
 
+    public function processWebHook(): string
+    {
+        return null;
+    }
+
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface
     {
         return new DummyRequestResponse();
@@ -100,5 +106,10 @@ class Dummy extends Gateway
     public function supportsRefund(): bool
     {
         return true;
+    }
+
+    public function supportsWebhooks(): bool
+    {
+        return false;
     }
 }
