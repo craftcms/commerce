@@ -1376,8 +1376,7 @@ class Install extends Migration
         $this->insert(ShippingMethod::tableName(), $data);
 
         $data = [
-            'id' => $this->db->getLastInsertID(),
-            'methodId' => $this->db->getLastInsertID(),
+            'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
             'description' => 'All Countries, free shipping.',
             'name' => 'Free Everywhere',
             'enabled' => true
@@ -1430,7 +1429,7 @@ class Install extends Migration
         $data = [
             'name' => 'Order',
             'handle' => 'order',
-            'fieldLayoutId' => $this->db->getLastInsertID()
+            'fieldLayoutId' => $this->db->getLastInsertID(FieldLayout::tableName())
         ];
         $this->insert(OrderSettings::tableName(), $data);
 
@@ -1462,9 +1461,9 @@ class Install extends Migration
     private function _defaultProductTypes()
     {
         $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
-        $productFieldLayoutId = $this->db->getLastInsertID();
+        $productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
         $this->insert(FieldLayout::tableName(), ['type' => Variant::class]);
-        $variantFieldLayoutId = $this->db->getLastInsertID();
+        $variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
 
         $data = [
             'name' => 'Clothing',
@@ -1477,7 +1476,7 @@ class Install extends Migration
             'variantFieldLayoutId' => $variantFieldLayoutId
         ];
         $this->insert(ProductType::tableName(), $data);
-        $productTypeId = $this->db->getLastInsertID();
+        $productTypeId = $this->db->getLastInsertID(ProductType::tableName());
 
         $siteIds = (new Query())
             ->select('id')
@@ -1545,7 +1544,7 @@ class Install extends Migration
                 'archived' => 0
             ];
             $this->insert(Element::tableName(), $productElementData);
-            $productId = $this->db->getLastInsertID();
+            $productId = $this->db->getLastInsertID(Element::tableName());
 
             // Create an element for variant
             $variantElementData = [
@@ -1554,7 +1553,7 @@ class Install extends Migration
                 'archived' => 0
             ];
             $this->insert(Element::tableName(), $variantElementData);
-            $variantId = $this->db->getLastInsertID();
+            $variantId = $this->db->getLastInsertID(Element::tableName());
 
             // Populate the i18n data for each site
             $siteIds = (new Query())
