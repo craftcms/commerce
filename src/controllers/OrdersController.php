@@ -135,7 +135,7 @@ class OrdersController extends BaseCpController
     public function actionGetPaymentModal()
     {
         $this->requireAcceptsJson();
-        $templatesService = Craft::$app->getView();
+        $view = Craft::$app->getView();
 
         $request = Craft::$app->getRequest();
         $orderId = $request->getParam('orderId');
@@ -176,13 +176,19 @@ class OrdersController extends BaseCpController
 
             $paymentFormHtml = $gateway->getPaymentFormHtml([
                 'paymentForm' => $paymentFormModel,
+            ]);
+
+            $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
+                'formHtml' => $paymentFormHtml,
+                'gateway' => $gateway,
+                'paymentForm' => $paymentFormModel,
                 'order' => $order
             ]);
 
             $formHtml .= $paymentFormHtml;
         }
 
-        $modalHtml = Craft::$app->getView()->renderTemplate('commerce/orders/_paymentmodal', [
+        $modalHtml = $view->renderTemplate('commerce/orders/_paymentmodal', [
             'gateways' => $gateways,
             'order' => $order,
             'paymentForms' => $formHtml,
@@ -191,8 +197,8 @@ class OrdersController extends BaseCpController
         return $this->asJson([
             'success' => true,
             'modalHtml' => $modalHtml,
-            'headHtml' => $templatesService->getHeadHtml(),
-            'footHtml' => $templatesService->getBodyHtml(),
+            'headHtml' => $view->getHeadHtml(),
+            'footHtml' => $view->getBodyHtml(),
         ]);
     }
 

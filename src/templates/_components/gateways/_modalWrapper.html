@@ -1,5 +1,3 @@
-{% import "_includes/forms" as forms %}
-
 {% set currentYear = date()|date_modify("+1 year").format('Y') %}
 
 <div id="gateway-{{ gateway.id }}-form" class="gateway-form {% if order and order.gatewayId != gateway.id %}hidden{% endif %}">
@@ -15,7 +13,7 @@
         <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
         {{ csrfInput() }}
 
-        {% include 'commerce/_components/gateways/common/_creditCardFields' %}
+        {{ formHtml|raw }}
 
         <div class="footer">
             <div class="buttons right">

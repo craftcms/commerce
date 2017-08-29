@@ -8,8 +8,10 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\web\Response;
+use craft\web\View;
 
 /**
  * Dummy represents a dummy gateway.
@@ -28,19 +30,12 @@ class Dummy extends Gateway
 
     public function getPaymentFormHtml(array $params)
     {
-        $defaults = [
-            'gateway' => $this,
-            'paymentForm' => $this->getPaymentFormModel()
-        ];
-
-        $params = array_merge($defaults, $params);
-
-        return Craft::$app->getView()->renderTemplate('commerce/_components/gateways/common/offsitePaymentForm', $params);
+        return '';
     }
 
     public function getPaymentFormModel()
     {
-        return new CreditCardPaymentForm();
+        return new OffsitePaymentForm();
     }
 
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
