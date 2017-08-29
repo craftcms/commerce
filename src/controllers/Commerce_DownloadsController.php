@@ -58,10 +58,13 @@ class Commerce_DownloadsController extends Commerce_BaseFrontEndController
         IOHelper::ensureFolderExists($dompdfTempDir);
         IOHelper::ensureFolderExists($dompdfFontCache);
 
+        $isRemoteEnabled = craft()->config->get('pdfAllowRemoteImages', 'commerce');
+
         $options = new Options([
             'tempDir' => $dompdfTempDir,
             'fontCache' => $dompdfFontCache,
             'logOutputFile' => $dompdfLogFile,
+            'isRemoteEnabled' => $isRemoteEnabled
         ]);
 
         $dompdf = new Dompdf($options);

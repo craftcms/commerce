@@ -6,6 +6,7 @@ Commerce Changelog
 ### Added
 
 - Added a new template hook (`cp.commerce.product.edit.right-pane`) for the right pane of the edit product screen.
+- Added the `pdfAllowRemoteImages` config setting, which can be set to `true` to allow external images to be loaded in PDF templates.
 
 ### Fixed
 - Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
