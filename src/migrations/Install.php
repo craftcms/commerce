@@ -646,6 +646,7 @@ class Install extends Migration
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
             'paymentRate' => $this->decimal(14, 4),
+            'gatewayProcessing' => $this->boolean(),
             'status' => $this->enum('status', ['pending', 'redirect', 'success', 'failed'])->notNull(),
             'reference' => $this->string(),
             'code' => $this->string(),

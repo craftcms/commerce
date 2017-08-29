@@ -393,7 +393,13 @@
 
                     <tr class="infoRow" data-info="{{ info|json_encode }}">
                         <td>{{ transaction.type|title }}</td>
-                        <td class="transaction-status transaction-status-{{ transaction.status }}">{{ transaction.status|title|t('commerce') }}</td>
+                        <td class="transaction-status transaction-status-{{ transaction.status }}">
+                            {% if transaction.gatewayProcessing and transaction.status != 'failed' and transaction.status != 'success' %}
+                                {{ 'Processing'|t('commerce') }}
+                            {% else %}
+                                {{ transaction.status|title|t('commerce') }}
+                            {% endif %}
+                        </td>
                         <td>{{ transaction.amount|currency(transaction.currency) }}
                             <small class="light">({{ transaction.currency }})
                             </small>

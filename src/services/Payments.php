@@ -260,13 +260,17 @@ class Payments extends Component
         // Success can mean 2 things in this context.
         // 1) The transaction completed successfully with the gateway, and is now marked as complete.
         // 2) The result of the gateway request was successful but also got a redirect response. We now need to redirect if $redirect is not null.
-        $success = $response->isSuccessful();
+        $success = $response->isSuccessful() || $response->isProcessing();
 
         if ($success && $transaction->status === TransactionRecord::STATUS_SUCCESS) {
             $transaction->order->updateOrderPaidTotal();
         }
 
-        if ($success && $response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
+        if ($response->isProcessing()) {
+            $transaction->order->markAsComplete();
+        }
+
+        if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $this->_handleRedirect($response, $redirect);
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
@@ -571,7 +575,7 @@ class Payments extends Component
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
-        } else {
+        } elseif (!$response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
         }
 
@@ -579,6 +583,7 @@ class Payments extends Component
         $transaction->code = $response->getCode();
         $transaction->reference = $response->getTransactionReference();
         $transaction->message = $response->getMessage();
+        $transaction->gatewayProcessing = $response->isProcessing();
 
         $this->_saveTransaction($transaction);
     }

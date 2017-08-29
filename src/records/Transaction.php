@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property string      $message
  * @property string      $response
  * @property string      $code
+ * @property bool        $gatewayProcessing
  *
  * @property int         $parentId
  * @property int         $userId

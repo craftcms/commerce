@@ -92,6 +92,11 @@ class Transaction extends Model
     public $status;
 
     /**
+     * @var bool True, if payment being processed by gateway
+     */
+    public $gatewayProcessing;
+
+    /**
      * @var string reference
      */
     public $reference;
