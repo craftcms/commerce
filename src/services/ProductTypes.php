@@ -712,7 +712,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns a Query object prepped for retrieving tax categories.
+     * Returns a Query object prepped for retrieving purchasables.
      *
      * @return Query The query object.
      */
