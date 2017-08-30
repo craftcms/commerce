@@ -208,9 +208,9 @@ class Variant extends Purchasable
     /**
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
-     * @return \craft\commerce\base\SaleInterface[]
+     * @return \craft\commerce\base\SaleInterface[]|null
      */
-    public function getSales(): array
+    public function getSales()
     {
         return $this->_sales;
     }
