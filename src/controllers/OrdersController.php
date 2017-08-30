@@ -341,7 +341,7 @@ class OrdersController extends BaseCpController
         $order->message = $message;
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         }
     }
 
