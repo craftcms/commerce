@@ -1436,8 +1436,8 @@ class Install extends Migration
 
 
         $data = [
-            'name' => 'Processing',
-            'handle' => 'processing',
+            'name' => 'New',
+            'handle' => 'new',
             'color' => 'green',
             'default' => true
         ];
