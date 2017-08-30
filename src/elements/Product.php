@@ -8,12 +8,13 @@ use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
-use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
+use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\SetStatus;
@@ -24,7 +25,6 @@ use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use craft\commerce\helpers\Product as ProductHelper;
 
 /**
  * Product model.
@@ -48,9 +48,16 @@ use craft\commerce\helpers\Product as ProductHelper;
  */
 class Product extends Element
 {
+
+    // Constants
+    // =============================================================================
+
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
+
+    // Properties
+    // =============================================================================
 
     /**
      * @var Variant[] This product’s variants
@@ -154,7 +161,6 @@ class Product extends Element
 
     // Public Methods
     // =============================================================================
-
 
     /**
      * @inheritdoc
@@ -819,8 +825,7 @@ class Product extends Element
 
         foreach ($this->getVariants() as $variant) {
             $variant->validate();
-            if ($variant->hasErrors())
-            {
+            if ($variant->hasErrors()) {
                 $variantsValid = false;
             }
         }
@@ -839,7 +844,6 @@ class Product extends Element
             if (!$record) {
                 throw new Exception('Invalid product ID: '.$this->id);
             }
-
         } else {
             $record = new ProductRecord();
             $record->id = $this->id;
@@ -854,11 +858,11 @@ class Product extends Element
         $record->shippingCategoryId = $this->shippingCategoryId;
 
         $record->defaultSku = $this->getDefaultVariant()->sku;
-        $record->defaultPrice = (float) $this->getDefaultVariant()->price;
-        $record->defaultHeight = (float) $this->getDefaultVariant()->height;
-        $record->defaultLength = (float) $this->getDefaultVariant()->length;
-        $record->defaultWidth = (float) $this->getDefaultVariant()->width;
-        $record->defaultWeight = (float) $this->getDefaultVariant()->weight;
+        $record->defaultPrice = (float)$this->getDefaultVariant()->price;
+        $record->defaultHeight = (float)$this->getDefaultVariant()->height;
+        $record->defaultLength = (float)$this->getDefaultVariant()->length;
+        $record->defaultWidth = (float)$this->getDefaultVariant()->width;
+        $record->defaultWeight = (float)$this->getDefaultVariant()->weight;
 
         $record->save(false);
 
@@ -894,7 +898,7 @@ class Product extends Element
     {
         $rules = parent::rules();
 
-        $rules[] = [['typeId', 'shippingCategoryId','taxCategoryId'], 'number', 'integerOnly' => true];
+        $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
 
         return $rules;
@@ -918,24 +922,20 @@ class Product extends Element
     public function beforeValidate(): bool
     {
         $taxCategoryIds = array_keys($this->getType()->getTaxCategories());
-        if (!in_array($this->taxCategoryId, $taxCategoryIds, false))
-        {
+        if (!in_array($this->taxCategoryId, $taxCategoryIds, false)) {
             $this->taxCategoryId = $taxCategoryIds[0];
         }
 
         $shippingCategoryIds = array_keys($this->getType()->getShippingCategories());
-        if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false))
-        {
+        if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false)) {
             $this->shippingCategoryId = $shippingCategoryIds[0];
         }
 
         $defaultVariant = null;
 
-        foreach ($this->getVariants() as $variant)
-        {
+        foreach ($this->getVariants() as $variant) {
             // Make the first variant (or the last one that isDefault) the default.
-            if ($defaultVariant === null || $variant->isDefault)
-            {
+            if ($defaultVariant === null || $variant->isDefault) {
                 $defaultVariant = $variant;
             }
         }
