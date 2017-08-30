@@ -1,8 +1,10 @@
 <?php
-namespace craft\commerce\fieldtypes;
 
-use craft\base\Field;
+namespace craft\commerce\fields;
+
+use Craft;
 use craft\commerce\elements\Product;
+use craft\fields\BaseRelationField;
 
 /**
  * Class Product Field
@@ -13,38 +15,32 @@ use craft\commerce\elements\Product;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.fieldtypes
  * @since     1.0
+ *
  */
-class Products extends Field
+class Products extends BaseRelationField
 {
-    // Properties
-    // =========================================================================
-
-    /**
-     * The element type this field deals with.
-     *
-     * @var string $elementType
-     */
-    protected $elementType = Product::class;
-
     /**
      * @inheritDoc IComponentType::getName()
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Craft::t('commerce', 'Commerce Products');
     }
 
-    // Protected Methods
-    // =========================================================================
+    /**
+     * @inheritdoc
+     */
+    protected static function elementType(): string
+    {
+        return Product::class;
+    }
 
     /**
-     * @inheritDoc BaseElementFieldType::getAddButtonLabel()
-     *
-     * @return string
+     * @inheritdoc
      */
-    protected function getAddButtonLabel()
+    public static function defaultSelectionLabel(): string
     {
         return Craft::t('commerce', 'Add a product');
     }
