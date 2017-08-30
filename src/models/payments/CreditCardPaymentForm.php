@@ -63,6 +63,11 @@ class CreditCardPaymentForm extends BasePaymentForm
     public $expiry;
 
     /**
+     * @var bool
+     */
+    public $threeDSecure = false;
+
+    /**
      * @inheritdoc
      */
     public function setAttributes($values, $safeOnly = true)

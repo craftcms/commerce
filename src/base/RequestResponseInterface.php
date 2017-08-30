@@ -17,6 +17,13 @@ interface RequestResponseInterface
     public function isSuccessful(): bool;
 
     /**
+     * Whether or not the payment is being processed by gateway.
+     *
+     * @return bool
+     */
+    public function isProcessing(): bool;
+
+    /**
      * Whether or not the user needs to be redirected.
      *
      * @return bool

@@ -5,6 +5,7 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
 /**
@@ -65,6 +66,17 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * Returns the webhook url for this gateway.
+     *
+     * @return string
+     */
+    public function getWebhookUrl()
+    {
+        $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', ['gateway' => $this->id]);
+        return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger.'/', '');
+    }
+
+    /**
      * Whether this gateway allows pamyents in control panel.
      *
      * @return bool
@@ -119,14 +131,5 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         return [
             [['paymentType'], 'required']
         ];
-    }
-
-    /**
-     * I have no idea.
-     *
-     * @return bool
-     */
-    public function useNotifyUrl() {
-        return false;
     }
 }
