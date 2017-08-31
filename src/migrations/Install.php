@@ -353,7 +353,7 @@ class Install extends Migration
         $this->createTable('{{%commerce_paymentcurrencies}}', [
             'id' => $this->primaryKey(),
             'iso' => $this->string(3)->notNull(),
-            'primary' => $this->boolean(),
+            'primary' => $this->boolean()->notNull()->defaultValue(false),
             'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
