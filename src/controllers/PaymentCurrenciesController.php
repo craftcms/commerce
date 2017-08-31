@@ -86,7 +86,7 @@ class PaymentCurrenciesController extends BaseAdminController
         $currency->id = Craft::$app->getRequest()->getParam('currencyId');
         $currency->iso = Craft::$app->getRequest()->getParam('iso');
         $currency->rate = Craft::$app->getRequest()->getParam('rate');
-        $currency->primary = Craft::$app->getRequest()->getParam('primary');
+        $currency->primary = (bool) Craft::$app->getRequest()->getParam('primary');
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
