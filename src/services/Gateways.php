@@ -91,7 +91,8 @@ class Gateways extends Component
     public function getAllGateways(): array
     {
         $rows = $this->_createGatewayQuery()
-            ->where(Db::parseParam('isArchived', ':empty:'))
+            ->where(['not', ['isArchived' => 1]])
+            ->orWhere(['isArchived' => null])
             ->orderBy('sortOrder')
             ->all();
 
