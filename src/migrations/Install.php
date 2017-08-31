@@ -266,7 +266,7 @@ class Install extends Migration
             'description' => $this->string(),
             'amount' => $this->decimal(14, 4)->notNull(),
             'included' => $this->boolean(),
-            'optionsJson' => $this->text()->notNull(),
+            'sourceSnapshot' => $this->text()->notNull(),
             'orderId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

@@ -123,7 +123,7 @@ class BaseFrontEndController extends BaseController
             $adjustmentData['name'] = $adjustment->name;
             $adjustmentData['description'] = $adjustment->description;
             $adjustmentData['amount'] = $adjustment->amount;
-            $adjustmentData['optionsJson'] = $adjustment->optionsJson;
+            $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
             $adjustmentData['orderId'] = $adjustment->orderId;
             $adjustments[$adjustment->type][] = $adjustmentData;
         }

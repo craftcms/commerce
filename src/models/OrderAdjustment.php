@@ -15,7 +15,7 @@ use craft\commerce\Plugin;
  * @property string $type
  * @property float  $amount
  * @property bool   $included
- * @property string $optionsJson
+ * @property string $sourceSnapshot
  * @property int    $orderId
  *
  * @property Order  $order
@@ -63,12 +63,17 @@ class OrderAdjustment extends Model
     /**
      * @var mixed Adjuster options
      */
-    public $optionsJson;
+    public $sourceSnapshot;
 
     /**
      * @var int Order ID
      */
     public $orderId;
+
+    /**
+     * @var int Order ID
+     */
+    public $lineItemId;
 
     /**
      * @return \craft\commerce\elements\Order|null
@@ -84,7 +89,7 @@ class OrderAdjustment extends Model
     public function rules()
     {
         return [
-            [['type', 'amount', 'optionsJson', 'orderId'], 'required']
+            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required']
         ];
     }
 
@@ -94,6 +99,6 @@ class OrderAdjustment extends Model
     public function init()
     {
         $this->included = false;
-        $this->optionsJson = [];
+        $this->sourceSnapshot = [];
     }
 }

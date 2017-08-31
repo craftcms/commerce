@@ -93,7 +93,7 @@ class OrderAdjustments extends Component
             'amount',
             'included',
             'orderId',
-            'optionsJson'
+            'sourceSnapshot'
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -138,7 +138,8 @@ class OrderAdjustments extends Component
             'type',
             'amount',
             'included',
-            'optionsJson',
+            'sourceSnapshot',
+            'lineItemId',
             'orderId'
         ]));
     }

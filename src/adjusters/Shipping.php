@@ -97,8 +97,8 @@ class Shipping implements AdjusterInterface
 
             // Let the name, options and description come last since since plugins may not have all info up front.
             $adjustment->name = $shippingMethod->getName();
-            $adjustment->optionsJson = $rule->getOptions();
-            $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+            $adjustment->sourceSnapshot = $rule->getOptions();
+            $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
             $adjustment->description = $rule->getDescription();
 
             $adjustments[] = $adjustment;

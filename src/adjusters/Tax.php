@@ -72,7 +72,7 @@ class Tax implements AdjusterInterface
         $adjustment->name = $taxRate->name;
         $adjustment->description = $taxRate->rate * 100 .'%'.($taxRate->include ? ' inc' : '');
         $adjustment->orderId = $order->id;
-        $adjustment->optionsJson = $taxRate->attributes;
+        $adjustment->sourceSnapshot = $taxRate->attributes;
 
         $affectedLineIds = [];
 
@@ -124,7 +124,7 @@ class Tax implements AdjusterInterface
                     // We need to display the adjustment that removed the included tax
                     $adjustment->name = $taxRate->name.' '.Craft::t('commerce', 'Removed');
                     $adjustment->amount = $allRemovedTax;
-                    $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+                    $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
 
                     return $adjustment;
                 }
@@ -145,7 +145,7 @@ class Tax implements AdjusterInterface
                 // We need to display the adjustment that removed the included tax
                 $adjustment->name = $taxRate->name." ".Craft::t('commerce', 'Removed');
                 $adjustment->amount = $allRemovedTax;
-                $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+                $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
 
                 return $adjustment;
             }
@@ -216,7 +216,7 @@ class Tax implements AdjusterInterface
             }
         }
 
-        $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+        $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
 
         return $itemsMatch ? $adjustment : false;
     }

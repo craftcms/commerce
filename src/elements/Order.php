@@ -4,12 +4,12 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Element;
+use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\events\OrderEvent;
-use craft\commerce\base\Gateway;
-use craft\commerce\base\GatewayInterface;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -21,7 +21,6 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
@@ -42,10 +41,6 @@ use yii\base\Exception;
  * @property float                   $itemTotal
  * @property float                   $totalPrice
  * @property float                   $totalPaid
- * @property float                   $baseDiscount
- * @property float                   $baseShippingCost
- * @property float                   $baseTax
- * @property float                   $baseTaxIncluded
  * @property string                  $email
  * @property bool                    $isCompleted
  * @property \DateTime               $dateOrdered
@@ -128,26 +123,6 @@ class Order extends Element
      * @var string Coupon Code
      */
     public $couponCode;
-
-    /**
-     * @var float Base Discount
-     */
-    public $baseDiscount = 0;
-
-    /**
-     * @var float Base Shipping Cost
-     */
-    public $baseShippingCost = 0;
-
-    /**
-     * @var float Base Tax
-     */
-    public $baseTax = 0;
-
-    /**
-     * @var float Base Tax Included
-     */
-    public $baseTaxIncluded = 0;
 
     /**
      * @var string Email
@@ -393,23 +368,30 @@ class Order extends Element
      *
      * @param $lineItem
      *
-     * @return bool
+     * @return void
      */
-    public function removeLineItem($lineItem): bool
+    public function removeLineItem($lineItem)
     {
-        $success = false;
         $lineItems = $this->getLineItems();
         foreach ($lineItems as $key => $item) {
             if ($lineItem->id == $item->id) {
-                $lineItemRecord = LineItemRecord::findOne($lineItem->id);
-                if ($success = $lineItemRecord->delete()) {
-                    unset($lineItems[$key]);
-                    $this->setLineItems($lineItems);
-                }
+                unset($lineItems[$key]);
+                $this->setLineItems($lineItems);
             }
         }
+    }
 
-        return $success;
+    /**
+     * Add a line item to the order.
+     *
+     * @param $lineItem
+     *
+     * @return void
+     */
+    public function addLineItem($lineItem)
+    {
+        $lineItems = $this->getLineItems();
+        $this->setLineItems(array_merge($lineItems, $lineItem));
     }
 
     /**
@@ -424,11 +406,10 @@ class Order extends Element
             return;
         }
 
-        $this->baseTax = 0;
-        $this->baseShippingCost = 0;
-        $this->baseDiscount = 0;
-        $this->baseTaxIncluded = 0;
-        foreach ($this->getLineItems() as $key => $item) {
+        //reset adjustments
+        $this->setAdjustments([]);
+
+        foreach ($this->getLineItems() as $item) {
             if (!$item->refreshFromPurchasable()) {
                 $this->removeLineItem($item);
                 // We have changed the cart contents so recalculate the order.
@@ -436,48 +417,23 @@ class Order extends Element
 
                 return;
             }
-
-            $item->tax = 0;
-            $item->taxIncluded = 0;
-            $item->shippingCost = 0;
-            $item->discount = 0;
         }
 
-        // reset adjustments
-        $this->setAdjustments([]);
         Plugin::getInstance()->getOrderAdjustments()->deleteAllOrderAdjustmentsByOrderId($this->id);
 
         // collect new adjustments
-        foreach (PLugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this, $this->getLineItems());
+        foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+            $adjustments = (new $adjuster)->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 
         // save new adjustment models
         foreach ($this->getAdjustments() as $adjustment) {
-            $result = Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
-            if (!$result) {
-                $errors = $adjustment->errors;
-                throw new Exception('Error saving order adjustment: '.implode(', ', $errors));
-            }
-        }
-
-        foreach ($this->getLineItems() as $item) {
-            // TODO: move to afterSave ?
-            Plugin::getInstance()->getLineItems()->saveLineItem($item);
-        }
-
-        $itemSubtotal = $this->getItemSubtotal();
-        $adjustmentSubtotal = $this->getAdjustmentSubtotal();
-
-        $same = ($itemSubtotal + $adjustmentSubtotal) == $this->getTotalPrice();
-
-        if (!$same) {
-            Craft::error(['Total of line items after adjustments does not equal total of adjustment amounts plus original sale prices for order #{orderNumber}', ['orderNumber' => $this->number]], __METHOD__);
+            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
         }
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
-        // if the currently selected shipping method is now not available.
+        // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
         if ($this->getShippingMethodHandle()) {
             if (!isset($availableMethods[$this->getShippingMethodHandle()]) || empty($availableMethods)) {
@@ -539,10 +495,6 @@ class Order extends Element
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
-        $orderRecord->baseDiscount = $this->baseDiscount;
-        $orderRecord->baseShippingCost = $this->baseShippingCost;
-        $orderRecord->baseTax = $this->baseTax;
-        $orderRecord->baseTaxIncluded = $this->baseTaxIncluded;
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
@@ -703,6 +655,7 @@ class Order extends Element
 
     /**
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
+     *
      * @return string
      */
     public function getEmail(): string
@@ -716,6 +669,7 @@ class Order extends Element
 
     /**
      * Sets the orders email address. Will have no affect if the order's customer is a registered user.
+     *
      * @param $value
      */
     public function setEmail($value)
@@ -728,7 +682,7 @@ class Order extends Element
      */
     public function isPaid(): bool
     {
-        return (bool) ($this->outstandingBalance() <= 0);
+        return (bool)($this->outstandingBalance() <= 0);
     }
 
     /**
@@ -736,7 +690,7 @@ class Order extends Element
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemTotal() + $this->baseTax + $this->baseShippingCost + $this->baseDiscount);
+        return Currency::round($this->getItemTotal() + $this->getAdjustmentsTotal());
     }
 
     /**
@@ -762,7 +716,7 @@ class Order extends Element
      */
     public function isUnpaid(): bool
     {
-        return (bool) ($this->outstandingBalance() > 0);
+        return (bool)($this->outstandingBalance() > 0);
     }
 
     /**
@@ -828,11 +782,13 @@ class Order extends Element
     public function getTotalTax()
     {
         $tax = 0;
-        foreach ($this->getLineItems() as $item) {
-            $tax += $item->tax;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if (!$adjustment->included && $adjustment->type == 'tax') {
+                $tax += $adjustment->amount;
+            }
         }
 
-        return $tax + $this->baseTax;
+        return $tax;
     }
 
     /**
@@ -841,11 +797,13 @@ class Order extends Element
     public function getTotalTaxIncluded()
     {
         $tax = 0;
-        foreach ($this->getLineItems() as $item) {
-            $tax += $item->taxIncluded;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->included && $adjustment->type == 'taxIncluded') {
+                $tax += $adjustment->amount;
+            }
         }
 
-        return $tax + $this->baseTaxIncluded;
+        return $tax;
     }
 
     /**
@@ -853,12 +811,14 @@ class Order extends Element
      */
     public function getTotalDiscount()
     {
-        $discount = 0;
-        foreach ($this->getLineItems() as $item) {
-            $discount += $item->discount;
+        $tax = 0;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if (!$adjustment->included && $adjustment->type == 'discount') {
+                $tax += $adjustment->amount;
+            }
         }
 
-        return $discount + $this->baseDiscount;
+        return $tax;
     }
 
     /**
@@ -866,12 +826,14 @@ class Order extends Element
      */
     public function getTotalShippingCost()
     {
-        $shippingCost = 0;
-        foreach ($this->getLineItems() as $item) {
-            $shippingCost += $item->shippingCost;
+        $tax = 0;
+        foreach ($this->getAdjustments() as $adjustment) {
+            if (!$adjustment->included && $adjustment->type == 'shipping') {
+                $tax += $adjustment->amount;
+            }
         }
 
-        return $shippingCost + $this->baseShippingCost;
+        return $tax;
     }
 
     /**
@@ -965,11 +927,36 @@ class Order extends Element
      */
     public function getAdjustments(): array
     {
-        if (!$this->_orderAdjustments) {
-            $this->_orderAdjustments = Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id);
+        if (null === $this->_orderAdjustments) {
+            $this->setAdjustments(Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id));
         }
 
         return $this->_orderAdjustments;
+    }
+
+    /**
+     * @param OrderAdjustment[] $adjustments
+     */
+    public function setAdjustments(array $adjustments)
+    {
+        $this->_orderAdjustments = $adjustments;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAdjustmentsTotal()
+    {
+        $amount = 0;
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            if(!$adjustment->included)
+            {
+                $amount += $adjustment->amount;
+            }
+        }
+
+        return $amount;
     }
 
     /**
@@ -983,14 +970,6 @@ class Order extends Element
         }
 
         return $value;
-    }
-
-    /**
-     * @param OrderAdjustment[] $adjustments
-     */
-    public function setAdjustments(array $adjustments)
-    {
-        $this->_orderAdjustments = $adjustments;
     }
 
     /**
@@ -1065,8 +1044,7 @@ class Order extends Element
      */
     public function getGateway()
     {
-        if ($this->gatewayId)
-        {
+        if ($this->gatewayId) {
             return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -1343,7 +1321,7 @@ class Order extends Element
             if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
                 return $this->billingAddress->firstName;
             }
-            
+
             return '';
         }
 

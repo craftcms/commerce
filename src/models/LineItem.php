@@ -3,6 +3,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -23,10 +24,6 @@ use craft\helpers\Html;
  * @property float                                   $price
  * @property float                                   $saleAmount
  * @property float                                   $salePrice
- * @property float                                   $tax
- * @property float                                   $taxIncluded
- * @property float                                   $shippingCost
- * @property float                                   $discount
  * @property float                                   $weight
  * @property float                                   $height
  * @property float                                   $width
@@ -89,26 +86,6 @@ class LineItem extends Model
      * @var float Sale price
      */
     public $salePrice = 0;
-
-    /**
-     * @var float tax
-     */
-    public $tax = 0;
-
-    /**
-     * @var float Tax included amount
-     */
-    public $taxIncluded = 0;
-
-    /**
-     * @var float Shipping Cost
-     */
-    public $shippingCost = 0;
-
-    /**
-     * @var float Discount
-     */
-    public $discount = 0;
 
     /**
      * @var float Weight
@@ -181,6 +158,11 @@ class LineItem extends Model
     private $_order;
 
     /**
+     * @var OrderAdjustment[]|null
+     */
+    private $_adjustments;
+
+    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()
@@ -201,7 +183,7 @@ class LineItem extends Model
         $this->_order = $order;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [
@@ -210,10 +192,6 @@ class LineItem extends Model
                     'price',
                     'saleAmount',
                     'salePrice',
-                    'tax',
-                    'taxIncluded',
-                    'shippingCost',
-                    'discount',
                     'weight',
                     'length',
                     'height',
@@ -244,7 +222,7 @@ class LineItem extends Model
      */
     public function getTotal()
     {
-        return $this->getSubtotal() + $this->tax + $this->discount + $this->shippingCost;
+        return $this->getSubtotal() + $this->getAdjustmentsTotal();
     }
 
     /**
@@ -294,12 +272,12 @@ class LineItem extends Model
     }
 
     /**
-     * @return \craft\commerce\base\Element|null
+     * @return ElementInterface|null
      */
     public function getPurchasable()
     {
         // todo shouldn't this ensure that purchasable interface is at least implented?
-        if (!$this->_purchasable) {
+        if (null === $this->_purchasable) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
 
@@ -400,4 +378,39 @@ class LineItem extends Model
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
 
+
+    /**
+     * @return OrderAdjustment[]
+     */
+    public function getAdjustments(): array
+    {
+        $adjustments = $this->getOrder()->getAdjustments();
+        $lineItemAdjustments = [];
+        foreach ($adjustments as $adjustment)
+        {
+            if ($adjustment->lineItemId = $this->lineItemId)
+            {
+                $lineItemAdjustments[] = $adjustment;
+            }
+        }
+
+        return $lineItemAdjustments;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAdjustmentsTotal()
+    {
+        $amount = 0;
+        foreach ($this->getAdjustments() as $adjustment)
+        {
+            if (!$adjustment->included)
+            {
+                $amount += $adjustment->amount;
+            }
+        }
+
+        return $amount;
+    }
 }

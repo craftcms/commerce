@@ -75,7 +75,7 @@ class Discount implements AdjusterInterface
         $adjustment->name = $discount->name;
         $adjustment->orderId = $order->id;
         $adjustment->description = $discount->description;
-        $adjustment->optionsJson = $discount->attributes;
+        $adjustment->sourceSnapshot = $discount->attributes;
         $affectedLineIds = [];
 
 
@@ -200,7 +200,7 @@ class Discount implements AdjusterInterface
         // only display adjustment if an amount was calculated
         if ($amount || $shippingRemoved) {
             // Record which line items this discount affected.
-            $adjustment->optionsJson = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
+            $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
             $adjustment->amount = $amount + ($shippingRemoved * -1);
 
             return $adjustment;

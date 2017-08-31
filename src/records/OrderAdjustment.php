@@ -14,7 +14,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $type
  * @property float  $amount
  * @property bool   $included
- * @property string $optionsJson
+ * @property string $sourceSnapshot
  * @property int    $orderId
  *
  * @property Order  $order
