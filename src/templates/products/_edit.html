@@ -161,11 +161,11 @@
                 <div class="pane lightpane meta">
                     <div class="data">
                         <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
-                        <div class="value">{{ product.dateCreated.localeDate() }} {{ product.dateCreated.localeTime() }}</div>
+                        <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
                     </div>
                     <div class="data">
                         <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
-                        <div class="value">{{ product.dateUpdated.localeDate() }} {{ product.dateUpdated.localeTime() }}</div>
+                        <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
                     </div>
                     {% if promotions.sales|length %}
                         <div class="data">

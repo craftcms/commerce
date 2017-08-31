@@ -134,6 +134,11 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool
+     */
+    public $pdfAllowRemoteImages = false;
+
+    /**
      * @var array
      */
     public $gatewaySettings = [];

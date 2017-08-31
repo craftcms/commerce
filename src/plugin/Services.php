@@ -19,6 +19,7 @@ use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Purchasables;
 use craft\commerce\services\Sales;
 use craft\commerce\services\Settings;
 use craft\commerce\services\ShippingCategories;

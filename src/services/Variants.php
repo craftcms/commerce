@@ -226,7 +226,7 @@ class Variants extends Component
     {
         // reset the salePrice to be the same as price, and clear any sales applied.
         foreach ($variants as $variant) {
-            $variant->setSalesApplied([]);
+            $variant->setSales([]);
             $variant->setSalePrice(Currency::round($variant->price));
         }
 
@@ -236,7 +236,7 @@ class Variants extends Component
 
             foreach ($sales as $sale) {
                 foreach ($variants as $variant) {
-                    $variant->setSalesApplied($sales);
+                    $variant->setSales($sales);
 
                     $variant->setSalePrice(Currency::round($variant->getSalePrice() + $sale->calculateTakeoff($variant->price)));
                     if ($variant->getSalePrice() < 0) {

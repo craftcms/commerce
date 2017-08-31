@@ -71,10 +71,13 @@ class DownloadsController extends BaseFrontEndController
         FileHelper::isWritable($dompdfTempDir);
         FileHelper::isWritable($dompdfFontCache);
 
+        $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
+
         $options = new Options();
         $options->setTempDir($dompdfTempDir);
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
+        $options->setIsRemoteEnabled($isRemoteEnabled);
 
         // Paper Size and Orientation
         $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;

@@ -94,7 +94,8 @@ class OrdersController extends BaseCpController
             }
         }
 
-        $variables['orderStatusesJson'] = Json::encode($plugin->getOrderStatuses()->getAllOrderStatuses());
+        $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
+        $variables['orderStatusesJson'] = Json::encode($allStatuses);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
@@ -340,7 +341,7 @@ class OrdersController extends BaseCpController
         $order->message = $message;
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         }
     }
 

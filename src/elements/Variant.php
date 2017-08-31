@@ -110,7 +110,7 @@ class Variant extends Purchasable
     /**
      * @var
      */
-    private $_salesApplied;
+    private $_sales;
 
     /**
      * @var \craft\commerce\elements\Product The product that this variant is associated with.
@@ -127,10 +127,9 @@ class Variant extends Purchasable
         $rules = parent::rules();
 
         $rules[] = [['sku'], 'string'];
-        $rules[] = [['sku','price'], 'required'];
-        
-        if (!$this->unlimitedStock)
-        {
+        $rules[] = [['sku', 'price'], 'required'];
+
+        if (!$this->unlimitedStock) {
             $rules[] = [['stock'], 'required'];
         }
 
@@ -140,7 +139,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
 
@@ -163,7 +162,7 @@ class Variant extends Purchasable
      */
     public function getSalePrice()
     {
-        if ($this->getSalesApplied() === null) {
+        if ($this->getSales() === null) {
             Plugin::getInstance()->getVariants()->applySales([$this], $this->getProduct());
         }
 
@@ -182,10 +181,38 @@ class Variant extends Purchasable
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return \craft\commerce\base\SaleInterface[]
+     *
+     * @deprecated
      */
     public function getSalesApplied()
     {
-        return $this->_salesApplied;
+        Craft::$app->getDeprecator()->log('getSalesApplied()', 'The getSalesApplied() function has been deprecated. Use getSales() instead.');
+
+        return $this->getSales();
+    }
+
+    /**
+     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @param \craft\commerce\base\SaleInterface[] $sales
+     *
+     * @deprecated
+     */
+    public function setSalesApplied($sales)
+    {
+        Craft::$app->getDeprecator()->log('setSalesApplied()', 'The setSalesApplied() function has been deprecated. Use setSales() instead.');
+
+        $this->setSales($sales);
+    }
+
+    /**
+     * An array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @return \craft\commerce\base\SaleInterface[]|null
+     */
+    public function getSales()
+    {
+        return $this->_sales;
     }
 
     /**
@@ -193,9 +220,9 @@ class Variant extends Purchasable
      *
      * @param \craft\commerce\base\SaleInterface[] $sales
      */
-    public function setSalesApplied($sales)
+    public function setSales(array $sales)
     {
-        $this->_salesApplied = $sales;
+        $this->_sales = $sales;
     }
 
     /**
@@ -246,7 +273,7 @@ class Variant extends Purchasable
      *
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         $format = $this->getProduct()->getType()->descriptionFormat;
 
@@ -262,7 +289,7 @@ class Variant extends Purchasable
      *
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         if (!$this->getProduct()->getType()->hasVariants) {
             return $this->getProduct()->title;
@@ -274,7 +301,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
 
@@ -284,7 +311,7 @@ class Variant extends Purchasable
     /**
      * @return bool
      */
-    public function isEditable()
+    public function isEditable(): bool
     {
         $product = $this->getProduct();
 
@@ -306,7 +333,7 @@ class Variant extends Purchasable
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : null;
     }
@@ -314,7 +341,7 @@ class Variant extends Purchasable
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->product->url.'?variant='.$this->id;
     }
@@ -344,9 +371,9 @@ class Variant extends Purchasable
     /**
      * We need to be explicit to meet interface
      *
-     * @return string
+     * @return array
      */
-    public function getSnapshot()
+    public function getSnapshot(): array
     {
         $data = [
             'onSale' => $this->getOnSale(),
@@ -361,7 +388,7 @@ class Variant extends Purchasable
     /**
      * @return bool
      */
-    public function getOnSale()
+    public function getOnSale(): bool
     {
         return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
     }
@@ -371,7 +398,7 @@ class Variant extends Purchasable
      *
      * @return string
      */
-    public function getSku()
+    public function getSku(): string
     {
         return $this->sku;
     }
@@ -379,7 +406,7 @@ class Variant extends Purchasable
     /**
      * We need to be explicit to meet interface
      *
-     * @return int
+     * @return int|null
      */
     public function getPurchasableId()
     {
@@ -391,7 +418,7 @@ class Variant extends Purchasable
      *
      * @return int
      */
-    public function getTaxCategoryId()
+    public function getTaxCategoryId(): int
     {
         return $this->getProduct()->taxCategoryId;
     }
@@ -401,7 +428,7 @@ class Variant extends Purchasable
      *
      * @return int
      */
-    public function getShippingCategoryId()
+    public function getShippingCategoryId(): int
     {
         return $this->getProduct()->shippingCategoryId;
     }
@@ -413,7 +440,7 @@ class Variant extends Purchasable
      */
     public function hasStock(): bool
     {
-        return (bool) ($this->stock > 0 || $this->unlimitedStock);
+        return (bool)($this->stock > 0 || $this->unlimitedStock);
     }
 
     /**
@@ -423,7 +450,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        return (bool) $this->getProduct()->freeShipping;
+        return (bool)$this->getProduct()->freeShipping;
     }
 
     /**
@@ -496,7 +523,6 @@ class Variant extends Purchasable
         return new VariantQuery(static::class);
     }
 
-
     /**
      * @inheritdoc
      */
@@ -538,10 +564,10 @@ class Variant extends Purchasable
             $lineItem->qty = $this->stock;
         }
 
-        $lineItem->weight = (float) $this->weight; //converting nulls
-        $lineItem->height = (float) $this->height; //converting nulls
-        $lineItem->length = (float) $this->length; //converting nulls
-        $lineItem->width = (float) $this->width; //converting nulls
+        $lineItem->weight = (float)$this->weight; //converting nulls
+        $lineItem->height = (float)$this->height; //converting nulls
+        $lineItem->length = (float)$this->length; //converting nulls
+        $lineItem->width = (float)$this->width; //converting nulls
 
         $sales = Plugin::getInstance()->getSales()->getSalesForVariant($this);
 
@@ -618,7 +644,7 @@ class Variant extends Purchasable
      *
      * @return bool
      */
-    public function getIsAvailable()
+    public function getIsAvailable(): bool
     {
         // remove the item from the cart if the product is not enabled
         if ($this->getStatus() != Element::STATUS_ENABLED) {
@@ -642,7 +668,7 @@ class Variant extends Purchasable
         $status = parent::getStatus();
 
         $productStatus = $this->getProduct()->getStatus();
-        if ($productStatus != \craft\commerce\elements\Product::STATUS_LIVE) {
+        if ($productStatus != Product::STATUS_LIVE) {
             return Element::STATUS_DISABLED;
         }
 
@@ -665,13 +691,10 @@ class Variant extends Purchasable
         }
     }
 
-    // Original Element methods:
-
-
     /**
-     * @return null|string
+     * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Craft::t('commerce', 'Variants');
     }
@@ -695,14 +718,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function hasStatuses(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public static function isSelectable(): bool
     {
         return true;
@@ -717,11 +732,9 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param null $context
-     *
-     * @return array
+     * @inheritdoc
      */
-    public function getSources($context = null)
+    protected static function defineSources(string $context = null): array
     {
         $sources = [
 
@@ -733,9 +746,21 @@ class Variant extends Purchasable
         return $sources;
     }
 
-    public function beforeValidate()
+    /**
+     * @inheritdoc
+     */
+    protected static function defineActions(string $source = null): array
     {
-        $productType = $this->getProduct()->getType();
+        return [];
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function beforeValidate(): bool
+    {
+        $productType = $this->getProduct()->getType() ?? null;
         $product = $this->getProduct();
 
         if ($productType === null) {
@@ -771,8 +796,7 @@ class Variant extends Purchasable
             }
         }
 
-        if($this->unlimitedStock)
-        {
+        if ($this->unlimitedStock) {
             $this->stock = 0;
         }
 
@@ -782,26 +806,91 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function defineTableAttributes($source = null): array
+    protected function tableAttributeHtml(string $attribute): string
+    {
+        /* @var $productType ProductType */
+        $productType = $this->product->getType();
+
+        switch ($attribute) {
+            case 'sku': {
+                return $this->sku;
+            }
+            case 'price': {
+                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+            }
+            case 'weight': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                }
+
+                return '';
+            }
+            case 'length':
+            case 'width':
+            case 'height': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                }
+
+                return '';
+            }
+            default: {
+                return parent::tableAttributeHtml($attribute);
+            }
+        }
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
     {
         return [
             'title' => Craft::t('commerce', 'Title'),
             'sku' => Craft::t('commerce', 'SKU'),
             'price' => Craft::t('commerce', 'Price'),
-            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits]),
-            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits]),
-            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits]),
-            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->getSettings()->weightUnits]),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
             'stock' => Craft::t('commerce', 'Stock'),
             'minQty' => Craft::t('commerce', 'Quantities')
         ];
     }
 
     /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        $attributes = [];
+
+        $attributes[] = 'title';
+        $attributes[] = 'sku';
+        $attributes[] = 'price';
+
+        return $attributes;
+    }
+
+    /**
      * @return array
      */
-    public static function defineSearchableAttributes(): array
+    protected static function defineSearchableAttributes(): array
     {
         return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title')
+        ];
+    }
+
 }

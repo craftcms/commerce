@@ -1,8 +1,12 @@
 <?php
+
 namespace craft\commerce;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\fields\Customer;
+use craft\commerce\fields\Products;
+use craft\commerce\fields\Variants;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
@@ -10,6 +14,7 @@ use craft\commerce\variables\Commerce;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
+use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
 use craft\events\DefineComponentsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -20,8 +25,9 @@ use craft\fields\RichText;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Dashboard;
+use craft\services\Elements;
+use craft\services\Fields;
 use craft\services\Sites;
-use craft\elements\User as UserElement;
 use craft\services\UserPermissions;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
@@ -65,6 +71,7 @@ class Plugin extends \craft\base\Plugin
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
         $this->_registerWidgets();
+        $this->_registerElementEventListeners();
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
@@ -105,7 +112,7 @@ class Plugin extends \craft\base\Plugin
         }
 
         $navItems = [
-            'label' => Craft::t('commerce','Commerce'),
+            'label' => Craft::t('commerce', 'Commerce'),
             'url' => Plugin::getInstance()->id,
             'iconSvg' => $iconSvg
         ];
@@ -159,8 +166,8 @@ class Plugin extends \craft\base\Plugin
      */
     private function _addTwigExtensions()
     {
-        Event::on(CraftVariable::class, CraftVariable::EVENT_DEFINE_COMPONENTS, function (DefineComponentsEvent $event){
-                $event->components['commerce'] = Commerce::class;
+        Event::on(CraftVariable::class, CraftVariable::EVENT_DEFINE_COMPONENTS, function(DefineComponentsEvent $event) {
+            $event->components['commerce'] = Commerce::class;
         });
 
         Craft::$app->view->twig->addExtension(new Extension);
@@ -268,14 +275,19 @@ class Plugin extends \craft\base\Plugin
         });
     }
 
+    private function _registerElementEventListeners()
+    {
+        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, [$this->getPurchasables(), 'saveElementHandler']);
+    }
+
     private function _registerFieldTypes()
     {
-//        Event::on(Fields::className(),
-//            Fields::EVENT_REGISTER_FIELD_TYPES,
-//            function (RegisterComponentTypesEvent $event) {
-//                $event->types[] = ManField::class;
-//            }
-//        );
+        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+                $event->types[] = Products::class;
+                $event->types[] = Variants::class;
+                $event->types[] = Customer::class;
+            }
+        );
     }
 
     /**

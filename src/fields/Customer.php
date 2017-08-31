@@ -1,5 +1,5 @@
 <?php
-namespace craft\commerce\fieldtypes;
+namespace craft\commerce\fields;
 
 use Craft;
 use craft\base\ElementInterface;
@@ -24,18 +24,9 @@ class Customer extends Field
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Craft::t('commerce', 'Commerce Customer Info');
-    }
-
-    /**
-     * @inheritDoc BaseElementFieldType::defineContentAttribute()
-     * @return bool
-     */
-    public function defineContentAttribute()
-    {
-        return false;
     }
 
     /**
@@ -53,20 +44,18 @@ class Customer extends Field
     }
 
     /**
+     * @param mixed                 $value
+     * @param ElementInterface|null $element
+     *
      * @return \craft\commerce\models\Customer
      */
-    private function getCustomer()
+    public function normalizeValue($value, ElementInterface $element = null)
     {
-        return Plugin::getInstance()->getCustomers()->getCustomerByUserId($this->element->id);
-    }
+        if($element && $element->id)
+        {
+            return Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id);
+        }
 
-    /**
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    public function prepValue($value)
-    {
-        return $this->getCustomer();
+        return null;
     }
 }
