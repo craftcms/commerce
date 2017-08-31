@@ -305,7 +305,7 @@ class OrderStatuses extends Component
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
-                ->update('commerce_orderstatuses', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->update('{{%commerce_orderstatuses}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
 
