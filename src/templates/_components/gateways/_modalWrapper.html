@@ -25,3 +25,16 @@
 
     </form>
 </div>
+{% js %}
+    $('#gateway-{{ gateway.id }}-form').on('submit', function (ev) {
+        $form = $(this);
+
+        if ($form.data('processing')) {
+            ev.preventDefault();
+
+            return false;
+        }
+
+        $form.data('processing', true);
+    });
+{% endjs %}

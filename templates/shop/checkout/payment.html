@@ -110,9 +110,23 @@
 		</div>
 	</div>
 
-	{% includejs %}
-	$('#gatewayId , #paymentCurrency').change(function(){
-		$('form#gateway').submit();
-	});
-	{% endincludejs %}
+	{% js %}
+		$('#gatewayId , #paymentCurrency').change(function(){
+			$('form#gateway').submit();
+		});
+	{% endjs %}
+
+    {% js %}
+		$('#paymentForm').on('submit', function (ev) {
+			$form = $(this);
+
+			if ($form.data('processing')) {
+				ev.preventDefault();
+
+				return false;
+			}
+
+			$form.data('processing', true);
+		});
+    {% endjs %}
 {% endblock %}
