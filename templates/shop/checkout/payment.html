@@ -50,7 +50,10 @@
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
 					{{ redirectInput('/shop/customer/order?number='~cart.number) }}
 					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
+					<input type="hidden" name="orderEmail" value="{{ cart.email }}"/>
+
 					{{ csrfInput() }}
+
 					<fieldset>
 						{{ cart.gateway.getPaymentFormHtml({})|raw }}
 
