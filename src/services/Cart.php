@@ -542,7 +542,8 @@ class Cart extends Component
 
         return (new Query())
             ->select(['orders.id'])
-            ->where('isCompleted=:isCompleted AND dateUpdated <= :edge', [':isCompleted' => 'not 1', 'edge' => $edge->format('Y-m-d H:i:s')])
+            ->where(['not', ['isCompleted' => 1]])
+            ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
             ->from(['orders' => '{{%commerce_orders}}'])
             ->column();
     }
