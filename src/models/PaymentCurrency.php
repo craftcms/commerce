@@ -52,31 +52,6 @@ class PaymentCurrency extends Model
     public $rate;
 
     /**
-     * @var string Currency alphabetic code
-     */
-    public $alphabeticCode;
-
-    /**
-     * @var string Currency code
-     */
-    public $currency;
-
-    /**
-     * @var string Entity
-     */
-    public $entity;
-
-    /**
-     * @var int Number of digits after the decimal separator
-     */
-    public $minorUnit;
-
-    /**
-     * @var int Currency's ISO numeric code
-     */
-    public $numericCode;
-
-    /**
      * @var Currency
      */
     private $_currency;
