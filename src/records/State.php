@@ -39,4 +39,14 @@ class State extends ActiveRecord
     {
         return $this->hasOne(Country::class, ['id' => 'countryId']);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['countryId', 'name', 'abbreviation'], 'required']
+        ];
+    }
 }
