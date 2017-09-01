@@ -120,7 +120,6 @@ class TaxRates extends Component
             }
         }
 
-        $model->validate();
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
