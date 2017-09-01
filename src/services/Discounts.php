@@ -80,9 +80,9 @@ class Discounts extends Component
     {
         if (null === $this->_allDiscounts) {
             $discounts = $this->_createDiscountQuery()
-                ->leftJoin('commerce_discount_products dp', 'dp.discountId=discounts.id')
-                ->leftJoin('commerce_discount_producttypes dpt', 'dpt.discountId=discounts.id')
-                ->leftJoin('commerce_discount_usergroups dug', 'dug.discountId=discounts.id')
+                ->leftJoin('{{%commerce_discount_products}} dp', '[[dp.discountId]]=[[discounts.id]]')
+                ->leftJoin('{{%commerce_discount_producttypes}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
+                ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
                 ->all();
 
             $allDiscountsById = [];
@@ -136,10 +136,10 @@ class Discounts extends Component
             'dp.productId,
             dpt.productTypeId,
             dug.userGroupId')
-            ->from('commerce_discounts discounts')
-            ->leftJoin('commerce_discount_products dp', 'dp.discountId=discounts.id')
-            ->leftJoin('commerce_discount_producttypes dpt', 'dpt.discountId=discounts.id')
-            ->leftJoin('commerce_discount_usergroups dug', 'dug.discountId=discounts.id')
+            ->from('{{%commerce_discounts}} discounts')
+            ->leftJoin('{{%commerce_discount_products}} dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin('{{%commerce_discount_producttypes}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $discount->id])
             ->all();
 
@@ -389,7 +389,6 @@ class Discounts extends Component
         }
 
         $fields = [
-            'id',
             'name',
             'description',
             'dateFrom',
@@ -514,7 +513,7 @@ class Discounts extends Component
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
-                ->update('commerce_discounts', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->update('{{%commerce_discounts}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
 
@@ -603,6 +602,7 @@ class Discounts extends Component
             dp.productId,
             dpt.productTypeId,
             dug.userGroupId')
-            ->from('commerce_discounts discounts');
+            ->from('{{%commerce_discounts}} discounts')
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }
