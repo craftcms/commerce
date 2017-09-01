@@ -202,7 +202,7 @@ class ShippingRules extends Component
                     ]);
                 }
 
-                Plugin::getInstance()->getShippingRuleCategories()->saveShippingRuleCategory($ruleCategory);
+                Plugin::getInstance()->getShippingRuleCategories()->createShippingRuleCategory($ruleCategory);
             }
 
             return true;
