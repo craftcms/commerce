@@ -37,7 +37,7 @@
                             <td>
                                 <div id="order-completion" class="hidden">
                                     {% if order.isCompleted %}
-                                        {{ order.dateOrdered|date('D dS M Y') }}
+                                        {{ order.dateOrdered|date('D jS M Y') }}
                                     {% else %}
                                         <div id="order-completionStatus">
                                             <a href="#"
@@ -69,7 +69,7 @@
                         </tr>
                         <tr>
                             <td><strong>{{ "Paid"|t('commerce') }} </strong></td>
-                            <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
+                            <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D jS M Y') }}</td>
                         </tr>
                         <tr>
                             <td><strong>{{ "IP Address"|t('commerce') }} </strong></td>

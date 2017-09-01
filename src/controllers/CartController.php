@@ -276,7 +276,7 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        // Set Payment Method on Cart.
+        // Set Gateway on Cart.
         if (null !== $request->getParam('gatewayId')) {
             $error = '';
             $gatewayId = $request->getParam('gatewayId');

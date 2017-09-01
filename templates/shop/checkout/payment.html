@@ -25,11 +25,10 @@
 					{{ csrfInput() }}
 
 					<label for="gatewayId">Select a payment method:</label>
-					<select id="gatewayId" name="gatewayId"
-							class="form-control">
+					<select id="gatewayId" name="gatewayId" class="form-control">
+						{% if not cart.gatewayId %}<option value="">---</option>{% endif %}
 						{% for id,name in craft.commerce.gateways %}
-							<option value="{{ id }}"
-									{% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
+							<option value="{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
 						{% endfor %}
 					</select>
 

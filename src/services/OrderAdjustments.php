@@ -59,7 +59,7 @@ class OrderAdjustments extends Component
     public function getAllOrderAdjustmentsByOrderId($orderId): array
     {
         $records = OrderAdjustmentRecord::find()
-            ->where('orderId = :orderId', [':orderId' => $orderId])
+            ->where(['orderId' => $orderId])
             ->all();
 
         return ArrayHelper::map($records, 'id', function($record) {

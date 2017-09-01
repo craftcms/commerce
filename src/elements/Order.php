@@ -289,14 +289,25 @@ class Order extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $names = parent::datetimeAttributes();
+        $names[] = 'datePaid';
+        $names[] = 'dateOrdered';
+
+        return $names;
+    }
+    /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      *
      */
     public function updateOrderPaidTotal()
     {
         if ($this->isPaid()) {
-            if ($this->datePaid == null) {
-                $this->datePaid = DateTimeHelper::currentTimeStamp();
+            if ($this->datePaid === null) {
+                $this->datePaid = Db::prepareDateForDb(new \DateTime());
             }
         }
 
@@ -532,7 +543,7 @@ class Order extends Element
         $orderRecord->email = $this->getEmail();
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
-        $orderRecord->datePaid = $this->datePaid;
+        $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->billingAddressId = $this->billingAddressId;
         $orderRecord->shippingAddressId = $this->shippingAddressId;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;

@@ -214,7 +214,6 @@ class Transactions extends Component
         }
 
         $fields = [
-            'id',
             'orderId',
             'hash',
             'gatewayId',
