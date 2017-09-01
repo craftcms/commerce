@@ -272,7 +272,7 @@ class Variants extends Component
                 Craft::$app->getDb()->createCommand()->update('commerce_variants',
                     ['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],
                     'id = :variantId',
-                    [':variantId' => $purchasable->id]);
+                    [':variantId' => $purchasable->id])->execute();
 
                 // Update the stock
                 $purchasable->stock = Craft::$app->getDb()->createCommand()
