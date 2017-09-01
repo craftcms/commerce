@@ -80,7 +80,7 @@ class TaxRate extends Model
     public function rules()
     {
         return [
-            [['taxZoneId', 'taxCategoryId'], 'required']
+            [['taxZoneId', 'taxCategoryId', 'name'], 'required']
         ];
     }
 
