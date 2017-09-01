@@ -269,7 +269,7 @@ class Variants extends Component
             if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
 
                 // Update the qty in the db
-                Craft::$app->getDb()->createCommand()->update('commerce_variants',
+                Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
                     ['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],
                     'id = :variantId',
                     [':variantId' => $purchasable->id])->execute();
@@ -277,7 +277,7 @@ class Variants extends Component
                 // Update the stock
                 $purchasable->stock = Craft::$app->getDb()->createCommand()
                     ->select('stock')
-                    ->from('commerce_variants')
+                    ->from('{{%commerce_variants}}')
                     ->where('id = :variantId', [':variantId' => $purchasable->id])
                     ->queryScalar();
 

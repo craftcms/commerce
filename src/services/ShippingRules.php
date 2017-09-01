@@ -219,7 +219,7 @@ class ShippingRules extends Component
     public function reorderShippingRules($ids)
     {
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('commerce_shippingrules', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
