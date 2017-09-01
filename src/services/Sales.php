@@ -138,11 +138,11 @@ class Sales extends Component
            'sp.productId,
             spt.productTypeId,
             sug.userGroupId')
-            ->from('commerce_sales sales')
-            ->leftJoin('commerce_sale_products sp', 'sp.saleId=sales.id')
-            ->leftJoin('commerce_sale_producttypes spt', 'spt.saleId=sales.id')
-            ->leftJoin('commerce_sale_usergroups sug', 'sug.saleId=sales.id')
-            ->where(['sales.id' => $sale->id])
+            ->from('{{%commerce_sales}} sales')
+            ->leftJoin('{{%commerce_sale_products}} sp', '[[sp.saleId]]=[[sales.id]]')
+            ->leftJoin('{{%commerce_sale_producttypes}} spt', '[[spt.saleId]]=[[sales.id]]')
+            ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]]=[[sales.id]]')
+            ->where(['[[sales.id]]' => $sale->id])
             ->all();
 
         $productIds = [];
@@ -287,7 +287,6 @@ class Sales extends Component
         }
 
         $fields = [
-            'id',
             'name',
             'description',
             'dateFrom',
