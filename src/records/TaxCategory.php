@@ -29,4 +29,14 @@ class TaxCategory extends ActiveRecord
     {
         return '{{%commerce_taxcategories}}';
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['handle'], 'required']
+        ];
+    }
 }

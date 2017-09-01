@@ -186,4 +186,14 @@ class TaxZone extends Model
 
         return $stateNames;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'required'],
+        ];
+    }
 }
