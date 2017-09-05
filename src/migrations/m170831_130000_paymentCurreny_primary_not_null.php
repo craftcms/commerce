@@ -26,13 +26,7 @@ class m170831_130000_paymentCurreny_primary_not_null extends Migration
         $this->update('{{%commerce_paymentcurrencies}}', ['primary' => false]);
         $this->update('{{%commerce_paymentcurrencies}}', ['primary' => true], ['id' => $primaryId]);
 
-        if ($this->db->getIsPgsql()) {
-            // Manually construct the SQL for Postgres
-            // (see https://github.com/yiisoft/yii2/issues/12077)
-            $this->execute('alter table {{%commerce_paymentcurrencies}} alter column [[primary]] type boolean, alter column [[primary]] set not null, alter column [[primary]] set default false');
-        } else {
-            $this->alterColumn('{{%commerce_paymentcurrencies}}', 'primary', $this->boolean()->notNull()->defaultValue(false));
-        }
+        $this->alterColumn('{{%commerce_paymentcurrencies}}', 'primary', $this->boolean()->notNull()->defaultValue(false));
 
         return true;
     }
