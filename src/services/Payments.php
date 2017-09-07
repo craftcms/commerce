@@ -138,22 +138,19 @@ class Payments extends Component
                     break;
             }
 
+            $this->_updateTransaction($transaction, $response);
+
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
-                $this->_updateTransaction($transaction, $response);
-
                 return $this->_handleRedirect($response, $redirect);
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
                 $customError = $transaction->message;
-                $this->_updateTransaction($transaction, $response);
-
                 return false;
             }
 
             // Success!
-            $this->_updateTransaction($transaction, $response);
             $order->updateOrderPaidTotal();
             $success = true;
         } catch (GatewayRequestCancelledException $e) {
