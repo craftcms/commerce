@@ -5,12 +5,12 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\TransactionEvent;
-use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\errors\TransactionException;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -34,7 +34,7 @@ class Transactions extends Component
     const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
 
     /**
-     * @event TransactionEvent The event that is triggered after a transaction has been saved.
+     * @event TransactionEvent The event that is triggered after a transaction has been created.
      */
     const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
@@ -97,13 +97,36 @@ class Transactions extends Component
     }
 
     /**
+     * Get children transactons by a parent transaction id.
+     *
+     * @param $transactionId
+     *
+     * @return array
+     */
+    public function getChildrenByTransactionId($transactionId)
+    {
+        $rows = $this->_createTransactionQuery()
+            ->where(['parentId' => $transactionId])
+            ->all();
+
+        $transactions = [];
+
+        foreach ($rows as $row) {
+            $transactions[] = new Transaction($row);
+        }
+
+        return $transactions;
+    }
+
+    /**
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction
      *
      * @return bool
      */
-    public function canRefundTransaction(Transaction $transaction): bool {
+    public function canRefundTransaction(Transaction $transaction): bool
+    {
 
         // Can refund only successful purchase or capture transactions
         if (!in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))
@@ -130,13 +153,35 @@ class Transactions extends Component
     }
 
     /**
+     * Returns true if a transaction or a child of the transaction is successful.
+     *
+     * @param Transaction $transaction
+     *
+     * @return bool
+     */
+    public function isTransactionSuccessful(Transaction $transaction): bool
+    {
+        if ($transaction->status === TransactionRecord::STATUS_SUCCESS)
+        {
+            return true;
+        }
+
+        return $this->_createTransactionQuery()
+            ->where(['parentId' => $transaction->id,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'orderId' => $transaction->orderId])
+            ->exists();
+    }
+
+    /**
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction
      *
      * @return bool
      */
-    public function canCaptureTransaction(Transaction $transaction): bool {
+    public function canCaptureTransaction(Transaction $transaction): bool
+    {
 
         // Can refund only successful authorize transactions
         if ($transaction->type != TransactionRecord::TYPE_AUTHORIZE || $transaction->status != TransactionRecord::STATUS_SUCCESS) {
@@ -158,26 +203,46 @@ class Transactions extends Component
     }
 
     /**
-     * @param Order $order
+     * Create a transaction either from an order or a parent transaction. At least one must be present.
+     *
+     * @param Order       $order             Order that the transaction is a part of.
+     * @param Transaction $parentTransaction Parent transaction, if this transaction is a child.
      *
      * @return Transaction
+     * @throws TransactionException
      */
-    public function createTransaction(Order $order): Transaction
+    public function createTransaction(Order $order = null, Transaction $parentTransaction = null): Transaction
     {
-        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
-        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
-
-        $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
+        if (!$order && !$parentTransaction) {
+            throw new TransactionException('Tried to create a transaction without order or parent transaction');
+        }
 
         $transaction = new Transaction();
-        $transaction->setOrder($order);
         $transaction->status = TransactionRecord::STATUS_PENDING;
-        $transaction->amount = $order->outstandingBalance();
-        $transaction->currency = $currency->iso;
-        $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
-        $transaction->paymentCurrency = $paymentCurrency->iso;
-        $transaction->paymentRate = $paymentCurrency->rate;
-        $transaction->gatewayId = $order->gatewayId;
+
+        if ($parentTransaction) {
+            // Assume parent values instead of Order values.
+            $transaction->parentId = $parentTransaction->id;
+            $transaction->gatewayId = $parentTransaction->gatewayId;
+            $transaction->amount = $parentTransaction->amount;
+            $transaction->currency = $parentTransaction->currency;
+            $transaction->paymentAmount = $parentTransaction->paymentAmount;
+            $transaction->paymentCurrency = $parentTransaction->paymentCurrency;
+            $transaction->paymentRate = $parentTransaction->paymentRate;
+            $transaction->setOrder($parentTransaction->getOrder());
+        } else {
+            $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
+            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
+            $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
+
+            $transaction->gatewayId = $order->gatewayId;
+            $transaction->amount = $order->outstandingBalance();
+            $transaction->currency = $currency->iso;
+            $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
+            $transaction->paymentCurrency = $paymentCurrency->iso;
+            $transaction->paymentRate = $paymentCurrency->rate;
+            $transaction->setOrder($order);
+        }
 
         $user = Craft::$app->getUser()->getIdentity();
 
@@ -204,13 +269,7 @@ class Transactions extends Component
     public function saveTransaction(Transaction $model): bool
     {
         if ($model->id) {
-            $record = TransactionRecord::findOne($model->id);
-
-            if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No transaction exists with the ID “{id}”', ['id' => $model->id]));
-            }
-        } else {
-            $record = new TransactionRecord();
+            throw new Exception(Craft::t('commerce', 'Transactions cannot be modified.'));
         }
 
         $fields = [
@@ -219,7 +278,6 @@ class Transactions extends Component
             'gatewayId',
             'type',
             'status',
-            'gatewayProcessing',
             'amount',
             'currency',
             'paymentAmount',
@@ -232,6 +290,9 @@ class Transactions extends Component
             'userId',
             'parentId'
         ];
+
+        $record = new TransactionRecord();
+
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
@@ -242,6 +303,14 @@ class Transactions extends Component
         if (!$model->hasErrors()) {
             $record->save(false);
             $model->id = $record->id;
+
+            if ($model->status === TransactionRecord::STATUS_SUCCESS) {
+                $model->order->updateOrderPaidTotal();
+            }
+
+            if ($model->status === TransactionRecord::STATUS_PROCESSING) {
+                $model->order->markAsComplete();
+            }
 
             // Raise 'afterSaveTransaction' event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
@@ -290,7 +359,6 @@ class Transactions extends Component
                 'gatewayId',
                 'type',
                 'status',
-                'gatewayProcessing',
                 'amount',
                 'currency',
                 'paymentAmount',
@@ -301,8 +369,11 @@ class Transactions extends Component
                 'code',
                 'response',
                 'userId',
-                'parentId'
+                'parentId',
+                'dateCreated',
+                'dateUpdated',
             ])
-            ->from(['{{%commerce_transactions}}']);
+            ->from(['{{%commerce_transactions}}'])
+            ->orderBy(['id' => SORT_ASC]);
     }
 }

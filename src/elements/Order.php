@@ -1101,6 +1101,38 @@ class Order extends Element
     }
 
     /**
+     * Return an array of transactions for the order that have child transactions set on them.
+     *
+     * @return Transaction[]
+     */
+    public function getNestedTransactions(): array
+    {
+        // Transactions come in sorted by id ASC.
+        // Given that transactions cannot be modified, it means that parents will always come first.
+        // So we can just store a reference to them and build our tree in one pass.
+        $transactions = $this->getTransactions();
+
+        /** @var Transaction[] $referenceStore */
+        $referenceStore = [];
+        $nestedTransactions = [];
+
+        foreach ($transactions as $transaction) {
+            // We'll be adding all of the children in this loop, anyway, so we set the children list to an empty array.
+            // This way no db queries are triggered when transactions are queried for children.
+            $transaction->setChildTransactions([]);
+            if ($transaction->parentId && isset($referenceStore[$transaction->parentId])) {
+                $referenceStore[$transaction->parentId]->addChildTransaction($transaction);
+            } else {
+                $nestedTransactions[] = $transaction;
+            }
+
+            $referenceStore[$transaction->id] = $transaction;
+        }
+
+        return $nestedTransactions;
+    }
+
+    /**
      * @return OrderStatus|null
      */
     public function getOrderStatus()

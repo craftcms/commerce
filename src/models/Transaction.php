@@ -92,11 +92,6 @@ class Transaction extends Model
     public $status;
 
     /**
-     * @var bool True, if payment being processed by gateway
-     */
-    public $gatewayProcessing;
-
-    /**
      * @var string reference
      */
     public $reference;
@@ -140,6 +135,11 @@ class Transaction extends Model
      * @var Order
      */
     private $_order;
+
+    /**
+     * @var Transaction[]
+     */
+    private $_children;
 
     /**
      * @param null $attributes
@@ -224,4 +224,42 @@ class Transaction extends Model
         $this->_gateway = $gateway;
     }
 
+    /**
+     * Return child transactions.
+     *
+     * @return Transaction[]
+     */
+    public function getChildTransactions(): array
+    {
+        if ($this->_children === null)
+        {
+            $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
+        }
+
+        return $this->_children;
+    }
+
+    /**
+     * Add a child transaction.
+     *
+     * @param Transaction $transaction
+     */
+    public function addChildTransaction(Transaction $transaction)
+    {
+        if ($this->_children === null) {
+            $this->_children = [];
+        }
+
+        $this->_children[] = $transaction;
+    }
+
+    /**
+     * Set child transactions.
+     *
+     * @param array $transactions
+     */
+    public function setChildTransactions(array $transactions)
+    {
+        $this->_children = $transactions;
+    }
 }

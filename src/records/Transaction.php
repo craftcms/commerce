@@ -18,7 +18,6 @@ use yii\db\ActiveQueryInterface;
  * @property string      $message
  * @property string      $response
  * @property string      $code
- * @property bool        $gatewayProcessing
  *
  * @property int         $parentId
  * @property int         $userId
@@ -46,29 +45,12 @@ class Transaction extends ActiveRecord
 
     const STATUS_PENDING = 'pending';
     const STATUS_REDIRECT = 'redirect';
+    const STATUS_PROCESSING = 'processing';
     const STATUS_SUCCESS = 'success';
     const STATUS_FAILED = 'failed';
 
     /* @var int $total */
     public $total = 0;
-
-    /* @var array $types */
-    private $types = [
-        self::TYPE_AUTHORIZE,
-        self::TYPE_CAPTURE,
-        self::TYPE_PURCHASE,
-        self::TYPE_REFUND
-    ];
-
-    /**
-     * @var array
-     */
-    private $statuses = [
-        self::STATUS_PENDING,
-        self::STATUS_REDIRECT,
-        self::STATUS_SUCCESS,
-        self::STATUS_FAILED
-    ];
 
     /**
      * @return string

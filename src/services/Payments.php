@@ -125,7 +125,6 @@ class Payments extends Component
         //creating order, transaction and request
         $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order);
         $transaction->type = $defaultAction;
-        $this->_saveTransaction($transaction);
 
         try {
             /** @var RequestResponseInterface $response */
@@ -138,25 +137,32 @@ class Payments extends Component
                     break;
             }
 
-            $this->_updateTransaction($transaction, $response);
-
+            // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
+                $this->_updateTransaction($transaction, $response);
+
                 return $this->_handleRedirect($response, $redirect);
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
                 $customError = $transaction->message;
+                $this->_updateTransaction($transaction, $response);
+
                 return false;
             }
 
+            // Success!
+            $this->_updateTransaction($transaction, $response);
             $order->updateOrderPaidTotal();
             $success = true;
         } catch (GatewayRequestCancelledException $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
+            $transaction->message = $e->getMessage();
             $this->_saveTransaction($transaction);
             $success = false;
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
+            $transaction->message = $e->getMessage();
             $this->_saveTransaction($transaction);
             $success = false;
             $customError = $e->getMessage();
@@ -228,17 +234,16 @@ class Payments extends Component
      * @throws Exception
      */
     public function completePayment(Transaction $transaction, &$customError = null) {
-        $order = $transaction->order;
-
-        // ignore already processed transactions
-        if ($transaction->status != TransactionRecord::STATUS_REDIRECT) {
-            if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
-                return true;
-            }
-
+        // Only transactions with the status of "redirect" can be completed
+        if ($transaction->status !== TransactionRecord::STATUS_REDIRECT) {
             $customError = $transaction->message;
 
             return false;
+        }
+
+        // If it's successful already, we're good.
+        if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
+            return true;
         }
 
         // Load payment driver for the transaction we are trying to complete
@@ -255,7 +260,9 @@ class Payments extends Component
                 return false;
         }
 
-        $this->_updateTransaction($transaction, $response);
+        $childTransaction = Plugin::getInstance()->getTransactions()->createTransaction(null, $transaction);
+        $childTransaction->type = $transaction->type;
+        $this->_updateTransaction($childTransaction, $response);
         
         // Success can mean 2 things in this context.
         // 1) The transaction completed successfully with the gateway, and is now marked as complete.
@@ -266,7 +273,7 @@ class Payments extends Component
             $transaction->order->updateOrderPaidTotal();
         }
 
-        if ($response->isProcessing()) {
+        if ($success && $transaction->status === TransactionRecord::STATUS_PROCESSING) {
             $transaction->order->markAsComplete();
         }
 
@@ -275,6 +282,7 @@ class Payments extends Component
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }
+// TODO no idea what this means with the new refactor. Luke?
 
 //        // For gateways that call us directly and usually do not like redirects.
 //        // TODO: Move this into the gateway adapter interface.
@@ -325,6 +333,7 @@ class Payments extends Component
      *
      * @param $transactionHash
      */
+    // TODO should be removed now that we have webhooks?
     public function acceptNotification($transactionHash)
     {
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($transactionHash);
@@ -508,16 +517,8 @@ class Payments extends Component
         }
 
         $order = $parent->order;
-        $child = Plugin::getInstance()->getTransactions()->createTransaction($order);
-        $child->parentId = $parent->id;
-        $child->gatewayId = $parent->gatewayId;
+        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
         $child->type = $action;
-        $child->amount = $parent->amount;
-        $child->paymentAmount = $parent->paymentAmount;
-        $child->currency = $parent->currency;
-        $child->paymentCurrency = $parent->paymentCurrency;
-        $child->paymentRate = $parent->paymentRate;
-        $this->_saveTransaction($child);
 
         $gateway = $parent->getGateway();
 
@@ -538,6 +539,7 @@ class Payments extends Component
             $this->_updateTransaction($child, $response);
         } catch (GatewayRequestCancelledException $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
+            $child->message = $e->getMessage();
             $this->_saveTransaction($child);
         } catch (\Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
@@ -575,7 +577,9 @@ class Payments extends Component
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
-        } elseif (!$response->isProcessing()) {
+        } elseif ($response->isProcessing()) {
+            $transaction->status = TransactionRecord::STATUS_PROCESSING;
+        } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;
         }
 
@@ -583,7 +587,6 @@ class Payments extends Component
         $transaction->code = $response->getCode();
         $transaction->reference = $response->getTransactionReference();
         $transaction->message = $response->getMessage();
-        $transaction->gatewayProcessing = $response->isProcessing();
 
         $this->_saveTransaction($transaction);
     }
