@@ -15,6 +15,7 @@ use craft\db\Query;
 use craft\errors\GatewayRequestCancelledException;
 use craft\errors\TransactionException;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use yii\base\Component;
 
@@ -91,7 +92,7 @@ class Payments extends Component
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
-                $order->datePaid = DateTimeHelper::currentTimeStamp();
+                $order->datePaid = Db::prepareDateForDb(new \DateTime());
             }
 
             if (!$order->isCompleted) {
