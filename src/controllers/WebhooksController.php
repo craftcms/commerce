@@ -42,7 +42,7 @@ class WebhooksController extends BaseController
         if (!$response)  {
             throw new HttpException(400);
         }
-        
+
         return $response;
     }
 }
