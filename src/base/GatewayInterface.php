@@ -3,10 +3,9 @@
 namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
-use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
-use craft\web\Response;
+use craft\web\Response as WebResponse;
 
 /**
  * GatewayInterface defines the common interface to be implemented by gateway classes.
@@ -80,11 +79,11 @@ interface GatewayInterface extends SavableComponentInterface
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
-     * Process a webhook and return the html response as string.
+     * Process a webhook and return a response
      *
-     * @return string
+     * @return WebResponse
      */
-    public function processWebHook(): string;
+    public function processWebHook(): WebResponse;
 
     /**
      * Return true if gateway supports authorize requests.

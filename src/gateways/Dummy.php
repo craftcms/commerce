@@ -2,16 +2,13 @@
 
 namespace craft\commerce\gateways;
 
-use Craft;
 use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\Transaction;
-use craft\web\Response;
-use craft\web\View;
+use craft\web\Response as WebResponse;
 
 /**
  * Dummy represents a dummy gateway.
@@ -63,7 +60,7 @@ class Dummy extends Gateway
         return new DummyRequestResponse();
     }
 
-    public function processWebHook(): string
+    public function processWebHook(): WebResponse
     {
         return null;
     }

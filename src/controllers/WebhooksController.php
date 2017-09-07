@@ -42,8 +42,7 @@ class WebhooksController extends BaseController
         if (!$response)  {
             throw new HttpException(400);
         }
-
-        // TODO audit trail, please.
-        return $this->asRaw($response);
+        
+        return $response;
     }
 }
