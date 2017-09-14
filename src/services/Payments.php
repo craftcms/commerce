@@ -530,6 +530,11 @@ class Payments extends Component
                     $response = $gateway->capture($child, $parent->reference);
                     break;
                 case TransactionRecord::TYPE_REFUND:
+                    if ($parent->type === TransactionRecord::TYPE_CAPTURE)
+                    {
+                        $parent = $parent->getParent();
+                    }
+
                     $response = $gateway->refund($child, $parent->reference);
                     break;
             }
