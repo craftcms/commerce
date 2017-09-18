@@ -233,7 +233,7 @@ class Payments extends Component
      */
     public function completePayment(Transaction $transaction, &$customError = null) {
         // Only transactions with the status of "redirect" can be completed
-        if ($transaction->status !== TransactionRecord::STATUS_REDIRECT) {
+        if (!in_array($transaction->status,[TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
             $customError = $transaction->message;
 
             return false;
