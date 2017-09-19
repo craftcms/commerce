@@ -93,5 +93,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 
     public function supportsWebhooks(): bool
     {
+        return false;
     }
 }
