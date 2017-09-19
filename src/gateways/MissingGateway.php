@@ -8,7 +8,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
-use craft\web\Response;
+use craft\web\Response as WebResponse;
 
 /**
  * MissingGateway represents a gateway with an invalid class.
@@ -59,7 +59,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     {
     }
 
-    public function processWebHook(): string
+    public function processWebHook(): WebResponse
     {
     }
     
