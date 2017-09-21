@@ -98,6 +98,7 @@ class OrderAdjustments extends Component
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
+
         $record->validate();
         $model->addErrors($record->getErrors());
 
@@ -123,6 +124,18 @@ class OrderAdjustments extends Component
     {
         return OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
     }
+
+    /**
+     * @param int $adjustmentId
+     *
+     * @return bool
+     */
+    public function deleteOrderAdjustmentByAdjustmentId($adjustmentId): bool
+    {
+        return OrderAdjustmentRecord::delete(['orderId' => $orderId]);
+    }
+
+
 
     /**
      * @param OrderAdjustmentRecord $record

@@ -15,10 +15,6 @@ use yii\db\ActiveQueryInterface;
  * @property float                        $itemTotal
  * @property float                        $totalPrice
  * @property float                        $totalPaid
- * @property float                        $baseDiscount
- * @property float                        $baseShippingCost
- * @property float                        $baseTax
- * @property float                        $baseTaxIncluded
  * @property string                       $email
  * @property bool                         $isCompleted
  * @property \DateTime                    $dateOrdered

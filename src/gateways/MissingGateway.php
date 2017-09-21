@@ -69,29 +69,36 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 
     public function supportsAuthorize(): bool
     {
+        return false;
     }
 
     public function supportsCapture(): bool
     {
+        return false;
     }
 
     public function supportsCompleteAuthorize(): bool
     {
+        return false;
     }
 
     public function supportsCompletePurchase(): bool
     {
+        return false;
     }
 
     public function supportsPurchase(): bool
     {
+        return false;
     }
 
     public function supportsRefund(): bool
     {
+        return false;
     }
 
     public function supportsWebhooks(): bool
     {
+        return false;
     }
 }

@@ -433,6 +433,19 @@ class Product extends Element
      */
     public function setVariants(array $variants)
     {
+
+        $this->_variants = [];
+
+        foreach ($variants as $key => $variant)
+        {
+            if ($variant instanceof Variant)
+            {
+                $this->_variants[] = $variant;
+            } else {
+                ProductHelper::populateProductVariantModels($this, $variants);
+            }
+        }
+
         Plugin::getInstance()->getVariants()->setProductOnVariants($this, $variants);
         $this->_variants = $variants;
     }

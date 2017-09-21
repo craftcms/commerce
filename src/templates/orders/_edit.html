@@ -146,10 +146,6 @@
                         { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
                         { label: "Quantity", value: lineItem.qty },
                         { label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
-                        { label: "Tax", value: lineItem.tax|currency(order.currency) },
-                        { label: "Tax (Included)", value: lineItem.taxIncluded|currency(order.currency) },
-                        { label: "Shipping Cost", value: lineItem.shippingCost|currency(order.currency) },
-                        { label: "Discount", value: lineItem.discount|currency(order.currency) },
                         { label: "Total", value: lineItem.subtotal|currency(order.currency) },
                         ] %}
 
@@ -195,23 +191,24 @@
                                       href="#"></span>
                             </td>
                         </tr>
+                        {% for adjustment in lineItem.adjustments %}
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br>{{ adjustment.name|title }}
+                                    <span class="info"><strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br> {{ adjustment.description }}</span>
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <span class="right">{{ adjustment.amount|currency(order.currency) }}</span>
+                                </td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
-                    {% for adjustment in order.adjustments %}
-                        <tr>
-                            <td>
-                                <strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br>{{ adjustment.name|title }}
-                                <span class="info"><strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br> {{ adjustment.description }}</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <span class="right">{{ adjustment.amount|currency(order.currency) }}</span>
-                            </td>
-                            <td></td>
-                        </tr>
-                    {% endfor %}
+
                     <tr>
                         <td></td>
                         <td></td>
@@ -227,6 +224,23 @@
                         </td>
                         <td></td>
                     </tr>
+
+                    {% for adjustment in order.orderAdjustments %}
+                        <tr>
+                            <td>
+                                <strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br>{{ adjustment.name|title }}
+                                <span class="info"><strong>{{ adjustment.type|title|t('commerce') }} {{ "Adjustment"|t('commerce') }}</strong><br> {{ adjustment.description }}</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <span class="right">{{ adjustment.amount|currency(order.currency) }}</span>
+                            </td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
                     <tr>
                         <td></td>
                         <td></td>
@@ -271,7 +285,7 @@
     {% if orderSettings.getFieldLayout().getTabs()|length %}
         <form id="order-form" method="post" accept-charset="UTF-8"
               data-saveshortcut
-              data-saveshortcut-redirect="{{ order.cpEditUrl }}"
+              data-saveshortcut-redirect="{{ order.cpEditUrl|hash }}"
               data-confirm-unload>
             <input type="hidden" name="action"
                    value="commerce/orders/save-order">
@@ -302,7 +316,7 @@
                         <div class="menu">
                             <ul>
                                 <li><a class="formsubmit"
-                                       data-redirect="{{ order.cpEditUrl }}">
+                                       data-redirect="{{ order.cpEditUrl|hash }}">
                                         {{ "Save and continue editing"|t('commerce') }}
                                         {{ forms.optionShortcutLabel('S') }}
                                     </a>
@@ -419,7 +433,7 @@
                                     <a class="small btn submit formsubmit"
                                        data-action="commerce/orders/transaction-capture"
                                        data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
-                                       data-redirect="{{ order.cpEditUrl }}"
+                                       data-redirect="{{ order.cpEditUrl|hash }}"
                                        data-param="id"
                                        data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
                                 </form>
@@ -429,7 +443,7 @@
                                     <a class="small btn submit formsubmit"
                                        data-action="commerce/orders/transaction-refund"
                                        data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
-                                       data-redirect="{{ order.cpEditUrl }}"
+                                       data-redirect="{{ order.cpEditUrl|hash }}"
                                        data-param="id"
                                        data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
                                 </form>

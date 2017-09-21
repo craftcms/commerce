@@ -30,6 +30,14 @@ class Customer extends Field
     }
 
     /**
+     * @inheritdoc
+     */
+    public static function hasContentColumn(): bool
+    {
+        return false;
+    }
+
+    /**
      * @inheritDoc
      */
     public function getInputHtml($value, ElementInterface $element = null) : string

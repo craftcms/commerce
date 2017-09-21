@@ -31,10 +31,6 @@ class BaseFrontEndController extends BaseController
         $data['number'] = $cart->number;
         $data['couponCode'] = $cart->couponCode;
         $data['itemTotal'] = $cart->itemTotal;
-        $data['baseDiscount'] = $cart->baseDiscount;
-        $data['baseTax'] = $cart->baseTax;
-        $data['baseTaxIncluded'] = $cart->baseTaxIncluded;
-        $data['baseShippingCost'] = $cart->baseShippingCost;
         $data['totalPrice'] = $cart->totalPrice;
         $data['totalPaid'] = $cart->totalPaid;
         $data['email'] = $cart->email;

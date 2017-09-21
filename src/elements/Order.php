@@ -15,6 +15,7 @@ use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
@@ -419,17 +420,10 @@ class Order extends Element
             }
         }
 
-        Plugin::getInstance()->getOrderAdjustments()->deleteAllOrderAdjustmentsByOrderId($this->id);
-
         // collect new adjustments
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
             $adjustments = (new $adjuster)->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
-        }
-
-        // save new adjustment models
-        foreach ($this->getAdjustments() as $adjustment) {
-            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
         }
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
@@ -507,6 +501,26 @@ class Order extends Element
         $orderRecord->message = $this->message;
 
         $orderRecord->save(false);
+
+        $previousAdjustments = OrderAdjustmentRecord::find()
+            ->where(['orderId' => $this->id])
+            ->indexBy('orderId')
+            ->all();
+
+        $newAdjustmentIds = [];
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
+            $newAdjustmentIds[] = $adjustment->id;
+        }
+
+        foreach ($previousAdjustments as $previousAdjustment) {
+            if (!in_array($previousAdjustment->id, $newAdjustmentIds))
+            {
+                $previousAdjustment->delete();
+            }
+        }
+
 
         //creating order history record
         $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
@@ -932,6 +946,22 @@ class Order extends Element
         }
 
         return $this->_orderAdjustments;
+    }
+
+    public function getOrderAdjustments(): array
+    {
+        $adjustments = $this->getAdjustments();
+        $orderAdjustments = [];
+
+        foreach ($adjustments as $adjustment)
+        {
+            if ($adjustment->lineItemId == null && $adjustment->orderId == $this->id)
+            {
+               $orderAdjustments[] = $adjustment;
+            }
+        }
+
+        return $orderAdjustments;
     }
 
     /**

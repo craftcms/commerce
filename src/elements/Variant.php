@@ -278,7 +278,7 @@ class Variant extends Purchasable
         $format = $this->getProduct()->getType()->descriptionFormat;
 
         if ($format) {
-            return Craft::$app->templates->renderObjectTemplate($format, $this);
+            return Craft::$app->getView()->renderObjectTemplate($format, $this);
         }
 
         return $this->getTitle();

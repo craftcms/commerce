@@ -73,8 +73,7 @@ interface ShippingRuleInterface
 
     /**
      * Returns a max cost this rule should ever apply.
-     * If the total of your rates as applied to the order are greater than this, the baseShippingCost
-     * on the order is modified to meet this max rate.
+     * If the total of your rates as applied to the order are greater than this, an order level adjustment is made to reduce the shipping amount on the order.
      *
      * @return float
      */

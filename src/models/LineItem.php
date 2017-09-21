@@ -388,7 +388,7 @@ class LineItem extends Model
         $lineItemAdjustments = [];
         foreach ($adjustments as $adjustment)
         {
-            if ($adjustment->lineItemId = $this->lineItemId)
+            if ($adjustment->lineItemId == $this->id)
             {
                 $lineItemAdjustments[] = $adjustment;
             }
@@ -413,4 +413,85 @@ class LineItem extends Model
 
         return $amount;
     }
+
+    /**
+     * @return int
+     */
+    public function getTax()
+    {
+        Craft::$app->getDeprecator()->log('VariantModel::getTax()', 'VariantModel::getTax() has been deprecated. ');
+
+        $tax = 0;
+
+        foreach ($this->getAdjustments() as $adjustment)
+        {
+            if($adjustment->type == 'tax')
+            {
+                $tax += $tax;
+            }
+        }
+
+        return $tax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTaxIncluded()
+    {
+        Craft::$app->getDeprecator()->log('VariantModel::getTaxIncluded()', 'VariantModel::getTaxIncluded() has been deprecated. ');
+
+        $taxIncluded = 0;
+
+        foreach ($this->getAdjustments() as $adjustment)
+        {
+            if($adjustment->type == 'taxIncluded')
+            {
+                $taxIncluded += $taxIncluded;
+            }
+        }
+
+        return $taxIncluded;
+    }
+
+    /**
+     * @return int
+     */
+    public function getShippingCost()
+    {
+        Craft::$app->getDeprecator()->log('VariantModel::getShippingCost()', 'VariantModel::getShippingCost() has been deprecated. ');
+
+        $shipping = 0;
+
+        foreach ($this->getAdjustments() as $adjustment)
+        {
+            if($adjustment->type == 'shipping')
+            {
+                $shipping += $shipping;
+            }
+        }
+
+        return $shipping;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDiscount()
+    {
+        Craft::$app->getDeprecator()->log('VariantModel::getDiscount()', 'VariantModel::getDiscount() has been deprecated. ');
+
+        $discount = 0;
+
+        foreach ($this->getAdjustments() as $adjustment)
+        {
+            if($adjustment->type == 'discount')
+            {
+                $discount += $discount;
+            }
+        }
+
+        return $discount;
+    }
+
 }
