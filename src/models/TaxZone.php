@@ -99,7 +99,7 @@ class TaxZone extends Model
     public function getCountries()
     {
         if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId($this->id);
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId((int) $this->id);
         }
 
         return $this->_countries;
@@ -139,7 +139,7 @@ class TaxZone extends Model
     public function getStates()
     {
         if (null === $this->_states) {
-            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId($this->id);
+            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId((int) $this->id);
         }
 
         return $this->_states;
@@ -185,5 +185,15 @@ class TaxZone extends Model
         }
 
         return $stateNames;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'required'],
+        ];
     }
 }

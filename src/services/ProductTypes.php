@@ -379,8 +379,8 @@ class ProductTypes extends Component
             }
 
             // Remove all existing categories
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', 'productTypeId = :xid', [':xid' => $productType->id])->execute();
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', 'productTypeId = :xid', [':xid' => $productType->id])->execute();
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', ['productTypeId' => $productType->id])->execute();
+            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', ['productTypeId' => $productType->id])->execute();
 
             // Add back the new categories
             foreach ($productType->getShippingCategories() as $shippingCategory) {

@@ -8,7 +8,7 @@ use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 
 /**
- * m170810_130000_sendCartInfo_per_gateway
+ * m170828_130000_transaction_gatewayProcessing_flag
  */
 class m170828_130000_transaction_gatewayProcessing_flag extends Migration
 {

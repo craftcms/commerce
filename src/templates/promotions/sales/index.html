@@ -39,12 +39,10 @@
                         {% if sale.discountType == 'percent' %}
                             {{ sale.discountAmountAsPercent }} {{ "off"|t('commerce') }}
                         {% else %}
-                            {{ sale.discountAmountAsFlat|currency(craft.commerce.primaryPaymentCurrency.iso, true) }} {{ "off"|t('commerce') }}
+                            {{ sale.discountAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {{ "off"|t('commerce') }}
                         {% endif %}
                     </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
+                    <td class="thin"><a class="delete icon" title="{{ 'Delete'|t('commerce') }}" role="button"></a></td>
                 </tr>
             {% endfor %}
 

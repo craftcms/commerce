@@ -69,9 +69,9 @@ class Gateways extends Component
     public function getAllFrontEndGateways(): array
     {
         $rows = $this->_createGatewayQuery()
-            ->where(Db::parseParam('isArchived', ':empty:'))
-            ->andWhere(Db::parseParam('frontEndEnabled', 'not :empty:'))
-            ->orderBy('sortOrder')
+            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
+            ->andWhere(['frontendEnabled' => true])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->all();
 
         $gateways = [];
@@ -91,8 +91,8 @@ class Gateways extends Component
     public function getAllGateways(): array
     {
         $rows = $this->_createGatewayQuery()
-            ->where(Db::parseParam('isArchived', ':empty:'))
-            ->orderBy('sortOrder')
+            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->all();
 
         $gateways = [];

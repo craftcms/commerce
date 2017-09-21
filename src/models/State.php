@@ -45,6 +45,9 @@ class State extends Model
      */
     public $countryId;
 
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         return [

@@ -180,7 +180,8 @@ class OrderHistories extends Component
                 'orderId',
                 'prevStatusId',
                 'newStatusId',
-                'customerId'
+                'customerId',
+                'dateCreated'
             ])
             ->from(['{{%commerce_orderhistories}}']);
     }

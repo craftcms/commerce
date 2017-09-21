@@ -37,7 +37,7 @@
                             <td>
                                 <div id="order-completion" class="hidden">
                                     {% if order.isCompleted %}
-                                        {{ order.dateOrdered|date('D dS M Y') }}
+                                        {{ order.dateOrdered|date('D jS M Y') }}
                                     {% else %}
                                         <div id="order-completionStatus">
                                             <a href="#"
@@ -69,7 +69,7 @@
                         </tr>
                         <tr>
                             <td><strong>{{ "Paid"|t('commerce') }} </strong></td>
-                            <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D dS M Y') }}</td>
+                            <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D jS M Y') }}</td>
                         </tr>
                         <tr>
                             <td><strong>{{ "IP Address"|t('commerce') }} </strong></td>
@@ -375,10 +375,73 @@
         </div>
     {% endif %}
 
+    {% macro transactionRow(transaction, level) %}
+        {% set info = [
+        { label: "ID", value: transaction.id },
+        { label: "Hash", value: transaction.hash },
+        { label: "Reference", value: transaction.reference },
+        { label: "Message", value: transaction.message|title },
+        { label: "Code", value: transaction.code },
+        { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+        { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|raw~"</textarea>" },
+        ] %}
+
+        <tr class="infoRow" data-info="{{ info|json_encode }}">
+            <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
+            <td class="transaction-status transaction-status-{{ transaction.status }}">
+                {{ transaction.status|title|t('commerce') }}
+            </td>
+            <td>{{ transaction.amount|currency(transaction.currency) }}
+                <small class="light">({{ transaction.currency }})
+                </small>
+            </td>
+            <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
+                <small class="light">
+                    ({{ transaction.paymentCurrency }})
+                </small>
+            </td>
+            <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
+            <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
+            <td><span class="tableRowInfo" data-icon="info"
+                      href="#"></span></td>
+            <td>
+                {% if transaction.canCapture() %}
+                    <form>
+                        <a class="small btn submit formsubmit"
+                           data-action="commerce/orders/transaction-capture"
+                           data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
+                           data-redirect="{{ transaction.order.cpEditUrl }}"
+                           data-param="id"
+                           data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
+                    </form>
+                {% endif %}
+                {% if transaction.canRefund() %}
+                    <form>
+                        <a class="small btn submit formsubmit"
+                           data-action="commerce/orders/transaction-refund"
+                           data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
+                           data-redirect="{{ transaction.order.cpEditUrl }}"
+                           data-param="id"
+                           data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+
+        {% set transactions = transaction.childTransactions %}
+        {% if transactions|length %}
+            {% import _self as self %}
+            {% for childTransaction in transactions %}
+                {{ self.transactionRow(childTransaction, level +1) }}
+            {% endfor %}
+        {% endif %}
+    {% endmacro %}
+
     <div class="pane">
         <h3>{{ "Transactions"|t('commerce') }}</h3>
 
-        {% if order.transactions|length %}
+        {% if order.nestedTransactions|length %}
+            {% from _self import transactionRow %}
             <table class="data fullwidth">
                 <thead>
                 <tr>
@@ -393,68 +456,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for transaction in order.transactions %}
-
-                    {% set info = [
-                    { label: "ID", value: transaction.id },
-                    { label: "Hash", value: transaction.hash },
-                    { label: "Reference", value: transaction.reference },
-                    { label: "Message", value: transaction.message|title },
-                    { label: "Code", value: transaction.code },
-                    { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-                    { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|json_encode|raw~"</textarea>" },
-                    ] %}
-
-                    <tr class="infoRow" data-info="{{ info|json_encode }}">
-                        <td>{{ transaction.type|title }}</td>
-                        <td class="transaction-status transaction-status-{{ transaction.status }}">
-                            {% if transaction.gatewayProcessing and transaction.status != 'failed' and transaction.status != 'success' %}
-                                {{ 'Processing'|t('commerce') }}
-                            {% else %}
-                                {{ transaction.status|title|t('commerce') }}
-                            {% endif %}
-                        </td>
-                        <td>{{ transaction.amount|currency(transaction.currency) }}
-                            <small class="light">({{ transaction.currency }})
-                            </small>
-                        </td>
-                        <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
-                            <small class="light">
-                                ({{ transaction.paymentCurrency }})
-                            </small>
-                        </td>
-                        <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
-                        <td>{{ transaction.dateUpdated|date }}</td>
-                        <td><span class="tableRowInfo" data-icon="info"
-                                  href="#"></span></td>
-                        <td>
-                            {% if transaction.canCapture() %}
-                                <form>
-                                    <a class="small btn submit formsubmit"
-                                       data-action="commerce/orders/transaction-capture"
-                                       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
-                                       data-redirect="{{ order.cpEditUrl|hash }}"
-                                       data-param="id"
-                                       data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
-                                </form>
-                            {% endif %}
-                            {% if transaction.canRefund() %}
-                                <form>
-                                    <a class="small btn submit formsubmit"
-                                       data-action="commerce/orders/transaction-refund"
-                                       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
-                                       data-redirect="{{ order.cpEditUrl|hash }}"
-                                       data-param="id"
-                                       data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
+                {% for transaction in order.nestedTransactions %}
+                    {{ transactionRow(transaction, 0) }}
                 {% endfor %}
                 </tbody>
             </table>
         {% else %}
-            <p class="light">{{ "No transaction." }}</p>
+            <p class="light">{{ 'No transactions.'|t('commerce') }}</p>
         {% endif %}
 
 

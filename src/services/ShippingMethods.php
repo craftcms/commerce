@@ -330,6 +330,6 @@ class ShippingMethods extends Component
                 'handle',
                 'enabled',
             ])
-            ->from(['{{%commerce_shippingMethods}}']);
+            ->from(['{{%commerce_shippingmethods}}']);
     }
 }

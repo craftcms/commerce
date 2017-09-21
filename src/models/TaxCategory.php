@@ -79,4 +79,14 @@ class TaxCategory extends Model
     {
         return UrlHelper::cpUrl('commerce/settings/taxcategories/'.$this->id);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['handle'], 'required']
+        ];
+    }
 }

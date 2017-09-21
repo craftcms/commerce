@@ -60,12 +60,10 @@ class ShippingRuleCategories extends Component
      *
      * @return bool Whether the save was successful.
      */
-    public function saveShippingRuleCategory(ShippingRuleCategory $model): bool
+    public function createShippingRuleCategory(ShippingRuleCategory $model): bool
     {
-
         $record = new ShippingRuleCategoryRecord();
         $fields = [
-            'id',
             'shippingRuleId',
             'shippingCategoryId',
             'condition',

@@ -25,11 +25,10 @@
 					{{ csrfInput() }}
 
 					<label for="gatewayId">Select a payment method:</label>
-					<select id="gatewayId" name="gatewayId"
-							class="form-control">
+					<select id="gatewayId" name="gatewayId" class="form-control">
+						{% if not cart.gatewayId %}<option value="">---</option>{% endif %}
 						{% for id,name in craft.commerce.gateways %}
-							<option value="{{ id }}"
-									{% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
+							<option value="{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
 						{% endfor %}
 					</select>
 
@@ -49,8 +48,11 @@
 				<form method="POST" class="form-horizontal" id="paymentForm">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
 					{{ redirectInput('/shop/customer/order?number='~cart.number) }}
-					<input type="hidden" name="cancelUrl" value="/shop/checkout/payment"/>
+					<input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
+					<input type="hidden" name="orderEmail" value="{{ cart.email }}"/>
+
 					{{ csrfInput() }}
+
 					<fieldset>
 						{{ cart.gateway.getPaymentFormHtml({})|raw }}
 
@@ -107,9 +109,23 @@
 		</div>
 	</div>
 
-	{% includejs %}
-	$('#gatewayId , #paymentCurrency').change(function(){
-		$('form#gateway').submit();
-	});
-	{% endincludejs %}
+	{% js %}
+		$('#gatewayId , #paymentCurrency').change(function(){
+			$('form#gateway').submit();
+		});
+	{% endjs %}
+
+    {% js %}
+		$('#paymentForm').on('submit', function (ev) {
+			$form = $(this);
+
+			if ($form.data('processing')) {
+				ev.preventDefault();
+
+				return false;
+			}
+
+			$form.data('processing', true);
+		});
+    {% endjs %}
 {% endblock %}
