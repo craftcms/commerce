@@ -2,25 +2,9 @@
 
 namespace craft\commerce\services;
 
-use Craft;
-use craft\commerce\adjusters\Discount;
-use craft\commerce\adjusters\Shipping;
-use craft\commerce\adjusters\Tax;
-use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\events\OrderEvent;
-use craft\commerce\helpers\Currency;
-use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
-use craft\commerce\models\LineItem;
-use craft\commerce\Plugin;
-use craft\commerce\records\LineItem as LineItemRecord;
-use craft\commerce\records\Order as OrderRecord;
-use craft\events\RegisterComponentTypesEvent;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
 use yii\base\Component;
-use yii\base\Exception;
 
 /**
  * Orders service.
