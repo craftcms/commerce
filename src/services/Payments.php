@@ -71,11 +71,6 @@ class Payments extends Component
      */
     const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
 
-    /**
-     * @event SendPaymentRequestEvent The event that is triggered right before a payment request is being sent
-     */
-    const EVENT_BEFORE_SEND_PAYMENT_REQUEST = 'beforeSendPaymentRequest';
-
     // Public Methods
     // =========================================================================
 
