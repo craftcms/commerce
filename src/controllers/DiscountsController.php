@@ -111,46 +111,31 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
 
         $discount = new Discount();
-
-        // Shared attributes
-        $fields = [
-            'id',
-            'name',
-            'description',
-            'enabled',
-            'stopProcessing',
-            'sortOrder',
-            'purchaseTotal',
-            'purchaseQty',
-            'maxPurchaseQty',
-            'freeShipping',
-            'excludeOnSale',
-            'code',
-            'perUserLimit',
-            'perEmailLimit',
-            'totalUseLimit',
-            'percentageOffSubject'
-        ];
         $request = Craft::$app->getRequest();
-        foreach ($fields as $field) {
-            $discount->$field = $request->getParam($field);
-        }
 
-        $discountAmountsFields = [
-            'baseDiscount',
-            'perItemDiscount'
-        ];
-        foreach ($discountAmountsFields as $field) {
-            $discount->$field = (float) $request->getParam($field) * -1;
-        }
+        $discount->id = $request->getParam('id');
+        $discount->name = $request->getParam('name');
+        $discount->description = $request->getParam('description');
+        $discount->enabled = (bool) $request->getParam('enabled');
+        $discount->stopProcessing = (bool) $request->getParam('stopProcessing');
+        $discount->purchaseTotal = $request->getParam('purchaseTotal');
+        $discount->purchaseQty = $request->getParam('purchaseQty');
+        $discount->maxPurchaseQty = $request->getParam('maxPurchaseQty');
+        $discount->baseDiscount = $request->getParam('baseDiscount');
+        $discount->perItemDiscount = $request->getParam('perItemDiscount');
+        $discount->percentDiscount = $request->getParam('percentDiscount');
+        $discount->percentageOffSubject = $request->getParam('percentageOffSubject');
+        $discount->freeShipping = (bool) $request->getParam('freeShipping');
+        $discount->excludeOnSale = (bool) $request->getParam('excludeOnSale');
+        $discount->perUserLimit = $request->getParam('perUserLimit');
+        $discount->perEmailLimit = $request->getParam('perEmailLimit');
+        $discount->totalUseLimit = $request->getParam('totalUseLimit');
 
-        $dateFields = [
-            'dateFrom',
-            'dateTo'
-        ];
-        foreach ($dateFields as $field) {
-            $discount->$field = (($date = $request->getParam($field)) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->$date);
-        }
+        $discount->baseDiscount = (float) $request->getParam('baseDiscount') * -1;
+        $discount->perItemDiscount = (float) $request->getParam('perItemDiscount') *-1 ;
+
+        $discount->dateFrom = (($date = $request->getParam('dateFrom')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateFrom);
+        $discount->dateTo = (($date = $request->getParam('dateTo')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateTo);
 
         // Format into a %
         $percentDiscountAmount = $request->getParam('percentDiscount');
@@ -218,7 +203,8 @@ class DiscountsController extends BaseCpController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
-        $this->asJson(['success' => true]);
+
+        return $this->asJson(['success' => true]);
     }
 
     /**

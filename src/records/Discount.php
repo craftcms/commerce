@@ -25,6 +25,7 @@ use yii\db\ActiveQueryInterface;
  * @property float                        $baseDiscount
  * @property float                        $perItemDiscount
  * @property float                        $percentDiscount
+ * @property float                        $percentageOffSubject
  * @property bool                         $excludeOnSale
  * @property bool                         $freeShipping
  * @property bool                         $allGroups

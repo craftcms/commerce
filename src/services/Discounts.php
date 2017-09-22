@@ -388,30 +388,25 @@ class Discounts extends Component
             $record = new DiscountRecord();
         }
 
-        $fields = [
-            'name',
-            'description',
-            'dateFrom',
-            'dateTo',
-            'enabled',
-            'stopProcessing',
-            'purchaseTotal',
-            'purchaseQty',
-            'maxPurchaseQty',
-            'baseDiscount',
-            'perItemDiscount',
-            'percentDiscount',
-            'percentageOffSubject',
-            'freeShipping',
-            'excludeOnSale',
-            'perUserLimit',
-            'perEmailLimit',
-            'totalUseLimit'
-        ];
 
-        foreach ($fields as $field) {
-            $record->$field = $model->$field;
-        }
+        $record->name = $model->name;
+        $record->description = $model->description;
+        $record->dateFrom = $model->dateFrom;
+        $record->dateTo = $model->dateTo;
+        $record->enabled = $model->enabled;
+        $record->stopProcessing = $model->stopProcessing;
+        $record->purchaseTotal = $model->purchaseTotal;
+        $record->purchaseQty = $model->purchaseQty;
+        $record->maxPurchaseQty = $model->maxPurchaseQty;
+        $record->baseDiscount = $model->baseDiscount;
+        $record->perItemDiscount = $model->perItemDiscount;
+        $record->percentDiscount = $model->percentDiscount;
+        $record->percentageOffSubject = $model->percentageOffSubject;
+        $record->freeShipping = $model->freeShipping;
+        $record->excludeOnSale = $model->excludeOnSale;
+        $record->perUserLimit = $model->perUserLimit;
+        $record->perEmailLimit = $model->perEmailLimit;
+        $record->totalUseLimit = $model->totalUseLimit;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
