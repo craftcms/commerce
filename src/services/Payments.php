@@ -509,7 +509,7 @@ class Payments extends Component
      * @return Transaction
      * @throws TransactionException
      */
-    private function _processCaptureOrRefund(Transaction $parent, $action ) {
+    private function _processCaptureOrRefund(Transaction $parent, $action) {
         if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
             throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);
         }
