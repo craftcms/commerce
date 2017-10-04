@@ -5,6 +5,9 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\GatewayRequestCancelledException;
+use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\base\Gateway;
 use craft\commerce\models\payments\BasePaymentForm;
@@ -12,9 +15,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\errors\GatewayRequestCancelledException;
-use craft\errors\TransactionException;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use yii\base\Component;
@@ -75,15 +75,15 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @param Order           $order
-     * @param BasePaymentForm $form
-     * @param string|null     &$redirect
-     * @param string|null     &$customError
+     * @param Order            $order
+     * @param BasePaymentForm  $form
+     * @param string|null      &$redirect
+     * @param Transaction|null &$transaction
      *
      * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$customError = null) {
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$transaction = null) {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
@@ -106,15 +106,11 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = Craft::t("commerce", "Gateway doesn’t support authorize");
-
-                return false;
+                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support authorize"));
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = Craft::t("commerce", "Gateway doesn’t support purchase");
-
-                return false;
+                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support purchase"));
             }
         }
 
@@ -141,8 +137,7 @@ class Payments extends Component
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
-                $customError = $transaction->message;
-                return false;
+                throw new PaymentException($transaction->message);
             }
 
             // Success!
@@ -157,9 +152,8 @@ class Payments extends Component
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
             $this->_saveTransaction($transaction);
-            $success = false;
-            $customError = $e->getMessage();
             Craft::error($e->getMessage());
+            throw new PaymentException($transaction->message);
         }
 
         return $success;
@@ -527,7 +521,7 @@ class Payments extends Component
                 case TransactionRecord::TYPE_REFUND:
                     if ($parent->type === TransactionRecord::TYPE_CAPTURE)
                     {
-                        $parent = $parent->getParent();
+                        //$parent = $parent->getParent();
                     }
 
                     $response = $gateway->refund($child, $parent->reference);
@@ -565,16 +559,17 @@ class Payments extends Component
     /**
      * Updates a transaction.
      *
-     * @param Transaction       $transaction
+     * @param Transaction              $transaction
      * @param RequestResponseInterface $response
      *
      * @return void
      */
-    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
-        if ($response->isSuccessful()) {
-            $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isRedirect()) {
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
+    {
+        if ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
+        } elseif ($response->isSuccessful()) {
+            $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
         } else {

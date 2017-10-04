@@ -4,7 +4,9 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\errors\PaymentException;
 use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -212,10 +214,16 @@ class PaymentsController extends BaseFrontEndController
         }
 
         $redirect = '';
+        $transaction = null;
         $paymentForm->validate();
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
-            $success = $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $customError);
+            try {
+                $success = $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
+            } catch (PaymentException $exception) {
+                $customError = $exception->getMessage();
+                $success = false;
+            }
         } else {
             $customError = Craft::t('commerce', 'Invalid payment or order. Please review.');
             $success = false;
@@ -224,9 +232,17 @@ class PaymentsController extends BaseFrontEndController
         if ($success) {
             if ($request->getAcceptsJson()) {
                 $response = ['success' => true];
+
                 if ($redirect) {
                     $response['redirect'] = $redirect;
                 }
+
+                if ($transaction) {
+                    /** @var Transaction $transaction */
+                    $response['transactionId'] = $transaction->reference;
+                }
+
+
                 return $this->asJson($response);
             }
 
@@ -271,7 +287,19 @@ class PaymentsController extends BaseFrontEndController
         $success = Plugin::getInstance()->getPayments()->completePayment($transaction, $customError);
 
         if ($success) {
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                $response = ['url' => $transaction->order->returnUrl];
+
+                return $this->asJson($response);
+            }
+
             return $this->redirect($transaction->order->returnUrl);
+        }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            $response = ['url' => $transaction->order->cancelUrl];
+
+            return $this->asJson($response);
         }
 
         Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));

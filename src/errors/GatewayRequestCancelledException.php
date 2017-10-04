@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\errors;
+namespace craft\commerce\errors;
 
 use yii\base\Exception;
 

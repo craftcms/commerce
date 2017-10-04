@@ -14,7 +14,7 @@ use craft\helpers\UrlHelper;
  * @package   Craft
  *
  * @property int                $id
- * @property string             $class
+ * @property string             $type
  * @property string             $name
  * @property string             $paymentType
  * @property array              $settings
