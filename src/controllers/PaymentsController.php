@@ -296,13 +296,14 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));
+
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $response = ['url' => $transaction->order->cancelUrl];
 
             return $this->asJson($response);
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));
         return $this->redirect($transaction->order->cancelUrl);
     }
 
