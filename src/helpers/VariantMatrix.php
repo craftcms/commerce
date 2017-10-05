@@ -32,7 +32,7 @@ class VariantMatrix
      *
      * @return string The variant matrix HTML
      */
-    public static function getVariantMatrixHtml(Product $product, $name = 'variantsPost')
+    public static function getVariantMatrixHtml(Product $product, $name = 'variants')
     {
         /** @var \craft\web\View $viewService */
         $viewService = Craft::$app->getView();

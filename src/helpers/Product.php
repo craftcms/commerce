@@ -1,7 +1,7 @@
 <?php
+
 namespace craft\commerce\helpers;
 
-use Craft;
 use craft\commerce\elements\Product as ProductModel;
 use craft\commerce\elements\Variant as VariantModel;
 use craft\commerce\Plugin;
@@ -53,55 +53,44 @@ class Product
     /**
      * Populates all Variant Models from HUD or POST data
      *
-     * @param ProductModel $product
-     * @param              $data
+     * @param ProductModel  $product
+     * @param               $variant
+     * @param               $key
+     *
+     * @return VariantModel
      */
-    public static function populateProductVariantModels(ProductModel $product, $data)
+    public static function populateProductVariantModel(ProductModel $product, $variant, $key)
     {
-        $variantData = $data;
-        $variants = [];
-        $count = 1;
-
-        if (empty($variantData)) {
-            $variantData = [];
-        }
-
         $productId = $product->id;
 
-        foreach ($variantData as $key => $variant) {
-            if ($productId && strncmp($key, 'new', 3) !== 0) {
-                $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
-            } else {
-                $variantModel = new VariantModel();
-            }
-
-            $variantModel->setProduct($product);
-            $variantModel->enabled = isset($variant['enabled']) ? $variant['enabled'] : 1;
-            $variantModel->isDefault = isset($variant['isDefault']) ? $variant['isDefault'] : 0;
-            $variantModel->sku = isset($variant['sku']) ? $variant['sku'] : '';
-            $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
-            $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
-            $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
-            $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
-            $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
-            $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
-            $variantModel->unlimitedStock = $variant['unlimitedStock'];
-            $variantModel->minQty = LocalizationHelper::normalizeNumber($variant['minQty']);
-            $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
-
-            $variantModel->sortOrder = $count++;
-
-            if (isset($variant['fields'])) {
-                $variantModel->setFieldValuesFromRequest('fields');
-            }
-
-            if (isset($variant['title'])) {
-                $variantModel->title = $variant['title'] ?: $variant->title ;
-            }
-
-            $variants[] = $variantModel;
+        if ($productId && $key !== 'new') {
+            $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
+        } else {
+            $variantModel = new VariantModel();
         }
 
-        $product->setVariants($variants);
+        $variantModel->setProduct($product);
+        $variantModel->enabled = isset($variant['enabled']) ? $variant['enabled'] : 1;
+        $variantModel->isDefault = isset($variant['isDefault']) ? $variant['isDefault'] : 0;
+        $variantModel->sku = isset($variant['sku']) ? $variant['sku'] : '';
+        $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
+        $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
+        $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
+        $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
+        $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
+        $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
+        $variantModel->unlimitedStock = $variant['unlimitedStock'];
+        $variantModel->minQty = LocalizationHelper::normalizeNumber($variant['minQty']);
+        $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
+
+        if (isset($variant['fields'])) {
+            $variantModel->setFieldValuesFromRequest('fields');
+        }
+
+        if (isset($variant['title'])) {
+            $variantModel->title = $variant['title'] ?: $variant->title;
+        }
+
+        return $variantModel;
     }
 }

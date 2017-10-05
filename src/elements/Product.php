@@ -392,7 +392,7 @@ class Product extends Element
     }
 
     /**
-     * Returns an array of the product's variants with sales applied.
+     * Returns an array of the product's variants
      *
      * @return Variant[]
      */
@@ -421,33 +421,24 @@ class Product extends Element
     }
 
     /**
-     * @param array $variants
-     */
-    public function setVariantsPost($variants)
-    {
-        ProductHelper::populateProductVariantModels($this, $variants);
-    }
-
-    /**
-     * @param Variant[] $variants
+     * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
+     *
+     * @param Variant[]|array $variants
      */
     public function setVariants(array $variants)
     {
-
         $this->_variants = [];
+        $count = 0;
 
         foreach ($variants as $key => $variant)
         {
-            if ($variant instanceof Variant)
+            if (!$variant instanceof Variant)
             {
-                $this->_variants[] = $variant;
-            } else {
-                ProductHelper::populateProductVariantModels($this, $variants);
+                $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
             }
+            $variant->sortOrder = $count + 1;
+            $this->_variants[] = $variant;
         }
-
-        Plugin::getInstance()->getVariants()->setProductOnVariants($this, $variants);
-        $this->_variants = $variants;
     }
 
     /**
@@ -634,7 +625,7 @@ class Product extends Element
             /** @var Variant $variant */
             $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
-            $newNamespace = 'variantsPost['.($variant->id ?: 'new1').']';
+            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
             $viewService->setNamespace($newNamespace);
             $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
 
@@ -882,7 +873,7 @@ class Product extends Element
         $keepVariantIds = [];
         $oldVariantIds = (new Query())
             ->select('id')
-            ->from('commerce_variants')
+            ->from('{{%commerce_variants}}')
             ->where('productId = :productId', [':productId' => $this->id])
             ->column();
 

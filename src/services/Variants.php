@@ -201,22 +201,6 @@ class Variants extends Component
     }
 
     /**
-     * Sets a product on the given variants, and applies any applicable sales.
-     *
-     * @param Product   $product
-     * @param Variant[] $variants
-     */
-    public function setProductOnVariants($product, $variants)
-    {
-        foreach ($variants as $variant) {
-            $variant->setProduct($product);
-        }
-
-        // apply all sales applicable
-        $this->applySales($variants, $product);
-    }
-
-    /**
      * Apply sales, associated with the given product, to all given variants
      *
      * @param Variant[] $variants
