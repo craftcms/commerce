@@ -5,6 +5,9 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\GatewayRequestCancelledException;
+use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\base\Gateway;
 use craft\commerce\models\payments\BasePaymentForm;
@@ -12,9 +15,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\errors\GatewayRequestCancelledException;
-use craft\errors\TransactionException;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use yii\base\Component;
@@ -71,24 +71,19 @@ class Payments extends Component
      */
     const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
 
-    /**
-     * @event SendPaymentRequestEvent The event that is triggered right before a payment request is being sent
-     */
-    const EVENT_BEFORE_SEND_PAYMENT_REQUEST = 'beforeSendPaymentRequest';
-
     // Public Methods
     // =========================================================================
 
     /**
-     * @param Order           $order
-     * @param BasePaymentForm $form
-     * @param string|null     &$redirect
-     * @param string|null     &$customError
+     * @param Order            $order
+     * @param BasePaymentForm  $form
+     * @param string|null      &$redirect
+     * @param Transaction|null &$transaction
      *
      * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$customError = null) {
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$transaction = null) {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
@@ -111,15 +106,11 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                $customError = Craft::t("commerce", "Gateway doesn’t support authorize");
-
-                return false;
+                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support authorize"));
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                $customError = Craft::t("commerce", "Gateway doesn’t support purchase");
-
-                return false;
+                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support purchase"));
             }
         }
 
@@ -146,8 +137,7 @@ class Payments extends Component
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
-                $customError = $transaction->message;
-                return false;
+                throw new PaymentException($transaction->message);
             }
 
             // Success!
@@ -162,9 +152,8 @@ class Payments extends Component
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
             $this->_saveTransaction($transaction);
-            $success = false;
-            $customError = $e->getMessage();
             Craft::error($e->getMessage());
+            throw new PaymentException($transaction->message);
         }
 
         return $success;
@@ -280,111 +269,8 @@ class Payments extends Component
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }
-// TODO no idea what this means with the new refactor. Luke?
 
-//        // For gateways that call us directly and usually do not like redirects.
-//        // TODO: Move this into the gateway adapter interface.
-//        $gateways = [
-//            'AuthorizeNet_SIM',
-//            'Realex_Redirect',
-//            'SecurePay_DirectPost',
-//            'WorldPay',
-//        ];
-//
-//        if (in_array($transaction->paymentMethod->getGatewayAdapter()->handle(), $gateways)) {
-//
-//            // Need to turn devMode off so the redirect template does not have any debug data attached.
-//            Craft::$app->getConfig()->set('devMode', false);
-//
-//            // We redirect to a place that take us back to the completePayment endpoint, but this is ok
-//            // as complete payment can return early if the transaction was marked successful the previous time.
-//            $url = UrlHelper::getActionUrl('commerce/payments/complete-payment', ['commerceTransactionId' => $transaction->id, 'commerceTransactionHash' => $transaction->hash]);
-//            $url = htmlspecialchars($url, ENT_QUOTES);
-//
-//            $template = <<<EOF
-//<!DOCTYPE html>
-//<html>
-//<head>
-//    <meta http-equiv="refresh" content="1;URL=$url" />
-//    <title>Redirecting...</title>
-//</head>
-//<body onload="document.payment.submit();">
-//    <p>Please wait while we redirect you back...</p>
-//    <form name="payment" action="$url" method="post">
-//        <p><input type="submit" value="Continue" /></p>
-//    </form>
-//</body>
-//</html>
-//EOF;
-//
-//            ob_start();
-//            echo $template;
-//            Craft::$app->end();
-//        }
-        
         return $success;
-    }
-
-    /**
-     * This is a special handler for gateway which support the notification API in Omnipay.
-     * TODO: Currently only tested with SagePay. Will likely need to be modified for other gateways with different notification API
-     *
-     * @param $transactionHash
-     */
-    // TODO should be removed now that we have webhooks?
-    public function acceptNotification($transactionHash)
-    {
-        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($transactionHash);
-
-        // We need to turn devMode off because the gateways return text strings and we don't want `<script..` tags appending on the end.
-        Craft::$app->getConfig()->set('devMode', false);
-
-        // load payment driver
-        $gateway = $transaction->paymentMethod->getGateway();
-
-        $request = $gateway->acceptNotification();
-
-        $request->setTransactionReference($transaction->reference);
-
-        $response = $request->send();
-
-        if (!$request->isValid()) {
-            $url = UrlHelper::getSiteUrl($transaction->order->cancelUrl);
-            Craft::error('Notification request is not valid: '.json_encode($request->getData(), JSON_PRETTY_PRINT), __METHOD__);
-            $response->invalid($url, 'Signature not valid - goodbye');
-        }
-
-        // All raw data - just log it for later analysis:
-        $request->getData();
-
-        $status = $request->getTransactionStatus();
-
-        if ($status == $request::STATUS_COMPLETED) {
-            $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($status == $request::STATUS_PENDING) {
-            $transaction->pending = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($status == $request::STATUS_FAILED) {
-            $transaction->status = TransactionRecord::STATUS_FAILED;
-        }
-
-        $transaction->response = $response->getData();
-        $transaction->code = $response->getCode();
-        $transaction->reference = $request->getTransactionReference();
-        $transaction->message = $request->getMessage();
-        $this->_saveTransaction($transaction);
-
-        if ($transaction->status == TransactionRecord::STATUS_SUCCESS) {
-            $transaction->order->updateOrderPaidTotal();
-        }
-
-        $url = UrlHelper::actionUrl('commerce/payments/complete-payment', [
-            'commerceTransactionId' => $transaction->id,
-            'commerceTransactionHash' => $transaction->hash
-        ]);
-
-        Craft::info('Confirming Notification: '.json_encode($request->getData(), JSON_PRETTY_PRINT), __METHOD__);
-
-        $response->confirm($url);
     }
 
     /**
@@ -509,7 +395,7 @@ class Payments extends Component
      * @return Transaction
      * @throws TransactionException
      */
-    private function _processCaptureOrRefund(Transaction $parent, $action ) {
+    private function _processCaptureOrRefund(Transaction $parent, $action) {
         if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
             throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);
         }
@@ -532,7 +418,7 @@ class Payments extends Component
                 case TransactionRecord::TYPE_REFUND:
                     if ($parent->type === TransactionRecord::TYPE_CAPTURE)
                     {
-                        $parent = $parent->getParent();
+                        //$parent = $parent->getParent();
                     }
 
                     $response = $gateway->refund($child, $parent->reference);
@@ -570,16 +456,17 @@ class Payments extends Component
     /**
      * Updates a transaction.
      *
-     * @param Transaction       $transaction
+     * @param Transaction              $transaction
      * @param RequestResponseInterface $response
      *
      * @return void
      */
-    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response) {
-        if ($response->isSuccessful()) {
-            $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isRedirect()) {
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
+    {
+        if ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
+        } elseif ($response->isSuccessful()) {
+            $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
         } else {
