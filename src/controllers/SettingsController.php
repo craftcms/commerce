@@ -36,8 +36,8 @@ class SettingsController extends BaseAdminController
         $settings = Plugin::getInstance()->getSettings();
 
         $craftSettings = Craft::$app->getSystemSettings()->getEmailSettings();
-        $settings->emailSenderAddressPlaceholder = (isset($craftSettings['emailAddress']) ? $craftSettings['emailAddress'] : '');
-        $settings->emailSenderNamePlaceholder = (isset($craftSettings['senderName']) ? $craftSettings['senderName'] : '');
+        $settings->emailSenderAddressPlaceholder = (isset($craftSettings['fromEmail']) ? $craftSettings['fromEmail'] : '');
+        $settings->emailSenderNamePlaceholder = (isset($craftSettings['fromName']) ? $craftSettings['fromName'] : '');
 
         return $this->renderTemplate('commerce/settings/general', ['settings' => $settings]);
     }
