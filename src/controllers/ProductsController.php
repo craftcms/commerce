@@ -454,7 +454,14 @@ class ProductsController extends BaseCpController
 
         $request = Craft::$app->getRequest();
         $product = $this->_setProductFromPost();
-        ProductHelper::populateProductVariantModels($product, $request->getParam('variants'));
+
+        $variants = $request->getParam('variants');
+        $newVariants = [];
+        foreach ($variants as $key => $variant)
+        {
+            $newVariants[] = ProductHelper::populateProductVariantModel($product, $variant, $key);
+        }
+        $product->setVariants($newVariants);
 
         $this->enforceProductPermissions($product);
 
