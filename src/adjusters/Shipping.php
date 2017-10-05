@@ -99,7 +99,7 @@ class Shipping implements AdjusterInterface
             $adjustmentToMinimumAmount = 0;
             // Is there a minimum rate and is the total shipping cost currently below it?
             if ($rule->getMinRate() != 0 && (($itemTotalAmount + $baseAmount) < Currency::round($rule->getMinRate()))) {
-                $adjustmentToMinimumAmount =  Currency::round($rule->getMinRate()) - ($itemTotalAmount + $baseAmount);
+                $adjustmentToMinimumAmount = Currency::round($rule->getMinRate()) - ($itemTotalAmount + $baseAmount);
                 $adjustment = $this->_createAdjustment($shippingMethod, $rule);
                 $adjustment->amount = $adjustmentToMinimumAmount;
                 $adjustment->description .= ' Adjusted to minimum rate';

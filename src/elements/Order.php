@@ -15,7 +15,6 @@ use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
@@ -23,6 +22,7 @@ use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Order as OrderRecord;
+use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
@@ -276,6 +276,7 @@ class Order extends Element
 
         return $names;
     }
+
     /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      *
@@ -526,8 +527,7 @@ class Order extends Element
         }
 
         foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds))
-            {
+            if (!in_array($previousAdjustment->id, $newAdjustmentIds)) {
                 $previousAdjustment->delete();
             }
         }
@@ -938,16 +938,17 @@ class Order extends Element
         return $this->_orderAdjustments;
     }
 
+    /**
+     * @return array
+     */
     public function getOrderAdjustments(): array
     {
         $adjustments = $this->getAdjustments();
         $orderAdjustments = [];
 
-        foreach ($adjustments as $adjustment)
-        {
-            if ($adjustment->lineItemId == null && $adjustment->orderId == $this->id)
-            {
-               $orderAdjustments[] = $adjustment;
+        foreach ($adjustments as $adjustment) {
+            if ($adjustment->lineItemId == null && $adjustment->orderId == $this->id) {
+                $orderAdjustments[] = $adjustment;
             }
         }
 
@@ -970,8 +971,7 @@ class Order extends Element
         $amount = 0;
 
         foreach ($this->getAdjustments() as $adjustment) {
-            if(!$adjustment->included)
-            {
+            if (!$adjustment->included) {
                 $amount += $adjustment->amount;
             }
         }
