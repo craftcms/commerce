@@ -430,15 +430,21 @@ class Product extends Element
         $this->_variants = [];
         $count = 0;
 
-        foreach ($variants as $key => $variant)
-        {
-            if (!$variant instanceof Variant)
-            {
+        foreach ($variants as $key => $variant) {
+            if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
             }
             $variant->sortOrder = $count + 1;
             $this->_variants[] = $variant;
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
     }
 
     /**
@@ -801,7 +807,25 @@ class Product extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['title', 'defaultSku'];
+        return ['title', 'defaultSku', 'sku'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSearchKeywords(string $attribute): string
+    {
+        $skus = '';
+
+        if ($attribute === 'sku') {
+            foreach ($this->getVariants() as $variant) {
+                $skus .= $variant->sku.' ';
+            }
+
+            return $skus;
+        }
+
+        return parent::getSearchKeywords($attribute);
     }
 
     /**

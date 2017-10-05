@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
@@ -11,7 +12,6 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
-use Craft;
 
 /**
  *
@@ -280,11 +280,11 @@ class ProductQuery extends ElementQuery
         ]);
 
         if ($this->postDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('entries.postDate', $this->postDate));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
         }
 
         if ($this->expiryDate) {
-            $this->subQuery->andWhere(Db::parseDateParam('entries.expiryDate', $this->expiryDate));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
         if ($this->typeId) {
@@ -398,38 +398,38 @@ class ProductQuery extends ElementQuery
         $currentTimeDb = Db::prepareDateForDb(new \DateTime());
 
         switch ($status) {
-            case Entry::STATUS_LIVE:
+            case Product::STATUS_LIVE:
                 return [
                     'and',
                     [
                         'elements.enabled' => '1',
                         'elements_sites.enabled' => '1'
                     ],
-                    ['<=', 'entries.postDate', $currentTimeDb],
+                    ['<=', 'commerce_products.postDate', $currentTimeDb],
                     [
                         'or',
-                        ['entries.expiryDate' => null],
-                        ['>', 'entries.expiryDate', $currentTimeDb]
+                        ['commerce_products.expiryDate' => null],
+                        ['>', 'commerce_products.expiryDate', $currentTimeDb]
                     ]
                 ];
-            case Entry::STATUS_PENDING:
+            case Product::STATUS_PENDING:
                 return [
                     'and',
                     [
                         'elements.enabled' => '1',
                         'elements_sites.enabled' => '1',
                     ],
-                    ['>', 'entries.postDate', $currentTimeDb]
+                    ['>', 'commerce_products.postDate', $currentTimeDb]
                 ];
-            case Entry::STATUS_EXPIRED:
+            case Product::STATUS_EXPIRED:
                 return [
                     'and',
                     [
                         'elements.enabled' => '1',
                         'elements_sites.enabled' => '1'
                     ],
-                    ['not', ['entries.expiryDate' => null]],
-                    ['<=', 'entries.expiryDate', $currentTimeDb]
+                    ['not', ['commerce_products.expiryDate' => null]],
+                    ['<=', 'commerce_products.expiryDate', $currentTimeDb]
                 ];
             default:
                 return parent::statusCondition($status);
