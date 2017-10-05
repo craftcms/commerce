@@ -27,7 +27,7 @@ class ShippingZoneState extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return "commerce_shippingzone_states";
+        return '{{%commerce_shippingzone_states}}';
     }
 
     /**

@@ -25,7 +25,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Order as OrderRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
@@ -89,6 +88,8 @@ use yii\base\Exception;
  * @property int                     $totalSaleAmount
  * @property int                     $itemSubtotal
  * @property OrderHistory[]          $histories
+ * @property int                     baseShippingCost
+ * @property float                   baseDiscount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -238,7 +239,7 @@ class Order extends Element
     /**
      * @var bool Should the order recalculate?
      */
-    private $_relcalculate = false;
+    private $_relcalculate = true;
 
 
     /**
@@ -458,7 +459,7 @@ class Order extends Element
         $total = 0;
 
         foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getTotal();
+            $total += $lineItem->getSubtotal();
         }
 
         return $total;
@@ -515,7 +516,6 @@ class Order extends Element
 
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
-            ->indexBy('orderId')
             ->all();
 
         $newAdjustmentIds = [];
@@ -801,64 +801,69 @@ class Order extends Element
         $this->_lineItems = $lineItems;
     }
 
+
     /**
+     * @param      $type
+     * @param bool $included
+     *
+     * @return float|int
+     */
+    public function getAdjustmentsTotalByType($type, $included = false)
+    {
+        $amount = 0;
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->included == $included && $adjustment->type == $type) {
+                $amount += $adjustment->amount;
+            }
+        }
+
+        return $amount;
+    }
+
+
+    /**
+     * @deprecated
      * @return float
      */
     public function getTotalTax()
     {
-        $tax = 0;
-        foreach ($this->getAdjustments() as $adjustment) {
-            if (!$adjustment->included && $adjustment->type == 'tax') {
-                $tax += $adjustment->amount;
-            }
-        }
+        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
 
-        return $tax;
+        return $this->getAdjustmentsTotalByType('tax');
     }
 
     /**
+     * @deprecated
      * @return float
      */
     public function getTotalTaxIncluded()
     {
-        $tax = 0;
-        foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included && $adjustment->type == 'taxIncluded') {
-                $tax += $adjustment->amount;
-            }
-        }
+        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
 
-        return $tax;
+        return $this->getAdjustmentsTotalByType('tax', true);
     }
 
     /**
+     * @deprecated
      * @return float
      */
     public function getTotalDiscount()
     {
-        $tax = 0;
-        foreach ($this->getAdjustments() as $adjustment) {
-            if (!$adjustment->included && $adjustment->type == 'discount') {
-                $tax += $adjustment->amount;
-            }
-        }
+        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
 
-        return $tax;
+        return $this->getAdjustmentsTotalByType('discount');
     }
 
     /**
+     * @deprecated
      * @return float
      */
     public function getTotalShippingCost()
     {
-        $tax = 0;
-        foreach ($this->getAdjustments() as $adjustment) {
-            if (!$adjustment->included && $adjustment->type == 'shipping') {
-                $tax += $adjustment->amount;
-            }
-        }
+        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
 
-        return $tax;
+        return $this->getAdjustmentsTotalByType('discount');
     }
 
     /**
@@ -872,32 +877,6 @@ class Order extends Element
         }
 
         return $weight;
-    }
-
-    /**
-     * @return float
-     */
-    public function getTotalLength()
-    {
-        $value = 0;
-        foreach ($this->getLineItems() as $item) {
-            $value += ($item->qty * $item->length);
-        }
-
-        return $value;
-    }
-
-    /**
-     * @return float
-     */
-    public function getTotalWidth()
-    {
-        $value = 0;
-        foreach ($this->getLineItems() as $item) {
-            $value += ($item->qty * $item->width);
-        }
-
-        return $value;
     }
 
     /**
@@ -998,19 +977,6 @@ class Order extends Element
         }
 
         return $amount;
-    }
-
-    /**
-     * @return float
-     */
-    public function getTotalHeight()
-    {
-        $value = 0;
-        foreach ($this->getLineItems() as $item) {
-            $value += $item->qty * $item->height;
-        }
-
-        return $value;
     }
 
     /**

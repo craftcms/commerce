@@ -6,7 +6,6 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
-use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
@@ -18,19 +17,21 @@ use craft\commerce\records\Discount as DiscountRecord;
  */
 class Discount implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'Discount';
+    const ADJUSTMENT_TYPE = 'discount';
+
+    /** @var Order */
+    private $_order;
+
+    private $_discount;
 
     /**
-     * @param \craft\commerce\elements\Order    $order
-     * @param \craft\commerce\models\LineItem[] $lineItems
+     * @param \craft\commerce\elements\Order $order
      *
      * @return \craft\commerce\models\OrderAdjustment[]
      */
-    public function adjust(Order &$order, array $lineItems = []): array
+    public function adjust(Order $order): array
     {
-        if (empty($lineItems)) {
-            return [];
-        }
+        $this->_order = $order;
 
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
 
@@ -41,15 +42,16 @@ class Discount implements AdjusterInterface
                 $availableDiscounts[] = $discount;
             }
 
-            if ($order->couponCode && ($discount->code == $order->couponCode)) {
+            if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {
                 $availableDiscounts[] = $discount;
             }
         }
 
         $adjustments = [];
         foreach ($availableDiscounts as $discount) {
-            if ($adjustment = $this->getAdjustment($order, $lineItems, $discount)) {
-                $adjustments[] = $adjustment;
+            $newAdjustments = $this->getAdjustments($discount);
+            if ($newAdjustments) {
+                $adjustments = array_merge($adjustments, $newAdjustments);
 
                 if ($discount->stopProcessing) {
                     break;
@@ -60,52 +62,52 @@ class Discount implements AdjusterInterface
         return $adjustments;
     }
 
-    /**
-     * @param Order         $order
-     * @param LineItem[]    $lineItems
-     * @param DiscountModel $discount
-     *
-     * @return OrderAdjustment|false
-     */
-    private function getAdjustment(Order $order, array $lineItems, DiscountModel $discount)
+    private function _createOrderAdjustment(DiscountModel $discount)
     {
         //preparing model
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->name = $discount->name;
-        $adjustment->orderId = $order->id;
+        $adjustment->name = 'Discount';
+        $adjustment->orderId = $this->_order->id;
         $adjustment->description = $discount->description;
         $adjustment->sourceSnapshot = $discount->attributes;
-        $affectedLineIds = [];
 
+        return $adjustment;
+    }
 
-        // Handle special coupon rules
-        if (strcasecmp($order->couponCode, $discount->code) == 0) {
-            // Since we will allow the coupon to be added to an anonymous cart with no email, we need to remove it
-            // if a limit has been set.
-            if ($order->email && $discount->perEmailLimit) {
-                $previousOrders = Plugin::getInstance()->getOrders()->getOrdersByEmail($order->email);
+    /**
+     * @param DiscountModel $discount
+     *
+     * @return OrderAdjustment|false
+     */
+    private function getAdjustments(DiscountModel $discount)
+    {
+        $adjustments = [];
+
+        $this->_discount = $discount;
+
+        // If coupon matches, check the per email usage limit.
+        if (strcasecmp($this->_order->couponCode, $discount->code) == 0) {
+            if ($this->_order->email && $this->_discount->perEmailLimit) {
+                $previousOrders = Plugin::getInstance()->getOrders()->getOrdersByEmail($this->_order->email);
 
                 $usedCount = 0;
 
                 foreach ($previousOrders as $previousOrder) {
-                    if (strcasecmp($previousOrder->couponCode, $discount->code) == 0) {
-                        $usedCount += 1;
+                    if (strcasecmp($previousOrder->couponCode, $this->_discount->code) == 0) {
+                        ++$usedCount;
                     }
                 }
 
-                if ($usedCount >= $discount->perEmailLimit) {
-                    $order->couponCode = '';
-
+                if ($usedCount >= $this->_discount->perEmailLimit) {
                     return false;
                 }
             }
         }
 
-
         $now = new \DateTime();
-        $from = $discount->dateFrom;
-        $to = $discount->dateTo;
+        $from = $this->_discount->dateFrom;
+        $to = $this->_discount->dateTo;
         if ($from && $from > $now || $to && $to < $now) {
             return false;
         }
@@ -114,22 +116,18 @@ class Discount implements AdjusterInterface
         $matchingQty = 0;
         $matchingTotal = 0;
         $matchingLineIds = [];
-        foreach ($lineItems as $item) {
-            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
-                if (!$discount->allGroups)
-                {
-                    $customer = $order->getCustomer();
+        foreach ($this->_order->getLineItems() as $item) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount)) {
+                if (!$this->_discount->allGroups) {
+                    $customer = $this->_order->getCustomer();
                     $user = $customer ? $customer->getUser() : null;
                     $userGroups = Plugin::getInstance()->getDiscounts()->getCurrentUserGroupIds($user);
-                    if ($user && array_intersect($userGroups, $discount->getGroupIds()))
-                    {
+                    if ($user && array_intersect($userGroups, $this->_discount->getGroupIds())) {
                         $matchingLineIds[] = $item->id;
                         $matchingQty += $item->qty;
                         $matchingTotal += $item->getSubtotal();
                     }
-                }
-                else
-                {
+                } else {
                     $matchingLineIds[] = $item->id;
                     $matchingQty += $item->qty;
                     $matchingTotal += $item->getSubtotal();
@@ -142,69 +140,72 @@ class Discount implements AdjusterInterface
         }
 
         // Have they entered a max qty?
-        if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty) {
+        if ($this->_discount->maxPurchaseQty > 0 && $matchingQty > $this->_discount->maxPurchaseQty) {
             return false;
         }
 
         // Reject if they have not added enough matching items
-        if ($matchingQty < $discount->purchaseQty) {
+        if ($matchingQty < $this->_discount->purchaseQty) {
             return false;
         }
 
         // Reject if the matching items values is not enough
-        if ($matchingTotal < $discount->purchaseTotal) {
+        if ($matchingTotal < $this->_discount->purchaseTotal) {
             return false;
         }
 
-        $amount = $discount->baseDiscount;
-        $shippingRemoved = 0;
+        foreach ($this->_order->getLineItems() as $item) {
+            if (in_array($item->id, $matchingLineIds, false)) {
 
-        foreach ($lineItems as $item) {
-            if (in_array($item->id, $matchingLineIds)) {
-                $amountPerItem = Currency::round($discount->perItemDiscount * $item->qty);
-                //Default is off discounted price
-                $amountPercentage = Currency::round($discount->percentDiscount * ($item->getSubtotal() + $item->discount));
+                $adjustment = $this->_createOrderAdjustment($this->_discount);
+                $adjustment->lineItemId = $item->id;
 
-                if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
-                    $amountPercentage = Currency::round($discount->percentDiscount * $item->getSubtotal());
+                $existingLineItemPrice = ($item->getSubtotal() + $item->getAdjustmentsTotalByType('discount'));
+
+                $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
+
+                //Default is percentage off already discounted price
+                $amountPercentage = Currency::round($this->_discount->percentDiscount * $existingLineItemPrice);
+                if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
+                    $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
 
-                $amount += $amountPerItem + $amountPercentage;
-                $item->discount += $amountPerItem + $amountPercentage;
+                $lineItemDiscount = $amountPerItem + $amountPercentage;
 
+                $diff = null;
                 // If the discount is now larger than the subtotal only make the discount amount the same as the total of the line.
-                if (($item->discount * -1) > $item->getSubtotal()) {
-                    $diff = ($item->discount * -1) - $item->getSubtotal();
-                    $item->discount = -$item->getSubtotal();
-                    // Make sure the adjustment amount is reduced by the amount we modified the discount by
-                    // due to it being too large.
-                    $amount = $amount + $diff;
+                if ((($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) * -1) > $item->getSubtotal()) {
+                    $diff = ($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) - $item->getSubtotal();
                 }
 
-                $affectedLineIds[] = $item->id;
-
-                if ($discount->freeShipping) {
-                    $shippingRemoved = $shippingRemoved + $item->shippingCost;
-                    $item->shippingCost = 0;
+                if ($diff !== null) {
+                    $adjustment->amount = $diff;
+                } else {
+                    $adjustment->amount = $lineItemDiscount;
                 }
+
+                $adjustments[] = $adjustment;
             }
         }
 
-        if ($discount->freeShipping) {
-            $shippingRemoved = $shippingRemoved + $order->baseShippingCost;
-            $order->baseShippingCost = 0;
+        if ($this->_discount->freeShipping) {
+            // TODO create shipping adjustment to reduce shipping to zero.
         }
 
-        $order->baseDiscount += $discount->baseDiscount;
+        if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
+            $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
+            $baseDiscountAdjustment->lineItemId = null;
+            $baseDiscountAdjustment->amount = $discount->baseDiscount;
+            $adjustments[] = $baseDiscountAdjustment;
+        }
+
 
         // only display adjustment if an amount was calculated
-        if ($amount || $shippingRemoved) {
-            // Record which line items this discount affected.
-            $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
-            $adjustment->amount = $amount + ($shippingRemoved * -1);
 
-            return $adjustment;
+        if (count($adjustments)) {
+            return $adjustments;
         }
+
 
         return false;
     }

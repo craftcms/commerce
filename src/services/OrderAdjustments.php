@@ -93,6 +93,7 @@ class OrderAdjustments extends Component
             'amount',
             'included',
             'orderId',
+            'lineItemId',
             'sourceSnapshot'
         ];
         foreach ($fields as $field) {

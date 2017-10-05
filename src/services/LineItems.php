@@ -215,10 +215,6 @@ class LineItems extends Component
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
-        $lineItemRecord->tax = $lineItem->tax;
-        $lineItemRecord->taxIncluded = $lineItem->taxIncluded;
-        $lineItemRecord->discount = $lineItem->discount;
-        $lineItemRecord->shippingCost = $lineItem->shippingCost;
         $lineItemRecord->total = $lineItem->total;
 
         // Cant have discounts making things less than zero.

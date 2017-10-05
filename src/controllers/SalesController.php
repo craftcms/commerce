@@ -196,7 +196,7 @@ class SalesController extends BaseCpController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getSales()->deleteSaleById($id);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 
 }

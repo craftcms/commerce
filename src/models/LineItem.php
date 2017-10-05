@@ -46,6 +46,8 @@ use craft\helpers\Html;
  * @property \craft\commerce\elements\Order          $order
  * @property \craft\commerce\models\TaxCategory      $taxCategory
  * @property \craft\commerce\models\ShippingCategory $shippingCategory
+ * @property int                                     shippingCost
+ * @property float                                   discount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -386,10 +388,8 @@ class LineItem extends Model
     {
         $adjustments = $this->getOrder()->getAdjustments();
         $lineItemAdjustments = [];
-        foreach ($adjustments as $adjustment)
-        {
-            if ($adjustment->lineItemId == $this->id)
-            {
+        foreach ($adjustments as $adjustment) {
+            if ($adjustment->lineItemId == $this->id) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
@@ -397,16 +397,36 @@ class LineItem extends Model
         return $lineItemAdjustments;
     }
 
+
     /**
+     * @param bool $included
+     *
      * @return float
      */
-    public function getAdjustmentsTotal()
+    public function getAdjustmentsTotal($included = false)
     {
         $amount = 0;
-        foreach ($this->getAdjustments() as $adjustment)
-        {
-            if (!$adjustment->included)
-            {
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->included == $included) {
+                $amount += $adjustment->amount;
+            }
+        }
+
+        return $amount;
+    }
+
+    /**
+     * @param      $type
+     * @param bool $included
+     *
+     * @return float|int
+     */
+    public function getAdjustmentsTotalByType($type, $included = false)
+    {
+        $amount = 0;
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->included == $included && $adjustment->type == $type) {
                 $amount += $adjustment->amount;
             }
         }
@@ -419,19 +439,9 @@ class LineItem extends Model
      */
     public function getTax()
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getTax()', 'VariantModel::getTax() has been deprecated. ');
+        Craft::$app->getDeprecator()->log('VariantModel::getTax()', 'VariantModel::getTax() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type) ');
 
-        $tax = 0;
-
-        foreach ($this->getAdjustments() as $adjustment)
-        {
-            if($adjustment->type == 'tax')
-            {
-                $tax += $tax;
-            }
-        }
-
-        return $tax;
+        return $this->getAdjustmentsTotalByType('tax');
     }
 
     /**
@@ -439,39 +449,20 @@ class LineItem extends Model
      */
     public function getTaxIncluded()
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getTaxIncluded()', 'VariantModel::getTaxIncluded() has been deprecated. ');
+        Craft::$app->getDeprecator()->log('VariantModel::getTaxIncluded()', 'VariantModel::getTaxIncluded() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 
-        $taxIncluded = 0;
-
-        foreach ($this->getAdjustments() as $adjustment)
-        {
-            if($adjustment->type == 'taxIncluded')
-            {
-                $taxIncluded += $taxIncluded;
-            }
-        }
-
-        return $taxIncluded;
+        return $this->getAdjustmentsTotalByType('taxIncluded', true);
     }
 
     /**
+     * @dep
      * @return int
      */
     public function getShippingCost()
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getShippingCost()', 'VariantModel::getShippingCost() has been deprecated. ');
+        Craft::$app->getDeprecator()->log('VariantModel::getShippingCost()', 'VariantModel::getShippingCost() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 
-        $shipping = 0;
-
-        foreach ($this->getAdjustments() as $adjustment)
-        {
-            if($adjustment->type == 'shipping')
-            {
-                $shipping += $shipping;
-            }
-        }
-
-        return $shipping;
+        return $this->getAdjustmentsTotalByType('shipping');
     }
 
     /**
@@ -479,19 +470,9 @@ class LineItem extends Model
      */
     public function getDiscount()
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getDiscount()', 'VariantModel::getDiscount() has been deprecated. ');
+        Craft::$app->getDeprecator()->log('VariantModel::getDiscount()', 'VariantModel::getDiscount() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 
-        $discount = 0;
-
-        foreach ($this->getAdjustments() as $adjustment)
-        {
-            if($adjustment->type == 'discount')
-            {
-                $discount += $discount;
-            }
-        }
-
-        return $discount;
+        return $this->getAdjustmentsTotalByType('discount');
     }
 
 }

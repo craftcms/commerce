@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
  * @property bool   $included
  * @property string $sourceSnapshot
  * @property int    $orderId
+ * @property int    $lineItemId
  *
  * @property Order  $order
  *
@@ -98,7 +99,6 @@ class OrderAdjustment extends Model
      */
     public function init()
     {
-        $this->included = false;
         $this->sourceSnapshot = [];
     }
 }

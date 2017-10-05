@@ -87,6 +87,7 @@ trait Routes
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
             $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
+
             $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';

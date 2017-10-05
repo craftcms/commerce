@@ -62,22 +62,26 @@
                                 Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}<br>
                             {% else %}
                                 Price: {{ item.price|commerceCurrency(cart.currency) }}<br>
-                                Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}<br>
                                 Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}<br>
                             {% endif %}
-
-                            Discount: {{ item.discount|commerceCurrency(cart.currency) }}<br>
-                            Taxes: {{ item.tax|commerceCurrency(cart.currency) }}<br>
-                            Taxes (Inc): {{ item.taxIncluded|commerceCurrency(cart.currency) }}<br>
-                            Shipping: {{ item.shippingCost|commerceCurrency(cart.currency) }}<br>
-                            Total: {{ item.total|commerceCurrency(cart.currency) }}<br>
                             {% endif %}
                         </td>
                     </tr>
+
+                    {% if not lineItemHasErrors %}
+                        {% for adjustment in item.adjustments %}
+                            <tr>
+                                <td></td>
+                                <td><strong>{{ adjustment.type }} {{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                                <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+
                 {% endfor %}
 
                 {% if not lineItemHasErrors %}
-                {% for adjustment in cart.adjustments %}
+                {% for adjustment in cart.orderAdjustments %}
                     <tr>
                         <td>{{ adjustment.type }}
                         </td>
@@ -113,13 +117,14 @@
                     <td colspan="2" class="text-right">
                         {% if not lineItemHasErrors %}
                         Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}<br>
-                        Item Total: {{ cart.itemTotal|commerceCurrency(cart.currency) }}<br>
 
                         <br>
-                        Total Discount: {{ cart.totalDiscount|commerceCurrency(cart.currency) }}<br>
-                        Total Shipping: {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}<br>
-                        Total Tax: {{ cart.totalTax|commerceCurrency(cart.currency) }}<br>
-                        Total Tax (inc): {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}<br>
+                        <strong>Built in Adjustment Totals</strong>
+                        <br>
+                        Total Discount: {{ cart.adjustmentsTotalByType('discount')|commerceCurrency(cart.currency) }}<br>
+                        Total Shipping: {{ cart.adjustmentsTotalByType('shipping')|commerceCurrency(cart.currency) }}<br>
+                        Total Tax: {{ cart.adjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }}<br>
+                        Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}<br>
 
                         <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
                         {% endif %}

@@ -6,7 +6,6 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
-use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
@@ -19,23 +18,40 @@ use craft\commerce\Plugin;
  */
 class Shipping implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'Shipping';
+    const ADJUSTMENT_TYPE = 'shipping';
+
+    private $_order;
+
+    private function _createAdjustment($shippingMethod, $rule)
+    {
+        //preparing model
+        $adjustment = new OrderAdjustment;
+        $adjustment->type = self::ADJUSTMENT_TYPE;
+        $adjustment->orderId = $this->_order->id;
+        $adjustment->lineItemId = null;
+        $adjustment->name = $shippingMethod->getName();
+        $adjustment->sourceSnapshot = $rule->getOptions();
+        $adjustment->description = $rule->getDescription();
+
+        return $adjustment;
+    }
 
     /**
-     * @param Order      $order
-     * @param LineItem[] $lineItems
+     * @param Order $order
      *
      * @return OrderAdjustment[]
      */
-    public function adjust(Order &$order, array $lineItems = [])
+    public function adjust(Order $order)
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($order);
+        $this->_order = $order;
+
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this->_order);
 
         $shippingMethod = null;
 
         /** @var ShippingMethod $method */
         foreach ($shippingMethods as $method) {
-            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $order->getShippingMethodHandle())) {
+            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->getShippingMethodHandle())) {
                 /** @var ShippingMethodInterface $shippingMethod */
                 $shippingMethod = $method['method'];
             }
@@ -48,69 +64,60 @@ class Shipping implements AdjusterInterface
         $adjustments = [];
 
         /** @var ShippingRule $rule */
-        if ($rule = Plugin::getInstance()->getShippingMethods()->getMatchingShippingRule($order, $shippingMethod)) {
+        $rule = Plugin::getInstance()->getShippingMethods()->getMatchingShippingRule($this->_order, $shippingMethod);
+        if ($rule) {
+            $itemTotalAmount = 0;
+            //checking items shipping categories
+            foreach ($order->getLineItems() as $item) {
+                if (!$item->purchasable->hasFreeShipping()) {
 
-            //preparing model
-            $adjustment = new OrderAdjustment;
-            $adjustment->type = self::ADJUSTMENT_TYPE;
-            $adjustment->orderId = $order->id;
+                    $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
-            $affectedLineIds = [];
+                    $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
+                    $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
+                    $weightRate = $rule->getWeightRate($item->shippingCategoryId);
 
-            //checking items tax categories
-            $itemShippingTotal = 0;
-            $freeShippingAmount = 0;
-            foreach ($lineItems as $item) {
-                $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
-                $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
-                $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+                    $percentageAmount = $item->getSubtotal() * $percentageRate;
+                    $perItemAmount = $item->qty * $perItemRate;
+                    $weightAmount = ($item->weight * $item->qty) * $weightRate;
 
-                $percentageAmount = $item->getSubtotal() * $percentageRate;
-                $perItemAmount = $item->qty * $perItemRate;
-                $weightAmount = ($item->weight * $item->qty) * $weightRate;
-                $item->shippingCost = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
 
-                if ($item->shippingCost && !$item->purchasable->hasFreeShipping()) {
-                    $affectedLineIds[] = $item->id;
-                }
-
-                $itemShippingTotal += $item->shippingCost;
-
-                if ($item->purchasable->hasFreeShipping()) {
-                    $freeShippingAmount += $item->shippingCost;
-                    $item->shippingCost = 0;
+                    $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
+                    $adjustment->lineItemId = $item->id;
+                    $adjustments[] = $adjustment;
+                    $itemTotalAmount += $adjustment->amount;
                 }
             }
 
-            //amount for displaying in adjustment
-            $amount = Currency::round($rule->getBaseRate()) + $itemShippingTotal - $freeShippingAmount;
-            $amount = max($amount, Currency::round($rule->getMinRate()));
-
-            if ($rule->getMaxRate()) {
-                $amount = min($amount, Currency::round($rule->getMaxRate()));
+            $baseAmount = Currency::round($rule->getBaseRate());
+            if ($baseAmount && $baseAmount != 0) {
+                $adjustment = $this->_createAdjustment($shippingMethod, $rule);
+                $adjustment->amount = $baseAmount;
+                $adjustments[] = $adjustment;
             }
 
-            $adjustment->amount = $amount;
+            $adjustmentToMinimumAmount = 0;
+            // Is there a minimum rate and is the total shipping cost currently below it?
+            if ($rule->getMinRate() != 0 && (($itemTotalAmount + $baseAmount) < Currency::round($rule->getMinRate()))) {
+                $adjustmentToMinimumAmount =  Currency::round($rule->getMinRate()) - ($itemTotalAmount + $baseAmount);
+                $adjustment = $this->_createAdjustment($shippingMethod, $rule);
+                $adjustment->amount = $adjustmentToMinimumAmount;
+                $adjustment->description .= ' Adjusted to minimum rate';
+                $adjustments[] = $adjustment;
+            }
 
-            //real shipping base rate (can be a bit artificial because it counts min and max rate as well, but in general it equals to be $rule->baseRate)
-            $order->baseShippingCost = $amount - ($itemShippingTotal - $freeShippingAmount);
-
-            // Let the name, options and description come last since since plugins may not have all info up front.
-            $adjustment->name = $shippingMethod->getName();
-            $adjustment->sourceSnapshot = $rule->getOptions();
-            $adjustment->sourceSnapshot = array_merge(['lineItemsAffected' => $affectedLineIds], $adjustment->optionsJson);
-            $adjustment->description = $rule->getDescription();
-
-            $adjustments[] = $adjustment;
+            if ($rule->getMaxRate() != 0 && (($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount) > Currency::round($rule->getMaxRate()))) {
+                $adjustmentToMaxAmount = Currency::round($rule->getMaxRate()) - ($itemTotalAmount + $baseAmount + $adjustmentToMinimumAmount);
+                $adjustment = $this->_createAdjustment($shippingMethod, $rule);
+                $adjustment->amount = $adjustmentToMaxAmount;
+                $adjustment->description .= ' Adjusted to maximum rate';
+                $adjustments[] = $adjustment;
+            }
         }
 
         // If the selected shippingMethod has no rules matched on this order, remove the method from the order and reset shipping costs.
         if (empty($adjustments)) {
-            $order->shippingMethod = null;
-            $order->baseShippingCost = 0;
-            foreach ($lineItems as $item) {
-                $item->shippingCost = 0;
-            }
+            $this->_order->shippingMethod = null;
         }
 
         return $adjustments;
