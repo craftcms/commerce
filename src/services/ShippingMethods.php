@@ -35,7 +35,7 @@ class ShippingMethods extends Component
 
     // Properties
     // =========================================================================
-    
+
     /**
      * @var bool
      */
@@ -98,7 +98,7 @@ class ShippingMethods extends Component
         if (isset($this->_shippingMethodsByHandle[$shippingMethodHandle])) {
             return $this->_shippingMethodsByHandle[$shippingMethodHandle];
         }
-        
+
         if ($this->_fetchedAllShippingMethods) {
             return null;
         }
@@ -213,13 +213,13 @@ class ShippingMethods extends Component
     }
 
     /**
-     * @param Order          $order
-     * @param ShippingMethod $method
+     * @param Order                   $order
+     * @param ShippingMethodInterface $method
      *
      * @return bool|ShippingRuleInterface
      */
-    public function getMatchingShippingRule(Order $order, ShippingMethod $method
-    ) {
+    public function getMatchingShippingRule(Order $order, $method)
+    {
         foreach ($method->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
             if ($rule->matchOrder($order)) {
@@ -275,7 +275,7 @@ class ShippingMethods extends Component
      *
      * @return bool
      */
-    public function deleteShippingMethodById($shippingMethodId):bool
+    public function deleteShippingMethodById($shippingMethodId): bool
     {
         // Delete all rules first.
         $db = Craft::$app->getDb();
@@ -302,7 +302,7 @@ class ShippingMethods extends Component
 
     // Private methods
     // =========================================================================
-    
+
     /**
      * Memoize a shipping method model by its ID and handle.
      *
@@ -315,7 +315,7 @@ class ShippingMethods extends Component
         $this->_shippingMethodsById[$shippingMethod->id] = $shippingMethod;
         $this->_shippingMethodsByHandle[$shippingMethod->handle] = $shippingMethod;
     }
-    
+
     /**
      * Returns a Query object prepped for retrieving shipping methods.
      *

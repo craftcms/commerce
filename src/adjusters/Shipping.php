@@ -22,6 +22,12 @@ class Shipping implements AdjusterInterface
 
     private $_order;
 
+    /**
+     * @param ShippingMethod $shippingMethod
+     * @param ShippingRule $rule
+     *
+     * @return OrderAdjustment
+     */
     private function _createAdjustment($shippingMethod, $rule)
     {
         //preparing model
