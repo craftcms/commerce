@@ -7,7 +7,6 @@ use craft\commerce\base\Gateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\base\GatewayInterface;
-use craft\commerce\gateways\Stripe;
 use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
@@ -107,7 +106,7 @@ class Gateways extends Component
     /**
      * Archive a gateway by it's id.
      *
-     * @param int $id payment method id.
+     * @param int $id gateway id.
      *
      * @return bool Whether the archiving was successful or not
      */
@@ -142,7 +141,7 @@ class Gateways extends Component
     }
 
     /**
-     * Save a payment method.
+     * Save a gateway.
      *
      * @param Gateway $gateway       The gateway to be saved.
      * @param bool    $runValidation Whether the gateway should be validated
@@ -156,7 +155,7 @@ class Gateways extends Component
             $record = GatewayRecord::findOne($gateway->id);
 
             if (!$record) {
-                throw new Exception(\Craft::t('commerce', 'No payment method exists with the ID “{id}”', ['id' => $gateway->id]));
+                throw new Exception(\Craft::t('commerce', 'No gateway exists with the ID “{id}”', ['id' => $gateway->id]));
             }
         } else {
             $record = new GatewayRecord();
@@ -272,7 +271,7 @@ class Gateways extends Component
     // =========================================================================
 
     /**
-     * Returns a Query object prepped for retrieving payment methods,
+     * Returns a Query object prepped for retrieving gateways.
      *
      * @return Query The query object.
      */
