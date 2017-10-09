@@ -244,7 +244,14 @@ class ShippingCategories extends Component
             return [$shippingCategory->id => $shippingCategory];
         }
 
-        return ShippingCategory::populateModels($rows, 'id');
+        $shippingCategories = [];
+
+        foreach ($rows as $row) {
+            $key = $row['id'];
+            $shippingCategories[$key] = new ShippingCategory($row);
+        }
+
+        return $shippingCategories;
     }
 
 

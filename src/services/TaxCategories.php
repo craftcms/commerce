@@ -259,7 +259,14 @@ class TaxCategories extends Component
             return [$taxCategory->id => $taxCategory];
         }
 
-        return TaxCategory::populateModels($rows, 'id');
+        $taxCategories = [];
+
+        foreach ($rows as $row) {
+            $key = $row['id'];
+            $taxCategories[$key] = new TaxCategory($row);
+        }
+
+        return $taxCategories;
     }
 
     // Private methods

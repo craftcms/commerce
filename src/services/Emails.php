@@ -12,6 +12,7 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
 use craft\mail\Message;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Email service.
@@ -69,7 +70,12 @@ class Emails extends Component
     {
         $rows = $this->_createEmailQuery()->all();
 
-        return Email::populateModels($rows);
+        $emails = [];
+        foreach ($rows as $row) {
+            $emails[] = new Email($row);
+        }
+
+        return $emails;
     }
 
     /**
@@ -360,13 +366,19 @@ class Emails extends Component
      */
     public function getAllEmailsByOrderStatusId($id): array
     {
-       $results = $this->_createEmailQuery()
+        $results = $this->_createEmailQuery()
             ->innerJoin('{{%commerce_orderstatus_emails}} statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
             ->innerJoin('{{%commerce_orderstatuses}} orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
             ->where(['orderStatuses.id' => $id])
             ->all();
 
-       return Email::populateModels($results);
+        $emails = [];
+
+        foreach ($results as $row) {
+            $emails[] = new Email($row);
+        }
+
+        return $emails;
     }
 
     // Private Methods
