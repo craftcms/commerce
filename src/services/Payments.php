@@ -151,7 +151,12 @@ class Payments extends Component
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
-            $this->_saveTransaction($transaction);
+
+            // If this transactions is already saved, don't even try.
+            if (!$transaction->id) {
+                $this->_saveTransaction($transaction);
+            }
+
             Craft::error($e->getMessage());
             throw new PaymentException($transaction->message);
         }
