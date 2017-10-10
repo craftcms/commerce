@@ -9,6 +9,7 @@ use yii\db\ActiveQueryInterface;
  * Address record.
  *
  * @property int     $id
+ * @property bool    $stockLocation
  * @property string  $attention
  * @property string  $title
  * @property string  $firstName

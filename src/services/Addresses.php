@@ -100,6 +100,20 @@ class Addresses extends Component
     }
 
     /**
+     * Get the stock location or a blank address if it's not defined.
+     *
+     * @return Address
+     */
+    public function getStockLocation(): Address
+    {
+        $row = $this->_createAddressQuery()
+            ->where(['stockLocation' => true])
+            ->one();
+
+        return new Address($row);
+    }
+
+    /**
      * Save an address.
      * 
      * @param Address $addressModel The address to be saved.
@@ -146,6 +160,7 @@ class Addresses extends Component
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
+        $addressRecord->stockLocation = $addressModel->stockLocation;
 
         $plugin = Plugin::getInstance();
 
@@ -180,6 +195,10 @@ class Addresses extends Component
         }
 
         if (!$addressModel->hasErrors()) {
+
+            if ($addressRecord->stockLocation && $addressRecord->id) {
+                Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+            }
 
             $addressRecord->save(false);
 

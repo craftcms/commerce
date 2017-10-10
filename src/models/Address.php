@@ -31,6 +31,11 @@ class Address extends Model
     public $id;
 
     /**
+     * @var bool True, if this address is the stock location.
+     */
+    public $stockLocation;
+
+    /**
      * @var string Attention
      */
     public $attention;
