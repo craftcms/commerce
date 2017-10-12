@@ -59,4 +59,47 @@ class SettingsController extends BaseAdminController
             $this->redirectToPostedUrl();
         }
     }
+
+    /**
+     * @throws HttpException
+     */
+    public function actionSaveStockLocation()
+    {
+        $this->requirePostRequest();
+
+        $address = Plugin::getInstance()->getAddresses()->getStockLocation();
+
+        // Shared attributes
+        $attributes = [
+            'firstName',
+            'lastName',
+            'address1',
+            'address2',
+            'city',
+            'zipCode',
+            'businessName',
+            'countryId',
+        ];
+
+        foreach ($attributes as $attr) {
+            $address->$attr = Craft::$app->getRequest()->getParam($attr);
+        }
+
+        $address->stateId = Craft::$app->getRequest()->getParam('stateId');
+        $address->stockLocation = true;
+
+        // Save it
+        if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            $this->redirectToPostedUrl();
+        } else {
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
+        }
+
+        // Send the model back to the template
+        Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+
+        $this->redirectToPostedUrl();
+    }
+
 }

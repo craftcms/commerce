@@ -23,6 +23,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
+use craft\commerce\services\Addresses;
 use craft\helpers\ArrayHelper;
 
 /**
@@ -128,6 +129,14 @@ class Commerce
     public function getCountries()
     {
         return Plugin::getInstance()->getCountries()->getAllCountries();
+    }
+
+    /**
+     * @return Addresses
+     */
+    public function getAddresses()
+    {
+        return Plugin::getInstance()->getAddresses();
     }
 
     /**

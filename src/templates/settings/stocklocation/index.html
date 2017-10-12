@@ -1,0 +1,129 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+    <h2>{{ "Stock location"|t('commerce') }}</h2>
+
+    <form action="" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="commerce/settings/save-stock-location">
+        {{ redirectInput('commerce/settings/stocklocation') }}
+        {{ csrfInput() }}
+
+        {% set address = craft.commerce.addresses.getStockLocation() %}
+
+            {{ forms.textField({
+                label: 'First name'|t('commerce'),
+                id: 'firstName',
+                name: 'firstName',
+                placeholder: address.firstName,
+                value: address.firstName,
+                errors: address.getErrors('firstName'),
+            }) }}
+
+            {{ forms.textField({
+                label: 'Last name'|t('commerce'),
+                id: 'lastName',
+                name: 'lastName',
+                placeholder: address.lastName,
+                value: address.lastName,
+                errors: address.getErrors('lastName'),
+            }) }}
+
+            {{ forms.textField({
+                label: 'Company'|t('commerce'),
+                id: 'businessName',
+                name: 'businessName',
+                placeholder: address.businessName,
+                value: address.businessName,
+                errors: address.getErrors('company'),
+            }) }}
+
+        <hr />
+
+        {{ forms.textField({
+            label: 'Address 1'|t('commerce'),
+            id: 'address1',
+            name: 'address1',
+            required: true,
+            placeholder: address.address1,
+            value: address.address1,
+            errors: address.getErrors('address1'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Address 2'|t('commerce'),
+            id: 'address2',
+            name: 'address2',
+            placeholder: address.address2,
+            value: address.address2,
+            errors: address.getErrors('address2'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'City'|t('commerce'),
+            id: 'city',
+            name: 'city',
+            placeholder: address.city,
+            value: address.city,
+            errors: address.getErrors('city'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Zip code'|t('commerce'),
+            id: 'zipCode',
+            name: 'zipCode',
+            placeholder: address.zipCode,
+            value: address.zipCode,
+            errors: address.getErrors('zipCode'),
+        }) }}
+
+        <div class="countrySelector field">
+            {{ forms.selectField({
+                label: "Country"|t('commerce'),
+                id: 'countryId',
+                name: 'countryId',
+                value: address.countryId,
+                options: craft.commerce.getCountriesList(),
+                errors: address.getErrors('countryId'),
+                required: true,
+            }) }}
+        </div>
+
+        {% set states = craft.commerce.getStatesArray() %}
+
+        {% for countryId, list in states %}
+            <div data-country="{{ countryId }}" class="stateSelector field hidden">
+                {{ forms.selectField({
+                    label: "State"|t('commerce'),
+                    id: 'stateId',
+                    name: 'stateId',
+                    value: address.stateId,
+                    options: list,
+                    errors: address.getErrors('stateId'),
+                    required: true
+                }) }}
+            </div>
+        {% endfor %}
+
+
+        <input type="submit" class="btn submit" value="{{ "Save"|t('commerce') }}">
+    </form>
+
+    {% includejs %}
+        function displayStates(id) {
+            $('.stateSelector').addClass('hidden').find('select').prop('disabled', true);
+            $('.stateSelector[data-country=' + id + ']').removeClass('hidden').find('select').prop('disabled', false);
+        }
+
+        $('.countrySelector select').on('change', function (ev) {
+            var id = $(ev.currentTarget).val();
+            displayStates(id);
+        });
+
+        displayStates($('.countrySelector select').val());
+    {% endincludejs %}
+{% endblock %}

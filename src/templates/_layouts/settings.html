@@ -19,10 +19,11 @@
 'taxcategories': { title: "Tax Categories"|t('commerce') },
 'taxzones': { title: "Tax Zones"|t('commerce') },
 'taxrates': { title: "Tax Rates"|t('commerce') },
-'shipping-heading': { heading: "Shipping"|t('commerce') },
-'shippingcategories': { title: "Shipping Categories"|t('commerce') },
-'shippingzones': { title: "Shipping Zones"|t('commerce') },
-'shippingmethods': { title: "Shipping Methods"|t('commerce') },
+'shipping-heading': { heading: "Shipping"|t },
+'shippingcategories': { title: "Shipping Categories"|t },
+'shippingzones': { title: "Shipping Zones"|t },
+'stocklocation': { title: "Stock location"|t },
+'shipping-methods': { heading: "Shipping methods"|t }
 } %}
 
 {% set selectedItem = craft.app.request.getSegment(3) %}
@@ -44,3 +45,4 @@
         </ul>
     </nav>
 {% endblock %}
+
