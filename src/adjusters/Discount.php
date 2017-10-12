@@ -78,7 +78,7 @@ class Discount implements AdjusterInterface
     /**
      * @param DiscountModel $discount
      *
-     * @return OrderAdjustment|false
+     * @return OrderAdjustment[]|false
      */
     private function getAdjustments(DiscountModel $discount)
     {

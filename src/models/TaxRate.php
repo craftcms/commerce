@@ -50,7 +50,7 @@ class TaxRate extends Model
     public $isVat = false;
 
     /**
-     * @var bool taxable
+     * @var string taxable
      */
     public $taxable = 'price';
 

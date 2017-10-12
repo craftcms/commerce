@@ -95,7 +95,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * Returns if a purchasable is available
      *
-     * @return int
+     * @return bool
      */
     public function getIsAvailable()
     {
