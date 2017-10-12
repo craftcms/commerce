@@ -113,11 +113,9 @@ class Tax implements AdjusterInterface
                 if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
                     $orderTaxableAmount = 0;
 
-                    if ($taxRate->taxable == TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                    if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                         $orderTaxableAmount = $orderTaxableAmount = $this->_order->getTotalTaxablePrice();
-                    }
-
-                    if ($taxRate->taxable == TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                    } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                         $orderTaxableAmount = $this->_order->totalShippingCost;
                     }
 

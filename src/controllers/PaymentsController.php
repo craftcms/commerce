@@ -93,7 +93,6 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
-
         // These are used to compare if the order changed during it's final
         // recalculation before payment.
         $originalTotalPrice = $order->outstandingBalance();

@@ -30,7 +30,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
             var $body = $('<div class="body"></div>').appendTo($form);
             var $inputs = $('<div class="content">' +
-                '<h2 class="first">' + Craft.t('commerce', "Update Order Status")  + '</h2>' +
+                '<h2 class="first">' + Craft.t('commerce', "Update Order Status") + '</h2>' +
                 '</div>').appendTo($body);
 
             // Build menu button
@@ -52,8 +52,8 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             // Build message input
             this.$message = $('<div class="field">' +
                 '<div class="heading">' +
-                '<label>' + Craft.t('commerce', 'Message')  + '</label>' +
-                '<div class="instructions"><p>' + Craft.t('commerce', 'Status change message')  + '.</p>' +
+                '<label>' + Craft.t('commerce', 'Message') + '</label>' +
+                '<div class="instructions"><p>' + Craft.t('commerce', 'Status change message') + '.</p>' +
                 '</div>' +
                 '</div>' +
                 '<div class="input ltr">' +
@@ -68,8 +68,8 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $footer = $('<div class="footer"/>').appendTo($form);
             var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-            this.$updateBtn = $('<input type="button" class="btn submit disabled" value="' + Craft.t('commerce', 'Update')  + '"/>').appendTo($mainBtnGroup);
-            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel')  + '"/>').appendTo($btnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit disabled" value="' + Craft.t('commerce', 'Update') + '"/>').appendTo($mainBtnGroup);
+            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($btnGroup);
 
             this.$updateBtn.addClass('disabled');
 

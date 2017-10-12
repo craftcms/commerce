@@ -128,28 +128,28 @@
                     '<div class="titlebar">' +
                     '<div class="preview"></div>' +
                     '</div>' +
-                    '<div class="checkbox" title="' + Craft.t('commerce', 'Select')  + '"></div>' +
+                    '<div class="checkbox" title="' + Craft.t('commerce', 'Select') + '"></div>' +
                     '<div class="actions">' +
-                    '<div class="status off" title="' + Craft.t('commerce', 'Disabled')  + '"></div>' +
-                    '<a class="default-btn" title="' + Craft.t('commerce', 'Set as the default variant')  + '">' + Craft.t('commerce', 'Default')  + '</a> ' +
-                    '<a class="settings icon menubtn" title="' + Craft.t('commerce', 'Actions')  + '" role="button"></a> ' +
+                    '<div class="status off" title="' + Craft.t('commerce', 'Disabled') + '"></div>' +
+                    '<a class="default-btn" title="' + Craft.t('commerce', 'Set as the default variant') + '">' + Craft.t('commerce', 'Default') + '</a> ' +
+                    '<a class="settings icon menubtn" title="' + Craft.t('commerce', 'Actions') + '" role="button"></a> ' +
                     '<div class="menu">' +
                     '<ul class="padded">' +
-                    '<li><a data-icon="collapse" data-action="collapse">' + Craft.t('commerce', 'Collapse')  + '</a></li>' +
-                    '<li class="hidden"><a data-icon="expand" data-action="expand">' + Craft.t('commerce', 'Expand')  + '</a></li>' +
-                    '<li><a data-icon="disabled" data-action="disable">' + Craft.t('commerce', 'Disable')  + '</a></li>' +
-                    '<li class="hidden"><a data-icon="enabled" data-action="enable">' + Craft.t('commerce', 'Enable')  + '</a></li>' +
+                    '<li><a data-icon="collapse" data-action="collapse">' + Craft.t('commerce', 'Collapse') + '</a></li>' +
+                    '<li class="hidden"><a data-icon="expand" data-action="expand">' + Craft.t('commerce', 'Expand') + '</a></li>' +
+                    '<li><a data-icon="disabled" data-action="disable">' + Craft.t('commerce', 'Disable') + '</a></li>' +
+                    '<li class="hidden"><a data-icon="enabled" data-action="enable">' + Craft.t('commerce', 'Enable') + '</a></li>' +
                     '</ul>' +
                     '<hr class="padded"/>' +
                     '<ul class="padded">' +
-                    '<li><a data-icon="+" data-action="add">' + Craft.t('commerce', 'Add variant above')  + '</a></li>' +
+                    '<li><a data-icon="+" data-action="add">' + Craft.t('commerce', 'Add variant above') + '</a></li>' +
                     '</ul>' +
                     '<hr class="padded"/>' +
                     '<ul class="padded">' +
-                    '<li><a data-icon="remove" data-action="delete">' + Craft.t('commerce', 'Delete')  + '</a></li>' +
+                    '<li><a data-icon="remove" data-action="delete">' + Craft.t('commerce', 'Delete') + '</a></li>' +
                     '</ul>' +
                     '</div>' +
-                    '<a class="move icon" title="' + Craft.t('commerce', 'Reorder')  + '" role="button"></a> ' +
+                    '<a class="move icon" title="' + Craft.t('commerce', 'Reorder') + '" role="button"></a> ' +
                     '</div>' +
                     '</div>'
                 );
@@ -625,7 +625,7 @@
 
                     case 'delete': {
                         if (batchAction) {
-                            if (confirm(Craft.t('commerce', 'Are you sure you want to delete the selected variants?') )) {
+                            if (confirm(Craft.t('commerce', 'Are you sure you want to delete the selected variants?'))) {
                                 this.matrix.deleteSelectedVariants();
                             }
                         }

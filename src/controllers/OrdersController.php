@@ -3,8 +3,8 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
@@ -333,7 +333,7 @@ class OrdersController extends BaseCpController
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
-        if (!$order or !$orderStatus) {
+        if (!$order || !$orderStatus) {
             $this->asErrorJson(Craft::t('commerce', 'Bad Order or Status'));
         }
 

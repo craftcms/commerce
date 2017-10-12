@@ -129,6 +129,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     $this->asJson(['success' => true]);
                 }
+
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
                 $this->redirectToPostedUrl();
             } else {
@@ -141,6 +142,7 @@ class CustomerAddressesController extends BaseFrontEndController
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $this->asJson(['error' => $error]);
         }
+
         Craft::$app->getUser()->setFlash('error', $error);
     }
 }
