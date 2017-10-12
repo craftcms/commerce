@@ -82,6 +82,11 @@ class ProductQuery extends ElementQuery
     public $defaultWeight;
 
     /**
+     * @var float The default sku the resulting products must have.
+     */
+    public $defaultSku;
+
+    /**
      * @var VariantQuery only return products that match the resulting variant query.
      */
     public $hasVariant;
@@ -311,6 +316,10 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWeight', $this->defaultWeight));
         }
 
+        if ($this->defaultSku) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
+        }
+        
         $this->_applyEditableParam();
         $this->_applyRefParam();
         $this->_applyHasSalesParam();
