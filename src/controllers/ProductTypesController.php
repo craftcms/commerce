@@ -61,7 +61,7 @@ class ProductTypesController extends BaseAdminController
             } else {
                 $variables['productType'] = new ProductType();
                 $variables['brandNewProductType'] = true;
-            };
+            }
         }
 
         if (!empty($variables['productTypeId'])) {

@@ -254,7 +254,7 @@ class ProductsController extends BaseCpController
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
                 'url' => '#tab'.($index + 1),
-                'class' => ($hasErrors ? 'error' : null)
+                'class' => $hasErrors ? 'error' : null
             ];
         }
 
@@ -386,7 +386,7 @@ class ProductsController extends BaseCpController
      * @param mixed $site
      *
      * @throws HttpException
-     * @return null
+     * @return void
      */
     public function actionViewSharedProduct($productId, $site = null)
     {
@@ -399,6 +399,8 @@ class ProductsController extends BaseCpController
         }
 
         $this->_showProduct($product);
+
+        return null;
     }
 
     /**

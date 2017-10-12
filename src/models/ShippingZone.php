@@ -65,7 +65,7 @@ class ShippingZone extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/shippingzones/'.$this->id);
     }
@@ -73,7 +73,7 @@ class ShippingZone extends Model
     /**
      * @return array
      */
-    public function getCountryIds()
+    public function getCountryIds(): array
     {
         $countries = [];
         foreach ($this->getCountries() as $country) {
@@ -88,7 +88,7 @@ class ShippingZone extends Model
      *
      * @return array
      */
-    public function getCountries()
+    public function getCountries(): array
     {
         if (null === $this->_countries) {
             $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId((int)$this->id);
@@ -101,8 +101,6 @@ class ShippingZone extends Model
      * Set countries in this Tax Zone.
      *
      * @param \craft\commerce\models\Country[] $countries
-     *
-     * @return null
      */
     public function setCountries($countries)
     {
@@ -112,7 +110,7 @@ class ShippingZone extends Model
     /**
      * @return array
      */
-    public function getStateIds()
+    public function getStateIds(): array
     {
         $states = [];
         foreach ($this->getStates() as $state) {
@@ -127,9 +125,9 @@ class ShippingZone extends Model
      *
      * @return array
      */
-    public function getStates()
+    public function getStates(): array
     {
-        if (!isset($this->_states)) {
+        if ($this->_states === null) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
         }
 
@@ -140,9 +138,7 @@ class ShippingZone extends Model
      * Set states in this shipping Zone.
      *
      * @param State[] $states
-     *
-     * @return null
-     */
+    */
     public function setStates($states)
     {
         $this->_states = $states;
@@ -153,7 +149,7 @@ class ShippingZone extends Model
      *
      * @return array
      */
-    public function getCountriesNames()
+    public function getCountriesNames(): array
     {
         $countries = [];
         foreach ($this->getCountries() as $country) {
@@ -168,7 +164,7 @@ class ShippingZone extends Model
      *
      * @return array
      */
-    public function getStatesNames()
+    public function getStatesNames(): array
     {
         $states = [];
         foreach ($this->getStates() as $state) {

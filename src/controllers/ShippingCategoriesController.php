@@ -52,7 +52,7 @@ class ShippingCategoriesController extends BaseAdminController
                 }
             } else {
                 $variables['shippingCategory'] = new ShippingCategory();
-            };
+            }
         }
 
         if ($variables['shippingCategory']->id) {
@@ -120,9 +120,9 @@ class ShippingCategoriesController extends BaseAdminController
 
         if (Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
             return $this->asJson(['success' => true]);
-        } else {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
         }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
     }
 
 }

@@ -133,7 +133,7 @@ class OrderAdjustments extends Component
      */
     public function deleteOrderAdjustmentByAdjustmentId($adjustmentId): bool
     {
-        return OrderAdjustmentRecord::delete(['orderId' => $orderId]);
+        return OrderAdjustmentRecord::delete(['orderId' => $adjustmentId]);
     }
 
 

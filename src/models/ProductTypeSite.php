@@ -34,7 +34,7 @@ class ProductTypeSite extends Model
     public $productTypeId;
 
     /**
-     * @var id Site ID
+     * @var int Site ID
      */
     public $siteId;
 

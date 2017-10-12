@@ -199,7 +199,7 @@ class Cart extends Component
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 
         if (!$currency) {
-            $error = Craft::t("commerce", "Not an available payment currency");
+            $error = Craft::t('commerce', 'Not an available payment currency');
 
             return false;
         }
@@ -208,7 +208,7 @@ class Cart extends Component
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             return false;
-        };
+        }
 
         return true;
     }
@@ -224,7 +224,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error = "")
+    public function setShippingMethod(Order $cart, $shippingMethod, &$error = '')
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
@@ -251,7 +251,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function setGateway(Order $cart, $gatewayId, &$error = "")
+    public function setGateway(Order $cart, $gatewayId, &$error = '')
     {
         if (!$gatewayId) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
@@ -282,7 +282,7 @@ class Cart extends Component
      *
      * @return bool
      */
-    public function setEmail(Order $cart, $email, &$error = ""): bool
+    public function setEmail(Order $cart, $email, &$error = ''): bool
     {
 
         $validator = new EmailValidator();

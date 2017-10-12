@@ -71,7 +71,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = "Order ".substr($variables['order']->number, 0, 7);
+            $variables['title'] = 'Order '.substr($variables['order']->number, 0, 7);
         } else {
             throw new HttpException(404);
         }
@@ -125,7 +125,7 @@ class OrdersController extends BaseCpController
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
                 'url' => '#tab'.($index + 1),
-                'class' => ($hasErrors ? 'error' : null)
+                'class' => $hasErrors ? 'error' : null
             ];
         }
     }
@@ -146,7 +146,7 @@ class OrdersController extends BaseCpController
         $order = $plugin->getOrders()->getOrderById($orderId);
         $gateways = $plugin->getGateways()->getAllGateways();
 
-        $formHtml = "";
+        $formHtml = '';
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
 
@@ -276,7 +276,7 @@ class OrdersController extends BaseCpController
             return $this->asJson(['success' => true, 'dateOrdered' => $date]);
         }
 
-        return $this->asErrorJson(Craft::t("commerce", "Could not mark the order as completed."));
+        return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
     }
 
     /**
@@ -321,7 +321,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Update Order Status Id
+     * @return null|\yii\web\Response
      */
     public function actionUpdateStatus()
     {
@@ -343,6 +343,8 @@ class OrdersController extends BaseCpController
         if (Craft::$app->getElements()->saveElement($order)) {
             return $this->asJson(['success' => true]);
         }
+
+        return null;
     }
 
     /**
@@ -362,7 +364,7 @@ class OrdersController extends BaseCpController
             $this->redirectToPostedUrl($order);
         }
 
-        Craft::$app->getSession()->setError(Craft::t("commerce", "Couldn’t save order."));
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
         Craft::$app->getUrlManager()->setRouteParams([
             'order' => $order
         ]);

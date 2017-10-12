@@ -18,8 +18,6 @@ use yii\web\HttpException;
  */
 class BaseCpController extends BaseController
 {
-    protected $allowAnonymous = false;
-
     // Public Methods
     // =========================================================================
 

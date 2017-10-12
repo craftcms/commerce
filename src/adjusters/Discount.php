@@ -108,7 +108,7 @@ class Discount implements AdjusterInterface
         $now = new \DateTime();
         $from = $this->_discount->dateFrom;
         $to = $this->_discount->dateTo;
-        if ($from && $from > $now || $to && $to < $now) {
+        if (($from && $from > $now) || ($to && $to < $now)) {
             return false;
         }
 

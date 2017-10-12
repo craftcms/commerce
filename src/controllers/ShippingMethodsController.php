@@ -108,9 +108,9 @@ class ShippingMethodsController extends BaseAdminController
 
         if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
             return $this->asJson(['success' => true]);
-        } else {
-            return $this->asErrorJson(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
         }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
     }
 
 }

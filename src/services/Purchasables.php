@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\events\ElementEvent;
 use yii\base\Component;
 
@@ -29,13 +30,13 @@ class Purchasables extends Component
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
-        Craft::$app->getElements()->deleteElementById($purchasableId);
+        return Craft::$app->getElements()->deleteElementById($purchasableId);
     }
 
     /**
      * @param int $purchasableId
      *
-     * @return \craft\base\ElementInterface|null
+     * @return ElementInterface|null
      */
     public function getPurchasableById(int $purchasableId)
     {

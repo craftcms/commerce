@@ -99,7 +99,7 @@ class TaxRate extends Model
     {
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-        return $this->rate * 100 ."".$percentSign;
+        return $this->rate * 100 .''.$percentSign;
     }
 
     /**

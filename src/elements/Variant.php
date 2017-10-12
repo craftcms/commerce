@@ -440,7 +440,7 @@ class Variant extends Purchasable
      */
     public function hasStock(): bool
     {
-        return (bool)($this->stock > 0 || $this->unlimitedStock);
+        return $this->stock > 0 || $this->unlimitedStock;
     }
 
     /**
@@ -511,6 +511,8 @@ class Variant extends Purchasable
                 $lineItem->addError('qty', $error);
             }
         }
+
+        return null;
     }
 
     /**
@@ -584,12 +586,12 @@ class Variant extends Purchasable
         if (!$this->getIsPromotable()) {
             $lineItem->saleAmount = 0;
         }
+
+        return null;
     }
 
     /**
-     * Returns whether this product is promotable.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function getIsPromotable()
     {

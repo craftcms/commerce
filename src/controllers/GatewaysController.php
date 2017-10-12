@@ -174,7 +174,7 @@ class GatewaysController extends BaseAdminController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
         if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
             return $this->asJson(['success' => $success]);
-        };
+        }
 
         return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder gateways.')]);
     }

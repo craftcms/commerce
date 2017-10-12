@@ -54,7 +54,7 @@ class ChartsController extends ElementIndexesController
         $total = 0;
 
         foreach ($dataTable['rows'] as $row) {
-            $total = $total + $row[1];
+            $total += $row[1];
         }
 
         // Return everything
@@ -78,17 +78,17 @@ class ChartsController extends ElementIndexesController
     /**
      * Returns D3 currency format locale definition.
      *
-     * @return string
+     * @return array
      */
-    private function _getLocaleDefinitionCurrency()
+    private function _getLocaleDefinitionCurrency(): array
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
         $currencySymbol = Craft::$app->getLocale()->getCurrencySymbol($currency);
         $currencyFormat = Craft::$app->getLocale()->getNumberPattern(Locale::STYLE_CURRENCY);
 
-        if (strpos($currencyFormat, ";") > 0) {
-            $currencyFormatArray = explode(";", $currencyFormat);
+        if (strpos($currencyFormat, ';') > 0) {
+            $currencyFormatArray = explode(';', $currencyFormat);
             $currencyFormat = $currencyFormatArray[0];
         }
 
@@ -96,7 +96,7 @@ class ChartsController extends ElementIndexesController
         $replacement = '';
         $currencyFormat = preg_replace($pattern, $replacement, $currencyFormat);
 
-        if (strpos($currencyFormat, "¤") === 0) {
+        if (strpos($currencyFormat, '¤') === 0) {
             // symbol at beginning
             $currencyD3Format = [str_replace('¤', $currencySymbol, $currencyFormat), ''];
         } else {

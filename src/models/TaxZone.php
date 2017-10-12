@@ -109,8 +109,6 @@ class TaxZone extends Model
      * Set countries in this Tax Zone.
      *
      * @param \craft\commerce\models\Country[] $countries
-     *
-     * @return null
      */
     public function setCountries($countries)
     {
@@ -149,8 +147,6 @@ class TaxZone extends Model
      * Set states in this Tax Zone.
      *
      * @param \craft\commerce\models\State[] $states
-     *
-     * @return null
      */
     public function setStates($states)
     {

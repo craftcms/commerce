@@ -152,7 +152,6 @@ class Sale extends Model
      * @param float $price
      *
      * @return float
-     * @throws Exception
      */
     public function calculateTakeoff($price)
     {

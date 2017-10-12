@@ -65,7 +65,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$order->isActiveCart() && !$user->checkPermission('commerce-manageOrders') && $plugin->getSettings()->requireEmailForAnonymousPayments) {
             if ($order->email !== $request->getParam('email')) {
-                throw new HttpException(401, Craft::t("commerce", "Not authorized to make payments on this order."));
+                throw new HttpException(401, Craft::t('commerce', 'Not authorized to make payments on this order.'));
             }
         }
 
@@ -132,7 +132,7 @@ class PaymentsController extends BaseFrontEndController
         $gateway = $order->getGateway();
 
         if (!$gateway) {
-            $error = Craft::t("commerce", "There is no gateway selected for this order.");
+            $error = Craft::t('commerce', 'There is no gateway selected for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -154,7 +154,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Check email address exists on order.
         if (!$order->email) {
-            $customError = Craft::t("commerce", "No customer email address exists on this cart.");
+            $customError = Craft::t('commerce', 'No customer email address exists on this cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($customError);
@@ -186,15 +186,15 @@ class PaymentsController extends BaseFrontEndController
             // Has the order changed in a significant way?
             if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
                 if ($totalPriceChanged) {
-                    $order->addError('totalPrice', Craft::t("commerce", "The total price of the order changed."));
+                    $order->addError('totalPrice', Craft::t('commerce', 'The total price of the order changed.'));
                 }
 
                 if ($totalQtyChanged) {
-                    $order->addError('totalQty', Craft::t("commerce", "The total quantity of items within the order changed."));
+                    $order->addError('totalQty', Craft::t('commerce', 'The total quantity of items within the order changed.'));
                 }
 
                 if ($totalAdjustmentsChanged) {
-                    $order->addError('totalAdjustments', Craft::t("commerce", "The total number of order adjustments changed."));
+                    $order->addError('totalAdjustments', Craft::t('commerce', 'The total number of order adjustments changed.'));
                 }
 
                 $customError = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
@@ -246,12 +246,12 @@ class PaymentsController extends BaseFrontEndController
 
             if ($redirect) {
                 return $this->redirect($redirect);
+            }
+
+            if ($order->returnUrl) {
+                $this->redirect($order->returnUrl);
             } else {
-                if ($order->returnUrl) {
-                    $this->redirect($order->returnUrl);
-                } else {
-                    $this->redirectToPostedUrl($order);
-                }
+                $this->redirectToPostedUrl($order);
             }
         } else {
             if ($request->getAcceptsJson()) {

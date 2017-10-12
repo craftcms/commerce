@@ -244,9 +244,9 @@ class Tax implements AdjusterInterface
                 $countries[] = $state->countryId;
             }
 
-            $countryAndStateMatch = (bool)(in_array($this->_address->countryId, $countries, false) && in_array($this->_address->stateId, $states, false));
-            $countryAndStateNameMatch = (bool)(in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->name ?? '', $this->_address->getStateText()) == 0);
-            $countryAndStateAbbrMatch = (bool)(in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->abbreviation ?? '', $this->_address->getStateText()) == 0);
+            $countryAndStateMatch = (in_array($this->_address->countryId, $countries, false) && in_array($this->_address->stateId, $states, false));
+            $countryAndStateNameMatch = (in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->name ?? '', $this->_address->getStateText()) == 0);
+            $countryAndStateAbbrMatch = (in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->abbreviation ?? '', $this->_address->getStateText()) == 0);
 
             if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
                 return true;
@@ -266,7 +266,7 @@ class Tax implements AdjusterInterface
         try {
             return $this->getVatValidator()->checkNumber($businessVatId);
         } catch (\Exception $e) {
-            Craft::error("Communication with VAT API failed: ".$e->getMessage(), __METHOD__);
+            Craft::error('Communication with VAT API failed: '.$e->getMessage(), __METHOD__);
 
             return false;
         }

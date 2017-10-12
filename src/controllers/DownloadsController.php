@@ -44,7 +44,7 @@ class DownloadsController extends BaseFrontEndController
             $viewService->setTemplateMode($oldTemplateMode);
 
             throw new HttpException(404, 'Template does not exist.');
-        };
+        }
 
         $number = Craft::$app->getRequest()->getQuery('number');
         $option = Craft::$app->getRequest()->getQuery('option', '');
@@ -56,7 +56,7 @@ class DownloadsController extends BaseFrontEndController
         $fileName = Craft::$app->getView()->renderObjectTemplate($filenameFormat, $order);
 
         if (!$fileName) {
-            $fileName = "Order-".$order->number;
+            $fileName = 'Order-'.$order->number;
         }
 
         $html = $viewService->render($template, compact('order', 'option'));
@@ -89,7 +89,7 @@ class DownloadsController extends BaseFrontEndController
 
         $dompdf->loadHtml($html);
         $dompdf->render();
-        $dompdf->stream($fileName.".pdf");
+        $dompdf->stream($fileName.'.pdf');
 
         // Restore the original template mode
         $viewService->setTemplateMode($oldTemplateMode);

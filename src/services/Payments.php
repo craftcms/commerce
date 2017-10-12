@@ -106,11 +106,11 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support authorize"));
+                throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support authorize'));
             }
         } else {
             if (!$gateway->supportsPurchase()) {
-                throw new PaymentException(Craft::t("commerce", "Gateway doesn’t support purchase"));
+                throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support purchase'));
             }
         }
 

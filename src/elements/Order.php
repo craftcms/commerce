@@ -467,9 +467,7 @@ class Order extends Element
     }
 
     /**
-     * @param bool $isNew
-     *
-     * @throws Exception
+     * @inheritdoc
      */
     public function afterSave(bool $isNew)
     {
@@ -527,11 +525,10 @@ class Order extends Element
         }
 
         foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds)) {
+            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
                 $previousAdjustment->delete();
             }
         }
-
 
         //creating order history record
         $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
@@ -597,7 +594,7 @@ class Order extends Element
      */
     public function getLink(): string
     {
-        return Template::raw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7)."</a>");
+        return Template::raw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7).'</a>');
     }
 
     /**
@@ -642,7 +639,7 @@ class Order extends Element
     }
 
     /**
-     * @return FieldLayout
+     * @inheritdoc
      */
     public function getFieldLayout()
     {
@@ -652,6 +649,8 @@ class Order extends Element
         if ($orderSettings) {
             return $orderSettings->getFieldLayout();
         }
+
+        return null;
     }
 
     /**
@@ -662,20 +661,22 @@ class Order extends Element
     public function isGuest(): bool
     {
         if ($this->getCustomer()) {
-            return (bool)!$this->getCustomer()->userId;
+            return !$this->getCustomer()->userId;
         }
 
         return true;
     }
 
     /**
-     * @return \craft\commerce\models\Customer|null
+     * @return Customer|null
      */
     public function getCustomer()
     {
         if ($this->customerId) {
             return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
         }
+
+        return null;
     }
 
     /**
@@ -707,7 +708,7 @@ class Order extends Element
      */
     public function isPaid(): bool
     {
-        return (bool)($this->outstandingBalance() <= 0);
+        return $this->outstandingBalance() <= 0;
     }
 
     /**
@@ -741,7 +742,7 @@ class Order extends Element
      */
     public function isUnpaid(): bool
     {
-        return (bool)($this->outstandingBalance() > 0);
+        return $this->outstandingBalance() > 0;
     }
 
     /**
@@ -1027,7 +1028,9 @@ class Order extends Element
     {
         if ($this->getShippingMethod()) {
             return $this->getShippingMethod()->getId();
-        };
+        }
+
+        return null;
     }
 
     /**
@@ -1222,7 +1225,7 @@ class Order extends Element
             ]
         ];
 
-        $sources[] = ['heading' => Craft::t("commerce", "Order Status")];
+        $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:'.$orderStatus->handle;
@@ -1235,10 +1238,10 @@ class Order extends Element
             ];
         }
 
-        $sources[] = ['heading' => Craft::t("commerce", "Carts")];
+        $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
         $edge = new \DateTime();
-        $interval = new \DateInterval("PT1H");
+        $interval = new \DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
 
@@ -1260,7 +1263,7 @@ class Order extends Element
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     protected static function defineActions(string $source = null): array
     {

@@ -56,7 +56,7 @@ class ShippingZonesController extends BaseAdminController
                 }
             } else {
                 $variables['shippingZone'] = new ShippingZone();
-            };
+            }
         }
 
         if ($variables['shippingZone']->id) {
@@ -87,7 +87,6 @@ class ShippingZonesController extends BaseAdminController
         $shippingZone->id = Craft::$app->getRequest()->getParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getParam('description');
-        $shippingZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
         $shippingZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
         $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
@@ -148,9 +147,9 @@ class ShippingZonesController extends BaseAdminController
 
         if (Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
             return $this->asJson(['success' => true]);
-        } else {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
         }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
     }
 
 }

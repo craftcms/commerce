@@ -155,7 +155,7 @@ class CartController extends BaseFrontEndController
 
         if (null !== $request->getParam('purchasableId')) {
             $purchasableId = $request->getRequiredParam('purchasableId');
-            $note = $request->getParam('note', "");
+            $note = $request->getParam('note', '');
             $options = $request->getParam('options', []);
             $qty = $request->getParam('qty', 1);
             $error = '';

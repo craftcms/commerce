@@ -58,10 +58,9 @@ class PaymentCurrency extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
-        $val = UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
-        return $val;
+        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
     }
 
     /**
@@ -78,6 +77,7 @@ class PaymentCurrency extends Model
     public function fields(): array
     {
         $fields = parent::fields();
+
         $fields['minorUnits'] = function($model) {
             return $model->getMinorUnits();
         };
@@ -102,9 +102,11 @@ class PaymentCurrency extends Model
      */
     public function getAlphabeticCode()
     {
-        if (null !== $this->_currency) {
+        if ($this->_currency !== null) {
             return $this->_currency->alphabeticCode;
         }
+
+        return null;
     }
 
     /**
@@ -112,9 +114,11 @@ class PaymentCurrency extends Model
      */
     public function getNumericCode()
     {
-        if (null !== $this->_currency) {
+        if ($this->_currency !== null) {
             return $this->_currency->numericCode;
         }
+
+        return null;
     }
 
     /**
@@ -122,9 +126,11 @@ class PaymentCurrency extends Model
      */
     public function getEntity()
     {
-        if (null !== $this->_currency) {
+        if ($this->_currency !== null) {
             return $this->_currency->entity;
         }
+
+        return null;
     }
 
     /**
@@ -132,9 +138,11 @@ class PaymentCurrency extends Model
      */
     public function getMinorUnit()
     {
-        if (null !== $this->_currency) {
+        if ($this->_currency !== null) {
             return $this->_currency->minorUnit;
         }
+
+        return null;
     }
 
     /**
@@ -152,9 +160,11 @@ class PaymentCurrency extends Model
      */
     public function getCurrency()
     {
-        if (null !== $this->_currency) {
+        if ($this->_currency !== null) {
             return $this->_currency->currency;
         }
+
+        return null;
     }
 
     /**

@@ -35,9 +35,7 @@
 }
 
 #paymentmodal.loading {
-    background-image: url(../images/spinner_big.gif);
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    background: url(../images/spinner_big.gif) no-repeat 50% 50%;
 }
 
 #paymentmodal fieldset {

@@ -186,7 +186,11 @@ class Address extends Model
      */
     public function getStateText()
     {
-        return $this->stateId ? $this->getState()->name : ($this->stateName ? $this->stateName : '');
+        if ($this->stateName) {
+            return $this->stateId ? $this->getState()->name : $this->stateName;
+        }
+
+        return $this->stateId ? $this->getState()->name : '';
     }
 
     /**
@@ -203,7 +207,11 @@ class Address extends Model
     public function getStateValue()
     {
         if ($this->_stateValue === null) {
-            return $this->stateId ? $this->stateId : ($this->stateName ? $this->stateName : '');
+            if ($this->stateName) {
+                return $this->stateId ?: $this->stateName;
+            }
+
+            return $this->stateId ?: '';
         }
 
         return $this->_stateValue;

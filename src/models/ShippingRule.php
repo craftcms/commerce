@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 
@@ -160,11 +161,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param \craft\commerce\elements\Order $order
+     * @param Order $order
      *
      * @return bool
      */
-    public function matchOrder(\craft\commerce\elements\Order $order)
+    public function matchOrder(Order $order): bool
     {
         if (!$this->enabled) {
             return false;
@@ -235,9 +236,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
                     $countries[] = $state->countryId;
                 }
 
-                $countryAndStateMatch = (bool)(in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
-                $countryAndStateNameMatch = (bool)(in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
-                $countryAndStateAbbrMatch = (bool)(in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
+                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
+                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
 
                 if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
                     return false;
@@ -287,8 +288,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param \craft\commerce\models\ShippingRuleCategory[] $models
-     *
-     * @return array
      */
     public function setShippingRuleCategories(array $models)
     {

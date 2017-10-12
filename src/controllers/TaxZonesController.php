@@ -53,7 +53,7 @@ class TaxZonesController extends BaseAdminController
                 }
             } else {
                 $variables['taxZone'] = new TaxZone();
-            };
+            }
         }
 
         if ($variables['taxZone']->id) {
@@ -72,7 +72,7 @@ class TaxZonesController extends BaseAdminController
     }
 
     /**
-     * @throws HttpException
+     * @return null|Response
      */
     public function actionSave()
     {
@@ -115,22 +115,24 @@ class TaxZonesController extends BaseAdminController
                     'id' => $taxZone->id,
                     'name' => $taxZone->name,
                 ]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax zone saved.'));
-                $this->redirectToPostedUrl($taxZone);
             }
+
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax zone saved.'));
+            $this->redirectToPostedUrl($taxZone);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'errors' => $taxZone->getErrors()
                 ]);
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax zone.'));
             }
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax zone.'));
         }
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['taxZone' => $taxZone]);
+
+        return null;
     }
 
     /**

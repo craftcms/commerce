@@ -84,6 +84,8 @@ class UpdateOrderStatus extends ElementAction
 EOT;
 
         Craft::$app->getView()->registerJs($js);
+
+        return null;
     }
 
     /**

@@ -139,7 +139,11 @@ class SalesController extends BaseCpController
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            $sale->$field = (($date = $request->getParam($field)) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $sale->$date);
+            if (($date = $request->getParam($field)) !== false) {
+                $sale->$field = DateTimeHelper::toDateTime($date) ?: null;
+            } else {
+                $sale->$field = $sale->$date;
+            }
         }
 
         $discountAmount = $request->getParam('discountAmount');

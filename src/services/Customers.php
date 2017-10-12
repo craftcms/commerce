@@ -31,7 +31,7 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
     /** @var Customer */
-    private $_customer = null;
+    private $_customer;
 
     /**
      *
@@ -222,7 +222,6 @@ class Customers extends Component
     }
 
     /**
-     *
      * @param Customer $customer
      *
      * @return mixed
@@ -234,6 +233,8 @@ class Customers extends Component
         if ($customer) {
             return $customer->delete();
         }
+
+        return null;
     }
 
     /**
@@ -299,7 +300,7 @@ class Customers extends Component
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
 
-                $belongsToAnotherUser = (bool)($order->getCustomer() && $order->getCustomer()->getUser());
+                $belongsToAnotherUser = $order->getCustomer() && $order->getCustomer()->getUser();
                 // Only consolidate completed orders, not carts and orders that don't belong to another user.
 
                 if ($order->isCompleted && !$belongsToAnotherUser) {

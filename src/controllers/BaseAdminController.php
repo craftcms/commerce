@@ -14,8 +14,6 @@ namespace craft\commerce\controllers;
  */
 class BaseAdminController extends BaseController
 {
-    protected $allowAnonymous = false;
-
     // Public Methods
     // =========================================================================
 

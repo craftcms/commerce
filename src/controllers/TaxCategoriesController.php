@@ -52,7 +52,7 @@ class TaxCategoriesController extends BaseAdminController
                 }
             } else {
                 $variables['taxCategory'] = new TaxCategory();
-            };
+            }
         }
 
         if ($variables['taxCategory']->id) {
@@ -88,24 +88,26 @@ class TaxCategoriesController extends BaseAdminController
                     'id' => $taxCategory->id,
                     'name' => $taxCategory->name,
                 ]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category saved.'));
-                $this->redirectToPostedUrl($taxCategory);
             }
+
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category saved.'));
+            $this->redirectToPostedUrl($taxCategory);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'errors' => $taxCategory->getErrors()
                 ]);
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax category.'));
             }
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax category.'));
         }
 
         // Send the tax category back to the template
         Craft::$app->getUrlManager()->setRouteParams([
             'taxCategory' => $taxCategory
         ]);
+
+        return null;
     }
 
     /**
@@ -120,9 +122,9 @@ class TaxCategoriesController extends BaseAdminController
 
         if (Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
             return $this->asJson(['success' => true]);
-        } else {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
         }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
     }
 
 }

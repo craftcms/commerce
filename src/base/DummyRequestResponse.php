@@ -11,7 +11,7 @@ namespace craft\commerce\base;
 class DummyRequestResponse implements RequestResponseInterface
 {
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function isSuccessful(): bool
     {
@@ -19,7 +19,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function isRedirect(): bool
     {
@@ -27,7 +27,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getRedirectMethod(): string
     {
@@ -35,7 +35,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getRedirectData(): array
     {
@@ -43,7 +43,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getRedirectUrl(): string
     {
@@ -51,7 +51,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getTransactionReference(): string
     {
@@ -59,7 +59,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getCode(): string
     {
@@ -67,7 +67,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getMessage(): string
     {
@@ -75,7 +75,7 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function redirect()
     {
@@ -83,11 +83,18 @@ class DummyRequestResponse implements RequestResponseInterface
     }
 
     /**
-     * @inheritdocs
+     * @inheritdoc
      */
     public function getData()
     {
         return '';
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function isProcessing(): bool
+    {
+        return true;
+    }
 }

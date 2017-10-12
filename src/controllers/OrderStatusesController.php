@@ -120,13 +120,13 @@ class OrderStatusesController extends BaseAdminController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
         if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
             return $this->asJson(['success' => $success]);
-        };
+        }
 
         return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder Order Statuses.')]);
     }
 
     /**
-     * @throws HttpException
+     * @return Response|null
      */
     public function actionDelete()
     {
@@ -137,6 +137,8 @@ class OrderStatusesController extends BaseAdminController
         if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById($orderStatusId)) {
             return $this->asJson(['success' => true]);
         }
+
+        return null;
     }
 
 }

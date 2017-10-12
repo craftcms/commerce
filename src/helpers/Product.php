@@ -27,7 +27,7 @@ class Product
      * @param ProductModel $product
      * @param              $data
      */
-    public static function populateProductModel(ProductModel &$product, $data)
+    public static function populateProductModel(ProductModel $product, $data)
     {
         if (isset($data['typeId'])) {
             $product->typeId = $data['typeId'];

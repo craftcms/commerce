@@ -156,7 +156,7 @@ class Variants extends Component
             $record->weight = $model->weight = 0;
         }
 
-        if ($model->unlimitedStock && $record->stock == "") {
+        if ($model->unlimitedStock && $record->stock == '') {
             $model->stock = 0;
             $record->stock = 0;
         }

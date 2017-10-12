@@ -140,7 +140,7 @@ class Addresses extends Component
 
         //Raise the beforeSaveAddress event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_ADDRESS)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent($this, [
+            $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
                 'isNewAddress' => $isNewAddress
             ]));
@@ -209,7 +209,7 @@ class Addresses extends Component
 
             //Raise the afterSaveAddress event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent($this, [
+                $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
                     'address' => $addressModel,
                     'isNewAddress' => $isNewAddress
                 ]));

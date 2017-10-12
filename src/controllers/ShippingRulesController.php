@@ -92,7 +92,7 @@ class ShippingRulesController extends BaseAdminController
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
-        $variables['shippingZones'][] = "Anywhere";
+        $variables['shippingZones'][] = 'Anywhere';
         foreach ($shippingZones as $model) {
             $variables['shippingZones'][$model->id] = $model->name;
         }
@@ -172,9 +172,9 @@ class ShippingRulesController extends BaseAdminController
 
         if (Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
             return $this->asJson(['success' => true]);
-        } else {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
         }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
     }
 
 }

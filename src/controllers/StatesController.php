@@ -51,7 +51,7 @@ class StatesController extends BaseAdminController
                 }
             } else {
                 $variables['state'] = new State();
-            };
+            }
         }
 
         if ($variables['state']->id) {

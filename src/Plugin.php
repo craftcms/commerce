@@ -218,12 +218,12 @@ class Plugin extends \craft\base\Plugin
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
 
-            $productTypes = $this->getProductTypes()->getAllProductTypes('id');
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             $productTypePermissions = [];
             foreach ($productTypes as $id => $productType) {
                 $suffix = ':'.$id;
-                $productTypePermissions["commerce-manageProductType".$suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
+                $productTypePermissions['commerce-manageProductType'.$suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
             $event->permissions[] = [

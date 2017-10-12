@@ -66,9 +66,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
-        return "";
+        return '';
     }
 
     /**
@@ -97,7 +97,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return bool
      */
-    public function getIsAvailable()
+    public function getIsAvailable(): bool
     {
         return true;
     }
@@ -110,11 +110,11 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @param LineItem $lineItem
      *
-     * @return null
+     * @return void
      */
     public function populateLineItem(LineItem $lineItem)
     {
-        return;
+        return null;
     }
 
     /**
@@ -136,7 +136,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return bool
      */
-    public function hasFreeShipping()
+    public function hasFreeShipping(): bool
     {
         return false;
     }
@@ -146,7 +146,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return bool
      */
-    public function getIsPromotable()
+    public function getIsPromotable(): bool
     {
         return true;
     }

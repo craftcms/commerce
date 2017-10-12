@@ -77,7 +77,7 @@ class CreditCardPaymentForm extends BasePaymentForm
         $this->number = preg_replace('/\D/', '', $values['number'] ?? '');
 
         if (isset($values['expiry'])) {
-            $expiry = explode("/", $values['expiry']);
+            $expiry = explode('/', $values['expiry']);
 
             if (isset($expiry[0])) {
                 $this->month = trim($expiry[0]);

@@ -293,6 +293,8 @@ class Product extends Element
                 return $productTypeSites[$this->siteId]->uriFormat;
             }
         }
+
+        return null;
     }
 
     /**
@@ -328,6 +330,8 @@ class Product extends Element
         if ($this->taxCategoryId) {
             return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
+
+        return null;
     }
 
     /**
@@ -340,6 +344,8 @@ class Product extends Element
         if ($this->shippingCategoryId) {
             return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
+
+        return null;
     }
 
     /**
@@ -386,7 +392,7 @@ class Product extends Element
             if ($defaultVariant === null || $variant->isDefault) {
                 $defaultVariant = $variant;
             }
-        };
+        }
 
         return $defaultVariant;
     }
@@ -742,7 +748,7 @@ class Product extends Element
                     'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
                 ]);
                 $actions[] = $deleteAction;
-                $actions[] = SetStatus::class;;
+                $actions[] = SetStatus::class;
             }
 
             if ($userSessionService->checkPermission('commerce-managePromotions')) {

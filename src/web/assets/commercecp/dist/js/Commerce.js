@@ -6,7 +6,7 @@
 
     Craft.Commerce.initUnlimitedStockCheckbox = function($container) {
         $container.find('input.unlimited-stock:first').change(Craft.Commerce.handleUnlimitedStockCheckboxChange);
-    }
+    };
 
     Craft.Commerce.handleUnlimitedStockCheckboxChange = function(ev) {
         var $checkbox = $(ev.currentTarget),

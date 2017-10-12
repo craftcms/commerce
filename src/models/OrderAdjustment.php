@@ -95,7 +95,7 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return null
+     *
      */
     public function init()
     {

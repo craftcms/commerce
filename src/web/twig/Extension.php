@@ -113,7 +113,7 @@ class Extension extends \Twig_Extension
             $newValue = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
 
             if (is_numeric($newValue)) {
-                $sanitized = intval($newValue);
+                $sanitized = (int)$newValue;
             } else {
                 $sanitized = $newValue;
             }

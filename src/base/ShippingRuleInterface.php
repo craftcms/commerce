@@ -19,7 +19,7 @@ interface ShippingRuleInterface
     /**
      * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
      *
-     * @param \craft\commerce\elements\Order $order
+     * @param Order $order
      *
      * @return bool
      */

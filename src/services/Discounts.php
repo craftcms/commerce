@@ -201,7 +201,7 @@ class Discounts extends Component
         $now = new DateTime();
         $from = $model->dateFrom;
         $to = $model->dateTo;
-        if ($from && $from > $now || $to && $to < $now) {
+        if (($from && $from > $now) || ($to && $to < $now)) {
             $error = Craft::t('commerce', 'Discount is out of date');
 
             return false;
@@ -252,7 +252,7 @@ class Discounts extends Component
                 $usedCount = 0;
                 foreach ($previousOrders as $order) {
                     if (strcasecmp($order->couponCode, $code) == 0) {
-                        $usedCount += 1;
+                        $usedCount++;
                     }
                 }
 

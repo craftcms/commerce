@@ -679,7 +679,7 @@ class Install extends Migration
     /**
      * Drop the tables
      *
-     * @return coid
+     * @return void
      */
     protected function dropTables()
     {
@@ -727,6 +727,8 @@ class Install extends Migration
         $this->dropTable('{{%commerce_taxzones}}');
         $this->dropTable('{{%commerce_transactions}}');
         $this->dropTable('{{%commerce_variants}}');
+
+        return null;
     }
 
     /**
