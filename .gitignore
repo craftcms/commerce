@@ -11,4 +11,4 @@ classdocs/cache/
 *Thumbs.db
 *aspnet_client/*
 commerce/vendor/
-phpstorm.php
+/composer.lock
