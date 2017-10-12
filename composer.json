@@ -1,9 +1,9 @@
 {
   "name": "craftcms/commerce",
-  "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
+  "description": "Craft Commerce",
   "type": "craft-plugin",
   "homepage": "https://craftcommerce.com",
-  "minimum-stability": "dev",
+  "license": "proprietary",
   "autoload": {
     "psr-4": {
       "craft\\commerce\\": "src"
