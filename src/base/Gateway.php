@@ -9,7 +9,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
 /**
- * Class Payment Method Model
+ * Class Gateway
  *
  * @package   Craft
  *
