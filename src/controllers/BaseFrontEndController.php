@@ -57,10 +57,10 @@ class BaseFrontEndController extends BaseController
         $data['totalWidth'] = $cart->totalWidth;
         $data['totalHeight'] = $cart->totalHeight;
         $data['totalLength'] = $cart->totalLength;
-        $data['totalTax'] = $cart->getTotalTax();
-        $data['totalTaxIncluded'] = $cart->getTotalTaxIncluded();
-        $data['totalShippingCost'] = $cart->getTotalShippingCost();
-        $data['totalDiscount'] = $cart->getTotalDiscount();
+        $data['totalTax'] = $cart->getAdjustmentsTotal('Tax');
+        $data['totalTaxIncluded'] = $cart->getAdjustmentsTotal('Tax', true);
+        $data['totalShippingCost'] = $cart->getAdjustmentsTotal('Shipping');
+        $data['totalDiscount'] = $cart->getAdjustmentsTotal('Discount');
 
         $data['availableShippingMethods'] = Plugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
 
