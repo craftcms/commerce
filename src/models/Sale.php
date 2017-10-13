@@ -6,7 +6,6 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
 
 /**
  * Sale model.
@@ -132,7 +131,7 @@ class Sale extends Model
     /**
      * @return string
      */
-    public function getDiscountAmountAsPercent():string
+    public function getDiscountAmountAsPercent(): string
     {
         if ($this->discountAmount != 0) {
             return Craft::$app->formatter->asPercent(-$this->discountAmount);
@@ -146,7 +145,7 @@ class Sale extends Model
      */
     public function getDiscountAmountAsFlat(): string
     {
-        return $this->discountAmount != 0 ? (string) $this->discountAmount * -1 : '0';
+        return $this->discountAmount != 0 ? (string)$this->discountAmount * -1 : '0';
     }
 
     /**
@@ -214,7 +213,7 @@ class Sale extends Model
         $this->_productTypeIds = array_unique($ids);
     }
 
-     /**
+    /**
      * Set the related product ids
      *
      * @param array $productIds
@@ -226,7 +225,7 @@ class Sale extends Model
         $this->_productIds = array_unique($productIds);
     }
 
-     /**
+    /**
      * Set the related user group ids
      *
      * @param array $userGroupIds

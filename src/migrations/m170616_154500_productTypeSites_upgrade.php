@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\records\ProductTypeSite;
 use craft\db\Migration;
 use craft\db\Query;
 
@@ -22,14 +21,12 @@ class m170616_154500_productTypeSites_upgrade extends Migration
 
         // Migrate hasUrls to be site specific
         $productTypes = (new Query())->select('id, hasUrls, template')->from('{{%commerce_productTypes}}')->all();
-        foreach ($productTypes as $productType)
-        {
+        foreach ($productTypes as $productType) {
             $productTypeSites = (new Query())->select('*')->from('{{%commerce_productTypes_i18n}}')->all();
-            foreach ($productTypeSites as $productTypeSite)
-            {
+            foreach ($productTypeSites as $productTypeSite) {
                 $productTypeSite['template'] = $productType['template'];
                 $productTypeSite['hasUrls'] = $productType['hasUrls'];
-                $this->update('{{%commerce_productTypes_i18n}}', $productTypeSite, [ 'id' => $productTypeSite['id']]);
+                $this->update('{{%commerce_productTypes_i18n}}', $productTypeSite, ['id' => $productTypeSite['id']]);
             }
         }
 

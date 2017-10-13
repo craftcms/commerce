@@ -4,9 +4,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\events\ProductEvent;
-use craft\commerce\Plugin;
-use craft\commerce\records\Product as ProductRecord;
 use yii\base\Component;
 
 /**

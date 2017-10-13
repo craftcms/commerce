@@ -9,7 +9,6 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
@@ -106,7 +105,7 @@ class LineItems extends Component
                 'orderId' => $orderId,
                 'purchasableId' => $purchasableId,
                 'optionsSignature' => $signature
-                ])
+            ])
             ->one();
 
         return $result ? new LineItem($result) : null;
@@ -145,7 +144,7 @@ class LineItems extends Component
 
     /**
      * Delete a line item by it's id.
-     * 
+     *
      * @param int $lineItemId The id of the line item.
      *
      * @return bool Whether the line item was deleted successfully.
@@ -157,7 +156,7 @@ class LineItems extends Component
         if ($lineItem) {
             return (bool)$lineItem->delete();
         }
-        
+
         return false;
     }
 
@@ -287,10 +286,10 @@ class LineItems extends Component
     /**
      * Create a line item in order by purchasable id, options and quantity.
      *
-     * @param int $purchasableId
+     * @param int   $purchasableId
      * @param Order $order
      * @param array $options
-     * @param int $qty
+     * @param int   $qty
      *
      * @return LineItem
      * @throws Exception if purchasable is not found.
@@ -328,14 +327,14 @@ class LineItems extends Component
 
     /**
      * Delete all line items by order id.
-     * 
+     *
      * @param int $orderId The order id.
      *
      * @return bool Whether any line items were deleted.
      */
     public function deleteAllLineItemsByOrderId(int $orderId): bool
     {
-        return (bool) LineItemRecord::deleteAll(['orderId' => $orderId]);
+        return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
     // Private methods

@@ -3,20 +3,19 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\GatewayRequestCancelledException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
-use craft\commerce\base\Gateway;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\helpers\Db;
-use craft\helpers\UrlHelper;
 use yii\base\Component;
 
 /**
@@ -83,7 +82,8 @@ class Payments extends Component
      * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$transaction = null) {
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$transaction = null)
+    {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
@@ -225,9 +225,10 @@ class Payments extends Component
      * @return bool
      * @throws Exception
      */
-    public function completePayment(Transaction $transaction, &$customError = null) {
+    public function completePayment(Transaction $transaction, &$customError = null)
+    {
         // Only transactions with the status of "redirect" can be completed
-        if (!in_array($transaction->status,[TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
+        if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
             $customError = $transaction->message;
 
             return false;
@@ -255,7 +256,7 @@ class Payments extends Component
         $childTransaction = Plugin::getInstance()->getTransactions()->createTransaction(null, $transaction);
         $childTransaction->type = $transaction->type;
         $this->_updateTransaction($childTransaction, $response);
-        
+
         // Success can mean 2 things in this context.
         // 1) The transaction completed successfully with the gateway, and is now marked as complete.
         // 2) The result of the gateway request was successful but also got a redirect response. We now need to redirect if $redirect is not null.
@@ -342,7 +343,7 @@ class Payments extends Component
      *
      * @param RequestResponseInterface $response
      * @param string|null              $redirect
-     * 
+     *
      * @return bool
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect = null)
@@ -360,7 +361,7 @@ class Payments extends Component
 
                 // Gather all post hidden data inputs.
                 foreach ($response->getRedirectData() as $key => $value) {
-                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false) )."\n";
+                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false))."\n";
                 }
 
                 $variables['inputs'] = $hiddenFields;
@@ -387,20 +388,21 @@ class Payments extends Component
             // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
-        
+
         return true;
     }
 
     /**
      * Process a capture or refund exception.
-     * 
+     *
      * @param Transaction $parent
      * @param string      $action
      *
      * @return Transaction
      * @throws TransactionException
      */
-    private function _processCaptureOrRefund(Transaction $parent, $action) {
+    private function _processCaptureOrRefund(Transaction $parent, $action)
+    {
         if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
             throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);
         }
@@ -421,8 +423,7 @@ class Payments extends Component
                     $response = $gateway->capture($child, $parent->reference);
                     break;
                 case TransactionRecord::TYPE_REFUND:
-                    if ($parent->type === TransactionRecord::TYPE_CAPTURE)
-                    {
+                    if ($parent->type === TransactionRecord::TYPE_CAPTURE) {
                         //$parent = $parent->getParent();
                     }
 

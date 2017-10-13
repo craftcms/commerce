@@ -137,7 +137,6 @@ class OrderAdjustments extends Component
     }
 
 
-
     /**
      * @param OrderAdjustmentRecord $record
      *

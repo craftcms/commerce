@@ -4,7 +4,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -12,7 +11,6 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -201,6 +199,7 @@ class OrderStatuses extends Component
 
     /**
      * Delete an order status by id.
+     *
      * @param int
      *
      * @return bool
@@ -288,7 +287,7 @@ class OrderStatuses extends Component
             ->one();
 
         if (!$result) {
-             return null;
+            return null;
         }
 
         $this->_memoizeOrderStatus(new OrderStatus($result));

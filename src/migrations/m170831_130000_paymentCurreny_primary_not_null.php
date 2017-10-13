@@ -4,8 +4,6 @@ namespace craft\commerce\migrations;
 
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
 
 /**
  * m170831_130000_paymentCurreny_primary_not_null

@@ -32,14 +32,6 @@ class CreateSale extends ElementAction
     /**
      * @inheritDoc
      */
-    public static function isDestructive(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getTriggerHtml()
     {
         $js = <<<EOT

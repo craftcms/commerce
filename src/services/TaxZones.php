@@ -3,8 +3,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\models\Country;
-use craft\commerce\models\State;
 use craft\commerce\models\TaxZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
@@ -48,7 +46,7 @@ class TaxZones extends Component
             foreach ($rows as $row) {
                 $this->_allTaxZones[$row['id']] = new TaxZone($row);
             }
-            
+
             $this->_fetchedAllTaxZones = true;
         }
 

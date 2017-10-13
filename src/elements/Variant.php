@@ -747,14 +747,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
-    protected static function defineActions(string $source = null): array
-    {
-        return [];
-    }
-
-    /**
      * @return bool
      * @throws InvalidConfigException
      */

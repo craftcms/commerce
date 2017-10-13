@@ -3,9 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
 
 /**
  * m171010_170000_stock_location

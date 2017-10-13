@@ -3,7 +3,6 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -70,7 +69,7 @@ class PaymentCurrency extends Model
      */
     public function __toString(): string
     {
-        return (string) $this->iso;
+        return (string)$this->iso;
     }
 
     /**

@@ -1,13 +1,11 @@
 <?php
+
 namespace craft\commerce\helpers;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\helpers\Json;
-use craft\models\FieldLayout;
-use craft\records\FieldLayoutField;
 
 /**
  * Class VariantMatrix
@@ -61,17 +59,17 @@ class VariantMatrix
             ');');
 
         $viewService->registerTranslations('commerce', [
-                'Actions',
-                'Add a variant',
-                'Add variant above',
-                'Are you sure you want to delete the selected variants?',
-                'Collapse',
-                'Default',
-                'Disable',
-                'Disabled',
-                'Enable',
-                'Expand',
-                'Set as the default variant'
+            'Actions',
+            'Add a variant',
+            'Add variant above',
+            'Are you sure you want to delete the selected variants?',
+            'Collapse',
+            'Default',
+            'Disable',
+            'Disabled',
+            'Enable',
+            'Expand',
+            'Set as the default variant'
         ]);
 
         return $html;

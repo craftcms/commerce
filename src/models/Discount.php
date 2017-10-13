@@ -5,7 +5,6 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\UrlHelper;
 
 /**
@@ -279,8 +278,7 @@ class Discount extends Model
      */
     public function getPercentDiscountAsPercent(): string
     {
-        if ($this->percentDiscount != 0)
-        {
+        if ($this->percentDiscount != 0) {
             return Craft::$app->formatter->asPercent(-$this->percentDiscount);
         }
 

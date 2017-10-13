@@ -4,7 +4,6 @@ namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
@@ -31,9 +30,8 @@ class DeleteProduct extends Delete
     public function performAction(ElementQueryInterface $query = null): bool
     {
 
-        if(!$query)
-        {
-          return false;
+        if (!$query) {
+            return false;
         }
 
         try {

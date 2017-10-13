@@ -3,9 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
 
 /**
  * m170904_130000_processing_transactions

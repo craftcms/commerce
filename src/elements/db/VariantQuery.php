@@ -3,7 +3,6 @@
 namespace craft\commerce\elements\db;
 
 use craft\commerce\elements\Product;
-use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
