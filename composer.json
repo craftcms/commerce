@@ -37,6 +37,7 @@
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
     "developer": "Pixel & Tonic",
     "schemaVersion": "2.0.5",
-    "hasCpSection": true
+    "hasCpSection": true,
+    "hasCpSettings": true
   }
 }

@@ -101,6 +101,14 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritdoc
      */
+    public function getSettingsResponse()
+    {
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings'));
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCpNavItem(): array
     {
         $iconPath = $this->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
