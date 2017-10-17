@@ -348,7 +348,7 @@ class ProductTypes extends Component
                 $products = $criteria->all();
                 /** @var Product $product */
                 foreach ($products as $key => $product) {
-                    if ($product && $product->getContent()->id) {
+                    if ($product && $product->contentId) {
                         $defaultVariant = null;
                         // find out default variant
                         foreach ($product->getVariants() as $variant) {
@@ -363,7 +363,7 @@ class ProductTypes extends Component
                             } else {
                                 // The default variant must always be enabled.
                                 $variant->enabled = true;
-                                Plugin::getInstance()->getVariants()->saveVariant($variant);
+                                Craft::$app->getElements()->saveElement($variant);
                             }
                         }
                     }
