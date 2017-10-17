@@ -163,44 +163,6 @@ class Variants extends Component
     }
 
     /**
-     * Persists a variant.
-     *
-     * @param BaseElementModel $model
-     *
-     * @return bool
-     * @throws \CDbException
-     * @throws \Exception
-     */
-    public function saveVariant(BaseElementModel $model)
-    {
-        $record = $this->_getVariantRecord($model);
-        $this->_populateVariantRecord($record, $model);
-
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            if (!$model->hasErrors() && Plugin::getInstance()->getPurchasables()->saveElement($model)) {
-                $record->id = $model->id;
-                $record->save(false);
-                $transaction->commit();
-
-                return true;
-            }
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        $transaction->rollBack();
-
-        return false;
-    }
-
-    /**
      * Apply sales, associated with the given product, to all given variants
      *
      * @param Variant[] $variants
