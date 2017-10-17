@@ -283,11 +283,10 @@ class Plugin extends \craft\base\Plugin
     private function _registerFieldTypes()
     {
         Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
-                $event->types[] = Products::class;
-                $event->types[] = Variants::class;
-                $event->types[] = Customer::class;
-            }
-        );
+            $event->types[] = Products::class;
+            $event->types[] = Variants::class;
+            $event->types[] = Customer::class;
+        });
     }
 
     /**
