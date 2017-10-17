@@ -2,28 +2,41 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
+  "version": "2.0.1-alpha.4",
+  "keywords": [
+    "cms",
+    "craftcms",
+    "commerce",
+    "yii2"
+  ],
   "homepage": "https://craftcommerce.com",
   "license": "proprietary",
+  "support": {
+    "email": "support@craftcms.com",
+    "issues": "https://github.com/craftcms/commerce/issues?state=open",
+    "forum": "https://craftcms.stackexchange.com/",
+    "source": "https://github.com/craftcms/commerce",
+    "docs": "https://github.com/craftcms/docs",
+    "rss": "https://github.com/craftcms/commerce/releases.atom"
+  },
+  "require": {
+    "craftcms/cms": "~3.0.0-beta.19",
+    "dompdf/dompdf": "~0.8",
+    "moneyphp/money": "~3.0",
+    "php-units-of-measure/php-units-of-measure": "~2.1",
+    "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee"
+  },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src"
+      "craft\\commerce\\": "src/"
     }
   },
   "extra": {
     "handle": "commerce",
     "name": "Craft Commerce",
+    "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
     "developer": "Pixel & Tonic",
-    "version": "2.0.1-alpha.4",
     "schemaVersion": "2.0.5",
-    "developerUrl": "https://craftcommerce.com",
-    "hasCpSection": true,
-    "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS."
-  },
-  "require": {
-    "craftcms/cms": "~3.0.0-beta.19",
-    "dompdf/dompdf": "~0.8",
-    "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee",
-    "php-units-of-measure/php-units-of-measure": "~2.1",
-    "moneyphp/money": "~3.0"
+    "hasCpSection": true
   }
 }
