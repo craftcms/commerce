@@ -10,13 +10,12 @@ use craft\commerce\fields\Variants;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
-use craft\commerce\variables\Commerce;
+use craft\commerce\variables\Commerce as CommerceVariable;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\elements\User as UserElement;
 use craft\enums\LicenseKeyStatus;
-use craft\events\DefineComponentsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -174,8 +173,10 @@ class Plugin extends \craft\base\Plugin
      */
     private function _addTwigExtensions()
     {
-        Event::on(CraftVariable::class, CraftVariable::EVENT_DEFINE_COMPONENTS, function(DefineComponentsEvent $event) {
-            $event->components['commerce'] = Commerce::class;
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
+            /** @var CraftVariable $variable */
+            $variable = $event->sender;
+            $variable->set('commerce', CommerceVariable::class);
         });
 
         Craft::$app->view->twig->addExtension(new Extension);
