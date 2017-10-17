@@ -2,9 +2,9 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
-use Craft;
 use yii\web\Response;
 
 /**

@@ -2,11 +2,11 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
-use Craft;
 use craft\i18n\Locale;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -144,9 +144,9 @@ class TaxRatesController extends BaseAdminController
 
         $rate = Craft::$app->getRequest()->getParam('rate');
         if (strpos($rate, $percentSign) or $rate >= 1) {
-            $taxRate->rate = (float) $rate / 100;
+            $taxRate->rate = (float)$rate / 100;
         } else {
-            $taxRate->rate = (float) $rate;
+            $taxRate->rate = (float)$rate;
         };
 
         // Save it

@@ -4,9 +4,9 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\base\GatewayInterface;
 use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
@@ -74,7 +74,7 @@ class Gateways extends Component
             ->all();
 
         $gateways = [];
-        
+
         foreach ($rows as $row) {
             $gateways[] = $this->createGateway($row);
         }
@@ -227,7 +227,8 @@ class Gateways extends Component
      *
      * @return GatewayInterface The gateway
      */
-    public function createGateway($config): GatewayInterface {
+    public function createGateway($config): GatewayInterface
+    {
         if (is_string($config)) {
             $config = ['type' => $config];
         }

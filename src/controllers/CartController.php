@@ -56,8 +56,8 @@ class CartController extends BaseFrontEndController
         }
 
         // Only update if it was provided in the POST data
-        $lineItem->qty = ($qty === null) ? $lineItem->qty : (int) $qty;
-        $lineItem->note = ($note === null) ? $lineItem->note : (string) $note;
+        $lineItem->qty = ($qty === null) ? $lineItem->qty : (int)$qty;
+        $lineItem->note = ($note === null) ? $lineItem->note : (string)$note;
 
         // If the options param exists, set it
         if (null !== Craft::$app->getRequest()->getParam('options')) {
@@ -214,7 +214,7 @@ class CartController extends BaseFrontEndController
                 $billingAddress = null;
 
                 if (is_numeric($billingAddressId)) {
-                    $billingAddress = $plugin->getAddresses()->getAddressById((int) $billingAddressId);
+                    $billingAddress = $plugin->getAddresses()->getAddressById((int)$billingAddressId);
                 }
 
                 if (!$billingAddress) {

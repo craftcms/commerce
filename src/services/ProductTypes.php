@@ -97,7 +97,6 @@ class ProductTypes extends Component
         }
 
         return $editableProductTypes;
-
     }
 
     /**
@@ -226,7 +225,7 @@ class ProductTypes extends Component
     /**
      * Save a product type.
      *
-     * @param ProductType $productType The product type model.
+     * @param ProductType $productType   The product type model.
      * @param bool        $runValidation If validation should be ran.
      *
      * @return bool Whether the product type was saved successfully.

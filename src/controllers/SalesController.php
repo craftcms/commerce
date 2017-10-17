@@ -101,7 +101,7 @@ class SalesController extends BaseCpController
         }
 
         foreach ($productIds as $productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById((int) $productId);
+            $product = Plugin::getInstance()->getProducts()->getProductById((int)$productId);
             if ($product) {
                 $products[] = $product;
             }
@@ -147,12 +147,12 @@ class SalesController extends BaseCpController
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
             if (strpos($discountAmount, $percentSign) or (float)$discountAmount >= 1) {
-                $sale->discountAmount = (float) $discountAmount / -100;
+                $sale->discountAmount = (float)$discountAmount / -100;
             } else {
-                $sale->discountAmount = (float) $discountAmount * -1;
+                $sale->discountAmount = (float)$discountAmount * -1;
             };
         } else {
-            $sale->discountAmount = (float) $discountAmount * -1;
+            $sale->discountAmount = (float)$discountAmount * -1;
         }
 
         $products = $request->getParam('products', []);

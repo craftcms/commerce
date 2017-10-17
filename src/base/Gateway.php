@@ -13,15 +13,15 @@ use craft\helpers\UrlHelper;
  *
  * @package   Craft
  *
- * @property int                $id
- * @property string             $type
- * @property string             $name
- * @property string             $paymentType
- * @property array              $settings
- * @property bool               $frontendEnabled
- * @property bool               $sendCartInfo
- * @property bool               $isArchived
- * @property bool               $dateArchived
+ * @property int    $id
+ * @property string $type
+ * @property string $name
+ * @property string $paymentType
+ * @property array  $settings
+ * @property bool   $frontendEnabled
+ * @property bool   $sendCartInfo
+ * @property bool   $isArchived
+ * @property bool   $dateArchived
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
@@ -74,7 +74,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns the webhook url for this gateway.
-     * 
+     *
      * @param array $params Parameters for the url.
      *
      * @return string

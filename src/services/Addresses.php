@@ -56,7 +56,7 @@ class Addresses extends Component
 
     /**
      * Return an address by it's id.
-     * 
+     *
      * @param int $addressId The address id.
      *
      * @return Address|null The matched address or null if not found.
@@ -115,9 +115,9 @@ class Addresses extends Component
 
     /**
      * Save an address.
-     * 
+     *
      * @param Address $addressModel The address to be saved.
-     * @param bool    $validate should we validate this address before saving.
+     * @param bool    $validate     should we validate this address before saving.
      *
      * @return bool Whether the address was saved successfully.
      * @throws Exception if an address does not exist.

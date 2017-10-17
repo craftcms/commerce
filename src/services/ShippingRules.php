@@ -3,9 +3,9 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\ShippingRule;
+use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
@@ -55,7 +55,7 @@ class ShippingRules extends Component
 
         return $this->_allShippingRules;
     }
-    
+
     /**
      * @param int $id
      *
@@ -187,12 +187,12 @@ class ShippingRules extends Component
                 /** @var ShippingCategory $ruleCategory */
                 if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
                     $ruleCategory = new ShippingRuleCategory([
-                            'shippingRuleId' => $model->id,
-                            'shippingCategoryId' => $shippingCategory->id,
-                            'condition' => $ruleCategory->condition,
-                            'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
-                            'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
-                            'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                        'shippingRuleId' => $model->id,
+                        'shippingCategoryId' => $shippingCategory->id,
+                        'condition' => $ruleCategory->condition,
+                        'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
+                        'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
+                        'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
                     ]);
                 } else {
                     $ruleCategory = new ShippingRuleCategory([
@@ -227,7 +227,7 @@ class ShippingRules extends Component
 
     /**
      * @param int $id
-     * 
+     *
      * @return bool
      */
     public function deleteShippingRuleById($id): bool

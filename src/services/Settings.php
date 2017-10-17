@@ -2,10 +2,10 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
 use yii\base\Component;
-use Craft;
 
 /**
  * Settings service.

@@ -93,7 +93,7 @@ class DiscountsController extends BaseCpController
             $productIds = $variables['discount']->getProductIds();
         }
         foreach ($productIds as $productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById((int) $productId);
+            $product = Plugin::getInstance()->getProducts()->getProductById((int)$productId);
             if ($product) {
                 $products[] = $product;
             }
@@ -116,8 +116,8 @@ class DiscountsController extends BaseCpController
         $discount->id = $request->getParam('id');
         $discount->name = $request->getParam('name');
         $discount->description = $request->getParam('description');
-        $discount->enabled = (bool) $request->getParam('enabled');
-        $discount->stopProcessing = (bool) $request->getParam('stopProcessing');
+        $discount->enabled = (bool)$request->getParam('enabled');
+        $discount->stopProcessing = (bool)$request->getParam('stopProcessing');
         $discount->purchaseTotal = $request->getParam('purchaseTotal');
         $discount->purchaseQty = $request->getParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getParam('maxPurchaseQty');
@@ -125,14 +125,14 @@ class DiscountsController extends BaseCpController
         $discount->perItemDiscount = $request->getParam('perItemDiscount');
         $discount->percentDiscount = $request->getParam('percentDiscount');
         $discount->percentageOffSubject = $request->getParam('percentageOffSubject');
-        $discount->freeShipping = (bool) $request->getParam('freeShipping');
-        $discount->excludeOnSale = (bool) $request->getParam('excludeOnSale');
+        $discount->freeShipping = (bool)$request->getParam('freeShipping');
+        $discount->excludeOnSale = (bool)$request->getParam('excludeOnSale');
         $discount->perUserLimit = $request->getParam('perUserLimit');
         $discount->perEmailLimit = $request->getParam('perEmailLimit');
         $discount->totalUseLimit = $request->getParam('totalUseLimit');
 
-        $discount->baseDiscount = (float) $request->getParam('baseDiscount') * -1;
-        $discount->perItemDiscount = (float) $request->getParam('perItemDiscount') *-1 ;
+        $discount->baseDiscount = (float)$request->getParam('baseDiscount') * -1;
+        $discount->perItemDiscount = (float)$request->getParam('perItemDiscount') * -1;
 
         $discount->dateFrom = (($date = $request->getParam('dateFrom')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateFrom);
         $discount->dateTo = (($date = $request->getParam('dateTo')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateTo);
@@ -141,10 +141,10 @@ class DiscountsController extends BaseCpController
         $percentDiscountAmount = $request->getParam('percentDiscount');
         $localeData = Craft::$app->getLocale();
         $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        if (strpos($percentDiscountAmount, $percentSign) or (float) $percentDiscountAmount >= 1) {
-            $discount->percentDiscount = (float) $percentDiscountAmount / -100;
+        if (strpos($percentDiscountAmount, $percentSign) or (float)$percentDiscountAmount >= 1) {
+            $discount->percentDiscount = (float)$percentDiscountAmount / -100;
         } else {
-            $discount->percentDiscount = (float) $percentDiscountAmount * -1;
+            $discount->percentDiscount = (float)$percentDiscountAmount * -1;
         }
 
         $products = $request->getParam('products', []);

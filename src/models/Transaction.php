@@ -185,8 +185,7 @@ class Transaction extends Model
      */
     public function getOrder()
     {
-        if(null === $this->_order)
-        {
+        if (null === $this->_order) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -231,8 +230,7 @@ class Transaction extends Model
      */
     public function getChildTransactions(): array
     {
-        if ($this->_children === null)
-        {
+        if ($this->_children === null) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 

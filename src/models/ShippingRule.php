@@ -279,7 +279,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public function getShippingRuleCategories()
     {
         if (null === $this->_shippingRuleCategories) {
-            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId((int) $this->id);
+            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId((int)$this->id);
         }
 
         return $this->_shippingRuleCategories;
@@ -361,7 +361,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getBaseRate()
     {
-        return (float) $this->baseRate;
+        return (float)$this->baseRate;
     }
 
     /**
@@ -369,7 +369,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getMaxRate()
     {
-        return (float) $this->maxRate;
+        return (float)$this->maxRate;
     }
 
     /**
@@ -377,7 +377,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getMinRate()
     {
-        return (float) $this->minRate;
+        return (float)$this->minRate;
     }
 
     /**

@@ -121,8 +121,7 @@ class GatewaysController extends BaseAdminController
         ];
 
         // For new gateway avoid NULL value.
-        if (!$request->getBodyParam('id'))
-        {
+        if (!$request->getBodyParam('id')) {
             $config['isArchived'] = false;
         }
 

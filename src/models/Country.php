@@ -51,7 +51,8 @@ class Country extends Model
     /**
      * @inheritdoc
      */
-    public function rules() {
+    public function rules()
+    {
         return [
             [['iso', 'name'], 'required'],
             [['iso'], 'string', 'length' => [2]],

@@ -13,9 +13,9 @@ use craft\helpers\UrlHelper;
 use craft\models\Site;
 use yii\base\Exception;
 use yii\web\ForbiddenHttpException;
-use yii\web\Response;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * Class Products Controller
@@ -126,8 +126,6 @@ class ProductsController extends BaseCpController
 
         Craft::$app->getView()->registerCssFile('commerce/product.css');
         return $this->renderTemplate('commerce/products/_edit', $variables);
-
-
     }
 
     private function _prepProductVariables(&$variables)
@@ -214,8 +212,6 @@ class ProductsController extends BaseCpController
                 $variables['enabledSiteIds'][] = $site;
             }
         }
-
-
     }
 
     /**
@@ -457,8 +453,7 @@ class ProductsController extends BaseCpController
 
         $variants = $request->getParam('variants');
         $newVariants = [];
-        foreach ($variants as $key => $variant)
-        {
+        foreach ($variants as $key => $variant) {
             $newVariants[] = ProductHelper::populateProductVariantModel($product, $variant, $key);
         }
         $product->setVariants($newVariants);
@@ -499,6 +494,5 @@ class ProductsController extends BaseCpController
         Craft::$app->getSession()->setNotice(Craft::t('app', 'Product saved.'));
 
         return $this->redirectToPostedUrl($product);
-
     }
 }

@@ -39,7 +39,7 @@ class WebhooksController extends BaseController
             $response = $gateway->processWebHook();
         }
 
-        if (!$response)  {
+        if (!$response) {
             throw new HttpException(400);
         }
 

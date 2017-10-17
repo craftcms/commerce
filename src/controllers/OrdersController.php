@@ -88,7 +88,7 @@ class OrdersController extends BaseCpController
             } else {
                 $gateway = ArrayHelper::firstValue($plugin->getGateways()->getAllGateways());
 
-                if($gateway) {
+                if ($gateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }

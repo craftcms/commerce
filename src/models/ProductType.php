@@ -25,11 +25,11 @@ use craft\validators\HandleValidator;
  * @package   craft.plugins.commerce.models
  * @since     1.0
  *
- * @property string                                                $cpEditUrl
- * @property string                                                $cpEditVariantUrl
- * @property ProductTypeSite[]                                     $siteSettings
- * @property mixed                                                 $variantFieldLayout
- * @property mixed                                                 $productFieldLayout
+ * @property string            $cpEditUrl
+ * @property string            $cpEditVariantUrl
+ * @property ProductTypeSite[] $siteSettings
+ * @property mixed             $variantFieldLayout
+ * @property mixed             $productFieldLayout
  *
  * @mixin FieldLayoutBehavior
  *

@@ -133,9 +133,10 @@ class Sales extends Component
      *
      * @return void
      */
-    public function populateSaleRelations(Sale $sale) {
+    public function populateSaleRelations(Sale $sale)
+    {
         $rows = (new Query())->select(
-           'sp.productId,
+            'sp.productId,
             spt.productTypeId,
             sug.userGroupId')
             ->from('{{%commerce_sales}} sales')
@@ -274,7 +275,8 @@ class Sales extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveSale(Sale $model, array $groups, array $productTypes, array $products) {
+    public function saveSale(Sale $model, array $groups, array $productTypes, array $products)
+    {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
 

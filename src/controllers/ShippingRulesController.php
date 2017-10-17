@@ -2,13 +2,13 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 use craft\helpers\ArrayHelper;
-use Craft;
-use yii\web\Response;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Shipping Rules Controller
@@ -125,7 +125,7 @@ class ShippingRulesController extends BaseAdminController
         }
 
         $ruleCategories = [];
-        $allRulesCategories  = Craft::$app->getRequest()->getParam('ruleCategories');
+        $allRulesCategories = Craft::$app->getRequest()->getParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);
             $ruleCategories[$key]->shippingCategoryId = $key;

@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\web\twig;
 
 use Craft;
@@ -63,7 +64,7 @@ class Extension extends \Twig_Extension
         }
 
         if ($format) {
-            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [],$stripZeros);
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
         }
 
         return $amount;

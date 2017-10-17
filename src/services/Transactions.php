@@ -129,8 +129,7 @@ class Transactions extends Component
     {
 
         // Can refund only successful purchase or capture transactions
-        if (!in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]))
-        {
+        if (!in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])) {
             return false;
         }
 
@@ -146,9 +145,11 @@ class Transactions extends Component
 
         // And only if we don't have a successful refund transaction for this order already
         return !$this->_createTransactionQuery()
-            ->where(['type' => TransactionRecord::TYPE_REFUND,
+            ->where([
+                'type' => TransactionRecord::TYPE_REFUND,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId])
+                'orderId' => $transaction->orderId
+            ])
             ->exists();
     }
 
@@ -161,15 +162,16 @@ class Transactions extends Component
      */
     public function isTransactionSuccessful(Transaction $transaction): bool
     {
-        if ($transaction->status === TransactionRecord::STATUS_SUCCESS)
-        {
+        if ($transaction->status === TransactionRecord::STATUS_SUCCESS) {
             return true;
         }
 
         return $this->_createTransactionQuery()
-            ->where(['parentId' => $transaction->id,
+            ->where([
+                'parentId' => $transaction->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId])
+                'orderId' => $transaction->orderId
+            ])
             ->exists();
     }
 
@@ -196,9 +198,11 @@ class Transactions extends Component
 
         // And only if we don't have a successful refund transaction for this order already
         return !$this->_createTransactionQuery()
-            ->where(['type' => TransactionRecord::TYPE_CAPTURE,
+            ->where([
+                'type' => TransactionRecord::TYPE_CAPTURE,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId])
+                'orderId' => $transaction->orderId
+            ])
             ->exists();
     }
 
@@ -336,7 +340,7 @@ class Transactions extends Component
         $record = TransactionRecord::findOne($transaction->id);
 
         if ($record) {
-            return (bool) $record->delete();
+            return (bool)$record->delete();
         }
 
         return false;

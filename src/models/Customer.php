@@ -72,8 +72,7 @@ class Customer extends Model
      */
     public function getUser()
     {
-        if (null === $this->_user && $this->userId)
-        {
+        if (null === $this->_user && $this->userId) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
@@ -102,8 +101,7 @@ class Customer extends Model
     {
         $user = $this->getUser();
 
-        if($user)
-        {
+        if ($user) {
             return $user->email;
         }
 

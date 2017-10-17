@@ -43,7 +43,7 @@ class TaxRates extends Component
             foreach ($rows as $row) {
                 $this->_allTaxRates[$row['id']] = new TaxRate($row);
             }
-            
+
             $this->_fetchedAllTaxRates = true;
         }
 

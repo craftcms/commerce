@@ -274,9 +274,9 @@ class Customers extends Component
             $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($username);
 
             if (!$user) {
-               return false;
+                return false;
             }
-            
+
             $toCustomer = $this->getCustomerByUserId($user->id);
 
             // The user has no previous customer record, create one.
@@ -299,7 +299,7 @@ class Customers extends Component
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
 
-                $belongsToAnotherUser = (bool) ($order->getCustomer() && $order->getCustomer()->getUser());
+                $belongsToAnotherUser = (bool)($order->getCustomer() && $order->getCustomer()->getUser());
                 // Only consolidate completed orders, not carts and orders that don't belong to another user.
 
                 if ($order->isCompleted && !$belongsToAnotherUser) {

@@ -40,7 +40,7 @@ class Variants extends Component
 
     /**
      * @param int    $variantId The variant’s ID.
-     * @param string $siteId  The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
+     * @param string $siteId    The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
      *
      * @return ElementInterface|null
      */
@@ -138,10 +138,10 @@ class Variants extends Component
         $record->sku = $model->sku;
 
         $record->price = $model->price;
-        $record->width = (float) $model->width;
-        $record->height = (float) $model->height;
-        $record->length = (float) $model->length;
-        $record->weight = (float) $model->weight;
+        $record->width = (float)$model->width;
+        $record->height = (float)$model->height;
+        $record->length = (float)$model->length;
+        $record->weight = (float)$model->weight;
         $record->minQty = $model->minQty;
         $record->maxQty = $model->maxQty;
         $record->stock = $model->stock;
@@ -241,8 +241,7 @@ class Variants extends Component
             }
         }
 
-        if ($this->hasEventHandlers(self::EVENT_PURCHASE_VARIANT))
-        {
+        if ($this->hasEventHandlers(self::EVENT_PURCHASE_VARIANT)) {
             foreach ($variants as $variant) {
                 // Raise 'purchaseVariant' event
                 $this->trigger(self::EVENT_PURCHASE_VARIANT, new PurchaseVariantEvent([

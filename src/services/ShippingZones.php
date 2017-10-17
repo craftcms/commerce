@@ -78,7 +78,7 @@ class ShippingZones extends Component
 
         return $this->_allShippingZones[$id] = new ShippingZone($row);
     }
-    
+
     /**
      * @param ShippingZone $model
      * @param array        $countryIds

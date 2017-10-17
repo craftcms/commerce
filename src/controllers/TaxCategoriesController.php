@@ -2,8 +2,8 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\models\TaxCategory;
 use Craft;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
 use yii\web\Response;

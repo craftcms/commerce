@@ -253,8 +253,7 @@ class Cart extends Component
      */
     public function setGateway(Order $cart, $gatewayId, &$error = "")
     {
-        if (!$gatewayId)
-        {
+        if (!$gatewayId) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
 
             return false;
@@ -344,8 +343,7 @@ class Cart extends Component
             $allCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
             $currencies = [];
 
-            foreach ($allCurrencies as $currency)
-            {
+            foreach ($allCurrencies as $currency) {
                 $currencies[] = $currency->iso;
             }
 

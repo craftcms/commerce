@@ -66,7 +66,7 @@ class OrderHistories extends Component
             ->all();
 
         $histories = [];
-        
+
         foreach ($rows as $row) {
             $histories[] = new OrderHistory($row);
         }
@@ -158,7 +158,7 @@ class OrderHistories extends Component
         $orderHistory = OrderHistoryRecord::findOne($id);
 
         if ($orderHistory) {
-            return (bool) $orderHistory->delete();
+            return (bool)$orderHistory->delete();
         }
 
         return false;

@@ -2,10 +2,10 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\Json;
-use Craft;
 
 /**
  * m170830_130000_order_refactor

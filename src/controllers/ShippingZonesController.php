@@ -2,10 +2,10 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
-use Craft;
 use yii\web\HttpException;
 use yii\web\Response;
 

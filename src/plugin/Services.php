@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\plugin;
 
 use craft\commerce\services\Addresses;

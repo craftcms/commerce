@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\web\assets\revenuewidget;
 
 use craft\web\AssetBundle;

@@ -44,7 +44,8 @@ class Country extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules() {
+    public function rules()
+    {
         return [
             [['iso', 'name'], 'required'],
             [['iso'], 'string', 'length' => 2],

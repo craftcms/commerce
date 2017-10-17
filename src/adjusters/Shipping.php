@@ -24,7 +24,7 @@ class Shipping implements AdjusterInterface
 
     /**
      * @param ShippingMethod $shippingMethod
-     * @param ShippingRule $rule
+     * @param ShippingRule   $rule
      *
      * @return OrderAdjustment
      */

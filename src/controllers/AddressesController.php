@@ -5,8 +5,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
-use yii\web\Response;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /** @noinspection */
 
@@ -71,7 +71,7 @@ class AddressesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = (int) Craft::$app->getRequest()->getRequiredParam('id');
+        $id = (int)Craft::$app->getRequest()->getRequiredParam('id');
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 

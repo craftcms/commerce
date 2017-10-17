@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\fields;
 
 use Craft;
@@ -40,7 +41,7 @@ class Customer extends Field
     /**
      * @inheritDoc
      */
-    public function getInputHtml($value, ElementInterface $element = null) : string
+    public function getInputHtml($value, ElementInterface $element = null): string
     {
         if (!($element instanceof User)) {
             return '<span style="color: #da5a47">'.Craft::t('commerce', 'Commerce Customer Info field is for user profiles only.').'</span>';
@@ -59,8 +60,7 @@ class Customer extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
-        if($element && $element->id)
-        {
+        if ($element && $element->id) {
             return Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id);
         }
 

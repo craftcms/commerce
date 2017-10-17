@@ -62,7 +62,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     public function processWebHook(): WebResponse
     {
     }
-    
+
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface
     {
     }

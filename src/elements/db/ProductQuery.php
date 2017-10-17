@@ -319,7 +319,7 @@ class ProductQuery extends ElementQuery
         if ($this->defaultSku) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
         }
-        
+
         $this->_applyEditableParam();
         $this->_applyRefParam();
         $this->_applyHasSalesParam();

@@ -54,7 +54,7 @@ class States extends Component
 
     /**
      * Get a states by it's id.
-     * 
+     *
      * @param int $id The state's id.
      *
      * @return State|null The matched state or null if not found.
@@ -116,7 +116,7 @@ class States extends Component
                 ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
                 ->all();
 
-            foreach ($results as $row ) {
+            foreach ($results as $row) {
                 $state = new State($row);
                 $this->_statesById[$row['id']] = $state;
                 $this->_statesOrderedByName[] = $state;
@@ -154,7 +154,7 @@ class States extends Component
 
         return $this->_statesByTaxZoneId[$taxZoneId];
     }
-    
+
     /**
      * Returns all states in a shipping zone.
      *
@@ -225,7 +225,7 @@ class States extends Component
 
     /**
      * Delete a state by it's id.
-     * 
+     *
      * @param int $id The id of the state.
      *
      * @return bool Whether the state was deleted successfully.

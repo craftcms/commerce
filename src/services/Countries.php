@@ -90,7 +90,7 @@ class Countries extends Component
 
     /**
      * Get an array of all countries.
-     * 
+     *
      * @return Country[] An array of all countries.
      */
     public function getAllCountries(): array
@@ -99,7 +99,7 @@ class Countries extends Component
             $this->_fetchedAllCountries = true;
             $results = $this->_createCountryQuery()->all();
 
-            foreach ($results as $row ) {
+            foreach ($results as $row) {
                 $this->_countriesById[$row['id']] = new Country($row);
             }
         }

@@ -61,7 +61,7 @@ class ShippingCategories extends Component
 
         return $this->_shippingCategoriesById;
     }
-    
+
     /**
      * @param int $shippingCategoryId
      *
@@ -89,7 +89,7 @@ class ShippingCategories extends Component
 
         return $this->_shippingCategoriesById[$shippingCategoryId];
     }
-    
+
     /**
      * @param string $shippingCategoryHandle
      *
@@ -212,7 +212,7 @@ class ShippingCategories extends Component
         $record = ShippingCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool) $record->delete();
+            return (bool)$record->delete();
         }
 
         return false;

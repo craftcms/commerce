@@ -5,8 +5,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
-use yii\web\Response;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Countries Controller

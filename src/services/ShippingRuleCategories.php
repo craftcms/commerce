@@ -96,7 +96,7 @@ class ShippingRuleCategories extends Component
      * Delete a shipping rule category by it's id.
      *
      * @param int $id The shipping rule category id.
-     * 
+     *
      * @return bool Whether the category was deleted successfully.
      */
     public function deleteShippingRuleCategoryById(int $id): bool

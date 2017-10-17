@@ -4,9 +4,9 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\errors\PaymentException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\errors\PaymentException;
 use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -92,7 +92,6 @@ class PaymentsController extends BaseFrontEndController
 
             return null;
         }
-
 
 
         // These are used to compare if the order changed during it's final

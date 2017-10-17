@@ -33,8 +33,8 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make a capture request.
      *
-     * @param Transaction  $transaction The capture transaction
-     * @param string       $reference   Reference for the transaction being captured.
+     * @param Transaction $transaction The capture transaction
+     * @param string      $reference   Reference for the transaction being captured.
      *
      * @return RequestResponseInterface
      */
@@ -43,7 +43,7 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make a complete authorize request.
      *
-     * @param Transaction  $transaction The transaction
+     * @param Transaction $transaction The transaction
      *
      * @return RequestResponseInterface
      */
@@ -52,7 +52,7 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make a complete purchase request.
      *
-     * @param Transaction  $transaction The transaction
+     * @param Transaction $transaction The transaction
      *
      * @return RequestResponseInterface
      */
@@ -71,8 +71,8 @@ interface GatewayInterface extends SavableComponentInterface
     /**
      * Make an refund request.
      *
-     * @param Transaction     $transaction The refund transaction
-     * @param string          $reference   Reference for the transaction being refunded.
+     * @param Transaction $transaction The refund transaction
+     * @param string      $reference   Reference for the transaction being refunded.
      *
      * @return RequestResponseInterface
      */
