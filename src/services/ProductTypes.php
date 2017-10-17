@@ -32,7 +32,7 @@ class ProductTypes extends Component
 {
     // Constants
     // =========================================================================
-    
+
     /**
      * @event CategoryGroupEvent The event that is triggered before a category group is saved.
      */
@@ -147,7 +147,7 @@ class ProductTypes extends Component
      */
     public function getAllProductTypes(): array
     {
-        
+
         if (!$this->_fetchedAllProductTypes) {
             $results = $this->_createProductTypeQuery()->all();
 
@@ -163,7 +163,7 @@ class ProductTypes extends Component
 
     /**
      * Get a product type by it's handle.
-     * 
+     *
      * @param string $handle The product type's handle.
      *
      * @return ProductType|null The product type or `null`.
@@ -225,7 +225,7 @@ class ProductTypes extends Component
 
     /**
      * Save a product type.
-     * 
+     *
      * @param ProductType $productType The product type model.
      * @param bool        $runValidation If validation should be ran.
      *
@@ -599,7 +599,7 @@ class ProductTypes extends Component
 
     /**
      * Get a product's type by id.
-     * 
+     *
      * @param int $productTypeId The product type's id.
      *
      * @return ProductType|null Either the product type or `null`.
@@ -659,9 +659,9 @@ class ProductTypes extends Component
 
     /**
      * Add new product type setting rows when a Site is added to Craft.
-     * 
+     *
      * @param SiteEvent $event The event that triggered this.
-     *                         
+     *
      * @return void
      */
     public function addSiteHandler(SiteEvent $event)
