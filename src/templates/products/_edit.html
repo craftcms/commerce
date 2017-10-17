@@ -160,12 +160,14 @@
     </div>
 
     {% if not productType.hasVariants %}
+        <hr>
         {% namespace 'variants['~(primaryVariant.id ?: 'new1')~']' %}
-        <div class="pane meta">
+        <div class="meta">
             {{ productFields.generalVariantFields(primaryVariant) }}
         </div>
         {% if productType.hasDimensions %}
-            <div class="pane meta">
+            <hr>
+            <div class="meta">
                 {{ productFields.dimensionVariantFields(primaryVariant) }}
             </div>
         {% endif %}
