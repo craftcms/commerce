@@ -103,7 +103,7 @@ class Plugin extends \craft\base\Plugin
      */
     public function getCpNavItem(): array
     {
-        $iconPath = Plugin::getInstance()->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
+        $iconPath = $this->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
 
         if (is_file($iconPath)) {
             $iconSvg = file_get_contents($iconPath);
@@ -113,7 +113,7 @@ class Plugin extends \craft\base\Plugin
 
         $navItems = [
             'label' => Craft::t('commerce', 'Commerce'),
-            'url' => Plugin::getInstance()->id,
+            'url' => $this->id,
             'iconSvg' => $iconSvg
         ];
 
@@ -186,7 +186,7 @@ class Plugin extends \craft\base\Plugin
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
-            foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
+            foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if ($productType->hasUrls) {
                     $productSources[] = 'productType:'.$productType->id;
                 }
@@ -209,7 +209,7 @@ class Plugin extends \craft\base\Plugin
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
 
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes('id');
+            $productTypes = $this->getProductTypes()->getAllProductTypes('id');
 
             $productTypePermissions = [];
             foreach ($productTypes as $id => $productType) {
