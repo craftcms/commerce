@@ -19,11 +19,11 @@ use craft\enums\LicenseKeyStatus;
 use craft\events\DefineComponentsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterCpAlertsEvent;
-use craft\events\RegisterRichTextLinkOptionsEvent;
 use craft\events\RegisterUserPermissionsEvent;
-use craft\fields\RichText;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
+use craft\redactor\events\RegisterLinkOptionsEvent;
+use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
@@ -66,7 +66,7 @@ class Plugin extends \craft\base\Plugin
         $this->_registerCpRoutes();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
-        $this->_registerRichTextLinks();
+        $this->_registerRedactorLinkOptions();
         $this->_registerPermissions();
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
@@ -176,9 +176,13 @@ class Plugin extends \craft\base\Plugin
     /**
      * Register links to product in the rich text field
      */
-    private function _registerRichTextLinks()
+    private function _registerRedactorLinkOptions()
     {
-        Event::on(RichText::class, RichText::EVENT_REGISTER_LINK_OPTIONS, function(RegisterRichTextLinkOptionsEvent $event) {
+        if (!class_exists(RedactorField::class)) {
+            return;
+        }
+
+        Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
