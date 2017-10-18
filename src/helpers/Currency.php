@@ -21,11 +21,11 @@ class Currency
      * a currency model results in rounding in default currency.
      *
      * @param float                $amount
-     * @param PaymentCurrency|null $currency
+     * @param \craft\commerce\models\Currency|null $currency
      *
      * @return float
      */
-    public static function round($amount, $currency = null)
+    public static function round($amount, $currency = null): float
     {
         if (!$currency) {
             $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
