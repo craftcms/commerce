@@ -3,9 +3,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
+use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -231,21 +233,26 @@ class ProductsController extends BaseCpController
     }
 
     /**
-     * @param $variables
+     * @param array $variables
      *
      * @throws HttpException
      */
-    private function _prepVariables(&$variables)
+    private function _prepVariables(array &$variables)
     {
         $variables['tabs'] = [];
 
-        foreach ($variables['productType']->getProductFieldLayout()->getTabs() as $index => $tab) {
+        /** @var ProductType $productType */
+        $productType = $variables['productType'];
+        /** @var Product $product */
+        $product = $variables['product'];
+
+        foreach ($productType->getProductFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
-            if ($variables['product']->hasErrors()) {
+            if ($product->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
-                    if ($variables['product']->getErrors($field->getField()->handle)) {
-                        $hasErrors = true;
+                    /** @var Field $field */
+                    if ($hasErrors = $product->hasErrors($field->handle)) {
                         break;
                     }
                 }
@@ -258,7 +265,7 @@ class ProductsController extends BaseCpController
             ];
         }
 
-        $variables['primaryVariant'] = $variables['product']->getVariants()[0];
+        $variables['primaryVariant'] = $product->getVariants()[0];
     }
 
     /**

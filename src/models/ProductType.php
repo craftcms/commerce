@@ -271,19 +271,23 @@ class ProductType extends Model
 
 
     /**
-     * @return mixed
+     * @return FieldLayout
      */
-    public function getProductFieldLayout()
+    public function getProductFieldLayout(): FieldLayout
     {
-        return $this->getBehavior('productFieldLayout')->getFieldLayout();
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $this->getBehavior('productFieldLayout');
+        return $behavior->getFieldLayout();
     }
 
     /**
-     * @return mixed
+     * @return FieldLayout
      */
-    public function getVariantFieldLayout()
+    public function getVariantFieldLayout(): FieldLayout
     {
-        return $this->getBehavior('variantFieldLayout')->getFieldLayout();
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $this->getBehavior('variantFieldLayout');
+        return $behavior->getFieldLayout();
     }
 
     /**
