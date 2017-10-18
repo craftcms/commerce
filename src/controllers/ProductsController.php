@@ -96,7 +96,7 @@ class ProductsController extends BaseCpController
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
             Craft::$app->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
-                    'extraFields' => '#meta-pane, #variants-pane',
+                    'extraFields' => '#meta-pane, #variants',
                     'previewUrl' => $variables['product']->getUrl(),
                     'previewAction' => 'commerce/products/previewProduct',
                     'previewParams' => [
@@ -261,6 +261,21 @@ class ProductsController extends BaseCpController
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
                 'url' => '#tab'.($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
+
+        if ($productType->hasVariants) {
+            $hasErrors = false;
+            foreach ($product->getVariants() as $variant) {
+                if ($hasErrors = $variant->hasErrors()) {
+                    break;
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', 'Variants'),
+                'url' => '#variants',
                 'class' => $hasErrors ? 'error' : null
             ];
         }

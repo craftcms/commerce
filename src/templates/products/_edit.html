@@ -118,13 +118,14 @@
     </div>
 
     {% if productType.hasVariants %}
-        <hr>
-        <div id="variants-pane" class="field">
-            <div class="heading">
-                <label>{{ 'Variants'|t('commerce') }}</label>
-            </div>
-            <div class="input">
-                {{ variantMatrixHtml|raw }}
+        <div id="variants" class="hidden">
+            <div class="field">
+                <div class="heading">
+                    <label>{{ 'Variants'|t('commerce') }}</label>
+                </div>
+                <div class="input">
+                    {{ variantMatrixHtml|raw }}
+                </div>
             </div>
         </div>
     {% endif %}
