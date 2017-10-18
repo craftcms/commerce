@@ -255,7 +255,7 @@ class LineItem extends Model
     /**
      * @return bool False when no related purchasable exists or order complete.
      */
-    public function refreshFromPurchasable()
+    public function refreshFromPurchasable(): bool
     {
 
         if ($this->qty <= 0 && $this->id) {

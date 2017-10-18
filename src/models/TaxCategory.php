@@ -56,7 +56,7 @@ class TaxCategory extends Model
     /**
      * @return TaxRate[]
      */
-    public function getTaxRates()
+    public function getTaxRates(): array
     {
         $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
@@ -74,7 +74,7 @@ class TaxCategory extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/taxcategories/'.$this->id);
     }
@@ -82,7 +82,7 @@ class TaxCategory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['handle'], 'required']

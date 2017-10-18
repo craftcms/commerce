@@ -53,14 +53,14 @@ interface PurchasableInterface
      *
      * @return string
      */
-    public function getSku();
+    public function getSku(): string;
 
     /**
      * This would usually be your elements title or any additional descriptive information.
      *
      * @return string
      */
-    public function getDescription();
+    public function getDescription(): string;
 
     /**
      * Returns a Craft Commerce tax category id
@@ -81,7 +81,7 @@ interface PurchasableInterface
      *
      * @return bool
      */
-    public function getIsAvailable();
+    public function getIsAvailable(): bool;
 
     /**
      * Populates the line item when this purchasable is found on it. Called when Purchasable is added to the cart and when the cart recalculates.
@@ -106,11 +106,11 @@ interface PurchasableInterface
     /**
      * @return bool
      */
-    public function hasFreeShipping();
+    public function hasFreeShipping(): bool;
 
     /**
      * @return bool
      */
-    public function getIsPromotable();
+    public function getIsPromotable(): bool;
 
 }

@@ -23,14 +23,14 @@ interface ShippingRuleInterface
      *
      * @return bool
      */
-    public function matchOrder(Order $order);
+    public function matchOrder(Order $order): bool;
 
     /**
      * Is this shipping rule enabled for listing and selection
      *
      * @return bool
      */
-    public function getIsEnabled();
+    public function getIsEnabled(): bool;
 
     /**
      * Stores this data as json on the orders shipping adjustment.
@@ -95,6 +95,6 @@ interface ShippingRuleInterface
      *
      * @return string
      */
-    public function getDescription();
+    public function getDescription(): string;
 
 }

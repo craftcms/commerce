@@ -21,7 +21,7 @@ class Extension extends \Twig_Extension
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'Craft Commerce Twig Extension';
     }
@@ -70,6 +70,11 @@ class Extension extends \Twig_Extension
         return $amount;
     }
 
+    /**
+     * @param $currency
+     *
+     * @throws \Twig_Error
+     */
     private function _validatePaymentCurrency($currency)
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);

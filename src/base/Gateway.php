@@ -79,7 +79,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @return string
      */
-    public function getWebhookUrl(array $params = [])
+    public function getWebhookUrl(array $params = []): string
     {
         $params = array_merge(['gateway' => $this->id], $params);
 
@@ -89,11 +89,11 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Whether this gateway allows pamyents in control panel.
+     * Whether this gateway allows payments in control panel.
      *
      * @return bool
      */
-    public function cpPaymentsEnabled()
+    public function cpPaymentsEnabled(): bool
     {
         return true;
     }
@@ -101,7 +101,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/gateways/'.$this->id);
     }
@@ -127,7 +127,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @return array
      */
-    public function getPaymentTypeOptions()
+    public function getPaymentTypeOptions(): array
     {
         return [
             'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),

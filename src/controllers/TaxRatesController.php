@@ -65,7 +65,7 @@ class TaxRatesController extends BaseAdminController
                 }
             } else {
                 $variables['taxRate'] = new TaxRate();
-            };
+            }
         }
 
         if ($variables['taxRate']->id) {
@@ -147,7 +147,7 @@ class TaxRatesController extends BaseAdminController
             $taxRate->rate = (float)$rate / 100;
         } else {
             $taxRate->rate = (float)$rate;
-        };
+        }
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
@@ -156,7 +156,6 @@ class TaxRatesController extends BaseAdminController
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax rate.'));
         }
-
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([

@@ -33,9 +33,10 @@ class ProductTypesController extends BaseAdminController
      * @param int|null         $productTypeId
      * @param ProductType|null $productType
      *
+     * @return Response
      * @throws HttpException
      */
-    public function actionEditProductType(int $productTypeId = null, ProductType $productType = null)
+    public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
     {
         $variables = [
             'productTypeId' => $productTypeId,

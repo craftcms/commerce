@@ -36,7 +36,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return array
      */
-    public function getSnapshot()
+    public function getSnapshot(): array
     {
         return [];
     }
@@ -56,7 +56,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return string
      */
-    public function getSku()
+    public function getSku(): string
     {
         throw new NotImplementedException();
     }

@@ -60,7 +60,7 @@ class OrderStatus extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name', 'handle', 'default'], 'required']
@@ -70,7 +70,7 @@ class OrderStatus extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): strinng
     {
         return UrlHelper::cpUrl('commerce/settings/orderstatuses/'.$this->id);
     }
@@ -86,7 +86,7 @@ class OrderStatus extends Model
     /**
      * @return array
      */
-    public function getEmailIds()
+    public function getEmailIds(): array
     {
         return array_column($this->getEmails(), 'id');
     }
@@ -94,7 +94,7 @@ class OrderStatus extends Model
     /**
      * @return \craft\commerce\models\Email[]
      */
-    public function getEmails()
+    public function getEmails(): array
     {
         return Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id);
     }
@@ -102,7 +102,7 @@ class OrderStatus extends Model
     /**
      * @return string
      */
-    public function htmlLabel()
+    public function htmlLabel(): string
     {
         return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span> %s</span>', $this->color, $this->name);
     }

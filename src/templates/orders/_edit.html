@@ -167,12 +167,12 @@
                                        data-target="info-{{ lineItem.id }}">{{ "Options"|t('commerce') }}</a>
                                     <span id="info-{{ lineItem.id }}"
                                           class="hidden">
-							{% for key, option in lineItem.options %}
-                                {{ key|t('commerce') }}: {% if option is iterable %}
+                                {% for key, option in lineItem.options %}
+                                    {{ key|t('commerce') }}: {% if option is iterable %}
                                 <code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}
                                 <br>
-                            {% endfor %}
-						</span>
+                                {% endfor %}
+                                    </span>
                                 {% endif %}
                             </td>
                             <td>

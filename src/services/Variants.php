@@ -112,6 +112,7 @@ class Variants extends Component
      * @param Variant $model
      *
      * @return VariantRecord
+     * @throws HttpException
      */
     private function _getVariantRecord(Variant $model)
     {

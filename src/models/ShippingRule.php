@@ -155,7 +155,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return bool
      */
-    public function getIsEnabled()
+    public function getIsEnabled(): bool
     {
         return $this->enabled;
     }
@@ -277,7 +277,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return ShippingRuleCategory[]
      */
-    public function getShippingRuleCategories()
+    public function getShippingRuleCategories(): array
     {
         if (null === $this->_shippingRuleCategories) {
             $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId((int)$this->id);
@@ -305,12 +305,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->getAttributes();
     }
 
     /**
+     * @param null $shippingCategoryId
+     *
      * @return float
      */
     public function getPercentageRate($shippingCategoryId = null)
@@ -340,6 +342,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
+     * @param null $shippingCategoryId
+     *
      * @return float
      */
     public function getPerItemRate($shippingCategoryId = null)
@@ -348,6 +352,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
+     * @param null $shippingCategoryId
+     *
      * @return float
      */
     public function getWeightRate($shippingCategoryId = null)
@@ -382,7 +388,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }

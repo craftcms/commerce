@@ -20,7 +20,7 @@ interface ShippingMethodInterface
      *
      * @return string
      */
-    public function getType();
+    public function getType(): string;
 
     /**
      * Returns the ID of this Shipping Method, if it is managed by Craft Commerce.
@@ -34,14 +34,14 @@ interface ShippingMethodInterface
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Returns the unique handle of this Shipping Method.
      *
      * @return string
      */
-    public function getHandle();
+    public function getHandle(): string;
 
     /**
      * Returns the control panel URL to manage this method and it's rules.
@@ -49,19 +49,19 @@ interface ShippingMethodInterface
      *
      * @return string
      */
-    public function getCpEditUrl();
+    public function getCpEditUrl(): string;
 
     /**
      * Returns an array of rules that meet the `ShippingRules` interface.
      *
      * @return ShippingRuleInterface[] The array of ShippingRules
      */
-    public function getShippingRules();
+    public function getShippingRules(): array;
 
     /**
      * Is this shipping method enabled for listing and selection by customers.
      *
      * @return bool
      */
-    public function getIsEnabled();
+    public function getIsEnabled(): bool;
 }

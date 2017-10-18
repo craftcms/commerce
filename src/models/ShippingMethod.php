@@ -44,7 +44,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return Craft::t('commerce', 'Custom');
     }
@@ -60,7 +60,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -68,7 +68,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     /**
      * @return string
      */
-    public function getHandle()
+    public function getHandle(): string
     {
         return $this->handle;
     }
@@ -76,7 +76,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     /**
      * @return \craft\commerce\models\ShippingRule[]
      */
-    public function getShippingRules()
+    public function getShippingRules(): array
     {
         return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
     }
@@ -84,7 +84,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     /**
      * @return bool
      */
-    public function getIsEnabled()
+    public function getIsEnabled(): bool
     {
         return $this->enabled;
     }
@@ -94,7 +94,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      *
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/shippingmethods/'.$this->id);
     }

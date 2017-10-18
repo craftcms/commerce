@@ -20,5 +20,5 @@ interface AdjusterInterface
      *
      * @return \craft\commerce\models\OrderAdjustment[]
      */
-    public function adjust(Order $order);
+    public function adjust(Order $order): array;
 }

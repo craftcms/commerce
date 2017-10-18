@@ -87,7 +87,7 @@ class OrderAdjustment extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required']

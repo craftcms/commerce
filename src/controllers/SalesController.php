@@ -147,34 +147,44 @@ class SalesController extends BaseCpController
         }
 
         $discountAmount = $request->getParam('discountAmount');
+
         if ($sale->discountType === 'percent') {
+
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+
             if (strpos($discountAmount, $percentSign) or (float)$discountAmount >= 1) {
                 $sale->discountAmount = (float)$discountAmount / -100;
             } else {
                 $sale->discountAmount = (float)$discountAmount * -1;
-            };
+            }
+
         } else {
             $sale->discountAmount = (float)$discountAmount * -1;
         }
 
         $products = $request->getParam('products', []);
+
         if (!$products) {
             $products = [];
         }
+
         $products = array_unique($products);
 
         $productTypes = $request->getParam('productTypes', []);
+
         if (!$productTypes) {
             $productTypes = [];
         }
+
         $productTypes = array_unique($productTypes);
 
         $groups = $request->getParam('groups', []);
+
         if (!$groups) {
             $groups = [];
         }
+
         $groups = array_unique($groups);
 
         // Save it

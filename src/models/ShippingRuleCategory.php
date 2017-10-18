@@ -55,7 +55,7 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [

@@ -686,7 +686,7 @@ class Variant extends Purchasable
     public function setEagerLoadedElements(string $handle, array $elements)
     {
         if ($handle == 'product') {
-            $product = isset($elements[0]) ? $elements[0] : null;
+            $product = $elements[0] ?? null;
             $this->setProduct($product);
         } else {
             parent::setEagerLoadedElements($handle, $elements);

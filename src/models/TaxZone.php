@@ -55,7 +55,7 @@ class TaxZone extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/taxzones/'.$this->id);
     }
@@ -63,7 +63,7 @@ class TaxZone extends Model
     /**
      * @return \craft\commerce\models\TaxRate[]
      */
-    public function getTaxRates()
+    public function getTaxRates(): array
     {
         // TODO something tells me there's a better way.
         $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
@@ -81,7 +81,7 @@ class TaxZone extends Model
     /**
      * @return array
      */
-    public function getCountryIds()
+    public function getCountryIds(): array
     {
         $countries = [];
         foreach ($this->getCountries() as $country) {
@@ -96,7 +96,7 @@ class TaxZone extends Model
      *
      * @return array
      */
-    public function getCountries()
+    public function getCountries(): array
     {
         if (null === $this->_countries) {
             $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId((int)$this->id);
@@ -118,7 +118,7 @@ class TaxZone extends Model
     /**
      * @return array
      */
-    public function getStateIds()
+    public function getStateIds(): array
     {
         $stateIds = [];
 
@@ -134,7 +134,7 @@ class TaxZone extends Model
      *
      * @return array
      */
-    public function getStates()
+    public function getStates(): array
     {
         if (null === $this->_states) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId((int)$this->id);
@@ -158,7 +158,7 @@ class TaxZone extends Model
      *
      * @return array
      */
-    public function getCountriesNames()
+    public function getCountriesNames(): array
     {
         $countryNames = [];
         foreach ($this->getCountries() as $country) {
@@ -173,7 +173,7 @@ class TaxZone extends Model
      *
      * @return array
      */
-    public function getStatesNames()
+    public function getStatesNames(): array
     {
         $stateNames = [];
         foreach ($this->getStates() as $state) {
@@ -186,7 +186,7 @@ class TaxZone extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name'], 'required'],

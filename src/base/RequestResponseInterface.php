@@ -35,35 +35,35 @@ interface RequestResponseInterface
      *
      * @return string
      */
-    public function getRedirectMethod();
+    public function getRedirectMethod(): string;
 
     /**
      * The redirect data provided.
      *
      * @return array
      */
-    public function getRedirectData();
+    public function getRedirectData(): array;
 
     /**
      * The redirect URL to use, if any.
      *
      * @return string
      */
-    public function getRedirectUrl();
+    public function getRedirectUrl(): string;
 
     /**
      * Get the transaction reference.
      *
      * @return string
      */
-    public function getTransactionReference();
+    public function getTransactionReference(): string;
 
     /**
      * Get the response code.
      *
      * @return string
      */
-    public function getCode();
+    public function getCode(): string;
 
     /**
      * Get the data.
@@ -77,7 +77,7 @@ interface RequestResponseInterface
      *
      * @return string
      */
-    public function getMessage();
+    public function getMessage(): string;
 
     /**
      * Perform the redirect.

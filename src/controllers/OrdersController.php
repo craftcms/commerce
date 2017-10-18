@@ -45,12 +45,12 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * @param array $variables
+     * @param $orderId
      *
      * @return \yii\web\Response
      * @throws HttpException
      */
-    public function actionEditOrder(int $orderId)
+    public function actionEditOrder($orderId)
     {
         $plugin = Plugin::getInstance();
         $variables = [

@@ -131,7 +131,7 @@ class Address extends Model
     /**
      * @inheritdoc
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
 
@@ -157,7 +157,7 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         $firstName = trim($this->firstName);
         $lastName = trim($this->lastName);
@@ -168,7 +168,7 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getCountryText()
+    public function getCountryText(): string
     {
         return $this->countryId ? $this->getCountry()->name : '';
     }
@@ -184,7 +184,7 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getStateText()
+    public function getStateText(): string
     {
         if ($this->stateName) {
             return $this->stateId ? $this->getState()->name : $this->stateName;
