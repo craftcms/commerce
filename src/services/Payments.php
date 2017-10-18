@@ -82,7 +82,7 @@ class Payments extends Component
      * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect = null, &$transaction = null)
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
     {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
@@ -225,7 +225,7 @@ class Payments extends Component
      * @return bool
      * @throws Exception
      */
-    public function completePayment(Transaction $transaction, &$customError = null)
+    public function completePayment(Transaction $transaction, &$customError)
     {
         // Only transactions with the status of "redirect" can be completed
         if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
@@ -345,7 +345,7 @@ class Payments extends Component
      *
      * @return bool
      */
-    private function _handleRedirect(RequestResponseInterface $response, &$redirect = null)
+    private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
         // redirect to off-site gateway
         if ($response->getRedirectMethod() === 'GET') {

@@ -78,7 +78,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error = '')
+    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error)
     {
         $isNewLineItem = false;
 
@@ -168,7 +168,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function applyCoupon(Order $cart, $code, &$error = '')
+    public function applyCoupon(Order $cart, $code, &$error)
     {
         if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
             $cart->couponCode = $code ?: null;
@@ -221,7 +221,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error = '')
+    public function setShippingMethod(Order $cart, $shippingMethod, &$error)
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
@@ -248,7 +248,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function setGateway(Order $cart, $gatewayId, &$error = '')
+    public function setGateway(Order $cart, $gatewayId, &$error)
     {
         if (!$gatewayId) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
@@ -278,7 +278,7 @@ class Cart extends Component
      *
      * @return bool
      */
-    public function setEmail(Order $cart, $email, &$error = ''): bool
+    public function setEmail(Order $cart, $email, &$error): bool
     {
         $validator = new EmailValidator();
 

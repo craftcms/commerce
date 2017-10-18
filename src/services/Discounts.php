@@ -176,7 +176,7 @@ class Discounts extends Component
      *
      * @return true
      */
-    public function matchCode($code, $customerId, &$error = '')
+    public function matchCode($code, $customerId, &$error)
     {
         $model = $this->getDiscountByCode($code);
         if (!$model) {

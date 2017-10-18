@@ -119,7 +119,7 @@ class LineItems extends Component
      *
      * @return bool Whether the update was successful.
      */
-    public function updateLineItem(Order $order, LineItem $lineItem, &$error = ''): bool
+    public function updateLineItem(Order $order, LineItem $lineItem, &$error): bool
     {
         if (!$lineItem->purchasableId) {
             $this->deleteLineItemById($lineItem->id);
