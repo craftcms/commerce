@@ -9,6 +9,7 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Product Type Controller

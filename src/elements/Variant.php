@@ -593,7 +593,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getIsPromotable()
+    public function getIsPromotable(): bool
     {
         return $this->getProduct()->promotable;
     }
