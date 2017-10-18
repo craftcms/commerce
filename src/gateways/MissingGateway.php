@@ -33,7 +33,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @param array $params
      *
-     * @return null|string|void
+     * @return null|string
      */
     public function getPaymentFormHtml(array $params)
     {
