@@ -253,14 +253,11 @@ class LineItems extends Component
             throw $e;
         }
 
-        if ($success) {
-            // Raise a 'afterSaveLineItem' event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
-                    'lineItem' => $lineItem,
-                    'isNew' => $isNewLineItem,
-                ]));
-            }
+        if ($success && $this->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => $isNewLineItem,
+            ]));
         }
 
         return $success;
