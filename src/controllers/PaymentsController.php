@@ -206,7 +206,6 @@ class PaymentsController extends BaseFrontEndController
                 $session->setError($customError);
                 Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
 
-
                 return null;
             }
         }
@@ -239,7 +238,6 @@ class PaymentsController extends BaseFrontEndController
                     /** @var Transaction $transaction */
                     $response['transactionId'] = $transaction->reference;
                 }
-
 
                 return $this->asJson($response);
             }
@@ -319,5 +317,4 @@ class PaymentsController extends BaseFrontEndController
 
         Plugin::getInstance()->getPayments()->acceptNotification($hash);
     }
-
 }

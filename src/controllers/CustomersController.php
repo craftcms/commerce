@@ -29,7 +29,6 @@ class CustomersController extends BaseCpController
         return $this->renderTemplate('commerce/customers/index', compact('customers'));
     }
 
-
     /**
      * @param int|null      $id
      * @param Customer|null $customer
@@ -45,7 +44,6 @@ class CustomersController extends BaseCpController
         ];
 
         if (!$variables['customer']) {
-
             $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['id']);
 
             if (!$variables['customer']) {
@@ -83,5 +81,4 @@ class CustomersController extends BaseCpController
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['customer' => $customer]);
     }
-
 }

@@ -57,5 +57,4 @@ class DiscountUserGroup extends ActiveRecord
     {
         return $this->hasOne(UserGroup::class, ['id' => 'userGroupId']);
     }
-
 }

@@ -61,7 +61,6 @@ class Settings extends Component
      */
     public function saveSettings(SettingsModel $settings): bool
     {
-
         if (!$settings->validate()) {
             $errors = $settings->errors;
 

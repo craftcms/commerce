@@ -28,7 +28,6 @@ class m170705_155000_order_shippingmethod_to_shippingmethodhandle extends Migrat
     {
         echo "m170705_155000_order_shippingmethod_to_shippingmethodhandle cannot be reverted.\n";
 
-
         return false;
     }
 }

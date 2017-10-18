@@ -25,12 +25,10 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
-
     /**
      * @event AdjusterEvent This event is raised when compiling the list of adjusters for an order
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
-
 
     /**
      * @return AdjusterInterface[]
@@ -135,7 +133,6 @@ class OrderAdjustments extends Component
     {
         return OrderAdjustmentRecord::delete(['orderId' => $adjustmentId]);
     }
-
 
     /**
      * @param OrderAdjustmentRecord $record

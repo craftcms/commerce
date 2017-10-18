@@ -178,5 +178,4 @@ class GatewaysController extends BaseAdminController
 
         return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder gateways.')]);
     }
-
 }

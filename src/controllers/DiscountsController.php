@@ -25,7 +25,6 @@ use yii\web\Response;
  */
 class DiscountsController extends BaseCpController
 {
-
     /**
      * @throws HttpException
      */
@@ -44,7 +43,6 @@ class DiscountsController extends BaseCpController
         return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
     }
 
-
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
         $variables = [
@@ -56,7 +54,6 @@ class DiscountsController extends BaseCpController
 
         if (!$variables['discount']) {
             if ($variables['id']) {
-
                 $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id']);
 
                 if (!$variables['discount']) {
@@ -221,5 +218,4 @@ class DiscountsController extends BaseCpController
 
         $this->asJson(['success' => true]);
     }
-
 }

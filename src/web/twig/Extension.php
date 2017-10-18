@@ -17,7 +17,6 @@ use craft\commerce\Plugin;
  */
 class Extension extends \Twig_Extension
 {
-
     /**
      * @return string
      */
@@ -37,7 +36,6 @@ class Extension extends \Twig_Extension
 
         ];
     }
-
 
     /**
      * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.

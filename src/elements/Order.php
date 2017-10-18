@@ -100,7 +100,6 @@ use yii\base\Exception;
  */
 class Order extends Element
 {
-
     /**
      * @event OrderEvent This event is raised when an order is completed
      */
@@ -241,7 +240,6 @@ class Order extends Element
      */
     private $_relcalculate = true;
 
-
     /**
      * @inheritdoc
      */
@@ -294,7 +292,6 @@ class Order extends Element
         $this->setShouldRecalculateAdjustments(false);
         Craft::$app->getElements()->saveElement($this);
 
-
         if (!$this->isCompleted) {
             if ($this->isPaid()) {
                 $this->markAsComplete();
@@ -319,7 +316,6 @@ class Order extends Element
         return $this->getItemSubtotal() + $this->getTotalDiscount() + $this->getTotalShippingCost();
     }
 
-
     /**
      * @return bool
      */
@@ -343,7 +339,6 @@ class Order extends Element
      */
     public function markAsComplete(): bool
     {
-
         if ($this->isCompleted) {
             return true;
         }
@@ -603,7 +598,6 @@ class Order extends Element
      */
     public function getCpEditUrl()
     {
-
         return UrlHelper::cpUrl('commerce/orders/'.$this->id);
     }
 
@@ -802,7 +796,6 @@ class Order extends Element
         $this->_lineItems = $lineItems;
     }
 
-
     /**
      * @param      $type
      * @param bool $included
@@ -821,7 +814,6 @@ class Order extends Element
 
         return $amount;
     }
-
 
     /**
      * @deprecated
@@ -1186,7 +1178,6 @@ class Order extends Element
             case 'totalPrice':
             case 'totalShippingCost':
             case 'totalDiscount': {
-
                 if ($this->$attribute >= 0) {
                     return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
                 }

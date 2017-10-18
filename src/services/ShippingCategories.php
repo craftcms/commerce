@@ -20,7 +20,6 @@ use yii\base\Exception;
  */
 class ShippingCategories extends Component
 {
-
     /**
      * @var bool
      */
@@ -225,7 +224,6 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoriesByProductId($productTypeId): array
     {
-
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
             ->innerJoin('{{%commerce_producttypes}} productTypes', '[[productTypeShippingCategories.productTypeId]] = [[productTypes.id]]')
@@ -253,7 +251,6 @@ class ShippingCategories extends Component
 
         return $shippingCategories;
     }
-
 
     // Private methods
     // =========================================================================

@@ -18,7 +18,6 @@ use craft\commerce\Plugin;
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {
-
     /**
      * Returns the Id of the Purchasable element that should be added to the line item.
      * This elements model should meet the Purchasable Interface.
@@ -90,7 +89,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         return Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
     }
-
 
     /**
      * Returns if a purchasable is available

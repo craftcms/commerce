@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-
 use Craft;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\records\OrderSettings as OrderSettingsRecord;
@@ -102,12 +101,10 @@ class OrderSettings extends Component
         $orderSettings->addErrors($orderSettingsRecord->getErrors());
 
         if (!$orderSettings->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 
             try {
-
                 // Save the new one
                 $fieldLayout = $orderSettings->getFieldLayout();
                 Craft::$app->getFields()->saveLayout($fieldLayout);

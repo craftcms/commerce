@@ -99,7 +99,6 @@ class ProductTypesController extends BaseAdminController
         $productType->skuFormat = Craft::$app->getRequest()->getParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getParam('descriptionFormat');
 
-
         // Site-specific settings
         $allSiteSettings = [];
 
@@ -122,7 +121,6 @@ class ProductTypesController extends BaseAdminController
         }
 
         $productType->setSiteSettings($allSiteSettings);
-
 
         $productType->setTaxCategories(Craft::$app->getRequest()->getParam('taxCategories'));
         $productType->setShippingCategories(Craft::$app->getRequest()->getParam('shippingCategories'));
@@ -150,7 +148,6 @@ class ProductTypesController extends BaseAdminController
             'productType' => $productType
         ]);
     }
-
 
     public function actionDeleteProductType()
     {

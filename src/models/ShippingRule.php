@@ -22,7 +22,6 @@ use craft\commerce\records\ShippingRuleCategory;
  */
 class ShippingRule extends Model implements ShippingRuleInterface
 {
-
     // Properties
     // =========================================================================
 

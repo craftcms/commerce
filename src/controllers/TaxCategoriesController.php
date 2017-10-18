@@ -126,5 +126,4 @@ class TaxCategoriesController extends BaseAdminController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
     }
-
 }

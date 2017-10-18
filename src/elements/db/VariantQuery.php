@@ -13,7 +13,6 @@ use craft\helpers\Db;
  */
 class VariantQuery extends ElementQuery
 {
-
     public $sku;
     public $product;
     public $productId;
@@ -62,8 +61,6 @@ class VariantQuery extends ElementQuery
 
         return $this;
     }
-
-
 
     // Protected Methods
     // =========================================================================
@@ -131,5 +128,4 @@ class VariantQuery extends ElementQuery
 
         return parent::beforePrepare();
     }
-
 }

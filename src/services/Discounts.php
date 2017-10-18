@@ -178,7 +178,6 @@ class Discounts extends Component
      */
     public function matchCode($code, $customerId, &$error = '')
     {
-
         $model = $this->getDiscountByCode($code);
         if (!$model) {
             $error = Craft::t('commerce', 'Coupon not valid');
@@ -219,7 +218,6 @@ class Discounts extends Component
                 return false;
             }
         }
-
 
         if ($customerId) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
@@ -265,7 +263,6 @@ class Discounts extends Component
                 }
             }
         }
-
 
         return true;
     }
@@ -323,7 +320,6 @@ class Discounts extends Component
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount)
     {
-
         if ($lineItem->onSale && $discount->excludeOnSale) {
             return false;
         }
@@ -343,7 +339,6 @@ class Discounts extends Component
                 return false;
             }
         }
-
 
         if ($discount->getProductTypeIds()) {
             if ($lineItem->purchasable instanceof Variant) {
@@ -387,7 +382,6 @@ class Discounts extends Component
         } else {
             $record = new DiscountRecord();
         }
-
 
         $record->name = $model->name;
         $record->description = $model->description;
@@ -540,7 +534,6 @@ class Discounts extends Component
         }
 
         if ($record->perUserLimit && $order->customerId) {
-
             $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $record->id])->one();
 
             if (!$customerDiscountUseRecord) {
@@ -567,7 +560,6 @@ class Discounts extends Component
      */
     private function _createDiscountQuery(): Query
     {
-
         return (new Query())->select(
             'discounts.id,
             discounts.name,

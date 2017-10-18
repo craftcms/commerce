@@ -6,5 +6,4 @@ use craft\base\Model;
 
 abstract class BasePaymentForm extends Model
 {
-
 }

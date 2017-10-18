@@ -58,7 +58,6 @@ use craft\helpers\Html;
  */
 class LineItem extends Model
 {
-
     /**
      * @var int ID
      */
@@ -257,7 +256,6 @@ class LineItem extends Model
      */
     public function refreshFromPurchasable(): bool
     {
-
         if ($this->qty <= 0 && $this->id) {
             return false;
         }
@@ -323,7 +321,6 @@ class LineItem extends Model
 
         $purchasable->populateLineItem($this);
 
-
         $lineItemsService = Plugin::getInstance()->getLineItems();
 
         // Raise the 'populateLineItem' event
@@ -380,7 +377,6 @@ class LineItem extends Model
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
 
-
     /**
      * @return OrderAdjustment[]
      */
@@ -396,7 +392,6 @@ class LineItem extends Model
 
         return $lineItemAdjustments;
     }
-
 
     /**
      * @param bool $included
@@ -474,5 +469,4 @@ class LineItem extends Model
 
         return $this->getAdjustmentsTotalByType('discount');
     }
-
 }

@@ -148,5 +148,4 @@ class TaxZonesController extends BaseAdminController
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asJson(['success' => true]);
     }
-
 }

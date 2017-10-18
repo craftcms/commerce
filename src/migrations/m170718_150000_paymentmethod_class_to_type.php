@@ -27,7 +27,6 @@ class m170718_150000_paymentmethod_class_to_type extends Migration
     {
         echo "m170718_150000_paymentmethod_class_to_type cannot be reverted.\n";
 
-
         return false;
     }
 }

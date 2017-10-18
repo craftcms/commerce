@@ -15,7 +15,6 @@ class m170616_154500_productTypeSites_upgrade extends Migration
      */
     public function safeUp(): bool
     {
-
         $this->addColumn('{{%commerce_productTypes_i18n}}', 'template', $this->string(500));
         $this->addColumn('{{%commerce_productTypes_i18n}}', 'hasUrls', $this->boolean());
 
@@ -42,7 +41,6 @@ class m170616_154500_productTypeSites_upgrade extends Migration
     public function safeDown(): bool
     {
         echo "m170616_154500_productTypeSites_upgrade cannot be reverted.\n";
-
 
         return false;
     }

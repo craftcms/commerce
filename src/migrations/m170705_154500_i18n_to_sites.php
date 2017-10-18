@@ -29,7 +29,6 @@ class m170705_154500_i18n_to_sites extends Migration
     {
         echo "m170705_154500_i18n_to_sites cannot be reverted.\n";
 
-
         return false;
     }
 }

@@ -269,7 +269,6 @@ class ShippingMethods extends Component
         return false;
     }
 
-
     /**
      * @param $shippingMethodId int
      *

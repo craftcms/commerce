@@ -48,7 +48,6 @@ use yii\base\InvalidConfigException;
  */
 class Product extends Element
 {
-
     // Constants
     // =============================================================================
 
@@ -234,7 +233,6 @@ class Product extends Element
      */
     public function getType(): ProductType
     {
-
         if ($this->typeId === null) {
             throw new InvalidConfigException('Product is missing its product type ID');
         }
@@ -273,7 +271,6 @@ class Product extends Element
      */
     public function getName()
     {
-
         return $this->title;
     }
 
@@ -526,7 +523,6 @@ class Product extends Element
     public static function eagerLoadingMap(array $sourceElements, string $handle)
     {
         if ($handle == 'variants') {
-
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 
             $map = (new Query())
@@ -909,7 +905,6 @@ class Product extends Element
 
         /** @var Variant $variant */
         foreach ($this->getVariants() as $variant) {
-
             if ($variant->isDefault) {
                 $this->defaultVariantId = $variant->id;
                 Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $this->id]);
@@ -926,7 +921,6 @@ class Product extends Element
 
         return parent::afterSave($isNew);
     }
-
 
     public function rules(): array
     {

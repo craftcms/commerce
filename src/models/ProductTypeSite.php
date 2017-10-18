@@ -66,7 +66,6 @@ class ProductTypeSite extends Model
     // Public Methods
     // =========================================================================
 
-
     /**
      * Returns the Product Type.
      *

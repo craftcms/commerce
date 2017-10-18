@@ -19,7 +19,6 @@ use yii\web\Response;
  */
 class SettingsController extends BaseAdminController
 {
-
     /**
      * Commerce Settings Index
      */
@@ -103,5 +102,4 @@ class SettingsController extends BaseAdminController
 
         $this->redirectToPostedUrl();
     }
-
 }

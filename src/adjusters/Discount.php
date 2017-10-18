@@ -156,7 +156,6 @@ class Discount implements AdjusterInterface
 
         foreach ($this->_order->getLineItems() as $item) {
             if (in_array($item->id, $matchingLineIds, false)) {
-
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
                 $adjustment->lineItemId = $item->id;
 
@@ -199,13 +198,11 @@ class Discount implements AdjusterInterface
             $adjustments[] = $baseDiscountAdjustment;
         }
 
-
         // only display adjustment if an amount was calculated
 
         if (count($adjustments)) {
             return $adjustments;
         }
-
 
         return false;
     }

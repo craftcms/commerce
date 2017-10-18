@@ -112,5 +112,4 @@ class StatesController extends BaseAdminController
         Plugin::getInstance()->getStates()->deleteStateById($id);
         return $this->asJson(['success' => true]);
     }
-
 }

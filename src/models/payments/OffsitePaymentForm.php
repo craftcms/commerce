@@ -14,5 +14,4 @@ namespace craft\commerce\models\payments;
  */
 class OffsitePaymentForm extends BasePaymentForm
 {
-
 }

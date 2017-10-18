@@ -22,7 +22,6 @@ use yii\web\Response;
  */
 class OrderStatusesController extends BaseAdminController
 {
-
     /**
      * @return Response
      */
@@ -49,7 +48,6 @@ class OrderStatusesController extends BaseAdminController
 
         if (!$variables['orderStatus']) {
             if ($variables['id']) {
-
                 $variables['orderStatus'] = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($variables['id']);
 
                 if (!$variables['orderStatus']) {
@@ -140,5 +138,4 @@ class OrderStatusesController extends BaseAdminController
 
         return null;
     }
-
 }

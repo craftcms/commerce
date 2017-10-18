@@ -217,7 +217,6 @@ class Countries extends Component
         return false;
     }
 
-
     // Private methods
     // =========================================================================
 
@@ -228,7 +227,6 @@ class Countries extends Component
      */
     private function _createCountryQuery(): Query
     {
-
         return (new Query())
             ->select([
                 'countries.id',

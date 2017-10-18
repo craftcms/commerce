@@ -146,7 +146,6 @@ class ProductTypes extends Component
      */
     public function getAllProductTypes(): array
     {
-
         if (!$this->_fetchedAllProductTypes) {
             $results = $this->_createProductTypeQuery()->all();
 
@@ -278,7 +277,6 @@ class ProductTypes extends Component
         $productTypeRecord->skuFormat = $productType->skuFormat;
         $productTypeRecord->descriptionFormat = $productType->descriptionFormat;
 
-
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
 
@@ -293,7 +291,6 @@ class ProductTypes extends Component
         $transaction = $db->beginTransaction();
 
         try {
-
             // Product Field Layout
             $fieldLayout = $productType->getProductFieldLayout();
             Craft::$app->getFields()->saveLayout($fieldLayout);
@@ -316,7 +313,6 @@ class ProductTypes extends Component
 
             // Might as well update our cache of the product type while we have it.
             $this->_productTypesById[$productType->id] = $productType;
-
 
             if (!$isNewProductType && !$productType->hasVariantTitleField) {
                 if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
@@ -368,7 +364,6 @@ class ProductTypes extends Component
                     }
                 }
             }
-
 
             // Have any of the product type categories changed?
             if (!$isNewProductType) {
@@ -426,7 +421,6 @@ class ProductTypes extends Component
                     }
                 }
             }
-
 
             // Update the site settings
             // -----------------------------------------------------------------
@@ -605,7 +599,6 @@ class ProductTypes extends Component
      */
     public function getProductTypeById(int $productTypeId)
     {
-
         if (isset($this->_productTypesById[$productTypeId])) {
             return $this->_productTypesById[$productTypeId];
         }
@@ -665,7 +658,6 @@ class ProductTypes extends Component
      */
     public function addSiteHandler(SiteEvent $event)
     {
-
         if ($event->isNew) {
             $allSiteSettings = (new Query())
                 ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])

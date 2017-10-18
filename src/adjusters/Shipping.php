@@ -76,7 +76,6 @@ class Shipping implements AdjusterInterface
             //checking items shipping categories
             foreach ($order->getLineItems() as $item) {
                 if (!$item->purchasable->hasFreeShipping()) {
-
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                     $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
@@ -86,7 +85,6 @@ class Shipping implements AdjusterInterface
                     $percentageAmount = $item->getSubtotal() * $percentageRate;
                     $perItemAmount = $item->qty * $perItemRate;
                     $weightAmount = ($item->weight * $item->qty) * $weightRate;
-
 
                     $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
                     $adjustment->lineItemId = $item->id;
@@ -128,5 +126,4 @@ class Shipping implements AdjusterInterface
 
         return $adjustments;
     }
-
 }

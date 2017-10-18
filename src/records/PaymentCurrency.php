@@ -38,5 +38,4 @@ class PaymentCurrency extends ActiveRecord
             [['iso'], 'unique']
         ];
     }
-
 }

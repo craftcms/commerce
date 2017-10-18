@@ -97,5 +97,4 @@ class ProductType extends ActiveRecord
     {
         return $this->hasOne(FieldLayout::class, ['id' => 'variantFieldLayoutId']);
     }
-
 }

@@ -31,7 +31,6 @@ use yii\web\Response;
  */
 class ProductsController extends BaseCpController
 {
-
     /**
      * @inheritdoc
      */
@@ -46,12 +45,10 @@ class ProductsController extends BaseCpController
         parent::init();
     }
 
-
     public function actionProductIndex(): Response
     {
         return $this->renderTemplate('commerce/products/_index');
     }
-
 
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
@@ -132,7 +129,6 @@ class ProductsController extends BaseCpController
 
     private function _prepProductVariables(&$variables)
     {
-
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
         } else if (!empty($variables['productTypeId'])) {
@@ -223,7 +219,6 @@ class ProductsController extends BaseCpController
      */
     protected function enforceProductPermissions(Product $product)
     {
-
         if (!$product->getType()) {
             Craft::error('Attempting to access a product that doesn’t have a type', __METHOD__);
             throw new HttpException(404);
@@ -484,9 +479,7 @@ class ProductsController extends BaseCpController
 
         $this->enforceProductPermissions($product);
 
-
         if (!Craft::$app->getElements()->saveElement($product)) {
-
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => false,

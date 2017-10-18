@@ -18,7 +18,6 @@ use yii\base\Component;
  */
 class Orders extends Component
 {
-
     // Public Methods
     // =========================================================================
 

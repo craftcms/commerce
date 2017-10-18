@@ -26,7 +26,6 @@ use craft\elements\User;
  */
 class Customer extends Model
 {
-
     // Properties
     // =========================================================================
 
@@ -136,7 +135,6 @@ class Customer extends Model
 
         return null;
     }
-
 
     /**
      * Returns the order elements associated with this customer.

@@ -154,7 +154,6 @@ class Variant extends Purchasable
         return $fields;
     }
 
-
     /**
      * Getter provides opportunity to populate the salePrice if sales have not already been applied.
      *
@@ -640,7 +639,6 @@ class Variant extends Purchasable
         return parent::afterSave($isNew);
     }
 
-
     /**
      * Is this variant still available for purchase?
      *
@@ -836,7 +834,6 @@ class Variant extends Purchasable
         }
     }
 
-
     /**
      * @inheritdoc
      */
@@ -886,5 +883,4 @@ class Variant extends Purchasable
             'title' => Craft::t('commerce', 'Title')
         ];
     }
-
 }

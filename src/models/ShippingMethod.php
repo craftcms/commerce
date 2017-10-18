@@ -20,7 +20,6 @@ use craft\helpers\UrlHelper;
  */
 class ShippingMethod extends Model implements ShippingMethodInterface
 {
-
     /**
      * @var int ID
      */

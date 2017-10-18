@@ -35,5 +35,4 @@ class Email extends ActiveRecord
     {
         return '{{%commerce_emails}}';
     }
-
 }

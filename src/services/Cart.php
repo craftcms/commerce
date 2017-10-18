@@ -80,7 +80,6 @@ class Cart extends Component
      */
     public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error = '')
     {
-
         $isNewLineItem = false;
 
         //saving current cart if it's new and empty
@@ -117,7 +116,6 @@ class Cart extends Component
 
         try {
             if (!$lineItem->hasErrors()) {
-
                 // Raise the 'beforeAddToCart' event
                 if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_TO_CART)) {
                     $this->trigger(self::EVENT_BEFORE_ADD_TO_CART, new CartEvent([
@@ -144,7 +142,6 @@ class Cart extends Component
                             'order' => $order
                         ]));
                     }
-
 
                     return true;
                 }
@@ -274,7 +271,6 @@ class Cart extends Component
         return true;
     }
 
-
     /**
      * @param Order  $cart
      * @param        $email
@@ -284,7 +280,6 @@ class Cart extends Component
      */
     public function setEmail(Order $cart, $email, &$error = ''): bool
     {
-
         $validator = new EmailValidator();
 
         if (empty($email) || !$validator->validate($email)) {
@@ -317,7 +312,6 @@ class Cart extends Component
      */
     public function getCart(): Order
     {
-
         if (null === $this->_cart) {
             $number = $this->_getSessionCartNumber();
 
@@ -357,7 +351,6 @@ class Cart extends Component
             $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
             if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-
                 if (!$this->_cart->shippingAddressId && ($this->_cart->customer && $this->_cart->customer->lastUsedShippingAddressId)) {
                     $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->customer->lastUsedShippingAddressId);
                     $this->_cart->setShippingAddress($address);

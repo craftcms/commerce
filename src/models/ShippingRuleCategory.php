@@ -85,5 +85,4 @@ class ShippingRuleCategory extends Model
     {
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
-
 }

@@ -126,7 +126,6 @@ class Customers extends Component
         $customer = $this->getSavedCustomer();
 
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
                 'addressId' => $address->id
@@ -270,7 +269,6 @@ class Customers extends Component
         $transaction = $db->beginTransaction();
 
         try {
-
             /** @var User $user */
             $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($username);
 
@@ -299,7 +297,6 @@ class Customers extends Component
 
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
-
                 $belongsToAnotherUser = $order->getCustomer() && $order->getCustomer()->getUser();
                 // Only consolidate completed orders, not carts and orders that don't belong to another user.
 
@@ -463,7 +460,6 @@ class Customers extends Component
         return $this->saveCustomer($customer);
     }
 
-
     // Private Methods
     // =========================================================================
 
@@ -479,7 +475,6 @@ class Customers extends Component
 
         // Sync the users email with the customer record.
         if ($customer) {
-
             $orders = Plugin::getInstance()->getOrders()->getOrdersByCustomer($customer);
 
             foreach ($orders as $order) {

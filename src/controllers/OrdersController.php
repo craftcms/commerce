@@ -78,7 +78,6 @@ class OrdersController extends BaseCpController
 
         $this->prepVariables($variables);
 
-
         if (empty($variables['paymentForm'])) {
             /** @var Gateway $gateway */
             $gateway = $variables['order']->getGateway();
@@ -149,7 +148,6 @@ class OrdersController extends BaseCpController
         $formHtml = '';
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
-
             // If gateway adapter does no support backend cp payments.
             if (!$gateway->cpPaymentsEnabled()) {
                 unset($gateways[$key]);

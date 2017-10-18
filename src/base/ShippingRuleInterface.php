@@ -96,5 +96,4 @@ interface ShippingRuleInterface
      * @return string
      */
     public function getDescription(): string;
-
 }

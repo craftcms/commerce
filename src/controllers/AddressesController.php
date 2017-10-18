@@ -22,7 +22,6 @@ use yii\web\Response;
  */
 class AddressesController extends BaseAdminController
 {
-
     /**
      * @throws HttpException
      */
@@ -31,7 +30,6 @@ class AddressesController extends BaseAdminController
         $this->requirePermission('commerce-manageOrders');
         parent::init();
     }
-
 
     /**
      * @param int|null          $addressId
@@ -48,7 +46,6 @@ class AddressesController extends BaseAdminController
         ];
 
         if (!$variables['address']) {
-
             $variables['address'] = $variables['addressId'] ? Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']) : null;
 
             if (!$variables['address']) {
@@ -103,7 +100,6 @@ class AddressesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'address' => $address]);
             }

@@ -20,7 +20,6 @@ use yii\web\Response;
  */
 class PaymentCurrenciesController extends BaseAdminController
 {
-
     /**
      * @return Response
      */
@@ -119,5 +118,4 @@ class PaymentCurrenciesController extends BaseAdminController
         $message = Craft::t('commerce', 'You can not delete that currency.');
         $this->asErrorJson($message);
     }
-
 }

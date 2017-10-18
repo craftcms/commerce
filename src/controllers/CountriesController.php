@@ -30,7 +30,6 @@ class CountriesController extends BaseAdminController
             compact('countries'));
     }
 
-
     /**
      * @param int|null     $id
      * @param Country|null $country
@@ -111,5 +110,4 @@ class CountriesController extends BaseAdminController
             return $this->asErrorJson($e->getMessage());
         }
     }
-
 }

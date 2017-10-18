@@ -26,7 +26,6 @@ use yii\base\Exception;
  */
 class PaymentCurrencies extends Component
 {
-
     /**
      * @var PaymentCurrency[]
      */
@@ -166,7 +165,6 @@ class PaymentCurrencies extends Component
         $model->addErrors($record->getErrors());
 
         if (!$model->hasErrors()) {
-
             if ($record->primary) {
                 PaymentCurrencyRecord::updateAll(['primary' => 0]);
             }
@@ -181,7 +179,6 @@ class PaymentCurrencies extends Component
 
         return false;
     }
-
 
     /**
      * @param $id

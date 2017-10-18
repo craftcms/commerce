@@ -145,7 +145,6 @@ class Emails extends Component
      */
     public function sendEmail($email, $order, $orderHistory)
     {
-
         if (!$email->enabled) {
             return;
         }
@@ -286,7 +285,6 @@ class Emails extends Component
         }
 
         try {
-
             $body = $templatesService->render($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
             $newEmail->setTextBody($body);

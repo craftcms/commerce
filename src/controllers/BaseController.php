@@ -16,5 +16,4 @@ use craft\web\Controller;
  */
 abstract class BaseController extends Controller
 {
-
 }

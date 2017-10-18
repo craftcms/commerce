@@ -138,7 +138,6 @@ class CartController extends BaseFrontEndController
      */
     public function actionUpdateCart()
     {
-
         $this->requirePostRequest();
 
         $plugin = Plugin::getInstance();
@@ -329,12 +328,10 @@ class CartController extends BaseFrontEndController
         Address $billingAddress,
         &$error = ''
     ) {
-
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-
             $customerId = $this->_cart->customerId;
             $currentCustomerAddressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
 
@@ -364,7 +361,6 @@ class CartController extends BaseFrontEndController
             $this->_cart->setBillingAddress($billingAddress);
 
             if ($result1 && $result2) {
-
                 $this->_cart->shippingAddressId = $shippingAddress->id;
                 $this->_cart->billingAddressId = $billingAddress->id;
 

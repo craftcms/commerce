@@ -43,7 +43,6 @@ use craft\records\Site;
  */
 class Install extends Migration
 {
-
     /**
      * @inheritdoc
      */
@@ -1431,7 +1430,6 @@ class Install extends Migration
         ];
         $this->insert(OrderSettings::tableName(), $data);
 
-
         $data = [
             'name' => 'New',
             'handle' => 'new',
@@ -1517,7 +1515,6 @@ class Install extends Migration
             ->select('id')
             ->from(ShippingCategory::tableName())
             ->scalar();
-
 
         if (!$productTypeId || !$taxCategoryId || !$shippingCategoryId) {
             throw new \RuntimeException('Cannot create the default products.');

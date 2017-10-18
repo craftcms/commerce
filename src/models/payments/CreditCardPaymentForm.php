@@ -18,7 +18,6 @@ use Omnipay\Common\Helper as OmnipayHelper;
  */
 class CreditCardPaymentForm extends BasePaymentForm
 {
-
     // Properties
     // =========================================================================
 

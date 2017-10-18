@@ -176,5 +176,4 @@ class TaxRatesController extends BaseAdminController
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
         $this->asJson(['success' => true]);
     }
-
 }

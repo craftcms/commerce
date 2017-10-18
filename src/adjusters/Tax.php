@@ -104,11 +104,9 @@ class Tax implements AdjusterInterface
 
         //Address doesn't match zone or we should remove the VAT
         if (!$this->matchAddress($zone) || $removeVat) {
-
             // Since the address doesn't match or it's a removable vat tax,
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
-
                 // Is this an order level tax rate?
                 if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
                     $orderTaxableAmount = 0;
@@ -156,7 +154,6 @@ class Tax implements AdjusterInterface
             return false;
         }
 
-
         // Is this an order level tax rate?
         if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
             $orderTaxableAmount = 0;
@@ -190,7 +187,6 @@ class Tax implements AdjusterInterface
 
         // not an order level tax rate, modify line items.
         foreach ($this->_order->getLineItems() as $item) {
-
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                 if (!$taxRate->include) {
@@ -236,7 +232,6 @@ class Tax implements AdjusterInterface
                 return true;
             }
         } else {
-
             $states = [];
             $countries = [];
             foreach ($zone->states as $state) {

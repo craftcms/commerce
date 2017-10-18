@@ -32,7 +32,6 @@ class ShippingZonesController extends BaseAdminController
         ]);
     }
 
-
     /**
      * @param int|null     $id
      * @param ShippingZone $shippingZone
@@ -151,5 +150,4 @@ class ShippingZonesController extends BaseAdminController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
     }
-
 }

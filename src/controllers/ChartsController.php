@@ -49,7 +49,6 @@ class ChartsController extends ElementIndexesController
             'valueType' => 'currency',
         ]);
 
-
         // Get the total revenue
         $total = 0;
 

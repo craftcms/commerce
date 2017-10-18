@@ -20,7 +20,6 @@ use yii\web\Response;
  */
 class EmailsController extends BaseAdminController
 {
-
     /**
      * @return Response
      */
@@ -46,7 +45,6 @@ class EmailsController extends BaseAdminController
 
         if (!$variables['email']) {
             if ($variables['id']) {
-
                 $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id']);
 
                 if (!$variables['email']) {
@@ -110,5 +108,4 @@ class EmailsController extends BaseAdminController
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
         return $this->asJson(['success' => true]);
     }
-
 }

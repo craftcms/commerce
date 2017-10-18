@@ -36,7 +36,6 @@ use craft\validators\HandleValidator;
  */
 class ProductType extends Model
 {
-
     // Properties
     // =========================================================================
 
@@ -268,7 +267,6 @@ class ProductType extends Model
 
         $this->_taxCategories = $categories;
     }
-
 
     /**
      * @return FieldLayout

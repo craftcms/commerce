@@ -42,7 +42,6 @@ class ShippingRulesController extends BaseAdminController
      */
     public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
-
         $variables = [
             'methodId' => $methodId,
             'ruleId' => $ruleId,
@@ -101,7 +100,6 @@ class ShippingRulesController extends BaseAdminController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Allow'), 'value' => ShippingRuleCategory::CONDITION_ALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
-
 
         return $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
     }
@@ -176,5 +174,4 @@ class ShippingRulesController extends BaseAdminController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
     }
-
 }

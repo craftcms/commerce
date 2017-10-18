@@ -124,5 +124,4 @@ class ShippingCategoriesController extends BaseAdminController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
     }
-
 }

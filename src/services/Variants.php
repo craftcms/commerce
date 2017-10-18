@@ -26,7 +26,6 @@ use yii\web\HttpException;
  */
 class Variants extends Component
 {
-
     // Constants
     // =========================================================================
 
@@ -73,7 +72,6 @@ class Variants extends Component
         $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
         return $variants;
     }
-
 
     /**
      * @param Variant $variant
@@ -214,7 +212,6 @@ class Variants extends Component
 
             $clearCacheOfElementIds = [];
             if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
-
                 // Update the qty in the db
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
                     ['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],

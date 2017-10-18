@@ -23,7 +23,6 @@ use craft\i18n\Locale;
  */
 class TaxRate extends Model
 {
-
     /**
      * @var int ID
      */

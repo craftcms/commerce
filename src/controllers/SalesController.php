@@ -25,7 +25,6 @@ use yii\web\Response;
 // TODO getParam -> getBodyParam
 class SalesController extends BaseCpController
 {
-
     /**
      * @throws HttpException
      */
@@ -90,7 +89,6 @@ class SalesController extends BaseCpController
         $types = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         $variables['types'] = ArrayHelper::map($types, 'id', 'name');
 
-
         $variables['products'] = null;
         $products = $productIds = [];
 
@@ -149,7 +147,6 @@ class SalesController extends BaseCpController
         $discountAmount = $request->getParam('discountAmount');
 
         if ($sale->discountType === 'percent') {
-
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
@@ -158,7 +155,6 @@ class SalesController extends BaseCpController
             } else {
                 $sale->discountAmount = (float)$discountAmount * -1;
             }
-
         } else {
             $sale->discountAmount = (float)$discountAmount * -1;
         }
@@ -212,5 +208,4 @@ class SalesController extends BaseCpController
         Plugin::getInstance()->getSales()->deleteSaleById($id);
         return $this->asJson(['success' => true]);
     }
-
 }

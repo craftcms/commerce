@@ -71,7 +71,6 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         if (Plugin::getInstance()->getCustomers()->saveAddress($address)) {
-
             // Refresh the cart, if this address was being used.
             $cart = Plugin::getInstance()->getCart()->getCart();
             if ($cart->shippingAddressId == $address->id) {
@@ -115,7 +114,6 @@ class CustomerAddressesController extends BaseFrontEndController
         // current customer is the owner of the address
         if (in_array($id, $addressIds)) {
             if (Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
-
                 if ($cart->shippingAddressId == $id) {
                     $cart->shippingAddressId = null;
                 }

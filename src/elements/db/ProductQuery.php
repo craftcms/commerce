@@ -40,7 +40,6 @@ class ProductQuery extends ElementQuery
      */
     public $postDate;
 
-
     /**
      * @var mixed The Post Date that the resulting products must have.
      */
@@ -95,7 +94,6 @@ class ProductQuery extends ElementQuery
      * @var bool The sale status the resulting products should have.
      */
     public $hasSales;
-
 
     // Public Methods
     // =========================================================================
@@ -324,7 +322,6 @@ class ProductQuery extends ElementQuery
         $this->_applyRefParam();
         $this->_applyHasSalesParam();
 
-
         if (!$this->orderBy) {
             $this->orderBy = 'postDate desc';
         }
@@ -358,7 +355,6 @@ class ProductQuery extends ElementQuery
 
     // Private Methods
     // =========================================================================
-
 
     /**
      * Applies the 'ref' param to the query being prepared.

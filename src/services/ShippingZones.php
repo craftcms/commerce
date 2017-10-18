@@ -2,7 +2,6 @@
 
 namespace craft\commerce\services;
 
-
 use Craft;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\records\Country as CountryRecord;
@@ -109,7 +108,6 @@ class ShippingZones extends Component
 
         //validating given ids
         if ($record->countryBased) {
-
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
@@ -125,7 +123,6 @@ class ShippingZones extends Component
 
         //saving
         if (!$model->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 

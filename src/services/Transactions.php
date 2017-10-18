@@ -127,7 +127,6 @@ class Transactions extends Component
      */
     public function canRefundTransaction(Transaction $transaction): bool
     {
-
         // Can refund only successful purchase or capture transactions
         if (!in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])) {
             return false;
@@ -184,7 +183,6 @@ class Transactions extends Component
      */
     public function canCaptureTransaction(Transaction $transaction): bool
     {
-
         // Can refund only successful authorize transactions
         if ($transaction->type != TransactionRecord::TYPE_AUTHORIZE || $transaction->status != TransactionRecord::STATUS_SUCCESS) {
             return false;
@@ -328,7 +326,6 @@ class Transactions extends Component
 
         return false;
     }
-
 
     /**
      * @param Transaction $transaction

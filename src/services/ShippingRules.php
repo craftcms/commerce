@@ -169,7 +169,6 @@ class ShippingRules extends Component
             $model->priority = $record->priority;
         }
 
-
         $record->validate();
         $model->addErrors($record->getErrors());
 

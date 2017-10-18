@@ -57,5 +57,4 @@ class Currency extends Model
     {
         return (string)$this->iso;
     }
-
 }

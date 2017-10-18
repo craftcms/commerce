@@ -56,5 +56,4 @@ class DiscountProduct extends ActiveRecord
     {
         return $this->hasOne(Product::class, ['id' => 'productId']);
     }
-
 }

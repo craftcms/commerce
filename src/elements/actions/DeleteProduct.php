@@ -20,7 +20,6 @@ use yii\base\Exception;
  */
 class DeleteProduct extends Delete
 {
-
     // Public Methods
     // =========================================================================
 
@@ -29,7 +28,6 @@ class DeleteProduct extends Delete
      */
     public function performAction(ElementQueryInterface $query = null): bool
     {
-
         if (!$query) {
             return false;
         }

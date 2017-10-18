@@ -124,7 +124,6 @@ class Addresses extends Component
      */
     public function saveAddress(Address $addressModel, bool $validate = true): bool
     {
-
         $isNewAddress = !$addressModel->id;
 
         if ($addressModel->id) {
@@ -195,7 +194,6 @@ class Addresses extends Component
         }
 
         if (!$addressModel->hasErrors()) {
-
             if ($addressRecord->stockLocation && $addressRecord->id) {
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
             }

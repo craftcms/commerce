@@ -6,5 +6,4 @@ use craft\base\Element as BaseElement;
 
 class Element extends BaseElement
 {
-
 }

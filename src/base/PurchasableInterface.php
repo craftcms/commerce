@@ -47,7 +47,6 @@ interface PurchasableInterface
      */
     public function getPrice();
 
-
     /**
      * This must be a unique code. Unique as per the commerce_purchasables table.
      *
@@ -112,5 +111,4 @@ interface PurchasableInterface
      * @return bool
      */
     public function getIsPromotable(): bool;
-
 }

@@ -11,7 +11,6 @@ trait Routes
     private function _registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
-
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
             $event->rules['commerce/products'] = 'commerce/products/product-index';

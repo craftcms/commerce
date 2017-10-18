@@ -29,7 +29,6 @@ class ShippingMethodsController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/shippingmethods/index', compact('shippingMethods'));
     }
 
-
     /**
      * @param int|null            $id
      * @param ShippingMethod|null $shippingMethod
@@ -112,5 +111,4 @@ class ShippingMethodsController extends BaseAdminController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
     }
-
 }

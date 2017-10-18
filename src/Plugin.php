@@ -217,7 +217,6 @@ class Plugin extends \craft\base\Plugin
     private function _registerPermissions()
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             $productTypePermissions = [];
@@ -254,9 +253,7 @@ class Plugin extends \craft\base\Plugin
     private function _registerCpAlerts()
     {
         Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
-
             if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
-
                 $message = null;
 
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');

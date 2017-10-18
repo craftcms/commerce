@@ -16,7 +16,6 @@ use craft\commerce\Plugin;
  */
 class Currency
 {
-
     /**
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
@@ -37,7 +36,6 @@ class Currency
 
         return round($amount, $decimals);
     }
-
 
     public static function defaultDecimals()
     {

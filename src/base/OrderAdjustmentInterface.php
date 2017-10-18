@@ -14,5 +14,4 @@ namespace craft\commerce\base;
  */
 interface OrderAdjustmentInterface
 {
-
 }

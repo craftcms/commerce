@@ -19,7 +19,6 @@ use yii\base\Component;
  */
 class Purchasables extends Component
 {
-
     // Public Methods
     // =========================================================================
 
@@ -48,6 +47,5 @@ class Purchasables extends Component
      */
     public function saveElementHandler(ElementEvent $event)
     {
-
     }
 }

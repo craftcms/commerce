@@ -25,7 +25,6 @@ class m170830_130000_order_refactor extends Migration
         $allOrders = (new Query())->select('*')->from('{{%commerce_orders}}')->limit(null);
 
         foreach ($allOrders->batch() as $orders) {
-
             foreach ($orders as $order) {
                 // new line items
                 $newAdjustments = [];
@@ -140,7 +139,6 @@ class m170830_130000_order_refactor extends Migration
                     // Add the adjustment totals for this line item. TODO: decide whether to store totals in json on line items. If so, add the column to the line item.
                     //$this->update('{{%commerce_lineitems}}', ['adjustmentTotals' => Json::encode($adjustmentTotals)], ['id' => $lineItem['id']]);
                 }
-
 
                 // Create adjustments for the old base* items. Good riddance again.
 

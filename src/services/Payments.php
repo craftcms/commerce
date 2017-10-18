@@ -301,7 +301,6 @@ class Payments extends Component
             ->one();
 
         if ($transaction) {
-
             return $transaction['total'];
         }
 
@@ -352,7 +351,6 @@ class Payments extends Component
         if ($response->getRedirectMethod() === 'GET') {
             $redirect = $response->getRedirectUrl();
         } else {
-
             $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
 
             if (!empty($gatewayPostRedirectTemplate)) {

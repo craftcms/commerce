@@ -26,7 +26,6 @@ use yii\base\Exception;
  */
 class OrderStatuses extends Component
 {
-
     /**
      * @var bool
      */
@@ -152,7 +151,6 @@ class OrderStatuses extends Component
 
         //saving
         if (!$model->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 
@@ -265,7 +263,6 @@ class OrderStatuses extends Component
             }
         }
     }
-
 
     /**
      * @param int $id

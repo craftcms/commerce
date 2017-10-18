@@ -30,7 +30,6 @@ use craft\commerce\Plugin;
  */
 class OrderAdjustment extends Model
 {
-
     /**
      * @var int ID
      */

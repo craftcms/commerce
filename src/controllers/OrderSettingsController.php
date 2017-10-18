@@ -21,8 +21,6 @@ use yii\web\HttpException;
  */
 class OrderSettingsController extends BaseAdminController
 {
-
-
     public function actionEdit(array $variables = [])
     {
         $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
@@ -63,5 +61,4 @@ class OrderSettingsController extends BaseAdminController
 
         Craft::$app->getUrlManager()->setRouteParams(['orderSettings' => $orderSettings]);
     }
-
 }

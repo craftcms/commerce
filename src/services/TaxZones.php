@@ -126,7 +126,6 @@ class TaxZones extends Component
 
         //saving
         if (!$model->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 

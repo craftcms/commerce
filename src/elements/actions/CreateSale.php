@@ -17,7 +17,6 @@ use craft\base\ElementAction;
  */
 class CreateSale extends ElementAction
 {
-
     // Public Methods
     // =========================================================================
 

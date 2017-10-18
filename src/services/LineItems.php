@@ -83,7 +83,6 @@ class LineItems extends Component
             $this->_lineItemsByOrderId[$orderId] = $lineItems;
         }
 
-
         return $this->_lineItemsByOrderId[$orderId];
     }
 
@@ -347,7 +346,6 @@ class LineItems extends Component
      */
     private function _createLineItemQuery(): Query
     {
-
         return (new Query())
             ->select([
                 'id',

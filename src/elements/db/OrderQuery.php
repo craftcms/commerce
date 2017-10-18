@@ -455,7 +455,6 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
-
     /**
      * @inheritdoc
      */

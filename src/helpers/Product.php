@@ -20,7 +20,6 @@ use craft\helpers\Localization as LocalizationHelper;
  */
 class Product
 {
-
     /**
      * Populates a Product model from HUD or POST data
      *

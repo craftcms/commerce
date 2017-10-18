@@ -26,7 +26,6 @@ use craft\commerce\records\Email as EmailRecord;
  */
 class Email extends Model
 {
-
     /**
      * @var int ID
      */

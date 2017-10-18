@@ -33,7 +33,6 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
-
     /**
      * @var int ID
      */
@@ -101,8 +100,4 @@ class OrderHistory extends Model
         return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
     }
 }
-
-
-
-
 

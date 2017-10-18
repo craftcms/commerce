@@ -17,7 +17,6 @@ use craft\base\ElementAction;
  */
 class CreateDiscount extends ElementAction
 {
-
     // Public Methods
     // =========================================================================
 
@@ -52,5 +51,4 @@ EOT;
 
         Craft::$app->getView()->registerJs($js);
     }
-
 }

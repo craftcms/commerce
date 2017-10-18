@@ -21,7 +21,6 @@ use craft\helpers\Json;
  */
 class UpdateOrderStatus extends ElementAction
 {
-
     // Public Properties
     // =========================================================================
 
@@ -53,7 +52,6 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml()
     {
-
         $orderStatuses = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
 
         $js = <<<EOT
