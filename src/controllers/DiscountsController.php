@@ -131,8 +131,17 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscount = (float)$request->getParam('baseDiscount') * -1;
         $discount->perItemDiscount = (float)$request->getParam('perItemDiscount') * -1;
 
-        $discount->dateFrom = (($date = $request->getParam('dateFrom')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateFrom);
-        $discount->dateTo = (($date = $request->getParam('dateTo')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $discount->dateTo);
+        $date = $request->getParam('dateFrom');
+        if($date){
+            $dateTime = DateTimeHelper::toDateTime($date) ?: null;
+            $discount->dateFrom = $dateTime;
+        }
+
+        $date = $request->getParam('dateTo');
+        if($date){
+            $dateTime = DateTimeHelper::toDateTime($date) ?: null;
+            $discount->dateTo = $dateTime;
+        }
 
         // Format into a %
         $percentDiscountAmount = $request->getParam('percentDiscount');
