@@ -190,10 +190,8 @@ class Cart extends Component
      * @param $error
      *
      * @return bool
-     * @throws Exception
-     * @throws \Exception
      */
-    public function setPaymentCurrency($order, $currency, $error)
+    public function setPaymentCurrency($order, $currency, &$error): bool
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 

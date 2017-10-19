@@ -165,11 +165,6 @@ class LineItem extends Model
     private $_order;
 
     /**
-     * @var OrderAdjustment[]|null
-     */
-    private $_adjustments;
-
-    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()
@@ -233,9 +228,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param TaxRate ::taxables
+     * @param $taxable
      *
-     * @return int
+     * @return float|int
      */
     public function getTaxableSubtotal($taxable)
     {

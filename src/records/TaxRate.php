@@ -35,15 +35,6 @@ class TaxRate extends ActiveRecord
     const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
     const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
 
-    /* @var array $types */
-    private $taxables = [
-        self::TAXABLE_PRICE,
-        self::TAXABLE_SHIPPING,
-        self::TAXABLE_PRICE_SHIPPING,
-        self::TAXABLE_ORDER_TOTAL_SHIPPING,
-        self::TAXABLE_ORDER_TOTAL_PRICE
-    ];
-
     /**
      * @return string
      */
