@@ -9,6 +9,8 @@ use craft\commerce\Plugin;
  * Shipping rule model
  *
  * @property ShippingRule     $shippingRule
+ * @property ShippingCategory $category
+ * @property ShippingRule     $rule
  * @property ShippingCategory $shippingCategory
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>

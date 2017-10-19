@@ -9,6 +9,9 @@ use craft\helpers\UrlHelper;
 /**
  * Tax Category model.
  *
+ * @property string          $cpEditUrl
+ * @property array|TaxRate[] $taxRates
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

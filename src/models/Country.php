@@ -8,6 +8,8 @@ use craft\helpers\UrlHelper;
 /**
  * Country Model
  *
+ * @property string $cpEditUrl
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

@@ -15,6 +15,16 @@ use craft\commerce\Plugin;
  * @see       https://craftcommerce.com
  * @package   craft.commerce
  * @since     2.0
+ *
+ * @property bool   $isPromotable
+ * @property bool   $isAvailable
+ * @property int    $purchasableId
+ * @property int    $shippingCategoryId
+ * @property float  $price
+ * @property string $description
+ * @property string $sku
+ * @property array  $snapshot
+ * @property int    $taxCategoryId
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {

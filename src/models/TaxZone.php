@@ -9,8 +9,14 @@ use craft\helpers\UrlHelper;
 /**
  * Tax zone model.
  *
- * @property \craft\commerce\models\Country[] $countries
- * @property \craft\commerce\models\State[]   $states
+ * @property Country[]       $countries
+ * @property array           $countryIds
+ * @property array           $stateIds
+ * @property array           $countriesNames
+ * @property array           $statesNames
+ * @property array|TaxRate[] $taxRates
+ * @property string          $cpEditUrl
+ * @property State[]         $states
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.

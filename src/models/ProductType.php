@@ -17,6 +17,15 @@ use craft\validators\HandleValidator;
  *
  * @method null setFieldLayout(FieldLayout $fieldLayout)
  * @method FieldLayout getFieldLayout()
+ * @property string                         $cpEditUrl
+ * @property string                         $cpEditVariantUrl
+ * @property ProductTypeSite[]              $siteSettings
+ * @property mixed                          $variantFieldLayout
+ * @property array|ShippingCategory[]|int[] $shippingCategories
+ * @property TaxCategory[]|array|int[]      $taxCategories
+ * @property FieldLayout                    $fieldLayout
+ * @property mixed                          $productFieldLayout
+ * @mixin FieldLayoutBehavior
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -24,15 +33,6 @@ use craft\validators\HandleValidator;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.models
  * @since     1.0
- *
- * @property string            $cpEditUrl
- * @property string            $cpEditVariantUrl
- * @property ProductTypeSite[] $siteSettings
- * @property mixed             $variantFieldLayout
- * @property mixed             $productFieldLayout
- *
- * @mixin FieldLayoutBehavior
- *
  */
 class ProductType extends Model
 {

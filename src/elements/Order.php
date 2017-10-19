@@ -28,7 +28,6 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\web\View;
 use yii\base\Exception;
 
@@ -52,7 +51,6 @@ use yii\base\Exception;
  * @property string                  $message
  * @property string                  $returnUrl
  * @property string                  $cancelUrl
- *
  * @property int                     $billingAddressId
  * @property int                     $shippingAddressId
  * @property ShippingMethodInterface $shippingMethod
@@ -60,7 +58,6 @@ use yii\base\Exception;
  * @property int                     $gatewayId
  * @property int                     $customerId
  * @property int                     $orderStatusId
- *
  * @property int                     $totalQty
  * @property int                     $totalWeight
  * @property int                     $totalHeight
@@ -70,7 +67,6 @@ use yii\base\Exception;
  * @property int                     $totalShippingCost
  * @property int                     $totalDiscount
  * @property string                  $pdfUrl
- *
  * @property OrderSettings           $type
  * @property LineItem[]              $lineItems
  * @property Address                 $billingAddress
@@ -88,7 +84,12 @@ use yii\base\Exception;
  * @property int                     $totalSaleAmount
  * @property int                     $itemSubtotal
  * @property OrderHistory[]          $histories
- * @property int                     baseShippingCost
+ * @property int                     $baseShippingCost
+ * @property array|Transaction[]     $nestedTransactions
+ * @property float                   $adjustmentsTotal
+ * @property float                   $totalTaxablePrice
+ * @property bool                    $shouldRecalculateAdjustments
+ * @property array                   $orderAdjustments
  * @property float                   baseDiscount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>

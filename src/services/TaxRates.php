@@ -12,6 +12,8 @@ use yii\base\Component;
 /**
  * Tax rate service.
  *
+ * @property array|TaxRate[] $allTaxRates
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

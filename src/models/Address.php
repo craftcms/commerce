@@ -9,9 +9,13 @@ use craft\helpers\UrlHelper;
 /**
  * Address Model
  *
- * @property int|string                     $stateValue
- * @property \craft\commerce\models\Country $country
- * @property \craft\commerce\models\State   $state
+ * @property int|string $stateValue
+ * @property Country $country
+ * @property string  $countryText
+ * @property string  $fullName
+ * @property string  $stateText
+ * @property string  $cpEditUrl
+ * @property State   $state
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.

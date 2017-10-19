@@ -33,6 +33,11 @@ use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
 
+/**
+ *
+ * @property array $cpNavItem
+ * @property mixed $settingsResponse
+ */
 class Plugin extends \craft\base\Plugin
 {
     // Public Properties

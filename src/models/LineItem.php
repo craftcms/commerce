@@ -20,34 +20,40 @@ use craft\helpers\Html;
  *
  * @package   Craft
  *
- * @property int                                     $id
- * @property float                                   $price
- * @property float                                   $saleAmount
- * @property float                                   $salePrice
- * @property float                                   $weight
- * @property float                                   $height
- * @property float                                   $width
- * @property float                                   $length
- * @property float                                   $total
- * @property int                                     $qty
- * @property string                                  $note
- * @property string                                  $snapshot
+ * @property int                                            $id
+ * @property float                                          $price
+ * @property float                                          $saleAmount
+ * @property float                                          $salePrice
+ * @property float                                          $weight
+ * @property float                                          $height
+ * @property float                                          $width
+ * @property float                                          $length
+ * @property float                                          $total
+ * @property int                                            $qty
+ * @property string                                         $note
+ * @property string                                         $snapshot
  *
- * @property int                                     $orderId
- * @property int                                     $purchasableId
- * @property string                                  $optionsSignature
- * @property mixed                                   $options
- * @property int                                     $taxCategoryId
- * @property int                                     $shippingCategoryId
+ * @property int                                            $orderId
+ * @property int                                            $purchasableId
+ * @property string                                         $optionsSignature
+ * @property mixed                                          $options
+ * @property int                                            $taxCategoryId
+ * @property int                                            $shippingCategoryId
  *
- * @property bool                                    $onSale
- * @property Purchasable                             $purchasable
+ * @property bool                                           $onSale
+ * @property Purchasable                                    $purchasable
  *
- * @property \craft\commerce\elements\Order          $order
- * @property \craft\commerce\models\TaxCategory      $taxCategory
- * @property \craft\commerce\models\ShippingCategory $shippingCategory
- * @property int                                     shippingCost
- * @property float                                   discount
+ * @property Order                   $order
+ * @property TaxCategory             $taxCategory
+ * @property ShippingCategory        $shippingCategory
+ * @property int                     shippingCost
+ * @property string                  $sku
+ * @property float                   $subtotal
+ * @property int                     $tax
+ * @property string                  $description
+ * @property array|OrderAdjustment[] $adjustments
+ * @property int                     $taxIncluded
+ * @property float                   discount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.

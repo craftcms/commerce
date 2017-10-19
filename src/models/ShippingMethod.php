@@ -11,6 +11,11 @@ use craft\helpers\UrlHelper;
 /**
  * Shipping method model.
  *
+ * @property string               $cpEditUrl
+ * @property array|ShippingRule[] $shippingRules
+ * @property bool                 $isEnabled
+ * @property string               $type
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

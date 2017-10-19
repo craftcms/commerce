@@ -15,6 +15,8 @@ use yii\base\Component;
 /**
  * Shipping zone service.
  *
+ * @property ShippingZone[]|array $allShippingZones
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

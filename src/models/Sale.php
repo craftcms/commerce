@@ -10,6 +10,13 @@ use craft\helpers\UrlHelper;
 /**
  * Sale model.
  *
+ * @property string       $discountAmountAsFlat
+ * @property string|false $cpEditUrl
+ * @property array        $productTypeIds
+ * @property array        $productIds
+ * @property string       $discountAmountAsPercent
+ * @property array        $userGroupIds
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

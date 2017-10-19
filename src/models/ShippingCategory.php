@@ -12,6 +12,7 @@ use craft\helpers\UrlHelper;
  * @property string $name
  * @property string $handle
  * @property string $description
+ * @property string $cpEditUrl
  * @property bool   $default
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>

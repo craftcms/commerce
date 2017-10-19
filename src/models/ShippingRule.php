@@ -6,12 +6,15 @@ use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingRuleCategory;
 
 /**
  * Shipping rule model
  *
- * @property \craft\commerce\models\ShippingMethod $method
+ * @property array|ShippingRuleCategory[] $shippingRuleCategories
+ * @property array                        $options
+ * @property mixed                        $shippingZone
+ * @property bool                         $isEnabled
+ * @property ShippingMethod               $method
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.

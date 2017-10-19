@@ -8,6 +8,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -18,7 +19,13 @@ use yii\base\InvalidConfigException;
 /**
  * Variant Model
  *
- * @property \craft\commerce\elements\Product $product
+ * @property Sale[]            $salesApplied
+ * @property bool              $onSale
+ * @property string            $name
+ * @property null|array|Sale[] $sales
+ * @property null|float        $salePrice
+ * @property string            $eagerLoadedElements
+ * @property Product           $product
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
@@ -179,7 +186,7 @@ class Variant extends Purchasable
     /**
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
-     * @return \craft\commerce\base\SaleInterface[]
+     * @return Sale[]
      *
      * @deprecated
      */
@@ -193,7 +200,7 @@ class Variant extends Purchasable
     /**
      * sets an array of sales models which are currently affecting the salePrice of this purchasable.
      *
-     * @param \craft\commerce\base\SaleInterface[] $sales
+     * @param Sale[] $sales
      *
      * @deprecated
      */
@@ -207,7 +214,7 @@ class Variant extends Purchasable
     /**
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
-     * @return \craft\commerce\base\SaleInterface[]|null
+     * @return Sale[]|null
      */
     public function getSales()
     {
@@ -217,7 +224,7 @@ class Variant extends Purchasable
     /**
      * sets an array of sales models which are currently affecting the salePrice of this purchasable.
      *
-     * @param \craft\commerce\base\SaleInterface[] $sales
+     * @param Sale[] $sales
      */
     public function setSales(array $sales)
     {
