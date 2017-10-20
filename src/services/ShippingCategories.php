@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;

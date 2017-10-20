@@ -6,6 +6,7 @@ use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 
 /**
  * Shipping rule model
@@ -184,11 +185,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $disallowedCategories = [];
         $requiredCategories = [];
         foreach ($shippingRuleCategories as $ruleCategory) {
-            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_DISALLOW) {
+            if ($ruleCategory->condition == ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
                 $disallowedCategories[] = $ruleCategory->shippingCategoryId;
             }
 
-            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_REQUIRE) {
+            if ($ruleCategory->condition == ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
                 $requiredCategories[] = $ruleCategory->shippingCategoryId;
             }
         }

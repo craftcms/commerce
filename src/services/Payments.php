@@ -223,7 +223,6 @@ class Payments extends Component
      * @param string|null &$customError
      *
      * @return bool
-     * @throws Exception
      */
     public function completePayment(Transaction $transaction, &$customError)
     {

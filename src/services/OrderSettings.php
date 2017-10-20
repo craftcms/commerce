@@ -7,6 +7,7 @@ use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\records\OrderSettings as OrderSettingsRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Order settings service.
