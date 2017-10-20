@@ -179,15 +179,10 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $orderShippingCategories = array_unique($orderShippingCategories);
 
         $disallowedCategories = [];
-        $allowedCategories = [];
         $requiredCategories = [];
         foreach ($shippingRuleCategories as $ruleCategory) {
             if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_DISALLOW) {
                 $disallowedCategories[] = $ruleCategory->shippingCategoryId;
-            }
-
-            if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_ALLOW) {
-                $allowedCategories[] = $ruleCategory->shippingCategoryId;
             }
 
             if ($ruleCategory->condition == ShippingRuleCategory::CONDITION_REQUIRE) {
