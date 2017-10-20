@@ -26,6 +26,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\web\View;
@@ -314,13 +315,18 @@ class Order extends Element
      */
     public function getTotalTaxablePrice()
     {
-        return $this->getItemSubtotal() + $this->getTotalDiscount() + $this->getTotalShippingCost();
+        $itemTotal = $this->getItemSubtotal();
+
+        $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
+        $taxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
+
+        return $itemTotal + $allNonIncludedAdjustmentsTotal - $taxAdjustments;
     }
 
     /**
      * @return bool
      */
-    public function getShouldRecalculateAdjustments()
+    public function getShouldRecalculateAdjustments(): bool
     {
         return $this->_relcalculate;
     }
@@ -798,17 +804,22 @@ class Order extends Element
     }
 
     /**
-     * @param      $type
-     * @param bool $included
+     * @param string|array $type
+     * @param bool         $includedOnly
+     *
      *
      * @return float|int
      */
-    public function getAdjustmentsTotalByType($type, $included = false)
+    public function getAdjustmentsTotalByType($type, $includedOnly = false)
     {
         $amount = 0;
 
+        if (is_string($type)) {
+            $type = StringHelper::split($type);
+        }
+
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included == $included && $adjustment->type == $type) {
+            if ($adjustment->included == $includedOnly && in_array($adjustment->type, $type)) {
                 $amount += $adjustment->amount;
             }
         }
