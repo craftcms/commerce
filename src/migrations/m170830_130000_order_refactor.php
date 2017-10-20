@@ -74,7 +74,6 @@ class m170830_130000_order_refactor extends Migration
 
                 // Loop over the line items and create new adjustments for each major adjuster type per line item.
                 foreach ($lineItems as $lineItem) {
-                    $adjustmentTotals = [];
 
                     // line item shipping costs
                     if ($lineItem['shippingCost'] != 0) {
@@ -88,7 +87,6 @@ class m170830_130000_order_refactor extends Migration
                             $lineItem['shippingCost'],
                             false
                         ];
-                        $adjustmentTotals['shippingCost'] = $lineItem['shippingCost'];
                     }
 
                     // line item tax amount
@@ -103,7 +101,6 @@ class m170830_130000_order_refactor extends Migration
                             $lineItem['tax'],
                             false
                         ];
-                        $adjustmentTotals['tax'] = $lineItem['tax'];
                     }
 
                     // line item included tax amount
@@ -118,7 +115,6 @@ class m170830_130000_order_refactor extends Migration
                             $lineItem['taxIncluded'],
                             true
                         ];
-                        $adjustmentTotals['taxIncluded'] = $lineItem['taxIncluded'];
                     }
 
                     // line item discount amount
@@ -133,11 +129,7 @@ class m170830_130000_order_refactor extends Migration
                             $lineItem['discount'],
                             false
                         ];
-                        $adjustmentTotals['discount'] = $lineItem['discount'];
                     }
-
-                    // Add the adjustment totals for this line item. TODO: decide whether to store totals in json on line items. If so, add the column to the line item.
-                    //$this->update('{{%commerce_lineitems}}', ['adjustmentTotals' => Json::encode($adjustmentTotals)], ['id' => $lineItem['id']]);
                 }
 
                 // Create adjustments for the old base* items. Good riddance again.
