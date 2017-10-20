@@ -76,7 +76,7 @@ class OrdersController extends BaseCpController
             throw new HttpException(404);
         }
 
-        $this->prepVariables($variables);
+        $this->_prepVariables($variables);
 
         if (empty($variables['paymentForm'])) {
             /** @var Gateway $gateway */
@@ -104,7 +104,7 @@ class OrdersController extends BaseCpController
      *
      * @param $variables
      */
-    private function prepVariables(&$variables)
+    private function _prepVariables(&$variables)
     {
         $variables['tabs'] = [];
 

@@ -1384,7 +1384,6 @@ class Install extends Migration
     /**
      * Add a default Tax category.
      *
-     * @throws Exception
      * @return void
      */
     private function _defaultTaxCategories()
@@ -1400,7 +1399,6 @@ class Install extends Migration
     /**
      * Add a default shipping category.
      *
-     * @throws Exception
      * @return void
      */
     private function _defaultShippingCategories()
@@ -1450,7 +1448,6 @@ class Install extends Migration
     /**
      * Set the default product types.
      *
-     * @throws Exception
      * @throws \Exception
      * @return void
      */
@@ -1494,8 +1491,6 @@ class Install extends Migration
     /**
      * Add some default products.
      *
-     * @throws Exception
-     * @throws HttpException
      * @throws \Exception
      * @return void
      */

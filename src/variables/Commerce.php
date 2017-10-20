@@ -3,6 +3,7 @@
 namespace craft\commerce\variables;
 
 use Craft;
+use craft\base\Model;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
@@ -203,18 +204,18 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($shippingCategories, 'id');
+        return $this->_arrayKeyedByAttribute($shippingCategories, 'id');
     }
 
     /**
      * TODO Move this into an array
      *
-     * @param BaseModel[] $array     All models using this method must implement __string() to be backwards compatible with ArrayHelper::map
+     * @param Model[] $array     All models using this method must implement __string() to be backwards compatible with ArrayHelper::map
      * @param string      $attribute The attribute you want the array keyed by.
      *
      * @return array
      */
-    private function arrayKeyedByAttribute($array, $attribute)
+    private function _arrayKeyedByAttribute($array, $attribute)
     {
         $newArray = [];
         foreach ($array as $model) {
@@ -238,7 +239,7 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($methods, 'id');
+        return $this->_arrayKeyedByAttribute($methods, 'id');
     }
 
     /**
@@ -271,7 +272,7 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($taxCategories, 'id');
+        return $this->_arrayKeyedByAttribute($taxCategories, 'id');
     }
 
     /**

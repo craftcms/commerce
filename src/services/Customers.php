@@ -129,7 +129,7 @@ class Customers extends Component
      */
     public function saveAddress(Address $address): bool
     {
-        $customer = $this->getSavedCustomer();
+        $customer = $this->_getSavedCustomer();
 
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
             $customerAddress = CustomerAddressRecord::find()->where([
@@ -155,7 +155,7 @@ class Customers extends Component
      * @return Customer
      * @throws Exception
      */
-    private function getSavedCustomer()
+    private function _getSavedCustomer()
     {
         $customer = $this->getCustomer();
         if (!$customer->id) {
@@ -441,7 +441,7 @@ class Customers extends Component
      */
     public function getCustomerId()
     {
-        return $this->getSavedCustomer()->id;
+        return $this->_getSavedCustomer()->id;
     }
 
     /**
@@ -453,7 +453,7 @@ class Customers extends Component
      */
     public function setLastUsedAddresses($billingId, $shippingId)
     {
-        $customer = $this->getSavedCustomer();
+        $customer = $this->_getSavedCustomer();
 
         if ($billingId) {
             $customer->lastUsedBillingAddressId = $billingId;
