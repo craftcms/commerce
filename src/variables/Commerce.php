@@ -204,7 +204,7 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($shippingCategories, 'id');
+        return $this->_arrayKeyedByAttribute($shippingCategories, 'id');
     }
 
     /**
@@ -215,7 +215,7 @@ class Commerce
      *
      * @return array
      */
-    private function arrayKeyedByAttribute($array, $attribute)
+    private function _arrayKeyedByAttribute($array, $attribute)
     {
         $newArray = [];
         foreach ($array as $model) {
@@ -239,7 +239,7 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($methods, 'id');
+        return $this->_arrayKeyedByAttribute($methods, 'id');
     }
 
     /**
@@ -272,7 +272,7 @@ class Commerce
         }
 
         // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->arrayKeyedByAttribute($taxCategories, 'id');
+        return $this->_arrayKeyedByAttribute($taxCategories, 'id');
     }
 
     /**

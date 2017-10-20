@@ -49,7 +49,7 @@ class Discount implements AdjusterInterface
 
         $adjustments = [];
         foreach ($availableDiscounts as $discount) {
-            $newAdjustments = $this->getAdjustments($discount);
+            $newAdjustments = $this->_getAdjustments($discount);
             if ($newAdjustments) {
                 $adjustments = array_merge($adjustments, $newAdjustments);
 
@@ -80,7 +80,7 @@ class Discount implements AdjusterInterface
      *
      * @return OrderAdjustment[]|false
      */
-    private function getAdjustments(DiscountModel $discount)
+    private function _getAdjustments(DiscountModel $discount)
     {
         $adjustments = [];
 

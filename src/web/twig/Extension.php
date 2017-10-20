@@ -84,12 +84,12 @@ class Extension extends \Twig_Extension
 
     public function jsonEncodeFiltered($input)
     {
-        $array = $this->recursiveSanitizeArray($input);
+        $array = $this->_recursiveSanitizeArray($input);
 
         return json_encode($array);
     }
 
-    private function recursiveSanitizeArray($array)
+    private function _recursiveSanitizeArray($array)
     {
         $finalArray = [];
 
@@ -97,7 +97,7 @@ class Extension extends \Twig_Extension
             $newKey = self::sanitize($key);
 
             if (is_array($value)) {
-                $finalArray[$newKey] = $this->recursiveSanitizeArray($value);
+                $finalArray[$newKey] = $this->_recursiveSanitizeArray($value);
             } else {
                 $finalArray[$newKey] = self::sanitize($value);
             }
