@@ -11,6 +11,7 @@ use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Shipping rule service.
@@ -122,10 +123,8 @@ class ShippingRules extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
-     * @throws \Exception
      */
-    public function saveShippingRule(ShippingRule $model)
+    public function saveShippingRule(ShippingRule $model): bool
     {
         if ($model->id) {
             $record = ShippingRuleRecord::findOne($model->id);

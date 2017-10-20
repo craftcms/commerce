@@ -8,6 +8,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Tax rate service.
@@ -83,7 +84,6 @@ class TaxRates extends Component
      *
      * @return bool
      * @throws Exception
-     * @throws \CDbException
      * @throws \Exception
      */
     public function saveTaxRate(TaxRate $model): bool

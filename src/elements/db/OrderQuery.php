@@ -4,10 +4,11 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\base\Gateway;
+use craft\commerce\base\Gateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;

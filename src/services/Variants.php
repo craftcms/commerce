@@ -89,7 +89,7 @@ class Variants extends Component
         $variant->addErrors($record->getErrors());
 
         if (!craft()->content->validateContent($variant)) {
-            $variant->addErrors($variant->getC());
+            $variant->addErrors($variant->getErrors());
         }
 
         // If variant validation has not already found a clash check all purchasables

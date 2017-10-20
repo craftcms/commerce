@@ -12,6 +12,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Shipping method service.
@@ -236,7 +237,7 @@ class ShippingMethods extends Component
      * @param ShippingMethod $model
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveShippingMethod(ShippingMethod $model)
     {

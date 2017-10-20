@@ -11,6 +11,7 @@ use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Shipping zone service.
@@ -87,8 +88,9 @@ class ShippingZones extends Component
      *
      * @return bool
      * @throws \Exception
+     * @throws Exception
      */
-    public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds)
+    public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds): bool
     {
         if ($model->id) {
             $record = ShippingZoneRecord::findOne($model->id);

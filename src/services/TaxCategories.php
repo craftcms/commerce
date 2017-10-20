@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
