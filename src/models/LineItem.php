@@ -164,7 +164,7 @@ class LineItem extends Model
      */
     public function getOrder()
     {
-        if (!$this->_order) {
+        if (null === $this->_order && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
