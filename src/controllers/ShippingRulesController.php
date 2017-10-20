@@ -7,6 +7,7 @@ use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -152,7 +153,7 @@ class ShippingRulesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = JsonHelper::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
         $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
         return $this->asJson(['success' => $success]);

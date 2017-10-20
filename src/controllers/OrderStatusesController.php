@@ -71,9 +71,7 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
+     *
      */
     public function actionSave()
     {
