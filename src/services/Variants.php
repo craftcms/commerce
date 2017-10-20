@@ -10,9 +10,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchaseVariantEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
-use craft\commerce\records\Variant as VariantRecord;
 use yii\base\Component;
-use yii\web\HttpException;
 
 /**
  * Variant service.
