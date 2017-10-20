@@ -43,7 +43,7 @@ class State extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['countryId', 'name', 'abbreviation'], 'required']

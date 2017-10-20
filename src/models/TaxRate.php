@@ -78,7 +78,7 @@ class TaxRate extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['taxZoneId', 'taxCategoryId', 'name'], 'required']
