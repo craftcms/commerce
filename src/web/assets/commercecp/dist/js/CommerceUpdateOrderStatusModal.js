@@ -38,7 +38,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $menu = $('<div class="menu"/>').appendTo($inputs);
             var $list = $('<ul class="padded"/>').appendTo($menu);
             var classes = "";
-            for (i = 0; i < orderStatuses.length; i++) {
+            for (var i = 0; i < orderStatuses.length; i++) {
                 if (this.currentStatus.id == orderStatuses[i].id) {
                     classes = "sel";
                 } else {

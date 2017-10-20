@@ -227,7 +227,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             if ($shippingZone->countryBased) {
                 $countryIds = $shippingZone->getCountryIds();
 
-                if (!in_array($shippingAddress->countryId, $countryIds)) {
+                if (!in_array($shippingAddress->countryId, $countryIds, false)) {
                     return false;
                 }
             } else {
@@ -238,9 +238,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
                     $countries[] = $state->countryId;
                 }
 
-                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
-                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
-                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
+                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array($shippingAddress->stateId, $states, false));
+                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
 
                 if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
                     return false;

@@ -222,12 +222,12 @@ class Sales extends Component
         }
 
         // Product ID match
-        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds())) {
+        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds(), false)) {
             return false;
         }
 
         // Product Type match
-        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds())) {
+        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds(), false)) {
             return false;
         }
 

@@ -84,7 +84,7 @@ class Orders extends Widget
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
-                return Craft::t('commerce', 'Recent Orders').' – '.Craft::t($orderStatus->name);
+                return Craft::t('commerce', 'Recent Orders').' – '.Craft::t('commerce', $orderStatus->name);
             }
         }
 
@@ -102,7 +102,7 @@ class Orders extends Widget
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/body', [
             'orders' => $orders,
-            'showStatuses' => empty($this->orderStatusId)
+            'showStatuses' => $this->orderStatusId === null,
         ]);
     }
 

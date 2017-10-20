@@ -337,11 +337,11 @@ class CartController extends BaseFrontEndController
 
             $ownAddress = true;
             // Customers can only set addresses that are theirs
-            if ($shippingAddress->id && !in_array($shippingAddress->id, $currentCustomerAddressIds)) {
+            if ($shippingAddress->id && !in_array($shippingAddress->id, $currentCustomerAddressIds, false)) {
                 $ownAddress = false;
             }
             // Customer can only set addresses that are theirs
-            if ($billingAddress->id && !in_array($billingAddress->id, $currentCustomerAddressIds)) {
+            if ($billingAddress->id && !in_array($billingAddress->id, $currentCustomerAddressIds, false)) {
                 $ownAddress = false;
             }
 

@@ -289,7 +289,7 @@ class OrdersController extends BaseCpController
         $type = Craft::$app->getRequest()->getParam('addressType');
 
         // Validate Address Type
-        if (!in_array($type, ['shippingAddress', 'billingAddress'])) {
+        if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
             $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
         }
 

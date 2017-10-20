@@ -31,88 +31,70 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     use MissingComponentTrait;
 
     /**
-     * @param array $params
-     *
-     * @return null|string
+     * @inheritdoc
      */
     public function getPaymentFormHtml(array $params)
     {
     }
 
     /**
-     *
+     * @inheritdoc
      */
     public function getPaymentFormModel()
     {
     }
 
     /**
-     * @param Transaction     $transaction
-     * @param BasePaymentForm $form
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
     }
 
     /**
-     * @param Transaction $transaction
-     * @param string      $reference
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface
     {
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface
     {
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface
     {
     }
 
     /**
-     * @param Transaction     $transaction
-     * @param BasePaymentForm $form
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
     }
 
     /**
-     * @return WebResponse
+     * @inheritdoc
      */
     public function processWebHook(): WebResponse
     {
     }
 
     /**
-     * @param Transaction $transaction
-     * @param string      $reference
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface
     {
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsAuthorize(): bool
     {
@@ -120,7 +102,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCapture(): bool
     {
@@ -128,7 +110,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCompleteAuthorize(): bool
     {
@@ -136,7 +118,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCompletePurchase(): bool
     {
@@ -144,7 +126,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsPurchase(): bool
     {
@@ -152,7 +134,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsRefund(): bool
     {
@@ -160,7 +142,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsWebhooks(): bool
     {

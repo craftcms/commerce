@@ -49,7 +49,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
                 $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
-            $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
+                $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
             this.$chartExplorer = $chartExplorer;
             this.$totalValue = $totalValue;
