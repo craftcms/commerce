@@ -13,7 +13,7 @@ use craft\helpers\UrlHelper;
  * @property string  $name
  * @property string  $abbreviation
  * @property int     $countryId
- *
+ * @property string  $cpEditUrl
  * @property Country $country
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>

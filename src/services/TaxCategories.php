@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
@@ -11,14 +12,15 @@ use yii\base\Exception;
 /**
  * Tax category service.
  *
+ * @property TaxCategory[]|array $allTaxCategories
+ * @property TaxCategory|null    $defaultTaxCategory
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
- *
- * @property \craft\commerce\models\TaxCategory|null $defaultTaxCategory
  */
 class TaxCategories extends Component
 {

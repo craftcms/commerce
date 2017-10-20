@@ -159,8 +159,6 @@ class ProductsController extends BaseCpController
             if (!in_array($variables['site']->id, $variables['siteIds'], false)) {
                 $variables['site'] = Craft::$app->getSites()->getSiteById($variables['siteIds'][0]);
             }
-
-            $site = $variables['site'];
         } else {
             // Make sure they were requesting a valid site
             /** @var Site $site */

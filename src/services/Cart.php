@@ -17,6 +17,8 @@ use yii\validators\EmailValidator;
 /**
  * Cart service.
  *
+ * @property Order $cart
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement
@@ -188,10 +190,8 @@ class Cart extends Component
      * @param $error
      *
      * @return bool
-     * @throws Exception
-     * @throws \Exception
      */
-    public function setPaymentCurrency($order, $currency, $error)
+    public function setPaymentCurrency($order, $currency, &$error): bool
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
 
@@ -307,8 +307,6 @@ class Cart extends Component
 
     /**
      * @return Order
-     * @throws Exception
-     * @throws \Exception
      */
     public function getCart(): Order
     {
@@ -507,7 +505,7 @@ class Cart extends Component
         $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
 
         if ($doPurge) {
-            $cartIds = $this->getCartsIdsToPurge();
+            $cartIds = $this->_getCartsIdsToPurge();
             foreach ($cartIds as $id) {
                 Craft::$app->getElements()->deleteElementById($id);
             }
@@ -523,7 +521,7 @@ class Cart extends Component
      *
      * @return int[]
      */
-    private function getCartsIdsToPurge()
+    private function _getCartsIdsToPurge()
     {
         $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
         $edge = new \DateTime();

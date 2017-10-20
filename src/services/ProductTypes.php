@@ -21,6 +21,11 @@ use yii\base\Exception;
 /**
  * Product type service.
  *
+ * @property array               $editableProductTypeIds
+ * @property array|ProductType[] $editableProductTypes
+ * @property array               $allProductTypeIds
+ * @property array|ProductType[] $allProductTypes
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

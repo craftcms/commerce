@@ -28,7 +28,7 @@ class Shipping implements AdjusterInterface
      *
      * @return OrderAdjustment
      */
-    private function _createAdjustment($shippingMethod, $rule)
+    private function _createAdjustment($shippingMethod, $rule): OrderAdjustment
     {
         //preparing model
         $adjustment = new OrderAdjustment;
@@ -58,12 +58,12 @@ class Shipping implements AdjusterInterface
         /** @var ShippingMethod $method */
         foreach ($shippingMethods as $method) {
             if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->getShippingMethodHandle())) {
-                /** @var ShippingMethodInterface $shippingMethod */
+                /** @var ShippingMethod $shippingMethod */
                 $shippingMethod = $method['method'];
             }
         }
 
-        if (null == $shippingMethod) {
+        if ($shippingMethod === null) {
             return [];
         }
 

@@ -111,8 +111,8 @@ class RegistrationController extends BaseAdminController
             return $this->_handleEtResponse($etResponse);
         }
 
-// Just clear our record of the license key
-        Craft::$app->getPlugins()->setPluginLicenseKey('Commerce', null);
+        // Just clear our record of the license key
+        Craft::$app->getPlugins()->setPluginLicenseKey('Commerce');
         Craft::$app->getPlugins()->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
 
         return $this->_sendSuccessResponse();

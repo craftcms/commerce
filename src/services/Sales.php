@@ -5,7 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -15,6 +14,7 @@ use craft\commerce\records\SaleProductType as SaleProductTypeRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Sale service.
@@ -31,7 +31,7 @@ use yii\base\Component;
 class Sales extends Component
 {
     /**
-     * @event SaleEvent This event is raised after a sale has matched all other conditions
+     * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      */
     const EVENT_BEFORE_MATCH_PRODUCT_SALE = 'beforeMatchProductSale';
 
@@ -222,12 +222,12 @@ class Sales extends Component
         }
 
         // Product ID match
-        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds())) {
+        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds(), false)) {
             return false;
         }
 
         // Product Type match
-        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds())) {
+        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds(), false)) {
             return false;
         }
 
@@ -273,6 +273,7 @@ class Sales extends Component
      * @param array $products     ids
      *
      * @return bool
+     * @throws Exception
      * @throws \Exception
      */
     public function saveSale(Sale $model, array $groups, array $productTypes, array $products)

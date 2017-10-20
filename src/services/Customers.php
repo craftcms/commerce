@@ -19,6 +19,12 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
+ * @property \craft\commerce\models\Customer         $savedCustomer
+ * @property array|\craft\commerce\models\Customer[] $allCustomers
+ * @property mixed                                   $lastUsedAddresses
+ * @property int                                     $customerId
+ * @property \craft\commerce\models\Customer         $customer
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

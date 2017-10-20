@@ -6,12 +6,15 @@ use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingRuleCategory;
 
 /**
  * Shipping rule model
  *
- * @property \craft\commerce\models\ShippingMethod $method
+ * @property array|ShippingRuleCategory[] $shippingRuleCategories
+ * @property array                        $options
+ * @property mixed                        $shippingZone
+ * @property bool                         $isEnabled
+ * @property ShippingMethod               $method
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -219,7 +222,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             if ($shippingZone->countryBased) {
                 $countryIds = $shippingZone->getCountryIds();
 
-                if (!in_array($shippingAddress->countryId, $countryIds)) {
+                if (!in_array($shippingAddress->countryId, $countryIds, false)) {
                     return false;
                 }
             } else {
@@ -230,9 +233,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
                     $countries[] = $state->countryId;
                 }
 
-                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries) && in_array($shippingAddress->stateId, $states));
-                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
-                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
+                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array($shippingAddress->stateId, $states, false));
+                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
+                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
 
                 if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
                     return false;

@@ -8,6 +8,20 @@ use craft\commerce\web\assets\revenuewidget\RevenueWidgetAsset;
 use craft\helpers\ChartHelper;
 use craft\helpers\Json;
 
+/**
+ * Class Revenue
+ *
+ * @property string|false $bodyHtml
+ * @property string       $name
+ * @property string       $settingsHtml
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.2
+ */
 class Revenue extends Widget
 {
     // Properties

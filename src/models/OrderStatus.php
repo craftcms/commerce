@@ -9,14 +9,15 @@ use craft\helpers\UrlHelper;
 /**
  * Order status model.
  *
- * @property int                            $id
- * @property string                         $name
- * @property string                         $handle
- * @property string                         $color
- * @property int                            $sortOrder
- * @property bool                           $default
- *
- * @property \craft\commerce\models\Email[] $emails
+ * @property int     $id
+ * @property string  $name
+ * @property string  $handle
+ * @property string  $color
+ * @property int     $sortOrder
+ * @property bool    $default
+ * @property string  $cpEditUrl
+ * @property array   $emailIds
+ * @property Email[] $emails
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -70,7 +71,7 @@ class OrderStatus extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl(): strinng
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/orderstatuses/'.$this->id);
     }

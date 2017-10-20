@@ -18,36 +18,37 @@ use craft\helpers\Html;
 /**
  * Line Item model representing a line item on an order.
  *
- * @package   Craft
- *
- * @property int                                     $id
- * @property float                                   $price
- * @property float                                   $saleAmount
- * @property float                                   $salePrice
- * @property float                                   $weight
- * @property float                                   $height
- * @property float                                   $width
- * @property float                                   $length
- * @property float                                   $total
- * @property int                                     $qty
- * @property string                                  $note
- * @property string                                  $snapshot
- *
- * @property int                                     $orderId
- * @property int                                     $purchasableId
- * @property string                                  $optionsSignature
- * @property mixed                                   $options
- * @property int                                     $taxCategoryId
- * @property int                                     $shippingCategoryId
- *
- * @property bool                                    $onSale
- * @property Purchasable                             $purchasable
- *
- * @property \craft\commerce\elements\Order          $order
- * @property \craft\commerce\models\TaxCategory      $taxCategory
- * @property \craft\commerce\models\ShippingCategory $shippingCategory
- * @property int                                     shippingCost
- * @property float                                   discount
+ * @property int                     $id
+ * @property float                   $price
+ * @property float                   $saleAmount
+ * @property float                   $salePrice
+ * @property float                   $weight
+ * @property float                   $height
+ * @property float                   $width
+ * @property float                   $length
+ * @property float                   $total
+ * @property int                     $qty
+ * @property string                  $note
+ * @property array                   $snapshot
+ * @property int                     $orderId
+ * @property int                     $purchasableId
+ * @property string                  $optionsSignature
+ * @property mixed                   $options
+ * @property int                     $taxCategoryId
+ * @property int                     $shippingCategoryId
+ * @property bool                    $onSale
+ * @property Purchasable             $purchasable
+ * @property Order                   $order
+ * @property TaxCategory             $taxCategory
+ * @property ShippingCategory        $shippingCategory
+ * @property int                     $shippingCost
+ * @property string                  $sku
+ * @property float                   $subtotal
+ * @property int                     $tax
+ * @property string                  $description
+ * @property array|OrderAdjustment[] $adjustments
+ * @property int                     $taxIncluded
+ * @property float                   $discount
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -159,11 +160,6 @@ class LineItem extends Model
     private $_order;
 
     /**
-     * @var OrderAdjustment[]|null
-     */
-    private $_adjustments;
-
-    /**
      * @return \craft\commerce\elements\Order|null
      */
     public function getOrder()
@@ -227,9 +223,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param TaxRate ::taxables
+     * @param $taxable
      *
-     * @return int
+     * @return float|int
      */
     public function getTaxableSubtotal($taxable)
     {
@@ -370,7 +366,7 @@ class LineItem extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxCategory|null
+     * @return ShippingCategory|null
      */
     public function getShippingCategory()
     {

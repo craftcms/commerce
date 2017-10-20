@@ -39,11 +39,6 @@ class Discounts extends Component
      */
     private $_allDiscounts;
 
-    /**
-     * @var Discount[]
-     */
-    private $_allActiveDiscounts;
-
     // Constants
     // =========================================================================
 

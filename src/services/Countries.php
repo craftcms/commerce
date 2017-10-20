@@ -13,6 +13,9 @@ use yii\base\Exception;
 /**
  * Country service.
  *
+ * @property Country[]|array $allCountriesListData
+ * @property Country[]|array $allCountries
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

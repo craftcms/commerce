@@ -4,18 +4,19 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\User;
 
 /**
  * Customer model
  *
- * @property \craft\commerce\models\Address[]    $addresses
- * @property \craft\commerce\models\Orders[]     $orders
- * @property string                              $email
- * @property null|\craft\commerce\models\Address $lastUsedBillingAddress
- * @property null|\craft\commerce\models\Address $lastUsedShippingAddress
- * @property \craft\elements\User                $user
+ * @property Address[]    $addresses
+ * @property Order[]      $orders
+ * @property string       $email
+ * @property null|Address $lastUsedBillingAddress
+ * @property null|Address $lastUsedShippingAddress
+ * @property User         $user
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
@@ -50,7 +51,7 @@ class Customer extends Model
     public $lastUsedShippingAddressId;
 
     /**
-     * @var \craft\commerce\models\User $_user
+     * @var User $_user
      */
     private $_user;
 

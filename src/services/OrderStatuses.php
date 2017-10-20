@@ -23,6 +23,10 @@ use yii\base\Exception;
  * @see       https://craftcommerce.com
  * @package   craft.plugins.commerce.services
  * @since     1.0
+ *
+ * @property OrderStatus[]|array $allOrderStatuses
+ * @property null|int            $defaultOrderStatusId
+ * @property OrderStatus|null    $defaultOrderStatus
  */
 class OrderStatuses extends Component
 {

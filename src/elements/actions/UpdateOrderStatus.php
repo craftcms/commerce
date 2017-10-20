@@ -12,6 +12,9 @@ use craft\helpers\Json;
 /**
  * Class Update Order Status
  *
+ * @property null|string $triggerHtml
+ * @property mixed       $name
+ *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @license   https://craftcommerce.com/license Craft Commerce License Agreement

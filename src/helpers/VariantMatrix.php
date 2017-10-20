@@ -110,7 +110,7 @@ class VariantMatrix
 
         // Reset $_isFresh's
         foreach ($variantFields as $field) {
-            $field->setIsFresh(null);
+            $field->setIsFresh();
         }
 
         return [$bodyHtml, $footHtml];

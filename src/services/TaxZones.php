@@ -11,9 +11,12 @@ use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Tax zone service.
+ *
+ * @property TaxZone[]|array $allTaxZones
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -85,6 +88,7 @@ class TaxZones extends Component
      * @param array   $stateIds
      *
      * @return bool
+     * @throws Exception
      * @throws \Exception
      */
     public function saveTaxZone(TaxZone $model, $countryIds, $stateIds): bool

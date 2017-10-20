@@ -9,6 +9,23 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
 use craft\helpers\StringHelper;
 
+/**
+ * Class Orders
+ *
+ * @package craft\commerce\widgets
+ *
+ * @property string       $name
+ * @property string|false $bodyHtml
+ * @property string       $settingsHtml
+ * @property string       $title
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.2
+ */
 class Orders extends Widget
 {
     // Properties
@@ -67,7 +84,7 @@ class Orders extends Widget
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
-                return Craft::t('commerce', 'Recent Orders').' – '.Craft::t($orderStatus->name);
+                return Craft::t('commerce', 'Recent Orders').' – '.Craft::t('commerce', $orderStatus->name);
             }
         }
 
@@ -85,7 +102,7 @@ class Orders extends Widget
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/body', [
             'orders' => $orders,
-            'showStatuses' => empty($this->orderStatusId)
+            'showStatuses' => $this->orderStatusId === null,
         ]);
     }
 

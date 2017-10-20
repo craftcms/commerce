@@ -13,15 +13,18 @@ use craft\helpers\UrlHelper;
  *
  * @package   Craft
  *
- * @property int    $id
- * @property string $type
- * @property string $name
- * @property string $paymentType
- * @property array  $settings
- * @property bool   $frontendEnabled
- * @property bool   $sendCartInfo
- * @property bool   $isArchived
- * @property bool   $dateArchived
+ * @property int                  $id
+ * @property string               $type
+ * @property string               $name
+ * @property string               $paymentType
+ * @property array                $settings
+ * @property bool                 $frontendEnabled
+ * @property bool                 $sendCartInfo
+ * @property bool                 $isArchived
+ * @property array                $paymentTypeOptions
+ * @property null|BasePaymentForm $paymentFormModel
+ * @property string               $cpEditUrl
+ * @property bool                 $dateArchived
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.

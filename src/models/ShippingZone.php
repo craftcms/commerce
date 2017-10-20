@@ -14,8 +14,12 @@ use craft\helpers\UrlHelper;
  * @property string    $description
  * @property bool      $countryBased
  * @property bool      $default
- *
  * @property Country[] $countries
+ * @property array     $countryIds
+ * @property array     $stateIds
+ * @property array     $countriesNames
+ * @property array     $statesNames
+ * @property string    $cpEditUrl
  * @property State[]   $states
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
