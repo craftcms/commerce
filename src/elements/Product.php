@@ -18,6 +18,7 @@ use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\SetStatus;
+use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -569,6 +570,18 @@ class Product extends Element
 
                 return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
             }
+            case 'stock': {
+                $stock = 0;
+                $hasUnlimited = false;
+                /** @var Variant $variant */
+                foreach ($this->getVariants() as $variant) {
+                    $stock += $variant->stock;
+                    if ($variant->unlimitedStock) {
+                        $hasUnlimited = true;
+                    }
+                }
+                return $hasUnlimited ? '∞'.($stock ? ' & '.$stock : '') : ($stock ?: '');
+            }
             case 'defaultWeight': {
                 if ($productType->hasDimensions) {
                     return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
@@ -593,6 +606,22 @@ class Product extends Element
             default: {
                 return parent::tableAttributeHtml($attribute);
             }
+        }
+    }
+
+    /**
+     * @param ElementQueryInterface $elementQuery
+     * @param string                $attribute
+     */
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    {
+        /** @var ElementQuery $elementQuery */
+        if ($attribute === 'variants') {
+            $with = $elementQuery->with ?: [];
+            $with[] = 'variants';
+            $elementQuery->with = $with;
+        } else {
+            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
     }
 
@@ -772,6 +801,7 @@ class Product extends Element
             'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
             'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
             'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
+            'stock' => ['label' => Craft::t('commerce', 'Stock')],
             'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
