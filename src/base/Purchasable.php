@@ -34,7 +34,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return int
      */
-    public function getPurchasableId()
+    public function getPurchasableId(): int
     {
         throw new NotImplementedException();
     }
@@ -55,7 +55,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return float decimal(14,4)
      */
-    public function getPrice()
+    public function getPrice(): float
     {
         throw new NotImplementedException();
     }
@@ -85,7 +85,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return int
      */
-    public function getTaxCategoryId()
+    public function getTaxCategoryId(): int
     {
         return Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
     }
@@ -95,7 +95,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return int
      */
-    public function getShippingCategoryId()
+    public function getShippingCategoryId(): int
     {
         return Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
     }

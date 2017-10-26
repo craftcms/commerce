@@ -49,7 +49,7 @@ class Revenue extends Widget
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Craft::t('commerce', 'Revenue');
     }
@@ -59,7 +59,7 @@ class Revenue extends Widget
      *
      * @return string
      */
-    public static function iconPath()
+    public static function iconPath(): string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -90,7 +90,7 @@ class Revenue extends Widget
      *
      * @return string
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): string
     {
         $dateRanges = ChartHelper::dateRanges();
 

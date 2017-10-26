@@ -3,7 +3,7 @@
 namespace craft\commerce\helpers;
 
 use craft\commerce\elements\Product as ProductModel;
-use craft\commerce\elements\Variant as VariantModel;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
@@ -56,16 +56,16 @@ class Product
      * @param               $variant
      * @param               $key
      *
-     * @return VariantModel
+     * @return Variant
      */
-    public static function populateProductVariantModel(ProductModel $product, $variant, $key)
+    public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {
         $productId = $product->id;
 
         if ($productId && $key !== 'new') {
             $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
         } else {
-            $variantModel = new VariantModel();
+            $variantModel = new Variant();
         }
 
         $variantModel->setProduct($product);

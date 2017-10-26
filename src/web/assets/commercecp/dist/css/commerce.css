@@ -89,14 +89,14 @@ body.rtl .variant-matrixblock > .titlebar {
 }
 
 .commerce-address.modal .body {
-    padding: 0px;
+    padding: 0;
     overflow-y: visible;
     height: 100%;
 }
 
 .commerce-address.modal .footer {
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
 }
 

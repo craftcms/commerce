@@ -58,7 +58,7 @@ class Orders extends Widget
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return Craft::t('commerce', 'Recent Orders');
     }
@@ -68,7 +68,7 @@ class Orders extends Widget
      *
      * @return string
      */
-    public static function iconPath()
+    public static function iconPath(): string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -111,7 +111,7 @@ class Orders extends Widget
      *
      * @return array
      */
-    private function _getOrders()
+    private function _getOrders(): array
     {
         $orderStatusId = $this->orderStatusId;
         $limit = $this->limit;
@@ -137,7 +137,7 @@ class Orders extends Widget
      *
      * @return string
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): string
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 

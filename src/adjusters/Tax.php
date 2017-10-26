@@ -64,7 +64,7 @@ class Tax implements AdjusterInterface
         /** @var TaxRate $rate */
         foreach ($taxRates as $rate) {
             // Apply all rates that match
-            if ($newAdjustments = $this->_getAdjustments($rate)) {
+            if ($newAdjustments = $this->getAdjustments($rate)) {
                 $adjustments = array_merge($adjustments, $newAdjustments);
             }
         }
@@ -77,19 +77,19 @@ class Tax implements AdjusterInterface
      *
      * @return OrderAdjustment[]|false
      */
-    private function _getAdjustments(TaxRate $taxRate)
+    private function getAdjustments(TaxRate $taxRate)
     {
         $zone = $taxRate->taxZone;
         $adjustments = [];
 
         $removeVat = false;
         // Valid VAT ID and Address Matches then do not apply this tax
-        if ($taxRate->isVat && ($this->_address && $this->_address->businessTaxId && $this->_address->country) && $this->_matchAddress($zone)) {
+        if ($taxRate->isVat && ($this->_address && $this->_address->businessTaxId && $this->_address->country) && $this->matchAddress($zone)) {
             $validBusinessTaxIdData = Craft::$app->getCache()->get('commerce:validVatId:'.$this->_address->businessTaxId);
-            if ($validBusinessTaxIdData || $this->_validateVatNumber($this->_address->businessTaxId)) {
+            if ($validBusinessTaxIdData || ($this->_address->businessTaxId && $this->validateVatNumber($this->_address->businessTaxId))) {
                 // A valid vat ID from API was found, cache result.
                 if (!$validBusinessTaxIdData) {
-                    $validBusinessTaxIdData = $this->_getVatValidator()->getData();
+                    $validBusinessTaxIdData = $this->getVatValidator()->getData();
                     Craft::$app->getCache()->set('commerce:validVatId:'.$this->_address->businessTaxId, $validBusinessTaxIdData);
                 }
 
@@ -103,7 +103,7 @@ class Tax implements AdjusterInterface
         }
 
         //Address doesn't match zone or we should remove the VAT
-        if (!$this->_matchAddress($zone) || $removeVat) {
+        if (!$this->matchAddress($zone) || $removeVat) {
             // Since the address doesn't match or it's a removable vat tax,
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
@@ -218,7 +218,7 @@ class Tax implements AdjusterInterface
      *
      * @return bool
      */
-    private function _matchAddress(TaxZone $zone)
+    private function matchAddress(TaxZone $zone)
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
@@ -256,10 +256,10 @@ class Tax implements AdjusterInterface
      *
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    private function validateVatNumber(int $businessVatId)
     {
         try {
-            return $this->_getVatValidator()->checkNumber($businessVatId);
+            return $this->getVatValidator()->checkNumber($businessVatId);
         } catch (\Exception $e) {
             Craft::error('Communication with VAT API failed: '.$e->getMessage(), __METHOD__);
 
@@ -270,7 +270,7 @@ class Tax implements AdjusterInterface
     /**
      * @return Validation
      */
-    private function _getVatValidator()
+    private function getVatValidator()
     {
         if ($this->_vatValidator === null) {
             $this->_vatValidator = new Validation(['debug' => false]);

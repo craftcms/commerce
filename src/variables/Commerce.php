@@ -40,11 +40,11 @@ use craft\helpers\ArrayHelper;
 class Commerce
 {
     /**
-     * @return Plugin
+     * @return Commerce
      */
     public function getPlugin()
     {
-        return Plugin::getInstance();
+        return Commerce::getInstance();
     }
 
     /**
@@ -54,7 +54,7 @@ class Commerce
      */
     public function settings()
     {
-        return Plugin::getInstance()->getSettings();
+        return Commerce::getInstance()->getSettings();
     }
 
     /**
@@ -113,7 +113,7 @@ class Commerce
      */
     public function getCart()
     {
-        return Plugin::getInstance()->getCart()->getCart();
+        return Commerce::getInstance()->getCart()->getCart();
     }
 
     /**
@@ -121,7 +121,7 @@ class Commerce
      */
     public function getCustomer()
     {
-        return Plugin::getInstance()->getCustomers()->getCustomer();
+        return Commerce::getInstance()->getCustomers()->getCustomer();
     }
 
     /**
@@ -129,7 +129,7 @@ class Commerce
      */
     public function getCountries()
     {
-        return Plugin::getInstance()->getCountries()->getAllCountries();
+        return Commerce::getInstance()->getCountries()->getAllCountries();
     }
 
     /**
@@ -137,7 +137,7 @@ class Commerce
      */
     public function getAddresses()
     {
-        return Plugin::getInstance()->getAddresses();
+        return Commerce::getInstance()->getAddresses();
     }
 
     /**
@@ -145,7 +145,7 @@ class Commerce
      */
     public function getStates()
     {
-        return Plugin::getInstance()->getStates()->getAllStates();
+        return Commerce::getInstance()->getStates()->getAllStates();
     }
 
     /**
@@ -153,7 +153,7 @@ class Commerce
      */
     public function getCountriesList()
     {
-        return Plugin::getInstance()->getCountries()->getAllCountriesListData();
+        return Commerce::getInstance()->getCountries()->getAllCountriesListData();
     }
 
     /**
@@ -161,7 +161,7 @@ class Commerce
      */
     public function getStatesArray()
     {
-        return Plugin::getInstance()->getStates()->getStatesGroupedByCountries();
+        return Commerce::getInstance()->getStates()->getStatesGroupedByCountries();
     }
 
     /**
@@ -169,9 +169,9 @@ class Commerce
      */
     public function getAvailableShippingMethods()
     {
-        $cart = Plugin::getInstance()->getCart()->getCart();
+        $cart = Commerce::getInstance()->getCart()->getCart();
 
-        return Plugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
+        return Commerce::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
     }
 
     /**
@@ -179,7 +179,7 @@ class Commerce
      */
     public function getShippingMethods()
     {
-        return Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        return Commerce::getInstance()->getShippingMethods()->getAllShippingMethods();
     }
 
     /**
@@ -187,7 +187,7 @@ class Commerce
      */
     public function getShippingZones()
     {
-        return Plugin::getInstance()->getShippingZones()->getAllShippingZones();
+        return Commerce::getInstance()->getShippingZones()->getAllShippingZones();
     }
 
     /**
@@ -197,7 +197,7 @@ class Commerce
      */
     public function getShippingCategories($asList = false)
     {
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
+        $shippingCategories = Commerce::getInstance()->getShippingCategories()->getAllShippingCategories();
 
         if ($asList) {
             return ArrayHelper::map($shippingCategories, 'id', 'name');
@@ -232,7 +232,7 @@ class Commerce
      */
     public function getGateways($asList = false)
     {
-        $methods = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
+        $methods = Commerce::getInstance()->getGateways()->getAllFrontEndGateways();
 
         if ($asList) {
             return ArrayHelper::map($methods, 'id', 'name');
@@ -247,7 +247,7 @@ class Commerce
      */
     public function getProductTypes()
     {
-        return Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        return Commerce::getInstance()->getProductTypes()->getAllProductTypes();
     }
 
     /**
@@ -255,7 +255,7 @@ class Commerce
      */
     public function getOrderStatuses()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        return Commerce::getInstance()->getOrderStatuses()->getAllOrderStatuses();
     }
 
     /**
@@ -265,7 +265,7 @@ class Commerce
      */
     public function getTaxCategories($asList = false)
     {
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+        $taxCategories = Commerce::getInstance()->getTaxCategories()->getAllTaxCategories();
 
         if ($asList) {
             return ArrayHelper::map($taxCategories, 'id', 'name');
@@ -280,7 +280,7 @@ class Commerce
      */
     public function getTaxRates()
     {
-        return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
+        return Commerce::getInstance()->getTaxRates()->getAllTaxRates();
     }
 
     /**
@@ -288,7 +288,7 @@ class Commerce
      */
     public function getTaxZones()
     {
-        return Plugin::getInstance()->getTaxZones()->getAllTaxZones();
+        return Commerce::getInstance()->getTaxZones()->getAllTaxZones();
     }
 
     /**
@@ -296,7 +296,7 @@ class Commerce
      */
     public function getDiscounts()
     {
-        return Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        return Commerce::getInstance()->getDiscounts()->getAllDiscounts();
     }
 
     /**
@@ -306,7 +306,7 @@ class Commerce
      */
     public function getDiscountByCode($code)
     {
-        return Plugin::getInstance()->getDiscounts()->getDiscountByCode($code);
+        return Commerce::getInstance()->getDiscounts()->getDiscountByCode($code);
     }
 
     /**
@@ -314,7 +314,7 @@ class Commerce
      */
     public function getSales()
     {
-        return Plugin::getInstance()->getSales()->getAllSales();
+        return Commerce::getInstance()->getSales()->getAllSales();
     }
 
     /**
@@ -322,7 +322,7 @@ class Commerce
      */
     public function getPaymentCurrencies()
     {
-        $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+        $currencies = Commerce::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
 
         return $currencies;
     }
@@ -332,7 +332,7 @@ class Commerce
      */
     public function getCurrencies()
     {
-        return Plugin::getInstance()->getCurrencies()->getAllCurrencies();
+        return Commerce::getInstance()->getCurrencies()->getAllCurrencies();
     }
 
     // Private Methods
@@ -343,6 +343,6 @@ class Commerce
      */
     public function getPrimaryPaymentCurrency()
     {
-        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        return Commerce::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
     }
 }

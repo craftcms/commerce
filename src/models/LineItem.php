@@ -13,7 +13,9 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\commerce\services\Orders;
 use craft\helpers\Html;
+use yii\base\InvalidConfigException;
 
 /**
  * Line Item model representing a line item on an order.
@@ -164,8 +166,11 @@ class LineItem extends Model
      */
     public function getOrder()
     {
-        if (null === $this->_order && $this->orderId) {
-            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
+        /** @var Orders $orderService */
+        $orderService = Plugin::getInstance()->getOrders();
+
+        if (null === $this->_order && null !== $this->orderId) {
+            $this->_order = $orderService->getOrderById($this->orderId);
         }
 
         return $this->_order;
@@ -206,7 +211,7 @@ class LineItem extends Model
     /**
      * @return float
      */
-    public function getSubtotal()
+    public function getSubtotal(): float
     {
         // The subtotal should always be rounded.
         return $this->qty * CurrencyHelper::round($this->salePrice);
@@ -217,7 +222,7 @@ class LineItem extends Model
      *
      * @return float
      */
-    public function getTotal()
+    public function getTotal(): float
     {
         return $this->getSubtotal() + $this->getAdjustmentsTotal();
     }
@@ -231,17 +236,16 @@ class LineItem extends Model
     {
         switch ($taxable) {
             case TaxRateRecord::TAXABLE_PRICE:
-                $taxableSubtotal = $this->getSubtotal() + $this->discount;
+                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount');
                 break;
             case TaxRateRecord::TAXABLE_SHIPPING:
-                $taxableSubtotal = $this->shippingCost;
+                $taxableSubtotal = $this->getAdjustmentsTotalByType('shipping');
                 break;
             case TaxRateRecord::TAXABLE_PRICE_SHIPPING:
-                $taxableSubtotal = $this->getSubtotal() + $this->discount + $this->shippingCost;
+                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount') + $this->getAdjustmentsTotalByType('shipping');
                 break;
             default:
-                // default to just price
-                $taxableSubtotal = $this->getSubtotal() + $this->discount;
+                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount');
         }
 
         return $taxableSubtotal;
@@ -268,13 +272,18 @@ class LineItem extends Model
     }
 
     /**
-     * @return ElementInterface|null
+     * @return PurchasableInterface|null
+     *
+     * @throws InvalidConfigException
      */
     public function getPurchasable()
     {
-        // todo shouldn't this ensure that purchasable interface is at least implented?
-        if (null === $this->_purchasable) {
+        if (null === $this->_purchasable && null !== $this->purchasableId) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+        }
+
+        if (null !== $this->_purchasable && !($this->_purchasable instanceof PurchasableInterface)) {
+            throw new InvalidConfigException('Line item should only contain a real purchasable.');
         }
 
         return $this->_purchasable;
@@ -336,7 +345,12 @@ class LineItem extends Model
      */
     public function getOnSale(): bool
     {
-        return null === $this->salePrice ? false : (CurrencyHelper::round($this->salePrice) != CurrencyHelper::round($this->price));
+        if (null !== $this->salePrice)
+        {
+            return CurrencyHelper::round($this->salePrice) !== CurrencyHelper::round($this->price);
+        }
+
+        return false;
     }
 
     /**
@@ -344,32 +358,50 @@ class LineItem extends Model
      */
     public function getDescription(): string
     {
-        $description = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
-        return $this->getPurchasable()->getDescription() ?? $description;
+        $purchasable = $this->getPurchasable();
+        $snapShotDescription = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
+        $liveDescription = $purchasable ? $purchasable->getDescription() : '';
+
+        return $snapShotDescription ?: $liveDescription;
     }
 
     /**
      * Returns the description from the snapshot of the purchasable
      */
-    public function getSku()
+    public function getSku(): string
     {
-        $sku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
-        return $this->getPurchasable()->getSku() ?? $sku;
+        $purchasable = $this->getPurchasable();
+        $snapShotSku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
+        $liveSku = $purchasable ? $purchasable->getSku() : '';
+
+        return $snapShotSku ?: $liveSku;
     }
 
     /**
-     * @return \craft\commerce\models\TaxCategory|null
+     * @return TaxCategory
+     *
+     * @throws InvalidConfigException
      */
-    public function getTaxCategory()
+    public function getTaxCategory(): TaxCategory
     {
+        if (null === $this->taxCategoryId) {
+            throw new InvalidConfigException('Line Item is missing its tax category ID');
+        }
+
         return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 
     /**
-     * @return ShippingCategory|null
+     * @return ShippingCategory
+     *
+     * @throws InvalidConfigException
      */
-    public function getShippingCategory()
+    public function getShippingCategory(): ShippingCategory
     {
+        if (null === $this->shippingCategoryId) {
+            throw new InvalidConfigException('Line Item is missing its shipping category ID');
+        }
+
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }
 
@@ -378,10 +410,12 @@ class LineItem extends Model
      */
     public function getAdjustments(): array
     {
+
+
         $adjustments = $this->getOrder()->getAdjustments();
-        $lineItemAdjustments = [];
+
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId == $this->id) {
+            if ($adjustment->lineItemId === $this->id) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
@@ -394,11 +428,11 @@ class LineItem extends Model
      *
      * @return float
      */
-    public function getAdjustmentsTotal($included = false)
+    public function getAdjustmentsTotal($included = false): float
     {
         $amount = 0;
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included == $included) {
+            if ($adjustment->included === $included) {
                 $amount += $adjustment->amount;
             }
         }
@@ -417,7 +451,7 @@ class LineItem extends Model
         $amount = 0;
 
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included == $included && $adjustment->type == $type) {
+            if ($adjustment->included === $included && $adjustment->type === $type) {
                 $amount += $adjustment->amount;
             }
         }
@@ -426,9 +460,9 @@ class LineItem extends Model
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getTax()
+    public function getTax(): float
     {
         Craft::$app->getDeprecator()->log('VariantModel::getTax()', 'VariantModel::getTax() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type) ');
 
@@ -436,9 +470,9 @@ class LineItem extends Model
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getTaxIncluded()
+    public function getTaxIncluded(): float
     {
         Craft::$app->getDeprecator()->log('VariantModel::getTaxIncluded()', 'VariantModel::getTaxIncluded() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 
@@ -446,10 +480,11 @@ class LineItem extends Model
     }
 
     /**
-     * @dep
-     * @return int
+     * @deprecated since 2.0
+     *
+     * @return float
      */
-    public function getShippingCost()
+    public function getShippingCost(): float
     {
         Craft::$app->getDeprecator()->log('VariantModel::getShippingCost()', 'VariantModel::getShippingCost() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 
@@ -457,9 +492,11 @@ class LineItem extends Model
     }
 
     /**
-     * @return int
+     * @deprecated since 2.0
+     *
+     * @return float
      */
-    public function getDiscount()
+    public function getDiscount(): float
     {
         Craft::$app->getDeprecator()->log('VariantModel::getDiscount()', 'VariantModel::getDiscount() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
 

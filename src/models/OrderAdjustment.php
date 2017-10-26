@@ -80,7 +80,7 @@ class OrderAdjustment extends Model
      */
     public function getOrder()
     {
-        return Plugin::getInstance()->getOrder()->getOrderById($this->orderId);
+        return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
     }
 
     /**

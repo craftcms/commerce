@@ -381,7 +381,7 @@ input[type="button"].button-primary:focus {
     display:inline;
     border:none;
     text-transform: none;
-    padding: 0px;
+    padding: 0;
     font-size: 1em; /* currently ems cause chrome bug misinterpreting rems on body element */
     line-height: 1;
     font-weight: 400;
@@ -710,8 +710,8 @@ img.product { width: 100%; }
 }
 
 
-.address-card { background-color: transparent; border-radius: 5px; padding:20px 0px 0px 20px; border: 1px solid #E1E1E1; margin-bottom: 15px; position: relative;  }
-.address-card form { display:inline; margin:0px; }
+.address-card { background-color: transparent; border-radius: 5px; padding:20px 0 0 20px; border: 1px solid #E1E1E1; margin-bottom: 15px; position: relative;  }
+.address-card form { display:inline; margin:0; }
 .address-card .edit { position: absolute; top: 20px; right: 20px; }
 .address-card ul { list-style: none; }
 

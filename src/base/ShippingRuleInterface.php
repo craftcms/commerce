@@ -45,7 +45,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getPercentageRate();
+    public function getPercentageRate(): float;
 
     /**
      * Returns the flat rate that is multiplied per qty.
@@ -53,7 +53,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getPerItemRate();
+    public function getPerItemRate(): float;
 
     /**
      * Returns the rate that is multiplied by the line item's weight.
@@ -61,7 +61,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getWeightRate();
+    public function getWeightRate(): float;
 
     /**
      * Returns a base shipping cost. This is added at the order level.
@@ -69,7 +69,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getBaseRate();
+    public function getBaseRate(): float;
 
     /**
      * Returns a max cost this rule should ever apply.
@@ -77,7 +77,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getMaxRate();
+    public function getMaxRate(): float;
 
     /**
      * Returns a min cost this rule should have applied.
@@ -87,7 +87,7 @@ interface ShippingRuleInterface
      *
      * @return float
      */
-    public function getMinRate();
+    public function getMinRate(): float;
 
     /**
      * Returns a description of the rates applied by this rule;

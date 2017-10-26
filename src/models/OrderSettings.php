@@ -60,7 +60,7 @@ class OrderSettings extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/ordersettings');
     }
@@ -71,6 +71,7 @@ class OrderSettings extends Model
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
+        
         $behaviors['fieldLayout'] = [
             'class' => FieldLayoutBehavior::class,
             'elementType' => Order::class

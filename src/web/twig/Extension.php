@@ -48,7 +48,7 @@ class Extension extends \Twig_Extension
      *
      * @return float
      */
-    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false)
+    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): float
     {
         $this->_validatePaymentCurrency($currency);
 
@@ -82,14 +82,24 @@ class Extension extends \Twig_Extension
         }
     }
 
-    public function jsonEncodeFiltered($input)
+    /**
+     * @param $input
+     *
+     * @return string
+     */
+    public function jsonEncodeFiltered($input): string
     {
         $array = $this->_recursiveSanitizeArray($input);
 
         return json_encode($array);
     }
 
-    private function _recursiveSanitizeArray($array)
+    /**
+     * @param $array
+     *
+     * @return array
+     */
+    private function _recursiveSanitizeArray($array): array
     {
         $finalArray = [];
 

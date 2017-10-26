@@ -22,7 +22,7 @@ interface PurchasableInterface
      *
      * @return int
      */
-    public function getPurchasableId();
+    public function getPurchasableId(): int;
 
     /*
      * This is an array of data that should be saved in a serialized way to the line item.
@@ -45,7 +45,7 @@ interface PurchasableInterface
      *
      * @return float decimal(14,4)
      */
-    public function getPrice();
+    public function getPrice(): float;
 
     /**
      * This must be a unique code. Unique as per the commerce_purchasables table.
@@ -66,14 +66,14 @@ interface PurchasableInterface
      *
      * @return int
      */
-    public function getTaxCategoryId();
+    public function getTaxCategoryId(): int;
 
     /**
      * Returns a Craft Commerce shipping category id
      *
      * @return int
      */
-    public function getShippingCategoryId();
+    public function getShippingCategoryId(): int;
 
     /**
      * Returns whether the purchasable is still available for purchase.

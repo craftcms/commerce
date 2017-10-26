@@ -37,7 +37,10 @@ class Currency
         return round($amount, $decimals);
     }
 
-    public static function defaultDecimals()
+    /**
+     * @return int
+     */
+    public static function defaultDecimals(): int
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 

@@ -278,7 +278,7 @@ class Discount extends Model
      */
     public function getPercentDiscountAsPercent(): string
     {
-        if ($this->percentDiscount != 0) {
+        if ($this->percentDiscount !== 0) {
             return Craft::$app->formatter->asPercent(-$this->percentDiscount);
         }
 

@@ -129,7 +129,7 @@ class Customer extends Model
     {
         $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
         foreach ($addresses as $address) {
-            if ($id == $address->id) {
+            if ($id === $address->id) {
                 return $address;
             }
         }

@@ -129,7 +129,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     private $_shippingRuleCategories;
 
-    public function rules()
+    public function rules(): array
     {
         return [
             [
@@ -185,11 +185,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $disallowedCategories = [];
         $requiredCategories = [];
         foreach ($shippingRuleCategories as $ruleCategory) {
-            if ($ruleCategory->condition == ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
+            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
                 $disallowedCategories[] = $ruleCategory->shippingCategoryId;
             }
 
-            if ($ruleCategory->condition == ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
+            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
                 $requiredCategories[] = $ruleCategory->shippingCategoryId;
             }
         }
@@ -219,6 +219,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
+        /** @var ShippingZone $shippingZone */
         if ($shippingZone) {
             if ($shippingZone->countryBased) {
                 $countryIds = $shippingZone->getCountryIds();
@@ -229,14 +230,19 @@ class ShippingRule extends Model implements ShippingRuleInterface
             } else {
                 $states = [];
                 $countries = [];
-                foreach ($shippingZone->states as $state) {
+                $stateNames = [];
+                $stateAbbr = [];
+                /** @var State $state */
+                foreach ($shippingZone->getStates() as $state) {
                     $states[] = $state->id;
                     $countries[] = $state->countryId;
+                    $stateNames[] = $state->name;
+                    $stateAbbr[] = $state->abbreviation;
                 }
 
                 $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array($shippingAddress->stateId, $states, false));
-                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->name, $shippingAddress->getStateText()) == 0);
-                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && strcasecmp($state->abbreviation, $shippingAddress->getStateText()) == 0);
+                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateNames), false));
+                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateAbbr), false));
 
                 if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
                     return false;
@@ -313,7 +319,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      *
      * @return float
      */
-    public function getPercentageRate($shippingCategoryId = null)
+    public function getPercentageRate($shippingCategoryId = null): float
     {
         return $this->_getRate('percentageRate', $shippingCategoryId);
     }
@@ -331,7 +337,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ($shippingCategoryId == $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
                 return $ruleCategory->$attribute;
             }
         }
@@ -344,7 +350,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      *
      * @return float
      */
-    public function getPerItemRate($shippingCategoryId = null)
+    public function getPerItemRate($shippingCategoryId = null): float
     {
         return $this->_getRate('perItemRate', $shippingCategoryId);
     }
@@ -354,7 +360,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      *
      * @return float
      */
-    public function getWeightRate($shippingCategoryId = null)
+    public function getWeightRate($shippingCategoryId = null): float
     {
         return $this->_getRate('weightRate', $shippingCategoryId);
     }
@@ -362,7 +368,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return float
      */
-    public function getBaseRate()
+    public function getBaseRate(): float
     {
         return (float)$this->baseRate;
     }
@@ -370,7 +376,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return float
      */
-    public function getMaxRate()
+    public function getMaxRate(): float
     {
         return (float)$this->maxRate;
     }
@@ -378,7 +384,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @return float
      */
-    public function getMinRate()
+    public function getMinRate(): float
     {
         return (float)$this->minRate;
     }

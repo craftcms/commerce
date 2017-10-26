@@ -5,6 +5,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use yii\base\InvalidConfigException;
 
 /**
  * State model.
@@ -48,7 +49,7 @@ class State extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['countryId', 'name', 'abbreviation'], 'required']
@@ -58,7 +59,7 @@ class State extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/states/'.$this->id);
     }
@@ -72,18 +73,24 @@ class State extends Model
     }
 
     /**
-     * @return \craft\commerce\models\Country|null
+     * @return Country
+     *
+     * @throws InvalidConfigException if [[countryId]] is missing or invalid
      */
-    public function getCountry()
+    public function getCountry(): Country
     {
-        return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
+        if ($this->countryId === null) {
+            throw new InvalidConfigException('State is missing its country ID');
+        }
+
+        return Plugin::getInstance()->getCountries()->getCountryById($this->countryId);
     }
 
     /**
      * @return string
      */
-    public function formatName()
+    public function formatName(): string
     {
-        return $this->name.' ('.$this->country->name.')';
+        return $this->name.' ('.$this->getCountry()->name.')';
     }
 }

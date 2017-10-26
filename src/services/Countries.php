@@ -57,6 +57,7 @@ class Countries extends Component
      * @param int $id The country id.
      *
      * @return Country|null The matched country or null if not found.
+     *
      */
     public function getCountryById(int $id)
     {

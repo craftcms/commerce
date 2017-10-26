@@ -9,6 +9,8 @@ use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 
 /**
  * MissingGateway represents a gateway with an invalid class.
@@ -35,6 +37,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function getPaymentFormHtml(array $params)
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -42,6 +45,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function getPaymentFormModel()
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -49,6 +53,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -56,6 +61,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -63,6 +69,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -70,6 +77,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -77,6 +85,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -84,6 +93,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function processWebHook(): WebResponse
     {
+        throw new NotSupportedException();
     }
 
     /**
@@ -91,6 +101,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      */
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface
     {
+        throw new NotSupportedException();
     }
 
     /**

@@ -245,7 +245,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         // Set default gateway
         if (!$this->gatewayId) {
@@ -313,7 +313,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getTotalTaxablePrice()
+    public function getTotalTaxablePrice(): float
     {
         $itemTotal = $this->getItemSubtotal();
 
@@ -457,7 +457,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getItemTotal()
+    public function getItemTotal(): float
     {
         $total = 0;
 
@@ -585,7 +585,7 @@ class Order extends Element
     /**
      * @return string
      */
-    public function getShortNumber()
+    public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
     }
@@ -603,7 +603,7 @@ class Order extends Element
      * @inheritdoc
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/orders/'.$this->id);
     }
@@ -725,7 +725,7 @@ class Order extends Element
      *
      * @return float
      */
-    public function outstandingBalance()
+    public function outstandingBalance(): float
     {
         $totalPaid = Currency::round($this->totalPaid);
         $totalPrice = Currency::round($this->totalPrice);
@@ -733,7 +733,7 @@ class Order extends Element
         return $totalPrice - $totalPaid;
     }
 
-    public function getTotalPaid()
+    public function getTotalPaid(): float
     {
         return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
     }
@@ -831,7 +831,7 @@ class Order extends Element
      * @deprecated
      * @return float
      */
-    public function getTotalTax()
+    public function getTotalTax(): float
     {
         Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
 
@@ -842,7 +842,7 @@ class Order extends Element
      * @deprecated
      * @return float
      */
-    public function getTotalTaxIncluded()
+    public function getTotalTaxIncluded(): float
     {
         Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
 
@@ -851,9 +851,10 @@ class Order extends Element
 
     /**
      * @deprecated
+     *
      * @return float
      */
-    public function getTotalDiscount()
+    public function getTotalDiscount(): float
     {
         Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
 
@@ -862,9 +863,10 @@ class Order extends Element
 
     /**
      * @deprecated
+     *
      * @return float
      */
-    public function getTotalShippingCost()
+    public function getTotalShippingCost(): float
     {
         Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
 
@@ -874,7 +876,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getTotalWeight()
+    public function getTotalWeight(): float
     {
         $weight = 0;
         foreach ($this->getLineItems() as $item) {
@@ -889,7 +891,7 @@ class Order extends Element
      *
      * @return float
      */
-    public function getTotalSaleAmount()
+    public function getTotalSaleAmount(): float
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
@@ -904,7 +906,7 @@ class Order extends Element
      *
      * @return float
      */
-    public function getItemSubtotal()
+    public function getItemSubtotal(): float
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
@@ -919,7 +921,7 @@ class Order extends Element
      *
      * @return float|int
      */
-    public function getAdjustmentSubtotal()
+    public function getAdjustmentSubtotal(): float
     {
         $value = 0;
         foreach ($this->getAdjustments() as $adjustment) {

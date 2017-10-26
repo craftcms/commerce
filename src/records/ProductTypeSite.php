@@ -4,6 +4,9 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\Site;
+use Symfony\Component\Debug\Tests\Fixtures\ClassAlias;
+use yii\db\ActiveQuery;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Product type locale record.
@@ -32,12 +35,18 @@ class ProductTypeSite extends ActiveRecord
         return '{{%commerce_producttypes_sites}}';
     }
 
-    public function getProductType()
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    public function getSite()
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getSite(): ActiveQueryInterface
     {
         return $this->hasOne(Site::class, ['id', 'siteId']);
     }

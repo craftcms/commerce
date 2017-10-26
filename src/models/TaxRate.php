@@ -88,7 +88,7 @@ class TaxRate extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/taxrates/'.$this->id);
     }
@@ -96,7 +96,7 @@ class TaxRate extends Model
     /**
      * @return string
      */
-    public function getRateAsPercent()
+    public function getRateAsPercent(): string
     {
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
@@ -108,7 +108,7 @@ class TaxRate extends Model
      */
     public function getTaxZone()
     {
-        if (!$this->_taxZone) {
+        if (null === $this->_taxZone) {
             $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
         }
 
@@ -120,7 +120,7 @@ class TaxRate extends Model
      */
     public function getTaxCategory()
     {
-        if (!$this->_taxCategory) {
+        if (null === $this->_taxCategory) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 

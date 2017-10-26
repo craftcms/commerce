@@ -26,7 +26,7 @@ class Orders extends Component
      *
      * @return Order|null
      */
-    public function getOrderById($id)
+    public function getOrderById(int $id)
     {
         if (!$id) {
             return null;

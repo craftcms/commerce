@@ -7,6 +7,7 @@ use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\commerce\models\Customer as CustomerModel;
 
 /**
  * Class Customer
@@ -56,9 +57,9 @@ class Customer extends Field
      * @param mixed                 $value
      * @param ElementInterface|null $element
      *
-     * @return \craft\commerce\models\Customer
+     * @return CustomerModel
      */
-    public function normalizeValue($value, ElementInterface $element = null)
+    public function normalizeValue($value, ElementInterface $element = null): CustomerModel
     {
         if ($element && $element->id) {
             return Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id);

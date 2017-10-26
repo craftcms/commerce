@@ -75,7 +75,7 @@ class ShippingRuleCategory extends Model
     /**
      * @return ShippingRule
      */
-    public function getRule()
+    public function getRule(): ShippingRule
     {
         return Plugin::getInstance()->getShippingRules()->getShippingRuleById($this->shippingRuleId);
     }
@@ -83,7 +83,7 @@ class ShippingRuleCategory extends Model
     /**
      * @return ShippingCategory
      */
-    public function getCategory()
+    public function getCategory(): ShippingCategory
     {
         return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
     }

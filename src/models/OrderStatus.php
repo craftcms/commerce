@@ -81,7 +81,7 @@ class OrderStatus extends Model
      */
     public function __toString()
     {
-        return (string)$this->getAttribute('name');
+        return (string)$this->name;
     }
 
     /**

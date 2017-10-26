@@ -80,19 +80,25 @@ class PaymentCurrency extends Model
     {
         $fields = parent::fields();
 
+
         $fields['minorUnits'] = function($model) {
-            return $model->getMinorUnits();
+            /** @var PaymentCurrency $model */
+            return $model->getMinorUnit();
         };
         $fields['alphabeticCode'] = function($model) {
+            /** @var PaymentCurrency $model */
             return $model->getAlphabeticCode();
         };
         $fields['currency'] = function($model) {
+            /** @var PaymentCurrency $model */
             return $model->getCurrency();
         };
         $fields['numericCode'] = function($model) {
+            /** @var PaymentCurrency $model */
             return $model->getNumericCode();
         };
         $fields['entity'] = function($model) {
+            /** @var PaymentCurrency $model */
             return $model->getEntity();
         };
 

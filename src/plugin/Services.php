@@ -46,7 +46,7 @@ trait Services
      *
      * @return Addresses The address service
      */
-    public function getAddresses()
+    public function getAddresses(): Addresses
     {
         return $this->get('addresses');
     }
@@ -56,7 +56,7 @@ trait Services
      *
      * @return Cart The cart service
      */
-    public function getCart()
+    public function getCart(): Cart
     {
         return $this->get('cart');
     }
@@ -66,7 +66,7 @@ trait Services
      *
      * @return Countries The countries service
      */
-    public function getCountries()
+    public function getCountries(): Countries
     {
         return $this->get('countries');
     }
@@ -76,7 +76,7 @@ trait Services
      *
      * @return Currencies The currencies service
      */
-    public function getCurrencies()
+    public function getCurrencies(): Currencies
     {
         return $this->get('currencies');
     }
@@ -86,7 +86,7 @@ trait Services
      *
      * @return Customers The customers service
      */
-    public function getCustomers()
+    public function getCustomers(): Customers
     {
         return $this->get('customers');
     }
@@ -96,7 +96,7 @@ trait Services
      *
      * @return Discounts The discounts service
      */
-    public function getDiscounts()
+    public function getDiscounts(): Discounts
     {
         return $this->get('discounts');
     }
@@ -106,7 +106,7 @@ trait Services
      *
      * @return Emails The emails service
      */
-    public function getEmails()
+    public function getEmails(): Emails
     {
         return $this->get('emails');
     }
@@ -116,7 +116,7 @@ trait Services
      *
      * @return Gateways The gateways service
      */
-    public function getGateways()
+    public function getGateways(): Gateways
     {
         return $this->get('gateways');
     }
@@ -126,7 +126,7 @@ trait Services
      *
      * @return LineItems The lineItems service
      */
-    public function getLineItems()
+    public function getLineItems(): LineItems
     {
         return $this->get('lineItems');
     }
@@ -136,7 +136,7 @@ trait Services
      *
      * @return OrderAdjustments The orderAdjustments service
      */
-    public function getOrderAdjustments()
+    public function getOrderAdjustments(): OrderAdjustments
     {
         return $this->get('orderAdjustments');
     }
@@ -146,7 +146,7 @@ trait Services
      *
      * @return OrderHistories The orderHistories service
      */
-    public function getOrderHistories()
+    public function getOrderHistories(): OrderHistories
     {
         return $this->get('orderHistories');
     }
@@ -156,7 +156,7 @@ trait Services
      *
      * @return Orders The orders service
      */
-    public function getOrders()
+    public function getOrders(): Orders
     {
         return $this->get('orders');
     }
@@ -166,7 +166,7 @@ trait Services
      *
      * @return OrderSettings The orderSettings service
      */
-    public function getOrderSettings()
+    public function getOrderSettings(): OrderSettings
     {
         return $this->get('orderSettings');
     }
@@ -176,7 +176,7 @@ trait Services
      *
      * @return OrderStatuses The orderStatuses service
      */
-    public function getOrderStatuses()
+    public function getOrderStatuses(): OrderStatuses
     {
         return $this->get('orderStatuses');
     }
@@ -186,7 +186,7 @@ trait Services
      *
      * @return PaymentCurrencies The paymentCurrencies service
      */
-    public function getPaymentCurrencies()
+    public function getPaymentCurrencies(): PaymentCurrencies
     {
         return $this->get('paymentCurrencies');
     }
@@ -196,7 +196,7 @@ trait Services
      *
      * @return Payments The payments service
      */
-    public function getPayments()
+    public function getPayments(): Payments
     {
         return $this->get('payments');
     }
@@ -206,7 +206,7 @@ trait Services
      *
      * @return Products The products service
      */
-    public function getProducts()
+    public function getProducts(): Products
     {
         return $this->get('products');
     }
@@ -216,7 +216,7 @@ trait Services
      *
      * @return ProductTypes The productTypes service
      */
-    public function getProductTypes()
+    public function getProductTypes(): ProductTypes
     {
         return $this->get('productTypes');
     }
@@ -226,7 +226,7 @@ trait Services
      *
      * @return Purchasables The purchasables service
      */
-    public function getPurchasables()
+    public function getPurchasables(): Purchasables
     {
         return $this->get('purchasables');
     }
@@ -236,7 +236,7 @@ trait Services
      *
      * @return Sales The sales service
      */
-    public function getSales()
+    public function getSales(): Sales
     {
         return $this->get('sales');
     }
@@ -246,7 +246,7 @@ trait Services
      *
      * @return ShippingMethods The shippingMethods service
      */
-    public function getShippingMethods()
+    public function getShippingMethods(): ShippingMethods
     {
         return $this->get('shippingMethods');
     }
@@ -256,7 +256,7 @@ trait Services
      *
      * @return ShippingRules The shippingRules service
      */
-    public function getShippingRules()
+    public function getShippingRules(): ShippingRules
     {
         return $this->get('shippingRules');
     }
@@ -266,7 +266,7 @@ trait Services
      *
      * @return ShippingRuleCategories The shippingRuleCategories service
      */
-    public function getShippingRuleCategories()
+    public function getShippingRuleCategories(): ShippingRuleCategories
     {
         return $this->get('shippingRuleCategories');
     }
@@ -276,7 +276,7 @@ trait Services
      *
      * @return ShippingCategories The shippingCategories service
      */
-    public function getShippingCategories()
+    public function getShippingCategories(): ShippingCategories
     {
         return $this->get('shippingCategories');
     }
@@ -286,7 +286,7 @@ trait Services
      *
      * @return ShippingZones The shippingZones service
      */
-    public function getShippingZones()
+    public function getShippingZones(): ShippingZones
     {
         return $this->get('shippingZones');
     }
@@ -296,7 +296,7 @@ trait Services
      *
      * @return States The states service
      */
-    public function getStates()
+    public function getStates(): States
     {
         return $this->get('states');
     }
@@ -306,7 +306,7 @@ trait Services
      *
      * @return TaxCategories The taxCategories service
      */
-    public function getTaxCategories()
+    public function getTaxCategories(): TaxCategories
     {
         return $this->get('taxCategories');
     }
@@ -316,7 +316,7 @@ trait Services
      *
      * @return TaxRates The taxRates service
      */
-    public function getTaxRates()
+    public function getTaxRates(): TaxRates
     {
         return $this->get('taxRates');
     }
@@ -326,7 +326,7 @@ trait Services
      *
      * @return TaxZones The taxZones service
      */
-    public function getTaxZones()
+    public function getTaxZones(): TaxZones
     {
         return $this->get('taxZones');
     }
@@ -336,7 +336,7 @@ trait Services
      *
      * @return Transactions The transactions service
      */
-    public function getTransactions()
+    public function getTransactions(): Transactions
     {
         return $this->get('transactions');
     }
@@ -346,7 +346,7 @@ trait Services
      *
      * @return Variants The variants service
      */
-    public function getVariants()
+    public function getVariants(): Variants
     {
         return $this->get('variants');
     }

@@ -140,7 +140,7 @@ class Sale extends Model
      */
     public function getDiscountAmountAsPercent(): string
     {
-        if ($this->discountAmount != 0) {
+        if ($this->discountAmount !== 0) {
             return Craft::$app->formatter->asPercent(-$this->discountAmount);
         }
 
@@ -152,7 +152,7 @@ class Sale extends Model
      */
     public function getDiscountAmountAsFlat(): string
     {
-        return $this->discountAmount != 0 ? (string)$this->discountAmount * -1 : '0';
+        return $this->discountAmount !== 0 ? (string)$this->discountAmount * -1 : '0';
     }
 
     /**
@@ -160,7 +160,7 @@ class Sale extends Model
      *
      * @return float
      */
-    public function calculateTakeoff($price)
+    public function calculateTakeoff($price): float
     {
         if ($this->discountType === 'flat') {
             $takeOff = $this->discountAmount;
