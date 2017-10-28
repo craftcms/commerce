@@ -21,6 +21,9 @@ use yii\base\Exception;
  */
 class OrderSettings extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var
      */

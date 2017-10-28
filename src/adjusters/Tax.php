@@ -26,12 +26,22 @@ class Tax implements AdjusterInterface
 
     const ADJUSTMENT_TYPE = 'tax';
 
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var
+     */
     private $_vatValidator;
 
-    /** @var  Order */
+    /**
+     * @var Order
+     */
     private $_order;
 
-    /** @var  Address */
+    /**
+     * @var Address
+     */
     private $_address;
 
     // Public Methods

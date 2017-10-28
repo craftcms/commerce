@@ -24,6 +24,9 @@ use craft\helpers\UrlHelper;
  */
 class ShippingCategory extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

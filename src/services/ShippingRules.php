@@ -27,6 +27,9 @@ use yii\base\Exception;
  */
 class ShippingRules extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */

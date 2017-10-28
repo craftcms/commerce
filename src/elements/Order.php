@@ -115,6 +115,9 @@ class Order extends Element
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
+    // Properties
+    // =========================================================================
+
     /**
      * @var int ID
      */

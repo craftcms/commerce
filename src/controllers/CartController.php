@@ -20,6 +20,12 @@ use yii\web\HttpException;
  */
 class CartController extends BaseFrontEndController
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var
+     */
     private $_cart;
 
     // Public Methods

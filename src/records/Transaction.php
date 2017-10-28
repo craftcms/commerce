@@ -18,12 +18,10 @@ use yii\db\ActiveQueryInterface;
  * @property string      $message
  * @property string      $response
  * @property string      $code
- *
  * @property int         $parentId
  * @property int         $userId
  * @property int         $gatewayId
  * @property int         $orderId
- *
  * @property Transaction $parent
  * @property Gateway     $gateway
  * @property Order       $order
@@ -51,7 +49,12 @@ class Transaction extends ActiveRecord
     const STATUS_SUCCESS = 'success';
     const STATUS_FAILED = 'failed';
 
-    /* @var int $total */
+    // Properties
+    // =============================================================================
+
+    /**
+     * @var int $total
+     */
     public $total = 0;
 
     // Public Methods

@@ -18,7 +18,6 @@ use craft\commerce\Plugin;
  * @property string $sourceSnapshot
  * @property int    $orderId
  * @property int    $lineItemId
- *
  * @property Order  $order
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -30,6 +29,9 @@ use craft\commerce\Plugin;
  */
 class OrderAdjustment extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

@@ -25,6 +25,9 @@ use yii\base\Exception;
  */
 class ShippingCategories extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */

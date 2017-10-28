@@ -16,7 +16,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool   $included
  * @property string $sourceSnapshot
  * @property int    $orderId
- *
  * @property Order  $order
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>

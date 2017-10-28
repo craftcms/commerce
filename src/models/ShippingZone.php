@@ -31,6 +31,9 @@ use craft\helpers\UrlHelper;
  */
 class ShippingZone extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

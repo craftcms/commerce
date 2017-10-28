@@ -26,6 +26,9 @@ use craft\helpers\UrlHelper;
  */
 class Sale extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

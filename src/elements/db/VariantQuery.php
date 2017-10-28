@@ -13,6 +13,9 @@ use craft\helpers\Db;
  */
 class VariantQuery extends ElementQuery
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var
      */

@@ -39,7 +39,12 @@ class Customers extends Component
 
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
-    /** @var Customer */
+    // Properties
+    // =============================================================================
+
+    /**
+     * @var Customer
+     */
     private $_customer;
 
     // Public Methods

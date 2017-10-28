@@ -26,14 +26,12 @@ use yii\db\ActiveQueryInterface;
  * @property string                       $message
  * @property string                       $returnUrl
  * @property string                       $cancelUrl
- *
  * @property int                          $billingAddressId
  * @property int                          $shippingAddressId
  * @property string                       $shippingMethodHandle
  * @property int                          $gatewayId
  * @property int                          $customerId
  * @property int                          $orderStatusId
- *
  * @property LineItem[]                   $lineItems
  * @property Address                      $billingAddress
  * @property Address                      $shippingAddress

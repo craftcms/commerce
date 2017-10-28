@@ -27,6 +27,9 @@ use craft\helpers\UrlHelper;
  */
 class TaxZone extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

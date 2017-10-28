@@ -26,6 +26,9 @@ use yii\base\InvalidConfigException;
  */
 class State extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

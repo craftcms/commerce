@@ -22,6 +22,12 @@ class Shipping implements AdjusterInterface
 
     const ADJUSTMENT_TYPE = 'shipping';
 
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var
+     */
     private $_order;
 
     // Public Methods

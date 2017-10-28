@@ -11,6 +11,9 @@ use yii\base\Event;
 
 class BuildPaymentRequestEvent extends Event
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var array Request params
      */

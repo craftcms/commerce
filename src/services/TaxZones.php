@@ -27,6 +27,9 @@ use yii\base\Exception;
  */
 class TaxZones extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */

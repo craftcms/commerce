@@ -34,6 +34,9 @@ use yii\base\Exception;
  */
 class Discounts extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var Discount[]
      */

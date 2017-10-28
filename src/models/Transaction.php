@@ -27,6 +27,9 @@ use DateTime;
  */
 class Transaction extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

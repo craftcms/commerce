@@ -17,6 +17,12 @@ use craft\commerce\Plugin;
  */
 class BaseFrontEndController extends BaseController
 {
+    // Properties
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     protected $allowAnonymous = true;
 
     /**

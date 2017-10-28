@@ -28,6 +28,9 @@ use craft\helpers\UrlHelper;
  */
 class OrderStatus extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

@@ -12,13 +12,11 @@ use DateTime;
  *
  * @property int         $id
  * @property string      $message
- *
  * @property int         $orderId
  * @property int         $prevStatusId
  * @property int         $newStatusId
  * @property int         $customerId
  * @property \DateTime   $dateCreated
- *
  * @property Order       $order
  * @property OrderStatus $prevStatus
  * @property OrderStatus $newStatus
@@ -33,6 +31,9 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */

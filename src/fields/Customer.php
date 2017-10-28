@@ -26,9 +26,7 @@ class Customer extends Field
 
     /**
      * @inheritDoc IComponentType::getName()
-     *
-     * @return string
-     */
+\     */
     public function getName(): string
     {
         return Craft::t('commerce', 'Commerce Customer Info');

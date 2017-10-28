@@ -21,7 +21,12 @@ use yii\base\Component;
  */
 class Settings extends Component
 {
-    /** @var \craft\base\Plugin */
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var \craft\base\Plugin
+     */
     private $_plugin;
 
     // Public Methods

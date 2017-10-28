@@ -31,6 +31,9 @@ use yii\web\Response;
  */
 class ProductsController extends BaseCpController
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

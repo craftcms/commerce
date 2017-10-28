@@ -25,7 +25,12 @@ class Discount implements AdjusterInterface
      */
     const ADJUSTMENT_TYPE = 'discount';
 
-    /** @var Order */
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var Order
+     */
     private $_order;
 
     /**

@@ -38,6 +38,9 @@ class Sales extends Component
      */
     const EVENT_BEFORE_MATCH_PRODUCT_SALE = 'beforeMatchProductSale';
 
+    // Properties
+    // =========================================================================
+
     /**
      * @var Sale[]
      */

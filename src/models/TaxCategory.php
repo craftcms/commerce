@@ -21,6 +21,9 @@ use craft\helpers\UrlHelper;
  */
 class TaxCategory extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID;
      */

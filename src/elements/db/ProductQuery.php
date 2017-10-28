@@ -20,6 +20,9 @@ use DateTime;
  */
 class ProductQuery extends ElementQuery
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool Whether to only return products that the user has permission to edit.
      */

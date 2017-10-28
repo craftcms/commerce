@@ -26,6 +26,9 @@ use yii\base\Exception;
  */
 class PaymentCurrencies extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var PaymentCurrency[]
      */

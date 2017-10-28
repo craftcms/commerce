@@ -6,17 +6,15 @@ use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Order hsitory record.
+ * Order history record.
  *
  * @property int         $id
  * @property string      $message
- *
  * @property int         $orderId
  * @property int         $prevStatusId
  * @property int         $newStatusId
  * @property int         $customerId
  * @property \DateTime   $dateCreated
- *
  * @property Order       $order
  * @property OrderStatus $prevStatus
  * @property OrderStatus $newStatus

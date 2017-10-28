@@ -30,6 +30,9 @@ use yii\base\Exception;
  */
 class OrderStatuses extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var bool
      */

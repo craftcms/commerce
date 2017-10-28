@@ -28,6 +28,9 @@ use yii\db\Connection;
  */
 class OrderQuery extends ElementQuery
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var string The order number of the resulting entry.
      */

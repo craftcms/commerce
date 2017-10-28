@@ -7,6 +7,9 @@ use craft\events\CancelableEvent;
 
 class GatewayRequestEvent extends CancelableEvent
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var string Transaction type
      */
