@@ -102,6 +102,9 @@ use yii\base\Exception;
  */
 class Order extends Element
 {
+    // Constants
+    // =========================================================================
+
     /**
      * @event OrderEvent This event is raised when an order is completed
      */

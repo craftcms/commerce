@@ -30,6 +30,9 @@ use yii\base\Exception;
  */
 class Sales extends Component
 {
+    // Constants
+    // =========================================================================
+
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      */

@@ -17,6 +17,9 @@ use craft\commerce\Plugin;
  */
 class Shipping implements AdjusterInterface
 {
+    // Constants
+    // =========================================================================
+
     const ADJUSTMENT_TYPE = 'shipping';
 
     private $_order;

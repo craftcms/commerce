@@ -27,6 +27,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRuleCategory extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
     const CONDITION_ALLOW = 'allow';
     const CONDITION_DISALLOW = 'disallow';
     const CONDITION_REQUIRE = 'require';

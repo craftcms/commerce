@@ -17,6 +17,9 @@ use craft\commerce\records\Discount as DiscountRecord;
  */
 class Discount implements AdjusterInterface
 {
+    // Constants
+    // =========================================================================
+
     /**
      * The discount adjustment type.
      */

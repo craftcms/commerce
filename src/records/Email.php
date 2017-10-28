@@ -25,6 +25,9 @@ use craft\db\ActiveRecord;
  */
 class Email extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
     const TYPE_CUSTOMER = 'customer';
     const TYPE_CUSTOM = 'custom';
 

@@ -33,6 +33,9 @@ use yii\db\ActiveQueryInterface;
  */
 class Sale extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
     const TYPE_PERCENT = 'percent';
     const TYPE_FLAT = 'flat';
 

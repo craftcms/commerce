@@ -38,11 +38,13 @@ use yii\db\ActiveQueryInterface;
  */
 class Transaction extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
     const TYPE_AUTHORIZE = 'authorize';
     const TYPE_CAPTURE = 'capture';
     const TYPE_PURCHASE = 'purchase';
     const TYPE_REFUND = 'refund';
-
     const STATUS_PENDING = 'pending';
     const STATUS_REDIRECT = 'redirect';
     const STATUS_PROCESSING = 'processing';

@@ -21,6 +21,9 @@ use Snowcap\Vat\Validation;
  */
 class Tax implements AdjusterInterface
 {
+    // Constants
+    // =========================================================================
+
     const ADJUSTMENT_TYPE = 'tax';
 
     private $_vatValidator;
