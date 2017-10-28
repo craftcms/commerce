@@ -20,7 +20,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool          $allProducts
  * @property bool          $allProductTypes
  * @property bool          $enabled
- *
  * @property Product[]     $products
  * @property ProductType[] $productTypes
  * @property UserGroup[]   $groups
@@ -36,6 +35,9 @@ class Sale extends ActiveRecord
 {
     const TYPE_PERCENT = 'percent';
     const TYPE_FLAT = 'flat';
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

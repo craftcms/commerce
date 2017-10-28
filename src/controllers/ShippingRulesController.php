@@ -23,6 +23,9 @@ use yii\web\Response;
  */
 class ShippingRulesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

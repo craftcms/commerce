@@ -43,6 +43,9 @@ use craft\records\Site;
  */
 class Install extends Migration
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

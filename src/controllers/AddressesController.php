@@ -8,8 +8,6 @@ use craft\commerce\Plugin;
 use yii\web\HttpException;
 use yii\web\Response;
 
-/** @noinspection */
-
 /**
  * Class Address Controller
  *
@@ -22,6 +20,9 @@ use yii\web\Response;
  */
 class AddressesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

@@ -75,6 +75,9 @@ class TaxRate extends Model
      */
     private $_taxZone;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

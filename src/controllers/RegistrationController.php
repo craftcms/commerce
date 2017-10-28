@@ -17,6 +17,9 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
  */
 class RegistrationController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     public function actionEdit()
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);

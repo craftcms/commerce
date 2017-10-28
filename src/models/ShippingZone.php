@@ -66,6 +66,9 @@ class ShippingZone extends Model
      */
     private $_states;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

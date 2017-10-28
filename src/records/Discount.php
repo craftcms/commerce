@@ -54,6 +54,9 @@ class Discount extends ActiveRecord
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

@@ -16,6 +16,9 @@ use craft\commerce\models\LineItem;
  */
 interface PurchasableInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the Id of the Purchasable element that should be added to the line item.
      * This elements model should meet the Purchasable Interface.

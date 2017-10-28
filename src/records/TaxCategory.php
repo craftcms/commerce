@@ -22,6 +22,9 @@ use craft\db\ActiveRecord;
  */
 class TaxCategory extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

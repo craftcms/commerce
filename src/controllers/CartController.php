@@ -22,6 +22,9 @@ class CartController extends BaseFrontEndController
 {
     private $_cart;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Update quantity
      *

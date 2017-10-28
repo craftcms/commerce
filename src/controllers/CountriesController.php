@@ -20,6 +20,9 @@ use yii\web\Response;
  */
 class CountriesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

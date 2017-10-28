@@ -24,6 +24,9 @@ use yii\web\HttpException;
  */
 class OrdersController extends BaseCpController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

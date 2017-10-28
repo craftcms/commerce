@@ -171,6 +171,9 @@ class Discount extends Model
      */
     private $_userGroupIds;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

@@ -4,8 +4,6 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\Site;
-use Symfony\Component\Debug\Tests\Fixtures\ClassAlias;
-use yii\db\ActiveQuery;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -14,7 +12,6 @@ use yii\db\ActiveQueryInterface;
  * @property int         $productTypeId
  * @property int         $localeId
  * @property string      $uriFormat
- *
  * @property Site        $site
  * @property ProductType $productType
  *
@@ -27,8 +24,11 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeSite extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {

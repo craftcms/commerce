@@ -44,6 +44,9 @@ class TaxCategories extends Component
      */
     private $_defaultTaxCategory;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns all Tax Categories
      *

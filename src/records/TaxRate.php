@@ -16,7 +16,6 @@ use yii\db\ActiveQueryInterface;
  * @property string      $taxable
  * @property int         $taxZoneId
  * @property int         $taxCategoryId
- *
  * @property TaxZone     $taxZone
  * @property TaxCategory $taxCategory
  *
@@ -34,6 +33,9 @@ class TaxRate extends ActiveRecord
     const TAXABLE_PRICE_SHIPPING = 'price_shipping';
     const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
     const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

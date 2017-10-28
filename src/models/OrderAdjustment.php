@@ -75,6 +75,9 @@ class OrderAdjustment extends Model
      */
     public $lineItemId;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return \craft\commerce\elements\Order|null
      */

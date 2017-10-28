@@ -31,6 +31,9 @@ class ShippingRuleCategory extends ActiveRecord
     const CONDITION_DISALLOW = 'disallow';
     const CONDITION_REQUIRE = 'require';
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

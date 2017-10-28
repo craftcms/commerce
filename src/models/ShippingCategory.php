@@ -49,6 +49,9 @@ class ShippingCategory extends Model
      */
     public $default;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the name of this shipping category.
      *

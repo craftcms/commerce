@@ -161,6 +161,9 @@ class LineItem extends Model
      */
     private $_order;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return \craft\commerce\elements\Order|null
      */

@@ -41,7 +41,7 @@ class Gateways extends Component
      */
     const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
 
-    // Properties
+    // Public Methods
     // =========================================================================
 
     /**

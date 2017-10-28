@@ -36,6 +36,9 @@ class ProductsController extends BaseCpController
      */
     protected $allowAnonymous = ['actionViewSharedProduct'];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

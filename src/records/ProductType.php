@@ -22,13 +22,11 @@ use yii\db\ActiveQueryInterface;
  * @property string                       $descriptionFormat
  * @property int                          $fieldLayoutId
  * @property int                          $variantFieldLayoutId
- *
  * @property \yii\db\ActiveQueryInterface $shippingCategories
  * @property \yii\db\ActiveQueryInterface $taxCategories
  * @property \yii\db\ActiveQueryInterface $productTypesTaxCategories
  * @property \yii\db\ActiveQueryInterface $variantFieldLayout
  * @property \yii\db\ActiveQueryInterface $productTypesShippingCategories
- *
  * @property FieldLayout                  $fieldLayout
  *
  * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -40,6 +38,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductType extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

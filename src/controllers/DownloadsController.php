@@ -29,6 +29,12 @@ if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {
  */
 class DownloadsController extends BaseFrontEndController
 {
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * @throws HttpException
+     */
     public function actionPdf()
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;

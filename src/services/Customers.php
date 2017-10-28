@@ -39,6 +39,9 @@ class Customers extends Component
     /** @var Customer */
     private $_customer;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      *
      * @return Customer[]

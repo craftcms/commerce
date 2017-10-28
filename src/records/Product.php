@@ -17,7 +17,6 @@ use yii\db\ActiveQueryInterface;
  * @property \DateTime                    $expiryDate
  * @property bool                         $promotable
  * @property bool                         $freeShipping
- *
  * @property int                          defaultVariantId
  * @property string                       defaultSku
  * @property float                        defaultPrice
@@ -25,7 +24,6 @@ use yii\db\ActiveQueryInterface;
  * @property float                        defaultLength
  * @property float                        defaultWidth
  * @property float                        defaultWeight
- *
  * @property Variant                      $implicit
  * @property Variant[]                    $variants
  * @property \yii\db\ActiveQueryInterface $element
@@ -42,6 +40,9 @@ use yii\db\ActiveQueryInterface;
  */
 class Product extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

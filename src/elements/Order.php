@@ -242,6 +242,9 @@ class Order extends Element
      */
     private $_relcalculate = true;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

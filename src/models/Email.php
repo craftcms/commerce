@@ -66,6 +66,9 @@ class Email extends Model
      */
     public $templatePath;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

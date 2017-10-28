@@ -55,6 +55,9 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the name of the associated database table.
      *

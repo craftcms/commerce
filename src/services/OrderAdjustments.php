@@ -33,6 +33,9 @@ class OrderAdjustments extends Component
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return AdjusterInterface[]
      */

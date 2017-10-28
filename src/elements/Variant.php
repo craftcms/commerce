@@ -127,6 +127,9 @@ class Variant extends Purchasable
      */
     private $_product;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

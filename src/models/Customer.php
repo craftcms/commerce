@@ -55,6 +55,9 @@ class Customer extends Model
      */
     private $_user;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the email address of the customer as the string output.
      *

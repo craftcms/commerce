@@ -58,6 +58,9 @@ class OrderStatus extends Model
      */
     public $default;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return array
      */

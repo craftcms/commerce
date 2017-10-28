@@ -142,6 +142,9 @@ class Transaction extends Model
      */
     private $_children;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param null $attributes
      */

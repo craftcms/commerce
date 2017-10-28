@@ -23,6 +23,9 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

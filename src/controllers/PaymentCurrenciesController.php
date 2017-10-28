@@ -20,6 +20,9 @@ use yii\web\Response;
  */
 class PaymentCurrenciesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

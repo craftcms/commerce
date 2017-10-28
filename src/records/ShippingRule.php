@@ -27,7 +27,6 @@ use yii\db\ActiveQueryInterface;
  * @property float                        $percentageRate
  * @property float                        $minRate
  * @property float                        $maxRate
- *
  * @property Country                      $country
  * @property State                        $state
  * @property \yii\db\ActiveQueryInterface $shippingZone
@@ -42,6 +41,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

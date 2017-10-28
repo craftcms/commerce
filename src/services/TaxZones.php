@@ -37,6 +37,9 @@ class TaxZones extends Component
      */
     private $_allTaxZones;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return TaxZone[]
      */

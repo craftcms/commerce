@@ -124,6 +124,9 @@ class Address extends Model
      */
     private $_stateValue;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

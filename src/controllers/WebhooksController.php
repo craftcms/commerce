@@ -24,6 +24,9 @@ class WebhooksController extends BaseController
      */
     protected $allowAnonymous = ['process-webhook'];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      * @throws HttpException If webhook not expected.

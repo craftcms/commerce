@@ -36,6 +36,9 @@ class PaymentCurrencies extends Component
      */
     private $_allCurrenciesById;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *

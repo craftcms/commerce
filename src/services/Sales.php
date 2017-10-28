@@ -45,6 +45,9 @@ class Sales extends Component
      */
     private $_allActiveSales;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $id
      *

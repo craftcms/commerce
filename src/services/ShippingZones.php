@@ -37,6 +37,9 @@ class ShippingZones extends Component
      */
     private $_allShippingZones = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return ShippingZone[]
      */

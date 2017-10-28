@@ -22,6 +22,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingZoneState extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

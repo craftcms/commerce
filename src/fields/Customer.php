@@ -21,6 +21,9 @@ use craft\commerce\models\Customer as CustomerModel;
  */
 class Customer extends Field
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritDoc IComponentType::getName()
      *

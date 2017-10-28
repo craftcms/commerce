@@ -28,6 +28,9 @@ use craft\commerce\Plugin;
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the Id of the Purchasable element that should be added to the line item.
      * This elements model should meet the Purchasable Interface.

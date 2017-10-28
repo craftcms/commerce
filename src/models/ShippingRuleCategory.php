@@ -57,6 +57,12 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     public function rules(): array
     {
         return [

@@ -17,6 +17,9 @@ use craft\commerce\Plugin;
  */
 class Extension extends \Twig_Extension
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

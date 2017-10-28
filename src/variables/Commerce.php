@@ -23,7 +23,6 @@ use craft\commerce\models\ShippingZone;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
-use craft\commerce\Plugin;
 use craft\commerce\services\Addresses;
 use craft\helpers\ArrayHelper;
 
@@ -39,6 +38,9 @@ use craft\helpers\ArrayHelper;
  */
 class Commerce
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Commerce
      */

@@ -21,6 +21,9 @@ class Currencies extends Component
 {
     private $_allCurrencies;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param string $iso
      *

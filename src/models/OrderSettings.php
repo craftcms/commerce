@@ -49,6 +49,9 @@ class OrderSettings extends Model
      */
     public $fieldLayoutId;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return null|string
      */
@@ -71,7 +74,7 @@ class OrderSettings extends Model
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-        
+
         $behaviors['fieldLayout'] = [
             'class' => FieldLayoutBehavior::class,
             'elementType' => Order::class

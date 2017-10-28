@@ -9,6 +9,9 @@ namespace craft\commerce\base;
  */
 interface RequestResponseInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Whether or not the payment was successful.
      *

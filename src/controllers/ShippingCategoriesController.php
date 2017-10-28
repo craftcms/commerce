@@ -20,6 +20,9 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

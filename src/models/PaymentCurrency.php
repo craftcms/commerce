@@ -57,6 +57,9 @@ class PaymentCurrency extends Model
      */
     private $_currency;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

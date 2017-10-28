@@ -17,12 +17,21 @@ use craft\commerce\records\Discount as DiscountRecord;
  */
 class Discount implements AdjusterInterface
 {
+    /**
+     * The discount adjustment type.
+     */
     const ADJUSTMENT_TYPE = 'discount';
 
     /** @var Order */
     private $_order;
 
+    /**
+     * @var
+     */
     private $_discount;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param \craft\commerce\elements\Order $order

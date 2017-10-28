@@ -13,12 +13,38 @@ use craft\helpers\Db;
  */
 class VariantQuery extends ElementQuery
 {
+    /**
+     * @var
+     */
     public $sku;
+
+    /**
+     * @var
+     */
     public $product;
+
+    /**
+     * @var
+     */
     public $productId;
+
+    /**
+     * @var
+     */
     public $isDefault;
+
+    /**
+     * @var
+     */
     public $stock;
+
+    /**
+     * @var
+     */
     public $hasStock;
+
+    // Public Methods
+    // =========================================================================
 
     public function sku($value)
     {

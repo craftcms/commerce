@@ -52,6 +52,9 @@ class Transaction extends ActiveRecord
     /* @var int $total */
     public $total = 0;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

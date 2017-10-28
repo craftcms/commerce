@@ -50,6 +50,9 @@ class OrderStatuses extends Component
      */
     private $_defaultOrderStatus;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param string $handle
      *

@@ -34,6 +34,9 @@ class TaxRates extends Component
      */
     private $_allTaxRates = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      *
      * @return TaxRate[]

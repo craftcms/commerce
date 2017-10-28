@@ -144,6 +144,9 @@ class Settings extends Model
      */
     public $gatewaySettings = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return array
      */

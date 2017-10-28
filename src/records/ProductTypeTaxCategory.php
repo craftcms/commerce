@@ -11,7 +11,6 @@ use yii\db\ActiveQueryInterface;
  * @property int         $productTypeId
  * @property int         $localeId
  * @property string      $uriFormat
- *
  * @property TaxCategory $taxCategory
  * @property ProductType $productType
  *
@@ -24,6 +23,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeTaxCategory extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

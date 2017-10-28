@@ -45,6 +45,9 @@ class ShippingCategories extends Component
      */
     private $_defaultShippingCategory;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns all Shipping Categories
      *

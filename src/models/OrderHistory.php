@@ -68,6 +68,9 @@ class OrderHistory extends Model
      */
     public $dateCreated;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return \craft\commerce\elements\Order|null
      */

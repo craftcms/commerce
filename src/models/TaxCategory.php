@@ -46,6 +46,9 @@ class TaxCategory extends Model
      */
     public $default;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the name of this tax category.
      *

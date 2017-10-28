@@ -26,6 +26,9 @@ class OrderSettings extends Component
      */
     private $_orderSettingsById;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @param int $orderSettingsId
      *

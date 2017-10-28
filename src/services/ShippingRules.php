@@ -42,6 +42,9 @@ class ShippingRules extends Component
      */
     private $_shippingRulesByMethodId = [];
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return ShippingRule[]
      */

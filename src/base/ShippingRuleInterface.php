@@ -16,6 +16,9 @@ use craft\commerce\elements\Order;
  */
 interface ShippingRuleInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
      *

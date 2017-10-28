@@ -25,6 +25,9 @@ use yii\web\Response;
  */
 class DiscountsController extends BaseCpController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

@@ -19,6 +19,9 @@ use craft\fields\BaseRelationField;
  */
 class Variants extends BaseRelationField
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritDoc IComponentType::getName()
      *

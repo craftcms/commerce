@@ -42,6 +42,9 @@ class Country extends Model
      */
     public $stateRequired;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

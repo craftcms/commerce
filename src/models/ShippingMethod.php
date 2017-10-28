@@ -45,6 +45,9 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public $enabled;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

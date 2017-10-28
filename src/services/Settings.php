@@ -24,6 +24,9 @@ class Settings extends Component
     /** @var \craft\base\Plugin */
     private $_plugin;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * Setup
      */
