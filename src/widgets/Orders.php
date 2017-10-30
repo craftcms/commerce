@@ -118,7 +118,7 @@ class Orders extends Widget
 
         $query = Order::find();
         $query->isCompleted(true);
-        $query->dateOrdered('NOT NULL');
+        $query->dateOrdered(':notempty:');
         $query->limit($limit);
         $query->orderBy('dateOrdered');
 
