@@ -48,7 +48,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
                 $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
-                $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
+                $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
                 $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
             this.$chartExplorer = $chartExplorer;
@@ -100,7 +100,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
         setStartDate: function(date) {
             // Make sure it has actually changed
-            if (this.startDate && date.getTime() == this.startDate.getTime()) {
+            if (this.startDate && date.getTime() === this.startDate.getTime()) {
                 return false;
             }
 
@@ -118,7 +118,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
         setEndDate: function(date) {
             // Make sure it has actually changed
-            if (this.endDate && date.getTime() == this.endDate.getTime()) {
+            if (this.endDate && date.getTime() === this.endDate.getTime()) {
                 return false;
             }
 
@@ -148,7 +148,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
                 this.$spinner.addClass('hidden');
 
-                if (textStatus == 'success' && typeof(response.error) == 'undefined') {
+                if (textStatus === 'success' && typeof(response.error) === 'undefined') {
                     if (!this.chart) {
                         this.chart = new Craft.charts.Area(this.$chart);
                     }
@@ -169,7 +169,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 else {
                     var msg = Craft.t('commerce', 'An unknown error occurred.');
 
-                    if (typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined') {
+                    if (typeof(response) !== 'undefined' && response && typeof(response.error) !== 'undefined') {
                         msg = response.error;
                     }
 
@@ -192,7 +192,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
         },
 
         setStorage: function(namespace, key, value) {
-            if (typeof Craft.Commerce.OrderTableView.storage[namespace] == typeof undefined) {
+            if (typeof Craft.Commerce.OrderTableView.storage[namespace] === typeof undefined) {
                 Craft.Commerce.OrderTableView.storage[namespace] = {};
             }
 

@@ -74,7 +74,7 @@
                         id = $variant.data('id');
 
                     // Is this a new variant?
-                    var newMatch = (typeof id == 'string' && id.match(/new(\d+)/));
+                    var newMatch = (typeof id === 'string' && id.match(/new(\d+)/));
 
                     if (newMatch && newMatch[1] > this.totalNewVariants) {
                         this.totalNewVariants = parseInt(newMatch[1]);
@@ -82,7 +82,7 @@
 
                     var variant = new Variant(this, $variant);
 
-                    if (variant.id && $.inArray('' + variant.id, collapsedVariants) != -1) {
+                    if (variant.id && $.inArray('' + variant.id, collapsedVariants) !== -1) {
                         variant.collapse();
                     }
 
@@ -90,7 +90,7 @@
                     Craft.Commerce.initUnlimitedStockCheckbox($variant);
 
                     // If this is the first one, set it as the default in case no others are claiming to be
-                    if (i == 0 && !this.defaultVariant) {
+                    if (i === 0 && !this.defaultVariant) {
                         this.setDefaultVariant(variant);
                     }
                 }
@@ -190,7 +190,7 @@
                     });
 
                     // If this is the only variant, set it as the default
-                    if (this.$variantContainer.children().length == 1) {
+                    if (this.$variantContainer.children().length === 1) {
                         this.setDefaultVariant(variant);
                     }
                 }, this));
@@ -230,7 +230,7 @@
             },
 
             getParsedVariantHtml: function(html, id) {
-                if (typeof html == 'string') {
+                if (typeof html === 'string') {
                     return html.replace(/__VARIANT__/g, id);
                 }
                 else {
@@ -269,7 +269,7 @@
             collapsedVariantStorageKey: 'Craft-' + Craft.siteUid + '.Commerce.VariantMatrix.collapsedVariants',
 
             getCollapsedVariantIds: function() {
-                if (typeof localStorage[Craft.Commerce.VariantMatrix.collapsedVariantStorageKey] == 'string') {
+                if (typeof localStorage[Craft.Commerce.VariantMatrix.collapsedVariantStorageKey] === 'string') {
                     return Craft.filterArray(localStorage[Craft.Commerce.VariantMatrix.collapsedVariantStorageKey].split(','));
                 }
                 else {
@@ -285,7 +285,7 @@
                 if (typeof Storage !== 'undefined') {
                     var collapsedVariants = Craft.Commerce.VariantMatrix.getCollapsedVariantIds();
 
-                    if ($.inArray('' + id, collapsedVariants) == -1) {
+                    if ($.inArray('' + id, collapsedVariants) === -1) {
                         collapsedVariants.push(id);
                         Craft.Commerce.VariantMatrix.setCollapsedVariantIds(collapsedVariants);
                     }
@@ -297,7 +297,7 @@
                     var collapsedVariants = Craft.Commerce.VariantMatrix.getCollapsedVariantIds(),
                         collapsedVariantsIndex = $.inArray('' + id, collapsedVariants);
 
-                    if (collapsedVariantsIndex != -1) {
+                    if (collapsedVariantsIndex !== -1) {
                         collapsedVariants.splice(collapsedVariantsIndex, 1);
                         Craft.Commerce.VariantMatrix.setCollapsedVariantIds(collapsedVariants);
                     }
@@ -335,7 +335,7 @@
                 this.$container.data('variant', this);
 
                 this.id = this.$container.data('id');
-                this.isNew = (!this.id || (typeof this.id == 'string' && this.id.substr(0, 3) == 'new'));
+                this.isNew = (!this.id || (typeof this.id === 'string' && this.id.substr(0, 3) === 'new'));
 
                 var $menuBtn = this.$container.find('> .actions > .settings'),
                     menuBtn = new Garnish.MenuBtn($menuBtn);
@@ -355,7 +355,7 @@
                 });
 
                 // Is this variant the default?
-                if (this.$defaultInput.val() == '1') {
+                if (this.$defaultInput.val() === '1') {
                     this.matrix.setDefaultVariant(this);
                 }
 
@@ -390,7 +390,8 @@
                         inputPreviewText = '';
 
                     for (var j = 0; j < $inputs.length; j++) {
-                        var $input = $($inputs[j]);
+                        var $input = $($inputs[j]),
+                            value;
 
                         if ($input.hasClass('label')) {
                             var $maybeLightswitchContainer = $input.parent().parent();
@@ -402,10 +403,10 @@
                                 continue;
                             }
 
-                            var value = $input.text();
+                            value = $input.text();
                         }
                         else {
-                            var value = Craft.getText(Garnish.getInputPostVal($input));
+                            value = Craft.getText(Garnish.getInputPostVal($input));
                         }
 
                         if (value instanceof Array) {
@@ -497,7 +498,7 @@
                     var collapsedVariants = Craft.Commerce.VariantMatrix.getCollapsedVariantIds(),
                         collapsedVariantsIndex = $.inArray('' + this.id, collapsedVariants);
 
-                    if (collapsedVariantsIndex != -1) {
+                    if (collapsedVariantsIndex !== -1) {
                         collapsedVariants.splice(collapsedVariantsIndex, 1);
                         Craft.Commerce.VariantMatrix.setCollapsedVariantIds(collapsedVariants);
                     }
@@ -565,7 +566,7 @@
             },
 
             isDefault: function() {
-                return this.$defaultInput.val() == '1';
+                return this.$defaultInput.val() === '1';
             },
 
             onMenuOptionSelect: function(option) {

@@ -39,7 +39,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $list = $('<ul class="padded"/>').appendTo($menu);
             var classes = "";
             for (var i = 0; i < orderStatuses.length; i++) {
-                if (this.currentStatus.id == orderStatuses[i].id) {
+                if (this.currentStatus.id === orderStatuses[i].id) {
                     classes = "sel";
                 } else {
                     classes = "";
@@ -103,7 +103,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var newHtml = "<span><span class='status " + this.currentStatus.color + "'></span>" + Craft.uppercaseFirst(this.currentStatus.name) + "</span>";
             this.$statusSelect.html(newHtml);
 
-            if (this.originalStatusId == this.currentStatus.id) {
+            if (this.originalStatusId === this.currentStatus.id) {
                 this.$updateBtn.addClass('disabled');
             }
             else {

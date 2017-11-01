@@ -11,11 +11,11 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
         $body: null,
 
         init: function(settings) {
-            this.$container = $('<div id="paymentmodal" class="modal fitted loading"/>').appendTo(Garnish.$bod),
+            this.$container = $('<div id="paymentmodal" class="modal fitted loading"/>').appendTo(Garnish.$bod);
 
-                this.base(this.$container, $.extend({
-                    resizable: false
-                }, settings));
+            this.base(this.$container, $.extend({
+                resizable: false
+            }, settings));
 
             var data = {
                 orderId: settings.orderId,
@@ -25,7 +25,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
             Craft.postActionRequest('commerce/orders/get-payment-modal', data, $.proxy(function(response, textStatus) {
                 this.$container.removeClass('loading');
 
-                if (textStatus == 'success') {
+                if (textStatus === 'success') {
                     if (response.success) {
                         this.$container.append(response.modalHtml);
                         Craft.appendHeadHtml(response.headHtml);
@@ -49,11 +49,10 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                         Craft.initUiElements(this.$container);
                     }
                     else {
+                        var error = Craft.t('commerce', 'An unknown error occurred.');
+
                         if (response.error) {
-                            var error = response.error;
-                        }
-                        else {
-                            var error = Craft.t('commerce', 'An unknown error occurred.');
+                            error = response.error;
                         }
 
                         this.$container.append('<div class="body">' + error + '</div>');

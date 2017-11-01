@@ -149,7 +149,7 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
             var productType;
 
             for (var i = 0; i < this.editableProductTypes.length; i++) {
-                if (this.editableProductTypes[i].id == productTypeId) {
+                if (this.editableProductTypes[i].id === productTypeId) {
                     productType = this.editableProductTypes[i];
                     break;
                 }

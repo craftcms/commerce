@@ -84,9 +84,9 @@
             $('#license-view-hr').removeClass('hidden');
         },
 
-        loadLicenseInfo: function(action) {
+        loadLicenseInfo: function() {
             Craft.postActionRequest('commerce/registration/get-license-info', $.proxy(function(response, textStatus) {
-                if (textStatus == 'success') {
+                if (textStatus === 'success') {
                     this.unloadLoadingUi();
                     this.setLicenseKey(response.licenseKey);
                     this.setLicenseKeyStatus(response.licenseKeyStatus);
@@ -115,19 +115,19 @@
             this['$' + licenseKeyStatus + 'LicenseHeader'].removeClass('hidden');
 
             // Show the proper form view
-            if (this.licenseKeyStatus == 'valid') {
+            if (this.licenseKeyStatus === 'valid') {
                 this.$validLicenseView.removeClass('hidden');
             } else {
                 this.$updateLicenseView.removeClass('hidden');
                 this.$licenseKeyError.addClass('hidden');
 
-                if (this.licenseKeyStatus == 'invalid') {
+                if (this.licenseKeyStatus === 'invalid') {
                     this.$licenseKeyInput.addClass('error');
                 } else {
                     this.$licenseKeyInput.removeClass('error');
                 }
 
-                if (this.licenseKeyStatus == 'mismatched') {
+                if (this.licenseKeyStatus === 'mismatched') {
                     this.$transferLicenseForm.removeClass('hidden');
                 } else {
                     this.$transferLicenseForm.addClass('hidden');
@@ -152,7 +152,7 @@
         },
 
         validateLicenseKey: function(licenseKey) {
-            return (licenseKey.length == 24);
+            return (licenseKey.length === 24);
         },
 
         handleUnregisterLicenseFormSubmit: function(ev) {
@@ -160,7 +160,7 @@
             this.$unregisterLicenseSpinner.removeClass('hidden');
             Craft.postActionRequest('commerce/registration/unregister', $.proxy(function(response, textStatus) {
                 this.$unregisterLicenseSpinner.addClass('hidden');
-                if (textStatus == 'success') {
+                if (textStatus === 'success') {
                     if (response.success) {
                         this.setLicenseKey(response.licenseKey);
                         this.setLicenseKeyStatus(response.licenseKeyStatus);
@@ -187,7 +187,7 @@
 
             Craft.postActionRequest('commerce/registration/update-license-key', data, $.proxy(function(response, textStatus) {
                 this.$updateLicenseSpinner.addClass('hidden');
-                if (textStatus == 'success') {
+                if (textStatus === 'success') {
                     if (response.success) {
                         this.setLicenseKey(response.licenseKey);
                         this.setLicenseKeyStatus(response.licenseKeyStatus);
@@ -203,7 +203,7 @@
             this.$transferLicenseSpinner.removeClass('hidden');
             Craft.postActionRequest('commerce/registration/transfer', $.proxy(function(response, textStatus) {
                 this.$transferLicenseSpinner.addClass('hidden');
-                if (textStatus == 'success') {
+                if (textStatus === 'success') {
                     if (response.success) {
                         this.setLicenseKey(response.licenseKey);
                         this.setLicenseKeyStatus(response.licenseKeyStatus);
@@ -229,7 +229,7 @@
                 this.$clearBtn.addClass('hidden');
             }
 
-            if (licenseKey != this.licenseKey && (!licenseKey || this.validateLicenseKey(licenseKey))) {
+            if (licenseKey !== this.licenseKey && (!licenseKey || this.validateLicenseKey(licenseKey))) {
                 this.$updateBtn.removeClass('disabled');
             } else {
                 this.$updateBtn.addClass('disabled');

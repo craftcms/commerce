@@ -24,11 +24,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         var $header = this.$addressBox.find(".address-box-header");
 
         // Set the edit button label
-        if (!this.address.id) {
-            var editLabel = Craft.t('commerce', "New");
-        } else {
-            var editLabel = Craft.t('commerce', "Edit");
-        }
+        var editLabel = this.address.id ? Craft.t('commerce', "Edit") : Craft.t('commerce', "New");
 
         $header.html("");
         $("<div class='address-header'><strong>" + this.$addressBox.data('title') + "</strong></div>").appendTo($header);
