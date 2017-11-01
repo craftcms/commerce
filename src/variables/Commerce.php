@@ -23,6 +23,7 @@ use craft\commerce\models\ShippingZone;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
+use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\services\Addresses;
 use craft\helpers\ArrayHelper;
 
@@ -42,11 +43,11 @@ class Commerce
     // =========================================================================
 
     /**
-     * @return Commerce
+     * @return CommercePlugin
      */
     public function getPlugin()
     {
-        return Commerce::getInstance();
+        return CommercePlugin::getInstance();
     }
 
     /**
@@ -56,7 +57,7 @@ class Commerce
      */
     public function settings()
     {
-        return Commerce::getInstance()->getSettings();
+        return CommercePlugin::getInstance()->getSettings();
     }
 
     /**
@@ -115,7 +116,7 @@ class Commerce
      */
     public function getCart()
     {
-        return Commerce::getInstance()->getCart()->getCart();
+        return CommercePlugin::getInstance()->getCart()->getCart();
     }
 
     /**
@@ -123,7 +124,7 @@ class Commerce
      */
     public function getCustomer()
     {
-        return Commerce::getInstance()->getCustomers()->getCustomer();
+        return CommercePlugin::getInstance()->getCustomers()->getCustomer();
     }
 
     /**
@@ -131,7 +132,7 @@ class Commerce
      */
     public function getCountries()
     {
-        return Commerce::getInstance()->getCountries()->getAllCountries();
+        return CommercePlugin::getInstance()->getCountries()->getAllCountries();
     }
 
     /**
@@ -139,7 +140,7 @@ class Commerce
      */
     public function getAddresses()
     {
-        return Commerce::getInstance()->getAddresses();
+        return CommercePlugin::getInstance()->getAddresses();
     }
 
     /**
@@ -147,7 +148,7 @@ class Commerce
      */
     public function getStates()
     {
-        return Commerce::getInstance()->getStates()->getAllStates();
+        return CommercePlugin::getInstance()->getStates()->getAllStates();
     }
 
     /**
@@ -155,7 +156,7 @@ class Commerce
      */
     public function getCountriesList()
     {
-        return Commerce::getInstance()->getCountries()->getAllCountriesListData();
+        return CommercePlugin::getInstance()->getCountries()->getAllCountriesListData();
     }
 
     /**
@@ -163,7 +164,7 @@ class Commerce
      */
     public function getStatesArray()
     {
-        return Commerce::getInstance()->getStates()->getStatesGroupedByCountries();
+        return CommercePlugin::getInstance()->getStates()->getStatesGroupedByCountries();
     }
 
     /**
@@ -171,9 +172,9 @@ class Commerce
      */
     public function getAvailableShippingMethods()
     {
-        $cart = Commerce::getInstance()->getCart()->getCart();
+        $cart = CommercePlugin::getInstance()->getCart()->getCart();
 
-        return Commerce::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
+        return CommercePlugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
     }
 
     /**
@@ -181,7 +182,7 @@ class Commerce
      */
     public function getShippingMethods()
     {
-        return Commerce::getInstance()->getShippingMethods()->getAllShippingMethods();
+        return CommercePlugin::getInstance()->getShippingMethods()->getAllShippingMethods();
     }
 
     /**
@@ -189,7 +190,7 @@ class Commerce
      */
     public function getShippingZones()
     {
-        return Commerce::getInstance()->getShippingZones()->getAllShippingZones();
+        return CommercePlugin::getInstance()->getShippingZones()->getAllShippingZones();
     }
 
     /**
@@ -199,32 +200,9 @@ class Commerce
      */
     public function getShippingCategories($asList = false)
     {
-        $shippingCategories = Commerce::getInstance()->getShippingCategories()->getAllShippingCategories();
+        $shippingCategories = CommercePlugin::getInstance()->getShippingCategories()->getAllShippingCategories();
 
-        if ($asList) {
-            return ArrayHelper::map($shippingCategories, 'id', 'name');
-        }
-
-        // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->_arrayKeyedByAttribute($shippingCategories, 'id');
-    }
-
-    /**
-     * TODO Move this into an array
-     *
-     * @param Model[] $array     All models using this method must implement __string() to be backwards compatible with ArrayHelper::map
-     * @param string      $attribute The attribute you want the array keyed by.
-     *
-     * @return array
-     */
-    private function _arrayKeyedByAttribute($array, $attribute)
-    {
-        $newArray = [];
-        foreach ($array as $model) {
-            $newArray[$model->{$attribute}] = $model;
-        }
-
-        return $newArray;
+        return $asList ? ArrayHelper::map($shippingCategories, 'id', 'name') : $shippingCategories;
     }
 
     /**
@@ -234,14 +212,9 @@ class Commerce
      */
     public function getGateways($asList = false)
     {
-        $methods = Commerce::getInstance()->getGateways()->getAllFrontEndGateways();
+        $gateways = CommercePlugin::getInstance()->getGateways()->getAllFrontEndGateways();
 
-        if ($asList) {
-            return ArrayHelper::map($methods, 'id', 'name');
-        }
-
-        // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->_arrayKeyedByAttribute($methods, 'id');
+        return $asList ? ArrayHelper::map($gateways, 'id', 'name') : $gateways;
     }
 
     /**
@@ -249,7 +222,7 @@ class Commerce
      */
     public function getProductTypes()
     {
-        return Commerce::getInstance()->getProductTypes()->getAllProductTypes();
+        return CommercePlugin::getInstance()->getProductTypes()->getAllProductTypes();
     }
 
     /**
@@ -257,7 +230,7 @@ class Commerce
      */
     public function getOrderStatuses()
     {
-        return Commerce::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        return CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
     }
 
     /**
@@ -267,14 +240,9 @@ class Commerce
      */
     public function getTaxCategories($asList = false)
     {
-        $taxCategories = Commerce::getInstance()->getTaxCategories()->getAllTaxCategories();
+        $taxCategories = CommercePlugin::getInstance()->getTaxCategories()->getAllTaxCategories();
 
-        if ($asList) {
-            return ArrayHelper::map($taxCategories, 'id', 'name');
-        }
-
-        // Need to put the methods into an array keyed by method ID for backwards compatibility.
-        return $this->_arrayKeyedByAttribute($taxCategories, 'id');
+        return $asList ? ArrayHelper::map($taxCategories, 'id', 'name') : $taxCategories;
     }
 
     /**
@@ -282,7 +250,7 @@ class Commerce
      */
     public function getTaxRates()
     {
-        return Commerce::getInstance()->getTaxRates()->getAllTaxRates();
+        return CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates();
     }
 
     /**
@@ -290,7 +258,7 @@ class Commerce
      */
     public function getTaxZones()
     {
-        return Commerce::getInstance()->getTaxZones()->getAllTaxZones();
+        return CommercePlugin::getInstance()->getTaxZones()->getAllTaxZones();
     }
 
     /**
@@ -298,7 +266,7 @@ class Commerce
      */
     public function getDiscounts()
     {
-        return Commerce::getInstance()->getDiscounts()->getAllDiscounts();
+        return CommercePlugin::getInstance()->getDiscounts()->getAllDiscounts();
     }
 
     /**
@@ -308,7 +276,7 @@ class Commerce
      */
     public function getDiscountByCode($code)
     {
-        return Commerce::getInstance()->getDiscounts()->getDiscountByCode($code);
+        return CommercePlugin::getInstance()->getDiscounts()->getDiscountByCode($code);
     }
 
     /**
@@ -316,7 +284,7 @@ class Commerce
      */
     public function getSales()
     {
-        return Commerce::getInstance()->getSales()->getAllSales();
+        return CommercePlugin::getInstance()->getSales()->getAllSales();
     }
 
     /**
@@ -324,7 +292,7 @@ class Commerce
      */
     public function getPaymentCurrencies()
     {
-        $currencies = Commerce::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+        $currencies = CommercePlugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
 
         return $currencies;
     }
@@ -334,7 +302,7 @@ class Commerce
      */
     public function getCurrencies()
     {
-        return Commerce::getInstance()->getCurrencies()->getAllCurrencies();
+        return CommercePlugin::getInstance()->getCurrencies()->getAllCurrencies();
     }
 
     // Private Methods
@@ -345,6 +313,6 @@ class Commerce
      */
     public function getPrimaryPaymentCurrency()
     {
-        return Commerce::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        return CommercePlugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
     }
 }
