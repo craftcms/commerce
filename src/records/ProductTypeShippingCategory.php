@@ -27,8 +27,8 @@ class ProductTypeShippingCategory extends ActiveRecord
     // =========================================================================
 
     /**
-     * @inheritDoc BaseRecord::getTableName()
-\     */
+     * @inheritdoc
+     */
     public static function tableName(): string
     {
         return '{{%commerce_producttypes_shippingcategories}}';

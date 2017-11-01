@@ -25,8 +25,8 @@ class Customer extends Field
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::getName()
-\     */
+     * @inheritdoc
+     */
     public function getName(): string
     {
         return Craft::t('commerce', 'Commerce Customer Info');
@@ -41,7 +41,7 @@ class Customer extends Field
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getInputHtml($value, ElementInterface $element = null): string
     {

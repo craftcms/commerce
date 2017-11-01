@@ -24,9 +24,7 @@ class CreateDiscount extends ElementAction
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName()
     {
@@ -34,7 +32,7 @@ class CreateDiscount extends ElementAction
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getTriggerHtml()
     {

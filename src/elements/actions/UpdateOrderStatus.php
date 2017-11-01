@@ -41,7 +41,7 @@ class UpdateOrderStatus extends ElementAction
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getName()
     {
@@ -49,9 +49,7 @@ class UpdateOrderStatus extends ElementAction
     }
 
     /**
-     * @inheritDoc IElementAction::getTriggerHtml()
-     *
-     * @return string|null
+     * @inheritdoc
      */
     public function getTriggerHtml()
     {

@@ -45,7 +45,7 @@ class Orders extends Widget
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function isSelectable(): bool
     {
@@ -54,9 +54,7 @@ class Orders extends Widget
     }
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
@@ -64,9 +62,7 @@ class Orders extends Widget
     }
 
     /**
-     * @inheritDoc
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function iconPath(): string
     {
@@ -74,9 +70,7 @@ class Orders extends Widget
     }
 
     /**
-     * @inheritDoc IWidget::getTitle()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getTitle(): string
     {
@@ -92,9 +86,7 @@ class Orders extends Widget
     }
 
     /**
-     * @inheritDoc IWidget::getBodyHtml()
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getBodyHtml()
     {
@@ -133,9 +125,7 @@ class Orders extends Widget
     // =========================================================================
 
     /**
-     * @inheritDoc ISavableComponentType::getSettingsHtml()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getSettingsHtml(): string
     {

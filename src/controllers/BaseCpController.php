@@ -22,7 +22,7 @@ class BaseCpController extends BaseController
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function init()
     {

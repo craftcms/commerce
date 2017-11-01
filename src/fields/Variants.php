@@ -23,9 +23,7 @@ class Variants extends BaseRelationField
     // =========================================================================
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
