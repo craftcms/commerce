@@ -3,7 +3,6 @@
 namespace craft\commerce\variables;
 
 use Craft;
-use craft\base\Model;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
@@ -11,6 +10,7 @@ use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\Country;
 use craft\commerce\models\Currency;
 use craft\commerce\models\Customer;
 use craft\commerce\models\Discount;
@@ -20,6 +20,7 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingZone;
+use craft\commerce\models\State;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
@@ -43,55 +44,261 @@ class Commerce
     // =========================================================================
 
     /**
+     * Get the Address service.
+     *
+     * @return Addresses
+     */
+    public function getAddresses(): Addresses
+    {
+        return CommercePlugin::getInstance()->getAddresses();
+    }
+
+    /**
+     * Get all available shipping methods for the current cart.
+     *
+     * @return array
+     */
+    public function getAvailableShippingMethods(): array
+    {
+        $cart = CommercePlugin::getInstance()->getCart()->getCart();
+
+        return CommercePlugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
+    }
+
+    /**
+     * Get the current Cart.
+     *
+     * @return Order
+     */
+    public function getCart(): Order
+    {
+        return CommercePlugin::getInstance()->getCart()->getCart();
+    }
+
+    /**
+     * Return all countries.
+     *
+     * @return Country[]
+     */
+    public function getCountries(): array
+    {
+        return CommercePlugin::getInstance()->getCountries()->getAllCountries();
+    }
+
+    /**
+     * Return an array of country names indexed by id.
+     *
+     * @return array [id => name]
+     */
+    public function getCountriesList(): array
+    {
+        return CommercePlugin::getInstance()->getCountries()->getAllCountriesListData();
+    }
+
+    /**
+     * Get all of the available currencies.
+     *
+     * @return Currency[]
+     */
+    public function getCurrencies(): array
+    {
+        return CommercePlugin::getInstance()->getCurrencies()->getAllCurrencies();
+    }
+
+    /**
+     * Get the current customer.
+     *
+     * @return Customer
+     */
+    public function getCustomer(): Customer
+    {
+        return CommercePlugin::getInstance()->getCustomers()->getCustomer();
+    }
+
+    /**
+     * Get a discount by it's code.
+     *
+     * @param string $code the discount code
+     *
+     * @return Discount|null
+     */
+    public function getDiscountByCode($code)
+    {
+        return CommercePlugin::getInstance()->getDiscounts()->getDiscountByCode($code);
+    }
+
+    /**
+     * Get all discounts.
+     *
+     * @return Discount[]
+     */
+    public function getDiscounts(): array
+    {
+        return CommercePlugin::getInstance()->getDiscounts()->getAllDiscounts();
+    }
+
+    /**
+     * Get all front-end enabled gateways.
+     *
+     * @param bool $asList Whether to return an array of gateway names indexed by id. Defaults to `false`.
+     *
+     * @return array|Gateway[]
+     */
+    public function getGateways($asList = false): array
+    {
+        $gateways = CommercePlugin::getInstance()->getGateways()->getAllFrontEndGateways();
+
+        return $asList ? ArrayHelper::map($gateways, 'id', 'name') : $gateways;
+    }
+
+    /**
+     * Get all order statuses.
+     *
+     * @return OrderStatus[]
+     */
+    public function getOrderStatuses(): array
+    {
+        return CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+    }
+
+    /**
+     * Get all available payment currencies.
+     *
+     * @return PaymentCurrency[]
+     */
+    public function getPaymentCurrencies(): array
+    {
+        $currencies = CommercePlugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+
+        return $currencies;
+    }
+
+    /**
+     * Get the plugin instance.
+     *
      * @return CommercePlugin
      */
-    public function getPlugin()
+    public function getPlugin(): CommercePlugin
     {
         return CommercePlugin::getInstance();
     }
 
     /**
-     * Get Commerce settings
+     * Get the primary payment currency.
      *
-     * @return mixed
+     * @return PaymentCurrency|null
      */
-    public function settings()
+    public function getPrimaryPaymentCurrency()
     {
-        return CommercePlugin::getInstance()->getSettings();
+        return CommercePlugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
     }
 
     /**
-     * Returns a new ProductQuery instance.
+     * Get all product types.
      *
-     * @param mixed $criteria
-     *
-     * @return ProductQuery
+     * @return ProductType[]
      */
-    public function products($criteria = null): ProductQuery
+    public function getProductTypes(): array
     {
-        $query = Product::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
-
-        return $query;
+        return CommercePlugin::getInstance()->getProductTypes()->getAllProductTypes();
     }
 
     /**
-     * Returns a new VariantQuery instance.
+     * Get all ssales.
      *
-     * @param mixed $criteria
-     *
-     * @return VariantQuery
+     * @return Sale[]
      */
-    public function variants($criteria = null): VariantQuery
+    public function getSales(): array
     {
-        $query = Variant::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
+        return CommercePlugin::getInstance()->getSales()->getAllSales();
+    }
 
-        return $query;
+    /**
+     * Get all shipping categories.
+     *
+     * @param bool $asList Whether to return an array of shipping category names indexed by id. Defaults to `false`.
+     *
+     * @return array|ShippingZone[]
+     */
+    public function getShippingCategories($asList = false): array
+    {
+        $shippingCategories = CommercePlugin::getInstance()->getShippingCategories()->getAllShippingCategories();
+
+        return $asList ? ArrayHelper::map($shippingCategories, 'id', 'name') : $shippingCategories;
+    }
+
+    /**
+     * Get all shipping methods.
+     *
+     * @return ShippingMethod[]
+     */
+    public function getShippingMethods(): array
+    {
+        return CommercePlugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+    }
+
+    /**
+     * Get all shipping zones.
+     *
+     * @return ShippingZone[]
+     */
+    public function getShippingZones(): array
+    {
+        return CommercePlugin::getInstance()->getShippingZones()->getAllShippingZones();
+    }
+
+    /**
+     * Return all states.
+     *
+     * @return State[]
+     */
+    public function getStates(): array
+    {
+        return CommercePlugin::getInstance()->getStates()->getAllStates();
+    }
+
+    /**
+     * Return a 2D array of state names indexed by state ids, grouped by country ids.
+     *
+     * @return array [countryId => [id => name]]
+     */
+    public function getStatesArray(): array
+    {
+        return CommercePlugin::getInstance()->getStates()->getStatesGroupedByCountries();
+    }
+
+    /**
+     * Get all tax categories.
+     *
+     * @param bool $asList Whether to return an array of tax category names indexed by id. Defaults to `false`.
+     *
+     * @return array|TaxCategory[]
+     */
+    public function getTaxCategories($asList = false): array
+    {
+        $taxCategories = CommercePlugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+
+        return $asList ? ArrayHelper::map($taxCategories, 'id', 'name') : $taxCategories;
+    }
+
+    /**
+     * Get all tax rates.
+     *
+     * @return TaxRate[]
+     */
+    public function getTaxRates(): array
+    {
+        return CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates();
+    }
+
+    /**
+     * Get all tax zones.
+     *
+     * @return TaxZone[]
+     */
+    public function getTaxZones(): array
+    {
+        return CommercePlugin::getInstance()->getTaxZones()->getAllTaxZones();
     }
 
     /**
@@ -104,6 +311,7 @@ class Commerce
     public function orders($criteria = null): OrderQuery
     {
         $query = Order::find();
+
         if ($criteria) {
             Craft::configure($query, $criteria);
         }
@@ -112,207 +320,48 @@ class Commerce
     }
 
     /**
-     * @return Order
-     */
-    public function getCart()
-    {
-        return CommercePlugin::getInstance()->getCart()->getCart();
-    }
-
-    /**
-     * @return Customer
-     */
-    public function getCustomer()
-    {
-        return CommercePlugin::getInstance()->getCustomers()->getCustomer();
-    }
-
-    /**
-     * @return array
-     */
-    public function getCountries()
-    {
-        return CommercePlugin::getInstance()->getCountries()->getAllCountries();
-    }
-
-    /**
-     * @return Addresses
-     */
-    public function getAddresses()
-    {
-        return CommercePlugin::getInstance()->getAddresses();
-    }
-
-    /**
-     * @return array
-     */
-    public function getStates()
-    {
-        return CommercePlugin::getInstance()->getStates()->getAllStates();
-    }
-
-    /**
-     * @return array [id => name]
-     */
-    public function getCountriesList()
-    {
-        return CommercePlugin::getInstance()->getCountries()->getAllCountriesListData();
-    }
-
-    /**
-     * @return array [countryId => [id => name]]
-     */
-    public function getStatesArray()
-    {
-        return CommercePlugin::getInstance()->getStates()->getStatesGroupedByCountries();
-    }
-
-    /**
-     * @return array
-     */
-    public function getAvailableShippingMethods()
-    {
-        $cart = CommercePlugin::getInstance()->getCart()->getCart();
-
-        return CommercePlugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
-    }
-
-    /**
-     * @return ShippingMethod[]
-     */
-    public function getShippingMethods()
-    {
-        return CommercePlugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-    }
-
-    /**
-     * @return ShippingZone[]
-     */
-    public function getShippingZones()
-    {
-        return CommercePlugin::getInstance()->getShippingZones()->getAllShippingZones();
-    }
-
-    /**
-     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
+     * Returns a new ProductQuery instance.
      *
-     * @return array
-     */
-    public function getShippingCategories($asList = false)
-    {
-        $shippingCategories = CommercePlugin::getInstance()->getShippingCategories()->getAllShippingCategories();
-
-        return $asList ? ArrayHelper::map($shippingCategories, 'id', 'name') : $shippingCategories;
-    }
-
-    /**
-     * @param bool $asList Whether we should return the payment methods as a simple list suitable for a html select box
+     * @param mixed $criteria
      *
-     * @return array|Gateway[]
+     * @return ProductQuery
      */
-    public function getGateways($asList = false)
+    public function products($criteria = null): ProductQuery
     {
-        $gateways = CommercePlugin::getInstance()->getGateways()->getAllFrontEndGateways();
+        $query = Product::find();
 
-        return $asList ? ArrayHelper::map($gateways, 'id', 'name') : $gateways;
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
     }
 
     /**
-     * @return ProductType[]
-     */
-    public function getProductTypes()
-    {
-        return CommercePlugin::getInstance()->getProductTypes()->getAllProductTypes();
-    }
-
-    /**
-     * @return OrderStatus[]
-     */
-    public function getOrderStatuses()
-    {
-        return CommercePlugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-    }
-
-    /**
-     * @param bool $asList should the categories be returned as a simple list suitable for a html select box
+     * Get Commerce settings.
      *
-     * @return array|TaxCategory[]
+     * @return mixed
      */
-    public function getTaxCategories($asList = false)
+    public function settings()
     {
-        $taxCategories = CommercePlugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-
-        return $asList ? ArrayHelper::map($taxCategories, 'id', 'name') : $taxCategories;
+        return CommercePlugin::getInstance()->getSettings();
     }
 
     /**
-     * @return TaxRate[]
-     */
-    public function getTaxRates()
-    {
-        return CommercePlugin::getInstance()->getTaxRates()->getAllTaxRates();
-    }
-
-    /**
-     * @return TaxZone[]
-     */
-    public function getTaxZones()
-    {
-        return CommercePlugin::getInstance()->getTaxZones()->getAllTaxZones();
-    }
-
-    /**
-     * @return Discount[]
-     */
-    public function getDiscounts()
-    {
-        return CommercePlugin::getInstance()->getDiscounts()->getAllDiscounts();
-    }
-
-    /**
-     * @param string $code
+     * Returns a new VariantQuery instance.
      *
-     * @return Discount|null
+     * @param mixed $criteria
+     *
+     * @return VariantQuery
      */
-    public function getDiscountByCode($code)
+    public function variants($criteria = null): VariantQuery
     {
-        return CommercePlugin::getInstance()->getDiscounts()->getDiscountByCode($code);
-    }
+        $query = Variant::find();
 
-    /**
-     * @return Sale[]
-     */
-    public function getSales()
-    {
-        return CommercePlugin::getInstance()->getSales()->getAllSales();
-    }
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
 
-    /**
-     * @return PaymentCurrency[]
-     */
-    public function getPaymentCurrencies()
-    {
-        $currencies = CommercePlugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
-
-        return $currencies;
-    }
-
-    /**
-     * @return Currency[]
-     */
-    public function getCurrencies()
-    {
-        return CommercePlugin::getInstance()->getCurrencies()->getAllCurrencies();
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
-     * @return PaymentCurrency
-     */
-    public function getPrimaryPaymentCurrency()
-    {
-        return CommercePlugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        return $query;
     }
 }
