@@ -92,7 +92,7 @@ class ProductsController extends BaseCpController
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($variables['product']);
         } else {
-            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#meta-pane"));');
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
         }
 
         // Enable Live Preview?
