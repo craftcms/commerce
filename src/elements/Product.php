@@ -929,7 +929,7 @@ class Product extends Element
         $oldVariantIds = (new Query())
             ->select('id')
             ->from('{{%commerce_variants}}')
-            ->where('productId = :productId', [':productId' => $this->id])
+            ->where(['productId' => $this->id])
             ->column();
 
         /** @var Variant $variant */
