@@ -10,7 +10,9 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchaseVariantEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\base\Component;
+use yii\db\Expression;
 
 /**
  * Variant service.
@@ -36,46 +38,12 @@ class Variants extends Component
     // =========================================================================
 
     /**
-     * @param int    $variantId The variant’s ID.
-     * @param string $siteId    The locale to fetch the variant in. Defaults to {@link WebApp::language `craft()->language`}.
+     * Apply sales that are associated with the given product to all given variants.
      *
-     * @return ElementInterface|null
-     */
-    public function getVariantById($variantId, $siteId = null)
-    {
-        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
-    }
-
-    /**
-     * Returns the first variant as returned by it's sortOrder.
+     * @param Variant[] $variants an array of variants to appl sales to
+     * @param Product   $product  the product.
      *
-     * @param int         $variantId
-     * @param string|null $siteId
-     *
-     * @return Variant
-     */
-    public function getDefaultVariantByProductId($variantId, $siteId = null): Variant
-    {
-        return $this->getAllVariantsByProductId($variantId, $siteId)[0];
-    }
-
-    /**
-     * @param int         $productId
-     * @param string|null $siteId
-     *
-     * @return Variant[]
-     */
-    public function getAllVariantsByProductId($productId, $siteId = null): array
-    {
-        $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
-        return $variants;
-    }
-
-    /**
-     * Apply sales, associated with the given product, to all given variants
-     *
-     * @param Variant[] $variants
-     * @param Product   $product
+     * @return void
      */
     public function applySales(array $variants, Product $product)
     {
@@ -92,8 +60,8 @@ class Variants extends Component
             foreach ($sales as $sale) {
                 foreach ($variants as $variant) {
                     $variant->setSales($sales);
-
                     $variant->setSalePrice(Currency::round($variant->getSalePrice() + $sale->calculateTakeoff($variant->price)));
+
                     if ($variant->getSalePrice() < 0) {
                         $variant->setSalePrice(0);
                     }
@@ -103,9 +71,52 @@ class Variants extends Component
     }
 
     /**
-     * Update Stock count from completed order
+     * Get all product's variants by it's id.
      *
-     * @param Order $order
+     * @param int         $productId product id
+     * @param string|null $siteId    Site id for which to return the variants. Defaults to `null` which is current site.
+     *
+     * @return Variant[]
+     */
+    public function getAllVariantsByProductId($productId, $siteId = null): array
+    {
+        $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
+
+        return $variants;
+    }
+
+    /**
+     * Returns the first variant as returned by it's sortOrder.
+     *
+     * @param int         $variantId variant id.
+     * @param string|null $siteId    Site id for which to return the variant. Defaults to `null` which is current site.
+     *
+     * @return Variant
+     */
+    public function getDefaultVariantByProductId($variantId, $siteId = null): Variant
+    {
+        return $this->getAllVariantsByProductId($variantId, $siteId)[0];
+    }
+
+    /**
+     * Get a variant by it's id.
+     *
+     * @param int         $variantId The variant’s ID.
+     * @param string|null $siteId    The site id for which to fetch the variant. Defaults to `null` which is current site.
+     *
+     * @return ElementInterface|null
+     */
+    public function getVariantById($variantId, $siteId = null)
+    {
+        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
+    }
+
+    /**
+     * Update Stock count from completed order.
+     *
+     * @param Order $order the order which was completed.
+     *
+     * @return void
      */
     public function orderCompleteHandler(Order $order)
     {
@@ -121,19 +132,19 @@ class Variants extends Component
             }
 
             $clearCacheOfElementIds = [];
+            
             if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
                 // Update the qty in the db
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
-                    ['stock' => new \CDbExpression('stock - :qty', [':qty' => $lineItem->qty])],
-                    'id = :variantId',
-                    [':variantId' => $purchasable->id])->execute();
+                    ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
+                    ['id' => $purchasable->id])->execute();
 
                 // Update the stock
-                $purchasable->stock = Craft::$app->getDb()->createCommand()
-                    ->select('stock')
+                $purchasable->stock = (new Query())
+                    ->select(['stock'])
                     ->from('{{%commerce_variants}}')
                     ->where('id = :variantId', [':variantId' => $purchasable->id])
-                    ->queryScalar();
+                    ->scalar();
 
                 // Clear the cache since the stock changed
                 $clearCacheOfElementIds[] = $purchasable->id;
