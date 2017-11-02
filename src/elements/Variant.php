@@ -370,7 +370,7 @@ class Variant extends Purchasable
      *
      * @return mixed
      */
-    public function getPrice(): float
+    public function getPrice()
     {
         return $this->price;
     }
@@ -415,7 +415,7 @@ class Variant extends Purchasable
      *
      * @return int|null
      */
-    public function getPurchasableId(): int
+    public function getPurchasableId()
     {
         return $this->id;
     }

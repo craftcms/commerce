@@ -65,7 +65,7 @@ class Extension extends \Twig_Extension
             $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
         }
 
-        return (float) $amount;
+        return $amount;
     }
 
     /**

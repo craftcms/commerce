@@ -242,7 +242,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
                 $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array($shippingAddress->stateId, $states, false));
                 $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateNames), false));
-                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateAbbr), false));
+                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateAbbr), false));
 
                 if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
                     return false;
