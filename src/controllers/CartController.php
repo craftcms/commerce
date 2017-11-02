@@ -332,7 +332,7 @@ class CartController extends BaseFrontEndController
         }
     }
 
-    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error)
+    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error = '')
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -351,6 +351,7 @@ class CartController extends BaseFrontEndController
                 $ownAddress = false;
             }
 
+            // Todo shouldn't code terminate in this case, then, instead of continuing as normal
             if (!$ownAddress) {
                 $error = Craft::t('commerce', 'Can not choose an address ID that does not belong to the customer.');
             }
