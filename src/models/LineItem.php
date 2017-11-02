@@ -410,17 +410,16 @@ class LineItem extends Model
      */
     public function getAdjustments(): array
     {
-
-
         $adjustments = $this->getOrder()->getAdjustments();
-
+        $lineItemAdjustments = [];
+        
         foreach ($adjustments as $adjustment) {
             if ($adjustment->lineItemId === $this->id) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
 
-        return $lineItemAdjustments;
+        return $lineItemAdjustments ?: [];
     }
 
     /**
