@@ -22,17 +22,10 @@
             {% for currency in currencies %}
                 <tr data-id="{{ currency.id }}"
                     data-name="{{ currency.currency }}">
-                    <th scope="row" data-title="{{ 'Currency'|t('commerce') }}"><a
-                                href="{{ currency.cpEditUrl }}">
-                    {{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name }}</td>
-                    <td data-title="{{ 'Code'|t('commerce') }}">
-                        <code>{{ currency.iso }}</code></td>
-                    <td data-title="{{ 'Conversion Rate'|t('commerce') }}">{% if currency.primary %}
-                        <span class="token">{{ "Base"|t('commerce') }}{% else %}{{ currency.rate|number }}{% endif %}</span>
-                    </td>
-                    <td class="thin">{% if not currency.primary %}<a
-                            class="delete icon" title="{{ 'Delete'|t('commerce') }}"
-                            role="button"></a>{% endif %}</td>
+                    <th scope="row" data-title="{{ 'Currency'|t('commerce') }}"><a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name }}</th>
+                    <td data-title="{{ 'Code'|t('commerce') }}"><code>{{ currency.iso }}</code></td>
+                    <td data-title="{{ 'Conversion Rate'|t('commerce') }}">{% if currency.primary %} <span class="token">{{ "Base"|t('commerce') }}{% else %}{{ currency.rate|number }}{% endif %}</span></td>
+                    <td class="thin">{% if not currency.primary %}<a class="delete icon" title="{{ 'Delete'|t('commerce') }}" role="button"></a>{% endif %}</td>
                 </tr>
             {% endfor %}
 
