@@ -49,9 +49,9 @@ class Extension extends \Twig_Extension
      * @param bool $format
      * @param bool $stripZeros
      *
-     * @return float
+     * @return string
      */
-    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): float
+    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false)
     {
         $this->_validatePaymentCurrency($currency);
 
@@ -68,7 +68,7 @@ class Extension extends \Twig_Extension
             $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
         }
 
-        return (float) $amount;
+        return $amount;
     }
 
     /**
