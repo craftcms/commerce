@@ -27,6 +27,9 @@ use yii\base\Exception;
  */
 class TaxZones extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -36,6 +39,9 @@ class TaxZones extends Component
      * @var TaxZone[]
      */
     private $_allTaxZones;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return TaxZone[]

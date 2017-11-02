@@ -11,7 +11,6 @@ use yii\db\ActiveQueryInterface;
  * @property int              $productTypeId
  * @property int              $siteId
  * @property string           $uriFormat
- *
  * @property ShippingCategory $shippingCategory
  * @property ProductType      $productType
  *
@@ -24,10 +23,11 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeShippingCategory extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
-     * @inheritDoc BaseRecord::getTableName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {

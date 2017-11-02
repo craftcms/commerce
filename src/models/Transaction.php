@@ -27,6 +27,9 @@ use DateTime;
  */
 class Transaction extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -141,6 +144,9 @@ class Transaction extends Model
      * @var Transaction[]
      */
     private $_children;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param null $attributes

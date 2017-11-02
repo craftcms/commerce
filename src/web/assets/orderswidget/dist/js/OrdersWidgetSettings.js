@@ -26,7 +26,7 @@ Craft.Commerce.OrdersWidgetSettings = Garnish.Base.extend(
         onSelectStatus: function(status) {
             this.deselectStatus();
 
-            $status = $(status);
+            var $status = $(status);
             $status.addClass('sel');
 
             this.selectedStatus = $status;
@@ -34,7 +34,7 @@ Craft.Commerce.OrdersWidgetSettings = Garnish.Base.extend(
             this.$statusInput.val($status.data('id'));
 
             // clone selected status item to menu menu
-            $label = $('.commerceStatusLabel', $status);
+            var $label = $('.commerceStatusLabel', $status);
             this.$menuBtn.empty();
             $label.clone().appendTo(this.$menuBtn);
         },

@@ -9,6 +9,9 @@ namespace craft\commerce\base;
  */
 interface MessageInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Get the raw data array for this message.
      *

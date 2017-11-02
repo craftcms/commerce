@@ -19,7 +19,6 @@ use yii\db\Connection;
 /**
  * OrderQuery represents a SELECT SQL statement for users in a way that is independent of DBMS.
  *
- *
  * @method Order[]|array all($db = null)
  * @method Order|array|null one($db = null)
  * @method Order|array|null nth(int $n, Connection $db = null)
@@ -29,6 +28,9 @@ use yii\db\Connection;
  */
 class OrderQuery extends ElementQuery
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var string The order number of the resulting entry.
      */
@@ -113,6 +115,9 @@ class OrderQuery extends ElementQuery
      * @var PurchasableInterface[] The resulting orders must contain these Purchasables.
      */
     public $hasPurchasables;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @inheritdoc

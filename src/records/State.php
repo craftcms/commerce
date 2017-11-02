@@ -24,6 +24,9 @@ use yii\db\ActiveQueryInterface;
  */
 class State extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

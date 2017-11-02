@@ -34,10 +34,21 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
+    // Constants
+    // =========================================================================
+
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
-    /** @var Customer */
+    // Properties
+    // =============================================================================
+
+    /**
+     * @var Customer
+     */
     private $_customer;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      *

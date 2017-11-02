@@ -23,6 +23,9 @@ use yii\db\ActiveQueryInterface;
  */
 class DiscountProduct extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

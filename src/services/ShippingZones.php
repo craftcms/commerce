@@ -27,6 +27,9 @@ use yii\base\Exception;
  */
 class ShippingZones extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -36,6 +39,9 @@ class ShippingZones extends Component
      * @var ShippingZone[]
      */
     private $_allShippingZones = [];
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return ShippingZone[]

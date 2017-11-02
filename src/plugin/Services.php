@@ -41,6 +41,9 @@ use craft\commerce\services\Variants;
  */
 trait Services
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns the address service
      *

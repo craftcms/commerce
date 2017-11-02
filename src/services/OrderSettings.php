@@ -21,10 +21,16 @@ use yii\base\Exception;
  */
 class OrderSettings extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var
      */
     private $_orderSettingsById;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param int $orderSettingsId

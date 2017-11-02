@@ -20,6 +20,9 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

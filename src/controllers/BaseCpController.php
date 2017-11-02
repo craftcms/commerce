@@ -22,10 +22,7 @@ class BaseCpController extends BaseController
     // =========================================================================
 
     /**
-     * @inheritDoc BaseController::init()
-     *
-     * @throws HttpException
-     * @return null
+     * @inheritdoc
      */
     public function init()
     {

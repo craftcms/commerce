@@ -27,6 +27,9 @@ use yii\base\Exception;
  */
 class ShippingRules extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -41,6 +44,9 @@ class ShippingRules extends Component
      * @var ShippingRule[][]
      */
     private $_shippingRulesByMethodId = [];
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return ShippingRule[]

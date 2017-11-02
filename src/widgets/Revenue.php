@@ -36,7 +36,7 @@ class Revenue extends Widget
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function isSelectable(): bool
     {
@@ -45,9 +45,7 @@ class Revenue extends Widget
     }
 
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
@@ -55,9 +53,7 @@ class Revenue extends Widget
     }
 
     /**
-     * @inheritDoc
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function iconPath(): string
     {
@@ -65,9 +61,7 @@ class Revenue extends Widget
     }
 
     /**
-     * @inheritDoc IWidget::getBodyHtml()
-     *
-     * @return string|false
+     * @inheritdoc
      */
     public function getBodyHtml()
     {
@@ -86,9 +80,7 @@ class Revenue extends Widget
     }
 
     /**
-     * @inheritDoc ISavableComponentType::getSettingsHtml()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getSettingsHtml(): string
     {

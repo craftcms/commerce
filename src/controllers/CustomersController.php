@@ -20,6 +20,9 @@ use yii\web\Response;
  */
 class CustomersController extends BaseCpController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

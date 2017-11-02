@@ -66,6 +66,9 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public $threeDSecure = false;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

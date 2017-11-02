@@ -27,6 +27,9 @@ use craft\db\ActiveRecord;
  */
 class Gateway extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

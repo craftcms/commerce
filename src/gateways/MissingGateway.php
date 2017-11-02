@@ -32,6 +32,9 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 
     use MissingComponentTrait;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

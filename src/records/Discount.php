@@ -51,8 +51,14 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

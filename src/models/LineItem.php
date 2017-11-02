@@ -161,6 +161,9 @@ class LineItem extends Model
      */
     private $_order;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return \craft\commerce\elements\Order|null
      */
@@ -410,8 +413,8 @@ class LineItem extends Model
      */
     public function getAdjustments(): array
     {
-
-
+        $lineItemAdjustments = [];
+        
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {

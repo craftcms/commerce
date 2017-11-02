@@ -37,7 +37,7 @@ class Address extends Model
     /**
      * @var bool True, if this address is the stock location.
      */
-    public $stockLocation;
+    public $stockLocation = false;
 
     /**
      * @var string Attention
@@ -123,6 +123,9 @@ class Address extends Model
      * @var int|string Can be a State ID or State Name
      */
     private $_stateValue;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

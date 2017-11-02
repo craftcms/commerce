@@ -31,6 +31,9 @@ use craft\helpers\UrlHelper;
  */
 class ShippingZone extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -65,6 +68,9 @@ class ShippingZone extends Model
      * @var State[]
      */
     private $_states;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

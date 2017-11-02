@@ -25,6 +25,9 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderSettings extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

@@ -28,10 +28,16 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
+    // Constants
+    // =========================================================================
+
     /**
      * @event AdjusterEvent This event is raised when compiling the list of adjusters for an order
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return AdjusterInterface[]

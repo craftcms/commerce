@@ -34,6 +34,9 @@ use craft\commerce\base\Model;
  */
 class Settings extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var string Weight Units
      */
@@ -143,6 +146,9 @@ class Settings extends Model
      * @var array
      */
     public $gatewaySettings = [];
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return array

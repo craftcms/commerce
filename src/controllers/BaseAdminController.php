@@ -18,7 +18,7 @@ class BaseAdminController extends BaseController
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function init()
     {

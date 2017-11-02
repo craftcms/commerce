@@ -13,6 +13,9 @@ use craft\commerce\elements\Order;
  */
 interface AdjusterInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * The adjust method returns adjustents to add to the order
      *

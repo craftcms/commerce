@@ -12,6 +12,9 @@ use yii\base\Event;
 
 class OrderEvent extends Event
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var Order The order
      */

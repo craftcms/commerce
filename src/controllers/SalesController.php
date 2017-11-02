@@ -22,9 +22,11 @@ use yii\web\Response;
  * @package   craft.plugins.commerce.controllers
  * @since     1.0
  */
-// TODO getParam -> getBodyParam
 class SalesController extends BaseCpController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @throws HttpException
      */

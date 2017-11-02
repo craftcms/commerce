@@ -24,7 +24,7 @@ class CreateSale extends ElementAction
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getName()
     {
@@ -32,7 +32,7 @@ class CreateSale extends ElementAction
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getTriggerHtml()
     {

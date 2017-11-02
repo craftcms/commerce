@@ -57,7 +57,7 @@
                 };
 
                 Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
-                    if (textStatus == 'success' && typeof(response.error) == 'undefined') {
+                    if (textStatus === 'success' && typeof(response.error) === 'undefined') {
                         this.$infos.removeClass('hidden');
                         this.$chart.removeClass('hidden');
 
@@ -86,7 +86,7 @@
 
                         var msg = Craft.t('commerce', 'An unknown error occurred.');
 
-                        if (typeof(response) != 'undefined' && response && typeof(response.error) != 'undefined') {
+                        if (typeof(response) !== 'undefined' && response && typeof(response.error) !== 'undefined') {
                             msg = response.error;
                         }
 

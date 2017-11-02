@@ -41,7 +41,7 @@ class Gateways extends Component
      */
     const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
 
-    // Properties
+    // Public Methods
     // =========================================================================
 
     /**
@@ -79,7 +79,7 @@ class Gateways extends Component
         $gateways = [];
 
         foreach ($rows as $row) {
-            $gateways[] = $this->createGateway($row);
+            $gateways[$row['id']] = $this->createGateway($row);
         }
 
         return $gateways;
@@ -100,7 +100,7 @@ class Gateways extends Component
         $gateways = [];
 
         foreach ($rows as $row) {
-            $gateways[] = $this->createGateway($row);
+            $gateways[$row['id']] = $this->createGateway($row);
         }
 
         return $gateways;

@@ -26,6 +26,9 @@ use craft\commerce\records\Email as EmailRecord;
  */
 class Email extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -65,6 +68,9 @@ class Email extends Model
      * @var string Template path
      */
     public $templatePath;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @inheritdoc

@@ -20,6 +20,9 @@ use yii\web\HttpException;
  */
 class CustomerAddressesController extends BaseFrontEndController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * Add New Address
      *

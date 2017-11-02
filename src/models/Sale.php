@@ -26,6 +26,9 @@ use craft\helpers\UrlHelper;
  */
 class Sale extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -95,6 +98,9 @@ class Sale extends Model
      * @var int[] Group IDs
      */
     private $_userGroupIds;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @inheritdoc

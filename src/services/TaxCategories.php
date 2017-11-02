@@ -24,6 +24,9 @@ use yii\base\Exception;
  */
 class TaxCategories extends Component
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var bool
      */
@@ -43,6 +46,9 @@ class TaxCategories extends Component
      * @var TaxCategory
      */
     private $_defaultTaxCategory;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * Returns all Tax Categories

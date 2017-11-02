@@ -22,6 +22,9 @@ use craft\commerce\Plugin;
  */
 class ShippingRuleCategory extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int Category id
      */
@@ -57,6 +60,12 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     public function rules(): array
     {
         return [

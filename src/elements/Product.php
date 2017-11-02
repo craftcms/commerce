@@ -30,14 +30,6 @@ use yii\base\InvalidConfigException;
 /**
  * Product model.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
- *
- *
  * @property null|\craft\commerce\models\ShippingCategory $shippingCategory
  * @property string                                       $eagerLoadedElements
  * @property \craft\commerce\elements\Variant[]|array     $variants
@@ -46,6 +38,13 @@ use yii\base\InvalidConfigException;
  * @property int                                          $totalStock
  * @property string                                       $snapshot
  * @property bool                                         $unlimitedStock
+ *
+ * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
+ * @license   https://craftcommerce.com/license Craft Commerce License Agreement
+ * @see       https://craftcommerce.com
+ * @package   craft.plugins.commerce.models
+ * @since     1.0
  */
 class Product extends Element
 {
@@ -58,11 +57,6 @@ class Product extends Element
 
     // Properties
     // =============================================================================
-
-    /**
-     * @var Variant[] This product’s variants
-     */
-    private $_variants;
 
     /**
      * @var int ID
@@ -158,6 +152,11 @@ class Product extends Element
      * @var string Name
      */
     public $name;
+
+    /**
+     * @var Variant[] This product’s variants
+     */
+    private $_variants;
 
     // Public Methods
     // =============================================================================
@@ -930,7 +929,7 @@ class Product extends Element
         $oldVariantIds = (new Query())
             ->select('id')
             ->from('{{%commerce_variants}}')
-            ->where('productId = :productId', [':productId' => $this->id])
+            ->where(['productId' => $this->id])
             ->column();
 
         /** @var Variant $variant */

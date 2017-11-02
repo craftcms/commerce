@@ -23,6 +23,9 @@ use yii\web\Response;
  */
 class PaymentsController extends BaseFrontEndController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return null|Response
      * @throws HttpException

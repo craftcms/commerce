@@ -13,7 +13,6 @@ use yii\db\ActiveQueryInterface;
  * @property string    $description
  * @property bool      $countryBased
  * @property bool      $default
- *
  * @property Country[] $countries
  * @property State[]   $states
  *
@@ -26,6 +25,9 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxZone extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

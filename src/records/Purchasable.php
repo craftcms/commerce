@@ -12,7 +12,6 @@ use yii\db\ActiveQueryInterface;
  * @property int                          $id
  * @property string                       $sku
  * @property float                        $price
- *
  * @property \yii\db\ActiveQueryInterface $element
  * @property Variant                      $implicit
  *
@@ -25,6 +24,9 @@ use yii\db\ActiveQueryInterface;
  */
 class Purchasable extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

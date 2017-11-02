@@ -102,9 +102,7 @@ class ProductTypeSite extends Model
     }
 
     /**
-     * @inheritDoc BaseModel::rules()
-     *
-     * @return array
+     * @inheritdoc
      */
     public function rules(): array
     {

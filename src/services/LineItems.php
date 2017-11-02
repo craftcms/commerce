@@ -52,7 +52,7 @@ class LineItems extends Component
     // =========================================================================
 
     /**
-     * @var LineItem[][]
+     * @var LineItem[]
      */
     private $_lineItemsByOrderId = [];
 

@@ -30,6 +30,9 @@ use yii\base\Exception;
  */
 class OrderStatuses extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var bool
      */
@@ -49,6 +52,9 @@ class OrderStatuses extends Component
      * @var OrderStatus
      */
     private $_defaultOrderStatus;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param string $handle

@@ -21,6 +21,9 @@ use craft\helpers\UrlHelper;
  */
 class TaxCategory extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID;
      */
@@ -45,6 +48,9 @@ class TaxCategory extends Model
      * @var bool Default
      */
     public $default;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * Returns the name of this tax category.

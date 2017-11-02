@@ -21,27 +21,31 @@ use Snowcap\Vat\Validation;
  */
 class Tax implements AdjusterInterface
 {
+    // Constants
+    // =========================================================================
+
     const ADJUSTMENT_TYPE = 'tax';
 
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var
+     */
     private $_vatValidator;
 
-    /** @var  Order */
+    /**
+     * @var Order
+     */
     private $_order;
 
-    /** @var  Address */
+    /**
+     * @var Address
+     */
     private $_address;
 
-    private function _createAdjustment($rate)
-    {
-        $adjustment = new OrderAdjustment;
-        $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->name = $rate->name;
-        $adjustment->description = $rate->rate * 100 .'%'.($rate->include ? ' inc' : '');
-        $adjustment->orderId = $this->_order->id;
-        $adjustment->sourceSnapshot = $rate->attributes;
-
-        return $adjustment;
-    }
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param Order $order
@@ -277,5 +281,22 @@ class Tax implements AdjusterInterface
         }
 
         return $this->_vatValidator;
+    }
+
+    /**
+     * @param $rate
+     *
+     * @return OrderAdjustment
+     */
+    private function _createAdjustment($rate)
+    {
+        $adjustment = new OrderAdjustment;
+        $adjustment->type = self::ADJUSTMENT_TYPE;
+        $adjustment->name = $rate->name;
+        $adjustment->description = $rate->rate * 100 .'%'.($rate->include ? ' inc' : '');
+        $adjustment->orderId = $this->_order->id;
+        $adjustment->sourceSnapshot = $rate->attributes;
+
+        return $adjustment;
     }
 }

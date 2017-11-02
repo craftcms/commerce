@@ -12,6 +12,9 @@ use yii\base\Event;
 
 class ItemBagEvent extends Event
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var Order The order
      */

@@ -102,6 +102,9 @@ use yii\base\Exception;
  */
 class Order extends Element
 {
+    // Constants
+    // =========================================================================
+
     /**
      * @event OrderEvent This event is raised when an order is completed
      */
@@ -111,6 +114,9 @@ class Order extends Element
      * @event OrderEvent This event is raised after an order is completed
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
+
+    // Properties
+    // =========================================================================
 
     /**
      * @var int ID
@@ -242,6 +248,9 @@ class Order extends Element
      */
     private $_relcalculate = true;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */
@@ -251,7 +260,7 @@ class Order extends Element
         if (!$this->gatewayId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
             if (count($gateways)) {
-                $this->gatewayId = $gateways[0]->id;
+                $this->gatewayId = key($gateways);
             }
         }
 

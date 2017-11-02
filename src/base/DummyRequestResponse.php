@@ -10,6 +10,9 @@ namespace craft\commerce\base;
  */
 class DummyRequestResponse implements RequestResponseInterface
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

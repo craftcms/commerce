@@ -21,10 +21,11 @@ use craft\commerce\models\Customer as CustomerModel;
  */
 class Customer extends Field
 {
+    // Public Methods
+    // =========================================================================
+
     /**
-     * @inheritDoc IComponentType::getName()
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
@@ -40,7 +41,7 @@ class Customer extends Field
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getInputHtml($value, ElementInterface $element = null): string
     {

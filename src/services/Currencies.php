@@ -19,7 +19,16 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
+    // Properties
+    // =============================================================================
+
+    /**
+     * @var
+     */
     private $_allCurrencies;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param string $iso

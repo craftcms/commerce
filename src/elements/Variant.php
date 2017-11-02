@@ -127,6 +127,9 @@ class Variant extends Purchasable
      */
     private $_product;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */
@@ -370,7 +373,7 @@ class Variant extends Purchasable
      *
      * @return mixed
      */
-    public function getPrice()
+    public function getPrice(): float
     {
         return $this->price;
     }
@@ -415,7 +418,7 @@ class Variant extends Purchasable
      *
      * @return int|null
      */
-    public function getPurchasableId()
+    public function getPurchasableId(): int
     {
         return $this->id;
     }
@@ -602,7 +605,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return $this->getProduct()->promotable;
+        return (bool) $this->getProduct()->promotable;
     }
 
     /**

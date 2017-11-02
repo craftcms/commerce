@@ -23,6 +23,9 @@ use yii\web\Response;
  */
 class ProductTypesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     public function actionProductTypeIndex()
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();

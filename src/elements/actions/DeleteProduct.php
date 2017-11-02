@@ -24,7 +24,7 @@ class DeleteProduct extends Delete
     // =========================================================================
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function performAction(ElementQueryInterface $query = null): bool
     {

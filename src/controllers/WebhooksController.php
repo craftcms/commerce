@@ -19,10 +19,16 @@ use yii\web\Response;
  */
 class WebhooksController extends BaseController
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @inheritdoc
      */
     protected $allowAnonymous = ['process-webhook'];
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return Response

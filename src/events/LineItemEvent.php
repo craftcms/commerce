@@ -13,6 +13,9 @@ use yii\base\Event;
 
 class LineItemEvent extends Event
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var LineItem The line item model.
      */

@@ -3,7 +3,6 @@
 namespace craft\commerce\adjusters;
 
 use craft\commerce\base\AdjusterInterface;
-use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
@@ -18,29 +17,21 @@ use craft\commerce\Plugin;
  */
 class Shipping implements AdjusterInterface
 {
+    // Constants
+    // =========================================================================
+
     const ADJUSTMENT_TYPE = 'shipping';
 
-    private $_order;
+    // Properties
+    // =========================================================================
 
     /**
-     * @param ShippingMethod $shippingMethod
-     * @param ShippingRule   $rule
-     *
-     * @return OrderAdjustment
+     * @var
      */
-    private function _createAdjustment($shippingMethod, $rule): OrderAdjustment
-    {
-        //preparing model
-        $adjustment = new OrderAdjustment;
-        $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->orderId = $this->_order->id;
-        $adjustment->lineItemId = null;
-        $adjustment->name = $shippingMethod->getName();
-        $adjustment->sourceSnapshot = $rule->getOptions();
-        $adjustment->description = $rule->getDescription();
+    private $_order;
 
-        return $adjustment;
-    }
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param Order $order
@@ -125,5 +116,25 @@ class Shipping implements AdjusterInterface
         }
 
         return $adjustments;
+    }
+
+    /**
+     * @param ShippingMethod $shippingMethod
+     * @param ShippingRule   $rule
+     *
+     * @return OrderAdjustment
+     */
+    private function _createAdjustment($shippingMethod, $rule): OrderAdjustment
+    {
+        //preparing model
+        $adjustment = new OrderAdjustment;
+        $adjustment->type = self::ADJUSTMENT_TYPE;
+        $adjustment->orderId = $this->_order->id;
+        $adjustment->lineItemId = null;
+        $adjustment->name = $shippingMethod->getName();
+        $adjustment->sourceSnapshot = $rule->getOptions();
+        $adjustment->description = $rule->getDescription();
+
+        return $adjustment;
     }
 }

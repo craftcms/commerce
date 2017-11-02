@@ -25,7 +25,6 @@ use yii\db\ActiveQueryInterface;
  * @property int                          $qty
  * @property string                       $note
  * @property string                       $snapshot
- *
  * @property int                          $orderId
  * @property int                          $purchasableId
  * @property mixed                        $options
@@ -48,6 +47,9 @@ use yii\db\ActiveQueryInterface;
  */
 class LineItem extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

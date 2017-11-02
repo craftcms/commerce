@@ -12,6 +12,9 @@ use craft\events\CancelableEvent;
 
 class SaleMatchEvent extends CancelableEvent
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var Sale The sale
      */

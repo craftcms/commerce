@@ -21,6 +21,9 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseAdminController
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return Response
      */

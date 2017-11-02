@@ -27,6 +27,9 @@ use craft\helpers\UrlHelper;
  */
 class TaxZone extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -52,11 +55,18 @@ class TaxZone extends Model
      */
     public $default = false;
 
-    /** @var \craft\commerce\models\Country[] $_countries */
+    /**
+     * @var \craft\commerce\models\Country[] $_countries
+     */
     private $_countries;
 
-    /** @var \craft\commerce\models\Country[] $_states */
+    /**
+     * @var \craft\commerce\models\Country[] $_states
+     */
     private $_states;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return string

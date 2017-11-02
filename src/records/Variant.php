@@ -23,7 +23,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool                         $unlimitedStock
  * @property int                          $minQty
  * @property int                          $maxQty
- *
  * @property \yii\db\ActiveQueryInterface $element
  * @property Product                      $product
  *
@@ -36,6 +35,9 @@ use yii\db\ActiveQueryInterface;
  */
 class Variant extends ActiveRecord
 {
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return string
      */

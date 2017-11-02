@@ -28,6 +28,9 @@ use craft\helpers\UrlHelper;
  */
 class OrderStatus extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -57,6 +60,9 @@ class OrderStatus extends Model
      * @var bool Default status
      */
     public $default;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @return array

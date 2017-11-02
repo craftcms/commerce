@@ -26,6 +26,9 @@ use yii\base\Exception;
  */
 class PaymentCurrencies extends Component
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var PaymentCurrency[]
      */
@@ -35,6 +38,9 @@ class PaymentCurrencies extends Component
      * @var PaymentCurrency[]
      */
     private $_allCurrenciesById;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param int $id

@@ -30,10 +30,16 @@ use yii\base\Exception;
  */
 class Sales extends Component
 {
+    // Constants
+    // =========================================================================
+
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      */
     const EVENT_BEFORE_MATCH_PRODUCT_SALE = 'beforeMatchProductSale';
+
+    // Properties
+    // =========================================================================
 
     /**
      * @var Sale[]
@@ -44,6 +50,9 @@ class Sales extends Component
      * @var Sale[]
      */
     private $_allActiveSales;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @param int $id

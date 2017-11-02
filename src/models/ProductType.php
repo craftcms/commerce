@@ -124,6 +124,9 @@ class ProductType extends Model
      */
     private $_siteSettings;
 
+    // Public Methods
+    // =========================================================================
+
     /**
      * @return null|string
      */
