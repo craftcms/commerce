@@ -74,6 +74,9 @@ class ChartsController extends ElementIndexesController
         ]);
     }
 
+    // Private Methods
+    // =========================================================================
+
     /**
      * Returns D3 currency format locale definition.
      *

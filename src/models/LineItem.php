@@ -61,6 +61,9 @@ use yii\base\InvalidConfigException;
  */
 class LineItem extends Model
 {
+    // Properties
+    // =============================================================================
+
     /**
      * @var int ID
      */
@@ -188,6 +191,9 @@ class LineItem extends Model
         $this->_order = $order;
     }
 
+    /**
+     * @return array
+     */
     public function rules(): array
     {
         return [
@@ -414,7 +420,7 @@ class LineItem extends Model
     public function getAdjustments(): array
     {
         $lineItemAdjustments = [];
-        
+
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {

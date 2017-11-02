@@ -354,6 +354,9 @@ trait Services
         return $this->get('variants');
     }
 
+    // Private Methods
+    // =============================================================================
+
     /**
      * Set the components of the commerce plugin
      */

@@ -33,16 +33,19 @@ class Products extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function defaultSelectionLabel(): string
     {
-        return Product::class;
+        return Craft::t('commerce', 'Add a product');
     }
+
+    // Protected Methods
+    // =============================================================================
 
     /**
      * @inheritdoc
      */
-    public static function defaultSelectionLabel(): string
+    protected static function elementType(): string
     {
-        return Craft::t('commerce', 'Add a product');
+        return Product::class;
     }
 }

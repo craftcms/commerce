@@ -461,6 +461,9 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
+    // Protected Methods
+    // =========================================================================
+
     /**
      * @inheritdoc
      */

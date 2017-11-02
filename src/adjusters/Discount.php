@@ -79,6 +79,9 @@ class Discount implements AdjusterInterface
         return $adjustments;
     }
 
+    // Private Methods
+    // =========================================================================
+
     private function _createOrderAdjustment(DiscountModel $discount)
     {
         //preparing model

@@ -114,7 +114,6 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public function creditCardLuhn($attribute, $params)
     {
-        $unused = $params;
         if (!OmnipayHelper::validateLuhn($this->$attribute)) {
             $this->addError($attribute, Craft::t('commerce', 'Not a valid Credit Card Number'));
         }

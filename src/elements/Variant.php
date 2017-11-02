@@ -194,7 +194,7 @@ class Variant extends Purchasable
      *
      * @deprecated
      */
-    public function getSalesApplied()
+    public function getSalesApplied(): array
     {
         Craft::$app->getDeprecator()->log('getSalesApplied()', 'The getSalesApplied() function has been deprecated. Use getSales() instead.');
 
@@ -369,9 +369,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function getPrice(): float
     {
@@ -414,9 +412,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return int|null
+     * @inheritdoc
      */
     public function getPurchasableId(): int
     {
@@ -743,21 +739,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
-    protected static function defineSources(string $context = null): array
-    {
-        $sources = [
-
-            '*' => [
-                'label' => Craft::t('commerce', 'All product\'s variants'),
-            ]
-        ];
-
-        return $sources;
-    }
-
-    /**
      * @return bool
      * @throws InvalidConfigException
      */
@@ -804,6 +785,24 @@ class Variant extends Purchasable
         }
 
         return parent::beforeValidate();
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSources(string $context = null): array
+    {
+        $sources = [
+
+            '*' => [
+                'label' => Craft::t('commerce', 'All product\'s variants'),
+            ]
+        ];
+
+        return $sources;
     }
 
     /**

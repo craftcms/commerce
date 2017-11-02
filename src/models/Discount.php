@@ -267,16 +267,6 @@ class Discount extends Model
     }
 
     /**
-     * Load the sale relations
-     *
-     * @return void
-     */
-    private function _loadRelations()
-    {
-        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
-    }
-
-    /**
      * @return string
      */
     public function getPercentDiscountAsPercent(): string
@@ -286,5 +276,18 @@ class Discount extends Model
         }
 
         return Craft::$app->formatter->asPercent(0);
+    }
+
+    // Private Methods
+    // =============================================================================
+
+    /**
+     * Load the sale relations
+     *
+     * @return void
+     */
+    private function _loadRelations()
+    {
+        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
     }
 }

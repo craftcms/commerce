@@ -331,27 +331,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param      $attribute
-     * @param null $shippingCategoryId
-     *
-     * @return mixed
-     */
-    private function _getRate($attribute, $shippingCategoryId = null)
-    {
-        if (!$shippingCategoryId) {
-            return $this->$attribute;
-        }
-
-        foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
-                return $ruleCategory->$attribute;
-            }
-        }
-
-        return $this->$attribute;
-    }
-
-    /**
      * @param null $shippingCategoryId
      *
      * @return float
@@ -401,5 +380,29 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    // Private Methods
+    // =============================================================================
+
+    /**
+     * @param      $attribute
+     * @param null $shippingCategoryId
+     *
+     * @return mixed
+     */
+    private function _getRate($attribute, $shippingCategoryId = null)
+    {
+        if (!$shippingCategoryId) {
+            return $this->$attribute;
+        }
+
+        foreach ($this->getShippingRuleCategories() as $ruleCategory) {
+            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+                return $ruleCategory->$attribute;
+            }
+        }
+
+        return $this->$attribute;
     }
 }

@@ -38,7 +38,7 @@ class Dummy extends Gateway
     /**
      * @return OffsitePaymentForm
      */
-    public function getPaymentFormModel()
+    public function getPaymentFormModel(): OffsitePaymentForm
     {
         return new OffsitePaymentForm();
     }

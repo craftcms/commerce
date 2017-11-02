@@ -11,8 +11,6 @@ use craft\helpers\UrlHelper;
 /**
  * Class Gateway
  *
- * @package   Craft
- *
  * @property int                  $id
  * @property string               $type
  * @property string               $name
@@ -110,22 +108,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Payment Form HTML
-     *
-     * @param array $params
-     *
-     * @return string|null
-     */
-    abstract public function getPaymentFormHtml(array $params);
-
-    /**
-     * Payment Form HTML
-     *
-     * @return BasePaymentForm|null
-     */
-    abstract public function getPaymentFormModel();
-
-    /**
      * Return the payment type options.
      *
      * @return array
@@ -147,4 +129,20 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
             [['paymentType'], 'required']
         ];
     }
+
+    /**
+     * Payment Form HTML
+     *
+     * @param array $params
+     *
+     * @return string|null
+     */
+    abstract public function getPaymentFormHtml(array $params);
+
+    /**
+     * Payment Form HTML
+     *
+     * @return BasePaymentForm|null
+     */
+    abstract public function getPaymentFormModel();
 }

@@ -46,6 +46,13 @@ class DiscountsController extends BaseCpController
         return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
     }
 
+    /**
+     * @param int|null      $id
+     * @param Discount|null $discount
+     *
+     * @return Response
+     * @throws HttpException
+     */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
         $variables = [

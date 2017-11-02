@@ -78,6 +78,9 @@ class ProductTypesController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
+    /**
+     * @throws HttpException
+     */
     public function actionSaveProductType()
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
@@ -152,7 +155,10 @@ class ProductTypesController extends BaseAdminController
         ]);
     }
 
-    public function actionDeleteProductType()
+    /**
+     * @return Response
+     */
+    public function actionDeleteProductType(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

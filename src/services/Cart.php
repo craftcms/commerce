@@ -80,7 +80,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error)
+    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error): bool
     {
         $isNewLineItem = false;
 
@@ -170,7 +170,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function applyCoupon(Order $cart, $code, &$error)
+    public function applyCoupon(Order $cart, $code, &$error): bool
     {
         if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
             $cart->couponCode = $code ?: null;
@@ -221,7 +221,7 @@ class Cart extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error)
+    public function setShippingMethod(Order $cart, $shippingMethod, &$error): bool
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
@@ -248,7 +248,7 @@ class Cart extends Component
      * @return bool
      * @throws \Exception
      */
-    public function setGateway(Order $cart, $gatewayId, &$error)
+    public function setGateway(Order $cart, $gatewayId, &$error): bool
     {
         if (!$gatewayId) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
@@ -375,30 +375,6 @@ class Cart extends Component
     }
 
     /**
-     * @return mixed|string
-     */
-    private function _getSessionCartNumber()
-    {
-        $session = Craft::$app->getSession();
-        $cartNumber = $session[$this->cookieCartId];
-
-        if (!$cartNumber) {
-            $cartNumber = $this->_uniqueCartNumber();
-            $session->set($this->cookieCartId, $cartNumber);
-        }
-
-        return $cartNumber;
-    }
-
-    /**
-     * @return string
-     */
-    private function _uniqueCartNumber(): string
-    {
-        return md5(uniqid(mt_rand(), true));
-    }
-
-    /**
      * Forgets a Cart by deleting its cookie.
      */
     public function forgetCart()
@@ -417,7 +393,7 @@ class Cart extends Component
      *
      * @return bool
      */
-    public function removeFromCart(Order $cart, $lineItemId)
+    public function removeFromCart(Order $cart, $lineItemId): bool
     {
         /** @var LineItem $lineItem */
         $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
@@ -500,7 +476,7 @@ class Cart extends Component
      * @return int The number of carts purged from the database
      * @throws \Exception
      */
-    public function purgeIncompleteCarts()
+    public function purgeIncompleteCarts(): int
     {
         $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
 
@@ -516,12 +492,39 @@ class Cart extends Component
         return 0;
     }
 
+    // Private Methods
+    // =============================================================================
+
+    /**
+     * @return mixed|string
+     */
+    private function _getSessionCartNumber()
+    {
+        $session = Craft::$app->getSession();
+        $cartNumber = $session[$this->cookieCartId];
+
+        if (!$cartNumber) {
+            $cartNumber = $this->_uniqueCartNumber();
+            $session->set($this->cookieCartId, $cartNumber);
+        }
+
+        return $cartNumber;
+    }
+
+    /**
+     * @return string
+     */
+    private function _uniqueCartNumber(): string
+    {
+        return md5(uniqid(mt_rand(), true));
+    }
+
     /**
      * Which Carts IDs need to be deleted
      *
      * @return int[]
      */
-    private function _getCartsIdsToPurge()
+    private function _getCartsIdsToPurge(): array
     {
         $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
         $edge = new \DateTime();

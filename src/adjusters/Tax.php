@@ -76,6 +76,9 @@ class Tax implements AdjusterInterface
         return $adjustments;
     }
 
+    // Private Methods
+    // =========================================================================
+
     /**
      * @param TaxRate $taxRate
      *
@@ -222,7 +225,7 @@ class Tax implements AdjusterInterface
      *
      * @return bool
      */
-    private function matchAddress(TaxZone $zone)
+    private function matchAddress(TaxZone $zone): bool
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
@@ -256,7 +259,7 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @param string $businessVatId
+     * @param int $businessVatId
      *
      * @return bool
      */
@@ -288,7 +291,7 @@ class Tax implements AdjusterInterface
      *
      * @return OrderAdjustment
      */
-    private function _createAdjustment($rate)
+    private function _createAdjustment($rate): OrderAdjustment
     {
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;

@@ -9,7 +9,6 @@ use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
-use yii\base\Exception;
 use yii\base\NotSupportedException;
 
 /**

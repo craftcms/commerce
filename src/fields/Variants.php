@@ -33,16 +33,19 @@ class Variants extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function defaultSelectionLabel(): string
     {
-        return Variant::class;
+        return Craft::t('commerce', 'Add a variant');
     }
+
+    // Protected Methods
+    // =============================================================================
 
     /**
      * @inheritdoc
      */
-    public static function defaultSelectionLabel(): string
+    protected static function elementType(): string
     {
-        return Craft::t('commerce', 'Add a variant');
+        return Variant::class;
     }
 }

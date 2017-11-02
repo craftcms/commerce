@@ -51,11 +51,23 @@ class ProductsController extends BaseCpController
         parent::init();
     }
 
+    /**
+     * @return Response
+     */
     public function actionProductIndex(): Response
     {
         return $this->renderTemplate('commerce/products/_index');
     }
 
+    /**
+     * @param string       $productTypeHandle
+     * @param int|null     $productId
+     * @param string|null  $siteHandle
+     * @param Product|null $product
+     *
+     * @return Response
+     * @throws NotFoundHttpException
+     */
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
         $variables = [
@@ -133,155 +145,6 @@ class ProductsController extends BaseCpController
         return $this->renderTemplate('commerce/products/_edit', $variables);
     }
 
-    private function _prepProductVariables(&$variables)
-    {
-        if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
-            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
-        }
-
-        if (empty($variables['productType'])) {
-            throw new NotFoundHttpException('Section not found');
-        }
-
-        // Get the site
-        // ---------------------------------------------------------------------
-
-        if (Craft::$app->getIsMultiSite()) {
-            // Only use the sites that the user has access to
-            $variables['siteIds'] = Craft::$app->getSites()->getEditableSiteIds();
-        } else {
-            $variables['siteIds'] = [Craft::$app->getSites()->getPrimarySite()->id];
-        }
-
-        if (!$variables['siteIds']) {
-            throw new ForbiddenHttpException('User not permitted to edit content in any sites supported by this section');
-        }
-
-        if (empty($variables['site'])) {
-            $variables['site'] = Craft::$app->getSites()->currentSite;
-
-            if (!in_array($variables['site']->id, $variables['siteIds'], false)) {
-                $variables['site'] = Craft::$app->getSites()->getSiteById($variables['siteIds'][0]);
-            }
-        } else {
-            // Make sure they were requesting a valid site
-            /** @var Site $site */
-            $site = $variables['site'];
-            if (!in_array($site->id, $variables['siteIds'], false)) {
-                throw new ForbiddenHttpException('User not permitted to edit content in this site');
-            }
-        }
-
-        if (!empty($variables['productTypeHandle'])) {
-            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        }
-
-        if (empty($variables['productType'])) {
-            throw new HttpException(400,
-                craft::t('commerce', 'Wrong product type specified'));
-        }
-
-        if (empty($variables['product'])) {
-            if (!empty($variables['productId'])) {
-                $variables['product'] = Plugin::getInstance()->getProducts()->getProductById($variables['productId'], $variables['site']->id);
-
-                if (!$variables['product']) {
-                    throw new HttpException(404);
-                }
-            } else {
-                $variables['product'] = new Product();
-                $variables['product']->typeId = $variables['productType']->id;
-                $taxCategories = $variables['productType']->getTaxCategories();
-                $variables['product']->taxCategoryId = key($taxCategories);
-                $shippingCategories = $variables['productType']->getShippingCategories();
-                $variables['product']->shippingCategoryId = key($shippingCategories);
-                $variables['product']->typeId = $variables['productType']->id;
-                if ($variables['siteId']) {
-                    $variables['product']->site = $variables['siteId'];
-                }
-            }
-        }
-
-        if (!empty($variables['product']->id)) {
-            $this->enforceProductPermissions($variables['product']);
-            $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
-        } else {
-            $variables['enabledSiteIds'] = [];
-
-            foreach (Craft::$app->getSites()->getEditableSiteIds() as $site) {
-                $variables['enabledSiteIds'][] = $site;
-            }
-        }
-    }
-
-    /**
-     * @param Product $product
-     *
-     * @throws HttpException
-     */
-    protected function enforceProductPermissions(Product $product)
-    {
-        if (!$product->getType()) {
-            Craft::error('Attempting to access a product that doesn’t have a type', __METHOD__);
-            throw new HttpException(404);
-        }
-
-        $this->requirePermission('commerce-manageProductType:'.$product->getType()->id);
-    }
-
-    /**
-     * @param array $variables
-     *
-     * @throws HttpException
-     */
-    private function _prepVariables(array &$variables)
-    {
-        $variables['tabs'] = [];
-
-        /** @var ProductType $productType */
-        $productType = $variables['productType'];
-        /** @var Product $product */
-        $product = $variables['product'];
-
-        foreach ($productType->getProductFieldLayout()->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-            if ($product->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    /** @var Field $field */
-                    if ($hasErrors = $product->hasErrors($field->handle)) {
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab'.($index + 1),
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
-
-        if ($productType->hasVariants) {
-            $hasErrors = false;
-            foreach ($product->getVariants() as $variant) {
-                if ($hasErrors = $variant->hasErrors()) {
-                    break;
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', 'Variants'),
-                'url' => '#variants',
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
-
-        $variables['primaryVariant'] = $product->getVariants()[0];
-    }
-
     /**
      * Previews a product.
      *
@@ -296,75 +159,6 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         $this->_showProduct($product);
-    }
-
-    /**
-     * @return Product
-     * @throws Exception
-     */
-    private function _setProductFromPost(): Product
-    {
-        $request = Craft::$app->getRequest();
-        $productId = $request->getParam('productId');
-        $site = $request->getParam('site');
-
-        if ($productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
-
-            if (!$product) {
-                throw new Exception(Craft::t('commerce', 'No product with the ID “{id}”',
-                    ['id' => $productId]));
-            }
-        } else {
-            $product = new Product();
-        }
-
-        $data['typeId'] = $request->getBodyParam('typeId');
-        $data['enabled'] = $request->getBodyParam('enabled');
-        $data['postDate'] = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['postDate']);
-        $data['expiryDate'] = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['expiryDate']);
-        $data['promotable'] = $request->getBodyParam('promotable');
-        $data['freeShipping'] = $request->getBodyParam('freeShipping');
-        $data['taxCategoryId'] = $request->getBodyParam('taxCategoryId');
-        $data['shippingCategoryId'] = $request->getBodyParam('shippingCategoryId');
-        $data['slug'] = $request->getBodyParam('slug');
-
-        ProductHelper::populateProductModel($product, $data);
-
-        $product->enabledForSite = (bool)$request->getParam('enabledForSite', $product->enabledForSite);
-        $product->title = $request->getParam('title', $product->title);
-        $product->setFieldValuesFromRequest('fields');
-
-        return $product;
-    }
-
-    /**
-     * Displays a product.
-     *
-     * @param Product $product
-     *
-     * @throws HttpException
-     * @return null
-     */
-    private function _showProduct(Product $product)
-    {
-        $productType = $product->getType();
-
-        if (!$productType) {
-            Craft::error('Attempting to preview a product that doesn’t have a type', __METHOD__);
-            throw new HttpException(404);
-        }
-
-        Craft::$app->language = $product->site;
-
-        // Have this product override any freshly queried products with the same ID/site
-        Craft::$app->getElements()->setPlaceholderElement($product);
-
-        Craft::$app->getView()->getTwig()->disableStrictVariables();
-
-        return $this->renderTemplate($productType->template, [
-            'product' => $product
-        ]);
     }
 
     /**
@@ -515,5 +309,236 @@ class ProductsController extends BaseCpController
         Craft::$app->getSession()->setNotice(Craft::t('app', 'Product saved.'));
 
         return $this->redirectToPostedUrl($product);
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @param Product $product
+     *
+     * @throws HttpException
+     */
+    protected function enforceProductPermissions(Product $product)
+    {
+        if (!$product->getType()) {
+            Craft::error('Attempting to access a product that doesn’t have a type', __METHOD__);
+            throw new HttpException(404);
+        }
+
+        $this->requirePermission('commerce-manageProductType:'.$product->getType()->id);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param array $variables
+     *
+     * @throws HttpException
+     */
+    private function _prepVariables(array &$variables)
+    {
+        $variables['tabs'] = [];
+
+        /** @var ProductType $productType */
+        $productType = $variables['productType'];
+        /** @var Product $product */
+        $product = $variables['product'];
+
+        foreach ($productType->getProductFieldLayout()->getTabs() as $index => $tab) {
+            // Do any of the fields on this tab have errors?
+            $hasErrors = false;
+            if ($product->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    /** @var Field $field */
+                    if ($hasErrors = $product->hasErrors($field->handle)) {
+                        break;
+                    }
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab'.($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
+
+        if ($productType->hasVariants) {
+            $hasErrors = false;
+            foreach ($product->getVariants() as $variant) {
+                if ($hasErrors = $variant->hasErrors()) {
+                    break;
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', 'Variants'),
+                'url' => '#variants',
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
+
+        $variables['primaryVariant'] = $product->getVariants()[0];
+    }
+
+    /**
+     * @param $variables
+     *
+     * @throws ForbiddenHttpException
+     * @throws HttpException
+     * @throws NotFoundHttpException
+     */
+    private function _prepProductVariables(&$variables)
+    {
+        if (!empty($variables['productTypeHandle'])) {
+            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
+        } else if (!empty($variables['productTypeId'])) {
+            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
+        }
+
+        if (empty($variables['productType'])) {
+            throw new NotFoundHttpException('Section not found');
+        }
+
+        // Get the site
+        // ---------------------------------------------------------------------
+
+        if (Craft::$app->getIsMultiSite()) {
+            // Only use the sites that the user has access to
+            $variables['siteIds'] = Craft::$app->getSites()->getEditableSiteIds();
+        } else {
+            $variables['siteIds'] = [Craft::$app->getSites()->getPrimarySite()->id];
+        }
+
+        if (!$variables['siteIds']) {
+            throw new ForbiddenHttpException('User not permitted to edit content in any sites supported by this section');
+        }
+
+        if (empty($variables['site'])) {
+            $variables['site'] = Craft::$app->getSites()->currentSite;
+
+            if (!in_array($variables['site']->id, $variables['siteIds'], false)) {
+                $variables['site'] = Craft::$app->getSites()->getSiteById($variables['siteIds'][0]);
+            }
+        } else {
+            // Make sure they were requesting a valid site
+            /** @var Site $site */
+            $site = $variables['site'];
+            if (!in_array($site->id, $variables['siteIds'], false)) {
+                throw new ForbiddenHttpException('User not permitted to edit content in this site');
+            }
+        }
+
+        if (!empty($variables['productTypeHandle'])) {
+            $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
+        }
+
+        if (empty($variables['productType'])) {
+            throw new HttpException(400,
+                craft::t('commerce', 'Wrong product type specified'));
+        }
+
+        if (empty($variables['product'])) {
+            if (!empty($variables['productId'])) {
+                $variables['product'] = Plugin::getInstance()->getProducts()->getProductById($variables['productId'], $variables['site']->id);
+
+                if (!$variables['product']) {
+                    throw new HttpException(404);
+                }
+            } else {
+                $variables['product'] = new Product();
+                $variables['product']->typeId = $variables['productType']->id;
+                $taxCategories = $variables['productType']->getTaxCategories();
+                $variables['product']->taxCategoryId = key($taxCategories);
+                $shippingCategories = $variables['productType']->getShippingCategories();
+                $variables['product']->shippingCategoryId = key($shippingCategories);
+                $variables['product']->typeId = $variables['productType']->id;
+                if ($variables['siteId']) {
+                    $variables['product']->site = $variables['siteId'];
+                }
+            }
+        }
+
+        if (!empty($variables['product']->id)) {
+            $this->enforceProductPermissions($variables['product']);
+            $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
+        } else {
+            $variables['enabledSiteIds'] = [];
+
+            foreach (Craft::$app->getSites()->getEditableSiteIds() as $site) {
+                $variables['enabledSiteIds'][] = $site;
+            }
+        }
+    }
+
+    /**
+     * @return Product
+     * @throws Exception
+     */
+    private function _setProductFromPost(): Product
+    {
+        $request = Craft::$app->getRequest();
+        $productId = $request->getParam('productId');
+        $site = $request->getParam('site');
+
+        if ($productId) {
+            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
+
+            if (!$product) {
+                throw new Exception(Craft::t('commerce', 'No product with the ID “{id}”',
+                    ['id' => $productId]));
+            }
+        } else {
+            $product = new Product();
+        }
+
+        $data['typeId'] = $request->getBodyParam('typeId');
+        $data['enabled'] = $request->getBodyParam('enabled');
+        $data['postDate'] = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['postDate']);
+        $data['expiryDate'] = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['expiryDate']);
+        $data['promotable'] = $request->getBodyParam('promotable');
+        $data['freeShipping'] = $request->getBodyParam('freeShipping');
+        $data['taxCategoryId'] = $request->getBodyParam('taxCategoryId');
+        $data['shippingCategoryId'] = $request->getBodyParam('shippingCategoryId');
+        $data['slug'] = $request->getBodyParam('slug');
+
+        ProductHelper::populateProductModel($product, $data);
+
+        $product->enabledForSite = (bool)$request->getParam('enabledForSite', $product->enabledForSite);
+        $product->title = $request->getParam('title', $product->title);
+        $product->setFieldValuesFromRequest('fields');
+
+        return $product;
+    }
+
+    /**
+     * Displays a product.
+     *
+     * @param Product $product
+     *
+     * @throws HttpException
+     * @return null
+     */
+    private function _showProduct(Product $product)
+    {
+        $productType = $product->getType();
+
+        if (!$productType) {
+            Craft::error('Attempting to preview a product that doesn’t have a type', __METHOD__);
+            throw new HttpException(404);
+        }
+
+        Craft::$app->language = $product->site;
+
+        // Have this product override any freshly queried products with the same ID/site
+        Craft::$app->getElements()->setPlaceholderElement($product);
+
+        Craft::$app->getView()->getTwig()->disableStrictVariables();
+
+        return $this->renderTemplate($productType->template, [
+            'product' => $product
+        ]);
     }
 }

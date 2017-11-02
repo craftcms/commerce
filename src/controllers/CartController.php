@@ -332,7 +332,18 @@ class CartController extends BaseFrontEndController
         }
     }
 
-    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error = '')
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param Address $shippingAddress
+     * @param Address $billingAddress
+     * @param         $error
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();

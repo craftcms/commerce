@@ -118,6 +118,9 @@ class Shipping implements AdjusterInterface
         return $adjustments;
     }
 
+    // Private Methods
+    // =========================================================================
+
     /**
      * @param ShippingMethod $shippingMethod
      * @param ShippingRule   $rule

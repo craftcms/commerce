@@ -333,72 +333,6 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Applies the 'editable' param to the query being prepared.
-     *
-     * @return void
-     * @throws QueryAbortedException
-     */
-    private function _applyEditableParam()
-    {
-        if (!$this->editable) {
-            return;
-        }
-
-        $user = Craft::$app->getUser()->getIdentity();
-
-        if (!$user) {
-            throw new QueryAbortedException();
-        }
-
-        // Limit the query to only the sections the user has permission to edit
-        $this->subQuery->andWhere([
-            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
-        ]);
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
-     * Applies the 'ref' param to the query being prepared.
-     *
-     * @return void
-     */
-    private function _applyRefParam()
-    {
-        if (!$this->ref) {
-            return;
-        }
-
-        $refs = ArrayHelper::toArray($this->ref);
-        $joinSections = false;
-        $condition = ['or'];
-
-        foreach ($refs as $ref) {
-            $parts = array_filter(explode('/', $ref));
-
-            if (!empty($parts)) {
-                if (count($parts) == 1) {
-                    $condition[] = Db::parseParam('elements_sites.slug', $parts[0]);
-                } else {
-                    $condition[] = [
-                        'and',
-                        Db::parseParam('commerce_producttypes.handle', $parts[0]),
-                        Db::parseParam('elements_sites.slug', $parts[1])
-                    ];
-                    $joinSections = true;
-                }
-            }
-        }
-
-        $this->subQuery->andWhere($condition);
-
-        if ($joinSections) {
-            $this->subQuery->innerJoin('{{%commerce_producttypes}} commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
-        }
-    }
-
-    /**
      * @inheritdoc
      */
     protected function statusCondition(string $status)
@@ -444,6 +378,75 @@ class ProductQuery extends ElementQuery
         }
     }
 
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Applies the 'editable' param to the query being prepared.
+     *
+     * @return void
+     * @throws QueryAbortedException
+     */
+    private function _applyEditableParam()
+    {
+        if (!$this->editable) {
+            return;
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            throw new QueryAbortedException();
+        }
+
+        // Limit the query to only the sections the user has permission to edit
+        $this->subQuery->andWhere([
+            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
+        ]);
+    }
+
+    /**
+     * Applies the 'ref' param to the query being prepared.
+     *
+     * @return void
+     */
+    private function _applyRefParam()
+    {
+        if (!$this->ref) {
+            return;
+        }
+
+        $refs = ArrayHelper::toArray($this->ref);
+        $joinSections = false;
+        $condition = ['or'];
+
+        foreach ($refs as $ref) {
+            $parts = array_filter(explode('/', $ref));
+
+            if (!empty($parts)) {
+                if (count($parts) == 1) {
+                    $condition[] = Db::parseParam('elements_sites.slug', $parts[0]);
+                } else {
+                    $condition[] = [
+                        'and',
+                        Db::parseParam('commerce_producttypes.handle', $parts[0]),
+                        Db::parseParam('elements_sites.slug', $parts[1])
+                    ];
+                    $joinSections = true;
+                }
+            }
+        }
+
+        $this->subQuery->andWhere($condition);
+
+        if ($joinSections) {
+            $this->subQuery->innerJoin('{{%commerce_producttypes}} commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
+        }
+    }
+
+    /**
+     *
+     */
     private function _applyHasSalesParam()
     {
         if (null !== $this->hasSales) {

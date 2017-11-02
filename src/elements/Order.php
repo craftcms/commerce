@@ -1079,7 +1079,7 @@ class Order extends Element
     /**
      * @return OrderHistory[]
      */
-    public function getHistories()
+    public function getHistories(): array
     {
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
@@ -1228,6 +1228,37 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function getSearchKeywords(string $attribute): string
+    {
+        if ($attribute === 'shortNumber') {
+            return $this->getShortNumber();
+        }
+
+        if ($attribute === 'billingFirstName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
+                return $this->billingAddress->firstName;
+            }
+
+            return '';
+        }
+
+        if ($attribute === 'billingLastName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
+                return $this->billingAddress->firstName;
+            }
+
+            return '';
+        }
+
+        return parent::getSearchKeywords($attribute);
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineSources(string $context = null): array
     {
         $sources = [
@@ -1354,34 +1385,6 @@ class Order extends Element
         }
 
         return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSearchKeywords(string $attribute): string
-    {
-        if ($attribute === 'shortNumber') {
-            return $this->getShortNumber();
-        }
-
-        if ($attribute === 'billingFirstName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'billingLastName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        return parent::getSearchKeywords($attribute);
     }
 
     /**

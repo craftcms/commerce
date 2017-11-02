@@ -25,6 +25,9 @@ class BaseFrontEndController extends BaseController
      */
     protected $allowAnonymous = true;
 
+    // Protected Methods
+    // =========================================================================
+
     /**
      * @param Order $cart
      *

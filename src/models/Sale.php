@@ -249,6 +249,9 @@ class Sale extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
+    // Private Methods
+    // =============================================================================
+
     /**
      * Load the sale relations
      *

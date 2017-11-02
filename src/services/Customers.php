@@ -163,31 +163,12 @@ class Customers extends Component
     }
 
     /**
-     * @return Customer
-     * @throws Exception
-     */
-    private function _getSavedCustomer()
-    {
-        $customer = $this->getCustomer();
-        if (!$customer->id) {
-            if ($this->saveCustomer($customer)) {
-                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
-            } else {
-                $errors = implode(', ', $customer->errors);
-                throw new Exception('Error saving customer: '.$errors);
-            }
-        }
-
-        return $customer;
-    }
-
-    /**
      * @param Customer $customer
      *
      * @return bool
      * @throws Exception
      */
-    public function saveCustomer(Customer $customer)
+    public function saveCustomer(Customer $customer): bool
     {
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();
@@ -222,7 +203,7 @@ class Customers extends Component
      *
      * @return array
      */
-    public function getAddressIds($customerId)
+    public function getAddressIds($customerId): array
     {
         $ids = [];
 
@@ -477,9 +458,6 @@ class Customers extends Component
         return $this->saveCustomer($customer);
     }
 
-    // Private Methods
-    // =========================================================================
-
     /**
      * @param Event $event
      *
@@ -503,6 +481,25 @@ class Customers extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * @return Customer
+     * @throws Exception
+     */
+    private function _getSavedCustomer()
+    {
+        $customer = $this->getCustomer();
+        if (!$customer->id) {
+            if ($this->saveCustomer($customer)) {
+                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
+            } else {
+                $errors = implode(', ', $customer->errors);
+                throw new Exception('Error saving customer: '.$errors);
+            }
+        }
+
+        return $customer;
+    }
 
     /**
      * Creates a Customer with attributes from a CustomerRecord.
