@@ -260,7 +260,7 @@ class Order extends Element
         if (!$this->gatewayId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
             if (count($gateways)) {
-                $this->gatewayId = $gateways[0]->id;
+                $this->gatewayId = key($gateways);
             }
         }
 
