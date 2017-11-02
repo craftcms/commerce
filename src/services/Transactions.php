@@ -41,87 +41,39 @@ class Transactions extends Component
     // Public Methods
     // =========================================================================
     /**
-     * @param int $id
+     * Returns true if a specific transaction can be refunded.
      *
-     * @return Transaction|null
+     * @param Transaction $transaction the transaction
+     *
+     * @return bool
      */
-    public function getTransactionById($id)
+    public function canCaptureTransaction(Transaction $transaction): bool
     {
-        $result = $this->_createTransactionQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if ($result) {
-            return new Transaction($result);
+        // Can refund only successful authorize transactions
+        if ($transaction->type !== TransactionRecord::TYPE_AUTHORIZE || $transaction->status !== TransactionRecord::STATUS_SUCCESS) {
+            return false;
         }
 
-        return null;
-    }
+        $gateway = $transaction->getGateway();
 
-    /**
-     * @param string $hash
-     *
-     * @return Transaction|null
-     */
-    public function getTransactionByHash($hash)
-    {
-        $result = $this->_createTransactionQuery()
-            ->where(['hash' => $hash])
-            ->one();
-
-        if ($result) {
-            return new Transaction($result);
+        if (!$gateway->supportsCapture()) {
+            return false;
         }
 
-        return null;
-    }
-
-    /**
-     * @param int $orderId
-     *
-     * @return Transaction[]
-     */
-    public function getAllTransactionsByOrderId($orderId): array
-    {
-        $rows = $this->_createTransactionQuery()
-            ->where(['orderId' => $orderId])
-            ->all();
-
-        $transactions = [];
-
-        foreach ($rows as $row) {
-            $transactions[] = new Transaction($row);
-        }
-
-        return $transactions;
-    }
-
-    /**
-     * Get children transactons by a parent transaction id.
-     *
-     * @param $transactionId
-     *
-     * @return array
-     */
-    public function getChildrenByTransactionId($transactionId)
-    {
-        $rows = $this->_createTransactionQuery()
-            ->where(['parentId' => $transactionId])
-            ->all();
-
-        $transactions = [];
-
-        foreach ($rows as $row) {
-            $transactions[] = new Transaction($row);
-        }
-
-        return $transactions;
+        // And only if we don't have a successful refund transaction for this order already
+        return !$this->_createTransactionQuery()
+            ->where([
+                'type' => TransactionRecord::TYPE_CAPTURE,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'orderId' => $transaction->orderId
+            ])
+            ->exists();
     }
 
     /**
      * Returns true if a specific transaction can be refunded.
      *
-     * @param Transaction $transaction
+     * @param Transaction $transaction the transaction
      *
      * @return bool
      */
@@ -153,65 +105,13 @@ class Transactions extends Component
     }
 
     /**
-     * Returns true if a transaction or a child of the transaction is successful.
-     *
-     * @param Transaction $transaction
-     *
-     * @return bool
-     */
-    public function isTransactionSuccessful(Transaction $transaction): bool
-    {
-        if ($transaction->status === TransactionRecord::STATUS_SUCCESS) {
-            return true;
-        }
-
-        return $this->_createTransactionQuery()
-            ->where([
-                'parentId' => $transaction->id,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
-            ])
-            ->exists();
-    }
-
-    /**
-     * Returns true if a specific transaction can be refunded.
-     *
-     * @param Transaction $transaction
-     *
-     * @return bool
-     */
-    public function canCaptureTransaction(Transaction $transaction): bool
-    {
-        // Can refund only successful authorize transactions
-        if ($transaction->type != TransactionRecord::TYPE_AUTHORIZE || $transaction->status != TransactionRecord::STATUS_SUCCESS) {
-            return false;
-        }
-
-        $gateway = $transaction->getGateway();
-
-        if (!$gateway->supportsCapture()) {
-            return false;
-        }
-
-        // And only if we don't have a successful refund transaction for this order already
-        return !$this->_createTransactionQuery()
-            ->where([
-                'type' => TransactionRecord::TYPE_CAPTURE,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
-            ])
-            ->exists();
-    }
-
-    /**
      * Create a transaction either from an order or a parent transaction. At least one must be present.
      *
-     * @param Order       $order             Order that the transaction is a part of.
-     * @param Transaction $parentTransaction Parent transaction, if this transaction is a child.
+     * @param Order       $order             Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
+     * @param Transaction $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
      *
      * @return Transaction
-     * @throws TransactionException
+     * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
      */
     public function createTransaction(Order $order = null, Transaction $parentTransaction = null): Transaction
     {
@@ -263,15 +163,133 @@ class Transactions extends Component
     }
 
     /**
-     * @param Transaction $model
+     * Delete a transaction.
+     *
+     * @param Transaction $transaction the transaction to delete
      *
      * @return bool
-     * @throws Exception
+     */
+    public function deleteTransaction(Transaction $transaction): bool
+    {
+        $record = TransactionRecord::findOne($transaction->id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all transactions for an order by it's id.
+     *
+     * @param int $orderId the order id
+     *
+     * @return Transaction[]
+     */
+    public function getAllTransactionsByOrderId(int $orderId): array
+    {
+        $rows = $this->_createTransactionQuery()
+            ->where(['orderId' => $orderId])
+            ->all();
+
+        $transactions = [];
+
+        foreach ($rows as $row) {
+            $transactions[] = new Transaction($row);
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * Get all children transactions by a parent transaction id.
+     *
+     * @param int $transactionId the parent transaction id
+     *
+     * @return array
+     */
+    public function getChildrenByTransactionId(int $transactionId): array
+    {
+        $rows = $this->_createTransactionQuery()
+            ->where(['parentId' => $transactionId])
+            ->all();
+
+        $transactions = [];
+
+        foreach ($rows as $row) {
+            $transactions[] = new Transaction($row);
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * Get a transaction by it's hash.
+     *
+     * @param string $hash the hash of transaction
+     *
+     * @return Transaction|null
+     */
+    public function getTransactionByHash(string $hash)
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(['hash' => $hash])
+            ->one();
+
+        return $result ? new Transaction($result) : null;
+    }
+
+    /**
+     * Get a transaction by it's id.
+     *
+     * @param int $id the id of transaction
+     *
+     * @return Transaction|null
+     */
+    public function getTransactionById(int $id)
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(['id' => $id])
+            ->one();
+
+            return  $result ? new Transaction($result): null;
+    }
+
+    /**
+     * Returns true if a transaction or a direct child of the transaction is successful.
+     *
+     * @param Transaction $transaction
+     *
+     * @return bool
+     */
+    public function isTransactionSuccessful(Transaction $transaction): bool
+    {
+        if ($transaction->status === TransactionRecord::STATUS_SUCCESS) {
+            return true;
+        }
+
+        return $this->_createTransactionQuery()
+            ->where([
+                'parentId' => $transaction->id,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'orderId' => $transaction->orderId
+            ])
+            ->exists();
+    }
+
+    /**
+     * Save a transaction.
+     *
+     * @param Transaction $model the transaction model
+     *
+     * @return bool
+     * @throws TransactionException if an attempt is made to modify an existing transaction
      */
     public function saveTransaction(Transaction $model): bool
     {
         if ($model->id) {
-            throw new Exception(Craft::t('commerce', 'Transactions cannot be modified.'));
+            throw new TransactionException('Transactions cannot be modified.');
         }
 
         $fields = [
@@ -322,22 +340,6 @@ class Transactions extends Component
             }
 
             return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param Transaction $transaction
-     *
-     * @return bool
-     */
-    public function deleteTransaction(Transaction $transaction): bool
-    {
-        $record = TransactionRecord::findOne($transaction->id);
-
-        if ($record) {
-            return (bool)$record->delete();
         }
 
         return false;
