@@ -605,7 +605,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return $this->getProduct()->promotable;
+        return (bool) $this->getProduct()->promotable;
     }
 
     /**
