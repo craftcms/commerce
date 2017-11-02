@@ -40,7 +40,7 @@ class Variants extends Component
     /**
      * Apply sales that are associated with the given product to all given variants.
      *
-     * @param Variant[] $variants an array of variants to appl sales to
+     * @param Variant[] $variants an array of variants to apply sales to
      * @param Product   $product  the product.
      *
      * @return void
@@ -132,7 +132,7 @@ class Variants extends Component
             }
 
             $clearCacheOfElementIds = [];
-            
+
             if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
                 // Update the qty in the db
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
