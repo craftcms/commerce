@@ -9,6 +9,7 @@ use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
@@ -141,7 +142,7 @@ class ProductsController extends BaseCpController
 
         $variables['promotions']['sales'] = Plugin::getInstance()->getSales()->getSalesForProduct($variables['product']);
 
-        Craft::$app->getView()->registerCssFile('commerce/product.css');
+        $this->getView()->registerAssetBundle(EditProductAsset::class);
         return $this->renderTemplate('commerce/products/_edit', $variables);
     }
 

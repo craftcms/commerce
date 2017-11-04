@@ -29,41 +29,8 @@ class BaseCpController extends BaseController
         // All system setting actions require access to commerce
         $this->requirePermission('accessPlugin-commerce');
 
-        $view = Craft::$app->getView();
+        $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
-        $view->registerAssetBundle(CommerceCpAsset::class);
-        $view->registerTranslations('commerce',
-            [
-                'New {productType} product',
-                'New product',
-                'Update Order Status',
-                'Message',
-                'Status change message',
-                'Update',
-                'Cancel',
-                'First Name',
-                'Last Name',
-                'Address Line 1',
-                'Address Line 2',
-                'City',
-                'Zip Code',
-                'Phone',
-                'Alternative Phone',
-                'Phone (Alt)',
-                'Business Name',
-                'Business Tax ID',
-                'Country',
-                'State',
-                'Update Address',
-                'New',
-                'Edit',
-                'Add Address',
-                'Add',
-                'Update',
-                'No Address'
-            ]
-        );
-
-        return parent::init();
+        parent::init();
     }
 }
