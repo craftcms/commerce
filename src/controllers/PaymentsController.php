@@ -14,12 +14,8 @@ use yii\web\Response;
 /**
  * Class Payments Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class PaymentsController extends BaseFrontEndController
 {

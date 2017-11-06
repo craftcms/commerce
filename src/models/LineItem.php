@@ -3,7 +3,6 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -52,12 +51,8 @@ use yii\base\InvalidConfigException;
  * @property int                     $taxIncluded
  * @property float                   $discount
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class LineItem extends Model
 {

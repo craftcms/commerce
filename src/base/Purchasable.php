@@ -9,13 +9,6 @@ use craft\commerce\Plugin;
 /**
  * Base Purchasable
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
- *
  * @property bool   $isPromotable
  * @property bool   $isAvailable
  * @property int    $purchasableId
@@ -25,6 +18,9 @@ use craft\commerce\Plugin;
  * @property string $sku
  * @property array  $snapshot
  * @property int    $taxCategoryId
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {

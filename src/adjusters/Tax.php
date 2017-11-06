@@ -17,7 +17,8 @@ use Snowcap\Vat\Validation;
 /**
  * Tax Adjustments
  *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Tax implements AdjusterInterface
 {

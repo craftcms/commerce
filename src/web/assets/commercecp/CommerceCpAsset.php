@@ -1,9 +1,4 @@
 <?php
-/**
- * @link      https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   https://craftcms.com/license
- */
 
 namespace craft\commerce\web\assets\commercecp;
 
@@ -14,6 +9,9 @@ use yii\web\JqueryAsset;
 
 /**
  * Asset bundle for the Control Panel
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class CommerceCpAsset extends AssetBundle
 {

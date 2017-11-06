@@ -12,17 +12,12 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use yii\base\Component;
-use yii\base\Exception;
 
 /**
  * Transaction service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Transactions extends Component
 {

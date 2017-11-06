@@ -22,12 +22,8 @@ use DateTime;
  * @property OrderStatus $newStatus
  * @property Customer    $customer
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrderHistory extends Model
 {

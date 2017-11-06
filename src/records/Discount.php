@@ -34,7 +34,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool                         $enabled
  * @property bool                         $stopProcessing
  * @property bool                         $sortOrder
- *
  * @property Product[]                    $products
  * @property ProductType[]                $productTypes
  * @property \yii\db\ActiveQueryInterface $discountProducts
@@ -42,12 +41,8 @@ use yii\db\ActiveQueryInterface;
  * @property \yii\db\ActiveQueryInterface $discountProductTypes
  * @property UserGroup[]                  $groups
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discount extends ActiveRecord
 {

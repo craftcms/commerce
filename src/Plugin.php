@@ -34,9 +34,11 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
- *
  * @property array $cpNavItem
  * @property mixed $settingsResponse
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Plugin extends \craft\base\Plugin
 {

@@ -19,14 +19,10 @@ use yii\base\Exception;
 /**
  * Sale service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @property Sale[] $allSales
  *
- * @property \craft\commerce\models\Sale[] $allSales
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Sales extends Component
 {

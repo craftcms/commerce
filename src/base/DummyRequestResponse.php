@@ -5,8 +5,8 @@ namespace craft\commerce\base;
 /**
  * This is a dummy gateway request response.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class DummyRequestResponse implements RequestResponseInterface
 {

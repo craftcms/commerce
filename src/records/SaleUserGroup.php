@@ -15,12 +15,8 @@ use yii\db\ActiveQueryInterface;
  * @property \yii\db\ActiveQueryInterface $sale
  * @property int                          $userGroupId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class SaleUserGroup extends ActiveRecord
 {

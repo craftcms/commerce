@@ -24,7 +24,7 @@ use yii\db\Connection;
  * @method Order|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  3.0
+ * @since  2.0
  */
 class OrderQuery extends ElementQuery
 {

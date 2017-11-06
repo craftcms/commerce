@@ -10,19 +10,18 @@ use yii\web\Response;
 /**
  * Class Registration Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class RegistrationController extends BaseAdminController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionEdit()
+    /**
+     * @return Response
+     */
+    public function actionEdit(): Response
     {
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 

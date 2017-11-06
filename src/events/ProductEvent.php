@@ -1,15 +1,15 @@
 <?php
-/**
- * @link      https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   https://craftcms.com/license
- */
 
 namespace craft\commerce\events;
 
 use craft\commerce\elements\Product;
 use craft\events\CancelableEvent;
 
+/**
+ * Class ProductEvent
+ *
+ * @package craft\commerce\events
+ */
 class ProductEvent extends CancelableEvent
 {
     // Properties

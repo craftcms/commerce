@@ -7,9 +7,8 @@ use craft\commerce\elements\Order;
 /**
  * A method all adjusters must implement
  *
- * Interface AdjusterInterface
- *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 interface AdjusterInterface
 {

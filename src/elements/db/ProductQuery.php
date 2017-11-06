@@ -14,9 +14,8 @@ use craft\helpers\Db;
 use DateTime;
 
 /**
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  3.0
+ * @since  2.0
  */
 class ProductQuery extends ElementQuery
 {

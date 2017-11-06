@@ -1,20 +1,15 @@
 <?php
-/**
- * @link      https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   https://craftcms.com/license
- */
 
 namespace craft\commerce\web\assets\editproduct;
 
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\AssetBundle;
-use craft\web\assets\cp\CpAsset;
-use craft\web\View;
-use yii\web\JqueryAsset;
 
 /**
  * Edit Product asset bundle
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class EditProductAsset extends AssetBundle
 {

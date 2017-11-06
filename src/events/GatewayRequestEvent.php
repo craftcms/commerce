@@ -5,6 +5,12 @@ namespace craft\commerce\events;
 use craft\commerce\models\Transaction;
 use craft\events\CancelableEvent;
 
+/**
+ * Class GatewayRequestEvent
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
+ */
 class GatewayRequestEvent extends CancelableEvent
 {
     // Properties

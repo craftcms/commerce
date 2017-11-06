@@ -7,9 +7,8 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
 /**
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  3.0
+ * @since  2.0
  */
 class VariantQuery extends ElementQuery
 {

@@ -13,12 +13,8 @@ use craft\commerce\Plugin;
  * @property ShippingRule     $rule
  * @property ShippingCategory $shippingCategory
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.2
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ShippingRuleCategory extends Model
 {

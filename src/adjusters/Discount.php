@@ -13,7 +13,8 @@ use craft\commerce\records\Discount as DiscountRecord;
 /**
  * Discount Adjuster
  *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discount implements AdjusterInterface
 {
