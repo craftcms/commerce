@@ -26,7 +26,7 @@ use craft\helpers\UrlHelper;
 class ShippingMethod extends Model implements ShippingMethodInterface
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int ID

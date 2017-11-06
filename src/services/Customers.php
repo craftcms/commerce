@@ -40,7 +40,7 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var Customer

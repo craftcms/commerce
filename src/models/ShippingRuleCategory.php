@@ -23,7 +23,7 @@ use craft\commerce\Plugin;
 class ShippingRuleCategory extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int Category id

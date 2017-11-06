@@ -35,7 +35,7 @@ use craft\commerce\base\Model;
 class Settings extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var string Weight Units

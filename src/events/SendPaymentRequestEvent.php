@@ -12,7 +12,7 @@ use yii\base\Event;
 class SendPaymentRequestEvent extends Event
 {
     // Properties
-    // =============================================================================
+    // ==========================================================================
 
     /**
      * @var mixed Request data

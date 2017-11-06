@@ -383,7 +383,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     // Private Methods
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @param      $attribute

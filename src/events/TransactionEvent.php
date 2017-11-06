@@ -13,7 +13,7 @@ use yii\base\Event;
 class TransactionEvent extends Event
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var Transaction The transaction model

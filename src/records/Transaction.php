@@ -50,7 +50,7 @@ class Transaction extends ActiveRecord
     const STATUS_FAILED = 'failed';
 
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int $total

@@ -16,7 +16,7 @@ use craft\mail\Message;
 class MailEvent extends CancelableEvent
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var Message Craft email object
