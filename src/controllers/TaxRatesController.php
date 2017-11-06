@@ -100,7 +100,7 @@ class TaxRatesController extends BaseAdminController
         $variables['taxables'] = $taxable;
 
         // Get the HTML and JS for the new tax zone/category modals
-        $view = Craft::$app->getView();
+        $view = $this->getView();
         $view->setNamespace('new');
 
         $view->startJsBuffer();

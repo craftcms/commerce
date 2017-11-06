@@ -174,7 +174,7 @@ class PaymentsController extends BaseFrontEndController
         $cancelUrl = $request->getValidatedBodyParam('cancelUrl');
 
         if ($returnUrl !== null || $cancelUrl !== null) {
-            $view = Craft::$app->getView();
+            $view = $this->getView();
             $order->returnUrl = $view->renderObjectTemplate($returnUrl, $order);
             $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
         }

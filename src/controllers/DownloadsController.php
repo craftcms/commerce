@@ -41,13 +41,13 @@ class DownloadsController extends BaseFrontEndController
         $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
         // Set Craft to the site template mode
-        $viewService = Craft::$app->getView();
-        $oldTemplateMode = $viewService->getTemplateMode();
-        $viewService->setTemplateMode(View::TEMPLATE_MODE_SITE);
+        $view = $this->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
-        if (!$template || !$viewService->doesTemplateExist($template)) {
+        if (!$template || !$view->doesTemplateExist($template)) {
             // Restore the original template mode
-            $viewService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             throw new HttpException(404, 'Template does not exist.');
         }
@@ -59,13 +59,13 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException(404);
         }
 
-        $fileName = Craft::$app->getView()->renderObjectTemplate($filenameFormat, $order);
+        $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
 
         if (!$fileName) {
             $fileName = 'Order-'.$order->number;
         }
 
-        $html = $viewService->render($template, compact('order', 'option'));
+        $html = $view->render($template, compact('order', 'option'));
 
         $dompdf = new Dompdf();
 
@@ -98,7 +98,7 @@ class DownloadsController extends BaseFrontEndController
         $dompdf->stream($fileName.'.pdf');
 
         // Restore the original template mode
-        $viewService->setTemplateMode($oldTemplateMode);
+        $view->setTemplateMode($oldTemplateMode);
 
         Craft::$app->end();
     }

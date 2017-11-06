@@ -24,7 +24,7 @@ class RegistrationController extends BaseAdminController
 
     public function actionEdit()
     {
-        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+        $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         $licenseKey = Craft::$app->getPlugins()->getPluginLicenseKey('Commerce');
 

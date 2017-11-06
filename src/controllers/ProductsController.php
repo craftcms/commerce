@@ -105,12 +105,12 @@ class ProductsController extends BaseCpController
         if ($variables['product']->getType()->hasVariants) {
             $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($variables['product']);
         } else {
-            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
+            $this->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
         }
 
         // Enable Live Preview?
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
-            Craft::$app->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
+            $this->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants',
                     'previewUrl' => $variables['product']->getUrl(),
@@ -536,7 +536,7 @@ class ProductsController extends BaseCpController
         // Have this product override any freshly queried products with the same ID/site
         Craft::$app->getElements()->setPlaceholderElement($product);
 
-        Craft::$app->getView()->getTwig()->disableStrictVariables();
+        $this->getView()->getTwig()->disableStrictVariables();
 
         return $this->renderTemplate($productType->template, [
             'product' => $product

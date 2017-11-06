@@ -108,7 +108,7 @@ class OrdersController extends BaseCpController
     public function actionGetPaymentModal()
     {
         $this->requireAcceptsJson();
-        $view = Craft::$app->getView();
+        $view = $this->getView();
 
         $request = Craft::$app->getRequest();
         $orderId = $request->getParam('orderId');

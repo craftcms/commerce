@@ -74,18 +74,18 @@ class ShippingRulesController extends BaseAdminController
         $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesListData();
         $variables['states'] = $plugin->getStates()->getStatesGroupedByCountries();
 
-        Craft::$app->getView()->setNamespace('new');
+        $this->getView()->setNamespace('new');
 
-        Craft::$app->getView()->startJsBuffer();
+        $this->getView()->startJsBuffer();
         $countries = $plugin->getCountries()->getAllCountries();
         $states = $plugin->getStates()->getAllStates();
-        $variables['newShippingZoneFields'] = Craft::$app->getView()->namespaceInputs(
-            Craft::$app->getView()->renderTemplate('commerce/settings/shippingzones/_fields', [
+        $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
+            $this->getView()->renderTemplate('commerce/settings/shippingzones/_fields', [
                 'countries' => ArrayHelper::map($countries, 'id', 'name'),
                 'states' => ArrayHelper::map($states, 'id', 'name'),
             ])
         );
-        $variables['newShippingZoneJs'] = Craft::$app->getView()->clearJsBuffer(false);
+        $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
