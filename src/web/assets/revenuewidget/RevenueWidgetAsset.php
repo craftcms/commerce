@@ -25,7 +25,6 @@ class RevenueWidgetAsset extends AssetBundle
         ];
 
         $this->css[] = 'css/RevenueWidget.css';
-
         $this->js[] = 'js/RevenueWidget.js';
 
         parent::init();

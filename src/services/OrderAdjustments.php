@@ -150,6 +150,9 @@ class OrderAdjustments extends Component
         return $orderAdjustment->delete();
     }
 
+    // Private Methods
+    // =========================================================================
+
     /**
      * @param OrderAdjustmentRecord $record
      *

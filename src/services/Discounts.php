@@ -172,9 +172,9 @@ class Discounts extends Component
      * @param int    $customerId
      * @param string $error
      *
-     * @return true
+     * @return bool
      */
-    public function matchCode($code, $customerId, &$error)
+    public function matchCode($code, $customerId, &$error): bool
     {
         $model = $this->getDiscountByCode($code);
         if (!$model) {
@@ -316,7 +316,7 @@ class Discounts extends Component
      *
      * @return bool
      */
-    public function matchLineItem(LineItem $lineItem, Discount $discount)
+    public function matchLineItem(LineItem $lineItem, Discount $discount): bool
     {
         if ($lineItem->onSale && $discount->excludeOnSale) {
             return false;
@@ -474,7 +474,7 @@ class Discounts extends Component
     }
 
     /**
-     * Creal a coupon's usage history.
+     * Clear a coupon's usage history.
      *
      * @param int $id coupon id
      */
@@ -496,7 +496,7 @@ class Discounts extends Component
      *
      * @return bool
      */
-    public function reorderDiscounts($ids)
+    public function reorderDiscounts($ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()

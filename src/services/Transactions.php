@@ -40,6 +40,7 @@ class Transactions extends Component
 
     // Public Methods
     // =========================================================================
+
     /**
      * Returns true if a specific transaction can be refunded.
      *

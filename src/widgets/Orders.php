@@ -99,6 +99,30 @@ class Orders extends Widget
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getSettingsHtml(): string
+    {
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+
+        Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
+
+        $id = 'analytics-settings-'.StringHelper::randomString();
+        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
+
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
+            'id' => $id,
+            'widget' => $this,
+            'orderStatuses' => $orderStatuses,
+        ]);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
      * Returns the recent entries, based on the widget settings and user permissions.
      *
      * @return array
@@ -119,29 +143,5 @@ class Orders extends Widget
         }
 
         return $query->all();
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function getSettingsHtml(): string
-    {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-
-        Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
-
-        $id = 'analytics-settings-'.StringHelper::randomString();
-        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
-
-        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
-
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
-            'id' => $id,
-            'widget' => $this,
-            'orderStatuses' => $orderStatuses,
-        ]);
     }
 }

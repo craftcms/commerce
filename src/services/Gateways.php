@@ -49,7 +49,7 @@ class Gateways extends Component
      *
      * @return string[]
      */
-    public function getAllGatewayTypes()
+    public function getAllGatewayTypes(): array
     {
         $gatewayTypes = [
             Dummy::class

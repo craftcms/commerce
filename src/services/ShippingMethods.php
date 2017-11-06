@@ -62,7 +62,7 @@ class ShippingMethods extends Component
      *
      * @return ShippingMethod[]
      */
-    public function getAllShippingMethods()
+    public function getAllShippingMethods(): array
     {
         // TODO this will happen when shipping methods are refactored. For now just make sure it runs at all on Craft 3.
 
@@ -152,7 +152,7 @@ class ShippingMethods extends Component
      *
      * @return array
      */
-    public function getOrderedAvailableShippingMethods($cart)
+    public function getOrderedAvailableShippingMethods($cart): array
     {
         $availableMethods = $this->getAvailableShippingMethods($cart);
 
@@ -168,7 +168,7 @@ class ShippingMethods extends Component
      *
      * @return array
      */
-    public function getAvailableShippingMethods(Order $cart)
+    public function getAvailableShippingMethods(Order $cart): array
     {
         $availableMethods = [];
 
@@ -239,7 +239,7 @@ class ShippingMethods extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveShippingMethod(ShippingMethod $model)
+    public function saveShippingMethod(ShippingMethod $model): bool
     {
         if ($model->id) {
             $record = ShippingMethodRecord::findOne($model->id);

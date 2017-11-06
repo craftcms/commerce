@@ -431,7 +431,7 @@ class Customers extends Component
      * @return int
      * @throws Exception
      */
-    public function getCustomerId()
+    public function getCustomerId(): int
     {
         return $this->_getSavedCustomer()->id;
     }
@@ -443,7 +443,7 @@ class Customers extends Component
      * @return bool
      * @throws Exception
      */
-    public function setLastUsedAddresses($billingId, $shippingId)
+    public function setLastUsedAddresses($billingId, $shippingId): bool
     {
         $customer = $this->_getSavedCustomer();
 
@@ -486,7 +486,7 @@ class Customers extends Component
      * @return Customer
      * @throws Exception
      */
-    private function _getSavedCustomer()
+    private function _getSavedCustomer(): Customer
     {
         $customer = $this->getCustomer();
         if (!$customer->id) {

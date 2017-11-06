@@ -70,7 +70,7 @@ class Orders extends Component
     /**
      * @param string $email
      *
-     * @return Order[]
+     * @return Order[]|null
      */
     public function getOrdersByEmail($email)
     {

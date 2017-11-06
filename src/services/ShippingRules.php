@@ -70,7 +70,7 @@ class ShippingRules extends Component
      *
      * @return ShippingRule[]
      */
-    public function getAllShippingRulesByShippingMethodId($id)
+    public function getAllShippingRulesByShippingMethodId($id): array
     {
         if (isset($this->_shippingRulesByMethodId[$id])) {
             return $this->_shippingRulesByMethodId[$id];
@@ -222,7 +222,7 @@ class ShippingRules extends Component
      *
      * @return bool
      */
-    public function reorderShippingRules($ids)
+    public function reorderShippingRules($ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();

@@ -82,7 +82,7 @@ class Payments extends Component
      * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction): bool
     {
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
@@ -169,7 +169,7 @@ class Payments extends Component
      *
      * @return Transaction
      */
-    public function captureTransaction(Transaction $transaction)
+    public function captureTransaction(Transaction $transaction): Transaction
     {
         // Raise 'beforeCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
@@ -195,7 +195,7 @@ class Payments extends Component
      *
      * @return Transaction
      */
-    public function refundTransaction(Transaction $transaction)
+    public function refundTransaction(Transaction $transaction): Transaction
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
@@ -224,7 +224,7 @@ class Payments extends Component
      *
      * @return bool
      */
-    public function completePayment(Transaction $transaction, &$customError)
+    public function completePayment(Transaction $transaction, &$customError): bool
     {
         // Only transactions with the status of "redirect" can be completed
         if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
@@ -337,12 +337,12 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * Handle a redirect.
+     * Handles a redirect.
      *
      * @param RequestResponseInterface $response
-     * @param string|null              $redirect
+     * @param                          $redirect
      *
-     * @return bool
+     * @return mixed
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
@@ -398,7 +398,7 @@ class Payments extends Component
      * @return Transaction
      * @throws TransactionException
      */
-    private function _processCaptureOrRefund(Transaction $parent, $action)
+    private function _processCaptureOrRefund(Transaction $parent, $action): Transaction
     {
         if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
             throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);

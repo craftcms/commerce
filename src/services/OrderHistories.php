@@ -166,6 +166,7 @@ class OrderHistories extends Component
 
     // Private methods
     // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving Transactions.
      *

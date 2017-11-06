@@ -202,6 +202,7 @@ class TaxZones extends Component
 
     // Private methods
     // =========================================================================
+
     /**
      * Returns a Query object prepped for retrieving tax zones.
      *
