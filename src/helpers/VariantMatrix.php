@@ -5,17 +5,14 @@ namespace craft\commerce\helpers;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
 use craft\helpers\Json;
 
 /**
  * Class VariantMatrix
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   Commerce\Helpers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class VariantMatrix
 {
@@ -49,28 +46,13 @@ class VariantMatrix
         // Get the field HTML
         list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
-        $viewService->registerJsFile('commerce/js/VariantMatrix.js');
-
+        $viewService->registerAssetBundle(VariantMatrixAsset::class);
         $viewService->registerJs('new Craft.Commerce.VariantMatrix('.
             '"'.$namespacedId.'", '.
             Json::encode($fieldBodyHtml).', '.
             Json::encode($fieldFootHtml).', '.
             '"'.$namespacedName.'"'.
             ');');
-
-        $viewService->registerTranslations('commerce', [
-            'Actions',
-            'Add a variant',
-            'Add variant above',
-            'Are you sure you want to delete the selected variants?',
-            'Collapse',
-            'Default',
-            'Disable',
-            'Disabled',
-            'Enable',
-            'Expand',
-            'Set as the default variant'
-        ]);
 
         return $html;
     }

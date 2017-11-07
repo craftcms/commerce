@@ -12,19 +12,13 @@ use craft\helpers\StringHelper;
 /**
  * Class Orders
  *
- * @package craft\commerce\widgets
- *
  * @property string       $name
  * @property string|false $bodyHtml
  * @property string       $settingsHtml
  * @property string       $title
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.2
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Orders extends Widget
 {
@@ -99,6 +93,30 @@ class Orders extends Widget
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getSettingsHtml(): string
+    {
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+
+        Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
+
+        $id = 'analytics-settings-'.StringHelper::randomString();
+        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
+
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
+            'id' => $id,
+            'widget' => $this,
+            'orderStatuses' => $orderStatuses,
+        ]);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
      * Returns the recent entries, based on the widget settings and user permissions.
      *
      * @return array
@@ -119,29 +137,5 @@ class Orders extends Widget
         }
 
         return $query->all();
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function getSettingsHtml(): string
-    {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-
-        Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
-
-        $id = 'analytics-settings-'.StringHelper::randomString();
-        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
-
-        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
-
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
-            'id' => $id,
-            'widget' => $this,
-            'orderStatuses' => $orderStatuses,
-        ]);
     }
 }

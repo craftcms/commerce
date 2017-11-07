@@ -18,18 +18,13 @@ use craft\models\FieldLayout;
  * @property string      $cpEditUrl
  * @property FieldLayout $fieldLayout
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @mixin FieldLayoutBehavior
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrderSettings extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int ID

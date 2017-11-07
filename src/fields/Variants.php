@@ -9,13 +9,8 @@ use craft\fields\BaseRelationField;
 /**
  * Class Variant Field
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.fieldtypes
- * @since     1.0
- *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Variants extends BaseRelationField
 {
@@ -33,16 +28,19 @@ class Variants extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function defaultSelectionLabel(): string
     {
-        return Variant::class;
+        return Craft::t('commerce', 'Add a variant');
     }
+
+    // Protected Methods
+    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public static function defaultSelectionLabel(): string
+    protected static function elementType(): string
     {
-        return Craft::t('commerce', 'Add a variant');
+        return Variant::class;
     }
 }

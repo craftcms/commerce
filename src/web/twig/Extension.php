@@ -8,12 +8,8 @@ use craft\commerce\Plugin;
 /**
  * Class CommerceTwigExtension
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   Commerce\Extensions
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Extension extends \Twig_Extension
 {
@@ -51,7 +47,7 @@ class Extension extends \Twig_Extension
      *
      * @return string
      */
-    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false)
+    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): string
     {
         $this->_validatePaymentCurrency($currency);
 
@@ -72,6 +68,45 @@ class Extension extends \Twig_Extension
     }
 
     /**
+     * @param $input
+     *
+     * @return string
+     */
+    public function jsonEncodeFiltered($input): string
+    {
+        $array = $this->_recursiveSanitizeArray($input);
+
+        return json_encode($array);
+    }
+
+    /**
+     * @param $input
+     *
+     * @return int|mixed
+     */
+    public static function sanitize($input)
+    {
+        $sanitized = $input;
+
+        if (!is_int($sanitized)) {
+            $sanitized = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
+        } else {
+            $newValue = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
+
+            if (is_numeric($newValue)) {
+                $sanitized = (int)$newValue;
+            } else {
+                $sanitized = $newValue;
+            }
+        }
+
+        return $sanitized;
+    }
+
+    // Private methods
+    // =========================================================================
+
+    /**
      * @param $currency
      *
      * @throws \Twig_Error
@@ -83,18 +118,6 @@ class Extension extends \Twig_Extension
         if (!$currency) {
             throw new \Twig_Error(Craft::t('commerce', 'Not a valid currency code'));
         }
-    }
-
-    /**
-     * @param $input
-     *
-     * @return string
-     */
-    public function jsonEncodeFiltered($input): string
-    {
-        $array = $this->_recursiveSanitizeArray($input);
-
-        return json_encode($array);
     }
 
     /**
@@ -117,24 +140,5 @@ class Extension extends \Twig_Extension
         }
 
         return $finalArray;
-    }
-
-    public static function sanitize($input)
-    {
-        $sanitized = $input;
-
-        if (!is_int($sanitized)) {
-            $sanitized = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
-        } else {
-            $newValue = filter_var($sanitized, FILTER_SANITIZE_SPECIAL_CHARS);
-
-            if (is_numeric($newValue)) {
-                $sanitized = (int)$newValue;
-            } else {
-                $sanitized = $newValue;
-            }
-        }
-
-        return $sanitized;
     }
 }

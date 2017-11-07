@@ -9,12 +9,8 @@ use yii\base\Component;
 /**
  * Product service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Products extends Component
 {
@@ -22,6 +18,8 @@ class Products extends Component
     // =========================================================================
 
     /**
+     * Get a product by ID.
+     *
      * @param int $id
      * @param int $localeId
      *

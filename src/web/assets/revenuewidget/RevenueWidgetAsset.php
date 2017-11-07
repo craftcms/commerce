@@ -7,6 +7,9 @@ use craft\web\assets\cp\CpAsset;
 
 /**
  * Asset bundle for the Revenue widget
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class RevenueWidgetAsset extends AssetBundle
 {
@@ -25,7 +28,6 @@ class RevenueWidgetAsset extends AssetBundle
         ];
 
         $this->css[] = 'css/RevenueWidget.css';
-
         $this->js[] = 'js/RevenueWidget.js';
 
         parent::init();

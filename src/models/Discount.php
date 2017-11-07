@@ -4,27 +4,24 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use craft\models\UserGroup;
 
 /**
  * Discount model
  *
- * @property \craft\commerce\elements\Product[]   $products
- * @property \craft\commerce\models\ProductType[] $productTypes
- * @property array                                $userGroupIds
- * @property string                               $percentDiscountAsPercent
- * @property array                                $productIds
- * @property array                                $productTypeIds
- * @property string|false                         $cpEditUrl
- * @property \craft\models\UserGroup[]            $userGroups
+ * @property Product[]     $products
+ * @property array         $userGroupIds
+ * @property string        $percentDiscountAsPercent
+ * @property array         $productIds
+ * @property array         $productTypeIds
+ * @property string|false  $cpEditUrl
+ * @property UserGroup[]   $userGroups
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discount extends Model
 {
@@ -267,16 +264,6 @@ class Discount extends Model
     }
 
     /**
-     * Load the sale relations
-     *
-     * @return void
-     */
-    private function _loadRelations()
-    {
-        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
-    }
-
-    /**
      * @return string
      */
     public function getPercentDiscountAsPercent(): string
@@ -286,5 +273,18 @@ class Discount extends Model
         }
 
         return Craft::$app->formatter->asPercent(0);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Load the sale relations
+     *
+     * @return void
+     */
+    private function _loadRelations()
+    {
+        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
     }
 }

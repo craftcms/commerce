@@ -14,19 +14,18 @@ use yii\web\Response;
 /**
  * Class Product Type Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ProductTypesController extends BaseAdminController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionProductTypeIndex()
+    /**
+     * @return Response
+     */
+    public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
         return $this->renderTemplate('commerce/settings/producttypes/index',
@@ -78,6 +77,9 @@ class ProductTypesController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
+    /**
+     * @throws HttpException
+     */
     public function actionSaveProductType()
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
@@ -152,7 +154,10 @@ class ProductTypesController extends BaseAdminController
         ]);
     }
 
-    public function actionDeleteProductType()
+    /**
+     * @return Response
+     */
+    public function actionDeleteProductType(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

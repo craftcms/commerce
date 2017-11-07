@@ -6,13 +6,19 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
 use yii\base\Event;
 
+/**
+ * Trait Routes
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
+ */
 trait Routes
 {
     // Private Methods
     // =========================================================================
 
     /**
-     *
+     * @return void
      */
     private function _registerCpRoutes()
     {

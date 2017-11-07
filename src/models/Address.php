@@ -10,19 +10,15 @@ use craft\helpers\UrlHelper;
  * Address Model
  *
  * @property int|string $stateValue
- * @property Country $country
- * @property string  $countryText
- * @property string  $fullName
- * @property string  $stateText
- * @property string  $cpEditUrl
- * @property State   $state
+ * @property Country    $country
+ * @property string     $countryText
+ * @property string     $fullName
+ * @property string     $stateText
+ * @property string     $cpEditUrl
+ * @property State      $state
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Address extends Model
 {
@@ -181,7 +177,7 @@ class Address extends Model
     }
 
     /**
-     * @return \craft\commerce\models\Country|null
+     * @return Country|null
      */
     public function getCountry()
     {
@@ -201,7 +197,7 @@ class Address extends Model
     }
 
     /**
-     * @return \craft\commerce\models\State|null
+     * @return State|null
      */
     public function getState()
     {

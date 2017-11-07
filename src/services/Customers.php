@@ -19,18 +19,14 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
- * @property \craft\commerce\models\Customer         $savedCustomer
- * @property array|\craft\commerce\models\Customer[] $allCustomers
- * @property mixed                                   $lastUsedAddresses
- * @property int                                     $customerId
- * @property \craft\commerce\models\Customer         $customer
+ * @property Customer         $savedCustomer
+ * @property array|Customer[] $allCustomers
+ * @property mixed            $lastUsedAddresses
+ * @property int              $customerId
+ * @property Customer         $customer
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Customers extends Component
 {
@@ -40,7 +36,7 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer_cookie';
 
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var Customer
@@ -163,31 +159,12 @@ class Customers extends Component
     }
 
     /**
-     * @return Customer
-     * @throws Exception
-     */
-    private function _getSavedCustomer()
-    {
-        $customer = $this->getCustomer();
-        if (!$customer->id) {
-            if ($this->saveCustomer($customer)) {
-                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
-            } else {
-                $errors = implode(', ', $customer->errors);
-                throw new Exception('Error saving customer: '.$errors);
-            }
-        }
-
-        return $customer;
-    }
-
-    /**
      * @param Customer $customer
      *
      * @return bool
      * @throws Exception
      */
-    public function saveCustomer(Customer $customer)
+    public function saveCustomer(Customer $customer): bool
     {
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();
@@ -222,7 +199,7 @@ class Customers extends Component
      *
      * @return array
      */
-    public function getAddressIds($customerId)
+    public function getAddressIds($customerId): array
     {
         $ids = [];
 
@@ -450,7 +427,7 @@ class Customers extends Component
      * @return int
      * @throws Exception
      */
-    public function getCustomerId()
+    public function getCustomerId(): int
     {
         return $this->_getSavedCustomer()->id;
     }
@@ -462,7 +439,7 @@ class Customers extends Component
      * @return bool
      * @throws Exception
      */
-    public function setLastUsedAddresses($billingId, $shippingId)
+    public function setLastUsedAddresses($billingId, $shippingId): bool
     {
         $customer = $this->_getSavedCustomer();
 
@@ -476,9 +453,6 @@ class Customers extends Component
 
         return $this->saveCustomer($customer);
     }
-
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param Event $event
@@ -503,6 +477,25 @@ class Customers extends Component
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * @return Customer
+     * @throws Exception
+     */
+    private function _getSavedCustomer(): Customer
+    {
+        $customer = $this->getCustomer();
+        if (!$customer->id) {
+            if ($this->saveCustomer($customer)) {
+                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
+            } else {
+                $errors = implode(', ', $customer->errors);
+                throw new Exception('Error saving customer: '.$errors);
+            }
+        }
+
+        return $customer;
+    }
 
     /**
      * Creates a Customer with attributes from a CustomerRecord.

@@ -36,8 +36,10 @@ use craft\commerce\services\Transactions;
 use craft\commerce\services\Variants;
 
 /**
- * PluginTrait
+ * Trait Services
  *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 trait Services
 {
@@ -354,8 +356,13 @@ trait Services
         return $this->get('variants');
     }
 
+    // Private Methods
+    // =========================================================================
+
     /**
      * Set the components of the commerce plugin
+     *
+     * @return void
      */
     private function _setPluginComponents()
     {

@@ -7,6 +7,9 @@ use craft\web\assets\cp\CpAsset;
 
 /**
  * Asset bundle for the Orders widget
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrdersWidgetAsset extends AssetBundle
 {

@@ -8,23 +8,25 @@ use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Order Settings Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrderSettingsController extends BaseAdminController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionEdit(array $variables = [])
+    /**
+     * @param array $variables
+     *
+     * @return Response
+     */
+    public function actionEdit(array $variables = []): Response
     {
         $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
 
@@ -34,9 +36,7 @@ class OrderSettingsController extends BaseAdminController
     }
 
     /**
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
+     *
      */
     public function actionSave()
     {

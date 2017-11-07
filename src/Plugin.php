@@ -34,15 +34,20 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
- *
  * @property array $cpNavItem
  * @property mixed $settingsResponse
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Plugin extends \craft\base\Plugin
 {
     // Public Properties
     // =========================================================================
 
+    /**
+     * @inheritDoc
+     */
     public $schemaVersion = '2.0.3';
 
     // Traits
@@ -168,6 +173,9 @@ class Plugin extends \craft\base\Plugin
     // Protected Methods
     // =========================================================================
 
+    /**
+     * @inheritdoc
+     */
     protected function createSettingsModel()
     {
         return new Settings();

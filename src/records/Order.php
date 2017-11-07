@@ -9,47 +9,43 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property int                          $id
- * @property string                       $number
- * @property string                       $couponCode
- * @property float                        $itemTotal
- * @property float                        $totalPrice
- * @property float                        $totalPaid
- * @property string                       $email
- * @property bool                         $isCompleted
- * @property \DateTime                    $dateOrdered
- * @property \DateTime                    $datePaid
- * @property string                       $currency
- * @property string                       $paymentCurrency
- * @property string                       $lastIp
- * @property string                       $orderLocale
- * @property string                       $message
- * @property string                       $returnUrl
- * @property string                       $cancelUrl
- * @property int                          $billingAddressId
- * @property int                          $shippingAddressId
- * @property string                       $shippingMethodHandle
- * @property int                          $gatewayId
- * @property int                          $customerId
- * @property int                          $orderStatusId
- * @property LineItem[]                   $lineItems
- * @property Address                      $billingAddress
- * @property Address                      $shippingAddress
- * @property Gateway                      $paymentMethod
- * @property Transaction[]                $transactions
- * @property OrderStatus                  $orderStatus
- * @property \yii\db\ActiveQueryInterface $customer
- * @property \yii\db\ActiveQueryInterface $element
- * @property \yii\db\ActiveQueryInterface $gateway
- * @property \yii\db\ActiveQueryInterface $discount
- * @property OrderHistory[]               $histories
+ * @property int                  $id
+ * @property string               $number
+ * @property string               $couponCode
+ * @property float                $itemTotal
+ * @property float                $totalPrice
+ * @property float                $totalPaid
+ * @property string               $email
+ * @property bool                 $isCompleted
+ * @property \DateTime            $dateOrdered
+ * @property \DateTime            $datePaid
+ * @property string               $currency
+ * @property string               $paymentCurrency
+ * @property string               $lastIp
+ * @property string               $orderLocale
+ * @property string               $message
+ * @property string               $returnUrl
+ * @property string               $cancelUrl
+ * @property int                  $billingAddressId
+ * @property int                  $shippingAddressId
+ * @property string               $shippingMethodHandle
+ * @property int                  $gatewayId
+ * @property int                  $customerId
+ * @property int                  $orderStatusId
+ * @property LineItem[]           $lineItems
+ * @property Address              $billingAddress
+ * @property Address              $shippingAddress
+ * @property Gateway              $paymentMethod
+ * @property Transaction[]        $transactions
+ * @property OrderStatus          $orderStatus
+ * @property ActiveQueryInterface $customer
+ * @property ActiveQueryInterface $element
+ * @property ActiveQueryInterface $gateway
+ * @property ActiveQueryInterface $discount
+ * @property OrderHistory[]       $histories
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Order extends ActiveRecord
 {

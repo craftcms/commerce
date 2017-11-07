@@ -13,7 +13,8 @@ use craft\commerce\records\Discount as DiscountRecord;
 /**
  * Discount Adjuster
  *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discount implements AdjusterInterface
 {
@@ -42,9 +43,9 @@ class Discount implements AdjusterInterface
     // =========================================================================
 
     /**
-     * @param \craft\commerce\elements\Order $order
+     * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array
     {
@@ -79,10 +80,18 @@ class Discount implements AdjusterInterface
         return $adjustments;
     }
 
-    private function _createOrderAdjustment(DiscountModel $discount)
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param DiscountModel $discount
+     *
+     * @return OrderAdjustment
+     */
+    private function _createOrderAdjustment(DiscountModel $discount): OrderAdjustment
     {
         //preparing model
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = 'Discount';
         $adjustment->orderId = $this->_order->id;

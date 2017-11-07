@@ -9,18 +9,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Discount user record.
  *
- * @property int                          $id
- * @property int                          $discountId
- * @property \yii\db\ActiveQueryInterface $productType
- * @property \yii\db\ActiveQueryInterface $discount
- * @property int                          $userGroupId
+ * @property int                  $id
+ * @property int                  $discountId
+ * @property ActiveQueryInterface $productType
+ * @property ActiveQueryInterface $discount
+ * @property int                  $userGroupId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class DiscountUserGroup extends ActiveRecord
 {

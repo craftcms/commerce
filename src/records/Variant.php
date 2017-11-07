@@ -9,29 +9,25 @@ use yii\db\ActiveQueryInterface;
 /**
  * Variant record.
  *
- * @property int                          $id
- * @property int                          $productId
- * @property string                       $sku
- * @property bool                         $isDefault
- * @property float                        $price
- * @property int                          $sortOrder
- * @property float                        $width
- * @property float                        $height
- * @property float                        $length
- * @property float                        $weight
- * @property int                          $stock
- * @property bool                         $unlimitedStock
- * @property int                          $minQty
- * @property int                          $maxQty
- * @property \yii\db\ActiveQueryInterface $element
- * @property Product                      $product
+ * @property int                  $id
+ * @property int                  $productId
+ * @property string               $sku
+ * @property bool                 $isDefault
+ * @property float                $price
+ * @property int                  $sortOrder
+ * @property float                $width
+ * @property float                $height
+ * @property float                $length
+ * @property float                $weight
+ * @property int                  $stock
+ * @property bool                 $unlimitedStock
+ * @property int                  $minQty
+ * @property int                  $maxQty
+ * @property ActiveQueryInterface $element
+ * @property Product              $product
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Variant extends ActiveRecord
 {

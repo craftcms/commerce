@@ -20,12 +20,8 @@ use craft\helpers\UrlHelper;
  * @property string      $cpEditUrl
  * @property int         $numericCode
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class PaymentCurrency extends Model
 {
@@ -63,17 +59,17 @@ class PaymentCurrency extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl(): string
+    public function __toString(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
+        return (string)$this->iso;
     }
 
     /**
      * @return string
      */
-    public function __toString(): string
+    public function getCpEditUrl(): string
     {
-        return (string)$this->iso;
+        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
     }
 
     /**

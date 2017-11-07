@@ -11,16 +11,13 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Orders Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrdersController extends BaseCpController
 {
@@ -50,10 +47,10 @@ class OrdersController extends BaseCpController
     /**
      * @param $orderId
      *
-     * @return \yii\web\Response
+     * @return Response
      * @throws HttpException
      */
-    public function actionEditOrder($orderId)
+    public function actionEditOrder($orderId): Response
     {
         $plugin = Plugin::getInstance();
         $variables = [
@@ -103,42 +100,12 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Modifies the variables of the request.
-     *
-     * @param $variables
-     */
-    private function _prepVariables(&$variables)
-    {
-        $variables['tabs'] = [];
-
-        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-
-            if ($variables['order']->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($variables['order']->getErrors($field->getField()->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab'.($index + 1),
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
-    }
-
-    /**
      * Return Payment Modal
      */
     public function actionGetPaymentModal()
     {
         $this->requireAcceptsJson();
-        $view = Craft::$app->getView();
+        $view = $this->getView();
 
         $request = Craft::$app->getRequest();
         $orderId = $request->getParam('orderId');
@@ -236,7 +203,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Refund Transaction
+     * Refund transaction.
      */
     public function actionTransactionRefund()
     {
@@ -265,6 +232,9 @@ class OrdersController extends BaseCpController
         $this->redirectToPostedUrl();
     }
 
+    /**
+     *
+     */
     public function actionCompleteOrder()
     {
         $this->requireAcceptsJson();
@@ -322,7 +292,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * @return null|\yii\web\Response
+     *
      */
     public function actionUpdateStatus()
     {
@@ -350,9 +320,6 @@ class OrdersController extends BaseCpController
 
     /**
      *
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
      */
     public function actionSaveOrder()
     {
@@ -369,30 +336,6 @@ class OrdersController extends BaseCpController
         Craft::$app->getUrlManager()->setRouteParams([
             'order' => $order
         ]);
-    }
-
-    /**
-     * @return Order
-     * @throws Exception
-     */
-    private function _setOrderFromPost()
-    {
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-
-        if (!$order) {
-            throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
-        }
-
-        return $order;
-    }
-
-    /**
-     * @param Order $order
-     */
-    private function _setContentFromPost($order)
-    {
-        $order->setFieldValuesFromRequest('fields');
     }
 
     /**
@@ -429,5 +372,62 @@ class OrdersController extends BaseCpController
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
             $this->redirectToPostedUrl($order);
         }
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Modifies the variables of the request.
+     *
+     * @param $variables
+     */
+    private function _prepVariables(&$variables)
+    {
+        $variables['tabs'] = [];
+
+        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
+            // Do any of the fields on this tab have errors?
+            $hasErrors = false;
+
+            if ($variables['order']->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    if ($variables['order']->getErrors($field->getField()->handle)) {
+                        $hasErrors = true;
+                        break;
+                    }
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab'.($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
+    }
+
+    /**
+     * @return Order
+     * @throws Exception
+     */
+    private function _setOrderFromPost(): Order
+    {
+        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
+        }
+
+        return $order;
+    }
+
+    /**
+     * @param Order $order
+     */
+    private function _setContentFromPost($order)
+    {
+        $order->setFieldValuesFromRequest('fields');
     }
 }

@@ -1,18 +1,17 @@
 <?php
-/**
- * @link      https://craftcms.com/
- * @copyright Copyright (c) Pixel & Tonic, Inc.
- * @license   https://craftcms.com/license
- */
 
 namespace craft\commerce\web\assets\commercecp;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
+use craft\web\View;
 use yii\web\JqueryAsset;
 
 /**
  * Asset bundle for the Control Panel
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class CommerceCpAsset extends AssetBundle
 {
@@ -34,7 +33,6 @@ class CommerceCpAsset extends AssetBundle
         $this->css[] = 'css/charts-explorer.css';
         $this->css[] = 'css/commerce.css';
         $this->css[] = 'css/order.css';
-        $this->css[] = 'css/product.css';
         $this->css[] = 'css/registration.css';
 
         $this->js[] = 'js/Commerce.js';
@@ -50,8 +48,47 @@ class CommerceCpAsset extends AssetBundle
         $this->js[] = 'js/CommerceUpdateOrderStatusModal.js';
         $this->js[] = 'js/CommerceVariantValuesInput.js';
         $this->js[] = 'js/TableRowAdditionalInfoIcon.js';
-        $this->js[] = 'js/VariantMatrix.js';
 
         parent::init();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function registerAssetFiles($view)
+    {
+        parent::registerAssetFiles($view);
+
+        if ($view instanceof View) {
+            $view->registerTranslations('app', [
+                'New {productType} product',
+                'New product',
+                'Update Order Status',
+                'Message',
+                'Status change message',
+                'Update',
+                'Cancel',
+                'First Name',
+                'Last Name',
+                'Address Line 1',
+                'Address Line 2',
+                'City',
+                'Zip Code',
+                'Phone',
+                'Alternative Phone',
+                'Phone (Alt)',
+                'Business Name',
+                'Business Tax ID',
+                'Country',
+                'State',
+                'Update Address',
+                'New',
+                'Edit',
+                'Add Address',
+                'Add',
+                'Update',
+                'No Address',
+            ]);
+        }
     }
 }

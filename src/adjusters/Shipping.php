@@ -13,7 +13,8 @@ use craft\commerce\Plugin;
 /**
  * Tax Adjustments
  *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Shipping implements AdjusterInterface
 {
@@ -117,6 +118,9 @@ class Shipping implements AdjusterInterface
 
         return $adjustments;
     }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * @param ShippingMethod $shippingMethod

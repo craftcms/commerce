@@ -24,12 +24,8 @@ use yii\base\Exception;
  * @property GatewayInterface[]|array $allGateways
  * @property string[]                 $allGatewayTypes
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Gateways extends Component
 {
@@ -49,7 +45,7 @@ class Gateways extends Component
      *
      * @return string[]
      */
-    public function getAllGatewayTypes()
+    public function getAllGatewayTypes(): array
     {
         $gatewayTypes = [
             Dummy::class

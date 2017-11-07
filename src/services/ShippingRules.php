@@ -18,12 +18,8 @@ use yii\base\Exception;
  *
  * @property array|ShippingRule[] $allShippingRules
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ShippingRules extends Component
 {
@@ -70,7 +66,7 @@ class ShippingRules extends Component
      *
      * @return ShippingRule[]
      */
-    public function getAllShippingRulesByShippingMethodId($id)
+    public function getAllShippingRulesByShippingMethodId($id): array
     {
         if (isset($this->_shippingRulesByMethodId[$id])) {
             return $this->_shippingRulesByMethodId[$id];
@@ -218,11 +214,13 @@ class ShippingRules extends Component
     }
 
     /**
-     * @param $ids
+     * Reorders shipping rules by the given array of IDs.
+     *
+     * @param array $ids
      *
      * @return bool
      */
-    public function reorderShippingRules($ids)
+    public function reorderShippingRules(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
@@ -232,6 +230,8 @@ class ShippingRules extends Component
     }
 
     /**
+     * Deletes a shipping rule by an ID.
+     *
      * @param int $id
      *
      * @return bool

@@ -8,18 +8,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Sale product type record.
  *
- * @property int                          $id
- * @property int                          $saleId
- * @property \yii\db\ActiveQueryInterface $productType
- * @property \yii\db\ActiveQueryInterface $sale
- * @property int                          $productTypeId
+ * @property int                  $id
+ * @property int                  $saleId
+ * @property ActiveQueryInterface $productType
+ * @property ActiveQueryInterface $sale
+ * @property int                  $productTypeId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class SaleProductType extends ActiveRecord
 {

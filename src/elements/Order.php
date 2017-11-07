@@ -93,12 +93,8 @@ use yii\base\Exception;
  * @property array                   $orderAdjustments
  * @property float                   baseDiscount
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Order extends Element
 {
@@ -253,6 +249,32 @@ class Order extends Element
 
     /**
      * @inheritdoc
+     *
+     * @return OrderQuery The newly created [[OrderQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new OrderQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getShortNumber();
+    }
+
+    /**
+     * @inheritdoc
      */
     public function beforeValidate(): bool
     {
@@ -289,6 +311,7 @@ class Order extends Element
     /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      *
+     * @return void
      */
     public function updateOrderPaidTotal()
     {
@@ -422,6 +445,7 @@ class Order extends Element
     /**
      * Regenerates all adjusters and update line item and order totals.
      *
+     * @return void
      * @throws Exception
      */
     public function recalculate()
@@ -553,24 +577,6 @@ class Order extends Element
     }
 
     /**
-     * @inheritdoc
-     *
-     * @return OrderQuery The newly created [[OrderQuery]] instance.
-     */
-    public static function find(): ElementQueryInterface
-    {
-        return new OrderQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
-    /**
      * @return bool
      */
     public function isEditable(): bool
@@ -586,14 +592,6 @@ class Order extends Element
     /**
      * @return string
      */
-    public function __toString()
-    {
-        return $this->getShortNumber();
-    }
-
-    /**
-     * @return string
-     */
     public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
@@ -601,7 +599,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @return string
      */
     public function getLink(): string
     {
@@ -610,7 +607,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @return string
      */
     public function getCpEditUrl(): string
     {
@@ -816,7 +812,6 @@ class Order extends Element
      * @param string|array $type
      * @param bool         $includedOnly
      *
-     *
      * @return float|int
      */
     public function getAdjustmentsTotalByType($type, $includedOnly = false)
@@ -872,7 +867,6 @@ class Order extends Element
 
     /**
      * @deprecated
-     *
      * @return float
      */
     public function getTotalShippingCost(): float
@@ -982,7 +976,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getAdjustmentsTotal()
+    public function getAdjustmentsTotal(): float
     {
         $amount = 0;
 
@@ -1079,7 +1073,7 @@ class Order extends Element
     /**
      * @return OrderHistory[]
      */
-    public function getHistories()
+    public function getHistories(): array
     {
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
@@ -1228,6 +1222,37 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function getSearchKeywords(string $attribute): string
+    {
+        if ($attribute === 'shortNumber') {
+            return $this->getShortNumber();
+        }
+
+        if ($attribute === 'billingFirstName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
+                return $this->billingAddress->firstName;
+            }
+
+            return '';
+        }
+
+        if ($attribute === 'billingLastName') {
+            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
+                return $this->billingAddress->firstName;
+            }
+
+            return '';
+        }
+
+        return parent::getSearchKeywords($attribute);
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineSources(string $context = null): array
     {
         $sources = [
@@ -1354,34 +1379,6 @@ class Order extends Element
         }
 
         return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSearchKeywords(string $attribute): string
-    {
-        if ($attribute === 'shortNumber') {
-            return $this->getShortNumber();
-        }
-
-        if ($attribute === 'billingFirstName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'billingLastName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        return parent::getSearchKeywords($attribute);
     }
 
     /**

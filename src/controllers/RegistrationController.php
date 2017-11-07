@@ -4,25 +4,26 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\enums\LicenseKeyStatus;
+use yii\web\Response;
 
 /**
  * Class Registration Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class RegistrationController extends BaseAdminController
 {
     // Public Methods
     // =========================================================================
 
-    public function actionEdit()
+    /**
+     * @return Response
+     */
+    public function actionEdit(): Response
     {
-        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+        $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         $licenseKey = Craft::$app->getPlugins()->getPluginLicenseKey('Commerce');
 
@@ -31,7 +32,10 @@ class RegistrationController extends BaseAdminController
         ]);
     }
 
-    public function actionGetLicenseInfo()
+    /**
+     * @return Response
+     */
+    public function actionGetLicenseInfo(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -40,6 +44,64 @@ class RegistrationController extends BaseAdminController
 
         return $this->_sendSuccessResponse();
     }
+
+    /**
+     * @return bool|string
+     */
+    public function actionUnregister()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $etResponse = Craft::$app->getEt()->unregisterPlugin('Commerce');
+        return $this->_handleEtResponse($etResponse);
+    }
+
+    /**
+     * @return bool|string|Response
+     */
+    public function actionUpdateLicenseKey()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $licenseKey = Craft::$app->getRequest()->getRequiredParam('licenseKey');
+
+        // Are we registering a new license key?
+        if ($licenseKey) {
+            // Record the license key locally
+            try {
+                Craft::$app->getPlugins()->setPluginLicenseKey('Commerce', $licenseKey);
+            } catch (InvalidLicenseKeyException $e) {
+                $this->asErrorJson(Craft::t('commerce', 'That license key is invalid.'));
+            }
+
+            // Register it with Elliott
+            $etResponse = Craft::$app->getEt()->registerPlugin('Commerce');
+            return $this->_handleEtResponse($etResponse);
+        }
+
+        // Just clear our record of the license key
+        Craft::$app->getPlugins()->setPluginLicenseKey('Commerce');
+        Craft::$app->getPlugins()->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
+
+        return $this->_sendSuccessResponse();
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function actionTransfer()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $etResponse = Craft::$app->getEt()->transferPlugin('Commerce');
+        return $this->_handleEtResponse($etResponse);
+    }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * Returns a successful license update response.
@@ -51,15 +113,6 @@ class RegistrationController extends BaseAdminController
             'licenseKey' => Craft::$app->getPlugins()->getPluginLicenseKey('Commerce'),
             'licenseKeyStatus' => Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce'),
         ]);
-    }
-
-    public function actionUnregister()
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $etResponse = Craft::$app->getEt()->unregisterPlugin('Commerce');
-        return $this->_handleEtResponse($etResponse);
     }
 
     /**
@@ -91,42 +144,5 @@ class RegistrationController extends BaseAdminController
         }
 
         return $this->asErrorJson($error);
-    }
-
-    public function actionUpdateLicenseKey()
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $licenseKey = Craft::$app->getRequest()->getRequiredParam('licenseKey');
-
-        // Are we registering a new license key?
-        if ($licenseKey) {
-            // Record the license key locally
-            try {
-                Craft::$app->getPlugins()->setPluginLicenseKey('Commerce', $licenseKey);
-            } catch (InvalidLicenseKeyException $e) {
-                $this->asErrorJson(Craft::t('commerce', 'That license key is invalid.'));
-            }
-
-            // Register it with Elliott
-            $etResponse = Craft::$app->getEt()->registerPlugin('Commerce');
-            return $this->_handleEtResponse($etResponse);
-        }
-
-        // Just clear our record of the license key
-        Craft::$app->getPlugins()->setPluginLicenseKey('Commerce');
-        Craft::$app->getPlugins()->setPluginLicenseKeyStatus('Commerce', LicenseKeyStatus::Unknown);
-
-        return $this->_sendSuccessResponse();
-    }
-
-    public function actionTransfer()
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $etResponse = Craft::$app->getEt()->transferPlugin('Commerce');
-        return $this->_handleEtResponse($etResponse);
     }
 }

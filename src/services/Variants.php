@@ -17,12 +17,8 @@ use yii\db\Expression;
 /**
  * Variant service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Variants extends Component
 {
@@ -40,7 +36,7 @@ class Variants extends Component
     /**
      * Apply sales that are associated with the given product to all given variants.
      *
-     * @param Variant[] $variants an array of variants to appl sales to
+     * @param Variant[] $variants an array of variants to apply sales to
      * @param Product   $product  the product.
      *
      * @return void
@@ -73,12 +69,12 @@ class Variants extends Component
     /**
      * Get all product's variants by it's id.
      *
-     * @param int         $productId product id
-     * @param string|null $siteId    Site id for which to return the variants. Defaults to `null` which is current site.
+     * @param int      $productId product id
+     * @param int|null $siteId    Site id for which to return the variants. Defaults to `null` which is current site.
      *
      * @return Variant[]
      */
-    public function getAllVariantsByProductId($productId, $siteId = null): array
+    public function getAllVariantsByProductId(int $productId, int $siteId = null): array
     {
         $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
 
@@ -88,12 +84,12 @@ class Variants extends Component
     /**
      * Returns the first variant as returned by it's sortOrder.
      *
-     * @param int         $variantId variant id.
-     * @param string|null $siteId    Site id for which to return the variant. Defaults to `null` which is current site.
+     * @param int      $variantId variant id.
+     * @param int|null $siteId    Site id for which to return the variant. Defaults to `null` which is current site.
      *
      * @return Variant
      */
-    public function getDefaultVariantByProductId($variantId, $siteId = null): Variant
+    public function getDefaultVariantByProductId(int $variantId, int $siteId = null): Variant
     {
         return $this->getAllVariantsByProductId($variantId, $siteId)[0];
     }
@@ -101,12 +97,12 @@ class Variants extends Component
     /**
      * Get a variant by it's id.
      *
-     * @param int         $variantId The variant’s ID.
-     * @param string|null $siteId    The site id for which to fetch the variant. Defaults to `null` which is current site.
+     * @param int      $variantId The variant’s ID.
+     * @param int|null $siteId    The site id for which to fetch the variant. Defaults to `null` which is current site.
      *
      * @return ElementInterface|null
      */
-    public function getVariantById($variantId, $siteId = null)
+    public function getVariantById(int $variantId, int $siteId = null)
     {
         return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
     }
@@ -132,7 +128,7 @@ class Variants extends Component
             }
 
             $clearCacheOfElementIds = [];
-            
+
             if ($purchasable instanceof Variant && !$purchasable->unlimitedStock) {
                 // Update the qty in the db
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',

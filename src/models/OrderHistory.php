@@ -22,17 +22,13 @@ use DateTime;
  * @property OrderStatus $newStatus
  * @property Customer    $customer
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class OrderHistory extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int ID
@@ -73,7 +69,7 @@ class OrderHistory extends Model
     // =========================================================================
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -81,7 +77,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\OrderStatus|null
+     * @return OrderStatus|null
      */
     public function getPrevStatus()
     {
@@ -89,7 +85,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\OrderStatus|null
+     * @return OrderStatus|null
      */
     public function getNewStatus()
     {
@@ -97,7 +93,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\Customer|null
+     * @return Customer|null
      */
     public function getCustomer()
     {

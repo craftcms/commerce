@@ -9,21 +9,16 @@ use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
-use yii\base\Exception;
 use yii\base\NotSupportedException;
 
 /**
  * MissingGateway represents a gateway with an invalid class.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
- *
  * @property null $paymentFormModel
  * @property null $gatewayClassName
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class MissingGateway extends Gateway implements MissingComponentInterface
 {

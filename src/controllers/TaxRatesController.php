@@ -14,12 +14,8 @@ use yii\web\Response;
 /**
  * Class Tax Rates Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class TaxRatesController extends BaseAdminController
 {
@@ -100,7 +96,7 @@ class TaxRatesController extends BaseAdminController
         $variables['taxables'] = $taxable;
 
         // Get the HTML and JS for the new tax zone/category modals
-        $view = Craft::$app->getView();
+        $view = $this->getView();
         $view->setNamespace('new');
 
         $view->startJsBuffer();

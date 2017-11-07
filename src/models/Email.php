@@ -17,17 +17,13 @@ use craft\commerce\records\Email as EmailRecord;
  * @property bool   $enabled
  * @property string $templatePath
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Email extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int ID

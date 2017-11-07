@@ -15,12 +15,8 @@ use yii\base\Exception;
  * @property TaxCategory[]|array $allTaxCategories
  * @property TaxCategory|null    $defaultTaxCategory
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class TaxCategories extends Component
 {
@@ -96,19 +92,6 @@ class TaxCategories extends Component
         $this->_memoizeTaxCategory(new TaxCategory($result));
 
         return $this->_taxCategoriesById[$taxCategoryId];
-    }
-
-    /**
-     * Memoize a tax category model by its ID and handle.
-     *
-     * @param TaxCategory $taxCategory
-     *
-     * @return void
-     */
-    private function _memoizeTaxCategory(TaxCategory $taxCategory)
-    {
-        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
-        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
     }
 
     /**
@@ -279,6 +262,19 @@ class TaxCategories extends Component
 
     // Private methods
     // =========================================================================
+
+    /**
+     * Memoize a tax category model by its ID and handle.
+     *
+     * @param TaxCategory $taxCategory
+     *
+     * @return void
+     */
+    private function _memoizeTaxCategory(TaxCategory $taxCategory)
+    {
+        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
+        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
+    }
 
     /**
      * Returns a Query object prepped for retrieving tax categories.

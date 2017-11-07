@@ -19,14 +19,10 @@ use yii\base\Exception;
 /**
  * Sale service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @property Sale[] $allSales
  *
- * @property \craft\commerce\models\Sale[] $allSales
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Sales extends Component
 {
@@ -73,7 +69,7 @@ class Sales extends Component
     /**
      * @return Sale[]
      */
-    public function getAllSales()
+    public function getAllSales(): array
     {
         if (null === $this->_allSales) {
             $sales = (new Query())->select(
@@ -183,9 +179,10 @@ class Sales extends Component
      *
      * @return Sale[]
      */
-    public function getSalesForProduct(Product $product)
+    public function getSalesForProduct(Product $product): array
     {
         $matchedSales = [];
+
         foreach ($this->_getAllActiveSales() as $sale) {
             if ($this->matchProductAndSale($product, $sale)) {
                 $matchedSales[] = $sale;
@@ -195,35 +192,13 @@ class Sales extends Component
         return $matchedSales;
     }
 
-    private function _getAllActiveSales()
-    {
-        if (null === $this->_allActiveSales) {
-            $sales = $this->getAllSales();
-            $activeSales = [];
-            foreach ($sales as $sale) {
-                if ($sale->enabled) {
-                    $from = $sale->dateFrom;
-                    $to = $sale->dateTo;
-                    $now = new \DateTime();
-                    if (($from == null || $from < $now) && ($to == null || $to > $now)) {
-                        $activeSales[] = $sale;
-                    }
-                }
-            }
-
-            $this->_allActiveSales = $activeSales;
-        }
-
-        return $this->_allActiveSales;
-    }
-
     /**
      * @param Product $product
      * @param Sale    $sale
      *
      * @return bool
      */
-    public function matchProductAndSale(Product $product, Sale $sale)
+    public function matchProductAndSale(Product $product, Sale $sale): bool
     {
         // can't match something not promotable
         if (!$product->promotable) {
@@ -285,7 +260,7 @@ class Sales extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function saveSale(Sale $model, array $groups, array $productTypes, array $products)
+    public function saveSale(Sale $model, array $groups, array $productTypes, array $products): bool
     {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
@@ -379,5 +354,33 @@ class Sales extends Component
         }
 
         return false;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @return array|Sale[]
+     */
+    private function _getAllActiveSales(): array
+    {
+        if (null === $this->_allActiveSales) {
+            $sales = $this->getAllSales();
+            $activeSales = [];
+            foreach ($sales as $sale) {
+                if ($sale->enabled) {
+                    $from = $sale->dateFrom;
+                    $to = $sale->dateTo;
+                    $now = new \DateTime();
+                    if (($from == null || $from < $now) && ($to == null || $to > $now)) {
+                        $activeSales[] = $sale;
+                    }
+                }
+            }
+
+            $this->_allActiveSales = $activeSales;
+        }
+
+        return $this->_allActiveSales;
     }
 }

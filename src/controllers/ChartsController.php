@@ -12,12 +12,8 @@ use craft\i18n\Locale;
 /**
  * Class Charts Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   http://craftcommerce.com/license Craft Commerce License Agreement
- * @see       http://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ChartsController extends ElementIndexesController
 {
@@ -73,6 +69,9 @@ class ChartsController extends ElementIndexesController
             ],
         ]);
     }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * Returns D3 currency format locale definition.

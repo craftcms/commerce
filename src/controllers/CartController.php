@@ -11,12 +11,8 @@ use yii\web\HttpException;
 /**
  * Class Cart Controller
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.controllers
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class CartController extends BaseFrontEndController
 {
@@ -332,7 +328,18 @@ class CartController extends BaseFrontEndController
         }
     }
 
-    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error = '')
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param Address $shippingAddress
+     * @param Address $billingAddress
+     * @param         $error
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function _setOrderAddresses(Address $shippingAddress, Address $billingAddress, &$error): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();

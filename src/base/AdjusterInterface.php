@@ -3,13 +3,13 @@
 namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
+use craft\commerce\models\OrderAdjustment;
 
 /**
  * A method all adjusters must implement
  *
- * Interface AdjusterInterface
- *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 interface AdjusterInterface
 {
@@ -17,11 +17,11 @@ interface AdjusterInterface
     // =========================================================================
 
     /**
-     * The adjust method returns adjustents to add to the order
+     * The adjust method returns adjustments to add to the order
      *
      * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array;
 }

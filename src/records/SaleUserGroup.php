@@ -9,18 +9,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Sale user group record.
  *
- * @property int                          $id
- * @property int                          $saleId
- * @property \yii\db\ActiveQueryInterface $userGroup
- * @property \yii\db\ActiveQueryInterface $sale
- * @property int                          $userGroupId
+ * @property int                  $id
+ * @property int                  $saleId
+ * @property ActiveQueryInterface $userGroup
+ * @property ActiveQueryInterface $sale
+ * @property int                  $userGroupId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class SaleUserGroup extends ActiveRecord
 {

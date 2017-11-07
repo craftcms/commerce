@@ -12,12 +12,8 @@ use craft\commerce\models\Customer as CustomerModel;
 /**
  * Class Customer
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.fieldtypes
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Customer extends Field
 {
@@ -55,10 +51,7 @@ class Customer extends Field
     }
 
     /**
-     * @param mixed                 $value
-     * @param ElementInterface|null $element
-     *
-     * @return CustomerModel
+     * @inheritdoc
      */
     public function normalizeValue($value, ElementInterface $element = null): CustomerModel
     {

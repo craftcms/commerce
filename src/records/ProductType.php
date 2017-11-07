@@ -9,32 +9,28 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property int                          $id
- * @property string                       $name
- * @property string                       $handle
- * @property bool                         $hasUrls
- * @property bool                         $hasDimensions
- * @property bool                         $hasVariants
- * @property bool                         $hasVariantTitleField
- * @property string                       $template
- * @property string                       $titleFormat
- * @property string                       $skuFormat
- * @property string                       $descriptionFormat
- * @property int                          $fieldLayoutId
- * @property int                          $variantFieldLayoutId
- * @property \yii\db\ActiveQueryInterface $shippingCategories
- * @property \yii\db\ActiveQueryInterface $taxCategories
- * @property \yii\db\ActiveQueryInterface $productTypesTaxCategories
- * @property \yii\db\ActiveQueryInterface $variantFieldLayout
- * @property \yii\db\ActiveQueryInterface $productTypesShippingCategories
- * @property FieldLayout                  $fieldLayout
+ * @property int                  $id
+ * @property string               $name
+ * @property string               $handle
+ * @property bool                 $hasUrls
+ * @property bool                 $hasDimensions
+ * @property bool                 $hasVariants
+ * @property bool                 $hasVariantTitleField
+ * @property string               $template
+ * @property string               $titleFormat
+ * @property string               $skuFormat
+ * @property string               $descriptionFormat
+ * @property int                  $fieldLayoutId
+ * @property int                  $variantFieldLayoutId
+ * @property ActiveQueryInterface $shippingCategories
+ * @property ActiveQueryInterface $taxCategories
+ * @property ActiveQueryInterface $productTypesTaxCategories
+ * @property ActiveQueryInterface $variantFieldLayout
+ * @property ActiveQueryInterface $productTypesShippingCategories
+ * @property FieldLayout          $fieldLayout
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ProductType extends ActiveRecord
 {

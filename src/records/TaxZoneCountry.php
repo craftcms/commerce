@@ -8,17 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Taz zone country
  *
- * @property int                          $taxZoneId
- * @property \yii\db\ActiveQueryInterface $taxZone
- * @property \yii\db\ActiveQueryInterface $country
- * @property int                          $countryId
+ * @property int                  $taxZoneId
+ * @property ActiveQueryInterface $taxZone
+ * @property ActiveQueryInterface $country
+ * @property int                  $countryId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class TaxZoneCountry extends ActiveRecord
 {

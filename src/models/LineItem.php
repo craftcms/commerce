@@ -3,7 +3,6 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -52,15 +51,14 @@ use yii\base\InvalidConfigException;
  * @property int                     $taxIncluded
  * @property float                   $discount
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class LineItem extends Model
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var int ID
      */
@@ -152,12 +150,12 @@ class LineItem extends Model
     public $shippingCategoryId;
 
     /**
-     * @var \craft\commerce\base\PurchasableInterface Purchasable
+     * @var PurchasableInterface Purchasable
      */
     private $_purchasable;
 
     /**
-     * @var \craft\commerce\elements\Order Order
+     * @var Order Order
      */
     private $_order;
 
@@ -165,7 +163,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -188,6 +186,9 @@ class LineItem extends Model
         $this->_order = $order;
     }
 
+    /**
+     * @return array
+     */
     public function rules(): array
     {
         return [
@@ -414,7 +415,7 @@ class LineItem extends Model
     public function getAdjustments(): array
     {
         $lineItemAdjustments = [];
-        
+
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {

@@ -9,45 +9,40 @@ use yii\db\ActiveQueryInterface;
 /**
  * Discount record.
  *
- * @property int                          $id
- * @property string                       $name
- * @property string                       $description
- * @property string                       $code
- * @property int                          $perUserLimit
- * @property int                          $perEmailLimit
- * @property int                          $totalUseLimit
- * @property int                          $totalUses
- * @property \DateTime                    $dateFrom
- * @property \DateTime                    $dateTo
- * @property int                          $purchaseTotal
- * @property int                          $purchaseQty
- * @property int                          $maxPurchaseQty
- * @property float                        $baseDiscount
- * @property float                        $perItemDiscount
- * @property float                        $percentDiscount
- * @property float                        $percentageOffSubject
- * @property bool                         $excludeOnSale
- * @property bool                         $freeShipping
- * @property bool                         $allGroups
- * @property bool                         $allProducts
- * @property bool                         $allProductTypes
- * @property bool                         $enabled
- * @property bool                         $stopProcessing
- * @property bool                         $sortOrder
+ * @property int                  $id
+ * @property string               $name
+ * @property string               $description
+ * @property string               $code
+ * @property int                  $perUserLimit
+ * @property int                  $perEmailLimit
+ * @property int                  $totalUseLimit
+ * @property int                  $totalUses
+ * @property \DateTime            $dateFrom
+ * @property \DateTime            $dateTo
+ * @property int                  $purchaseTotal
+ * @property int                  $purchaseQty
+ * @property int                  $maxPurchaseQty
+ * @property float                $baseDiscount
+ * @property float                $perItemDiscount
+ * @property float                $percentDiscount
+ * @property float                $percentageOffSubject
+ * @property bool                 $excludeOnSale
+ * @property bool                 $freeShipping
+ * @property bool                 $allGroups
+ * @property bool                 $allProducts
+ * @property bool                 $allProductTypes
+ * @property bool                 $enabled
+ * @property bool                 $stopProcessing
+ * @property bool                 $sortOrder
+ * @property Product[]            $products
+ * @property ProductType[]        $productTypes
+ * @property ActiveQueryInterface $discountProducts
+ * @property ActiveQueryInterface $discountUserGroups
+ * @property ActiveQueryInterface $discountProductTypes
+ * @property UserGroup[]          $groups
  *
- * @property Product[]                    $products
- * @property ProductType[]                $productTypes
- * @property \yii\db\ActiveQueryInterface $discountProducts
- * @property \yii\db\ActiveQueryInterface $discountUserGroups
- * @property \yii\db\ActiveQueryInterface $discountProductTypes
- * @property UserGroup[]                  $groups
- *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discount extends ActiveRecord
 {

@@ -39,7 +39,7 @@ use craft\records\Site;
  * Installation Migration
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  3.0
+ * @since  2.0
  */
 class Install extends Migration
 {

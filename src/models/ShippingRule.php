@@ -17,12 +17,8 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
  * @property bool                         $isEnabled
  * @property ShippingMethod               $method
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ShippingRule extends Model implements ShippingRuleInterface
 {
@@ -125,7 +121,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
-     * @var \craft\commerce\models\ShippingCategory[]
+     * @var ShippingCategory[]
      */
     private $_shippingRuleCategories;
 
@@ -297,7 +293,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param \craft\commerce\models\ShippingRuleCategory[] $models
+     * @param ShippingRuleCategory[] $models
      */
     public function setShippingRuleCategories(array $models)
     {
@@ -328,27 +324,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public function getPercentageRate($shippingCategoryId = null): float
     {
         return $this->_getRate('percentageRate', $shippingCategoryId);
-    }
-
-    /**
-     * @param      $attribute
-     * @param null $shippingCategoryId
-     *
-     * @return mixed
-     */
-    private function _getRate($attribute, $shippingCategoryId = null)
-    {
-        if (!$shippingCategoryId) {
-            return $this->$attribute;
-        }
-
-        foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
-                return $ruleCategory->$attribute;
-            }
-        }
-
-        return $this->$attribute;
     }
 
     /**
@@ -401,5 +376,29 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param      $attribute
+     * @param null $shippingCategoryId
+     *
+     * @return mixed
+     */
+    private function _getRate($attribute, $shippingCategoryId = null)
+    {
+        if (!$shippingCategoryId) {
+            return $this->$attribute;
+        }
+
+        foreach ($this->getShippingRuleCategories() as $ruleCategory) {
+            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+                return $ruleCategory->$attribute;
+            }
+        }
+
+        return $this->$attribute;
     }
 }

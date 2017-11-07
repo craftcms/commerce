@@ -28,12 +28,8 @@ use yii\base\InvalidConfigException;
  * @property string            $eagerLoadedElements
  * @property Product           $product
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Variant extends Purchasable
 {
@@ -121,7 +117,7 @@ class Variant extends Purchasable
     private $_sales;
 
     /**
-     * @var \craft\commerce\elements\Product The product that this variant is associated with.
+     * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
@@ -129,6 +125,14 @@ class Variant extends Purchasable
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString(): string
+    {
+        return (string)$this->getContent()->title;
+    }
 
     /**
      * @inheritdoc
@@ -194,7 +198,7 @@ class Variant extends Purchasable
      *
      * @deprecated
      */
-    public function getSalesApplied()
+    public function getSalesApplied(): array
     {
         Craft::$app->getDeprecator()->log('getSalesApplied()', 'The getSalesApplied() function has been deprecated. Use getSales() instead.');
 
@@ -333,15 +337,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return mixed
-     */
-    public function __toString(): string
-    {
-        return (string)$this->getContent()->title;
-    }
-
-    /**
-     * @return string
+     * @inheritdoc
      */
     public function getCpEditUrl(): string
     {
@@ -349,7 +345,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getUrl(): string
     {
@@ -357,7 +353,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return \craft\models\FieldLayout|null
+     * @inheritdoc
      */
     public function getFieldLayout()
     {
@@ -369,9 +365,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function getPrice(): float
     {
@@ -414,9 +408,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return int|null
+     * @inheritdoc
      */
     public function getPurchasableId(): int
     {
@@ -424,9 +416,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the products tax category
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getTaxCategoryId(): int
     {
@@ -434,9 +424,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the products shipping category
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getShippingCategoryId(): int
     {
@@ -454,9 +442,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Does this variants product has free shipping set.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function hasFreeShipping(): bool
     {
@@ -464,11 +450,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Validate based on min and max qty and stock levels.
-     *
-     * @param \craft\commerce\models\LineItem $lineItem
-     *
-     * @return null
+     * @inheritdoc
      */
     public function validateLineItem(LineItem $lineItem)
     {
@@ -564,7 +546,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param \craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return null
      */
@@ -651,9 +633,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Is this variant still available for purchase?
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function getIsAvailable(): bool
     {
@@ -670,9 +650,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the variant's status.
-     *
-     * @return string|null
+     * @inheritdoc
      */
     public function getStatus()
     {
@@ -689,8 +667,8 @@ class Variant extends Purchasable
     /**
      * Sets some eager loaded elements on a given handle.
      *
-     * @param string                $handle   The handle to load the elements with in the future
-     * @param \craft\base\Element[] $elements The eager-loaded elements
+     * @param string    $handle   The handle to load the elements with in the future
+     * @param Element[] $elements The eager-loaded elements
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
@@ -745,22 +723,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    protected static function defineSources(string $context = null): array
-    {
-        $sources = [
-
-            '*' => [
-                'label' => Craft::t('commerce', 'All product\'s variants'),
-            ]
-        ];
-
-        return $sources;
-    }
-
-    /**
-     * @return bool
-     * @throws InvalidConfigException
-     */
     public function beforeValidate(): bool
     {
         $productType = $this->getProduct()->getType() ?? null;
@@ -804,6 +766,24 @@ class Variant extends Purchasable
         }
 
         return parent::beforeValidate();
+    }
+
+    // Protected Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSources(string $context = null): array
+    {
+        $sources = [
+
+            '*' => [
+                'label' => Craft::t('commerce', 'All product\'s variants'),
+            ]
+        ];
+
+        return $sources;
     }
 
     /**

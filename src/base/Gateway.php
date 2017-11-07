@@ -11,8 +11,6 @@ use craft\helpers\UrlHelper;
 /**
  * Class Gateway
  *
- * @package   Craft
- *
  * @property int                  $id
  * @property string               $type
  * @property string               $name
@@ -26,12 +24,8 @@ use craft\helpers\UrlHelper;
  * @property string               $cpEditUrl
  * @property bool                 $dateArchived
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2017, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.commerce
- * @since     2.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
@@ -110,22 +104,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Payment Form HTML
-     *
-     * @param array $params
-     *
-     * @return string|null
-     */
-    abstract public function getPaymentFormHtml(array $params);
-
-    /**
-     * Payment Form HTML
-     *
-     * @return BasePaymentForm|null
-     */
-    abstract public function getPaymentFormModel();
-
-    /**
      * Return the payment type options.
      *
      * @return array
@@ -147,4 +125,20 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
             [['paymentType'], 'required']
         ];
     }
+
+    /**
+     * Payment Form HTML
+     *
+     * @param array $params
+     *
+     * @return string|null
+     */
+    abstract public function getPaymentFormHtml(array $params);
+
+    /**
+     * Payment Form HTML
+     *
+     * @return BasePaymentForm|null
+     */
+    abstract public function getPaymentFormModel();
 }

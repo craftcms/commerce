@@ -18,17 +18,13 @@ use craft\helpers\UrlHelper;
  * @property string          $cpEditUrl
  * @property State[]         $states
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.models
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class TaxZone extends Model
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var int ID
@@ -56,12 +52,12 @@ class TaxZone extends Model
     public $default = false;
 
     /**
-     * @var \craft\commerce\models\Country[] $_countries
+     * @var Country[] $_countries
      */
     private $_countries;
 
     /**
-     * @var \craft\commerce\models\Country[] $_states
+     * @var Country[] $_states
      */
     private $_states;
 
@@ -77,7 +73,7 @@ class TaxZone extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxRate[]
+     * @return TaxRate[]
      */
     public function getTaxRates(): array
     {
@@ -124,7 +120,7 @@ class TaxZone extends Model
     /**
      * Set countries in this Tax Zone.
      *
-     * @param \craft\commerce\models\Country[] $countries
+     * @param Country[] $countries
      */
     public function setCountries($countries)
     {
@@ -162,7 +158,7 @@ class TaxZone extends Model
     /**
      * Set states in this Tax Zone.
      *
-     * @param \craft\commerce\models\State[] $states
+     * @param State[] $states
      */
     public function setStates($states)
     {

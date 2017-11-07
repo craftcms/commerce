@@ -17,7 +17,8 @@ use Snowcap\Vat\Validation;
 /**
  * Tax Adjustments
  *
- * @package Commerce\Adjusters
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Tax implements AdjusterInterface
 {
@@ -50,7 +51,7 @@ class Tax implements AdjusterInterface
     /**
      * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array
     {
@@ -75,6 +76,9 @@ class Tax implements AdjusterInterface
 
         return $adjustments;
     }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * @param TaxRate $taxRate
@@ -222,7 +226,7 @@ class Tax implements AdjusterInterface
      *
      * @return bool
      */
-    private function matchAddress(TaxZone $zone)
+    private function matchAddress(TaxZone $zone): bool
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
@@ -256,7 +260,7 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @param string $businessVatId
+     * @param int $businessVatId
      *
      * @return bool
      */
@@ -288,7 +292,7 @@ class Tax implements AdjusterInterface
      *
      * @return OrderAdjustment
      */
-    private function _createAdjustment($rate)
+    private function _createAdjustment($rate): OrderAdjustment
     {
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;

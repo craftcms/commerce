@@ -8,17 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping zone state record.
  *
- * @property int                          taxZoneId
- * @property \yii\db\ActiveQueryInterface $state
- * @property \yii\db\ActiveQueryInterface $shippingZone
- * @property int                          stateId
+ * @property int                  $taxZoneId
+ * @property ActiveQueryInterface $state
+ * @property ActiveQueryInterface $shippingZone
+ * @property int                  $stateId
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ShippingZoneState extends ActiveRecord
 {

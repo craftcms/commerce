@@ -9,18 +9,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Purchasable record.
  *
- * @property int                          $id
- * @property string                       $sku
- * @property float                        $price
- * @property \yii\db\ActiveQueryInterface $element
- * @property Variant                      $implicit
+ * @property int                  $id
+ * @property string               $sku
+ * @property float                $price
+ * @property ActiveQueryInterface $element
+ * @property Variant              $implicit
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.records
- * @since     1.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Purchasable extends ActiveRecord
 {

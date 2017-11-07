@@ -23,19 +23,15 @@ use yii\base\Exception;
 /**
  * Discount service.
  *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @license   https://craftcommerce.com/license Craft Commerce License Agreement
- * @see       https://craftcommerce.com
- * @package   craft.plugins.commerce.services
- * @since     1.0
+ * @property array|Discount[] $allDiscounts
  *
- * @property array|\craft\commerce\models\Discount[] $allDiscounts
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class Discounts extends Component
 {
     // Properties
-    // =============================================================================
+    // =========================================================================
 
     /**
      * @var Discount[]
@@ -172,9 +168,9 @@ class Discounts extends Component
      * @param int    $customerId
      * @param string $error
      *
-     * @return true
+     * @return bool
      */
-    public function matchCode($code, $customerId, &$error)
+    public function matchCode($code, $customerId, &$error): bool
     {
         $model = $this->getDiscountByCode($code);
         if (!$model) {
@@ -266,6 +262,8 @@ class Discounts extends Component
     }
 
     /**
+     * Returns a discount by a given code.
+     *
      * @param string $code
      *
      * @return Discount|null
@@ -316,7 +314,7 @@ class Discounts extends Component
      *
      * @return bool
      */
-    public function matchLineItem(LineItem $lineItem, Discount $discount)
+    public function matchLineItem(LineItem $lineItem, Discount $discount): bool
     {
         if ($lineItem->onSale && $discount->excludeOnSale) {
             return false;
@@ -474,7 +472,7 @@ class Discounts extends Component
     }
 
     /**
-     * Creal a coupon's usage history.
+     * Clear a coupon's usage history.
      *
      * @param int $id coupon id
      */
@@ -496,7 +494,7 @@ class Discounts extends Component
      *
      * @return bool
      */
-    public function reorderDiscounts($ids)
+    public function reorderDiscounts($ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()

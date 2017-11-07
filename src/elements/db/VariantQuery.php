@@ -7,9 +7,8 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 
 /**
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  3.0
+ * @since  2.0
  */
 class VariantQuery extends ElementQuery
 {
@@ -49,6 +48,11 @@ class VariantQuery extends ElementQuery
     // Public Methods
     // =========================================================================
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function sku($value)
     {
         $this->sku = $value;
@@ -56,6 +60,11 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function product($value)
     {
         $this->product = $value;
@@ -63,6 +72,11 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function productId($value)
     {
         $this->productId = $value;
@@ -70,6 +84,11 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function isDefault($value)
     {
         $this->isDefault = $value;
@@ -77,6 +96,11 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function stock($value)
     {
         $this->stock = $value;
@@ -84,6 +108,11 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function hasStock($value)
     {
         $this->hasStock = $value;
@@ -93,6 +122,7 @@ class VariantQuery extends ElementQuery
 
     // Protected Methods
     // =========================================================================
+
     /**
      * @inheritdoc
      */

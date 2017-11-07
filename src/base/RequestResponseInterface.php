@@ -3,9 +3,10 @@
 namespace craft\commerce\base;
 
 /**
- * Payment Response Interface
- *
  * This interface class functions that a Commerce Payment needs to implement.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 interface RequestResponseInterface
 {
