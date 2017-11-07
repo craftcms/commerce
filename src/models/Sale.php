@@ -154,7 +154,7 @@ class Sale extends Model
      */
     public function getDiscountAmountAsFlat(): string
     {
-        return $this->discountAmount !== 0 ? (string)$this->discountAmount * -1 : '0';
+        return $this->discountAmount !== 0 ? (string)($this->discountAmount * -1) : '0';
     }
 
     /**
