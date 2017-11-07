@@ -37,6 +37,7 @@ class TaxRates extends Component
     // =========================================================================
 
     /**
+     * Returns an array of all of the existing tax rates.
      *
      * @return TaxRate[]
      */
@@ -56,6 +57,8 @@ class TaxRates extends Component
     }
 
     /**
+     * Gets a tax rate by ID.
+     *
      * @param int $id
      *
      * @return TaxRate|null
@@ -140,6 +143,8 @@ class TaxRates extends Component
     }
 
     /**
+     * Deletes a tax rate by ID.
+     *
      * @param int $id
      *
      * @return bool

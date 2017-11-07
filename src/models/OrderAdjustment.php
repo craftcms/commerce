@@ -77,7 +77,7 @@ class OrderAdjustment extends Model
     // =========================================================================
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -95,7 +95,7 @@ class OrderAdjustment extends Model
     }
 
     /**
-     *
+     * @return void
      */
     public function init()
     {

@@ -23,7 +23,7 @@ interface PurchasableInterface
      */
     public function getPurchasableId(): int;
 
-    /*
+    /**
      * This is an array of data that should be saved in a serialized way to the line item.
      *
      * Use it as a way to store data on the lineItem even after the purchasable may be deleted.
@@ -31,13 +31,11 @@ interface PurchasableInterface
      *
      * In addition to the data you supply we always overwrite `sku`, `price`, and `description` keys with the data your interface methods return.
      *
-     * Example: return ['ticketType' => 'full',
-     *                       'location' => 'N'];
-     *
+     * Example: return ['ticketType' => 'full', 'location' => 'N'];
      *
      * @return array
      */
-    public function getSnapshot();
+    public function getSnapshot(): array;
 
     /**
      * This is the base price the item will be added to the line item with.

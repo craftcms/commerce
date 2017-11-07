@@ -106,7 +106,7 @@ class ShippingZone extends Model
     /**
      * Set countries in this Tax Zone.
      *
-     * @param \craft\commerce\models\Country[] $countries
+     * @param Country[] $countries
      */
     public function setCountries($countries)
     {

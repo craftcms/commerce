@@ -106,7 +106,7 @@ class TaxRate extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxZone|null
+     * @return TaxZone|null
      */
     public function getTaxZone()
     {
@@ -118,7 +118,7 @@ class TaxRate extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxCategory|null
+     * @return TaxCategory|null
      */
     public function getTaxCategory()
     {

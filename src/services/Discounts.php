@@ -262,6 +262,8 @@ class Discounts extends Component
     }
 
     /**
+     * Returns a discount by a given code.
+     *
      * @param string $code
      *
      * @return Discount|null

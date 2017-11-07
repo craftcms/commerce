@@ -249,6 +249,32 @@ class Order extends Element
 
     /**
      * @inheritdoc
+     *
+     * @return OrderQuery The newly created [[OrderQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new OrderQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getShortNumber();
+    }
+
+    /**
+     * @inheritdoc
      */
     public function beforeValidate(): bool
     {
@@ -285,6 +311,7 @@ class Order extends Element
     /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      *
+     * @return void
      */
     public function updateOrderPaidTotal()
     {
@@ -418,6 +445,7 @@ class Order extends Element
     /**
      * Regenerates all adjusters and update line item and order totals.
      *
+     * @return void
      * @throws Exception
      */
     public function recalculate()
@@ -549,24 +577,6 @@ class Order extends Element
     }
 
     /**
-     * @inheritdoc
-     *
-     * @return OrderQuery The newly created [[OrderQuery]] instance.
-     */
-    public static function find(): ElementQueryInterface
-    {
-        return new OrderQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
-    /**
      * @return bool
      */
     public function isEditable(): bool
@@ -582,14 +592,6 @@ class Order extends Element
     /**
      * @return string
      */
-    public function __toString()
-    {
-        return $this->getShortNumber();
-    }
-
-    /**
-     * @return string
-     */
     public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
@@ -597,7 +599,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @return string
      */
     public function getLink(): string
     {
@@ -606,7 +607,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     * @return string
      */
     public function getCpEditUrl(): string
     {
@@ -812,7 +812,6 @@ class Order extends Element
      * @param string|array $type
      * @param bool         $includedOnly
      *
-     *
      * @return float|int
      */
     public function getAdjustmentsTotalByType($type, $includedOnly = false)
@@ -868,7 +867,6 @@ class Order extends Element
 
     /**
      * @deprecated
-     *
      * @return float
      */
     public function getTotalShippingCost(): float
@@ -978,7 +976,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getAdjustmentsTotal()
+    public function getAdjustmentsTotal(): float
     {
         $amount = 0;
 

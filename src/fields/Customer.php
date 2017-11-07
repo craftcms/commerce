@@ -51,10 +51,7 @@ class Customer extends Field
     }
 
     /**
-     * @param mixed                 $value
-     * @param ElementInterface|null $element
-     *
-     * @return CustomerModel
+     * @inheritdoc
      */
     public function normalizeValue($value, ElementInterface $element = null): CustomerModel
     {

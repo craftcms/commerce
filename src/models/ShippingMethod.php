@@ -80,7 +80,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return \craft\commerce\models\ShippingRule[]
+     * @return ShippingRule[]
      */
     public function getShippingRules(): array
     {

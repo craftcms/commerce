@@ -69,7 +69,7 @@ class OrderHistory extends Model
     // =========================================================================
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -77,7 +77,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\OrderStatus|null
+     * @return OrderStatus|null
      */
     public function getPrevStatus()
     {
@@ -85,7 +85,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\OrderStatus|null
+     * @return OrderStatus|null
      */
     public function getNewStatus()
     {
@@ -93,7 +93,7 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return \craft\commerce\models\Customer|null
+     * @return Customer|null
      */
     public function getCustomer()
     {

@@ -18,6 +18,8 @@ class Products extends Component
     // =========================================================================
 
     /**
+     * Get a product by ID.
+     *
      * @param int $id
      * @param int $localeId
      *

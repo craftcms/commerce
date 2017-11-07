@@ -150,12 +150,12 @@ class LineItem extends Model
     public $shippingCategoryId;
 
     /**
-     * @var \craft\commerce\base\PurchasableInterface Purchasable
+     * @var PurchasableInterface Purchasable
      */
     private $_purchasable;
 
     /**
-     * @var \craft\commerce\elements\Order Order
+     * @var Order Order
      */
     private $_order;
 
@@ -163,7 +163,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @return \craft\commerce\elements\Order|null
+     * @return Order|null
      */
     public function getOrder()
     {

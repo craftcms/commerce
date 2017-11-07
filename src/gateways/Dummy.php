@@ -22,9 +22,7 @@ class Dummy extends Gateway
     // =========================================================================
 
     /**
-     * @param array $params
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getPaymentFormHtml(array $params)
     {
@@ -32,7 +30,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return OffsitePaymentForm
+     * @inheritdoc
      */
     public function getPaymentFormModel(): OffsitePaymentForm
     {
@@ -40,10 +38,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction     $transaction
-     * @param BasePaymentForm $form
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
@@ -51,10 +46,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction $transaction
-     * @param string      $reference
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface
     {
@@ -62,9 +54,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface
     {
@@ -72,9 +62,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction $transaction
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface
     {
@@ -82,10 +70,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction     $transaction
-     * @param BasePaymentForm $form
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
@@ -93,7 +78,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return WebResponse
+     * @inheritdoc
      */
     public function processWebHook(): WebResponse
     {
@@ -101,10 +86,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @param Transaction $transaction
-     * @param string      $reference
-     *
-     * @return RequestResponseInterface
+     * @inheritdoc
      */
     public function refund(Transaction $transaction, string $reference): RequestResponseInterface
     {
@@ -112,7 +94,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsAuthorize(): bool
     {
@@ -120,7 +102,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCapture(): bool
     {
@@ -128,7 +110,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCompleteAuthorize(): bool
     {
@@ -136,7 +118,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsCompletePurchase(): bool
     {
@@ -144,7 +126,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsPurchase(): bool
     {
@@ -152,7 +134,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsRefund(): bool
     {
@@ -160,7 +142,7 @@ class Dummy extends Gateway
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function supportsWebhooks(): bool
     {

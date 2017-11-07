@@ -8,11 +8,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Discount product record.
  *
- * @property int                          $id
- * @property int                          $discountId
- * @property \yii\db\ActiveQueryInterface $discount
- * @property \yii\db\ActiveQueryInterface $product
- * @property int                          $productId
+ * @property int                  $id
+ * @property int                  $discountId
+ * @property ActiveQueryInterface $discount
+ * @property ActiveQueryInterface $product
+ * @property int                  $productId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

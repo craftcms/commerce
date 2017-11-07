@@ -52,12 +52,12 @@ class TaxZone extends Model
     public $default = false;
 
     /**
-     * @var \craft\commerce\models\Country[] $_countries
+     * @var Country[] $_countries
      */
     private $_countries;
 
     /**
-     * @var \craft\commerce\models\Country[] $_states
+     * @var Country[] $_states
      */
     private $_states;
 
@@ -73,7 +73,7 @@ class TaxZone extends Model
     }
 
     /**
-     * @return \craft\commerce\models\TaxRate[]
+     * @return TaxRate[]
      */
     public function getTaxRates(): array
     {
@@ -120,7 +120,7 @@ class TaxZone extends Model
     /**
      * Set countries in this Tax Zone.
      *
-     * @param \craft\commerce\models\Country[] $countries
+     * @param Country[] $countries
      */
     public function setCountries($countries)
     {
@@ -158,7 +158,7 @@ class TaxZone extends Model
     /**
      * Set states in this Tax Zone.
      *
-     * @param \craft\commerce\models\State[] $states
+     * @param State[] $states
      */
     public function setStates($states)
     {

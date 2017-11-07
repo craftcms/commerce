@@ -9,27 +9,27 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product record.
  *
- * @property int                          $id
- * @property int                          $taxCategoryId
- * @property int                          $shippingCategoryId
- * @property int                          $typeId
- * @property \DateTime                    $postDate
- * @property \DateTime                    $expiryDate
- * @property bool                         $promotable
- * @property bool                         $freeShipping
- * @property int                          defaultVariantId
- * @property string                       defaultSku
- * @property float                        defaultPrice
- * @property float                        defaultHeight
- * @property float                        defaultLength
- * @property float                        defaultWidth
- * @property float                        defaultWeight
- * @property Variant                      $implicit
- * @property Variant[]                    $variants
- * @property \yii\db\ActiveQueryInterface $element
- * @property \yii\db\ActiveQueryInterface $type
- * @property \yii\db\ActiveQueryInterface $shippingCategory
- * @property TaxCategory                  $taxCategory
+ * @property int                  $id
+ * @property int                  $taxCategoryId
+ * @property int                  $shippingCategoryId
+ * @property int                  $typeId
+ * @property \DateTime            $postDate
+ * @property \DateTime            $expiryDate
+ * @property bool                 $promotable
+ * @property bool                 $freeShipping
+ * @property int                  defaultVariantId
+ * @property string               defaultSku
+ * @property float                defaultPrice
+ * @property float                defaultHeight
+ * @property float                defaultLength
+ * @property float                defaultWidth
+ * @property float                defaultWeight
+ * @property Variant              $implicit
+ * @property Variant[]            $variants
+ * @property ActiveQueryInterface $element
+ * @property ActiveQueryInterface $type
+ * @property ActiveQueryInterface $shippingCategory
+ * @property TaxCategory          $taxCategory
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

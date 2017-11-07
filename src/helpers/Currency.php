@@ -3,6 +3,7 @@
 namespace craft\commerce\helpers;
 
 use craft\commerce\Plugin;
+use craft\commerce\models\Currency as CurrencyModel;
 
 /**
  * Class Currency
@@ -19,8 +20,8 @@ class Currency
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
-     * @param float                $amount
-     * @param \craft\commerce\models\Currency|null $currency
+     * @param float              $amount
+     * @param CurrencyModel|null $currency
      *
      * @return float
      */

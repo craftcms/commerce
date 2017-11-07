@@ -11,6 +11,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Orders Controller
@@ -46,10 +47,10 @@ class OrdersController extends BaseCpController
     /**
      * @param $orderId
      *
-     * @return \yii\web\Response
+     * @return Response
      * @throws HttpException
      */
-    public function actionEditOrder($orderId)
+    public function actionEditOrder($orderId): Response
     {
         $plugin = Plugin::getInstance();
         $variables = [
@@ -202,7 +203,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Refund Transaction
+     * Refund transaction.
      */
     public function actionTransactionRefund()
     {
@@ -232,7 +233,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * @return \yii\web\Response
+     *
      */
     public function actionCompleteOrder()
     {
@@ -291,7 +292,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * @return null|\yii\web\Response
+     *
      */
     public function actionUpdateStatus()
     {
@@ -319,9 +320,6 @@ class OrdersController extends BaseCpController
 
     /**
      *
-     * @throws Exception
-     * @throws HttpException
-     * @throws \Exception
      */
     public function actionSaveOrder()
     {

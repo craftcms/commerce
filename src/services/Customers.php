@@ -19,11 +19,11 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
- * @property \craft\commerce\models\Customer         $savedCustomer
- * @property array|\craft\commerce\models\Customer[] $allCustomers
- * @property mixed                                   $lastUsedAddresses
- * @property int                                     $customerId
- * @property \craft\commerce\models\Customer         $customer
+ * @property Customer         $savedCustomer
+ * @property array|Customer[] $allCustomers
+ * @property mixed            $lastUsedAddresses
+ * @property int              $customerId
+ * @property Customer         $customer
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

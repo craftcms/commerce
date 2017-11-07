@@ -59,17 +59,17 @@ class PaymentCurrency extends Model
     /**
      * @return string
      */
-    public function getCpEditUrl(): string
+    public function __toString(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
+        return (string)$this->iso;
     }
 
     /**
      * @return string
      */
-    public function __toString(): string
+    public function getCpEditUrl(): string
     {
-        return (string)$this->iso;
+        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/'.$this->id);
     }
 
     /**

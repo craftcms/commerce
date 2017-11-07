@@ -18,7 +18,7 @@ trait Routes
     // =========================================================================
 
     /**
-     *
+     * @return void
      */
     private function _registerCpRoutes()
     {

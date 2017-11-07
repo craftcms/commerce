@@ -51,7 +51,7 @@ class Tax implements AdjusterInterface
     /**
      * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array
     {

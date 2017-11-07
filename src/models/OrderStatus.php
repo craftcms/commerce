@@ -61,6 +61,14 @@ class OrderStatus extends Model
     // =========================================================================
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string)$this->name;
+    }
+
+    /**
      * @return array
      */
     public function rules(): array
@@ -79,14 +87,6 @@ class OrderStatus extends Model
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->name;
-    }
-
-    /**
      * @return array
      */
     public function getEmailIds(): array
@@ -95,7 +95,7 @@ class OrderStatus extends Model
     }
 
     /**
-     * @return \craft\commerce\models\Email[]
+     * @return Email[]
      */
     public function getEmails(): array
     {

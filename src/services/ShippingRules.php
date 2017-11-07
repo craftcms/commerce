@@ -214,11 +214,13 @@ class ShippingRules extends Component
     }
 
     /**
-     * @param $ids
+     * Reorders shipping rules by the given array of IDs.
+     *
+     * @param array $ids
      *
      * @return bool
      */
-    public function reorderShippingRules($ids): bool
+    public function reorderShippingRules(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
@@ -228,6 +230,8 @@ class ShippingRules extends Component
     }
 
     /**
+     * Deletes a shipping rule by an ID.
+     *
      * @param int $id
      *
      * @return bool

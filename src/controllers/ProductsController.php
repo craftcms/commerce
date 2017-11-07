@@ -516,9 +516,9 @@ class ProductsController extends BaseCpController
      * @param Product $product
      *
      * @throws HttpException
-     * @return null
+     * @return Response
      */
-    private function _showProduct(Product $product)
+    private function _showProduct(Product $product): Response
     {
         $productType = $product->getType();
 

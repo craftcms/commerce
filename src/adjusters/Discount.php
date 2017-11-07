@@ -43,9 +43,9 @@ class Discount implements AdjusterInterface
     // =========================================================================
 
     /**
-     * @param \craft\commerce\elements\Order $order
+     * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array
     {
@@ -83,10 +83,15 @@ class Discount implements AdjusterInterface
     // Private Methods
     // =========================================================================
 
-    private function _createOrderAdjustment(DiscountModel $discount)
+    /**
+     * @param DiscountModel $discount
+     *
+     * @return OrderAdjustment
+     */
+    private function _createOrderAdjustment(DiscountModel $discount): OrderAdjustment
     {
         //preparing model
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = 'Discount';
         $adjustment->orderId = $this->_order->id;

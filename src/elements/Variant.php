@@ -117,7 +117,7 @@ class Variant extends Purchasable
     private $_sales;
 
     /**
-     * @var \craft\commerce\elements\Product The product that this variant is associated with.
+     * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
@@ -125,6 +125,14 @@ class Variant extends Purchasable
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString(): string
+    {
+        return (string)$this->getContent()->title;
+    }
 
     /**
      * @inheritdoc
@@ -329,15 +337,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return mixed
-     */
-    public function __toString(): string
-    {
-        return (string)$this->getContent()->title;
-    }
-
-    /**
-     * @return string
+     * @inheritdoc
      */
     public function getCpEditUrl(): string
     {
@@ -345,7 +345,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getUrl(): string
     {
@@ -353,7 +353,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return \craft\models\FieldLayout|null
+     * @inheritdoc
      */
     public function getFieldLayout()
     {
@@ -416,9 +416,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the products tax category
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getTaxCategoryId(): int
     {
@@ -426,9 +424,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the products shipping category
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getShippingCategoryId(): int
     {
@@ -446,9 +442,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Does this variants product has free shipping set.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function hasFreeShipping(): bool
     {
@@ -456,11 +450,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Validate based on min and max qty and stock levels.
-     *
-     * @param \craft\commerce\models\LineItem $lineItem
-     *
-     * @return null
+     * @inheritdoc
      */
     public function validateLineItem(LineItem $lineItem)
     {
@@ -556,7 +546,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param \craft\commerce\models\LineItem $lineItem
+     * @param LineItem $lineItem
      *
      * @return null
      */
@@ -643,9 +633,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Is this variant still available for purchase?
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function getIsAvailable(): bool
     {
@@ -662,9 +650,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns the variant's status.
-     *
-     * @return string|null
+     * @inheritdoc
      */
     public function getStatus()
     {
@@ -681,8 +667,8 @@ class Variant extends Purchasable
     /**
      * Sets some eager loaded elements on a given handle.
      *
-     * @param string                $handle   The handle to load the elements with in the future
-     * @param \craft\base\Element[] $elements The eager-loaded elements
+     * @param string    $handle   The handle to load the elements with in the future
+     * @param Element[] $elements The eager-loaded elements
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
@@ -735,8 +721,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
-     * @throws InvalidConfigException
+     * @inheritdoc
      */
     public function beforeValidate(): bool
     {

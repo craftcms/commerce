@@ -3,6 +3,7 @@
 namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
+use craft\commerce\models\OrderAdjustment;
 
 /**
  * A method all adjusters must implement
@@ -20,7 +21,7 @@ interface AdjusterInterface
      *
      * @param Order $order
      *
-     * @return \craft\commerce\models\OrderAdjustment[]
+     * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array;
 }

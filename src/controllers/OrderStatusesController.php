@@ -121,7 +121,7 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
+     *
      */
     public function actionDelete()
     {

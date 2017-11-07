@@ -372,6 +372,8 @@ class Cart extends Component
 
     /**
      * Forgets a Cart by deleting its cookie.
+     *
+     * @return void
      */
     public function forgetCart()
     {
@@ -385,7 +387,6 @@ class Cart extends Component
      *
      * @param Order $cart
      * @param int   $lineItemId
-     *
      *
      * @return bool
      */

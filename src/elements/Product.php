@@ -30,14 +30,14 @@ use yii\base\InvalidConfigException;
 /**
  * Product model.
  *
- * @property null|\craft\commerce\models\ShippingCategory $shippingCategory
- * @property string                                       $eagerLoadedElements
- * @property \craft\commerce\elements\Variant[]|array     $variants
- * @property string                                       $editorHtml
- * @property \craft\commerce\elements\Variant             $defaultVariant
- * @property int                                          $totalStock
- * @property string                                       $snapshot
- * @property bool                                         $unlimitedStock
+ * @property null|ShippingCategory $shippingCategory
+ * @property string                $eagerLoadedElements
+ * @property Variant[]|array       $variants
+ * @property string                $editorHtml
+ * @property Variant               $defaultVariant
+ * @property int                   $totalStock
+ * @property string                $snapshot
+ * @property bool                  $unlimitedStock
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -319,7 +319,7 @@ class Product extends Element
     }
 
     /**
-     * @return null|string
+     * @inheritdoc
      */
     public function getCpEditUrl()
     {
@@ -424,7 +424,7 @@ class Product extends Element
     }
 
     /**
-     * @return null|string
+     * @inheritdoc
      */
     public function getStatus()
     {
@@ -466,6 +466,8 @@ class Product extends Element
 
     /**
      * Does at least one variant have unlimited stock?
+     *
+     * @return bool
      */
     public function getUnlimitedStock(): bool
     {

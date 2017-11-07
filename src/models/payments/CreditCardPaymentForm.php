@@ -8,7 +8,6 @@ use Omnipay\Common\Helper as OmnipayHelper;
 /**
  * Base Payment form model.
  *
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */

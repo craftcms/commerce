@@ -121,7 +121,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
-     * @var \craft\commerce\models\ShippingCategory[]
+     * @var ShippingCategory[]
      */
     private $_shippingRuleCategories;
 
@@ -293,7 +293,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param \craft\commerce\models\ShippingRuleCategory[] $models
+     * @param ShippingRuleCategory[] $models
      */
     public function setShippingRuleCategories(array $models)
     {

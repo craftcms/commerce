@@ -45,6 +45,9 @@ class Plugin extends \craft\base\Plugin
     // Public Properties
     // =========================================================================
 
+    /**
+     * @inheritDoc
+     */
     public $schemaVersion = '2.0.3';
 
     // Traits
@@ -170,6 +173,9 @@ class Plugin extends \craft\base\Plugin
     // Protected Methods
     // =========================================================================
 
+    /**
+     * @inheritdoc
+     */
     protected function createSettingsModel()
     {
         return new Settings();

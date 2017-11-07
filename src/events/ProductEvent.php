@@ -8,7 +8,8 @@ use craft\events\CancelableEvent;
 /**
  * Class ProductEvent
  *
- * @package craft\commerce\events
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since  2.0
  */
 class ProductEvent extends CancelableEvent
 {

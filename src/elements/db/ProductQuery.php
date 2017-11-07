@@ -444,7 +444,7 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     *
+     * @return void
      */
     private function _applyHasSalesParam()
     {

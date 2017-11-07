@@ -4,20 +4,21 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use craft\models\UserGroup;
 
 /**
  * Discount model
  *
- * @property \craft\commerce\elements\Product[]   $products
- * @property \craft\commerce\models\ProductType[] $productTypes
- * @property array                                $userGroupIds
- * @property string                               $percentDiscountAsPercent
- * @property array                                $productIds
- * @property array                                $productTypeIds
- * @property string|false                         $cpEditUrl
- * @property \craft\models\UserGroup[]            $userGroups
+ * @property Product[]     $products
+ * @property array         $userGroupIds
+ * @property string        $percentDiscountAsPercent
+ * @property array         $productIds
+ * @property array         $productTypeIds
+ * @property string|false  $cpEditUrl
+ * @property UserGroup[]   $userGroups
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

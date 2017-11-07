@@ -67,7 +67,7 @@ class Customer extends Model
     /**
      * Returns the user element associated with this customer.
      *
-     * @return \craft\elements\User|null
+     * @return User|null
      */
     public function getUser()
     {
@@ -110,7 +110,7 @@ class Customer extends Model
     /**
      * Returns the addresses associated with this customer.
      *
-     * @return \craft\commerce\models\address[]
+     * @return Address[]
      */
     public function getAddresses(): array
     {
@@ -139,7 +139,7 @@ class Customer extends Model
     /**
      * Returns the order elements associated with this customer.
      *
-     * @return \craft\commerce\elements\Order[]
+     * @return Order[]
      */
     public function getOrders(): array
     {
@@ -149,7 +149,7 @@ class Customer extends Model
     /**
      * Returns the last used Billing Address used by the customer if it exists.
      *
-     * @return \craft\commerce\models\Address|null
+     * @return Address|null
      */
     public function getLastUsedBillingAddress()
     {
@@ -166,7 +166,7 @@ class Customer extends Model
     /**
      * Returns the last used Shipping Address used by the customer if it exists.
      *
-     * @return \craft\commerce\models\Address|null
+     * @return Address|null
      */
     public function getLastUsedShippingAddress()
     {
