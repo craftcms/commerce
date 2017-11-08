@@ -164,9 +164,10 @@ class ProductsController extends BaseCpController
      * @param mixed $productId
      * @param mixed $site
      *
+     * @return Response
      * @throws HttpException
      */
-    public function actionShareProduct($productId, $site = null)
+    public function actionShareProduct($productId, $site = null): Response
     {
         $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
 
@@ -187,8 +188,9 @@ class ProductsController extends BaseCpController
             'params' => ['productId' => $productId, 'site' => $product->site]
         ]);
 
-        $url = UrlHelper::getUrlWithToken($product->getUrl(), $token);
-        Craft::$app->getRequest()->redirect($url);
+        $url = UrlHelper::urlWithToken($product->getUrl(), $token);
+
+        return $this->redirect($url);
     }
 
     /**
@@ -239,7 +241,7 @@ class ProductsController extends BaseCpController
                 $this->asJson(['success' => true]);
             } else {
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
-                $this->redirectToPostedUrl($product);
+                return $this->redirectToPostedUrl($product);
             }
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {

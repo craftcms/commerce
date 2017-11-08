@@ -21,14 +21,14 @@ class Products extends Component
      * Get a product by ID.
      *
      * @param int $id
-     * @param int $localeId
+     * @param int $siteId
      *
      * @return Product|null
      */
-    public function getProductById(int $id, $localeId = null)
+    public function getProductById(int $id, $siteId = null)
     {
         /** @var Product $product */
-        $product = Craft::$app->getElements()->getElementById($id, Product::class, $localeId);
+        $product = Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
 
         return $product;
     }
