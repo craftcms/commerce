@@ -35,9 +35,7 @@ class Shipping implements AdjusterInterface
     // =========================================================================
 
     /**
-     * @param Order $order
-     *
-     * @return OrderAdjustment[]
+     * @inheritdoc
      */
     public function adjust(Order $order): array
     {
