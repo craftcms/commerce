@@ -268,10 +268,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
             if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
                 $message = null;
-
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
-
-                $message = null;
 
                 if ($licenseKeyStatus == LicenseKeyStatus::Unknown) {
                     if (!Craft::$app->canTestEditions) {

@@ -57,7 +57,7 @@ class TaxZone extends Model
     private $_countries;
 
     /**
-     * @var Country[] $_states
+     * @var State[] $_states
      */
     private $_states;
 

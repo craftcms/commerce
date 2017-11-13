@@ -3,7 +3,7 @@
 namespace craft\commerce\helpers;
 
 use Craft;
-use craft\commerce\elements\Product;
+use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
 use craft\helpers\Json;
@@ -22,12 +22,12 @@ class VariantMatrix
     /**
      * Returns the HTML for a given product’s variant matrix.
      *
-     * @param Product $product The product model
-     * @param string  $name    The input name (sans namespace). Default is 'variants'.
+     * @param ProductElement $product The product model
+     * @param string         $name    The input name (sans namespace). Default is 'variants'.
      *
      * @return string The variant matrix HTML
      */
-    public static function getVariantMatrixHtml(Product $product, $name = 'variants'): string
+    public static function getVariantMatrixHtml(ProductElement $product, $name = 'variants'): string
     {
         /** @var \craft\web\View $viewService */
         $viewService = Craft::$app->getView();
@@ -63,8 +63,8 @@ class VariantMatrix
     /**
      * Returns info about each variant field type for a variant matrix.
      *
-     * @param Product $product The product model
-     * @param string  $name    The input name (sans namespace)
+     * @param ProductElement $product The product model
+     * @param string         $name    The input name (sans namespace)
      *
      * @return array
      */

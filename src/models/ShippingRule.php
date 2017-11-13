@@ -346,7 +346,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         return (float)$this->baseRate;
     }
 
-    /**@inheritdoc@return float
+    /**@inheritdoc
      */
     public function getMaxRate(): float
     {
@@ -373,8 +373,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
     // =========================================================================
 
     /**
-     * @param      $attribute
-     * @param null $shippingCategoryId
+     * @param $attribute
+     * @param $shippingCategoryId
      *
      * @return mixed
      */
