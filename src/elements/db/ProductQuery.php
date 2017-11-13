@@ -28,11 +28,6 @@ class ProductQuery extends ElementQuery
     public $editable = false;
 
     /**
-     * @var ProductType The product type the resulting products must belong to.
-     */
-    public $type;
-
-    /**
      * @var int|int[]|null The product type ID(s) that the resulting products must have.
      */
     public $typeId;
@@ -46,16 +41,6 @@ class ProductQuery extends ElementQuery
      * @var mixed The Post Date that the resulting products must have.
      */
     public $expiryDate;
-
-    /**
-     * @var mixed The Post Date that the resulting products must be after.
-     */
-    public $after;
-
-    /**
-     * @var mixed The Post Date that the resulting products must be before.
-     */
-    public $before;
 
     /**
      * @var float The default price the resulting products must have.
