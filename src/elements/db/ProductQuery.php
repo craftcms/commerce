@@ -18,8 +18,8 @@ use yii\db\Connection;
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
  *
  * @method Product[]|array all($db = null)
- * @method Product|array|false one($db = null)
- * @method Product|array|false nth(int $n, Connection $db = null)
+ * @method Product|array|null one($db = null)
+ * @method Product|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
