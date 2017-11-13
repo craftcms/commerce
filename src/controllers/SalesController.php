@@ -148,7 +148,7 @@ class SalesController extends BaseCpController
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-            if (strpos($discountAmount, $percentSign) or (float)$discountAmount >= 1) {
+            if (strpos($discountAmount, $percentSign) || (float)$discountAmount >= 1) {
                 $sale->discountAmount = (float)$discountAmount / -100;
             } else {
                 $sale->discountAmount = (float)$discountAmount * -1;

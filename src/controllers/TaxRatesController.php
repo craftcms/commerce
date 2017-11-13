@@ -142,7 +142,7 @@ class TaxRatesController extends BaseAdminController
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $rate = Craft::$app->getRequest()->getParam('rate');
-        if (strpos($rate, $percentSign) or $rate >= 1) {
+        if (strpos($rate, $percentSign) || $rate >= 1) {
             $taxRate->rate = (float)$rate / 100;
         } else {
             $taxRate->rate = (float)$rate;
