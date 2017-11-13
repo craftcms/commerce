@@ -43,7 +43,7 @@ class Revenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getName(): string
+    public static function displayName(): string
     {
         return Craft::t('commerce', 'Revenue');
     }
