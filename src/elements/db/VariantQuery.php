@@ -3,10 +3,18 @@
 namespace craft\commerce\elements\db;
 
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
+use yii\db\Connection;
 
 /**
+ * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
+ *
+ * @method Variant[]|array all($db = null)
+ * @method Variant|array|false one($db = null)
+ * @method Variant|array|false nth(int $n, Connection $db = null)
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */

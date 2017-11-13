@@ -17,11 +17,11 @@ use DateTime;
 use yii\db\Connection;
 
 /**
- * OrderQuery represents a SELECT SQL statement for users in a way that is independent of DBMS.
+ * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
  *
  * @method Order[]|array all($db = null)
- * @method Order|array|null one($db = null)
- * @method Order|array|null nth(int $n, Connection $db = null)
+ * @method Order|array|false one($db = null)
+ * @method Order|array|false nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
