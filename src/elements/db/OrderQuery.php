@@ -138,17 +138,11 @@ class OrderQuery extends ElementQuery
     public function __set($name, $value)
     {
         switch ($name) {
-            case 'number':
-                $this->number($value);
-                break;
             case 'updatedAfter':
                 $this->updatedAfter($value);
                 break;
             case 'updatedBefore':
                 $this->updatedBefore($value);
-                break;
-            case 'email':
-                $this->email($value);
                 break;
             default:
                 parent::__set($name, $value);
