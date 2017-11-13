@@ -85,7 +85,7 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function rules(): array
     {

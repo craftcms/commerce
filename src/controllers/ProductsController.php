@@ -40,7 +40,7 @@ class ProductsController extends BaseCpController
     // =========================================================================
 
     /**
-     * @throws HttpException
+     * @inheritdoc
      */
     public function init()
     {

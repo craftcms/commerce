@@ -25,7 +25,7 @@ class Extension extends \Twig_Extension
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function getFilters(): array
     {

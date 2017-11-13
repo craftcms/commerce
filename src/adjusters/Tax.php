@@ -49,9 +49,7 @@ class Tax implements AdjusterInterface
     // =========================================================================
 
     /**
-     * @param Order $order
-     *
-     * @return OrderAdjustment[]
+     * @inheritdoc
      */
     public function adjust(Order $order): array
     {
@@ -69,7 +67,7 @@ class Tax implements AdjusterInterface
         /** @var TaxRate $rate */
         foreach ($taxRates as $rate) {
             // Apply all rates that match
-            if ($newAdjustments = $this->getAdjustments($rate)) {
+            if ($newAdjustments = $this->_getAdjustments($rate)) {
                 $adjustments = array_merge($adjustments, $newAdjustments);
             }
         }
@@ -85,7 +83,7 @@ class Tax implements AdjusterInterface
      *
      * @return OrderAdjustment[]|false
      */
-    private function getAdjustments(TaxRate $taxRate)
+    private function _getAdjustments(TaxRate $taxRate)
     {
         $zone = $taxRate->taxZone;
         $adjustments = [];

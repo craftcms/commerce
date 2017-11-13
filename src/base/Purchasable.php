@@ -28,10 +28,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     // =========================================================================
 
     /**
-     * Returns the Id of the Purchasable element that should be added to the line item.
-     * This elements model should meet the Purchasable Interface.
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getPurchasableId(): int
     {
@@ -39,10 +36,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Gathers data to be serialized and saved to the lineItem when adding to the cart.
-     * Include any information that might be useful after the purchasable has been deleted.
-     *
-     * @return array
+     * @inheritdoc
      */
     public function getSnapshot(): array
     {
@@ -50,9 +44,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * This is the base price the item will be added to the line item with.
-     *
-     * @return float decimal(14,4)
+     * @inheritdoc
      */
     public function getPrice(): float
     {
@@ -60,9 +52,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * This must be a unique code. A unique SKU as per the commerce_purchasables table.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getSku(): string
     {
@@ -70,9 +60,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * This would usually be your elements title or any additional descriptive information.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getDescription(): string
     {
@@ -80,9 +68,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Returns a Craft Commerce tax category id
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getTaxCategoryId(): int
     {
@@ -90,9 +76,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Returns a Craft Commerce shipping category id
-     *
-     * @return int
+     * @inheritdoc
      */
     public function getShippingCategoryId(): int
     {
@@ -100,9 +84,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Returns if a purchasable is available
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function getIsAvailable(): bool
     {
@@ -110,14 +92,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Populates the line item when this purchasable is found on it. Called when Purchasable is added to the cart and when the cart recalculates.
-     *
-     * This is your chance to modify the weight, height, width, length, price and saleAmount.
-     * This is called before any onPopulateLineItem event listener.
-     *
-     * @param LineItem $lineItem
-     *
-     * @return void
+     * @inheritdoc
      */
     public function populateLineItem(LineItem $lineItem)
     {
@@ -125,13 +100,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.
-     *
-     * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
-     *
-     * @param LineItem $lineItem
-     *
-     * @return mixed
+     * @inheritdoc
      */
     public function validateLineItem(LineItem $lineItem)
     {
@@ -139,9 +108,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Lets the system know if this purchasable has free shipping.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function hasFreeShipping(): bool
     {
@@ -149,9 +116,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * Lets the system know if this purchasable can be subject to discounts or sales.
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function getIsPromotable(): bool
     {

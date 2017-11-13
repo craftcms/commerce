@@ -29,7 +29,7 @@ class BaseFrontEndController extends BaseController
      *
      * @return array
      */
-    protected function cartArray(Order $cart)
+    protected function cartArray(Order $cart): array
     {
         $data = [];
         $data['id'] = $cart->id;

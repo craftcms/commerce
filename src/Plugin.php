@@ -90,10 +90,7 @@ class Plugin extends \craft\base\Plugin
     }
 
     /**
-     * Pre-install checks
-     *
-     * @return bool
-     * @throws Exception
+     * @inheritdoc
      */
     public function beforeInstall(): bool
     {

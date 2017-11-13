@@ -25,7 +25,7 @@ class DiscountsController extends BaseCpController
     // =========================================================================
 
     /**
-     * @throws HttpException
+     * @inheritdoc
      */
     public function init()
     {

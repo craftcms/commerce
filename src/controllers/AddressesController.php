@@ -20,7 +20,7 @@ class AddressesController extends BaseAdminController
     // =========================================================================
 
     /**
-     * @throws HttpException
+     * @inheritdoc
      */
     public function init()
     {

@@ -66,7 +66,7 @@ class OrderSettings extends Model
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function behaviors(): array
     {

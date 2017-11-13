@@ -115,7 +115,7 @@ class Order extends Element
     // =========================================================================
 
     /**
-     * @var int ID
+     * @inheritdoc
      */
     public $id;
 
@@ -1135,9 +1135,7 @@ class Order extends Element
     }
 
     /**
-     * @param string $attribute
-     *
-     * @return mixed|string
+     * @inheritdoc
      */
     public function getTableAttributeHtml(string $attribute): string
     {

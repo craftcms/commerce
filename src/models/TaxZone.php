@@ -80,6 +80,7 @@ class TaxZone extends Model
         // TODO: something tells me there's a better way. Load all rates when loading zones?
         $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
+
         /** @var \craft\commerce\models\TaxRate $rate */
         foreach ($allTaxRates as $rate) {
             if ($this->id === $rate->taxZoneId) {

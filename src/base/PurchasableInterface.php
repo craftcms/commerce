@@ -80,11 +80,15 @@ interface PurchasableInterface
     public function getIsAvailable(): bool;
 
     /**
-     * Populates the line item when this purchasable is found on it. Called when Purchasable is added to the cart and when the cart recalculates.
+     * Populates the line item when this purchasable is found on it. Called when
+     * Purchasable is added to the cart and when the cart recalculates.
+     *
+     * This is your chance to modify the weight, height, width, length, price
+     * and saleAmount. This is called before any onPopulateLineItem event listener.
      *
      * @param LineItem $lineItem
      *
-     * @return null
+     * @return void
      */
     public function populateLineItem(LineItem $lineItem);
 
@@ -100,11 +104,15 @@ interface PurchasableInterface
     public function validateLineItem(LineItem $lineItem);
 
     /**
+     * Lets the system know if this purchasable has free shipping.
+     *
      * @return bool
      */
     public function hasFreeShipping(): bool;
 
     /**
+     * Lets the system know if this purchasable can be subject to discounts or sales.
+     *
      * @return bool
      */
     public function getIsPromotable(): bool;

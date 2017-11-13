@@ -48,7 +48,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     // =========================================================================
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getType(): string
     {
@@ -56,7 +56,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return int|null
+     * @inheritdoc
      */
     public function getId()
     {
@@ -64,7 +64,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
@@ -72,7 +72,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getHandle(): string
     {
@@ -80,7 +80,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return ShippingRule[]
+     * @inheritdoc
      */
     public function getShippingRules(): array
     {
@@ -88,7 +88,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function getIsEnabled(): bool
     {
@@ -96,9 +96,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
-     * Not applicable since we link to our own.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getCpEditUrl(): string
     {

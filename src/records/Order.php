@@ -53,9 +53,7 @@ class Order extends ActiveRecord
     // =========================================================================
 
     /**
-     * Returns the name of the associated database table.
-     *
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {

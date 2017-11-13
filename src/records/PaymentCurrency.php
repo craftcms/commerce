@@ -21,7 +21,7 @@ class PaymentCurrency extends ActiveRecord
     // =========================================================================
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {
@@ -29,7 +29,7 @@ class PaymentCurrency extends ActiveRecord
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function rules(): array
     {

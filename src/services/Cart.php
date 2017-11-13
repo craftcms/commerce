@@ -17,6 +17,10 @@ use yii\validators\EmailValidator;
 /**
  * Cart service.
  *
+ * @property Order $gateway
+ * @property Order $email
+ * @property mixed $paymentCurrency
+ * @property Order $shippingMethod
  * @property Order $cart
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

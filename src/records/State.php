@@ -23,7 +23,7 @@ class State extends ActiveRecord
     // =========================================================================
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {

@@ -35,7 +35,7 @@ class Variant extends ActiveRecord
     // =========================================================================
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public static function tableName(): string
     {

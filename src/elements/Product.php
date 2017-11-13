@@ -55,7 +55,7 @@ class Product extends Element
     // =========================================================================
 
     /**
-     * @var int ID
+     * @inheritdoc
      */
     public $id;
 
@@ -95,7 +95,7 @@ class Product extends Element
     public $freeShipping;
 
     /**
-     * @var bool Enabled
+     * @inheritdoc
      */
     public $enabled;
 
@@ -208,7 +208,7 @@ class Product extends Element
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function __toString(): string
     {
@@ -416,7 +416,7 @@ class Product extends Element
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public static function hasStatuses(): bool
     {
@@ -517,8 +517,7 @@ class Product extends Element
     }
 
     /**
-     * @param ElementQueryInterface $elementQuery
-     * @param string                $attribute
+     * @inheritdoc
      */
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {

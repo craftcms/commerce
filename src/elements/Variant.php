@@ -37,7 +37,7 @@ class Variant extends Purchasable
     // =========================================================================
 
     /**
-     * @var int $id
+     * @inheritdoc
      */
     public $id;
 
@@ -52,12 +52,12 @@ class Variant extends Purchasable
     public $isDefault;
 
     /**
-     * @var string $sku
+     * @inheritdoc
      */
     public $sku;
 
     /**
-     * @var int $price
+     * @inheritdoc
      */
     public $price;
 
@@ -546,9 +546,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param LineItem $lineItem
-     *
-     * @return null
+     * @inheritdoc
      */
     public function populateLineItem(LineItem $lineItem)
     {
@@ -665,10 +663,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Sets some eager loaded elements on a given handle.
-     *
-     * @param string    $handle   The handle to load the elements with in the future
-     * @param Element[] $elements The eager-loaded elements
+     * @inheritdoc
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
@@ -789,6 +784,56 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities')
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        $attributes = [];
+
+        $attributes[] = 'title';
+        $attributes[] = 'sku';
+        $attributes[] = 'price';
+
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title')
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function tableAttributeHtml(string $attribute): string
     {
         /* @var $productType ProductType */
@@ -823,55 +868,5 @@ class Variant extends Purchasable
                 return parent::tableAttributeHtml($attribute);
             }
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineTableAttributes(): array
-    {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
-            'sku' => Craft::t('commerce', 'SKU'),
-            'price' => Craft::t('commerce', 'Price'),
-            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities')
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineDefaultTableAttributes(string $source): array
-    {
-        $attributes = [];
-
-        $attributes[] = 'title';
-        $attributes[] = 'sku';
-        $attributes[] = 'price';
-
-        return $attributes;
-    }
-
-    /**
-     * @return array
-     */
-    protected static function defineSearchableAttributes(): array
-    {
-        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'title' => Craft::t('commerce', 'Title')
-        ];
     }
 }

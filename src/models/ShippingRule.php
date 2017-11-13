@@ -158,7 +158,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function getIsEnabled(): bool
     {
@@ -166,9 +166,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param Order $order
-     *
-     * @return bool
+     * @inheritdoc
      */
     public function matchOrder(Order $order): bool
     {
@@ -309,7 +307,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function getOptions(): array
     {
@@ -317,9 +315,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param null $shippingCategoryId
-     *
-     * @return float
+     * @inheritdoc
      */
     public function getPercentageRate($shippingCategoryId = null): float
     {
@@ -327,9 +323,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param null $shippingCategoryId
-     *
-     * @return float
+     * @inheritdoc
      */
     public function getPerItemRate($shippingCategoryId = null): float
     {
@@ -337,9 +331,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param null $shippingCategoryId
-     *
-     * @return float
+     * @inheritdoc
      */
     public function getWeightRate($shippingCategoryId = null): float
     {
@@ -347,15 +339,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getBaseRate(): float
     {
         return (float)$this->baseRate;
     }
 
-    /**
-     * @return float
+    /**@inheritdoc@return float
      */
     public function getMaxRate(): float
     {
@@ -363,7 +354,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getMinRate(): float
     {
@@ -371,7 +362,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getDescription(): string
     {

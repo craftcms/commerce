@@ -145,7 +145,7 @@ class Transaction extends Model
     // =========================================================================
 
     /**
-     * @param null $attributes
+     * @inheritdoc
      */
     public function __construct($attributes = null)
     {
