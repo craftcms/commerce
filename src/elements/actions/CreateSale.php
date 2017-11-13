@@ -8,8 +8,9 @@ use craft\base\ElementAction;
 /**
  * Class Create Sale
  *
- * @property void  $triggerHtml
- * @property mixed $name
+ * @property void   $triggerHtml
+ * @property string $triggerLabel
+ * @property mixed  $name
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -22,7 +23,7 @@ class CreateSale extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getTriggerLabel(): string
     {
         return Craft::t('commerce', 'Create sale…');
     }

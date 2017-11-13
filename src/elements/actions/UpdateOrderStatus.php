@@ -13,6 +13,7 @@ use craft\helpers\Json;
  * Class Update Order Status
  *
  * @property null|string $triggerHtml
+ * @property string      $triggerLabel
  * @property mixed       $name
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -39,7 +40,7 @@ class UpdateOrderStatus extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getTriggerLabel(): string
     {
         return Craft::t('commerce', 'Update Order Status…');
     }

@@ -9,6 +9,7 @@ use craft\base\ElementAction;
  * Class Create Discount
  *
  * @property void   $triggerHtml
+ * @property string $triggerLabel
  * @property string $name
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -22,7 +23,7 @@ class CreateDiscount extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getTriggerLabel(): string
     {
         return Craft::t('commerce', 'Create discount…');
     }
