@@ -42,11 +42,7 @@ class OrderHistories extends Component
             ->where(['id' => $id])
             ->one();
 
-        if ($result) {
-            return new OrderHistory($result);
-        }
-
-        return null;
+        return $result ? new OrderHistory($result) : null;
     }
 
     /**

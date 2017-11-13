@@ -65,15 +65,15 @@ class Countries extends Component
             return null;
         }
 
-        $row = $this->_createCountryQuery()
+        $result = $this->_createCountryQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_countriesById[$id] = new Country($row);
+        return $this->_countriesById[$id] = new Country($result);
     }
 
     /**

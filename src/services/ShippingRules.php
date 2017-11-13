@@ -109,15 +109,15 @@ class ShippingRules extends Component
             return null;
         }
 
-        $row = $this->_createShippingRulesQuery()
+        $result = $this->_createShippingRulesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_allShippingRules[$id] = new ShippingRule($row);
+        return $this->_allShippingRules[$id] = new ShippingRule($result);
     }
 
     /**

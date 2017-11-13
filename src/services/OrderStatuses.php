@@ -103,19 +103,19 @@ class OrderStatuses extends Component
      */
     public function getDefaultOrderStatus()
     {
-        if (null === $this->_defaultOrderStatus) {
-            $row = $this->_createOrderStatusesQuery()
-                ->where(['default' => 1])
-                ->one();
-
-            if (!$row) {
-                return null;
-            }
-
-            $this->_defaultOrderStatus = new OrderStatus($row);
+        if ($this->_defaultOrderStatus !== null) {
+            return $this->_defaultOrderStatus;
         }
 
-        return $this->_defaultOrderStatus;
+        $result = $this->_createOrderStatusesQuery()
+            ->where(['default' => 1])
+            ->one();
+
+        if (!$result) {
+            return null;
+        }
+
+        return $this->_defaultOrderStatus = new OrderStatus($result);
     }
 
     /**

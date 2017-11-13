@@ -128,15 +128,11 @@ class Gateways extends Component
      */
     public function getGatewayById(int $id)
     {
-        $row = $this->_createGatewayQuery()
+        $result = $this->_createGatewayQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
-            return null;
-        }
-
-        return $this->createGateway($row);
+        return $result ? $this->createGateway($result) : null;
     }
 
     /**

@@ -130,19 +130,19 @@ class TaxCategories extends Component
      */
     public function getDefaultTaxCategory()
     {
-        if (null === $this->_defaultTaxCategory) {
-            $row = $this->_createTaxCategoryQuery()
-                ->where(['default' => 1])
-                ->one();
-
-            if (!$row) {
-                return null;
-            }
-
-            $this->_defaultTaxCategory = new TaxCategory($row);
+        if ($this->_defaultTaxCategory !== null) {
+            return $this->_defaultTaxCategory;
         }
 
-        return $this->_defaultTaxCategory;
+        $result = $this->_createTaxCategoryQuery()
+            ->where(['default' => 1])
+            ->one();
+
+        if (!$result) {
+            return null;
+        }
+
+        return $this->_defaultTaxCategory = new TaxCategory($result);
     }
 
     /**

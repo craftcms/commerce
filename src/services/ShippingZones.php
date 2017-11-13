@@ -72,15 +72,15 @@ class ShippingZones extends Component
             return null;
         }
 
-        $row = $this->_createShippingZonesQuery()
+        $result = $this->_createShippingZonesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_allShippingZones[$id] = new ShippingZone($row);
+        return $this->_allShippingZones[$id] = new ShippingZone($result);
     }
 
     /**

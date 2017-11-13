@@ -49,15 +49,11 @@ class Emails extends Component
      */
     public function getEmailById($id)
     {
-        $row = $this->_createEmailQuery()
+        $result = $this->_createEmailQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
-            return null;
-        }
-
-        return new Email($row);
+        return $result ? new Email($result) : null;
     }
 
     /**

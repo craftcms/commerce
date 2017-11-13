@@ -73,15 +73,15 @@ class TaxRates extends Component
             return null;
         }
 
-        $row = $this->_createTaxRatesQuery()
+        $result = $this->_createTaxRatesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_allTaxRates[$id] = new TaxRate($row);
+        return $this->_allTaxRates[$id] = new TaxRate($result);
     }
 
     /**

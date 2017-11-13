@@ -67,14 +67,13 @@ class OrderSettings extends Component
             ->where(['handle' => $handle])
             ->one();
 
-        if ($result) {
-            $orderSetting = new OrderSettingsModel($result);
-            $this->_orderSettingsById[$orderSetting->id] = $orderSetting;
-
-            return $orderSetting;
+        if (!$result) {
+            return null;
         }
 
-        return null;
+        $orderSetting = new OrderSettingsModel($result);
+        $this->_orderSettingsById[$orderSetting->id] = $orderSetting;
+        return $orderSetting;
     }
 
     /**

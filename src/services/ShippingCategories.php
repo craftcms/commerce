@@ -131,19 +131,19 @@ class ShippingCategories extends Component
      */
     public function getDefaultShippingCategory()
     {
-        if (null === $this->_defaultShippingCategory) {
-            $row = $this->_createShippingCategoryQuery()
-                ->where(['default' => 1])
-                ->one();
-
-            if (!$row) {
-                return null;
-            }
-
-            $this->_defaultShippingCategory = new ShippingCategory($row);
+        if ($this->_defaultShippingCategory !== null) {
+            return $this->_defaultShippingCategory;
         }
 
-        return $this->_defaultShippingCategory;
+        $row = $this->_createShippingCategoryQuery()
+            ->where(['default' => 1])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        return $this->_defaultShippingCategory = new ShippingCategory($row);
     }
 
     /**

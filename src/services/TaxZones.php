@@ -73,15 +73,15 @@ class TaxZones extends Component
             return null;
         }
 
-        $row = $this->_createTaxZonesQuery()
+        $result = $this->_createTaxZonesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_allTaxZones[$id] = new TaxZone($row);
+        return $this->_allTaxZones[$id] = new TaxZone($result);
     }
 
     /**

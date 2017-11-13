@@ -284,8 +284,7 @@ class Payments extends Component
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        $transaction = (new Query())
-            ->select('sum(amount) AS total, orderId')
+        return (new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -293,13 +292,7 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->groupBy('orderId')
-            ->one();
-
-        if ($transaction) {
-            return $transaction['total'];
-        }
-
-        return 0;
+            ->sum('amount');
     }
 
     /**
@@ -311,8 +304,7 @@ class Payments extends Component
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        $transaction = (new Query())
-            ->select('sum(amount) AS total, orderId')
+        return (new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -320,13 +312,7 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->groupBy('orderId')
-            ->one();
-
-        if ($transaction) {
-            return $transaction['total'];
-        }
-
-        return 0;
+            ->sum('amount');
     }
 
     // Private Methods

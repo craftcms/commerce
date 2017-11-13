@@ -177,15 +177,15 @@ class ProductTypes extends Component
             return null;
         }
 
-        $row = $this->_createProductTypeQuery()
+        $result = $this->_createProductTypeQuery()
             ->where(['handle' => $handle])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        $this->_memoizeProductType(new ProductType($row));
+        $this->_memoizeProductType(new ProductType($result));
 
         return $this->_productTypesByHandle[$handle];
     }
@@ -256,7 +256,9 @@ class ProductTypes extends Component
                 throw new ProductTypeNotFoundException("No product type exists with the ID '{$productType->id}'");
             }
 
-            $oldProductTypeRow = $this->_createProductTypeQuery()->where(['id' => $productType->id])->one();
+            $oldProductTypeRow = $this->_createProductTypeQuery()
+                ->where(['id' => $productType->id])
+                ->one();
             $oldProductType = new ProductType($oldProductTypeRow);
         } else {
             $productTypeRecord = new ProductTypeRecord();
@@ -608,15 +610,15 @@ class ProductTypes extends Component
             return null;
         }
 
-        $row = $this->_createProductTypeQuery()
+        $result = $this->_createProductTypeQuery()
             ->where(['id' => $productTypeId])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        $this->_memoizeProductType(new ProductType($row));
+        $this->_memoizeProductType(new ProductType($result));
 
         return $this->_productTypesById[$productTypeId];
     }

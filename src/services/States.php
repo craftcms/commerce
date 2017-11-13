@@ -68,15 +68,15 @@ class States extends Component
             return null;
         }
 
-        $row = $this->_createStatesQuery()
+        $result = $this->_createStatesQuery()
             ->where(['id' => $id])
             ->one();
 
-        if (!$row) {
+        if (!$result) {
             return null;
         }
 
-        return $this->_statesById[$id] = new State($row);
+        return $this->_statesById[$id] = new State($result);
     }
 
     /**

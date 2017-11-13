@@ -249,7 +249,7 @@ class Transactions extends Component
             ->where(['id' => $id])
             ->one();
 
-            return  $result ? new Transaction($result) : null;
+        return $result ? new Transaction($result) : null;
     }
 
     /**

@@ -61,15 +61,15 @@ class Addresses extends Component
      */
     public function getAddressById(int $addressId)
     {
-        if (!isset($this->_addressesById[$addressId])) {
-            $row = $this->_createAddressQuery()
-                ->where(['id' => $addressId])
-                ->one();
-
-            $this->_addressesById[$addressId] = $row ? new Address($row) : null;
+        if (array_key_exists($addressId, $this->_addressesById)) {
+            return $this->_addressesById[$addressId];
         }
 
-        return $this->_addressesById[$addressId];
+        $result = $this->_createAddressQuery()
+            ->where(['id' => $addressId])
+            ->one();
+
+        return $this->_addressesById[$addressId] = $result ? new Address($result) : null;
     }
 
     /**
@@ -104,11 +104,11 @@ class Addresses extends Component
      */
     public function getStockLocation(): Address
     {
-        $row = $this->_createAddressQuery()
+        $result = $this->_createAddressQuery()
             ->where(['stockLocation' => true])
             ->one();
 
-        return new Address($row);
+        return new Address($result);
     }
 
     /**
