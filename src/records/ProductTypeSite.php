@@ -7,7 +7,7 @@ use craft\records\Site;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Product type locale record.
+ * Product type site record.
  *
  * @property int         $id
  * @property int         $productTypeId
