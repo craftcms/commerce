@@ -9,9 +9,12 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type locale record.
  *
+ * @property int         $id
  * @property int         $productTypeId
- * @property int         $localeId
+ * @property int         $siteId
  * @property string      $uriFormat
+ * @property string      $hasUrls
+ * @property string      $template
  * @property Site        $site
  * @property ProductType $productType
  *

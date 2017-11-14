@@ -439,6 +439,7 @@ class ProductTypes extends Component
                     ->all();
             }
 
+            /** @var ProductTypeSiteRecord $siteSettings */
             foreach ($allSiteSettings as $siteId => $siteSettings) {
                 // Was this already selected?
                 if (!$isNewProductType && isset($allOldSiteSettingsRecords[$siteId])) {
