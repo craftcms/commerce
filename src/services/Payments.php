@@ -9,6 +9,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\GatewayRequestCancelledException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\TransactionException;
+use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
@@ -66,6 +67,11 @@ class Payments extends Component
      */
     const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
 
+    /**
+     * @event ProcessPaymentEvent The event is triggered before a payment is being processed
+     */
+    const EVENT_BEFORE_PROCESS_PAYMENT_EVENT = 'beforeProcessPaymentEvent';
+
     // Public Methods
     // =========================================================================
 
@@ -80,6 +86,17 @@ class Payments extends Component
      */
     public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction): bool
     {
+        // Raise the 'beforeProcessPaymentEvent' event
+        $event = new ProcessPaymentEvent([
+            'order' => $order,
+        ]);
+
+        $this->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
         if ($order->isPaid()) {
             if (!$order->datePaid) {
