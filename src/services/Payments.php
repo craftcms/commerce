@@ -94,7 +94,9 @@ class Payments extends Component
         $this->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, $event);
 
         if (!$event->isValid) {
-            return false;
+            // This error potentially is goind to be displayed in the frontend, so we have to be vague about it.
+            // Long story short - a plugin said "no."
+            throw new PaymentException(Craft::t('commerce', 'Unable to make payment at this time.'));
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
