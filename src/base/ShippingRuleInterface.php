@@ -42,25 +42,29 @@ interface ShippingRuleInterface
      * Returns the percentage rate that is multiplied per line item subtotal.
      * Zero will not make any changes.
      *
+     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     *
      * @return float
      */
-    public function getPercentageRate(): float;
+    public function getPercentageRate($shippingCategory): float;
 
     /**
      * Returns the flat rate that is multiplied per qty.
      * Zero will not make any changes.
      *
+     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
      * @return float
      */
-    public function getPerItemRate(): float;
+    public function getPerItemRate($shippingCategory): float;
 
     /**
      * Returns the rate that is multiplied by the line item's weight.
      * Zero will not make any changes.
      *
+     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
      * @return float
      */
-    public function getWeightRate(): float;
+    public function getWeightRate($shippingCategory): float;
 
     /**
      * Returns a base shipping cost. This is added at the order level.
