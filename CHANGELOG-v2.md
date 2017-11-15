@@ -3,6 +3,7 @@
 - Added 'Copy' Reference tag to Product actions.
 
 ### Changed
+- The Shipping Rule interface now expects a shipping category ID passed to each rate method.
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
