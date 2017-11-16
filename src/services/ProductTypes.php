@@ -83,7 +83,6 @@ class ProductTypes extends Component
     /**
      * Returns all editable product types.
      *
-     *
      * @return ProductType[] An array of all the editable product types.
      */
     public function getEditableProductTypes(): array
