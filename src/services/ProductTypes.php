@@ -35,7 +35,7 @@ class ProductTypes extends Component
     // =========================================================================
 
     /**
-     * @event CategoryGroupEvent The event that is triggered before a category group is saved.
+     * @event ProductTypeEvent The event that is triggered before a category group is saved.
      */
     const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
