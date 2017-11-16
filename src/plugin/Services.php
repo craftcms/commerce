@@ -18,6 +18,7 @@ use craft\commerce\services\OrderSettings;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
+use craft\commerce\services\Pdf;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -204,6 +205,16 @@ trait Services
     public function getPayments(): Payments
     {
         return $this->get('payments');
+    }
+
+    /**
+     * Returns the PDF service
+     *
+     * @return Pdf The PDF service
+     */
+    public function getPdf(): Pdf
+    {
+        return $this->get('pdf');
     }
 
     /**

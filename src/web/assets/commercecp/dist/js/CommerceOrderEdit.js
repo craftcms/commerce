@@ -15,7 +15,6 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
 
         init: function(settings) {
             this.setSettings(settings);
-
             this.orderId = this.settings.orderId;
             this.paymentForm = this.settings.paymentForm;
 

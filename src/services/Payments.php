@@ -303,7 +303,7 @@ class Payments extends Component
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        return (new Query())
+        $paid =(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -312,6 +312,13 @@ class Payments extends Component
             ])
             ->groupBy('orderId')
             ->sum('amount');
+
+        if (!$paid)
+        {
+            return 0;
+        }
+
+        return $paid;
     }
 
     /**

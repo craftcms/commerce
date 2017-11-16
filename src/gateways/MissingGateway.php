@@ -30,6 +30,11 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     // Public Methods
     // =========================================================================
 
+    public function __set($name, $value)
+    {
+
+    }
+
     /**
      * @inheritdoc
      */

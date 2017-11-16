@@ -624,21 +624,15 @@ class Order extends Element
     {
         $url = null;
 
-        // Make sure the template exists
-        $template = Plugin::getInstance()->getSettings()->orderPdfPath;
-
-        if ($template) {
-            // Set Craft to the site template mode
-            $templatesService = Craft::$app->getView();
-            $oldTemplateMode = $templatesService->getTemplateMode();
-            $templatesService->setTemplateMode(View::TEMPLATE_MODE_SITE);
-
-            if ($templatesService->doesTemplateExist($template)) {
+        try{
+            $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($this, $option);
+            if($pdf)
+            {
                 $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }
-
-            // Restore the original template mode
-            $templatesService->setTemplateMode($oldTemplateMode);
+        }catch(\Exception $exception){
+            Craft::error($exception->getMessage());
+            return null;
         }
 
         return $url;
@@ -1075,7 +1069,9 @@ class Order extends Element
      */
     public function getHistories(): array
     {
-        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+
+        return $histories;
     }
 
     /**

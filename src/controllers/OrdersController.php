@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
@@ -78,20 +79,30 @@ class OrdersController extends BaseCpController
 
         $this->_prepVariables($variables);
 
+        $variables['paymentMethodsAvailable'] = false;
+
         if (empty($variables['paymentForm'])) {
             /** @var Gateway $gateway */
             $gateway = $variables['order']->getGateway();
 
-            if ($gateway) {
+            if ($gateway && !$gateway instanceof MissingGateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
                 $gateway = ArrayHelper::firstValue($plugin->getGateways()->getAllGateways());
 
-                if ($gateway) {
+                if ($gateway && !$gateway instanceof MissingGateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }
+
+            if($gateway instanceof MissingGateway)
+            {
+                $variables['paymentMethodsAvailable'] = false;
+            }
         }
+
+
+        $variables['continueEditingUrl'] = 'commerce/orders/{id}';
 
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
@@ -370,7 +381,7 @@ class OrdersController extends BaseCpController
             $this->asJson(['success' => true]);
         } else {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-            $this->redirectToPostedUrl($order);
+            $this->redirect('commerce/orders');
         }
     }
 
@@ -386,7 +397,14 @@ class OrdersController extends BaseCpController
     {
         $variables['tabs'] = [];
 
-        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Order Details'),
+            'url' => '#orderDetailsTab',
+            'class' => null
+        ];
+
+        $orderSettings = $variables['orderSettings'];
+        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -405,6 +423,18 @@ class OrdersController extends BaseCpController
                 'class' => $hasErrors ? 'error' : null
             ];
         }
+
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Transactions'),
+            'url' => '#transactionsTab',
+            'class' => null
+        ];
+
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'History'),
+            'url' => '#orderHistoryTab',
+            'class' => null
+        ];
     }
 
     /**

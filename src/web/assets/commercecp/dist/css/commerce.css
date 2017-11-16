@@ -67,21 +67,6 @@ body.rtl .variant-matrixblock > .titlebar {
     border-top: 1px solid #e3e5e8;
 }
 
-.address-boxes {
-    width: 100%;
-}
-
-.address-box {
-    border: 1px solid rgba(115, 127, 140, 0.15);
-    width: 100%;
-    margin: 0 0 10px 0;
-    display: inline-block;
-}
-
-.address-box-content {
-    margin: 10px;
-}
-
 .commerce-address.modal {
     width: 350px;
     padding-bottom: 58px;

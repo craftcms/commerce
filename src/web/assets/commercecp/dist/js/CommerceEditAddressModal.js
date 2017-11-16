@@ -130,7 +130,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.fields['stateValue'] = Craft.ui.createField(stateValueInput, {
                 id: this.id + 'stateValue',
                 label: Craft.t('commerce', 'State'),
-                name: this.id + 'stateValue'
+                name: this.id + 'stateValue',
+                errors: this.errors['stateValue']
             });
 
             var countryIdInput = $("<select id='" + this.id + "countryId' name='" + this.id + "countryId'/>");

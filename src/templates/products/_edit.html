@@ -59,7 +59,7 @@
 {% endblock %}
 
 
-{% block actionButton %}
+{% block saveButton %}
     <div class="btngroup">
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
         <div class="btn submit menubtn"></div>
@@ -178,6 +178,10 @@
     {% if product.id %}
         <hr>
         <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
+                <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
+            </div>        <div class="meta read-only">
             <div class="data">
                 <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
                 <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>

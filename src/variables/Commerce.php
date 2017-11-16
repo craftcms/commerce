@@ -78,7 +78,7 @@ class Commerce
      */
     public function getCountries(): array
     {
-        return CommercePlugin::getInstance()->getCountries()->getAllCountries();
+        return ArrayHelper::toArray(CommercePlugin::getInstance()->getCountries()->getAllCountries());
     }
 
     /**
