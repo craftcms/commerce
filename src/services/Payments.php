@@ -303,7 +303,9 @@ class Payments extends Component
      */
     public function getTotalPaidForOrder(Order $order): float
     {
+        // Can't use sum() here because of the groupBy().
         return (new Query())
+            ->select(['sum([[amount]])'])
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -311,7 +313,7 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->groupBy('orderId')
-            ->sum('amount');
+            ->scalar() ?: 0;
     }
 
     /**
@@ -323,7 +325,9 @@ class Payments extends Component
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
+        // Can't use sum() here because of the groupBy().
         return (new Query())
+            ->select(['sum([[amount]])'])
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -331,7 +335,7 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->groupBy('orderId')
-            ->sum('amount');
+            ->scalar() ?: 0;
     }
 
     // Private Methods
