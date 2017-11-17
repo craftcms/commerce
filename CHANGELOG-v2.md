@@ -21,6 +21,7 @@
 - `craft\commerce\services\Payments` now fires the following events: `beforeCaptureTransaction`, `afterCaptureTransaction`, `beforeRefundTransaction`, `afterRefundTransaction` and a cancelable `beforeGatewayRequestSend` event.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.
+- `craft\commerce\services\Purchasables` now fires the `registerPurchasableElementTypes` event.
 
 ### Events that used to be hooks
 - Instead of the `commerce_modifyPaymentRequest` hook you should use the `beforeGatewayRequestSend` event fired by `craft\commerce\base\Gateway`.
