@@ -29,6 +29,12 @@ use yii\base\Exception;
  */
 class Gateways extends Component
 {
+
+    /**
+     * @var array|null Volume setting overrides
+     */
+    private $_overrides;
+
     // Constants
     // =========================================================================
 
@@ -230,18 +236,28 @@ class Gateways extends Component
 
         // Are they overriding any settings?
         if (!empty($config['handle']) && ($override = $this->getGatewayOverrides($config['handle'])) !== null) {
+
+            // Save a reference to the original config in case the gateway type is missing
+            $originalConfig = $config;
+
             // Apply the settings early so the overrides don't get overridden
-            ComponentHelper::applySettings($config);
-            $config = array_merge($config, $override);
+            $config = array_merge(ComponentHelper::mergeSettings($config), $override);
         }
 
         try {
+
+            if ($config['type'] == MissingGateway::class) {
+                throw new MissingComponentException('Missing Gateway Class.');
+            }
+
             /** @var Gateway $gateway */
             $gateway = ComponentHelper::createComponent($config, GatewayInterface::class);
         } catch (MissingComponentException $e) {
             $config['errorMessage'] = $e->getMessage();
             $config['expectedType'] = $config['type'];
             unset($config['type']);
+
+            $config = $originalConfig ?? $config;
 
             $gateway = new MissingGateway($config);
         }
@@ -258,9 +274,11 @@ class Gateways extends Component
      */
     public function getGatewayOverrides(string $handle)
     {
-        $gatewaySettings = Plugin::getInstance()->getSettings()->gatewaySettings;
+        if ($this->_overrides === null) {
+            $this->_overrides = Craft::$app->getConfig()->getConfigFromFile('commerce-gateways');
+        }
 
-        return $gatewaySettings[$handle] ?? null;
+        return $this->_overrides[$handle] ?? null;
     }
 
     // Private methods

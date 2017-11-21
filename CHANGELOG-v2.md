@@ -9,6 +9,7 @@
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
 - `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
+- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file. 
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
@@ -21,6 +22,7 @@
 - `craft\commerce\services\Payments` now fires the following events: `beforeCaptureTransaction`, `afterCaptureTransaction`, `beforeRefundTransaction`, `afterRefundTransaction` and a cancelable `beforeGatewayRequestSend` event.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.
+- `craft\commerce\services\Purchasables` now fires the `registerPurchasableElementTypes` event.
 
 ### Events that used to be hooks
 - Instead of the `commerce_modifyPaymentRequest` hook you should use the `beforeGatewayRequestSend` event fired by `craft\commerce\base\Gateway`.

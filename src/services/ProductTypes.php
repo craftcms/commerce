@@ -35,7 +35,7 @@ class ProductTypes extends Component
     // =========================================================================
 
     /**
-     * @event CategoryGroupEvent The event that is triggered before a category group is saved.
+     * @event ProductTypeEvent The event that is triggered before a category group is saved.
      */
     const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
@@ -82,7 +82,6 @@ class ProductTypes extends Component
 
     /**
      * Returns all editable product types.
-     *
      *
      * @return ProductType[] An array of all the editable product types.
      */

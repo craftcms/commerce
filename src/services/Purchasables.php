@@ -4,7 +4,9 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\elements\Variant;
 use craft\events\ElementEvent;
+use craft\events\RegisterComponentTypesEvent;
 use yii\base\Component;
 
 /**
@@ -15,6 +17,15 @@ use yii\base\Component;
  */
 class Purchasables extends Component
 {
+
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event RegisterComponentTypesEvent The event that is triggered when registering element types.
+     */
+    const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
+
     // Public Methods
     // =========================================================================
 
@@ -45,5 +56,24 @@ class Purchasables extends Component
      */
     public function saveElementHandler(ElementEvent $event)
     {
+    }
+
+    /**
+     * Returns all available purchasable element classes.
+     *
+     * @return string[] The available purchasable element classes.
+     */
+    public function getAllPurchasableElementTypes(): array
+    {
+        $purchasableElementTypes = [
+            Variant::class,
+        ];
+
+        $event = new RegisterComponentTypesEvent([
+            'types' => $purchasableElementTypes
+        ]);
+        $this->trigger(self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, $event);
+
+        return $event->types;
     }
 }

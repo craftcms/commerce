@@ -310,7 +310,6 @@ class Payments extends Component
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
-            ->groupBy('orderId')
             ->sum('amount');
 
         if (!$paid)
@@ -337,7 +336,6 @@ class Payments extends Component
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
-            ->groupBy('orderId')
             ->sum('amount');
     }
 

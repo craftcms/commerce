@@ -5,7 +5,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
