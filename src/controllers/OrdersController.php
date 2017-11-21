@@ -5,10 +5,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\commerce\web\assets\editorder\EditOrderAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
@@ -85,12 +83,12 @@ class OrdersController extends BaseCpController
             $gateway = $variables['order']->getGateway();
 
 
-            if ($gateway && !$gateway instanceof MissingGateway) {
+            if ($gateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
                 $gateway = ArrayHelper::firstValue($plugin->getGateways()->getAllGateways());
 
-                if ($gateway && !$gateway instanceof MissingGateway) {
+                if ($gateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
                 }
             }
