@@ -119,7 +119,7 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
             // ---------------------------------------------------------------------
 
             if (this.settings.context === 'index' && typeof history !== 'undefined') {
-                var uri = 'products';
+                var uri = 'commerce/products';
 
                 if (selectedSourceHandle) {
                     uri += '/' + selectedSourceHandle;
