@@ -1,3 +1,17 @@
+.address-boxes {
+    width: 100%;
+}
+
+.order-header:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.order-info {
+    width: 100%;
+    float: none;
+}
 
 .order-details {
     margin-top: 20px;
@@ -30,6 +44,23 @@
 
 #paymentmodal fieldset legend {
     margin-bottom: 4px;
+}
+
+@media screen and (min-width: 768px) {
+    .address-boxes {
+        width: 50%;
+    }
+
+    .order-header .order-info {
+        float: left;
+        width: 50%;
+    }
+
+    .address-box {
+        float: right;
+        width: 250px;
+        margin: 0 10px 10px;
+    }
 }
 
 .order-info table.borderless td {

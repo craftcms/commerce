@@ -375,7 +375,7 @@ class OrdersController extends BaseCpController
             $this->asJson(['success' => true]);
         } else {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-            $this->redirect('commerce/orders');
+            $this->redirectToPostedUrl($order);
         }
     }
 
@@ -391,14 +391,7 @@ class OrdersController extends BaseCpController
     {
         $variables['tabs'] = [];
 
-        $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'Order Details'),
-            'url' => '#orderDetailsTab',
-            'class' => null
-        ];
-
-        $orderSettings = $variables['orderSettings'];
-        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
+        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -417,18 +410,6 @@ class OrdersController extends BaseCpController
                 'class' => $hasErrors ? 'error' : null
             ];
         }
-
-        $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'Transactions'),
-            'url' => '#transactionsTab',
-            'class' => null
-        ];
-
-        $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'History'),
-            'url' => '#orderHistoryTab',
-            'class' => null
-        ];
     }
 
     /**

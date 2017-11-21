@@ -115,15 +115,14 @@ class Addresses extends Component
      * Save an address.
      *
      * @param Address $addressModel The address to be saved.
-     * @param bool    $runValidation     should we validate this address before saving.
+     * @param bool    $validate     should we validate this address before saving.
      *
      * @return bool Whether the address was saved successfully.
      * @throws Exception if an address does not exist.
      */
-    public function saveAddress(Address $addressModel, bool $runValidation = true): bool
+    public function saveAddress(Address $addressModel, bool $validate = true): bool
     {
         $isNewAddress = !$addressModel->id;
-        $plugin = Plugin::getInstance();
 
         if ($addressModel->id) {
             $addressRecord = AddressRecord::findOne($addressModel->id);
@@ -144,22 +143,6 @@ class Addresses extends Component
             ]));
         }
 
-        // Normalize state name values
-        if (!empty($addressModel->stateValue)) {
-            if ($plugin->getStates()->getStateById($addressModel->stateValue)) {
-                $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
-                $addressRecord->stateName = null;
-                $addressModel->stateName = null;
-            } else {
-                $addressRecord->stateId = null;
-                $addressModel->stateId = null;
-                $addressRecord->stateName = $addressModel->stateName = $addressModel->stateValue;
-            }
-        } else {
-            $addressRecord->stateId = $addressModel->stateId;
-            $addressRecord->stateName = $addressModel->stateName;
-        }
-
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
@@ -176,19 +159,44 @@ class Addresses extends Component
         $addressRecord->countryId = $addressModel->countryId;
         $addressRecord->stockLocation = $addressModel->stockLocation;
 
-        if ($runValidation && !$addressModel->validate()) {
-            Craft::info('Address could not save due to validation error.', __METHOD__);
-            return false;
+        $plugin = Plugin::getInstance();
+
+        if (!empty($addressModel->stateValue)) {
+            if ($plugin->getStates()->getStateById($addressModel->stateValue)) {
+                $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
+                $addressRecord->stateName = null;
+                $addressModel->stateName = null;
+            } else {
+                $addressRecord->stateId = null;
+                $addressModel->stateId = null;
+                $addressRecord->stateName = $addressModel->stateName = $addressModel->stateValue;
+            }
+        } else {
+            $addressRecord->stateId = $addressModel->stateId;
+            $addressRecord->stateName = $addressModel->stateName;
+        }
+
+        /** @var Country $state */
+        $country = $addressRecord->countryId ? $plugin->getCountries()->getCountryById($addressRecord->countryId) : null;
+        /** @var State $state */
+        $state = $addressRecord->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
+
+        // Check country’s stateRequired option
+        if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+            $addressModel->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+        }
+
+        if ($validate) {
+            $addressRecord->validate();
+            $addressModel->addErrors($addressRecord->getErrors());
         }
 
         if (!$addressModel->hasErrors()) {
-
-            $result = $addressRecord->save(false);
-
-            // There can only be a single stock location
-            if($result && $addressRecord->stockLocation && $addressRecord->id) {
+            if ($addressRecord->stockLocation && $addressRecord->id) {
                 Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
             }
+
+            $addressRecord->save(false);
 
             if ($isNewAddress) {
                 // Now that we have a record ID, save it on the model

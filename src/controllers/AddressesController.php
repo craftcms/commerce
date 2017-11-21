@@ -98,7 +98,7 @@ class AddressesController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'address' => $address]);
+                $this->asJson(['success' => true, 'address' => $address]);
             }
 
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));

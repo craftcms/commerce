@@ -21,11 +21,6 @@ class Dummy extends Gateway
     // Public Methods
     // =========================================================================
 
-    public function getIsEnabled(): bool
-    {
-        return true;
-    }
-
     /**
      * @inheritdoc
      */

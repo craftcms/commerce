@@ -1075,9 +1075,7 @@ class Order extends Element
      */
     public function getHistories(): array
     {
-        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
-
-        return $histories;
+        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
 
     /**

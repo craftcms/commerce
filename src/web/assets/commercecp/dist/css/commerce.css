@@ -66,6 +66,11 @@ body.rtl .variant-matrixblock > .titlebar {
 .variant-matrixblock.single-col > .fields > .custom-fields > .field:first-child {
     border-top: 1px solid #e3e5e8;
 }
+
+.address-boxes {
+    width: 100%;
+}
+
 .address-box {
     border: 1px solid rgba(115, 127, 140, 0.15);
     width: 100%;

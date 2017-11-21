@@ -31,14 +31,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     // =========================================================================
 
     /**
-     * @return bool
-     */
-    public function getIsEnabled(): bool
-    {
-        return false;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getPaymentFormHtml(array $params)
