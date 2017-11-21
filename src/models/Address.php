@@ -2,6 +2,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
@@ -155,6 +156,32 @@ class Address extends Model
         };
 
         return $fields;
+    }
+
+    /**
+     * @return array
+     */
+    public function rules(): array
+    {
+        $rules = parent::rules();
+        $rules[] = [['firstName'], 'required'];
+        $rules[] = [['lastName'], 'required'];
+        $rules[] = ['stateId', 'validateState', 'skipOnEmpty' => false];
+
+        return $rules;
+    }
+
+    /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     */
+    public function validateState($attribute, $params, $validator) {
+        $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
+        $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
+        if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+            $this->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+        }
     }
 
     /**

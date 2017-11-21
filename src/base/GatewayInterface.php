@@ -21,6 +21,13 @@ interface GatewayInterface extends SavableComponentInterface
     // =========================================================================
 
     /**
+     * Is the gateway enabled
+     *
+     * @return bool
+     */
+    public function getIsEnabled() : bool;
+
+    /**
      * Make an authorize request.
      *
      * @param Transaction     $transaction The authorize transaction

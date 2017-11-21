@@ -84,6 +84,7 @@ class OrdersController extends BaseCpController
             /** @var Gateway $gateway */
             $gateway = $variables['order']->getGateway();
 
+
             if ($gateway && !$gateway instanceof MissingGateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
@@ -94,6 +95,8 @@ class OrdersController extends BaseCpController
                 }
             }
         }
+
+        $variables['continueEditingUrl'] = 'commerce/orders/{id}';
 
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
@@ -374,7 +377,7 @@ class OrdersController extends BaseCpController
             $this->asJson(['success' => true]);
         } else {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-            $this->redirectToPostedUrl($order);
+            $this->redirect('commerce/orders');
         }
     }
 
@@ -390,7 +393,14 @@ class OrdersController extends BaseCpController
     {
         $variables['tabs'] = [];
 
-        foreach ($variables['orderSettings']->getFieldLayout()->getTabs() as $index => $tab) {
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Order Details'),
+            'url' => '#orderDetailsTab',
+            'class' => null
+        ];
+
+        $orderSettings = $variables['orderSettings'];
+        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -409,6 +419,18 @@ class OrdersController extends BaseCpController
                 'class' => $hasErrors ? 'error' : null
             ];
         }
+
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Transactions'),
+            'url' => '#transactionsTab',
+            'class' => null
+        ];
+
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'History'),
+            'url' => '#orderHistoryTab',
+            'class' => null
+        ];
     }
 
     /**
