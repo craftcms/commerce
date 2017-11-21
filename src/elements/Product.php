@@ -786,7 +786,7 @@ class Product extends Element
             $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
 
             $sources[$key] = [
-                'key' => 'producttype:'.$productType->id,
+                'key' => $key,
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
