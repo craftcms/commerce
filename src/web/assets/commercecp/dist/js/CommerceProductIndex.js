@@ -10,8 +10,8 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
         afterInit: function() {
             // Find which of the visible productTypes the user has permission to create new products in
             this.editableProductTypes = [];
-            for (var i = 0; i < Craft.Commerce.editableProductsTypes.length; i++) {
-                var productType = Craft.Commerce.editableProductsTypes[i];
+            for (var i = 0; i < Craft.Commerce.editableProductTypes.length; i++) {
+                var productType = Craft.Commerce.editableProductTypes[i];
 
                 if (this.getSourceByKey('productType:' + productType.id)) {
                     this.editableProductTypes.push(productType);

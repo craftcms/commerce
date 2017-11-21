@@ -13,7 +13,7 @@
         Craft.Commerce = {};
     }
 
-    Craft.Commerce.editableProductsTypes = [
+    Craft.Commerce.editableProductTypes = [
         {% for productType in craft.commerce.plugin.productTypes.getEditableProductTypes() %}
             {id: {{ productType.id }}, name: "{{ productType.name|t('commerce')|e('js') }}", handle: "{{ productType.handle|e('js') }}"}{% if not loop.last %},{% endif %}
         {% endfor %}
