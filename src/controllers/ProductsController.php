@@ -529,7 +529,7 @@ class ProductsController extends BaseCpController
             throw new HttpException(404);
         }
 
-        Craft::$app->language = $product->site;
+        Craft::$app->language = $product->getSiblings()->language;
 
         // Have this product override any freshly queried products with the same ID/site
         Craft::$app->getElements()->setPlaceholderElement($product);
