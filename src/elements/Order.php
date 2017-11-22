@@ -737,6 +737,11 @@ class Order extends Element
         return $totalPrice - $totalPaid;
     }
 
+    /**
+     * Returns the total `purchase` and `captured` transactions belonging to this order.
+     *
+     * @return float
+     */
     public function getTotalPaid(): float
     {
         return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);

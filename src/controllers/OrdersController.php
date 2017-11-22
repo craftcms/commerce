@@ -82,6 +82,7 @@ class OrdersController extends BaseCpController
             /** @var Gateway $gateway */
             $gateway = $variables['order']->getGateway();
 
+
             if ($gateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
@@ -93,8 +94,12 @@ class OrdersController extends BaseCpController
             }
         }
 
+        $variables['continueEditingUrl'] = 'commerce/orders/{id}';
+
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
+
+        $this->getView()->registerAssetBundle(EditOrderAsset::class);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
@@ -119,7 +124,7 @@ class OrdersController extends BaseCpController
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
             // If gateway adapter does no support backend cp payments.
-            if (!$gateway->cpPaymentsEnabled()) {
+            if (!$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
                 unset($gateways[$key]);
                 continue;
             }
