@@ -84,6 +84,7 @@ class Plugin extends \craft\base\Plugin
         $this->_registerCpAlerts();
         $this->_registerWidgets();
         $this->_registerElementEventListeners();
+        $this->_registerVariable();
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
@@ -186,12 +187,6 @@ class Plugin extends \craft\base\Plugin
      */
     private function _addTwigExtensions()
     {
-        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
-            /** @var CraftVariable $variable */
-            $variable = $event->sender;
-            $variable->set('commerce', CommerceVariable::class);
-        });
-
         Craft::$app->view->twig->addExtension(new Extension);
     }
 
@@ -323,6 +318,18 @@ class Plugin extends \craft\base\Plugin
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Orders::class;
             $event->types[] = Revenue::class;
+        });
+    }
+
+    /**
+     * Register Commerce’s template variable.
+     */
+    private function _registerVariable()
+    {
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
+            /** @var CraftVariable $variable */
+            $variable = $event->sender;
+            $variable->set('commerce', CommerceVariable::class);
         });
     }
 }

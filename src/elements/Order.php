@@ -301,11 +301,10 @@ class Order extends Element
      */
     public function datetimeAttributes(): array
     {
-        $names = parent::datetimeAttributes();
-        $names[] = 'datePaid';
-        $names[] = 'dateOrdered';
-
-        return $names;
+        $attributes = parent::datetimeAttributes();
+        $attributes[] = 'datePaid';
+        $attributes[] = 'dateOrdered';
+        return $attributes;
     }
 
     /**
@@ -719,6 +718,11 @@ class Order extends Element
         return $totalPrice - $totalPaid;
     }
 
+    /**
+     * Returns the total `purchase` and `captured` transactions belonging to this order.
+     *
+     * @return float
+     */
     public function getTotalPaid(): float
     {
         return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);

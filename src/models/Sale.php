@@ -122,11 +122,10 @@ class Sale extends Model
      */
     public function datetimeAttributes(): array
     {
-        $names = parent::datetimeAttributes();
-        $names[] = 'dateFrom';
-        $names[] = 'dateTo';
-
-        return $names;
+        $attributes = parent::datetimeAttributes();
+        $attributes[] = 'dateFrom';
+        $attributes[] = 'dateTo';
+        return $attributes;
     }
 
     /**
