@@ -317,7 +317,7 @@ class ProductQuery extends ElementQuery
         $this->_applyHasSalesParam();
 
         if (!$this->orderBy) {
-            $this->orderBy = 'postDate desc';
+            $this->orderBy = ['postDate' => SORT_DESC];
         }
 
         return parent::beforePrepare();
