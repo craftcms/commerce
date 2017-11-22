@@ -124,7 +124,7 @@ class OrdersController extends BaseCpController
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
             // If gateway adapter does no support backend cp payments.
-            if (!$gateway->cpPaymentsEnabled()) {
+            if (!$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
                 unset($gateways[$key]);
                 continue;
             }
