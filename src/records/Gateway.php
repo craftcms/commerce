@@ -40,7 +40,7 @@ class Gateway extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['name'], 'unique', 'targetAttribute' => ['name']]
+            [['handle'], 'unique', 'targetAttribute' => ['handle']]
         ];
     }
 }
