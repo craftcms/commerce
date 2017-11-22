@@ -19,6 +19,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Products Controller
@@ -525,18 +526,29 @@ class ProductsController extends BaseCpController
         $productType = $product->getType();
 
         if (!$productType) {
-            Craft::error('Attempting to preview a product that doesn’t have a type', __METHOD__);
-            throw new HttpException(404);
+            throw new ServerErrorHttpException('Product type not found.');
         }
 
-        Craft::$app->language = $product->getSiblings()->language;
+        $siteSettings = $productType->getSiteSettings();
+
+        if (!isset($siteSettings[$product->siteId]) || !$siteSettings[$product->siteId]->hasUrls) {
+            throw new ServerErrorHttpException('The product '.$product->id.' doesn\'t have a URL for the site '.$product->siteId.'.');
+        }
+
+        $site = Craft::$app->getSites()->getSiteById($product->siteId);
+
+        if (!$site) {
+            throw new ServerErrorHttpException('Invalid site ID: '.$product->siteId);
+        }
+
+        Craft::$app->language = $site->language;
 
         // Have this product override any freshly queried products with the same ID/site
         Craft::$app->getElements()->setPlaceholderElement($product);
 
         $this->getView()->getTwig()->disableStrictVariables();
 
-        return $this->renderTemplate($productType->template, [
+        return $this->renderTemplate($siteSettings[$product->siteId]->template, [
             'product' => $product
         ]);
     }
