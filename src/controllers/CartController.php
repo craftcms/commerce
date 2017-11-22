@@ -146,7 +146,13 @@ class CartController extends BaseFrontEndController
         $this->requirePostRequest();
 
         $plugin = Plugin::getInstance();
-        $this->_cart = $plugin->getCart()->getCart();
+
+        $this->_cart =  Plugin::getInstance()->getCart()->getCart();
+
+        // Saving current cart if it's new
+        if (!$this->_cart->id && !Craft::$app->getElements()->saveElement($this->_cart, false)) {
+            throw new Exception(Craft::t('commerce', 'Error creating new cart'));
+        }
 
         $this->_cart->setFieldValuesFromRequest('fields');
 
@@ -358,7 +364,7 @@ class CartController extends BaseFrontEndController
                 $ownAddress = false;
             }
 
-            // Todo shouldn't code terminate in this case, then, instead of continuing as normal
+            // TODO shouldn't code terminate in this case, then, instead of continuing as normal
             if (!$ownAddress) {
                 $error = Craft::t('commerce', 'Can not choose an address ID that does not belong to the customer.');
             }

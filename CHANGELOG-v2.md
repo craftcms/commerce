@@ -9,7 +9,8 @@
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
 - `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
-- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file. 
+- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file.
+- Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.

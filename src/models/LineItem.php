@@ -191,7 +191,7 @@ class LineItem extends Model
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             [
                 [
                     'optionsSignature',
@@ -210,6 +210,19 @@ class LineItem extends Model
                 ], 'required'
             ]
         ];
+
+        if($this->purchasableId)
+        {
+            /** @var PurchasableInterface $purchasable */
+            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            if($purchasable)
+            {
+                $purchasableRules = $purchasable->getLineItemRules($this);
+                array_merge($rules, $purchasableRules);
+            }
+        }
+
+        return $rules;
     }
 
     /**
@@ -349,8 +362,7 @@ class LineItem extends Model
      */
     public function getOnSale(): bool
     {
-        if (null !== $this->salePrice)
-        {
+        if (null !== $this->salePrice) {
             return CurrencyHelper::round($this->salePrice) !== CurrencyHelper::round($this->price);
         }
 

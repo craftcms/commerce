@@ -102,9 +102,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function validateLineItem(LineItem $lineItem)
+    public function getLineItemRules(LineItem $lineItem): array
     {
-        return true;
+        return [];
     }
 
     /**

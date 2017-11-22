@@ -93,15 +93,13 @@ interface PurchasableInterface
     public function populateLineItem(LineItem $lineItem);
 
     /**
-     * Validates this purchasable for the line item it is on. Called when Purchasable is added to the cart.
-     *
-     * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
+     * Any validation rules this purchasable required the line item to have.
      *
      * @param LineItem $lineItem
      *
-     * @return mixed
+     * @return array
      */
-    public function validateLineItem(LineItem $lineItem);
+    public function getLineItemRules(LineItem $lineItem): array;
 
     /**
      * Lets the system know if this purchasable has free shipping.

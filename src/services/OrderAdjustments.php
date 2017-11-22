@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\adjusters\Tax;
@@ -71,19 +72,23 @@ class OrderAdjustments extends Component
     }
 
     /**
-     * @param OrderAdjustment $model
+     * @param OrderAdjustment $orderAdjustment
+     * @param bool            $runValidation Whether the Order Adjustment should be validated
      *
      * @return bool
      * @throws Exception
      */
-    public function saveOrderAdjustment(OrderAdjustment $model): bool
+    public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
-        if ($model->id) {
-            $record = OrderAdjustmentRecord::findOne($model->id);
+
+        $isNewOrderAdjustment = !$orderAdjustment->id;
+
+        if ($orderAdjustment->id) {
+            $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                throw new Exception(\Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
+                    ['id' => $orderAdjustment->id]));
             }
         } else {
             $record = new OrderAdjustmentRecord();
@@ -100,20 +105,22 @@ class OrderAdjustments extends Component
             'sourceSnapshot'
         ];
         foreach ($fields as $field) {
-            $record->$field = $model->$field;
+            $record->$field = $orderAdjustment->$field;
         }
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        if (!$model->hasErrors()) {
-            $record->save(false);
-            $model->id = $record->id;
-
-            return true;
+        if ($runValidation && !$orderAdjustment->validate()) {
+            Craft::info('Order Adjustment not saved due to validation error.', __METHOD__);
+            return false;
         }
 
-        return false;
+        $record->save(false);
+
+        // Now that we have an ID, save it on the model
+        if ($isNewOrderAdjustment) {
+            $orderAdjustment->id = $record->id;
+        }
+
+        return true;
     }
 
     // Private Methods

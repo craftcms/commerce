@@ -21,6 +21,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
@@ -29,7 +30,6 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
-use craft\web\View;
 use yii\base\Exception;
 
 /**
@@ -450,12 +450,12 @@ class Order extends Element
      */
     public function recalculate()
     {
-        // Don't recalc the totals of completed orders.
+        // Don't recalculate the totals of completed orders.
         if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments()) {
             return;
         }
 
-        //reset adjustments
+        //clear adjustments
         $this->setAdjustments([]);
 
         foreach ($this->getLineItems() as $item) {
@@ -548,29 +548,17 @@ class Order extends Element
 
         $orderRecord->save(false);
 
-        $previousAdjustments = OrderAdjustmentRecord::find()
-            ->where(['orderId' => $this->id])
-            ->all();
+        $this->_updateAdjustments();
+        $this->_updateLineItems();
 
-        $newAdjustmentIds = [];
+        if($this->isCompleted) {
+            //creating order history record
+            $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
 
-        foreach ($this->getAdjustments() as $adjustment) {
-            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment);
-            $newAdjustmentIds[] = $adjustment->id;
-        }
-
-        foreach ($previousAdjustments as $previousAdjustment) {
-            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
-                $previousAdjustment->delete();
+            if ($hasNewStatus && !Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
+                Craft::error('Error saving order history after Order save.', __METHOD__);
+                throw new Exception('Error saving order history');
             }
-        }
-
-        //creating order history record
-        $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
-
-        if ($hasNewStatus && !Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
-            Craft::error('Error saving order history after Order save.', __METHOD__);
-            throw new Exception('Error saving order history');
         }
 
         return parent::afterSave($isNew);
@@ -624,13 +612,12 @@ class Order extends Element
     {
         $url = null;
 
-        try{
+        try {
             $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($this, $option);
-            if($pdf)
-            {
+            if ($pdf) {
                 $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }
-        }catch(\Exception $exception){
+        } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
             return null;
         }
@@ -1404,5 +1391,58 @@ class Order extends Element
             'commerce_orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
             'datePaid' => Craft::t('commerce', 'Date Paid')
         ];
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Updates the adjustments, including deleting the old ones.
+     *
+     * @return null
+     */
+    private function _updateAdjustments()
+    {
+        $previousAdjustments = OrderAdjustmentRecord::find()
+            ->where(['orderId' => $this->id])
+            ->all();
+
+        $newAdjustmentIds = [];
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            // Don't run validation as validation of the adjustments should happen before saving the order
+            Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+            $newAdjustmentIds[] = $adjustment->id;
+        }
+
+        foreach ($previousAdjustments as $previousAdjustment) {
+            if (!in_array($previousAdjustment->id, $newAdjustmentIds, false)) {
+                $previousAdjustment->delete();
+            }
+        }
+    }
+
+    /**
+     * Updates the line items, including deleting the old ones.
+     */
+    private function _updateLineItems()
+    {
+        $previousLineItems = LineItemRecord::find()
+            ->where(['orderId' => $this->id])
+            ->all();
+
+        $newLineItemIds = [];
+
+        foreach ($this->getLineItems() as $lineItem) {
+            // Don't run validation as validation of the line item should happen before saving the order
+            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            $newLineItemIds[] = $lineItem->id;
+        }
+
+        foreach ($previousLineItems as $previousLineItem) {
+            if (!in_array($previousLineItem->id, $newLineItemIds, false)) {
+                $previousLineItem->delete();
+            }
+        }
     }
 }

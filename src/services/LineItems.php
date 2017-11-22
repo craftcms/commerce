@@ -159,11 +159,12 @@ class LineItems extends Component
      * Save a line item.
      *
      * @param LineItem $lineItem The line item to save.
+     * @param bool $runValidation Whether the Line Item should be validated.
      *
      * @return bool
      * @throws \Throwable
      */
-    public function saveLineItem(LineItem $lineItem): bool
+    public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
     {
         $isNewLineItem = !$lineItem->id;
 
@@ -211,18 +212,9 @@ class LineItems extends Component
         $lineItemRecord->salePrice = $lineItem->salePrice;
         $lineItemRecord->total = $lineItem->total;
 
-        // Cant have discounts making things less than zero.
-        if ($lineItemRecord->total < 0) {
-            $lineItemRecord->total = 0;
-        }
-
-        $lineItemRecord->validate();
-
-        /** @var PurchasableInterface $purchasable */
-        $purchasable = Craft::$app->getElements()->getElementById($lineItem->purchasableId);
-
-        if ($purchasable) {
-            $purchasable->validateLineItem($lineItem);
+        if($runValidation && !$lineItemRecord->validate()){
+            Craft::info('Line Item not saved due to validation error.', __METHOD__);
+            return false;
         }
 
         $lineItem->addErrors($lineItemRecord->getErrors());
