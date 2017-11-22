@@ -301,11 +301,10 @@ class Order extends Element
      */
     public function datetimeAttributes(): array
     {
-        $names = parent::datetimeAttributes();
-        $names[] = 'datePaid';
-        $names[] = 'dateOrdered';
-
-        return $names;
+        $attributes = parent::datetimeAttributes();
+        $attributes[] = 'datePaid';
+        $attributes[] = 'dateOrdered';
+        return $attributes;
     }
 
     /**

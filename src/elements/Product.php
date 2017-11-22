@@ -698,11 +698,10 @@ class Product extends Element
      */
     public function datetimeAttributes(): array
     {
-        $names = parent::datetimeAttributes();
-        $names[] = 'postDate';
-        $names[] = 'expiryDate';
-
-        return $names;
+        $attributes = parent::datetimeAttributes();
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
+        return $attributes;
     }
 
     /**
@@ -787,7 +786,7 @@ class Product extends Element
             $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
 
             $sources[$key] = [
-                'key' => 'producttype:'.$productType->id,
+                'key' => $key,
                 'label' => $productType->name,
                 'data' => [
                     'handle' => $productType->handle,
