@@ -200,7 +200,7 @@ class CartController extends BaseFrontEndController
                             }
                         }
                     } else {
-                        if (!$this->_setOrderAddresses($shippingAddress, $shippingAddress)) {
+                        if (!$this->_setOrderAddresses($shippingAddress, $shippingAddress, $error)) {
                             $updateErrors['shippingAddress'] = Craft::t('commerce', 'Could not save the shipping address.');
                         } else {
                             $cartSaved = true;
