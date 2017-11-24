@@ -1051,7 +1051,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($this->getShippingMethodHandle());
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->getShippingMethodHandle());
     }
 
     /**
