@@ -19,7 +19,7 @@
                 {{ redirectInput('shop/checkout/addresses') }}
                 <label for="loginName">Email</label>
                 <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com"
-                       value="{{ craft.session.rememberedUsername }}">
+                       value="{{ craft.app.user.getRememberedUsername() }}">
 
                 <label for="password">Password</label>
                 <input id="password" class="u-full-width" type="password" name="password">
