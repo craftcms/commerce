@@ -190,7 +190,7 @@ class CartController extends BaseFrontEndController
                         } else {
                             $billingAddress = new Address();
                             $billingAddress->setAttributes($request->getParam('billingAddress'));
-                            $result = $this->_setOrderAddresses($shippingAddress, $billingAddress);
+                            $result = $this->_setOrderAddresses($shippingAddress, $billingAddress, $error);
                             if (!$result) {
                                 if ($billingAddress->hasErrors()) {
                                     $updateErrors['billingAddress'] = Craft::t('commerce', 'Could not save the billing address.');
@@ -226,9 +226,9 @@ class CartController extends BaseFrontEndController
                     $billingAddress->setAttributes($request->getParam('billingAddress'));
                 }
 
-                $result = $this->_setOrderAddresses($shippingAddress, $billingAddress);
+                $result = $this->_setOrderAddresses($shippingAddress, $billingAddress, $error);
             } else {
-                $result = $this->_setOrderAddresses($shippingAddress, $shippingAddress);
+                $result = $this->_setOrderAddresses($shippingAddress, $shippingAddress, $error);
             }
             if (!$result) {
                 if ($sameAddress) {
