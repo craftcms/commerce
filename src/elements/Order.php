@@ -291,7 +291,9 @@ class Order extends Element
             $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         }
 
-        $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+
+        $this->email = $customer->userId ? $customer->getEmail() : $this->email;
 
         return true;
     }
@@ -693,6 +695,8 @@ class Order extends Element
     {
         if ($this->getCustomer() && $this->getCustomer()->getUser()) {
             $this->setEmail($this->getCustomer()->getUser()->email);
+        } else {
+            $this->setEmail($this->email);
         }
 
         return $this->_email ?? '';
@@ -1051,7 +1055,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($this->getShippingMethodHandle());
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->getShippingMethodHandle());
     }
 
     /**
