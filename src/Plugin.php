@@ -121,10 +121,10 @@ class Plugin extends \craft\base\Plugin
      */
     public function getCpNavItem(): array
     {
-        $navItems = parent::getCpNavItem();
+        $ret = parent::getCpNavItem();
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $navItems['subnav']['orders'] = [
+            $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders'
             ];
@@ -132,7 +132,7 @@ class Plugin extends \craft\base\Plugin
 
         if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-                $navItems['subnav']['products'] = [
+                $ret['subnav']['products'] = [
                     'label' => Craft::t('commerce', 'Products'),
                     'url' => 'commerce/products'
                 ];
@@ -140,20 +140,20 @@ class Plugin extends \craft\base\Plugin
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $navItems['subnav']['promotions'] = [
+            $ret['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
 
         if (Craft::$app->user->identity->admin) {
-            $navItems['subnav']['settings'] = [
+            $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings'
             ];
         }
 
-        return $navItems;
+        return $ret;
     }
 
     // Protected Methods
