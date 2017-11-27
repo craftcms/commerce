@@ -121,19 +121,7 @@ class Plugin extends \craft\base\Plugin
      */
     public function getCpNavItem(): array
     {
-        $iconPath = $this->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
-
-        if (is_file($iconPath)) {
-            $iconSvg = file_get_contents($iconPath);
-        } else {
-            $iconSvg = false;
-        }
-
-        $navItems = [
-            'label' => Craft::t('commerce', 'Commerce'),
-            'url' => $this->id,
-            'iconSvg' => $iconSvg
-        ];
+        $navItems = parent::getCpNavItem();
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $navItems['subnav']['orders'] = [
