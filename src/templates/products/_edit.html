@@ -105,8 +105,8 @@
         {{ productFields.titleField(product) }}
 
         <div>
-            {% set allProductTab = productType.getProductFieldLayout().getTabs() %}
-            {% for tab in allProductTab %}
+            {% set tabs = productType.getProductFieldLayout().getTabs() %}
+            {% for tab in tabs %}
                 <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                     {% include "_includes/fields" with {
                     fields: tab.getFields(),
