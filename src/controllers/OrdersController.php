@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
@@ -98,8 +99,6 @@ class OrdersController extends BaseCpController
 
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
-
-        $this->getView()->registerAssetBundle(EditOrderAsset::class);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
