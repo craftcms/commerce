@@ -96,7 +96,7 @@ class PaymentSources extends Component
     }
 
     /**
-     * Returns all payment sources for a user by the user's id.
+     * Save a payment source.
      *
      * @param PaymentSource $paymentSource The payment source being saved.
      *
