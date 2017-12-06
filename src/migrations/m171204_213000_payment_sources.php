@@ -19,6 +19,7 @@ class m171204_213000_payment_sources extends Migration
             'userId' => $this->integer()->notNull(),
             'gatewayId' => $this->integer()->notNull(),
             'token' => $this->string()->notNull(),
+            'description' => $this->string(),
             'response' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

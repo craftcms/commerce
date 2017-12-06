@@ -4,8 +4,11 @@ namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * GatewayInterface defines the common interface to be implemented by gateway classes.
@@ -57,6 +60,16 @@ interface GatewayInterface extends SavableComponentInterface
      * @return RequestResponseInterface
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface;
+
+    /**
+     * Create a payment source from source data. Source data can be either credit
+     * card payment data or a token string.
+     *
+     * @param CreditCardPaymentForm|string $sourceData
+     *
+     * @return PaymentSource
+     */
+    public function createPaymentSource($sourceData): PaymentSource;
 
     /**
      * Make a purchase request.
@@ -112,6 +125,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsCompletePurchase(): bool;
+
+    /**
+     * Return true if gateway supports payment sources
+     *
+     * @return bool
+     */
+    public function supportsPaymentSources(): bool;
 
     /**
      * Return true if gateway supports purchase requests.

@@ -14,6 +14,7 @@
         {% if currentUser %}
           <a href="{{ url('shop/customer') }}">{{ "My Orders"|t }}</a>
           — <a href="{{ url('shop/customer/addresses') }}">{{ "My Addresses"|t }}</a>
+          — <a href="{{ url('shop/customer/cards') }}">{{ "My Cards"|t }}</a>
           — <a href="{{ logoutUrl }}">Logout</a>
         {% else %}
           {{ "Guest"|t }}

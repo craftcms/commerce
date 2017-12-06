@@ -16,6 +16,7 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\Discount;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentCurrency;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\models\ShippingMethod;
@@ -167,6 +168,18 @@ class Commerce
         $currencies = CommercePlugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
 
         return $currencies;
+    }
+
+    /**
+     * Get all payment sources for the current user.
+     *
+     * @return PaymentSource[]
+     */
+    public function getPaymentSources(): array
+    {
+        $userId = Craft::$app->getUser()->getId();
+
+        return CommercePlugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByUserId($userId);
     }
 
     /**
