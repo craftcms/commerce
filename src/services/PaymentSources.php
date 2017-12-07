@@ -158,10 +158,10 @@ class PaymentSources extends Component
                 $gateway->deletePaymentSource($record->token);
             }
 
-            $result = (bool)$record->delete();
+            return (bool)$record->delete();
         }
 
-        return $result;
+        return false;
     }
 
     // Private methods
