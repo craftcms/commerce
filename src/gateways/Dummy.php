@@ -91,6 +91,14 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
+    public function deletePaymentSource($token)
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
         return new DummyRequestResponse();

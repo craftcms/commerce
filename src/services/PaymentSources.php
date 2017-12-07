@@ -7,6 +7,7 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\models\Customer;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
+use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
 use yii\base\Component;
@@ -151,10 +152,16 @@ class PaymentSources extends Component
         $record = PaymentSourceRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $gateway = Commerce::getInstance()->getGateways()->getGatewayById($record->gatewayId);
+
+            if ($gateway) {
+                $gateway->deletePaymentSource($record->token);
+            }
+
+            $result = (bool)$record->delete();
         }
 
-        return false;
+        return $result;
     }
 
     // Private methods

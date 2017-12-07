@@ -72,6 +72,15 @@ interface GatewayInterface extends SavableComponentInterface
     public function createPaymentSource($sourceData): PaymentSource;
 
     /**
+     * Delete a payment source on the gateway by it's token.
+     *
+     * @param string $token
+     *
+     * @return mixed
+     */
+    public function deletePaymentSource($token);
+
+    /**
      * Make a purchase request.
      *
      * @param Transaction     $transaction The purchase transaction
