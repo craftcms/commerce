@@ -136,7 +136,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     abstract public function getPaymentFormHtml(array $params);
 
     /**
-     * Payment Form HTML
+     * Payment Form model
      *
      * @return BasePaymentForm|null
      */
