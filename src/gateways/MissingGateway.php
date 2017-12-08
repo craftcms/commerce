@@ -91,6 +91,14 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
+    public function deletePaymentSource($token)
+    {
+        throw new NotSupportedException();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
         throw new NotSupportedException();
