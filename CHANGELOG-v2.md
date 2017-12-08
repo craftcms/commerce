@@ -1,6 +1,7 @@
 
 ### Added
 - Added 'Copy' Reference tag to Product actions.
+- Added the possibility to save payment sources for users and use them when checking out.
 
 ### Changed
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
