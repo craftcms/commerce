@@ -179,7 +179,7 @@ class Commerce
     {
         $userId = Craft::$app->getUser()->getId();
 
-        return CommercePlugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByUserId($userId);
+        return CommercePlugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByUserId((int)$userId);
     }
 
     /**
