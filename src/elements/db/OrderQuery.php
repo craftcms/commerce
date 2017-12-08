@@ -485,6 +485,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
+            'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated'
         ]);
