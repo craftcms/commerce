@@ -8,6 +8,7 @@ use craft\commerce\errors\PaymentException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -127,9 +128,9 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
-        /** @var Gateway $gateway */
         $gateway = $order->getGateway();
 
+        /** @var Gateway $gateway */
         if (!$gateway) {
             $error = Craft::t('commerce', 'There is no gateway selected for this order.');
 
@@ -142,9 +143,31 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
-        // Get the payment method' gateway adapter's expected form model
+        // Get the gateway's payment form
         $paymentForm = $gateway->getPaymentFormModel();
-        $paymentForm->setAttributes($request->getBodyParams(), false);
+
+        $paymentSource = $order->getPaymentSource();
+
+        // If we have a payment source, populate from that.
+        if ($paymentSource) {
+            try {
+                $paymentForm->populateFromPaymentSource($paymentSource);
+            } catch (NotSupportedException $exception) {
+                $customError = Craft::t('commerce', 'Unable to make payment at this time.');
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($customError);
+                }
+
+                $session->setError($customError);
+                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+                return null;
+            }
+        } else {
+            // otherwise use POST data.
+            $paymentForm->setAttributes($request->getBodyParams(), false);
+        }
 
         // Allowed to update order's custom fields?
         if ($order->isActiveCart() || $user->checkPermission('commerce-manageOrders')) {
@@ -300,20 +323,5 @@ class PaymentsController extends BaseFrontEndController
         }
 
         return $this->redirect($transaction->order->cancelUrl);
-    }
-
-    /**
-     * Process return from off-site payment
-     *
-     * @throws Exception
-     * @throws HttpException
-     */
-    public function actionAcceptNotification()
-    {
-        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
-
-        Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT), __METHOD__);
-
-        Plugin::getInstance()->getPayments()->acceptNotification($hash);
     }
 }

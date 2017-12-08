@@ -3,6 +3,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
@@ -133,7 +134,10 @@ class Transactions extends Component
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
             $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
 
-            $transaction->gatewayId = $order->gatewayId;
+            /** @var Gateway $gateway */
+            $gateway = $order->getGateway();
+
+            $transaction->gatewayId = $gateway->id;
             $transaction->amount = $order->outstandingBalance();
             $transaction->currency = $currency->iso;
             $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
@@ -231,6 +235,23 @@ class Transactions extends Component
     {
         $result = $this->_createTransactionQuery()
             ->where(['hash' => $hash])
+            ->one();
+
+        return $result ? new Transaction($result) : null;
+    }
+
+    /**
+     * Get a transaction by it's reference and status
+     *
+     * @param string $reference the transaction reference
+     * @param string $status    the transaction status
+     *
+     * @return Transaction|null
+     */
+    public function getTransactionByReferenceAndStatus(string $reference, string $status)
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(['reference' => $reference, 'status' => $status])
             ->one();
 
         return $result ? new Transaction($result) : null;

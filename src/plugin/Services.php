@@ -18,6 +18,7 @@ use craft\commerce\services\OrderSettings;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
+use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -207,6 +208,16 @@ trait Services
     }
 
     /**
+     * Returns the payment sources service
+     *
+     * @return PaymentSources The payment sources service
+     */
+    public function getPaymentSources(): PaymentSources
+    {
+        return $this->get('paymentSources');
+    }
+
+    /**
      * Returns the products service
      *
      * @return Products The products service
@@ -384,6 +395,7 @@ trait Services
             'paymentMethods' => Gateways::class,
             'paymentCurrencies' => PaymentCurrencies::class,
             'payments' => Payments::class,
+            'paymentSources' => PaymentSources::class,
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,

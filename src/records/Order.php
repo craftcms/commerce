@@ -30,6 +30,7 @@ use yii\db\ActiveQueryInterface;
  * @property int                  $shippingAddressId
  * @property string               $shippingMethodHandle
  * @property int                  $gatewayId
+ * @property int                  $paymentSourceId
  * @property int                  $customerId
  * @property int                  $orderStatusId
  * @property LineItem[]           $lineItems
@@ -114,6 +115,14 @@ class Order extends ActiveRecord
     public function getGateway(): ActiveQueryInterface
     {
         return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getPaymentSource(): ActiveQueryInterface
+    {
+        return $this->hasOne(PaymentSource::class, ['id' => 'paymentSourceId']);
     }
 
     /**

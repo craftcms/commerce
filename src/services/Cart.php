@@ -271,6 +271,32 @@ class Cart extends Component
         return true;
     }
 
+    public function setPaymentSource(Order $cart, $paymentSourceId, &$error): bool
+    {
+        $user = Craft::$app->getUser();
+
+        if ($user->getIsGuest()) {
+            $error = Craft::t('commerce', 'You must be logged in to select a payment source.');
+        }
+
+        $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
+
+        if (!$source) {
+            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        }
+
+        // TODO maybe allow admins to do this?
+        if ($user->getId() !== $source->userId) {
+            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        }
+
+        $cart->gatewayId = null;
+        $cart->paymentSourceId = $paymentSourceId;
+        Craft::$app->getElements()->saveElement($cart);
+
+        return true;
+    }
+
     /**
      * @param Order  $cart
      * @param        $email

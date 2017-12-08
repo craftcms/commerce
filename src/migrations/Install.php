@@ -289,6 +289,7 @@ class Install extends Migration
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
+            'paymentSourceId', $this->integer(),
             'customerId' => $this->integer(),
             'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
@@ -351,6 +352,18 @@ class Install extends Migration
             'iso' => $this->string(3)->notNull(),
             'primary' => $this->boolean()->notNull()->defaultValue(false),
             'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%commerce_paymentsources}}', [
+            'id' => $this->primaryKey(),
+            'userId' => $this->integer()->notNull(),
+            'gatewayId' => $this->integer()->notNull(),
+            'token' => $this->string()->notNull(),
+            'description' => $this->string(),
+            'response' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -701,6 +714,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_orderstatus_emails}}');
         $this->dropTable('{{%commerce_orderstatuses}}');
         $this->dropTable('{{%commerce_paymentcurrencies}}');
+        $this->dropTable('{{%commerce_paymentsourcees}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
         $this->dropTable('{{%commerce_producttypes_sites}}');
@@ -866,10 +880,13 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'id'), '{{%commerce_orders}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'orderStatusId'), '{{%commerce_orders}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'gatewayId'), '{{%commerce_orders}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'paymentSourceId'), '{{%commerce_orders}}', 'paymentSourceId', '{{%commerce_paymentsources}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'shippingAddressId'), '{{%commerce_orders}}', 'shippingAddressId', '{{%commerce_addresses}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_ordersettings}}', 'fieldLayoutId'), '{{%commerce_ordersettings}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'emailId'), '{{%commerce_orderstatus_emails}}', 'emailId', '{{%commerce_emails}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'orderStatusId'), '{{%commerce_orderstatus_emails}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_paymentsources}}', 'gatewayId'), '{{%commerce_paymentsources}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_paymentsources}}', 'userId'), '{{%commerce_paymentsources}}', 'userId', '{{%users}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'id'), '{{%commerce_products}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'shippingCategoryId'), '{{%commerce_products}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', null, null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'taxCategoryId'), '{{%commerce_products}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, null);
@@ -932,6 +949,7 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_ordersettings}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_paymentsources}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_products}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_sites}}', $this);

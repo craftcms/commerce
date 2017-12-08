@@ -7,6 +7,8 @@ use craft\base\MissingComponentTrait;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
 use yii\base\NotSupportedException;
@@ -81,6 +83,14 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
+    public function createPaymentSource($sourceData): PaymentSource
+    {
+        throw new NotSupportedException();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
         throw new NotSupportedException();
@@ -130,6 +140,14 @@ class MissingGateway extends Gateway implements MissingComponentInterface
      * @inheritdoc
      */
     public function supportsCompletePurchase(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsPaymentSources(): bool
     {
         return false;
     }
