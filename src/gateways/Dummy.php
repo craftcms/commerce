@@ -88,12 +88,9 @@ class Dummy extends Gateway
         return $paymentSource;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function deletePaymentSource($token)
     {
-        return null;
+        return true;
     }
 
     /**
