@@ -237,6 +237,23 @@ class Transactions extends Component
     }
 
     /**
+     * Get a transaction by it's reference and status
+     *
+     * @param string $reference the transaction reference
+     * @param string $status    the transaction status
+     *
+     * @return Transaction|null
+     */
+    public function getTransactionByReferenceAndStatus(string $reference, string $status)
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(['reference' => $reference, 'status' => $status])
+            ->one();
+
+        return $result ? new Transaction($result) : null;
+    }
+
+    /**
      * Get a transaction by it's id.
      *
      * @param int $id the id of transaction
