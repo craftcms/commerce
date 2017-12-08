@@ -18,6 +18,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -165,6 +166,11 @@ class Order extends Element
     public $gatewayId;
 
     /**
+     * @var int|null Payment source ID
+     */
+    public $paymentSourceId;
+
+    /**
      * @var string Last IP
      */
     public $lastIp;
@@ -278,8 +284,8 @@ class Order extends Element
      */
     public function beforeValidate(): bool
     {
-        // Set default gateway
-        if (!$this->gatewayId) {
+        // Set default gateway if none present and no payment source selected
+        if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
             if (count($gateways)) {
                 $this->gatewayId = key($gateways);
@@ -532,6 +538,7 @@ class Order extends Element
         $orderRecord->shippingAddressId = $this->shippingAddressId;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
         $orderRecord->gatewayId = $this->gatewayId;
+        $orderRecord->paymentSourceId = $this->paymentSourceId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
         $orderRecord->totalPrice = $this->getTotalPrice();
@@ -1067,8 +1074,30 @@ class Order extends Element
      */
     public function getGateway()
     {
+        if ($this->paymentSourceId) {
+            $paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
+
+            if ($paymentSource) {
+                return Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
+            }
+        }
+
         if ($this->gatewayId) {
             return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the order's selected payment source if any.
+     *
+     * @return PaymentSource
+     */
+    public function getPaymentSource()
+    {
+        if ($this->paymentSourceId) {
+            return Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
         }
 
         return null;

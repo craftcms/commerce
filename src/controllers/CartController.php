@@ -291,6 +291,17 @@ class CartController extends BaseFrontEndController
             }
         }
 
+        // Set Payment source on Cart.
+        if (null !== $request->getParam('paymentSourceId')) {
+            $error = '';
+            $paymentSourceId = $request->getParam('paymentSourceId');
+            if (!$plugin->getCart()->setPaymentSource($this->_cart, $paymentSourceId, $error)) {
+                $updateErrors['$paymentSourceId'] = $error;
+            } else {
+                $cartSaved = true;
+            }
+        }
+
         // Set Shipping Method on Cart.
         if (null !== $request->getParam('shippingMethod')) {
             $error = '';

@@ -13,6 +13,8 @@
 			on method change.
 			#}
 
+			{% set storedCards = craft.commerce.paymentSources %}
+
 			{% if not craft.commerce.gateways|length %}
 				<p>No payment methods available.</p>
 			{% endif %}
@@ -25,26 +27,31 @@
 					{{ csrfInput() }}
 
 					<label for="gatewayId">Select a payment method:</label>
-					<select id="gatewayId" name="gatewayId" class="form-control">
-						{% if not cart.gatewayId %}<option value="">---</option>{% endif %}
+					<select id="paymentMethod" name="paymentMethod" class="form-control">
+						{% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
+
+						{% for storedCard in storedCards %}
+							<option value="card:{{ storedCard.id }}" {% if storedCard.id == cart.paymentSourceId %}selected{% endif %}>{{ storedCard.description }}</option>
+                        {% endfor %}
+						<option value="">---</option>
 						{% for id,name in craft.commerce.gateways %}
-							<option value="{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
+							<option value="gateway:{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
 						{% endfor %}
 					</select>
 
-					{% set currencies = craft.commerce.paymentCurrencies %}
-					{% if currencies|length > 1 %}
-					<select id="paymentCurrency" name="paymentCurrency"
-							class="form-control">
-						{% for currency in currencies %}
-							<option value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}selected{% endif %}>{{ currency.name }} {{  currency.iso }} - {{ cart.totalPrice|commerceCurrency(currency.iso,convert=true) }}</option>
-						{% endfor %}
-					</select>
-					{% endif %}
+                    {% set currencies = craft.commerce.paymentCurrencies %}
+                    {% if currencies|length > 1 %}
+						<select id="paymentCurrency" name="paymentCurrency"
+								class="form-control">
+                            {% for currency in currencies %}
+								<option value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}selected{% endif %}>{{ currency.name }} {{  currency.iso }} - {{ cart.totalPrice|commerceCurrency(currency.iso,convert=true) }}</option>
+                            {% endfor %}
+						</select>
+                    {% endif %}
 				</form>
 			{% endif %}
 
-			{% if cart.gatewayId %}
+			{% if cart.gatewayId or cart.paymentSourceId%}
 				<form method="POST" class="form-horizontal" id="paymentForm">
 					<input type="hidden" name="action" value="commerce/payments/pay"/>
 					{{ redirectInput('/shop/customer/order?number='~cart.number) }}
@@ -54,10 +61,11 @@
 					{{ csrfInput() }}
 
 					<fieldset>
-						{{ cart.gateway.getPaymentFormHtml({})|raw }}
+						{% if cart.gatewayId %}
+							{{ cart.gateway.getPaymentFormHtml({})|raw }}
+						{% endif %}
 
-						<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}
-						</button>
+						<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>
 					</fieldset>
 				</form>
 			{% endif %}
@@ -110,8 +118,28 @@
 	</div>
 
 	{% js %}
-		$('#gatewayId , #paymentCurrency').change(function(){
+		$('#paymentCurrency').change(function(){
 			$('form#gateway').submit();
+		});
+
+		$('#paymentMethod').change(function(ev){
+			$select = $(ev.currentTarget);
+
+			if ($select.val().length === 0) {
+				return;
+			}
+
+			var parts = $select.val().split(':');
+
+			var name = 'gatewayId';
+
+			if (parts[0] === 'card') {
+				name = 'paymentSourceId';
+			}
+
+			$select.prop('disabled', 'disabled');
+
+			$('form#gateway').append('<input type="hidden" name="' + name + '" value="' + parts[1] + '" />').submit();
 		});
 	{% endjs %}
 
