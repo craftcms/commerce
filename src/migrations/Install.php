@@ -289,6 +289,7 @@ class Install extends Migration
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
+            'paymentSourceId', $this->integer(),
             'customerId' => $this->integer(),
             'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
@@ -879,6 +880,7 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'id'), '{{%commerce_orders}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'orderStatusId'), '{{%commerce_orders}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', null, 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'gatewayId'), '{{%commerce_orders}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'SET NULL', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'paymentSourceId'), '{{%commerce_orders}}', 'paymentSourceId', '{{%commerce_paymentsources}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orders}}', 'shippingAddressId'), '{{%commerce_orders}}', 'shippingAddressId', '{{%commerce_addresses}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_ordersettings}}', 'fieldLayoutId'), '{{%commerce_ordersettings}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'emailId'), '{{%commerce_orderstatus_emails}}', 'emailId', '{{%commerce_emails}}', 'id', 'CASCADE', 'CASCADE');
