@@ -22,9 +22,12 @@ class PaymentSourcesController extends BaseFrontEndController
     // Public Methods
     // =========================================================================
 
+
     /**
+     * Adds a payment source.
+     *
      * @return Response
-     * @throws \Throwable
+     * @throws \Throwable if something went wrong when adding the payment source
      */
     public function actionAdd()
     {
@@ -102,6 +105,13 @@ class PaymentSourcesController extends BaseFrontEndController
         return $this->redirectToPostedUrl();
     }
 
+    /**
+     * Adds a payment source.
+     *
+     * @return Response
+     * @throws \Throwable if failed to delete the payment source on the gateway
+     * @throws \yii\web\BadRequestHttpException if user not logged in
+     */
     public function actionDelete()
     {
         $this->requirePostRequest();
@@ -130,6 +140,6 @@ class PaymentSourcesController extends BaseFrontEndController
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete the payment source.'));
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 }
