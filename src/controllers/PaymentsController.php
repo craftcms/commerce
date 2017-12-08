@@ -301,19 +301,4 @@ class PaymentsController extends BaseFrontEndController
 
         return $this->redirect($transaction->order->cancelUrl);
     }
-
-    /**
-     * Process return from off-site payment
-     *
-     * @throws Exception
-     * @throws HttpException
-     */
-    public function actionAcceptNotification()
-    {
-        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
-
-        Craft::info(json_encode($_REQUEST, JSON_PRETTY_PRINT), __METHOD__);
-
-        Plugin::getInstance()->getPayments()->acceptNotification($hash);
-    }
 }
