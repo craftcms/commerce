@@ -88,7 +88,7 @@ class Dummy extends Gateway
         return $paymentSource;
     }
 
-    public function deletePaymentSource($token)
+    public function deletePaymentSource($token): bool
     {
         return true;
     }

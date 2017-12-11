@@ -7,7 +7,6 @@ use craft\base\MissingComponentTrait;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
@@ -91,7 +90,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token)
+    public function deletePaymentSource($token): bool
     {
         throw new NotSupportedException();
     }
