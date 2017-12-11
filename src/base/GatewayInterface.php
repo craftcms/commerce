@@ -73,9 +73,9 @@ interface GatewayInterface extends SavableComponentInterface
      *
      * @param string $token
      *
-     * @return mixed
+     * @return bool
      */
-    public function deletePaymentSource($token);
+    public function deletePaymentSource($token): bool;
 
     /**
      * Make a purchase request.
