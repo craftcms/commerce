@@ -77,13 +77,13 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource($sourceData): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource
     {
         $paymentSource = new PaymentSource();
         $paymentSource->gatewayId = $this->id;
         $paymentSource->token = StringHelper::randomString();
         $paymentSource->response = '';
-        $paymentSource->description = 'Dummy source';
+        $paymentSource->description = 'Dummy payment source';
 
         return $paymentSource;
     }

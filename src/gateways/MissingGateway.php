@@ -83,7 +83,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function createPaymentSource($sourceData): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource
     {
         throw new NotSupportedException();
     }
