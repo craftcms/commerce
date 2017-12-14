@@ -148,9 +148,11 @@ class PaymentsController extends BaseFrontEndController
 
         $paymentSource = $order->getPaymentSource();
 
-        // If we have a payment source, populate from that.
+        $paymentForm->setAttributes($request->getBodyParams(), false);
+        // If we have a payment source, populate from that as well.
         if ($paymentSource) {
             try {
+
                 $paymentForm->populateFromPaymentSource($paymentSource);
             } catch (NotSupportedException $exception) {
                 $customError = Craft::t('commerce', 'Unable to make payment at this time.');
@@ -164,9 +166,6 @@ class PaymentsController extends BaseFrontEndController
 
                 return null;
             }
-        } else {
-            // otherwise use POST data.
-            $paymentForm->setAttributes($request->getBodyParams(), false);
         }
 
         // Allowed to update order's custom fields?
