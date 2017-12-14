@@ -63,6 +63,8 @@
 					<fieldset>
 						{% if cart.gatewayId %}
 							{{ cart.gateway.getPaymentFormHtml({})|raw }}
+						{% else %}
+                            {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
 						{% endif %}
 
 						<button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>
