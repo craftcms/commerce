@@ -31,13 +31,6 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @event GatewayRequestEvent The event that is triggered before a gateway request is sent
-     *
-     * You may set [[GatewayRequestEvent::isValid]] to `false` to prevent the request from being sent.
-     */
-    const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
-
-    /**
      * @event TransactionEvent The event that is triggered before a transaction is captured
      */
     const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
@@ -56,16 +49,6 @@ class Payments extends Component
      * @event TransactionEvent The event that is triggered after a transaction is refunded
      */
     const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
-
-    /**
-     * @event ItemBagEvent The event that is triggered after an item bag is created
-     */
-    const EVENT_AFTER_CREATE_ITEM_BAG = 'afterCreateItemBag';
-
-    /**
-     * @event BuildPaymentRequestEvent The event that is triggered after a payment request is being built
-     */
-    const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
 
     /**
      * @event ProcessPaymentEvent The event is triggered before a payment is being processed

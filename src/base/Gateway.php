@@ -29,28 +29,6 @@ use craft\helpers\UrlHelper;
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
-    // Constants
-    // =========================================================================
-
-    // TODO itembags are totally an Omnipay thing.
-    // TODO make sure Stripe implements non-omnipay events.
-    /**
-     * @event ItemBagEvent The event that is triggered after an item bag is created
-     */
-    const EVENT_AFTER_CREATE_ITEM_BAG = 'afterCreateItemBag';
-
-    /**
-     * @event GatewayRequestEvent The event that is triggered before a gateway request is sent
-     *
-     * You may set [[GatewayRequestEvent::isValid]] to `false` to prevent the request from being sent.
-     */
-    const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
-
-    /**
-     * @event SendPaymentRequestEvent The event that is triggered right before a payment request is being sent
-     */
-    const EVENT_BEFORE_SEND_PAYMENT_REQUEST = 'beforeSendPaymentRequest';
-
     // Traits
     // =========================================================================
 
