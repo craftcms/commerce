@@ -81,10 +81,10 @@ class PaymentSources extends Component
      * @param BasePaymentForm  $paymentForm       The payment form to use
      * @param string           $sourceDescription The payment form to use
      *
-     * @return bool The result
-     * @throws \Throwable if something went wrong.
+     * @return bool|PaymentSource The saved payment source.
+     * @throws Exception if unable to create the payment source
      */
-    public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): bool
+    public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null)
     {
         $source = $gateway->createPaymentSource($paymentForm);
         $source->userId = $userId;
@@ -93,7 +93,7 @@ class PaymentSources extends Component
             $source->description = $sourceDescription;
         }
 
-        return $this->savePaymentSource($source);
+        return $this->savePaymentSource($source) ? $source : false;
     }
 
     /**

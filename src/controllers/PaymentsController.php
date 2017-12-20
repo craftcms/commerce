@@ -145,14 +145,24 @@ class PaymentsController extends BaseFrontEndController
 
         // Get the gateway's payment form
         $paymentForm = $gateway->getPaymentFormModel();
-
-        $paymentSource = $order->getPaymentSource();
-
         $paymentForm->setAttributes($request->getBodyParams(), false);
+
+        try {
+            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
+                $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
+                $plugin->getCart()->setPaymentSource($order, $paymentSource->id, $error);
+
+            } else {
+                $paymentSource = $order->getPaymentSource();
+            }
+        } catch (Exception $exception) {
+            // Just attempt to pay by card, then.
+            $paymentSource = null;
+        }
+
         // If we have a payment source, populate from that as well.
         if ($paymentSource) {
             try {
-
                 $paymentForm->populateFromPaymentSource($paymentSource);
             } catch (NotSupportedException $exception) {
                 $customError = Craft::t('commerce', 'Unable to make payment at this time.');
