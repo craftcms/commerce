@@ -45,11 +45,13 @@ class PaymentSource extends ActiveRecord
 
 
     /**
-     * @return ActiveQueryInterface
+     * Return the payment source's owner user.
+     *
+     * @return ActiveQueryInterface The relational query object.
      */
     public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(User::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'userId']);
     }
 
     /**
