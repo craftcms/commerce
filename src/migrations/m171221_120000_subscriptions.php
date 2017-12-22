@@ -17,7 +17,6 @@ class m171221_120000_subscriptions extends Migration
 
         $this->createTable('{{%commerce_plans}}', [
             'id' => $this->primaryKey(),
-            'fieldLayoutId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
@@ -61,7 +60,6 @@ class m171221_120000_subscriptions extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'paymentAmount', false), '{{%commerce_subscriptions}}', 'paymentAmount', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'expiryDate', false), '{{%commerce_subscriptions}}', 'expiryDate', false);
 
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_plans}}', 'fieldLayoutId'), '{{%commerce_plans}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_plans}}', 'gatewayId'), '{{%commerce_plans}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
 
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'userId'), '{{%commerce_subscriptions}}', 'userId', '{{%users}}', 'id', 'CASCADE', null);

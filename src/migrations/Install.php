@@ -371,7 +371,6 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_plans}}', [
             'id' => $this->primaryKey(),
-            'fieldLayoutId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
@@ -934,7 +933,6 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_orderstatus_emails}}', 'orderStatusId'), '{{%commerce_orderstatus_emails}}', 'orderStatusId', '{{%commerce_orderstatuses}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_paymentsources}}', 'gatewayId'), '{{%commerce_paymentsources}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_paymentsources}}', 'userId'), '{{%commerce_paymentsources}}', 'userId', '{{%users}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_plans}}', 'fieldLayoutId'), '{{%commerce_plans}}', 'fieldLayoutId', '{{%fieldlayouts}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_plans}}', 'gatewayId'), '{{%commerce_plans}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'id'), '{{%commerce_products}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_products}}', 'shippingCategoryId'), '{{%commerce_products}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', null, null);
