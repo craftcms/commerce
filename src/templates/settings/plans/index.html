@@ -1,0 +1,83 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+    <h2>{{ "General Settings"|t('commerce') }}</h2>
+
+    <form action="" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="commerce/settings/save-settings">
+        {{ redirectInput('commerce/settings') }}
+        {{ csrfInput() }}
+
+        {{ forms.textField({
+            label: 'Status Email Address'|t('commerce'),
+            instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
+            id: 'emailSenderAddress',
+            name: 'settings[emailSenderAddress]',
+            placeholder: settings.emailSenderAddressPlaceholder,
+            value: settings.emailSenderAddress,
+            errors: settings.getErrors('emailSenderAddress'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'From Name'|t('commerce'),
+            instructions: 'The "From" name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
+            id: 'emailSenderName',
+            name: 'settings[emailSenderName]',
+            placeholder: settings.emailSenderNamePlaceholder,
+            value: settings.emailSenderName,
+            errors: settings.getErrors('emailSenderName'),
+        }) }}
+
+        {{ forms.selectField({
+            label: "Weight Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product weights."|t('commerce'),
+            name: 'settings[weightUnits]',
+            value: settings.weightUnits,
+            options: settings.getWeightUnitsOptions(),
+            errors: settings.getErrors('weightUnits'),
+            required: true,
+        }) }}
+
+        {{ forms.selectField({
+            label: "Dimension Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product dimensions."|t('commerce'),
+            name: 'settings[dimensionUnits]',
+            value: settings.dimensionUnits,
+            options: settings.getDimensionUnits(),
+            errors: settings.getErrors('dimensionUnits'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order PDF Template"|t('commerce'),
+            instructions: "The path to the template used for generating order PDFs."|t('commerce'),
+            id: 'orderPdfPath',
+            name: 'settings[orderPdfPath]',
+            value: settings.orderPdfPath,
+            errors: settings.getErrors('orderPdfPath'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order PDF Filename Format"|t('commerce'),
+            instructions: "What the order PDF filenames should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t('commerce', {
+                ex1: '<code>{number}</code>',
+                ex2: '<code>{myOrderCustomField}</code>'
+            }),
+            id: 'orderPdfFilenameFormat',
+            name: 'settings[orderPdfFilenameFormat]',
+            value: settings.orderPdfFilenameFormat,
+            class: 'code ltr',
+            errors: settings.getErrors('orderPdfFilenameFormat'),
+            required: true,
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ "Save"|t('commerce') }}">
+    </form>
+
+{% endblock %}

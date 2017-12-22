@@ -59,11 +59,9 @@ class PaymentSource extends ActiveRecord
      */
     public function rules()
     {
-
         return [
             [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
             [['gatewayId', 'userId', 'token', 'description'], 'required']
         ];
-
     }
 }

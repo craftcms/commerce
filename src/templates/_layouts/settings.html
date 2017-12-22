@@ -12,6 +12,9 @@
 'paymentcurrencies': { title: "Payment Currencies"|t('commerce') },
 'products-heading': { heading: "Products"|t('commerce') },
 'producttypes': { title: "Product Types"|t('commerce') },
+'subscriptions-heading': { heading: "Subscriptions"|t('commerce') },
+'plans': { title: "Subscription plans"|t('commerce') },
+'plans/fields': { title: "Fields"|t('commerce') },
 'regions-heading': { heading: "Regions"|t('commerce') },
 'countries': { title: "Countries"|t('commerce') },
 'states': { title: "States"|t('commerce') },
@@ -26,7 +29,10 @@
 'shipping-methods': { heading: "Shipping methods"|t }
 } %}
 
-{% set selectedItem = craft.app.request.getSegment(3) %}
+{% if selectedItem is not defined %}
+    {% set selectedItem = craft.app.request.getSegment(3) %}
+{% endif %}
+
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
 
 

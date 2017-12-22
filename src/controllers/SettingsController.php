@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\Plan;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
 use yii\web\Response;
@@ -20,14 +21,18 @@ class SettingsController extends BaseAdminController
 
     /**
      * Commerce Settings Index
+     *
+     * @return Response
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
-        $this->redirect('commerce/settings/general');
+        return $this->redirect('commerce/settings/general');
     }
 
     /**
      * Commerce Settings Form
+     *
+     * @return Response
      */
     public function actionEdit(): Response
     {
@@ -41,9 +46,11 @@ class SettingsController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
+     * Save settings
+     *
+     * @return Response
      */
-    public function actionSaveSettings()
+    public function actionSaveSettings(): Response
     {
         $this->requirePostRequest();
         $postData = Craft::$app->getRequest()->getParam('settings');
@@ -55,13 +62,13 @@ class SettingsController extends BaseAdminController
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
-        $this->redirectToPostedUrl();
-
-        return null;
+        return $this->redirectToPostedUrl();
     }
 
     /**
+     * Save stock location
      *
+     * @return Response|null
      */
     public function actionSaveStockLocation()
     {
@@ -91,14 +98,38 @@ class SettingsController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
-            $this->redirectToPostedUrl();
+            return $this->redirectToPostedUrl();
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
         }
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
-
-        $this->redirectToPostedUrl();
     }
+
+    /**
+     * Saves the field layout.
+     *
+     * @return Response|null
+     */
+    public function actionSavePlanFieldLayout()
+    {
+        $this->requirePostRequest();
+        $this->requireAdmin();
+
+        // Set the field layout
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout->type = Plan::class;
+
+        if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
+            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save subscription plan fields.'));
+
+            return null;
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('app', 'Subscription plan fields saved.'));
+
+        return $this->redirectToPostedUrl();
+    }
+
 }

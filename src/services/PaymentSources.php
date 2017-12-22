@@ -53,7 +53,7 @@ class PaymentSources extends Component
     }
 
     /**
-     * Returns a payment source by it's id.
+     * Returns a payment source by its id.
      *
      * @param int $sourceId The source id.
 
