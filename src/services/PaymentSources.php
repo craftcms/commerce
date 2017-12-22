@@ -14,7 +14,7 @@ use yii\base\Component;
 use yii\base\Exception;
 
 /**
- * Customer service.
+ * Payment Sources service.
  *
  * @property Customer         $savedCustomer
  * @property array|Customer[] $allCustomers
@@ -27,11 +27,6 @@ use yii\base\Exception;
  */
 class PaymentSources extends Component
 {
-    // Constants
-    // =========================================================================
-
-    const SESSION_CUSTOMER = 'commerce_customer_cookie';
-
     // Public Methods
     // =========================================================================
 
@@ -104,7 +99,7 @@ class PaymentSources extends Component
      * @return bool Whether the payment source was saved successfully
      * @throws Exception if payment source not found by id.
      */
-    public function savePaymentSource(PaymentSource $paymentSource)
+    public function savePaymentSource(PaymentSource $paymentSource): bool
     {
         if ($paymentSource->id) {
             $record = PaymentSourceRecord::findOne($paymentSource->id);

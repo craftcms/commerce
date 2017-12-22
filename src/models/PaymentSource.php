@@ -58,7 +58,7 @@ class PaymentSource extends Model
     private $_user;
 
     /**
-     * @var GatewayInterface|null $_user
+     * @var GatewayInterface|null $_gateway
      */
     private $_gateway;
 
