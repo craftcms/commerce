@@ -16,12 +16,6 @@ use yii\base\Exception;
 /**
  * Payment Sources service.
  *
- * @property Customer         $savedCustomer
- * @property array|Customer[] $allCustomers
- * @property mixed            $lastUsedAddresses
- * @property int              $customerId
- * @property Customer         $customer
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
