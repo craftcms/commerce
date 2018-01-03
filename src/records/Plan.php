@@ -13,11 +13,9 @@ use yii\db\ActiveQueryInterface;
  * @property string               $name
  * @property string               $handle
  * @property string               $reference
- * @property string               $billingPeriod
- * @property int                  $billingPeriodCount
- * @property float                $paymentAmount
- * @property float                $setupCost
- * @property string               $currency
+ * @property bool                 $enabled
+ * @property bool                 $isArchived
+ * @property \DateTime            $dateArchived
  * @property string               $response
  * @property ActiveQueryInterface $gateway
  *
@@ -53,8 +51,8 @@ class Plan extends ActiveRecord
     public function rules()
     {
         return [
-            [['reference'], 'unique', 'targetAttribute' => ['gatewayId', 'reference']],
-            [['gatewayId', 'reference', 'name', 'handle', 'billingPeriod', 'billingPeriodCount', 'paymentAmount', 'currency'], 'required']
+            [['handle'], 'unique'],
+            [['gatewayId', 'reference', 'name', 'handle', 'response'], 'required']
         ];
     }
 

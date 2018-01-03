@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
@@ -85,6 +86,25 @@ class Gateways extends Component
         }
 
         return $gateways;
+    }
+
+    /**
+     * Get all subscription gateways.
+     *
+     * @return array
+     */
+    public function getAllSubscriptionGateways(): array
+    {
+        $gateways = $this->getAllGateways();
+        $subscriptionGateways = [];
+
+        foreach ($gateways as $gateway) {
+            if ($gateway instanceof SubscriptionGateway) {
+                $subscriptionGateways[] = $gateway;
+            }
+        }
+
+        return $subscriptionGateways;
     }
 
     /**

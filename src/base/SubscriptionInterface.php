@@ -18,19 +18,21 @@ interface SubscriptionInterface extends SavableComponentInterface
 {
     // Public Methods
     // =========================================================================
-    /**
-     * Whether this gateway supports creating, updating and deleting plans on the gateway.
-     *
-     * @return bool
-     */
-    public function supportsPlanOperations(): bool;
 
     /**
-     * Delete a subscription plan on the gateway.
+     * Fetch a subscription plan by its reference
      *
-     * @param string $reference the plan reference.
+     * @param string $reference
      *
-     * @return mixed
+     * @return string
      */
-    public function deletePlan(string $reference);
+    public function getSubscriptionPlanByReference(string $reference): string;
+
+    /**
+     * Get all subscription plans as array containing hashes with `reference` and `name` as keys.
+     *
+     * @return array
+     */
+    public function getSubscriptionPlans(): array;
+
 }

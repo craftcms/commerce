@@ -3,13 +3,16 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionInterface;
-use craft\commerce\models\Plan;
+use craft\commerce\base\Plan;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
+use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Plans service.
@@ -35,7 +38,11 @@ class Plans extends Component
         $sources = [];
 
         foreach ($results as $result) {
-            $sources[] = new Plan($result);
+            try {
+                $sources[] = $this->_populatePlan($result);
+            } catch (InvalidConfigException $exception) {
+                continue; // Just skip this
+            }
         }
 
         return $sources;
@@ -47,6 +54,7 @@ class Plans extends Component
      * @param int $planId The plan id.
      *
      * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanById(int $planId)
     {
@@ -54,7 +62,7 @@ class Plans extends Component
             ->where(['id' => $planId])
             ->one();
 
-        return $result ? new Plan($result) : null;
+        return $result ? $this->_populatePlan($result) : null;
     }
 
     /**
@@ -63,6 +71,7 @@ class Plans extends Component
      * @param string $handle the plan handle
      *
      * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanByHandle(string $handle)
     {
@@ -70,7 +79,7 @@ class Plans extends Component
             ->where(['handle' => $handle])
             ->one();
 
-        return $result ? new Plan($result) : null;
+        return $result ? $this->_populatePlan($result) : null;
     }
 
     /**
@@ -79,7 +88,7 @@ class Plans extends Component
      * @param Plan $plan The payment source being saved.
      *
      * @return bool Whether the plan was saved successfully
-     * @throws Exception if payment source not found by id.
+     * @throws InvalidConfigException if subscription plan not found by id.
      */
     public function savePlan(Plan $plan)
     {
@@ -87,8 +96,7 @@ class Plans extends Component
             $record = PlanRecord::findOne($plan->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No subscription plan exists with the ID “{id}”',
-                    ['id' => $plan->id]));
+                throw new InvalidConfigException(Craft::t('commerce', 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
             }
         } else {
             $record = new PlanRecord();
@@ -98,12 +106,9 @@ class Plans extends Component
         $record->name = $plan->name;
         $record->handle = $plan->handle;
         $record->reference = $plan->reference;
-        $record->billingPeriod = $plan->billingPeriod;
-        $record->billingPeriodCount = $plan->billingPeriodCount;
-        $record->paymentAmount = $plan->paymentAmount;
-        $record->setupCost = $plan->setupCost;
-        $record->currency = $plan->currency;
         $record->response = $plan->response;
+        $record->enabled = $plan->enabled;
+        $record->isArchived = $plan->isArchived;
 
         $record->validate();
         $plan->addErrors($record->getErrors());
@@ -122,28 +127,21 @@ class Plans extends Component
     }
 
     /**
-     * Delete a payment source by it's id.
+     * Archive a subscription plan by it's id.
      *
      * @param int $id The id
      *
      * @return bool
-     * @throws \Throwable in case something went wrong when deleting.
+     * @throws InvalidConfigException
      */
-    public function deletePlanById($id): bool
+    public function archivePlanById(int $id): bool
     {
-        $record = PlanRecord::findOne($id);
+        $plan = $this->getPlanById($id);
 
-        if ($record) {
-            $gateway = Commerce::getInstance()->getGateways()->getGatewayById($record->gatewayId);
+        $plan->isArchived = true;
+        $plan->dateArchived = Db::prepareDateForDb(new \DateTime());
 
-            if ($gateway instanceof SubscriptionInterface && $gateway->supportsPlanOperations()) {
-                $gateway->deletePlan($record->reference);
-            }
-
-            return (bool)$record->delete();
-        }
-
-        return false;
+        return $this->savePlan($plan);
     }
 
     // Private methods
@@ -163,14 +161,33 @@ class Plans extends Component
                 'name',
                 'handle',
                 'reference',
-                'billingPeriod',
-                'billingPeriodCount',
-                'paymentAmount',
-                'setupCost',
-                'currency',
                 'response',
+                'enabled'
             ])
             ->from(['{{%commerce_plans}}']);
     }
 
+    /**
+     * Populate a payment plan model from database table row.
+     *
+     * @param array $result
+     *
+     * @return Plan
+     * @throws InvalidConfigException if the gateway does not support subscriptions
+     */
+    private function _populatePlan(array $result): Plan
+    {
+        $gateway = Commerce::getInstance()->getGateways()->getGatewayById($result['gatewayId']);
+
+        if (!$gateway instanceof SubscriptionGateway) {
+            throw new InvalidConfigException('This gateway does not support subscriptions');
+        }
+
+        $plan = $gateway->getPlanModel();
+
+        $plan->setAttributes($result, false);
+
+        return $plan;
+
+    }
 }

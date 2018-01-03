@@ -19,6 +19,7 @@ use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
+use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -30,6 +31,7 @@ use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
 use craft\commerce\services\States;
+use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
@@ -218,6 +220,16 @@ trait Services
     }
 
     /**
+     * Returns the payment sources service
+     *
+     * @return Plans The subscription plans service
+     */
+    public function getPlans(): Plans
+    {
+        return $this->get('plans');
+    }
+
+    /**
      * Returns the products service
      *
      * @return Products The products service
@@ -318,6 +330,16 @@ trait Services
     }
 
     /**
+     * Returns the subscriptions service
+     *
+     * @return Subscriptions The subscriptions service
+     */
+    public function getSubscriptions(): Subscriptions
+    {
+        return $this->get('subscriptions');
+    }
+
+    /**
      * Returns the taxCategories service
      *
      * @return TaxCategories The taxCategories service
@@ -396,6 +418,7 @@ trait Services
             'paymentCurrencies' => PaymentCurrencies::class,
             'payments' => Payments::class,
             'paymentSources' => PaymentSources::class,
+            'plans' => Plans::class,
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
@@ -407,6 +430,7 @@ trait Services
             'shippingCategories' => ShippingCategories::class,
             'shippingZones' => ShippingZones::class,
             'states' => States::class,
+            'subscriptions' => Subscriptions::class,
             'taxCategories' => TaxCategories::class,
             'taxRates' => TaxRates::class,
             'taxZones' => TaxZones::class,
