@@ -123,7 +123,7 @@ class PlansController extends BaseAdminController
         $plan->name = $request->getParam('name');
         $plan->handle = $request->getParam('handle');
         $plan->reference = $reference;
-        $plan->enabled = $request->getParam('enabled');
+        $plan->enabled = (bool) $request->getParam('enabled');
         $plan->response = $response;
         $plan->isArchived = false;
 
