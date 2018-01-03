@@ -375,12 +375,10 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'reference' => $this->string()->notNull(),
-            'billingPeriod' => $this->enum('billingPeriod', ['day', 'week', 'month', 'year'])->notNull(),
-            'billingPeriodCount' => $this->integer()->notNull(),
-            'paymentAmount' => $this->decimal(14, 4)->defaultValue(0),
-            'setupCost' => $this->decimal(14, 4)->defaultValue(0),
-            'currency' => $this->string(),
+            'enabled' => $this->boolean()->notNull(),
             'response' => $this->text(),
+            'isArchived' => $this->boolean()->notNull(),
+            'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -806,6 +804,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateFrom', false), '{{%commerce_discounts}}', 'dateFrom', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'dateTo', false), '{{%commerce_discounts}}', 'dateTo', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'name', true), '{{%commerce_gateways}}', 'name', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'handle', true), '{{%commerce_gateways}}', 'handle', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true), '{{%commerce_lineitems}}', 'orderId,purchasableId,optionsSignature', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'purchasableId', false), '{{%commerce_lineitems}}', 'purchasableId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_lineitems}}', 'taxCategoryId', false), '{{%commerce_lineitems}}', 'taxCategoryId', false);
@@ -828,8 +827,7 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_paymentcurrencies}}', 'iso', true), '{{%commerce_paymentcurrencies}}', 'iso', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'gatewayId', false), '{{%commerce_plans}}', 'gatewayId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'handle', true), '{{%commerce_plans}}', 'handle', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'reference', true), '{{%commerce_plans}}', 'reference', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'paymentAmount', false), '{{%commerce_plans}}', 'paymentAmount', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'reference', false), '{{%commerce_plans}}', 'reference', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'typeId', false), '{{%commerce_products}}', 'typeId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'postDate', false), '{{%commerce_products}}', 'postDate', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_products}}', 'expiryDate', false), '{{%commerce_products}}', 'expiryDate', false);
@@ -963,7 +961,7 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingzone_states}}', 'stateId'), '{{%commerce_shippingzone_states}}', 'stateId', '{{%commerce_states}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_states}}', 'countryId'), '{{%commerce_states}}', 'countryId', '{{%commerce_countries}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'userId'), '{{%commerce_subscriptions}}', 'userId', '{{%users}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'planId'), '{{%commerce_subscriptions}}', 'planId', '{{%commerce_plans}}', 'id', 'CASCADE', null);
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'planId'), '{{%commerce_subscriptions}}', 'planId', '{{%commerce_plans}}', 'id', 'RESTRICT', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'gatewayId'), '{{%commerce_subscriptions}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxrates}}', 'taxCategoryId'), '{{%commerce_taxrates}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', null, 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_taxrates}}', 'taxZoneId'), '{{%commerce_taxrates}}', 'taxZoneId', '{{%commerce_taxzones}}', 'id', null, 'CASCADE');
