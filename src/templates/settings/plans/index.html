@@ -15,6 +15,7 @@
                 <th scope="col">{{ "Handle"|t('commerce') }}</th>
                 <th scope="col">{{ "Gateway"|t('commerce') }}</th>
                 <th scope="col">{{ "Active subscriptions"|t('commerce') }}</th>
+                <th scope="col">{{ "Enabled?"|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -26,6 +27,7 @@
                     <td data-title="{{ 'Handle'|t('commerce') }}"  class="code">{{ plan.handle }}</td>
                     <td data-title="{{ 'Gateway'|t('commerce') }}">{{ plan.gateway.name }}</td>
                     <td data-title="{{ 'Active subscriptions'|t('commerce') }}">{{ plan.subscriptionCount }}</td>
+                    <td data-title="{{ 'Enabled'|t('commerce') }}">{{ plan.enabled ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
                     <td class="thin"><a class="delete icon" title="{{ 'Archive'|t('commerce') }}" role="button"></a></td>
                 </tr>
             {% endfor %}
