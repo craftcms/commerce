@@ -26,6 +26,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\errors\DefaultOrderStatusNotFoundException;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -377,9 +378,11 @@ class Order extends Element
     }
 
     /**
-     * Completes an order
-     *
      * @return bool
+     * @throws DefaultOrderStatusNotFoundException
+     * @throws Exception
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
      */
     public function markAsComplete(): bool
     {
@@ -389,7 +392,15 @@ class Order extends Element
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
-        $this->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
+        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
+
+        // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
+        if ($orderStatus && $orderStatus->id)
+        {
+            $this->orderStatusId = $orderStatus->id;
+        }else{
+            throw new DefaultOrderStatusNotFoundException('Could not find a valid default order status.');
+        }
 
         // Raising the 'beforeCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_COMPLETE_ORDER)) {
