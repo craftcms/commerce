@@ -335,8 +335,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1'
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true
                     ],
                     ['<=', 'commerce_products.postDate', $currentTimeDb],
                     [
@@ -349,8 +349,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1',
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true,
                     ],
                     ['>', 'commerce_products.postDate', $currentTimeDb]
                 ];
@@ -358,8 +358,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1'
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true
                     ],
                     ['not', ['commerce_products.expiryDate' => null]],
                     ['<=', 'commerce_products.expiryDate', $currentTimeDb]
