@@ -289,7 +289,7 @@ class Install extends Migration
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
-            'paymentSourceId', $this->integer(),
+            'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(),
             'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
