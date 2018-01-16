@@ -190,7 +190,7 @@ class VariantQuery extends ElementQuery
         }
 
         if (!$this->orderBy) {
-            $this->orderBy = 'sortOrder desc';
+            $this->orderBy = ['commerce_variants.sortOrder' => SORT_DESC];
         }
 
         return parent::beforePrepare();
