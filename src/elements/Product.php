@@ -382,7 +382,7 @@ class Product extends Element
      *
      * @throws InvalidConfigException
      */
-    public function getVariants($num = null): array
+    public function getVariants(): array
     {
         if (null === $this->_variants) {
             if ($this->id) {

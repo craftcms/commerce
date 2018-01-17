@@ -8,7 +8,7 @@
         </div>
         <div class="ten columns">
             <h5>{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h5>
-            {% if product.getVariants(1)|length %}
+            {% if product.getVariants()|length %}
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/cart') }}
@@ -16,7 +16,7 @@
                     {{ csrfInput() }}
 
                     <select name="purchasableId" class="purchasableId">
-                        {%- for purchasable in product.getVariants(2) -%}
+                        {%- for purchasable in product.getVariants() -%}
                             <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
                                     data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
                                     value="{{ purchasable.purchasableId }}">
@@ -43,7 +43,7 @@
                 {% endif %}
                 {% endif %}
 
-                {%- for purchasable in product.getVariants(3) -%}
+                {%- for purchasable in product.getVariants() -%}
                     <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="purchasableInfo" style="display:none;">
                         <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
                         <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>
