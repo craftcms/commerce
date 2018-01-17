@@ -449,14 +449,17 @@ class ProductQuery extends ElementQuery
 
             $productIds = [];
             foreach ($products as $product) {
-                $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
+                foreach ($product->variants as $variant)
+                {
+                    $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
 
-                if ($this->hasSales === true && count($sales) > 0) {
-                    $productIds[] = $product->id;
-                }
+                    if ($this->hasSales === true && count($sales) > 0) {
+                        $productIds[] = $product->id;
+                    }
 
-                if ($this->hasSales === false && count($sales) == 0) {
-                    $productIds[] = $product->id;
+                    if ($this->hasSales === false && count($sales) == 0) {
+                        $productIds[] = $product->id;
+                    }
                 }
             }
 

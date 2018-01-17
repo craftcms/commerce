@@ -59,7 +59,7 @@ class Cart extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cookieCartId = 'commerce_cookie';
+    protected $cartName = 'commerce_cookie';
 
     /**
      * @var Order
@@ -409,7 +409,7 @@ class Cart extends Component
     {
         $this->_cart = null;
         $session = Craft::$app->getSession();
-        $session->remove($this->cookieCartId);
+        $session->remove($this->cartName);
     }
 
     /**
@@ -528,11 +528,11 @@ class Cart extends Component
     private function _getSessionCartNumber()
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session[$this->cookieCartId];
+        $cartNumber = $session[$this->cartName];
 
         if (!$cartNumber) {
             $cartNumber = $this->_uniqueCartNumber();
-            $session->set($this->cookieCartId, $cartNumber);
+            $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;

@@ -145,19 +145,19 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_discount_products}}', [
+        $this->createTable('{{%commerce_discount_purchasables}}', [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
-            'productId' => $this->integer()->notNull(),
+            'purchasableId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_discount_producttypes}}', [
+        $this->createTable('{{%commerce_discount_categories}}', [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
-            'productTypeId' => $this->integer()->notNull(),
+            'categoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -193,8 +193,8 @@ class Install extends Migration
             'excludeOnSale' => $this->boolean(),
             'freeShipping' => $this->boolean(),
             'allGroups' => $this->boolean(),
-            'allProducts' => $this->boolean(),
-            'allProductTypes' => $this->boolean(),
+            'allPurchasables' => $this->boolean(),
+            'allCategories' => $this->boolean(),
             'enabled' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
             'sortOrder' => $this->integer(),
@@ -448,19 +448,20 @@ class Install extends Migration
             'PRIMARY KEY(id)',
         ]);
 
-        $this->createTable('{{%commerce_sale_products}}', [
+        $this->createTable('{{%commerce_sale_purchasables}}', [
             'id' => $this->primaryKey(),
             'saleId' => $this->integer()->notNull(),
-            'productId' => $this->integer()->notNull(),
+            'purchasableId' => $this->integer()->notNull(),
+            'purchasableType' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_sale_producttypes}}', [
+        $this->createTable('{{%commerce_sale_categories}}', [
             'id' => $this->primaryKey(),
             'saleId' => $this->integer()->notNull(),
-            'productTypeId' => $this->integer()->notNull(),
+            'categoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -484,8 +485,8 @@ class Install extends Migration
             'discountType' => $this->enum('discountType', ['percent', 'flat'])->notNull(),
             'discountAmount' => $this->decimal(14, 4)->notNull(),
             'allGroups' => $this->boolean(),
-            'allProducts' => $this->boolean(),
-            'allProductTypes' => $this->boolean(),
+            'allPurchasables' => $this->boolean(),
+            'allCategories' => $this->boolean(),
             'enabled' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -700,8 +701,8 @@ class Install extends Migration
         $this->dropTable('{{%commerce_customer_discountuses}}');
         $this->dropTable('{{%commerce_customers}}');
         $this->dropTable('{{%commerce_customers_addresses}}');
-        $this->dropTable('{{%commerce_discount_products}}');
-        $this->dropTable('{{%commerce_discount_producttypes}}');
+        $this->dropTable('{{%commerce_discount_purchasables}}');
+        $this->dropTable('{{%commerce_discount_categories}}');
         $this->dropTable('{{%commerce_discount_usergroups}}');
         $this->dropTable('{{%commerce_discounts}}');
         $this->dropTable('{{%commerce_emails}}');
@@ -721,8 +722,8 @@ class Install extends Migration
         $this->dropTable('{{%commerce_producttypes_shippingcategories}}');
         $this->dropTable('{{%commerce_producttypes_taxcategories}}');
         $this->dropTable('{{%commerce_purchasables}}');
-        $this->dropTable('{{%commerce_sale_products}}');
-        $this->dropTable('{{%commerce_sale_producttypes}}');
+        $this->dropTable('{{%commerce_sale_purchasables}}');
+        $this->dropTable('{{%commerce_sale_categories}}');
         $this->dropTable('{{%commerce_sale_usergroups}}');
         $this->dropTable('{{%commerce_sales}}');
         $this->dropTable('{{%commerce_shippingcategories}}');
@@ -761,10 +762,10 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'customerId,addressId', true), '{{%commerce_customers_addresses}}', 'customerId,addressId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'customerId', false), '{{%commerce_customers_addresses}}', 'customerId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_customers_addresses}}', 'addressId', false), '{{%commerce_customers_addresses}}', 'addressId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_discount_products}}', 'discountId,productId', true), '{{%commerce_discount_products}}', 'discountId,productId', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_discount_products}}', 'productId', false), '{{%commerce_discount_products}}', 'productId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_discount_producttypes}}', 'discountId,productTypeId', true), '{{%commerce_discount_producttypes}}', 'discountId,productTypeId', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_discount_producttypes}}', 'productTypeId', false), '{{%commerce_discount_producttypes}}', 'productTypeId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_purchasables}}', 'discountId,purchasableId', true), '{{%commerce_discount_purchasables}}', 'discountId,purchasableId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_purchasables}}', 'purchasableId', false), '{{%commerce_discount_purchasables}}', 'purchasableId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_categories}}', 'discountId,categoryId', true), '{{%commerce_discount_categories}}', 'discountId,categoryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_discount_categories}}', 'categoryId', false), '{{%commerce_discount_categories}}', 'productTypeId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_usergroups}}', 'discountId,userGroupId', true), '{{%commerce_discount_usergroups}}', 'discountId,userGroupId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_usergroups}}', 'userGroupId', false), '{{%commerce_discount_usergroups}}', 'userGroupId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_discounts}}', 'code', true), '{{%commerce_discounts}}', 'code', true);
@@ -806,10 +807,10 @@ class Install extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true), '{{%commerce_producttypes_taxcategories}}', 'productTypeId,taxCategoryId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false), '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_purchasables}}', 'sku', true), '{{%commerce_purchasables}}', 'sku', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_sale_products}}', 'saleId,productId', true), '{{%commerce_sale_products}}', 'saleId,productId', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_sale_products}}', 'productId', false), '{{%commerce_sale_products}}', 'productId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_sale_producttypes}}', 'saleId,productTypeId', true), '{{%commerce_sale_producttypes}}', 'saleId,productTypeId', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_sale_producttypes}}', 'productTypeId', false), '{{%commerce_sale_producttypes}}', 'productTypeId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_purchasables}}', 'saleId,purchasableId', true), '{{%commerce_sale_purchasables}}', 'saleId,purchasableId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_purchasables}}', 'purchasableId', false), '{{%commerce_sale_purchasables}}', 'purchasableId', false);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_categories}}', 'saleId,categoryId', true), '{{%commerce_sale_categories}}', 'saleId,categoryId', true);
+        $this->createIndex($this->db->getIndexName('{{%commerce_sale_categories}}', 'categoryId', false), '{{%commerce_sale_categories}}', 'categoryId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_usergroups}}', 'saleId,userGroupId', true), '{{%commerce_sale_usergroups}}', 'saleId,userGroupId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_usergroups}}', 'userGroupId', false), '{{%commerce_sale_usergroups}}', 'userGroupId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_shippingcategories}}', 'handle', true), '{{%commerce_shippingcategories}}', 'handle', true);
@@ -860,10 +861,10 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers}}', 'userId'), '{{%commerce_customers}}', 'userId', '{{%users}}', 'id', 'SET NULL', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers_addresses}}', 'addressId'), '{{%commerce_customers_addresses}}', 'addressId', '{{%commerce_addresses}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_customers_addresses}}', 'customerId'), '{{%commerce_customers_addresses}}', 'customerId', '{{%commerce_customers}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_products}}', 'discountId'), '{{%commerce_discount_products}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_products}}', 'productId'), '{{%commerce_discount_products}}', 'productId', '{{%commerce_products}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_producttypes}}', 'discountId'), '{{%commerce_discount_producttypes}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_producttypes}}', 'productTypeId'), '{{%commerce_discount_producttypes}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_purchasables}}', 'discountId'), '{{%commerce_discount_purchasables}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_purchasables}}', 'purchasableId'), '{{%commerce_discount_purchasables}}', 'purchasableId', '{{%commerce_purchasables}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categorys}}', 'discountId'), '{{%commerce_discount_categorys}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categorys}}', 'categoryId'), '{{%commerce_discount_categorys}}', 'productTypeId', '{{%commerce_categorys}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_usergroups}}', 'discountId'), '{{%commerce_discount_usergroups}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_usergroups}}', 'userGroupId'), '{{%commerce_discount_usergroups}}', 'userGroupId', '{{%usergroups}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_lineitems}}', 'orderId'), '{{%commerce_lineitems}}', 'orderId', '{{%commerce_orders}}', 'id', 'CASCADE', null);
@@ -900,10 +901,10 @@ class Install extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_taxcategories}}', 'productTypeId'), '{{%commerce_producttypes_taxcategories}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_producttypes_taxcategories}}', 'taxCategoryId'), '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', '{{%commerce_taxcategories}}', 'id', 'CASCADE', null);
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_purchasables}}', 'id'), '{{%commerce_purchasables}}', 'id', '{{%elements}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_products}}', 'productId'), '{{%commerce_sale_products}}', 'productId', '{{%commerce_products}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_products}}', 'saleId'), '{{%commerce_sale_products}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_producttypes}}', 'productTypeId'), '{{%commerce_sale_producttypes}}', 'productTypeId', '{{%commerce_producttypes}}', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_producttypes}}', 'saleId'), '{{%commerce_sale_producttypes}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_purchasables}}', 'purchasableId'), '{{%commerce_sale_purchasables}}', 'purchasableId', '{{%commerce_purchasables}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_purchasables}}', 'saleId'), '{{%commerce_sale_purchasables}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'categoryId'), '{{%commerce_sale_categories}}', 'categoryId', '{{%commerce_categories}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'saleId'), '{{%commerce_sale_categories}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_usergroups}}', 'saleId'), '{{%commerce_sale_usergroups}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_usergroups}}', 'userGroupId'), '{{%commerce_sale_usergroups}}', 'userGroupId', '{{%usergroups}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_shippingrule_categories}}', 'shippingCategoryId'), '{{%commerce_shippingrule_categories}}', 'shippingCategoryId', '{{%commerce_shippingcategories}}', 'id', 'CASCADE', null);
@@ -940,8 +941,8 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customer_discountuses}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers_addresses}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_products}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_producttypes}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_purchasables}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_categories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_usergroups}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_lineitems}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderadjustments}}', $this);
@@ -956,8 +957,8 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_shippingcategories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_taxcategories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_purchasables}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_products}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_producttypes}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_purchasables}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_categories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_usergroups}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrule_categories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrules}}', $this);

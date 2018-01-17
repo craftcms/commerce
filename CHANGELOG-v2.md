@@ -8,7 +8,7 @@
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
-- `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales` respectively.
+- `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales()` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
 - The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file. 
 

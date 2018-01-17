@@ -41,6 +41,14 @@ class Commerce
     // =========================================================================
 
     /**
+     * @return array|string[]
+     */
+    public function purchasableElementTypes(): array
+    {
+        return CommercePlugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+    }
+
+    /**
      * Get the Address service.
      *
      * @return Addresses

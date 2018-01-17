@@ -41,7 +41,7 @@ class CreateSale extends ElementAction
         batch: true,
         activate: function(\$selectedItems)
         {
-            Craft.redirectTo(Craft.getUrl('commerce/promotions/sales/new', 'productIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
+            Craft.redirectTo(Craft.getUrl('commerce/promotions/sales/new', 'purchasableIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
         }
     });
 })();

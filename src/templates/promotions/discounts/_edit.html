@@ -181,27 +181,30 @@
             }) }}
         {% endif %}
 
-        {{ forms.multiselectField({
-            label: 'Product Types'|t('commerce'),
-            instructions: "Product types for which this discount will be applicable to. Leave blank for all product types"|t('commerce'),
-            id: 'productTypes',
-            name: 'productTypes',
-            options: types,
-            values: discount.getProductTypeIds(),
-            errors: discount.getErrors('productTypes'),
-            class: 'selectize fullwidth',
+        {{ forms.elementSelectField({
+            id: 'categories',
+            label: 'Categories'|t('commerce'),
+            name: 'categories',
+            elements: categories ? categories : null,
+            elementType: categoryElementType,
+            limit: null,
+            instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
+            errors: discount.getErrors('categories'),
         }) }}
 
-        {{ forms.elementSelectField({
-            id: 'products',
-            label: 'Products'|t('commerce'),
-            name: 'products',
-            elements: products ? products : null,
-            elementType: productElementType,
-            limit: null,
-            instructions: "Products for which this discount will be applicable to. Leave blank for all products"|t('commerce'),
-            errors: discount.getErrors('products'),
-        }) }}
+        {% for purchasableType in purchasableTypes %}
+            {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
+            {{ forms.elementSelectField({
+                id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
+                label: purchasableType.name|capitalize,
+                name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
+                elements: purchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+            }) }}
+        {% endfor %}
 
         {{ forms.textField({
             label: "Purchase Total"|t('commerce'),

@@ -11,13 +11,13 @@ use yii\db\ActiveQueryInterface;
  * @property int                  $id
  * @property int                  $discountId
  * @property ActiveQueryInterface $discount
- * @property ActiveQueryInterface $product
- * @property int                  $productId
+ * @property ActiveQueryInterface $purchasable
+ * @property int                  $purchasableId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
-class DiscountProduct extends ActiveRecord
+class DiscountPurchasable extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -27,7 +27,7 @@ class DiscountProduct extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discount_products}}';
+        return '{{%commerce_discount_purchasables}}';
     }
 
     /**
@@ -36,7 +36,7 @@ class DiscountProduct extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['discountId', 'productId'], 'unique', 'targetAttribute' => ['discountId', 'productId']]
+            [['discountId', 'purchasableId'], 'unique', 'targetAttribute' => ['discountId', 'purchasableId']]
         ];
     }
 
@@ -51,8 +51,8 @@ class DiscountProduct extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getProduct(): ActiveQueryInterface
+    public function getPurchasable(): ActiveQueryInterface
     {
-        return $this->hasOne(Product::class, ['id' => 'productId']);
+        return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);
     }
 }

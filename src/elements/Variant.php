@@ -109,11 +109,6 @@ class Variant extends Purchasable
     /**
      * @var
      */
-    private $_salePrice;
-
-    /**
-     * @var
-     */
     private $_sales;
 
     /**
@@ -129,9 +124,25 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Product Variant');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function refHandle()
+    {
+        return 'variant';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
-        return (string)$this->getContent()->title;
+        return parent::__toString();
     }
 
     /**
@@ -158,37 +169,7 @@ class Variant extends Purchasable
     {
         $fields = parent::fields();
 
-        $fields['salePrice'] = function() {
-            return $this->getSalePrice();
-        };
-
-        $fields['description'] = function() {
-            return $this->getDescription();
-        };
-
         return $fields;
-    }
-
-    /**
-     * Getter provides opportunity to populate the salePrice if sales have not already been applied.
-     *
-     * @return null|float
-     */
-    public function getSalePrice()
-    {
-        if ($this->getSales() === null) {
-            Plugin::getInstance()->getVariants()->applySales([$this], $this->getProduct());
-        }
-
-        return $this->_salePrice;
-    }
-
-    /**
-     * @param $value
-     */
-    public function setSalePrice($value)
-    {
-        $this->_salePrice = $value;
     }
 
     /**
@@ -217,26 +198,6 @@ class Variant extends Purchasable
         Craft::$app->getDeprecator()->log('setSalesApplied()', 'The setSalesApplied() function has been deprecated. Use setSales() instead.');
 
         $this->setSales($sales);
-    }
-
-    /**
-     * An array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @return Sale[]|null
-     */
-    public function getSales()
-    {
-        return $this->_sales;
-    }
-
-    /**
-     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @param Sale[] $sales
-     */
-    public function setSales(array $sales)
-    {
-        $this->_sales = $sales;
     }
 
     /**
@@ -365,8 +326,9 @@ class Variant extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
+ * Cache on the purchasable table
+ * @inheritdoc
+ */
     public function getPrice(): float
     {
         return $this->price;
@@ -561,23 +523,17 @@ class Variant extends Purchasable
         $lineItem->length = (float)$this->length; //converting nulls
         $lineItem->width = (float)$this->width; //converting nulls
 
-        $sales = Plugin::getInstance()->getSales()->getSalesForVariant($this);
-
-        foreach ($sales as $sale) {
-            $lineItem->saleAmount += $sale->calculateTakeoff($lineItem->price);
-        }
-
-        // Don't let sale amount be more than the price.
-        if (-$lineItem->saleAmount > $lineItem->price) {
-            $lineItem->saleAmount = -$lineItem->price;
-        }
-
-        // If the product is not promotable but has saleAmount, reset saleAmount to zero
-        if (!$this->getIsPromotable()) {
-            $lineItem->saleAmount = 0;
-        }
-
         return null;
+    }
+
+    /**
+     * A promotion category is related to this element if the category is related to the product OR the variant.
+     *
+     * @return array
+     */
+    public function getPromotionRelationSource(): array
+    {
+        return [$this->id, $this->getProduct()->id];
     }
 
     /**

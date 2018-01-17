@@ -2,6 +2,7 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -24,15 +25,34 @@ use craft\commerce\Plugin;
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {
+
+    private $_salePrice;
+
+    /**
+     * @var
+     */
+    private $_sales;
+
     // Public Methods
     // =========================================================================
 
     /**
      * @inheritdoc
      */
+    public static function displayName(): string
+    {
+        $classNameParts = explode('\\', static::class);
+
+        return array_pop($classNameParts);
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public function getPurchasableId(): int
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException('Purchasable needs a purchasable ID');
     }
 
     /**
@@ -48,7 +68,57 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPrice(): float
     {
-        throw new NotImplementedException();
+        throw new NotImplementedException('Purchasable needs a price');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLivePrice(): float
+    {
+        return $this->getPrice();
+    }
+
+    /**
+     * Getter provides opportunity to populate the salePrice if sales have not already been applied.
+     *
+     * @return null|float
+     */
+    public function getSalePrice(): float
+    {
+        if ($this->getSales() === null) {
+            Plugin::getInstance()->getSales()->applySales($this);
+        }
+
+        return $this->_salePrice;
+    }
+
+    /**
+     * @param $value
+     */
+    public function setSalePrice($value)
+    {
+        $this->_salePrice = $value;
+    }
+
+    /**
+     * An array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @return Sale[]|null
+     */
+    public function getSales()
+    {
+        return $this->_sales;
+    }
+
+    /**
+     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
+     *
+     * @param Sale[] $sales
+     */
+    public function setSales(array $sales)
+    {
+        $this->_sales = $sales;
     }
 
     /**
@@ -121,5 +191,15 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getIsPromotable(): bool
     {
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     *
+     * @return int|array
+     */
+    public function getPromotionRelationSource()
+    {
+        return $this->id;
     }
 }

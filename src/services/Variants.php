@@ -34,39 +34,6 @@ class Variants extends Component
     // =========================================================================
 
     /**
-     * Apply sales that are associated with the given product to all given variants.
-     *
-     * @param Variant[] $variants an array of variants to apply sales to
-     * @param Product   $product  the product.
-     *
-     * @return void
-     */
-    public function applySales(array $variants, Product $product)
-    {
-        // reset the salePrice to be the same as price, and clear any sales applied.
-        foreach ($variants as $variant) {
-            $variant->setSales([]);
-            $variant->setSalePrice(Currency::round($variant->price));
-        }
-
-        // Only bother calculating if the product is persisted and promotable.
-        if ($product->id && $product->promotable) {
-            $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
-
-            foreach ($sales as $sale) {
-                foreach ($variants as $variant) {
-                    $variant->setSales($sales);
-                    $variant->setSalePrice(Currency::round($variant->getSalePrice() + $sale->calculateTakeoff($variant->price)));
-
-                    if ($variant->getSalePrice() < 0) {
-                        $variant->setSalePrice(0);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Get all product's variants by it's id.
      *
      * @param int      $productId product id

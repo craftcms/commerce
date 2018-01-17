@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\elements\Category;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -10,14 +11,14 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int                  $id
  * @property int                  $discountId
- * @property ActiveQueryInterface $productType
+ * @property ActiveQueryInterface $category
  * @property ActiveQueryInterface $discount
- * @property int                  $productTypeId
+ * @property int                  $categoryId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
-class DiscountProductType extends ActiveRecord
+class DiscountCategory extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -27,7 +28,7 @@ class DiscountProductType extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discount_producttypes}}';
+        return '{{%commerce_discount_categories}}';
     }
 
     /**
@@ -36,7 +37,7 @@ class DiscountProductType extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['discountId', 'productTypeId'], 'unique', 'targetAttribute' => ['discountId', 'productTypeId']]
+            [['discountId', 'categoryId'], 'unique', 'targetAttribute' => ['discountId', 'categoryId']]
         ];
     }
 
@@ -51,8 +52,8 @@ class DiscountProductType extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getProductType(): ActiveQueryInterface
+    public function getCategory(): ActiveQueryInterface
     {
-        return $this->hasOne(ProductType::class, ['id' => 'productTypeId']);
+        return $this->hasOne(Category::class, ['id' => 'categoryId']);
     }
 }
