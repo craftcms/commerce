@@ -64,6 +64,14 @@
             </div>
         {% endfor %}
 
+        {% if plan is not null%}
+            {{ forms.textareaField({
+                label: "Subscription plan data"|t('commerce'),
+                instructions: "Gateway subscription plan data."|t('commerce'),
+                value: plan.planData,
+                readonly: true
+            }) }}
+        {% endif %}
         {{ forms.lightswitchField({
             label: "Enabled for customers to select?"|t('commerce'),
             name: 'enabled',

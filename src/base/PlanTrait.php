@@ -56,5 +56,5 @@ trait PlanTrait
     /**
      * @var string gateway response
      */
-    public $response;
+    public $planData;
 }

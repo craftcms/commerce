@@ -88,6 +88,8 @@ class Plugin extends \craft\base\Plugin
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
+
+        // TODO onBeforeDeleteUser cancel all subscriptions
     }
 
     /**
@@ -143,6 +145,13 @@ class Plugin extends \craft\base\Plugin
             $ret['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
+            ];
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
+            $ret['subnav']['subscriptions'] = [
+                'label' => Craft::t('commerce', 'Subscriptions'),
+                'url' => 'commerce/subscriptions'
             ];
         }
 
@@ -225,6 +234,7 @@ class Plugin extends \craft\base\Plugin
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
+                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
             ];
         });
     }

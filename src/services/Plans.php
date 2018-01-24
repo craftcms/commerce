@@ -4,14 +4,12 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\base\SubscriptionInterface;
 use craft\commerce\base\Plan;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\Db;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -26,13 +24,37 @@ class Plans extends Component
     // =========================================================================
 
     /**
-     * Returns allsubscription plans
+     * Returns all subscription plans
      *
      * @return Plan[]
      */
     public function getAllPlans(): array
     {
         $results = $this->_createPlansQuery()
+            ->all();
+
+        $sources = [];
+
+        foreach ($results as $result) {
+            try {
+                $sources[] = $this->_populatePlan($result);
+            } catch (InvalidConfigException $exception) {
+                continue; // Just skip this
+            }
+        }
+
+        return $sources;
+    }
+
+    /**
+     * Returns all enabled subscription plans
+     *
+     * @return Plan[]
+     */
+    public function getAllEnabledPlans(): array
+    {
+        $results = $this->_createPlansQuery()
+            ->where(['enabled' => true])
             ->all();
 
         $sources = [];
@@ -106,9 +128,10 @@ class Plans extends Component
         $record->name = $plan->name;
         $record->handle = $plan->handle;
         $record->reference = $plan->reference;
-        $record->response = $plan->response;
+        $record->planData = $plan->planData;
         $record->enabled = $plan->enabled;
         $record->isArchived = $plan->isArchived;
+        $record->dateArchived = $plan->dateArchived;
 
         $record->validate();
         $plan->addErrors($record->getErrors());
@@ -161,9 +184,12 @@ class Plans extends Component
                 'name',
                 'handle',
                 'reference',
-                'response',
-                'enabled'
+                'planData',
+                'enabled',
+                'isArchived',
+                'dateArchived'
             ])
+            ->where(['isArchived' => false])
             ->from(['{{%commerce_plans}}']);
     }
 

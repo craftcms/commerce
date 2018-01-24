@@ -4,6 +4,7 @@ namespace craft\commerce\variables;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\Plan;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
@@ -180,6 +181,16 @@ class Commerce
         $userId = Craft::$app->getUser()->getId();
 
         return CommercePlugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByUserId((int)$userId);
+    }
+
+    /**
+     * Get all subscription plans.
+     *
+     * @return Plan[]
+     */
+    public function getPlans(): array
+    {
+        return CommercePlugin::getInstance()->getPlans()->getAllEnabledPlans();
     }
 
     /**

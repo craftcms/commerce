@@ -4,7 +4,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\base\SubscriptionInterface;
+use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\base\Plan;
 use craft\commerce\Plugin;
 use yii\base\Exception;
@@ -13,7 +13,7 @@ use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * ClassPlans Controller
+ * Class Plans Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -22,6 +22,16 @@ class PlansController extends BaseAdminController
 {
     // Public Methods
     // =========================================================================
+
+    /**
+     * @throws \yii\web\ForbiddenHttpException if forbidden.
+     */
+    public function init()
+    {
+        $this->requirePermission('manageCommerce');
+
+        parent::init();
+    }
 
     /**
      * @return Response
@@ -45,12 +55,6 @@ class PlansController extends BaseAdminController
             'planId' => $planId,
             'plan' => $plan,
         ];
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
 
         $variables['brandNewPlan'] = false;
 
@@ -95,12 +99,6 @@ class PlansController extends BaseAdminController
      */
     public function actionSavePlan()
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
-
         $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
@@ -110,7 +108,7 @@ class PlansController extends BaseAdminController
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
         if ($gateway instanceof SubscriptionGateway) {
-            $response = $gateway->getSubscriptionPlanByReference($reference);
+            $planData = $gateway->getSubscriptionPlanByReference($reference);
         } else {
             throw new InvalidConfigException('This gateway does not support subscription plans.');
         }
@@ -124,7 +122,7 @@ class PlansController extends BaseAdminController
         $plan->handle = $request->getParam('handle');
         $plan->reference = $reference;
         $plan->enabled = (bool) $request->getParam('enabled');
-        $plan->response = $response;
+        $plan->planData = $planData;
         $plan->isArchived = false;
 
         // Save $plan

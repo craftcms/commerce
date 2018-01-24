@@ -6,6 +6,7 @@ use craft\base\SavableComponentInterface;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
+use craft\elements\User;
 use craft\web\Response as WebResponse;
 
 /**
@@ -25,4 +26,13 @@ interface PlanInterface
      * @return string
      */
     public function getFriendlyPlanName(): string;
+
+    /**
+     * Subscribe a user to this plan.
+     *
+     * @param int $userId
+     *
+     * @return bool
+     */
+    //public function subscribe(int $userId): bool;
 }

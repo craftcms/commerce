@@ -13,12 +13,15 @@ use yii\db\ActiveQueryInterface;
  * @property int                  $userId
  * @property int                  $planId
  * @property int                  $gatewayId
+ * @property int                  $orderId
  * @property string               $reference
  * @property int                  $trialDays
  * @property \DateTime            $nextPaymentDate
- * @property float                $paymentAmount
- * @property \DateTime            $expiryDate
- * @property string               $response
+ * @property string               $subscriptionData
+ * @property bool                 $isCanceled
+ * @property \DateTime            $dateCanceled
+ * @property bool                 $isExpired
+ * @property \DateTime            $dateExpired
  * @property ActiveQueryInterface $gateway
  * @property ActiveQueryInterface $plan
  * @property ActiveQueryInterface $user

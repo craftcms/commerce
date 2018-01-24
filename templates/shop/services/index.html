@@ -1,0 +1,35 @@
+{% extends 'shop/_layouts/main' %}
+{% block main %}
+
+{% if currentUser %}
+    {% for plan in craft.commerce.getPlans() %}
+        <div class="row service">
+            <div class="two columns">
+                {{ plan.getFriendlyPlanName() }}
+            </div>
+            <div class="ten columns">
+                {% set subscription = plan.getUserSubscription(currentUser.id) %}
+                {% if subscription %}
+                    <h5><strong>You have subscribed to this plan</strong></h5>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="commerce/subscriptions/unsubscribe">
+                        {{ redirectInput('shop/services') }}
+                        {{ csrfInput() }}
+
+                        <button type="submit">{{ "Unsubscribe"|t }}</button>
+                    </form>
+                {% else %}
+                    <form method="POST">
+                        <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
+                        <input type="hidden" name="planId" value="{{ plan.id }}">
+                        {{ redirectInput('shop/services') }}
+                        {{ csrfInput() }}
+
+                        <button type="submit">{{ "Subscribe"|t }}</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

@@ -8,7 +8,7 @@ namespace craft\commerce\base;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
-abstract class SubscriptionGateway extends Gateway implements SubscriptionInterface
+abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
     /**
      * Subscription plan settings HTML

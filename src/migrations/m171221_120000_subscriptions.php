@@ -22,7 +22,7 @@ class m171221_120000_subscriptions extends Migration
             'handle' => $this->string()->notNull(),
             'reference' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull(),
-            'response' => $this->text(),
+            'planData' => $this->text(),
             'isArchived' => $this->boolean()->notNull(),
             'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -32,36 +32,42 @@ class m171221_120000_subscriptions extends Migration
 
         $this->createTable('{{%commerce_subscriptions}}', [
             'id' => $this->primaryKey(),
-            'userId' => $this->integer(),
+            'userId' => $this->integer()->notNull(),
             'planId' => $this->integer(),
             'gatewayId' => $this->integer(),
+            'orderId' => $this->integer(),
             'reference' => $this->string()->notNull(),
+            'subscriptionData' => $this->text(),
             'trialDays' => $this->integer()->notNull(),
-            'nextPaymentDate' => $this->dateTime()->notNull(),
-            'paymentAmount' => $this->decimal(14, 4)->defaultValue(0),
-            'expiryDate' => $this->dateTime()->notNull(),
-            'response' => $this->text(),
+            'nextPaymentDate' => $this->dateTime(),
+            'isCanceled' => $this->boolean()->notNull(),
+            'dateCanceled' => $this->dateTime(),
+            'isExpired' => $this->boolean()->notNull(),
+            'dateExpired' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
-        $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'handle', true), '{{%commerce_plans}}', 'handle', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_plans}}', 'reference', false), '{{%commerce_plans}}', 'reference', false);
+        $this->createIndex(null, '{{%commerce_plans}}', 'gatewayId');
+        $this->createIndex(null, '{{%commerce_plans}}', 'handle', true);
+        $this->createIndex(null, '{{%commerce_plans}}', 'reference');
 
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'userId', false), '{{%commerce_subscriptions}}', 'userId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'planId', false), '{{%commerce_subscriptions}}', 'planId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'gatewayId', false), '{{%commerce_subscriptions}}', 'gatewayId', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'reference', true), '{{%commerce_subscriptions}}', 'reference', true);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'nextPaymentDate', false), '{{%commerce_subscriptions}}', 'nextPaymentDate', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'paymentAmount', false), '{{%commerce_subscriptions}}', 'paymentAmount', false);
-        $this->createIndex($this->db->getIndexName('{{%commerce_subscriptions}}', 'expiryDate', false), '{{%commerce_subscriptions}}', 'expiryDate', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'userId');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'planId');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'gatewayId');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'reference', true);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'nextPaymentDate');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'isCanceled');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'dateCreated');
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'dateExpired');
 
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_plans}}', 'gatewayId'), '{{%commerce_plans}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%commerce_plans}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE');
 
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'userId'), '{{%commerce_subscriptions}}', 'userId', '{{%users}}', 'id', 'CASCADE', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'planId'), '{{%commerce_subscriptions}}', 'planId', '{{%commerce_plans}}', 'id', 'RESTRICT', null);
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_subscriptions}}', 'gatewayId'), '{{%commerce_subscriptions}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', 'userId', '{{%users}}', 'id', 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', 'planId', '{{%commerce_plans}}', 'id', 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', 'gatewayId', '{{%commerce_gateways}}', 'id', 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', 'orderId', '{{%commerce_orders}}', 'id', 'SET NULL');
 
         return true;
     }

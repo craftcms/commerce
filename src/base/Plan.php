@@ -2,9 +2,12 @@
 
 namespace craft\commerce\base;
 
+use craft\base\ElementInterface;
+use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin as Commerce;
 use craft\elements\User;
 use craft\helpers\Json;
+use yii\base\InvalidConfigException;
 
 /**
  * Plan model
@@ -26,7 +29,7 @@ abstract class Plan extends Model implements PlanInterface
     // =========================================================================
 
     /**
-     * @var GatewayInterface|null $_gateway
+     * @var SubscriptionGatewayInterface|null $_gateway
      */
     private $_gateway;
 
@@ -39,24 +42,29 @@ abstract class Plan extends Model implements PlanInterface
     // =========================================================================
 
     /**
-     * Returns the billing plan handle
+     * Returns the billing plan friendly name
      *
      * @return string
      */
     public function __toString()
     {
-        return $this->handle;
+        return $this->getFriendlyPlanName();
     }
 
     /**
      * Returns the user element associated with this customer.
      *
-     * @return GatewayInterface|null
+     * @return SubscriptionGatewayInterface|null
+     * @throws InvalidConfigException if gateway does not support subscriptions
      */
     public function getGateway()
     {
         if (null === $this->_gateway) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        }
+
+        if ($this->_gateway && !$this->_gateway instanceof SubscriptionGatewayInterface) {
+            throw new InvalidConfigException('This gateway does not support subscriptions');
         }
 
         return $this->_gateway;
@@ -68,7 +76,7 @@ abstract class Plan extends Model implements PlanInterface
     public function getPlanData()
     {
         if ($this->_data === null) {
-            $this->_data = Json::decodeIfJson($this->response);
+            $this->_data = Json::decodeIfJson($this->planData);
         }
 
         return $this->_data;
@@ -82,5 +90,17 @@ abstract class Plan extends Model implements PlanInterface
     public function getSubscriptionCount()
     {
         return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
+    }
+
+    /**
+     * Return the subscription count for this plan.
+     *
+     * @param int $userId the user id
+     *
+     * @return ElementInterface|false
+     */
+    public function getUserSubscription(int $userId)
+    {
+        return Subscription::find()->userId($userId)->planId($this->id)->one();
     }
 }

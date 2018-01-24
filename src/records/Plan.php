@@ -16,7 +16,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool                 $enabled
  * @property bool                 $isArchived
  * @property \DateTime            $dateArchived
- * @property string               $response
+ * @property string               $planData
  * @property ActiveQueryInterface $gateway
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -52,7 +52,7 @@ class Plan extends ActiveRecord
     {
         return [
             [['handle'], 'unique'],
-            [['gatewayId', 'reference', 'name', 'handle', 'response'], 'required']
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
         ];
     }
 
