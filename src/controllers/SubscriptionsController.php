@@ -53,7 +53,7 @@ class SubscriptionsController extends BaseController
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionSubscribe()
+    public function actionSubscribe(): Response
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -70,11 +70,53 @@ class SubscriptionsController extends BaseController
         }
 
         try {
-            $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan);
+            $success = $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan);
+
+            if (!$success) {
+                $session->setError(Craft::t('commerce', 'Unable to subscribe at this time.'));
+            }
+
         } catch (SubscriptionException $exception) {
             $session->setError($exception->getMessage());
         }
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionCancelSubscription(): Response
+    {
+        $this->requireLogin();
+        $this->requirePostRequest();
+
+        $session = Craft::$app->getSession();
+        $plugin = Commerce::getInstance();
+
+        $request = Craft::$app->getRequest();
+        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+
+        try {
+            $subscription = Subscription::find()->id($subscriptionId)->one();
+
+            if (!$subscription || $subscription->userId !== Craft::$app->getUser()->getId()) {
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+            }
+
+            $success = $plugin->getSubscriptions()->cancelSubscription($subscription);
+            
+            if (!$success) {
+                $session->setError(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+            }
+
+        } catch (SubscriptionException $exception) {
+            $session->setError($exception->getMessage());
+        }
+
+        return $this->redirectToPostedUrl();
+
     }
 }

@@ -35,8 +35,23 @@ interface SubscriptionResponseInterface
     public function getTrialDays(): int;
 
     /**
+     * Get the time of next payment.
      *
      * @return \DateTime
      */
     public function getNextPaymentDate(): \DateTime;
+
+    /**
+     * Whether the subscription is canceled.
+     *
+     * @return bool
+     */
+    public function isCanceled(): bool;
+
+    /**
+     * Whether the subscription is scheduled to be canceled.
+     *
+     * @return bool
+     */
+    public function isScheduledForCancelation(): bool;
 }

@@ -10,6 +10,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
+use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -44,10 +45,11 @@ class Subscriptions extends Component
      * @param array $paramaters array of additional parameters to use
      * @param Order $order      order, if subscribing is part of an order
      *
+     * @return bool the result
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
      */
-    public function subscribe(User $user, Plan $plan, $paramaters = [], Order $order = null)
+    public function subscribe(User $user, Plan $plan, $paramaters = [], Order $order = null): bool
     {
         $gateway = $plan->getGateway();
 
@@ -69,7 +71,47 @@ class Subscriptions extends Component
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        Craft::$app->getElements()->saveElement($subscription);
+        try{
+            return Craft::$app->getElements()->saveElement($subscription);
+        } catch (\Throwable $exception) {
+            Craft::warning('Failed to subscribe '.$user.' to '.$plan.': '.$exception->getMessage());
+
+            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));}
+
     }
 
+    /**
+     * Cancel a subscription.
+     *
+     * @param Subscription $subscription
+     *
+     * @return bool
+     * @throws InvalidConfigException if the gateway does not support subscriptions
+     * @throws SubscriptionException if something went wrong when canceling subscription
+     */
+    public function cancelSubscription(Subscription $subscription): bool
+    {
+        $gateway = $subscription->getGateway();
+
+        if (!$gateway instanceof SubscriptionGatewayInterface) {
+            throw new InvalidConfigException('Gateway does not support subscriptions.');
+        }
+
+        $response = $gateway->cancelSubscription($subscription->reference);
+
+        if ($response->isCanceled() || $response->isScheduledForCancelation()) {
+            $subscription->isCanceled = true;
+            $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
+
+            try{
+                return Craft::$app->getElements()->saveElement($subscription);
+            } catch (\Throwable $exception) {
+                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
+
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+            }
+        }
+
+        return false;
+    }
 }
