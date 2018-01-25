@@ -5,6 +5,7 @@ namespace craft\commerce\base;
 use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\elements\User;
 
 /**
@@ -52,8 +53,8 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      *
      * @param Subscription $subscription
      *
-     * @return array
+     * @return SubscriptionPayment[]
      */
-   // public function getSubscriptionPayments(Subscription $subscription): array;
+    public function getSubscriptionPayments(Subscription $subscription): array;
 
 }

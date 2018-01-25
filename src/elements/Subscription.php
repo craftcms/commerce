@@ -7,7 +7,9 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\Plan;
 use craft\commerce\base\PlanInterface;
+use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\db\SubscriptionQuery;
+use craft\commerce\models\payments\SubscriptionPayment;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
@@ -114,7 +116,7 @@ class Subscription extends Element
     public $dateExpired;
 
     /**
-     * @var Gateway
+     * @var SubscriptionGatewayInterface
      */
     private $_gateway;
 
@@ -193,12 +195,16 @@ class Subscription extends Element
     /**
      * Return the product type for the product tied to the license.
      *
-     * @return GatewayInterface|null
+     * @return SubscriptionGatewayInterface|null
+     * @throws InvalidConfigException if gateway misconfigured
      */
     public function getGateway()
     {
         if (null === $this->_gateway) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
+                throw new InvalidConfigException('The gateway set for subscription does not support subsriptions.');
+            }
         }
 
         return $this->_gateway;
@@ -234,6 +240,16 @@ class Subscription extends Element
         return '';
     }
 
+    /**
+     * Return an array of all payments for this subscription.
+     *
+     * @return SubscriptionPayment[]
+     * @throws InvalidConfigException
+     */
+    public function getAllPayments(): array
+    {
+        return $this->getGateway()->getSubscriptionPayments($this);
+    }
     /**
      * @return null|string
      */

@@ -7,9 +7,11 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Plan;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\SubscriptionQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\Country;
 use craft\commerce\models\Currency;
@@ -331,6 +333,24 @@ class Commerce
     public function orders($criteria = null): OrderQuery
     {
         $query = Order::find();
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Returns a new SubscriptionQuery instance.
+     *
+     * @param mixed $criteria
+     *
+     * @return SubscriptionQuery
+     */
+    public function subscriptions($criteria = null): SubscriptionQuery
+    {
+        $query = Subscription::find();
 
         if ($criteria) {
             Craft::configure($query, $criteria);

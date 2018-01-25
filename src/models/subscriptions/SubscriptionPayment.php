@@ -1,8 +1,9 @@
 <?php
 
-namespace craft\commerce\models\payments;
+namespace craft\commerce\models\subscriptions;
 
 use craft\base\Model;
+use craft\commerce\models\Currency;
 
 /**
  * Class SubscriptionPayment
@@ -18,7 +19,7 @@ class SubscriptionPayment extends Model
     public $paymentAmount;
 
     /**
-     * @var string payment currency ISO code
+     * @var Currency payment currency
      */
     public $paymentCurrency;
 
@@ -31,9 +32,4 @@ class SubscriptionPayment extends Model
      * @var string the payment reference on gateway
      */
     public $paymentReference;
-
-    /**
-     * @var string URL for an invoice or a detailed view
-     */
-    public $detailsUrl;
 }
