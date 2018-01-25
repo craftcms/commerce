@@ -3,13 +3,11 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Element;
-use craft\commerce\base\Gateway;
-use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\Plan;
 use craft\commerce\base\PlanInterface;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\db\SubscriptionQuery;
-use craft\commerce\models\payments\SubscriptionPayment;
+use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
