@@ -26,13 +26,4 @@ interface PlanInterface
      * @return string
      */
     public function getFriendlyPlanName(): string;
-
-    /**
-     * Subscribe a user to this plan.
-     *
-     * @param int $userId
-     *
-     * @return bool
-     */
-    //public function subscribe(int $userId): bool;
 }
