@@ -45,17 +45,17 @@ class SubscriptionQuery extends ElementQuery
     public $gatewayId;
 
     /**
-     * @var int The id of the order that the license must be a part of.
+     * @var int|int[] The id of the order that the license must be a part of.
      */
     public $orderId;
 
     /**
-     * @var string The gateway reference for subscription
+     * @var string|string[] The gateway reference for subscription
      */
     public $reference;
 
     /**
-     * @var int Number of trial days for the subscription
+     * @var int|int[] Number of trial days for the subscription
      */
     public $trialDays;
 
@@ -131,7 +131,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Sets the [[userId]] property based on a user element or username
      *
-     * @param User $value
+     * @param User|string $value
      *
      * @return static self reference
      */
@@ -438,7 +438,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if ($this->nextPaymentDate) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.nextPaymentDate', $this->nextPaymentDate));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.nextPaymentDate', $this->nextPaymentDate));
         }
 
         if ($this->isCanceled) {
@@ -446,7 +446,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if ($this->dateCanceled) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.dateCanceled', $this->dateCanceled));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateCanceled', $this->dateCanceled));
         }
 
         if ($this->isExpired) {
@@ -454,7 +454,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if ($this->dateExpired) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.dateExpired', $this->dateExpired));
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateExpired', $this->dateExpired));
         }
 
         if ($this->onTrial === true) {
