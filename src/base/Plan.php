@@ -99,8 +99,12 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return ElementInterface|false
      */
-    public function getUserSubscription(int $userId)
+    public function getActiveUserSubscription(int $userId)
     {
-        return Subscription::find()->userId($userId)->planId($this->id)->one();
+        return Subscription::find()
+            ->userId($userId)
+            ->planId($this->id)
+            ->status(Subscription::STATUS_ACTIVE)
+            ->one();
     }
 }
