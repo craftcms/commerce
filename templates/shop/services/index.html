@@ -8,16 +8,27 @@
                 {{ plan.getFriendlyPlanName() }}
             </div>
             <div class="ten columns">
-                {% set subscription = plan.getUserSubscription(currentUser.id) %}
+                {% set subscription = plan.getActiveUserSubscription(currentUser.id) %}
                 {% if subscription %}
-                    <h5><strong>You have subscribed to this plan</strong></h5>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="commerce/subscriptions/unsubscribe">
-                        {{ redirectInput('shop/services') }}
-                        {{ csrfInput() }}
+                    <h5>You have an active subscription. </h5>
+                    {% if subscription.isCanceled %}
+                        Your subscription will expire on {{ subscription.dateCanceled|date('Y-m-d') }}
+                    {% else %}
+                        Your next payment is due on {{ subscription.nextPaymentDate|date('Y-m-d') }}
+                    {% endif %}
+                    <br /><br />
+                    <a href="{{ url('/shop/services/subscription', {subscription: subscription.id}) }}">View details</a><br /><br />
 
-                        <button type="submit">{{ "Unsubscribe"|t }}</button>
-                    </form>
+                    {% if not subscription.isCanceled %}
+                        <form method="POST">
+                            <input type="hidden" name="action" value="commerce/subscriptions/cancel-subscription">
+                            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+                            {{ redirectInput('shop/services') }}
+                            {{ csrfInput() }}
+
+                            <button type="submit">{{ "Unsubscribe"|t }}</button>
+                        </form>
+                    {% endif %}
                 {% else %}
                     <form method="POST">
                         <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
