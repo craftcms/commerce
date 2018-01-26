@@ -93,6 +93,18 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
+     * Whether there exists an active subscription for this plan for this user.
+     *
+     * @param int $userId
+     *
+     * @return bool
+     */
+    public function hasActiveSubscription(int $userId)
+    {
+        return (bool) $this->getActiveUserSubscription($userId);
+    }
+
+    /**
      * Return the subscription count for this plan.
      *
      * @param int $userId the user id
