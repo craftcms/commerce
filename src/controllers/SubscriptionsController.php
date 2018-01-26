@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
@@ -106,7 +107,15 @@ class SubscriptionsController extends BaseController
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }
 
-            $success = $plugin->getSubscriptions()->cancelSubscription($subscription);
+            /** @var SubscriptionGateway $gateway */
+            $gateway = $subscription->getGateway();
+            $parameters = $gateway->getCancelSubscriptionFormModel();
+
+            foreach ($parameters->attributes() as $attributeName) {
+                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+            }
+
+            $success = $plugin->getSubscriptions()->cancelSubscription($subscription, $parameters);
             
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to cancel subscription at this time.'));

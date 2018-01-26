@@ -2,6 +2,9 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\models\subscriptions\CancelSubscriptionForm;
+use craft\commerce\models\subscriptions\SubscriptionForm;
+
 /**
  * Class Subscription Gateway
  *
@@ -10,6 +13,13 @@ namespace craft\commerce\base;
  */
 abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
+    /**
+     * Get the cancel subscription form model
+     *
+     * @return CancelSubscriptionForm
+     */
+    abstract public function getCancelSubscriptionFormModel(): CancelSubscriptionForm;
+
     /**
      * Subscription plan settings HTML
      *
@@ -25,4 +35,11 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      * @return Plan
      */
     abstract public function getPlanModel(): Plan;
+
+    /**
+     * Get the subscription form model
+     *
+     * @return SubscriptionForm
+     */
+    abstract public function getSubscriptionFormModel(): SubscriptionForm;
 }

@@ -8,6 +8,7 @@ use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
 use craft\helpers\Db;
@@ -83,13 +84,14 @@ class Subscriptions extends Component
     /**
      * Cancel a subscription.
      *
-     * @param Subscription $subscription
+     * @param Subscription           $subscription
+     * @param CancelSubscriptionForm $parameters
      *
      * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
-     * @throws SubscriptionException if something went wrong when canceling subscription
+     * @throws SubscriptionException  if something went wrong when canceling subscription
      */
-    public function cancelSubscription(Subscription $subscription): bool
+    public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): bool
     {
         $gateway = $subscription->getGateway();
 
@@ -97,7 +99,7 @@ class Subscriptions extends Component
             throw new InvalidConfigException('Gateway does not support subscriptions.');
         }
 
-        $response = $gateway->cancelSubscription($subscription->reference);
+        $response = $gateway->cancelSubscription($subscription->reference, $parameters);
 
         if ($response->isCanceled() || $response->isScheduledForCancelation()) {
             $subscription->isCanceled = true;
