@@ -408,6 +408,7 @@ class Subscription extends Element
     public function datetimeAttributes(): array
     {
         $attributes = parent::datetimeAttributes();
+        $attributes[] = 'nextPaymentDate';
         $attributes[] = 'dateExpired';
         $attributes[] = 'dateCanceled';
         return $attributes;
