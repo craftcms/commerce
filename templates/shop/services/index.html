@@ -36,6 +36,11 @@
                         {{ redirectInput('shop/services') }}
                         {{ csrfInput() }}
 
+                        <select name="trialDays">
+                            {% for i in 0..14 %}
+                                <option value="{{ i|hash }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
                         <button type="submit">{{ "Subscribe"|t }}</button>
                     </form>
                 {% endif %}
