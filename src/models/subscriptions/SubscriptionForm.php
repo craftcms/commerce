@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\commerce\models\payments;
+namespace craft\commerce\models\subscriptions;
 
 use craft\base\Model;
 

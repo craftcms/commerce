@@ -5,6 +5,7 @@ namespace craft\commerce\base;
 use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\elements\User;
 
@@ -51,14 +52,13 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     /**
      * Cancel a subscription.
      *
-     * @param string $reference  the subscription reference
-     * @param array  $parameters additional paramters touse
+     * @param string                  $reference  the subscription reference
+     * @param CancelSubscriptionForm  $parameters additional paramters touse
      *
      * @return SubscriptionResponseInterface
      * @throws SubscriptionException for all subscription-related errors.
      */
-    // TODO parameters -> subscriptionParameters
-    public function cancelSubscription(string $reference, array $parameters = []): SubscriptionResponseInterface;
+    public function cancelSubscription(string $reference, CancelSubscriptionForm $parameters): SubscriptionResponseInterface;
 
     /**
      * Get a list of subscription payments for a given subscription.
