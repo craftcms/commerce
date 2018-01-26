@@ -71,7 +71,15 @@ class SubscriptionsController extends BaseController
         }
 
         try {
-            $success = $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan);
+            /** @var SubscriptionGateway $gateway */
+            $gateway = $plan->getGateway();
+            $parameters = $gateway->getSubscriptionFormModel();
+
+            foreach ($parameters->attributes() as $attributeName) {
+                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+            }
+
+            $success = $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
 
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to subscribe at this time.'));

@@ -9,6 +9,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
+use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
 use craft\helpers\Db;
@@ -41,16 +42,16 @@ class Subscriptions extends Component
     /**
      * Subscribe a user to a subscription plan.
      *
-     * @param User  $user       the user subscribing to a plan
-     * @param Plan  $plan       the plan the user is being subscribed to
-     * @param array $paramaters array of additional parameters to use
-     * @param Order $order      order, if subscribing is part of an order
+     * @param User             $user       the user subscribing to a plan
+     * @param Plan             $plan       the plan the user is being subscribed to
+     * @param SubscriptionForm $parameters array of additional parameters to use
+     * @param Order            $order      order, if subscribing is part of an order
      *
      * @return bool the result
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
      */
-    public function subscribe(User $user, Plan $plan, $paramaters = [], Order $order = null): bool
+    public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters, Order $order = null): bool
     {
         $gateway = $plan->getGateway();
 
@@ -58,7 +59,7 @@ class Subscriptions extends Component
             throw new InvalidConfigException('Gateway does not support subscriptions.');
         }
 
-        $response = $gateway->subscribe($user, $plan, $paramaters);
+        $response = $gateway->subscribe($user, $plan, $parameters);
 
         $subscription = new Subscription();
         $subscription->userId = $user->id;
