@@ -12,7 +12,7 @@
                 {% if subscription %}
                     <h5>You have an active subscription. </h5>
                     {% if subscription.isCanceled %}
-                        Your subscription will expire on {{ subscription.dateCanceled|date('Y-m-d') }}
+                        Your subscription was canceled on {{ subscription.dateCanceled|date('Y-m-d') }} and will expire on {{ subscription.nextPaymentDate|date('Y-m-d') }}
                     {% else %}
                         Your next payment is due on {{ subscription.nextPaymentDate|date('Y-m-d') }}
                     {% endif %}
