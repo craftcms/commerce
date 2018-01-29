@@ -25,7 +25,6 @@
                             <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
                             {{ redirectInput('shop/services') }}
                             {{ csrfInput() }}
-
                             <button type="submit">{{ "Unsubscribe"|t }}</button>
                         </form>
                     {% endif %}
@@ -36,11 +35,12 @@
                         {{ redirectInput('shop/services') }}
                         {{ csrfInput() }}
 
+                        Trial days
                         <select name="trialDays">
                             {% for i in 0..14 %}
                                 <option value="{{ i|hash }}">{{ i }}</option>
                             {% endfor %}
-                        </select>
+                        </select><br />
                         <button type="submit">{{ "Subscribe"|t }}</button>
                     </form>
                 {% endif %}
