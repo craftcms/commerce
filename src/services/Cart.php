@@ -388,7 +388,7 @@ class Cart extends Component
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if ($customer && (!$this->_cart->customerId || $this->_cart->customerId != $customer->id)) {
+            if ($customer && (!$this->_cart->customerId || $this->_cart->customerId !== $customer->id)) {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
