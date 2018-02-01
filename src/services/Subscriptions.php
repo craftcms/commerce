@@ -100,11 +100,18 @@ class Subscriptions extends Component
             throw new InvalidConfigException('Gateway does not support subscriptions.');
         }
 
-        $response = $gateway->cancelSubscription($subscription->reference, $parameters);
+        $response = $gateway->cancelSubscription($subscription, $parameters);
 
         if ($response->isCanceled() || $response->isScheduledForCancelation()) {
-            $subscription->isCanceled = true;
-            $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
+            if ($response->isScheduledForCancelation()) {
+                $subscription->isCanceled = true;
+                $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
+            }
+
+            if ($response->isCanceled()) {
+                $subscription->isExpired = true;
+                $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
+            }
 
             try{
                 return Craft::$app->getElements()->saveElement($subscription);
