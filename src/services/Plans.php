@@ -71,6 +71,32 @@ class Plans extends Component
     }
 
     /**
+     * Return all subscription plans for a gateway.
+     *
+     * @param int $gatewayId
+     *
+     * @return Plan[]
+     */
+    public function getAllGatewayPlans(int $gatewayId): array
+    {
+        $results = $this->_createPlansQuery()
+            ->where(['gatewayId' => $gatewayId])
+            ->all();
+
+        $plans = [];
+
+        foreach ($results as $result) {
+            try {
+                $plans[] = $this->_populatePlan($result);
+            } catch (InvalidConfigException $exception) {
+                continue; // Just skip this
+            }
+        }
+
+        return $plans;
+    }
+
+    /**
      * Returns a subscription plan by its id.
      *
      * @param int $planId The plan id.
