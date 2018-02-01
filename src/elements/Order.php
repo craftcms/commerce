@@ -455,7 +455,7 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $this->setLineItems(array_merge($lineItems, $lineItem));
+        $this->setLineItems(array_merge($lineItems, [$lineItem]));
     }
 
     /**

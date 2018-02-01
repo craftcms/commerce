@@ -93,7 +93,7 @@ class Cart extends Component
         $plugin = Plugin::getInstance();
         $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
-        $isNewLineItem = $lineItem->id;
+        $isNewLineItem = $lineItem->id ?? true;
 
         if ($lineItem) {
             foreach ($order->getLineItems() as $item) {
