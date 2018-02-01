@@ -73,7 +73,11 @@ class Tax implements AdjusterInterface
             }
         }
 
-        return array_merge(...$adjustments);
+        if ($adjustments) {
+            $adjustments = array_merge(...$adjustments);
+        }
+
+        return $adjustments;
     }
 
     // Private Methods
@@ -104,13 +108,13 @@ class Tax implements AdjusterInterface
                 $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
             }
 
-            if($validBusinessTaxId) {
+            if ($validBusinessTaxId) {
                 Craft::$app->getCache()->set('commerce:validVatId:'.$this->_address->businessTaxId, '1');
                 $removeVat = true;
             }
 
             // Clean up if the API returned false and the item was still in cache
-            if(!$validBusinessTaxId) {
+            if (!$validBusinessTaxId) {
                 Craft::$app->getCache()->delete('commerce:validVatId:'.$this->_address->businessTaxId);
             }
         }
