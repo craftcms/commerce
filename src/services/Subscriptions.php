@@ -108,7 +108,7 @@ class Subscriptions extends Component
             try{
                 return Craft::$app->getElements()->saveElement($subscription);
             } catch (\Throwable $exception) {
-                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
+                Craft::warning('Failed to reactivate subscription '.$subscription->reference.': '.$exception->getMessage());
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
             }
