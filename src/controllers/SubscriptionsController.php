@@ -66,7 +66,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
         $planId = $request->getValidatedBodyParam('planId');
 
-        if (!$planId || $plan = $plugin->getPlans()->getPlanById($planId)) {
+        if (!$planId || !$plan = $plugin->getPlans()->getPlanById($planId)) {
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
@@ -109,15 +109,14 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
-
-            if (!$subscriptionId) {
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
-            }
-
             $subscription = Subscription::find()->id($subscriptionId)->one();
             $currentUser = Craft::$app->getUser();
 
-            if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin()) || !$subscription->canReactivate()) {
+            $validData = $subscriptionId && $subscription;
+            $validAction = $subscription->canReactivate();
+            $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
+
+            if (!($validData && $validAction && $canModifySubscription)) {
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
             }
 
@@ -153,14 +152,13 @@ class SubscriptionsController extends BaseController
         try {
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
 
-            if (!$subscriptionId) {
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
-            }
-
             $subscription = Subscription::find()->id($subscriptionId)->one();
             $currentUser = Craft::$app->getUser();
 
-            if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin())) {
+            $validData = $subscriptionId && $subscription;
+            $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
+
+            if (!($validData && $canModifySubscription)) {
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }
 
