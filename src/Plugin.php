@@ -121,6 +121,8 @@ class Plugin extends \craft\base\Plugin
     {
         $ret = parent::getCpNavItem();
 
+        $ret['label'] = Craft::t('commerce', 'Commerce');
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
