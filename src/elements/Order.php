@@ -474,14 +474,18 @@ class Order extends Element
         //reset adjustments
         $this->setAdjustments([]);
 
+        $lineItemRemoved = false;
         foreach ($this->getLineItems() as $item) {
             if (!$item->refreshFromPurchasable()) {
                 $this->removeLineItem($item);
-                // We have changed the cart contents so recalculate the order.
-                $this->recalculate();
-
-                return;
+                $lineItemRemoved = true;
             }
+        }
+
+        if($lineItemRemoved)
+        {
+            $this->recalculate();
+            return;
         }
 
         // collect new adjustments

@@ -24,7 +24,7 @@
     "dompdf/dompdf": "~0.8",
     "moneyphp/money": "~3.0",
     "php-units-of-measure/php-units-of-measure": "~2.1",
-    "snowcap/vat-validation": "dev-master#21e7d996bd30dc680244d59d0fa18be3671e68ee"
+    "dannyvankooten/vat.php": "~1.1.2"
   },
   "autoload": {
     "psr-4": {
