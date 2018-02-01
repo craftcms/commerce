@@ -83,6 +83,41 @@ class Subscriptions extends Component
     }
 
     /**
+     * Reactivate a subscription.
+     *
+     * @param Subscription           $subscription
+     *
+     * @return bool
+     * @throws InvalidConfigException if the gateway does not support subscriptions
+     * @throws SubscriptionException  if something went wrong when reactivating subscription
+     */
+    public function reactivateSubscription(Subscription $subscription): bool
+    {
+        $gateway = $subscription->getGateway();
+
+        if (!$gateway instanceof SubscriptionGatewayInterface) {
+            throw new InvalidConfigException('Gateway does not support subscriptions.');
+        }
+
+        $response = $gateway->reactivateSubscription($subscription);
+
+        if (!$response->isScheduledForCancelation()) {
+            $subscription->isCanceled = false;
+            $subscription->dateCanceled = null;
+
+            try{
+                return Craft::$app->getElements()->saveElement($subscription);
+            } catch (\Throwable $exception) {
+                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
+
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Cancel a subscription.
      *
      * @param Subscription           $subscription

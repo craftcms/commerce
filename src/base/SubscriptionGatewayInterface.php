@@ -4,6 +4,7 @@ namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Subscription;
+use craft\commerce\errors\NotImplementedException;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
@@ -22,6 +23,35 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     // =========================================================================
 
     /**
+     * Cancel a subscription.
+     *
+     * @param Subscription            $subscription the subscription to cancel
+     * @param CancelSubscriptionForm  $parameters   additional paramters touse
+     *
+     * @return SubscriptionResponseInterface
+     * @throws SubscriptionException for all subscription-related errors.
+     */
+    public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): SubscriptionResponseInterface;
+
+    /**
+     * Returns the next payment amount for a subscription, taking into account all discounts.
+     *
+     * @param Subscription $subscription
+     *
+     * @return string next payment amount with currency code
+     */
+    public function getNextPaymentAmount(Subscription $subscription): string;
+
+    /**
+     * Get a list of subscription payments for a given subscription.
+     *
+     * @param Subscription $subscription
+     *
+     * @return SubscriptionPayment[]
+     */
+    public function getSubscriptionPayments(Subscription $subscription): array;
+
+    /**
      * Fetch a subscription plan by its reference
      *
      * @param string $reference
@@ -38,6 +68,16 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function getSubscriptionPlans(): array;
 
     /**
+     * Reactivate a subscription.
+     *
+     * @param Subscription $subscription the canceled subscription to reactivate
+     *
+     * @return SubscriptionResponseInterface
+     * @throws NotImplementedException
+     */
+    public function reactivateSubscription(Subscription $subscription): SubscriptionResponseInterface;
+
+    /**
      * Subscribe user to a plan.
      *
      * @param User             $user       the Craft user to subscribe
@@ -50,23 +90,9 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface;
 
     /**
-     * Cancel a subscription.
+     * Whether this gateway supports reactivating subscriptions.
      *
-     * @param string                  $reference  the subscription reference
-     * @param CancelSubscriptionForm  $parameters additional paramters touse
-     *
-     * @return SubscriptionResponseInterface
-     * @throws SubscriptionException for all subscription-related errors.
+     * @return bool
      */
-    public function cancelSubscription(string $reference, CancelSubscriptionForm $parameters): SubscriptionResponseInterface;
-
-    /**
-     * Get a list of subscription payments for a given subscription.
-     *
-     * @param Subscription $subscription
-     *
-     * @return SubscriptionPayment[]
-     */
-    public function getSubscriptionPayments(Subscription $subscription): array;
-
+    public function supportsReactivation(): bool;
 }

@@ -145,6 +145,17 @@ class Subscription extends Element
     }
 
     /**
+     * Whether this subscription can be reactivated.
+     *
+     * @return bool
+     * @throws InvalidConfigException if gateway misconfigured
+     */
+    public function canReactivate()
+    {
+        return $this->isCanceled && !$this->isExpired && $this->getGateway()->supportsReactivation();
+    }
+
+    /**
      * Return the User that is subscribed.
      *
      * @return User

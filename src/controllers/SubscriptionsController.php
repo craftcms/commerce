@@ -97,7 +97,44 @@ class SubscriptionsController extends BaseController
      * @throws InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionCancelSubscription(): Response
+    public function actionReactivate(): Response
+    {
+        $this->requireLogin();
+        $this->requirePostRequest();
+
+        $session = Craft::$app->getSession();
+        $plugin = Commerce::getInstance();
+
+        $request = Craft::$app->getRequest();
+        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
+        $subscription = Subscription::find()->id($subscriptionId)->one();
+
+        $currentUser = Craft::$app->getUser();
+
+        try {
+            if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin()) || !$subscription->canReactivate()) {
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            }
+
+            $success = $plugin->getSubscriptions()->reactivateSubscription($subscription);
+
+            if (!$success) {
+                $session->setError(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            }
+
+        } catch (SubscriptionException $exception) {
+            $session->setError($exception->getMessage());
+        }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionCancel(): Response
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -110,8 +147,10 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscription = Subscription::find()->id($subscriptionId)->one();
+            $currentUser = Craft::$app->getUser();
 
-            if (!$subscription || $subscription->userId !== Craft::$app->getUser()->getId()) {
+            // TODO maybe admin is overkill. Anyone who is allowed to manage subscriptions will do.
+            if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin())) {
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }
 
@@ -134,6 +173,5 @@ class SubscriptionsController extends BaseController
         }
 
         return $this->redirectToPostedUrl();
-
     }
 }
