@@ -22,7 +22,7 @@
             {% if subscription.canReactivate() %}
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                    <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
+                    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
                     {{ redirectInput('shop/services') }}
                     {{ csrfInput() }}
 
@@ -36,8 +36,9 @@
             {% for plan in subscription.alternativePlans %}
                 <div><strong>Switch to {{ plan.name }}</strong></div>
                 <form method="POST">
-                    <input type="hidden" name="action" value="commerce/subscriptions/update">
-                    <input type="hidden" name="planId" value="{{ plan.id }}">
+                    <input type="hidden" name="action" value="commerce/subscriptions/switch">
+                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
+                    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
                     {{ redirectInput('shop/services') }}
                     {{ csrfInput() }}
 
@@ -49,7 +50,7 @@
 
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
                 {{ redirectInput('shop/services') }}
                 {{ csrfInput() }}
 

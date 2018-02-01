@@ -23,7 +23,7 @@
                     You have not subscripbed to this plan. <br /><br />
                     <form method="POST">
                         <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                        <input type="hidden" name="planId" value="{{ plan.id }}">
+                        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
                         {{ redirectInput('shop/services') }}
                         {{ csrfInput() }}
 

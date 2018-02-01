@@ -18,6 +18,7 @@ use yii\web\Response;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
+ * TODO when checking if subscription is currentUser's, allow for commerce permission instead of admin
  */
 class SubscriptionsController extends BaseController
 {
@@ -63,10 +64,9 @@ class SubscriptionsController extends BaseController
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
-        $planId = $request->getRequiredBodyParam('planId');
-        $plan = $plugin->getPlans()->getPlanById($planId);
+        $planId = $request->getValidatedBodyParam('planId');
 
-        if (!$plan) {
+        if (!$planId || $plan = $plugin->getPlans()->getPlanById($planId)) {
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
@@ -106,12 +106,17 @@ class SubscriptionsController extends BaseController
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
-        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
-        $subscription = Subscription::find()->id($subscriptionId)->one();
-
-        $currentUser = Craft::$app->getUser();
 
         try {
+            $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
+
+            if (!$subscriptionId) {
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            }
+
+            $subscription = Subscription::find()->id($subscriptionId)->one();
+            $currentUser = Craft::$app->getUser();
+
             if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin()) || !$subscription->canReactivate()) {
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
             }
@@ -129,6 +134,7 @@ class SubscriptionsController extends BaseController
         return $this->redirectToPostedUrl();
     }
 
+
     /**
      * @return Response
      * @throws InvalidConfigException
@@ -143,13 +149,17 @@ class SubscriptionsController extends BaseController
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
-        $subscriptionId = $request->getRequiredBodyParam('subscriptionId');
 
         try {
+            $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
+
+            if (!$subscriptionId) {
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+            }
+
             $subscription = Subscription::find()->id($subscriptionId)->one();
             $currentUser = Craft::$app->getUser();
 
-            // TODO maybe admin is overkill. Anyone who is allowed to manage subscriptions will do.
             if (!$subscription || ($subscription->userId !== $currentUser->getId() && !$currentUser->getIsAdmin())) {
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }
