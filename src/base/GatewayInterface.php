@@ -4,6 +4,7 @@ namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
 
@@ -59,6 +60,24 @@ interface GatewayInterface extends SavableComponentInterface
     public function completePurchase(Transaction $transaction): RequestResponseInterface;
 
     /**
+     * Create a payment source from source data
+     *
+     * @param BasePaymentForm $sourceData
+     *
+     * @return PaymentSource
+     */
+    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource;
+
+    /**
+     * Delete a payment source on the gateway by it's token.
+     *
+     * @param string $token
+     *
+     * @return bool
+     */
+    public function deletePaymentSource($token): bool;
+
+    /**
      * Make a purchase request.
      *
      * @param Transaction     $transaction The purchase transaction
@@ -112,6 +131,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsCompletePurchase(): bool;
+
+    /**
+     * Return true if gateway supports payment sources
+     *
+     * @return bool
+     */
+    public function supportsPaymentSources(): bool;
 
     /**
      * Return true if gateway supports purchase requests.

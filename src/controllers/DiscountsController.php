@@ -3,9 +3,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
+use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -56,8 +59,6 @@ class DiscountsController extends BaseCpController
             'discount' => $discount,
         ];
 
-        $variables['productElementType'] = Product::class;
-
         if (!$variables['discount']) {
             if ($variables['id']) {
                 $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id']);
@@ -84,24 +85,54 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        //getting product types maps
-        $types = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        $variables['types'] = ArrayHelper::map($types, 'id', 'name');
+        $variables['categoryElementType'] = Category::class;
+        $variables['categories'] = null;
+        $categories = $categoryIds = [];
 
-        $variables['products'] = null;
-        $products = $productIds = [];
-        if (!$variables['id']) {
-            $productIds = explode('|', Craft::$app->getRequest()->getParam('productIds'));
+        if (empty($variables['id'])) {
+            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
         } else {
-            $productIds = $variables['discount']->getProductIds();
+            $categoryIds = $variables['discount']->getCategoryIds();
         }
-        foreach ($productIds as $productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById((int)$productId);
-            if ($product) {
-                $products[] = $product;
+
+        foreach ($categoryIds as $categoryId) {
+            $id = (int)$categoryId;
+            $categories[] = Craft::$app->getElements()->getElementById($id);
+        }
+
+        $variables['categories'] = $categories;
+
+        $variables['purchasables'] = null;
+        $purchasables = $purchasableIds = [];
+
+        if (empty($variables['id'])) {
+            $purchasableIds = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+        } else {
+            $purchasableIds = $variables['discount']->getPurchasableIds();
+        }
+
+        foreach ($purchasableIds as $purchsableId) {
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchsableId);
+            if ($purchasable && $purchasable instanceof PurchasableInterface) {
+                $class = \get_class($purchasable);
+                $purchasables[$class] = $purchasables[$class] ?? [];
+                $purchasables[$class][] = $purchasable;
             }
         }
-        $variables['products'] = $products;
+
+        $variables['purchasableTypes'] = [];
+        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+
+        /** @var Purchasable $purchasableType */
+        foreach ($purchasableTypes as $purchasableType)
+        {
+            $variables['purchasableTypes'][] = [
+                'name' => $purchasableType::displayName(),
+                'elementType' => $purchasableType
+            ];
+        }
+
+        $variables['purchasables'] = $purchasables;
 
         return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
@@ -159,14 +190,14 @@ class DiscountsController extends BaseCpController
             $discount->percentDiscount = (float)$percentDiscountAmount * -1;
         }
 
-        $products = $request->getParam('products', []);
-        if (!$products) {
-            $products = [];
+        $purchasables = $request->getParam('purchasables', []);
+        if (!$purchasables) {
+            $purchasables = [];
         }
 
-        $productTypes = $request->getParam('productTypes', []);
-        if (!$productTypes) {
-            $productTypes = [];
+        $categories = $request->getParam('categories', []);
+        if (!$categories) {
+            $categories = [];
         }
 
         $groups = $request->getParam('groups', []);
@@ -175,8 +206,7 @@ class DiscountsController extends BaseCpController
         }
 
         // Save it
-        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount, $groups, $productTypes,
-            $products)
+        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount, $groups, $categories, $purchasables)
         ) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discount saved.'));
             $this->redirectToPostedUrl($discount);

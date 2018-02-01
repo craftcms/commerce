@@ -59,7 +59,7 @@ class Cart extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cookieCartId = 'commerce_cookie';
+    protected $cartName = 'commerce_cookie';
 
     /**
      * @var Order
@@ -267,6 +267,32 @@ class Cart extends Component
         return true;
     }
 
+    public function setPaymentSource(Order $cart, $paymentSourceId, &$error): bool
+    {
+        $user = Craft::$app->getUser();
+
+        if ($user->getIsGuest()) {
+            $error = Craft::t('commerce', 'You must be logged in to select a payment source.');
+        }
+
+        $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
+
+        if (!$source) {
+            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        }
+
+        // TODO maybe allow admins to do this?
+        if ($user->getId() !== $source->userId) {
+            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        }
+
+        $cart->gatewayId = null;
+        $cart->paymentSourceId = $paymentSourceId;
+        Craft::$app->getElements()->saveElement($cart);
+
+        return true;
+    }
+
     /**
      * @param Order  $cart
      * @param        $email
@@ -358,7 +384,7 @@ class Cart extends Component
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if ($customer && $this->_cart->customerId && $this->_cart->customerId != $customer->id) {
+            if ($customer && (!$this->_cart->customerId || $this->_cart->customerId != $customer->id)) {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
@@ -379,7 +405,7 @@ class Cart extends Component
     {
         $this->_cart = null;
         $session = Craft::$app->getSession();
-        $session->remove($this->cookieCartId);
+        $session->remove($this->cartName);
     }
 
     /**
@@ -498,11 +524,11 @@ class Cart extends Component
     private function _getSessionCartNumber()
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session[$this->cookieCartId];
+        $cartNumber = $session[$this->cartName];
 
         if (!$cartNumber) {
             $cartNumber = $this->_uniqueCartNumber();
-            $session->set($this->cookieCartId, $cartNumber);
+            $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;

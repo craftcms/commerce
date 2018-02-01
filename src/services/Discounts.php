@@ -4,17 +4,17 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Variant;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
 use craft\commerce\records\Discount as DiscountRecord;
-use craft\commerce\records\DiscountProduct as DiscountProductRecord;
-use craft\commerce\records\DiscountProductType as DiscountProductTypeRecord;
+use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
+use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\db\Query;
+use craft\elements\Category;
 use craft\elements\User;
 use DateTime;
 use yii\base\Component;
@@ -74,31 +74,31 @@ class Discounts extends Component
     {
         if (null === $this->_allDiscounts) {
             $discounts = $this->_createDiscountQuery()
-                ->leftJoin('{{%commerce_discount_products}} dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin('{{%commerce_discount_producttypes}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
+                ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
+                ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
                 ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
                 ->all();
 
             $allDiscountsById = [];
-            $products = [];
-            $productTypes = [];
-            $groups = [];
+            $purchasables = [];
+            $categories = [];
+            $userGroups = [];
 
             foreach ($discounts as $discount) {
                 $id = $discount['id'];
-                if ($discount['productId']) {
-                    $products[$id][] = $discount['productId'];
+                if ($discount['purchasableId']) {
+                    $purchasables[$id][] = $discount['purchasableId'];
                 }
 
-                if ($discount['productTypeId']) {
-                    $productTypes[$id][] = $discount['productTypeId'];
+                if ($discount['categoryId']) {
+                    $categories[$id][] = $discount['categoryId'];
                 }
 
                 if ($discount['userGroupId']) {
-                    $groups[$id][] = $discount['userGroupId'];
+                    $userGroups[$id][] = $discount['userGroupId'];
                 }
 
-                unset($discount['productId'], $discount['userGroupId'], $discount['productTypeId']);
+                unset($discount['purchasableId'], $discount['userGroupId'], $discount['categoryId']);
 
                 if (!isset($allDiscountsById[$id])) {
                     $allDiscountsById[$id] = new Discount($discount);
@@ -106,9 +106,9 @@ class Discounts extends Component
             }
 
             foreach ($allDiscountsById as $id => $discount) {
-                $discount->setProductIds($products[$id] ?? []);
-                $discount->setProductTypeIds($productTypes[$id] ?? []);
-                $discount->setUserGroupIds($groups[$id] ?? []);
+                $discount->setPurchasableIds($purchasables[$id] ?? []);
+                $discount->setCategoryIds($categories[$id] ?? []);
+                $discount->setUserGroupIds($userGroups[$id] ?? []);
             }
 
             $this->_allDiscounts = $allDiscountsById;
@@ -127,27 +127,27 @@ class Discounts extends Component
     public function populateDiscountRelations(Discount $discount)
     {
         $rows = (new Query())->select(
-            'dp.productId,
-            dpt.productTypeId,
+            'dp.purchasableId,
+            dpt.categoryId,
             dug.userGroupId')
             ->from('{{%commerce_discounts}} discounts')
-            ->leftJoin('{{%commerce_discount_products}} dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin('{{%commerce_discount_producttypes}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
             ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $discount->id])
             ->all();
 
-        $productIds = [];
-        $productTypeIds = [];
+        $purchsableIds = [];
+        $categoryIds = [];
         $userGroupIds = [];
 
         foreach ($rows as $row) {
-            if ($row['productId']) {
-                $productIds[] = $row['productId'];
+            if ($row['purchasableId']) {
+                $purchsableIds[] = $row['purchasableId'];
             }
 
-            if ($row['productTypeId']) {
-                $productTypeIds[] = $row['productTypeId'];
+            if ($row['categoryId']) {
+                $categoryIds[] = $row['categoryId'];
             }
 
             if ($row['userGroupId']) {
@@ -155,8 +155,8 @@ class Discounts extends Component
             }
         }
 
-        $discount->setProductIds($productIds);
-        $discount->setProductTypeIds($productTypeIds);
+        $discount->setPurchasableIds($purchsableIds);
+        $discount->setCategoryIds($categoryIds);
         $discount->setUserGroupIds($userGroupIds);
     }
 
@@ -325,24 +325,25 @@ class Discounts extends Component
             return false;
         }
 
-        if ($discount->getProductIds()) {
-            if ($lineItem->purchasable instanceof Variant) {
-                $productId = $lineItem->purchasable->productId;
-                if (!$discount->allProducts && !in_array($productId, $discount->getProductIds(), true)) {
-                    return false;
-                }
-            } else {
+        if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
+            $purchasableId = $lineItem->purchasableId;
+            if (!\in_array($purchasableId, $discount->getPurchasableIds(), true)) {
                 return false;
             }
         }
 
-        if ($discount->getProductTypeIds()) {
-            if ($lineItem->purchasable instanceof Variant) {
-                $productTypeId = $lineItem->purchasable->product->typeId;
-                if (!$discount->allProductTypes && !in_array($productTypeId, $discount->getProductTypeIds(), true)) {
-                    return false;
-                }
-            } else {
+        if ($discount->getCategoryIds() && !$discount->allCategories && $lineItem->getPurchasable()) {
+            $purchasable = $lineItem->getPurchasable();
+
+            if(!$purchasable)
+            {
+                return false;
+            }
+
+            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+            $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
+            if (!$purchasableIsRelateToOneOrMoreCategories) {
                 return false;
             }
         }
@@ -361,13 +362,13 @@ class Discounts extends Component
     /**
      * @param Discount $model
      * @param array    $groups       ids
-     * @param array    $productTypes ids
-     * @param array    $products     ids
+     * @param array    $categories   ids
+     * @param array    $purchasables ids
      *
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(Discount $model, array $groups, array $productTypes, array $products): bool
+    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables): bool
     {
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
@@ -402,8 +403,8 @@ class Discounts extends Component
         $record->code = $model->code ?: null;
 
         $record->allGroups = $model->allGroups = empty($groups);
-        $record->allProductTypes = $model->allProductTypes = empty($productTypes);
-        $record->allProducts = $model->allProducts = empty($products);
+        $record->allCategories = $model->allCategories = empty($categories);
+        $record->allPurchasables = $model->allPurchasables = empty($purchasables);
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -417,8 +418,8 @@ class Discounts extends Component
                 $model->id = $record->id;
 
                 DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
-                DiscountProductRecord::deleteAll(['discountId' => $model->id]);
-                DiscountProductTypeRecord::deleteAll(['discountId' => $model->id]);
+                DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
+                DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
                 foreach ($groups as $groupId) {
                     $relation = new DiscountUserGroupRecord;
@@ -427,16 +428,16 @@ class Discounts extends Component
                     $relation->save();
                 }
 
-                foreach ($productTypes as $productTypeId) {
-                    $relation = new DiscountProductTypeRecord();
-                    $relation->productTypeId = $productTypeId;
+                foreach ($categories as $categoryId) {
+                    $relation = new DiscountCategoryRecord();
+                    $relation->categoryId = $categoryId;
                     $relation->discountId = $model->id;
                     $relation->save();
                 }
 
-                foreach ($products as $productId) {
-                    $relation = new DiscountProductRecord;
-                    $relation->productId = $productId;
+                foreach ($purchasables as $purchasableId) {
+                    $relation = new DiscountPurchasableRecord();
+                    $relation->purchasableId = $purchasableId;
                     $relation->discountId = $model->id;
                     $relation->save();
                 }
@@ -577,13 +578,13 @@ class Discounts extends Component
             discounts.excludeOnSale,
             discounts.freeShipping,
             discounts.allGroups,
-            discounts.allProducts,
-            discounts.allProductTypes,
+            discounts.allPurchasables,
+            discounts.allCategories,
             discounts.enabled,
             discounts.stopProcessing,
             discounts.sortOrder,
-            dp.productId,
-            dpt.productTypeId,
+            dp.purchasableId,
+            dpt.categoryId,
             dug.userGroupId')
             ->from('{{%commerce_discounts}} discounts')
             ->orderBy(['sortOrder' => SORT_ASC]);

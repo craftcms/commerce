@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Category;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -10,14 +11,14 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int                  $id
  * @property int                  $saleId
- * @property ActiveQueryInterface $productType
+ * @property ActiveQueryInterface $category
  * @property ActiveQueryInterface $sale
- * @property int                  $productTypeId
+ * @property int                  $categoryId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
-class SaleProductType extends ActiveRecord
+class SaleCategory extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
@@ -27,7 +28,7 @@ class SaleProductType extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_sale_producttypes}}';
+        return '{{%commerce_sale_categories}}';
     }
 
     /**
@@ -36,7 +37,7 @@ class SaleProductType extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['saleId', 'productTypeId'], 'unique', 'targetAttribute' => ['saleId', 'productTypeId']]
+            [['saleId', 'categoryId'], 'unique', 'targetAttribute' => ['saleId', 'categoryId']]
         ];
     }
 
@@ -51,8 +52,8 @@ class SaleProductType extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getProductType(): ActiveQueryInterface
+    public function getCategory(): ActiveQueryInterface
     {
-        return $this->hasOne(ProductType::class, ['saleId' => 'id']);
+        return $this->hasOne(Category::class, ['saleId' => 'id']);
     }
 }

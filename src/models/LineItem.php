@@ -291,16 +291,11 @@ class LineItem extends Model
     /**
      * @return PurchasableInterface|null
      *
-     * @throws InvalidConfigException
      */
     public function getPurchasable()
     {
         if (null === $this->_purchasable && null !== $this->purchasableId) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
-        }
-
-        if (null !== $this->_purchasable && !($this->_purchasable instanceof PurchasableInterface)) {
-            throw new InvalidConfigException('Line item should only contain a real purchasable.');
         }
 
         return $this->_purchasable;
@@ -321,16 +316,17 @@ class LineItem extends Model
      */
     public function fillFromPurchasable(PurchasableInterface $purchasable)
     {
-        $this->price = $purchasable->getPrice();
+        $price = $purchasable->getPrice();
+        $this->price = $price;
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
 
         // Since sales cannot apply to non core purchasables yet, set to price at default
-        $this->salePrice = $purchasable->getPrice();
+        $this->salePrice = $price;
         $this->saleAmount = 0;
 
         $snapshot = [
-            'price' => $purchasable->getPrice(),
+            'price' => $price,
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
             'purchasableId' => $purchasable->getPurchasableId(),
@@ -342,6 +338,23 @@ class LineItem extends Model
         $this->snapshot = array_merge($purchasable->getSnapshot(), $snapshot);
 
         $purchasable->populateLineItem($this);
+
+        $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable);
+
+        /** @var Sale $sale */
+        foreach ($sales as $sale) {
+            $this->saleAmount += $sale->calculateTakeoff($this->price);
+        }
+
+        // Don't let sale amount be more than the price.
+        if (-$this->saleAmount > $this->price) {
+            $this->saleAmount = -$this->price;
+        }
+
+        // If the product is not promotable but has saleAmount, reset saleAmount to zero
+        if (!$this->getPurchasable()->getIsPromotable()) {
+            $this->saleAmount = 0;
+        }
 
         $lineItemsService = Plugin::getInstance()->getLineItems();
 

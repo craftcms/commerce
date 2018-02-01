@@ -18,6 +18,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -26,6 +27,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\errors\DefaultOrderStatusNotFoundException;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -165,6 +167,11 @@ class Order extends Element
     public $gatewayId;
 
     /**
+     * @var int|null Payment source ID
+     */
+    public $paymentSourceId;
+
+    /**
      * @var string Last IP
      */
     public $lastIp;
@@ -278,8 +285,8 @@ class Order extends Element
      */
     public function beforeValidate(): bool
     {
-        // Set default gateway
-        if (!$this->gatewayId) {
+        // Set default gateway if none present and no payment source selected
+        if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
             if (count($gateways)) {
                 $this->gatewayId = key($gateways);
@@ -371,9 +378,11 @@ class Order extends Element
     }
 
     /**
-     * Completes an order
-     *
      * @return bool
+     * @throws DefaultOrderStatusNotFoundException
+     * @throws Exception
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
      */
     public function markAsComplete(): bool
     {
@@ -383,7 +392,15 @@ class Order extends Element
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
-        $this->orderStatusId = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusId();
+        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
+
+        // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
+        if ($orderStatus && $orderStatus->id)
+        {
+            $this->orderStatusId = $orderStatus->id;
+        }else{
+            throw new DefaultOrderStatusNotFoundException('Could not find a valid default order status.');
+        }
 
         // Raising the 'beforeCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_COMPLETE_ORDER)) {
@@ -457,14 +474,18 @@ class Order extends Element
         //clear adjustments
         $this->setAdjustments([]);
 
+        $lineItemRemoved = false;
         foreach ($this->getLineItems() as $item) {
             if (!$item->refreshFromPurchasable()) {
                 $this->removeLineItem($item);
-                // We have changed the cart contents so recalculate the order.
-                $this->recalculate();
-
-                return;
+                $lineItemRemoved = true;
             }
+        }
+
+        if($lineItemRemoved)
+        {
+            $this->recalculate();
+            return;
         }
 
         // collect new adjustments
@@ -532,6 +553,7 @@ class Order extends Element
         $orderRecord->shippingAddressId = $this->shippingAddressId;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
         $orderRecord->gatewayId = $this->gatewayId;
+        $orderRecord->paymentSourceId = $this->paymentSourceId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
         $orderRecord->totalPrice = $this->getTotalPrice();
@@ -1032,7 +1054,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($this->getShippingMethodHandle());
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->getShippingMethodHandle());
     }
 
     /**
@@ -1048,8 +1070,30 @@ class Order extends Element
      */
     public function getGateway()
     {
+        if ($this->paymentSourceId) {
+            $paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
+
+            if ($paymentSource) {
+                return Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
+            }
+        }
+
         if ($this->gatewayId) {
             return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the order's selected payment source if any.
+     *
+     * @return PaymentSource
+     */
+    public function getPaymentSource()
+    {
+        if ($this->paymentSourceId) {
+            return Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
         }
 
         return null;

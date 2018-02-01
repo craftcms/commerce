@@ -21,8 +21,6 @@ use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
-use craft\redactor\events\RegisterLinkOptionsEvent;
-use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
@@ -48,7 +46,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.5';
+    public $schemaVersion = '2.0.10';
 
     // Traits
     // =========================================================================
@@ -121,22 +119,10 @@ class Plugin extends \craft\base\Plugin
      */
     public function getCpNavItem(): array
     {
-        $iconPath = $this->getBasePath().DIRECTORY_SEPARATOR.'icon-mask.svg';
-
-        if (is_file($iconPath)) {
-            $iconSvg = file_get_contents($iconPath);
-        } else {
-            $iconSvg = false;
-        }
-
-        $navItems = [
-            'label' => Craft::t('commerce', 'Commerce'),
-            'url' => $this->id,
-            'iconSvg' => $iconSvg
-        ];
+        $ret = parent::getCpNavItem();
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $navItems['subnav']['orders'] = [
+            $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders'
             ];
@@ -144,7 +130,7 @@ class Plugin extends \craft\base\Plugin
 
         if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-                $navItems['subnav']['products'] = [
+                $ret['subnav']['products'] = [
                     'label' => Craft::t('commerce', 'Products'),
                     'url' => 'commerce/products'
                 ];
@@ -152,20 +138,20 @@ class Plugin extends \craft\base\Plugin
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $navItems['subnav']['promotions'] = [
+            $ret['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
 
         if (Craft::$app->user->identity->admin) {
-            $navItems['subnav']['settings'] = [
+            $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings'
             ];
         }
 
-        return $navItems;
+        return $ret;
     }
 
     // Protected Methods
@@ -195,11 +181,11 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerRedactorLinkOptions()
     {
-        if (!class_exists(RedactorField::class)) {
+        if (!class_exists('\craft\redactor\Field')) {
             return;
         }
 
-        Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
+        Event::on('\craft\redactor\Field', \craft\redactor\Field::EVENT_REGISTER_LINK_OPTIONS, function(\craft\redactor\events\RegisterLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 

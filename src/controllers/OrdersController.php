@@ -108,8 +108,6 @@ class OrdersController extends BaseCpController
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
 
-        $this->getView()->registerAssetBundle(EditOrderAsset::class);
-
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
 

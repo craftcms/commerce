@@ -196,7 +196,7 @@ class CartController extends BaseFrontEndController
                         } else {
                             $billingAddress = new Address();
                             $billingAddress->setAttributes($request->getParam('billingAddress'));
-                            $result = $this->_setOrderAddresses($shippingAddress, $billingAddress);
+                            $result = $this->_setOrderAddresses($shippingAddress, $billingAddress, $error);
                             if (!$result) {
                                 if ($billingAddress->hasErrors()) {
                                     $updateErrors['billingAddress'] = Craft::t('commerce', 'Could not save the billing address.');
@@ -206,7 +206,7 @@ class CartController extends BaseFrontEndController
                             }
                         }
                     } else {
-                        if (!$this->_setOrderAddresses($shippingAddress, $shippingAddress)) {
+                        if (!$this->_setOrderAddresses($shippingAddress, $shippingAddress, $error)) {
                             $updateErrors['shippingAddress'] = Craft::t('commerce', 'Could not save the shipping address.');
                         } else {
                             $cartSaved = true;
@@ -232,9 +232,9 @@ class CartController extends BaseFrontEndController
                     $billingAddress->setAttributes($request->getParam('billingAddress'));
                 }
 
-                $result = $this->_setOrderAddresses($shippingAddress, $billingAddress);
+                $result = $this->_setOrderAddresses($shippingAddress, $billingAddress, $error);
             } else {
-                $result = $this->_setOrderAddresses($shippingAddress, $shippingAddress);
+                $result = $this->_setOrderAddresses($shippingAddress, $shippingAddress, $error);
             }
             if (!$result) {
                 if ($sameAddress) {
@@ -292,6 +292,17 @@ class CartController extends BaseFrontEndController
             $gatewayId = $request->getParam('gatewayId');
             if (!$plugin->getCart()->setGateway($this->_cart, $gatewayId, $error)) {
                 $updateErrors['gatewayId'] = $error;
+            } else {
+                $cartSaved = true;
+            }
+        }
+
+        // Set Payment source on Cart.
+        if (null !== $request->getParam('paymentSourceId')) {
+            $error = '';
+            $paymentSourceId = $request->getParam('paymentSourceId');
+            if (!$plugin->getCart()->setPaymentSource($this->_cart, $paymentSourceId, $error)) {
+                $updateErrors['$paymentSourceId'] = $error;
             } else {
                 $cartSaved = true;
             }

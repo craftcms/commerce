@@ -41,7 +41,7 @@ class CreateDiscount extends ElementAction
         batch: true,
         activate: function(\$selectedItems)
         {
-            Craft.redirectTo(Craft.getUrl('commerce/promotions/discounts/new', 'productIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
+            Craft.redirectTo(Craft.getUrl('commerce/promotions/discounts/new', 'purchasableIds='+Craft.elementIndex.getSelectedElementIds().join('|')));
         }
     });
 })();

@@ -31,13 +31,6 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @event GatewayRequestEvent The event that is triggered before a gateway request is sent
-     *
-     * You may set [[GatewayRequestEvent::isValid]] to `false` to prevent the request from being sent.
-     */
-    const EVENT_BEFORE_GATEWAY_REQUEST_SEND = 'beforeGatewayRequestSend';
-
-    /**
      * @event TransactionEvent The event that is triggered before a transaction is captured
      */
     const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
@@ -94,7 +87,7 @@ class Payments extends Component
         $this->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, $event);
 
         if (!$event->isValid) {
-            // This error potentially is goind to be displayed in the frontend, so we have to be vague about it.
+            // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
             // Long story short - a plugin said "no."
             throw new PaymentException(Craft::t('commerce', 'Unable to make payment at this time.'));
         }
@@ -303,7 +296,7 @@ class Payments extends Component
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        $paid =(new Query())
+        return (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -329,7 +322,7 @@ class Payments extends Component
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        return (new Query())
+        return (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,

@@ -1,16 +1,18 @@
 
 ### Added
 - Added 'Copy' Reference tag to Product actions.
+- Added the possibility to save payment sources for users and use them when checking out.
 
 ### Changed
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
-- `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales` respectively.
+- `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales()` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
-- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file.
 - Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 
+- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file. 
+- Vat ID validation is now using the MIT licenced dannyvankooten/vat.php 
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
@@ -26,9 +28,6 @@
 - `craft\commerce\services\Purchasables` now fires the `registerPurchasableElementTypes` event.
 
 ### Events that used to be hooks
-- Instead of the `commerce_modifyPaymentRequest` hook you should use the `beforeGatewayRequestSend` event fired by `craft\commerce\base\Gateway`.
-- Instead of the `commerce_modifyGatewayRequestData` hook you should use the `beforeSendPaymentRequest` event fired by `craft\commerce\services\Payments`.
-- Instead of the `commerce_modifyItemBag` hook you should use the `afterCreateItemBag` event fired by `craft\commerce\base\Gateway`.
 - Instead of the `commerce_modifyEmail` hook you should use the cancelable `beforeSendEmail` event fired by `craft\commerce\services\Emails`.
 - Instead of the `commerce_registerOrderAdjusters` hook you should use the `registerOrderAdjusters` event fired by `craft\commerce\services\OrderAdjustments`.
 - To register new gateway types, use the `registerGatewayTypes` event fired by `craft\commerce\services\Gateways`.
@@ -37,3 +36,4 @@
 ### Removed
 - Removed `craft\commerce\services\Countries::getCountryByAttributes()`
 - Removed `craft\commerce\services\States::getStatesByAttributes()`
+- Removed the `commerce_modifyGatewayRequestData`, `commerce_modifyGatewayRequestData` and `commerce_modifyItemBag` hooks.

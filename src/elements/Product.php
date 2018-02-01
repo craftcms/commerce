@@ -160,6 +160,15 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Product Variant');
+    }
+
+
+    /**
+     * @inheritdoc
+     */
     public static function refHandle()
     {
         return 'product';
@@ -369,8 +378,9 @@ class Product extends Element
 
     /**
      * Returns an array of the product's variants
+     * @return array
      *
-     * @return Variant[]
+     * @throws InvalidConfigException
      */
     public function getVariants(): array
     {
