@@ -184,6 +184,17 @@ class Subscription extends Element
     }
 
     /**
+     * Return the next payment amount with currency code as a string.
+     *
+     * @return string
+     * @throws InvalidConfigException
+     */
+    public function getNextPaymentAmount(): string
+    {
+        return $this->getGateway()->getNextPaymentAmount($this);
+    }
+
+    /**
      * Return the order that included this subscription, if any.
      *
      * @return null|Order
