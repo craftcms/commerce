@@ -239,6 +239,30 @@ class Subscription extends Element
     }
 
     /**
+     * Return possible alternative plans for this subscription
+     *
+     * @return Plan[]
+     */
+    public function getAlternativePlans(): array
+    {
+        $plans = Commerce::getInstance()->getPlans()->getAllGatewayPlans($this->gatewayId);
+
+        /** @var Plan $currentPlan */
+        $currentPlan = $this->getPlan();
+
+        $alternativePlans = [];
+
+        foreach ($plans as $plan) {
+            // For all plans that are not the current plan
+            if ($plan->id !== $currentPlan->id && $plan->canSwitchFrom($currentPlan)) {
+                $alternativePlans[] = $plan;
+            }
+        }
+
+        return $alternativePlans;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getCpEditUrl(): string
