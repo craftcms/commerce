@@ -33,17 +33,17 @@ class Plans extends Component
         $results = $this->_createPlansQuery()
             ->all();
 
-        $sources = [];
+        $plans = [];
 
         foreach ($results as $result) {
             try {
-                $sources[] = $this->_populatePlan($result);
+                $plans[] = $this->_populatePlan($result);
             } catch (InvalidConfigException $exception) {
                 continue; // Just skip this
             }
         }
 
-        return $sources;
+        return $plans;
     }
 
     /**
