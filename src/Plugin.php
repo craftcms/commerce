@@ -21,8 +21,6 @@ use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
-use craft\redactor\events\RegisterLinkOptionsEvent;
-use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
@@ -183,11 +181,11 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerRedactorLinkOptions()
     {
-        if (!class_exists(RedactorField::class)) {
+        if (!class_exists('\craft\redactor\Field')) {
             return;
         }
 
-        Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
+        Event::on('\craft\redactor\Field', \craft\redactor\Field::EVENT_REGISTER_LINK_OPTIONS, function(\craft\redactor\events\RegisterLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
