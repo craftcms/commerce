@@ -715,7 +715,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_orderstatus_emails}}');
         $this->dropTable('{{%commerce_orderstatuses}}');
         $this->dropTable('{{%commerce_paymentcurrencies}}');
-        $this->dropTable('{{%commerce_paymentsourcees}}');
+        $this->dropTable('{{%commerce_paymentsources}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
         $this->dropTable('{{%commerce_producttypes_sites}}');
