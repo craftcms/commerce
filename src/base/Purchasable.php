@@ -2,9 +2,8 @@
 
 namespace craft\commerce\base;
 
-use Craft;
-use craft\commerce\errors\NotImplementedException;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 
 /**
@@ -25,11 +24,13 @@ use craft\commerce\Plugin;
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {
-
+    /**
+     * @var float|null
+     */
     private $_salePrice;
 
     /**
-     * @var
+     * @var Sale[]|null
      */
     private $_sales;
 
@@ -39,20 +40,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public static function displayName(): string
-    {
-        $classNameParts = explode('\\', static::class);
-
-        return array_pop($classNameParts);
-    }
-
-
-    /**
-     * @inheritdoc
-     */
     public function getPurchasableId(): int
     {
-        throw new NotImplementedException('Purchasable needs a purchasable ID');
+        return $this->id;
     }
 
     /**
@@ -66,23 +56,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getPrice(): float
-    {
-        throw new NotImplementedException('Purchasable needs a price');
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getLivePrice(): float
     {
         return $this->getPrice();
     }
 
     /**
-     * Getter provides opportunity to populate the salePrice if sales have not already been applied.
-     *
-     * @return null|float
+     * @inheritdoc
      */
     public function getSalePrice(): float
     {
@@ -94,9 +74,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * @param $value
+     * @param float|null $value
      */
-    public function setSalePrice($value)
+    public function setSalePrice(float $value = null)
     {
         $this->_salePrice = $value;
     }
@@ -124,22 +104,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getSku(): string
-    {
-        throw new NotImplementedException();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getDescription(): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getTaxCategoryId(): int
     {
         return Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
@@ -158,7 +122,16 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getIsAvailable(): bool
     {
-        return true;
+        // remove the item from the cart if the product is not enabled
+        return $this->getStatus() === Element::STATUS_ENABLED;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDescription(): string
+    {
+        return (string)$this;
     }
 
     /**
@@ -166,7 +139,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function populateLineItem(LineItem $lineItem)
     {
-        return null;
     }
 
     /**
@@ -174,7 +146,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function validateLineItem(LineItem $lineItem)
     {
-        return true;
     }
 
     /**
@@ -195,8 +166,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @inheritdoc
-     *
-     * @return int|array
      */
     public function getPromotionRelationSource()
     {

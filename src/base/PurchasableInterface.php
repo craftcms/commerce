@@ -40,6 +40,8 @@ interface PurchasableInterface
     /**
      * This is the base price the item will be added to the line item with.
      *
+     * It provides opportunity to populate the salePrice if sales have not already been applied.
+     *
      * @return float decimal(14,4)
      */
     public function getSalePrice(): float;
@@ -98,8 +100,6 @@ interface PurchasableInterface
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
      *
      * @param LineItem $lineItem
-     *
-     * @return mixed
      */
     public function validateLineItem(LineItem $lineItem);
 
