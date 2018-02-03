@@ -51,8 +51,6 @@ class Purchasables extends Component
 
     /**
      * @param ElementEvent $event
-     *
-     * @return void
      */
     public function saveElementHandler(ElementEvent $event)
     {

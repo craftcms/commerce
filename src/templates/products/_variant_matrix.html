@@ -21,11 +21,14 @@
                 <div class="titlebar">
                     <div class="preview"></div>
                 </div>
-                <div class="checkbox" title="{{ 'Select'|t('commerce') }}"></div>
+                <div class="checkbox"
+                     title="{{ 'Select'|t('commerce') }}"></div>
                 <div class="actions">
-                    <div class="status off" title="{{ 'Disabled'|t('commerce') }}"></div>
+                    <div class="status off"
+                         title="{{ 'Disabled'|t('commerce') }}"></div>
                     <a class="default-btn{% if variant.isDefault %} sel{% endif %}"{% if not variant.isDefault %} title="{{ 'Set as the default variant'|t('commerce') }}"{% endif %}>{{ "Default"|t('commerce') }}</a>
-                    <a class="settings icon menubtn" title="{{ 'Actions'|t('commerce') }}"
+                    <a class="settings icon menubtn"
+                       title="{{ 'Actions'|t('commerce') }}"
                        role="button"></a>
                     <div class="menu">
                         <ul class="padded">

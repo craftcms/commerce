@@ -290,8 +290,6 @@ class LineItem extends Model
 
     /**
      * @param \craft\commerce\base\Element $purchasable
-     *
-     * @return void
      */
     public function setPurchasable(Element $purchasable)
     {
@@ -362,8 +360,7 @@ class LineItem extends Model
      */
     public function getOnSale(): bool
     {
-        if (null !== $this->salePrice)
-        {
+        if (null !== $this->salePrice) {
             return CurrencyHelper::round($this->salePrice) !== CurrencyHelper::round($this->price);
         }
 

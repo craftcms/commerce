@@ -316,8 +316,6 @@ class Order extends Element
 
     /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
-     *
-     * @return void
      */
     public function updateOrderPaidTotal()
     {
@@ -395,10 +393,9 @@ class Order extends Element
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
         // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
-        if ($orderStatus && $orderStatus->id)
-        {
+        if ($orderStatus && $orderStatus->id) {
             $this->orderStatusId = $orderStatus->id;
-        }else{
+        } else {
             throw new DefaultOrderStatusNotFoundException('Could not find a valid default order status.');
         }
 
@@ -431,8 +428,6 @@ class Order extends Element
      * Removes a specific line item from the order.
      *
      * @param $lineItem
-     *
-     * @return void
      */
     public function removeLineItem($lineItem)
     {
@@ -449,8 +444,6 @@ class Order extends Element
      * Add a line item to the order.
      *
      * @param $lineItem
-     *
-     * @return void
      */
     public function addLineItem($lineItem)
     {
@@ -461,7 +454,6 @@ class Order extends Element
     /**
      * Regenerates all adjusters and update line item and order totals.
      *
-     * @return void
      * @throws Exception
      */
     public function recalculate()
@@ -482,8 +474,7 @@ class Order extends Element
             }
         }
 
-        if($lineItemRemoved)
-        {
+        if ($lineItemRemoved) {
             $this->recalculate();
             return;
         }
@@ -1141,7 +1132,7 @@ class Order extends Element
      */
     public function getNestedTransactions(): array
     {
-        // Transactions come in sorted by id ASC.
+        // Transactions come in sorted by `id ASC`.
         // Given that transactions cannot be modified, it means that parents will always come first.
         // So we can just store a reference to them and build our tree in one pass.
         $transactions = $this->getTransactions();
@@ -1188,68 +1179,77 @@ class Order extends Element
     public function getTableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'orderStatus': {
-                if ($this->orderStatus) {
-                    return $this->orderStatus->htmlLabel();
-                }
+            case 'orderStatus':
+                {
+                    if ($this->orderStatus) {
+                        return $this->orderStatus->htmlLabel();
+                    }
 
-                return '<span class="status"></span>';
-            }
-            case 'shippingFullName': {
-                if ($this->shippingAddress) {
-                    return $this->shippingAddress->getFullName();
+                    return '<span class="status"></span>';
                 }
+            case 'shippingFullName':
+                {
+                    if ($this->shippingAddress) {
+                        return $this->shippingAddress->getFullName();
+                    }
 
-                return '';
-            }
-            case 'billingFullName': {
-                if ($this->billingAddress) {
-                    return $this->billingAddress->getFullName();
+                    return '';
                 }
+            case 'billingFullName':
+                {
+                    if ($this->billingAddress) {
+                        return $this->billingAddress->getFullName();
+                    }
 
-                return '';
-            }
-            case 'shippingBusinessName': {
-                if ($this->shippingAddress) {
-                    return $this->shippingAddress->businessName;
+                    return '';
                 }
+            case 'shippingBusinessName':
+                {
+                    if ($this->shippingAddress) {
+                        return $this->shippingAddress->businessName;
+                    }
 
-                return '';
-            }
-            case 'billingBusinessName': {
-                if ($this->billingAddress) {
-                    return $this->billingAddress->businessName;
+                    return '';
                 }
+            case 'billingBusinessName':
+                {
+                    if ($this->billingAddress) {
+                        return $this->billingAddress->businessName;
+                    }
 
-                return '';
-            }
-            case 'shippingMethodName': {
-                if ($this->shippingMethod) {
-                    return $this->shippingMethod->getName();
+                    return '';
                 }
+            case 'shippingMethodName':
+                {
+                    if ($this->shippingMethod) {
+                        return $this->shippingMethod->getName();
+                    }
 
-                return '';
-            }
-            case 'gatewayName': {
-                if ($this->gateway) {
-                    return $this->gateway->name;
+                    return '';
                 }
+            case 'gatewayName':
+                {
+                    if ($this->gateway) {
+                        return $this->gateway->name;
+                    }
 
-                return '';
-            }
+                    return '';
+                }
             case 'totalPaid':
             case 'totalPrice':
             case 'totalShippingCost':
-            case 'totalDiscount': {
-                if ($this->$attribute >= 0) {
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
-                }
+            case 'totalDiscount':
+                {
+                    if ($this->$attribute >= 0) {
+                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                    }
 
-                return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+                }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 

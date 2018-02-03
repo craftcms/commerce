@@ -4,7 +4,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\GatewayInterface;
-use craft\commerce\models\Customer;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin as Commerce;
@@ -25,9 +24,9 @@ class PaymentSources extends Component
     // =========================================================================
 
     /**
-     * Returns all payment sources for a user by the user's id.
+     * Returns a user's payment sources, per the user's ID.
      *
-     * @param int $userId The user id.
+     * @param int $userId the user's ID
      *
      * @return PaymentSource[]
      */
@@ -47,10 +46,10 @@ class PaymentSources extends Component
     }
 
     /**
-     * Returns a payment source by it's id.
+     * Returns a payment source by its ID.
      *
-     * @param int $sourceId The source id.
-
+     * @param int $sourceId the source ID
+     *
      * @return PaymentSource|null
      */
     public function getPaymentSourceById(int $sourceId)
@@ -63,12 +62,12 @@ class PaymentSources extends Component
     }
 
     /**
-     * Create a payment source for a user in the gateway based on a payment form.
+     * Creates a payment source for a user in the gateway based on a payment form.
      *
-     * @param int              $userId            The user id
-     * @param GatewayInterface $gateway           The gateway
-     * @param BasePaymentForm  $paymentForm       The payment form to use
-     * @param string           $sourceDescription The payment form to use
+     * @param int              $userId            the user's ID
+     * @param GatewayInterface $gateway           the gateway
+     * @param BasePaymentForm  $paymentForm       the payment form to use
+     * @param string           $sourceDescription the payment form to use
      *
      * @return bool|PaymentSource The saved payment source.
      * @throws Exception if unable to create the payment source
@@ -86,12 +85,12 @@ class PaymentSources extends Component
     }
 
     /**
-     * Save a payment source.
+     * Saves a payment source.
      *
      * @param PaymentSource $paymentSource The payment source being saved.
      *
      * @return bool Whether the payment source was saved successfully
-     * @throws Exception if payment source not found by id.
+     * @throws Exception if the payment source couldn't be found
      */
     public function savePaymentSource(PaymentSource $paymentSource): bool
     {
@@ -129,9 +128,9 @@ class PaymentSources extends Component
     }
 
     /**
-     * Delete a payment source by it's id.
+     * Delete a payment source by its ID.
      *
-     * @param int $id The id
+     * @param int $id The ID
      *
      * @return bool
      * @throws \Throwable in case something went wrong when deleting.

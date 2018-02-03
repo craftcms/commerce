@@ -201,7 +201,6 @@ class ProductsController extends BaseCpController
      * @param mixed $site
      *
      * @throws HttpException
-     * @return void
      */
     public function actionViewSharedProduct($productId, $site = null)
     {

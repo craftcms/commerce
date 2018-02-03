@@ -3,8 +3,8 @@
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-{ label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-{ label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
+    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
+    { label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -29,10 +29,10 @@
 {% endif %}
 
 {% set tabs = {
-0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
-1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
-2: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-3: {'label':'Amounts'|t('commerce'),'url':'#amounts'}
+    0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
+    1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
+    2: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    3: {'label':'Amounts'|t('commerce'),'url':'#amounts'}
 } %}
 
 
@@ -286,8 +286,8 @@
                             id: 'percentageOffSubject',
                             name: 'percentageOffSubject',
                             options: [
-                            {label: "off the discounted item price"|t, value: 'discounted'},
-                            {label: "off the original item price"|t, value: 'original'}
+                                {label: "off the discounted item price"|t, value: 'discounted'},
+                                {label: "off the original item price"|t, value: 'original'}
                             ],
                             value: discount.percentageOffSubject
                         }) }}
@@ -318,37 +318,37 @@
 
 
 {% js %}
-{#<script>#}
-$(function() {
+    {#<script>#}
+    $(function() {
     $('#groups, #productTypes').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
+    plugins: ['remove_button'],
+    dropdownParent: 'body'
     });
 
     $('#code').on('keyup blur', function(event) {
-        if(this.value.length === 0){
-            $('#coupon-fields').addClass('hidden');
-        }else{
-            $('#coupon-fields').removeClass('hidden');
-        }
+    if(this.value.length === 0){
+    $('#coupon-fields').addClass('hidden');
+    }else{
+    $('#coupon-fields').removeClass('hidden');
+    }
     });
 
     $('#clear-coupon-btn').click(function(event){
-        var r = confirm("Are you sure you want to clear all usage history for this discount?");
+    var r = confirm("Are you sure you want to clear all usage history for this discount?");
 
-        if (r == true) {
-            $('#clear-coupon-history-spinner').toggleClass('hidden');
-            $.post('', {
-                action: 'commerce/discounts/clearCouponUsageHistory',
-                id: '{% if discount.id %}{{ discount.id }}{% endif %}'
-                }, function (result) {
-                    $('#clear-coupon-history-spinner').toggleClass('hidden');
-                    $('#total-coupon-use-counter').val(0);
-                    alert(Craft.t('commerce', 'All coupon usage counters have been cleared') );
-                    $('#clear-coupon-history').hide();
-                });
-        }
+    if (r == true) {
+    $('#clear-coupon-history-spinner').toggleClass('hidden');
+    $.post('', {
+    action: 'commerce/discounts/clearCouponUsageHistory',
+    id: '{% if discount.id %}{{ discount.id }}{% endif %}'
+    }, function (result) {
+    $('#clear-coupon-history-spinner').toggleClass('hidden');
+    $('#total-coupon-use-counter').val(0);
+    alert(Craft.t('commerce', 'All coupon usage counters have been cleared') );
+    $('#clear-coupon-history').hide();
+    });
+    }
 
     });
-});
+    });
 {% endjs %}

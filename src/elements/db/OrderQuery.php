@@ -2,9 +2,9 @@
 
 namespace craft\commerce\elements\db;
 
+use craft\commerce\base\Gateway;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\base\Gateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;

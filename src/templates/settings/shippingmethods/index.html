@@ -35,7 +35,8 @@
                     <td data-title="{{ 'Type'|t('commerce') }}">{{ shippingMethod.getType() }}</td>
                     <td class="thin">
                         {%- if id -%}
-                            <a class="delete icon" title="{{ 'Delete'|t('commerce') }}"
+                            <a class="delete icon"
+                               title="{{ 'Delete'|t('commerce') }}"
                                role="button"></a>
                         {%- endif -%}
                     </td>
@@ -54,15 +55,15 @@
 
 
 {% js %}
-{#<script>#}
+    {#<script>#}
 
-var adminTable = new Craft.AdminTable({
-tableSelector: '#shipping-methods',
-noObjectsSelector: '#no-shipping-methods',
-deleteAction: 'commerce/shipping-methods/delete',
-confirmDeleteMessage:  Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
-deleteSuccessMessage:  Craft.t('commerce', '“{name}” deleted.') ,
-deleteFailMessage:     Craft.t('commerce', 'Couldn’t delete “{name}”.')
-});
-{#</script>#}
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#shipping-methods',
+    noObjectsSelector: '#no-shipping-methods',
+    deleteAction: 'commerce/shipping-methods/delete',
+    confirmDeleteMessage:  Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
+    deleteSuccessMessage:  Craft.t('commerce', '“{name}” deleted.') ,
+    deleteFailMessage:     Craft.t('commerce', 'Couldn’t delete “{name}”.')
+    });
+    {#</script>#}
 {% endjs %}

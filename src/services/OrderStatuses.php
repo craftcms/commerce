@@ -353,8 +353,6 @@ class OrderStatuses extends Component
      * Memoize an order status  by its ID and handle.
      *
      * @param OrderStatus $orderStatus
-     *
-     * @return void
      */
     private function _memoizeOrderStatus(OrderStatus $orderStatus)
     {

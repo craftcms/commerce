@@ -27,8 +27,9 @@
                     <td data-title="{{ 'Handle'|t('commerce') }}"
                         class="code">{{ productType.handle }}</td>
                     <td data-title="{{ 'Has Variants?'|t('commerce') }}">{% if productType.hasVariants %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
@@ -47,10 +48,10 @@
 
 {% js %}
     var adminTable = new Craft.AdminTable({
-        tableSelector: '#producttypes',
-        noObjectsSelector: '#noproducttypes',
-        newObjectBtnSelector: '#newproductTypecontainer',
-        deleteAction: 'commerce/product-types/delete-product-type',
-        confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t('commerce') }}'
+    tableSelector: '#producttypes',
+    noObjectsSelector: '#noproducttypes',
+    newObjectBtnSelector: '#newproductTypecontainer',
+    deleteAction: 'commerce/product-types/delete-product-type',
+    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t('commerce') }}'
     });
 {% endjs %}

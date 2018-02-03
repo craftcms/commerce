@@ -21,8 +21,11 @@
         {% for gateway in gateways %}
             <tr data-id="{{ gateway.id }}"
                 data-name="{{ gateway.name }}">
-                <td class="thin" scope="row" data-title="{{ 'ID'|t('commerce') }}">{{ gateway.id }}</td>
-                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a href="{{ gateway.cpEditUrl }}">{{ gateway.name }}</a></th>
+                <td class="thin" scope="row"
+                    data-title="{{ 'ID'|t('commerce') }}">{{ gateway.id }}</td>
+                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
+                            href="{{ gateway.cpEditUrl }}">{{ gateway.name }}</a>
+                </th>
                 <td data-title="{{ 'Handle'|t('commerce') }}">{{ gateway.handle }}</td>
                 <td data-title="{{ 'Type'|t('commerce') }}">
                     {% if gateway is missing %}
@@ -32,12 +35,15 @@
                     {% endif %}
                 </td>
                 <td data-title="{{ 'Customer Enabled?'|t('commerce') }}">
-                    {% if gateway.frontendEnabled %} <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    {% if gateway.frontendEnabled %} <span data-icon="check"
+                                                           title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                 </td>
-                <td class="thin"><a class="move icon" title="{{ 'Delete'|t('commerce') }}"
+                <td class="thin"><a class="move icon"
+                                    title="{{ 'Delete'|t('commerce') }}"
                                     role="button"></a></td>
                 <td class="thin"><a class="delete icon"
-                                    title="{{ 'Archive'|t('commerce') }}" role="button"></a>
+                                    title="{{ 'Archive'|t('commerce') }}"
+                                    role="button"></a>
                 </td>
             </tr>
         {% endfor %}
@@ -53,7 +59,7 @@
 
 
 {% js %}
-new Craft.AdminTable({
+    new Craft.AdminTable({
     tableSelector: '#gateways',
     deleteAction: 'commerce/gateways/archive',
     minObjects: 0,
@@ -61,5 +67,5 @@ new Craft.AdminTable({
     reorderAction: 'commerce/gateways/reorder',
     reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
     reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways..')
-});
+    });
 {% endjs %}

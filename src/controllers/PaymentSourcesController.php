@@ -4,10 +4,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
-use craft\commerce\errors\PaymentException;
-use craft\commerce\models\Transaction;
 use craft\commerce\Plugin as Commerce;
-use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -67,7 +64,7 @@ class PaymentSourcesController extends BaseFrontEndController
         // Get the payment method' gateway adapter's expected form model
         $paymentForm = $gateway->getPaymentFormModel();
         $paymentForm->setAttributes($request->getBodyParams(), false);
-        $description = (string) $request->getBodyParam('description');
+        $description = (string)$request->getBodyParam('description');
 
         // Save the return and cancel URLs to the order
         $returnUrl = $request->getValidatedBodyParam('redirect');

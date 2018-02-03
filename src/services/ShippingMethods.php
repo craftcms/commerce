@@ -305,8 +305,6 @@ class ShippingMethods extends Component
      * Memoize a shipping method model by its ID and handle.
      *
      * @param ShippingMethod $shippingMethod
-     *
-     * @return void
      */
     private function _memoizeShippingMethod(ShippingMethod $shippingMethod)
     {

@@ -84,7 +84,7 @@ class Cart extends Component
     {
         $isNewLineItem = false;
 
-        //saving current cart if it's new and empty
+        // saving current cart if it's new and empty
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
@@ -92,7 +92,7 @@ class Cart extends Component
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
-        //filling item model
+        // filling item model
         $plugin = Plugin::getInstance();
         $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
@@ -402,8 +402,6 @@ class Cart extends Component
 
     /**
      * Forgets a Cart by deleting its cookie.
-     *
-     * @return void
      */
     public function forgetCart()
     {

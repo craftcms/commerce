@@ -77,8 +77,6 @@ class Install extends Migration
 
     /**
      * Creates the tables for Craft Commerce
-     *
-     * @return void
      */
     protected function createTables()
     {
@@ -691,8 +689,6 @@ class Install extends Migration
 
     /**
      * Drop the tables
-     *
-     * @return void
      */
     protected function dropTables()
     {
@@ -747,8 +743,6 @@ class Install extends Migration
 
     /**
      * Creates the indexes.
-     *
-     * @return void
      */
     protected function createIndexes()
     {
@@ -849,8 +843,6 @@ class Install extends Migration
 
     /**
      * Adds the foreign keys.
-     *
-     * @return void
      */
     protected function addForeignKeys()
     {
@@ -932,8 +924,6 @@ class Install extends Migration
 
     /**
      * Adds the foreign keys.
-     *
-     * @return void
      */
     protected function dropForeignKeys()
     {
@@ -974,8 +964,6 @@ class Install extends Migration
 
     /**
      * Insert the default data.
-     *
-     * @return void
      */
     protected function insertDefaultData()
     {
@@ -997,8 +985,6 @@ class Install extends Migration
 
     /**
      * Insert default countries data.
-     *
-     * @return void
      */
     private function _defaultCountries()
     {
@@ -1259,8 +1245,6 @@ class Install extends Migration
 
     /**
      * Add default States.
-     *
-     * @return void
      */
     private function _defaultStates()
     {
@@ -1364,8 +1348,6 @@ class Install extends Migration
 
     /**
      * Make USD the default currency.
-     *
-     * @return void
      */
     private function _defaultCurrency()
     {
@@ -1379,8 +1361,6 @@ class Install extends Migration
 
     /**
      * Add a default shipping method and rule.
-     *
-     * @return void
      */
     private function _defaultShippingMethod()
     {
@@ -1402,8 +1382,6 @@ class Install extends Migration
 
     /**
      * Add a default Tax category.
-     *
-     * @return void
      */
     private function _defaultTaxCategories()
     {
@@ -1417,8 +1395,6 @@ class Install extends Migration
 
     /**
      * Add a default shipping category.
-     *
-     * @return void
      */
     private function _defaultShippingCategories()
     {
@@ -1434,7 +1410,6 @@ class Install extends Migration
      * Add the default order settings.
      *
      * @throws \Exception
-     * @return void
      */
     private function _defaultOrderSettings()
     {
@@ -1468,7 +1443,6 @@ class Install extends Migration
      * Set the default product types.
      *
      * @throws \Exception
-     * @return void
      */
     private function _defaultProductTypes()
     {
@@ -1511,7 +1485,6 @@ class Install extends Migration
      * Add some default products.
      *
      * @throws \Exception
-     * @return void
      */
     private function _defaultProducts()
     {
@@ -1636,8 +1609,6 @@ class Install extends Migration
 
     /**
      * Add a payment method.
-     *
-     * @return void
      */
     private function _defaultGateways()
     {
@@ -1654,8 +1625,6 @@ class Install extends Migration
 
     /**
      * Set default plugin settings.
-     *
-     * @return void
      */
     private function _defaultSettings()
     {

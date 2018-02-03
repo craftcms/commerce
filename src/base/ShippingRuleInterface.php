@@ -53,6 +53,7 @@ interface ShippingRuleInterface
      * Zero will not make any changes.
      *
      * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     *
      * @return float
      */
     public function getPerItemRate($shippingCategory): float;
@@ -62,6 +63,7 @@ interface ShippingRuleInterface
      * Zero will not make any changes.
      *
      * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     *
      * @return float
      */
     public function getWeightRate($shippingCategory): float;

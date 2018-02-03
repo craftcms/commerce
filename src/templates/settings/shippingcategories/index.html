@@ -25,9 +25,11 @@
                     class="code">{{ shippingCategory.handle }}</td>
                 <td data-title="{{ 'Description'|t('commerce') }}">{{ shippingCategory.description }}</td>
                 <td data-title="{{ 'Default?'|t('commerce') }}">{% if shippingCategory.default %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
-                <td class="thin"><a class="delete icon" title="{{ 'Delete'|t('commerce') }}"
+                    <span data-icon="check"
+                          title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                </td>
+                <td class="thin"><a class="delete icon"
+                                    title="{{ 'Delete'|t('commerce') }}"
                                     role="button"></a></td>
             </tr>
         {% endfor %}
@@ -42,9 +44,9 @@
 {% endblock %}
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#shippingcategories',
-deleteAction: 'commerce/shipping-categories/delete',
-minObjects: 1
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#shippingcategories',
+    deleteAction: 'commerce/shipping-categories/delete',
+    minObjects: 1
+    });
 {% endjs %}

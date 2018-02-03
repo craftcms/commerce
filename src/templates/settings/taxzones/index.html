@@ -45,10 +45,12 @@
                         {% endfor %}
                     </td>
                     <td data-title="{{ 'Default Zone?'|t('commerce') }}">{% if taxZone.default %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td class="thin">{% if not taxZone.taxRates|length %}<a
-                            class="delete icon" title="{{ 'Delete'|t('commerce') }}"
+                            class="delete icon"
+                            title="{{ 'Delete'|t('commerce') }}"
                             role="button"></a>{% endif %}</td>
                 </tr>
             {% endfor %}
@@ -64,9 +66,9 @@
 {% endblock %}
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#tax-zones',
-noObjectsSelector: '#no-tax-zones',
-deleteAction: 'commerce/tax-zones/delete'
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#tax-zones',
+    noObjectsSelector: '#no-tax-zones',
+    deleteAction: 'commerce/tax-zones/delete'
+    });
 {% endjs %}

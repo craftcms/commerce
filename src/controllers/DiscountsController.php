@@ -5,7 +5,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\elements\Category;
@@ -124,8 +123,7 @@ class DiscountsController extends BaseCpController
         $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
 
         /** @var Purchasable $purchasableType */
-        foreach ($purchasableTypes as $purchasableType)
-        {
+        foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
                 'name' => $purchasableType::displayName(),
                 'elementType' => $purchasableType
@@ -169,13 +167,13 @@ class DiscountsController extends BaseCpController
         $discount->perItemDiscount = (float)$request->getParam('perItemDiscount') * -1;
 
         $date = $request->getParam('dateFrom');
-        if($date){
+        if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateFrom = $dateTime;
         }
 
         $date = $request->getParam('dateTo');
-        if($date){
+        if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateTo = $dateTime;
         }

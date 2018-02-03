@@ -181,9 +181,9 @@ class Transactions extends Component
     }
 
     /**
-     * Get all transactions for an order by it's id.
+     * Returns all transactions for an order, per the order's ID.
      *
-     * @param int $orderId the order id
+     * @param int $orderId the order's ID
      *
      * @return Transaction[]
      */
@@ -203,9 +203,9 @@ class Transactions extends Component
     }
 
     /**
-     * Get all children transactions by a parent transaction id.
+     * Get all children transactions, per a parent transaction's ID.
      *
-     * @param int $transactionId the parent transaction id
+     * @param int $transactionId the parent transaction's ID
      *
      * @return array
      */
@@ -225,7 +225,7 @@ class Transactions extends Component
     }
 
     /**
-     * Get a transaction by it's hash.
+     * Get a transaction by its hash.
      *
      * @param string $hash the hash of transaction
      *
@@ -241,7 +241,7 @@ class Transactions extends Component
     }
 
     /**
-     * Get a transaction by it's reference and status
+     * Get a transaction by its reference and status.
      *
      * @param string $reference the transaction reference
      * @param string $status    the transaction status
@@ -258,9 +258,9 @@ class Transactions extends Component
     }
 
     /**
-     * Get a transaction by it's id.
+     * Get a transaction by its ID.
      *
-     * @param int $id the id of transaction
+     * @param int $id the ID of transaction
      *
      * @return Transaction|null
      */

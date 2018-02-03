@@ -91,7 +91,7 @@ class Commerce
     }
 
     /**
-     * Return an array of country names indexed by id.
+     * Return an array of country names, indexed by ID.
      *
      * @return array [id => name]
      */
@@ -121,7 +121,7 @@ class Commerce
     }
 
     /**
-     * Get a discount by it's code.
+     * Get a discount by its code.
      *
      * @param string $code the discount code
      *
@@ -143,9 +143,9 @@ class Commerce
     }
 
     /**
-     * Get all front-end enabled gateways.
+     * Returns all gateways enabled for front-end use.
      *
-     * @param bool $asList Whether to return an array of gateway names indexed by id. Defaults to `false`.
+     * @param bool $asList Whether to return an array of gateway names indexed by ID. Defaults to `false`.
      *
      * @return array|Gateway[]
      */
@@ -231,9 +231,9 @@ class Commerce
     }
 
     /**
-     * Get all shipping categories.
+     * Returns all shipping categories.
      *
-     * @param bool $asList Whether to return an array of shipping category names indexed by id. Defaults to `false`.
+     * @param bool $asList Whether to return an array of shipping category names indexed by ID. Defaults to `false`.
      *
      * @return array|ShippingZone[]
      */
@@ -285,9 +285,9 @@ class Commerce
     }
 
     /**
-     * Get all tax categories.
+     * Returns all tax categories.
      *
-     * @param bool $asList Whether to return an array of tax category names indexed by id. Defaults to `false`.
+     * @param bool $asList Whether to return an array of tax category names indexed by ID. Defaults to `false`.
      *
      * @return array|TaxCategory[]
      */

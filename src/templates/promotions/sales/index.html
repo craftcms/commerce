@@ -42,7 +42,9 @@
                             {{ sale.discountAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {{ "off"|t('commerce') }}
                         {% endif %}
                     </td>
-                    <td class="thin"><a class="delete icon" title="{{ 'Delete'|t('commerce') }}" role="button"></a></td>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t('commerce') }}"
+                                        role="button"></a></td>
                 </tr>
             {% endfor %}
 
@@ -58,9 +60,9 @@
 
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#sales',
-noObjectsSelector: '#no-sales',
-deleteAction: 'commerce/sales/delete'
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#sales',
+    noObjectsSelector: '#no-sales',
+    deleteAction: 'commerce/sales/delete'
+    });
 {% endjs %}

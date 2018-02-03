@@ -56,9 +56,9 @@ class LineItems extends Component
     // =========================================================================
 
     /**
-     * Get all line items by order id.
+     * Returns an order's line items, per the order's ID.
      *
-     * @param int $orderId The order id.
+     * @param int $orderId the order's ID
      *
      * @return LineItem[] An array of all the line items for the matched order.
      */
@@ -83,11 +83,11 @@ class LineItems extends Component
     }
 
     /**
-     * Find a line item by order id and purchasable id with optional options set for line item.
+     * Returns a line item with any supplied options, per its order's ID and purchasable's ID
      *
-     * @param int   $orderId       The order id.
-     * @param int   $purchasableId The purchasable id.
-     * @param array $options       Optional option array.
+     * @param int   $orderId       the order's ID
+     * @param int   $purchasableId the purchasable's ID
+     * @param array $options       Options for the line item
      *
      * @return LineItem|null Line item or null if not found.
      */
@@ -138,9 +138,9 @@ class LineItems extends Component
     }
 
     /**
-     * Delete a line item by it's id.
+     * Deletes a line item by its ID.
      *
-     * @param int $lineItemId The id of the line item.
+     * @param int $lineItemId the line item's ID
      *
      * @return bool Whether the line item was deleted successfully.
      */
@@ -260,9 +260,9 @@ class LineItems extends Component
     }
 
     /**
-     * Get a line item by it's id.
+     * Get a line item by its ID.
      *
-     * @param int $id The id of the line item.
+     * @param int $id the line item ID
      *
      * @return LineItem|null Line item or null, if not found.
      */
@@ -276,12 +276,12 @@ class LineItems extends Component
     }
 
     /**
-     * Create a line item in order by purchasable id, options and quantity.
+     * Create a line item.
      *
-     * @param int   $purchasableId
-     * @param Order $order
-     * @param array $options
-     * @param int   $qty
+     * @param int   $purchasableId The ID of the purchasable the line item represents
+     * @param Order $order         The order the line item is associated with
+     * @param array $options       Options to set on the line item
+     * @param int   $qty           The quantity to set on the line item
      *
      * @return LineItem
      * @throws Exception if purchasable is not found.
@@ -318,11 +318,11 @@ class LineItems extends Component
     }
 
     /**
-     * Delete all line items by order id.
+     * Deletes all line items associated with an order, per the order's ID.
      *
-     * @param int $orderId The order id.
+     * @param int $orderId the order's ID
      *
-     * @return bool Whether any line items were deleted.
+     * @return bool whether any line items were deleted
      */
     public function deleteAllLineItemsByOrderId(int $orderId): bool
     {

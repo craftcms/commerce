@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
-{ label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
+    { label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
+    { label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
 ] %}
 
 {% set fullPageForm = true %}
@@ -14,7 +14,8 @@
     <input type="hidden" name="action" value="commerce/order-statuses/save">
     {{ redirectInput('commerce/settings/orderstatuses') }}
     {% if orderStatus.id %}
-        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
+        <input type="hidden" name="sortOrder"
+               value="{{ orderStatus.sortOrder }}">
         <input type="hidden" name="id" value="{{ orderStatus.id }}">
     {% endif %}
 
@@ -99,23 +100,23 @@
 {% endblock %}
 
 {% js %}
-{% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-$(function () {
+    {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+    $(function () {
 
-$colorSelect = $('#color-menu-btn');
-new Garnish.MenuBtn($colorSelect, {
-onOptionSelect: function(data){
-var val = $(data).data('val');
-$('#color').val(val);
-var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
-$colorSelect.html(html);
-}
-});
+    $colorSelect = $('#color-menu-btn');
+    new Garnish.MenuBtn($colorSelect, {
+    onOptionSelect: function(data){
+    var val = $(data).data('val');
+    $('#color').val(val);
+    var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+    $colorSelect.html(html);
+    }
+    });
 
 
-$('#emails').selectize({
-plugins: ['remove_button'],
-dropdownParent: 'body'
-});
-});
+    $('#emails').selectize({
+    plugins: ['remove_button'],
+    dropdownParent: 'body'
+    });
+    });
 {% endjs %}

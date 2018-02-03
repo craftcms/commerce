@@ -127,7 +127,7 @@ class Customers extends Component
     }
 
     /**
-     * Add customer id to address and save
+     * Associates an address with the saved customer, and saves the address.
      *
      * @param Address $address
      *

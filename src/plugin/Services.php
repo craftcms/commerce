@@ -407,8 +407,6 @@ trait Services
 
     /**
      * Set the components of the commerce plugin
-     *
-     * @return void
      */
     private function _setPluginComponents()
     {

@@ -121,8 +121,6 @@ class Discounts extends Component
      * Populate a discount's relations.
      *
      * @param Discount $discount
-     *
-     * @return void
      */
     public function populateDiscountRelations(Discount $discount)
     {
@@ -161,8 +159,8 @@ class Discounts extends Component
     }
 
     /**
-     * Get discount by code and check it's active and applies to the current
-     * user
+     * Fetches a discount by its code, ensures it's active, and applies it to
+     * the current user.
      *
      * @param int    $code
      * @param int    $customerId
@@ -335,8 +333,7 @@ class Discounts extends Component
         if ($discount->getCategoryIds() && !$discount->allCategories && $lineItem->getPurchasable()) {
             $purchasable = $lineItem->getPurchasable();
 
-            if(!$purchasable)
-            {
+            if (!$purchasable) {
                 return false;
             }
 
@@ -473,9 +470,9 @@ class Discounts extends Component
     }
 
     /**
-     * Clear a coupon's usage history.
+     * Clears a coupon's usage history.
      *
-     * @param int $id coupon id
+     * @param int $id the coupon's ID
      */
     public function clearCouponUsageHistoryById(int $id)
     {

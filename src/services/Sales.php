@@ -56,8 +56,6 @@ class Sales extends Component
      * Apply applicable sales to a purchasable
      *
      * @param PurchasableInterface|PurchasableInterface[] Purchasables
-     *
-     * @return void
      */
     public function applySales($purchasables)
     {
@@ -172,8 +170,6 @@ class Sales extends Component
      * Populate a sale's relations.
      *
      * @param Sale $sale
-     *
-     * @return void
      */
     public function populateSaleRelations(Sale $sale)
     {
@@ -271,7 +267,7 @@ class Sales extends Component
 
     /**
      * @param PurchasableInterface $purchasable
-     * @param Order $order
+     * @param Order                $order
      *
      * @return Sale[]
      */

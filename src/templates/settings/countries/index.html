@@ -26,8 +26,9 @@
                     </th>
                     <td data-title="{{ 'ISO'|t('commerce') }}">{{ country.iso }}</td>
                     <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.stateRequired %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
@@ -46,11 +47,11 @@
 
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#countries',
-noObjectsSelector: '#no-countries',
-deleteAction: 'commerce/countries/delete',
-confirmDeleteMessage:  Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?') ,
-deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}'
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#countries',
+    noObjectsSelector: '#no-countries',
+    deleteAction: 'commerce/countries/delete',
+    confirmDeleteMessage:  Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?') ,
+    deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}'
+    });
 {% endjs %}

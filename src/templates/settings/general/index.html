@@ -9,7 +9,8 @@
     <h2>{{ "General Settings"|t('commerce') }}</h2>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="commerce/settings/save-settings">
+        <input type="hidden" name="action"
+               value="commerce/settings/save-settings">
         {{ redirectInput('commerce/settings') }}
         {{ csrfInput() }}
 
@@ -77,7 +78,8 @@
             required: true,
         }) }}
 
-        <input type="submit" class="btn submit" value="{{ "Save"|t('commerce') }}">
+        <input type="submit" class="btn submit"
+               value="{{ "Save"|t('commerce') }}">
     </form>
 
 {% endblock %}

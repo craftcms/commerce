@@ -5,7 +5,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\elements\Category;
@@ -124,11 +123,10 @@ class SalesController extends BaseCpController
         $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
 
         /** @var Purchasable $purchasableType */
-        foreach ($purchasableTypes as $purchasableType)
-        {
+        foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
-              'name' => $purchasableType::displayName(),
-              'elementType' => $purchasableType
+                'name' => $purchasableType::displayName(),
+                'elementType' => $purchasableType
             ];
         }
 

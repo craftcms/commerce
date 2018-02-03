@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Shipping Methods"|t('commerce'), url: url('commerce/settings/shippingmethods') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping Methods"|t('commerce'), url: url('commerce/settings/shippingmethods') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -10,7 +10,7 @@
 {% import "_includes/forms" as forms %}
 
     {% set tabs = {
-    0: {'label':'Shipping Method'|t('commerce'),'url':'#shipping-method-tab'}
+        0: {'label':'Shipping Method'|t('commerce'),'url':'#shipping-method-tab'}
     } %}
     {% if shippingMethod.id %}
         {% set tabs = tabs|merge({1: {'label':'Rules'|t('commerce'),'url':'#rules'}}) %}
@@ -18,14 +18,17 @@
 
 
 {% block saveButton %}
-    <input type="submit" class="btn submit" value="{{ shippingMethod.id ? 'Save and set rules'|t('commerce') :'Save'|t('commerce') }}">
+    <input type="submit" class="btn submit"
+           value="{{ shippingMethod.id ? 'Save and set rules'|t('commerce') :'Save'|t('commerce') }}">
 {% endblock %}
 
 {% block content %}
     <div id="shipping-method-tab">
-        <input type="hidden" name="action" value="commerce/shipping-methods/save">
+        <input type="hidden" name="action"
+               value="commerce/shipping-methods/save">
         {{ redirectInput('commerce/settings/shippingmethods/{id}#rules') }}
-        {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">{% endif %}
+        {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId"
+                                         value="{{ shippingMethod.id }}">{% endif %}
 
         {{ forms.textField({
             first: true,
@@ -96,10 +99,12 @@
                         <td>{{ shippingRule.description }}</td>
                         <td class="thin">
                             <a class="move icon disabled"
-                               title="{{ 'Delete'|t('commerce') }}" role="button"></a>
+                               title="{{ 'Delete'|t('commerce') }}"
+                               role="button"></a>
                         </td>
                         <td class="thin">
-                            <a class="delete icon" title="{{ 'Delete'|t('commerce') }}"
+                            <a class="delete icon"
+                               title="{{ 'Delete'|t('commerce') }}"
                                role="button"></a>
                         </td>
                     </tr>
@@ -118,17 +123,17 @@
 {% endblock %}
 
 {% js %}
-{% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#shipping-rules',
-noObjectsSelector: '#no-shipping-rules',
-deleteAction: 'commerce/shipping-rules/delete',
-sortable: true,
-reorderAction: 'commerce/shipping-rules/reorder',
-reorderSuccessMessage: Craft.t('commerce', 'Rules reordered.') ,
-reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder rules..') ,
-confirmDeleteMessage:  Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
-deleteSuccessMessage:  Craft.t('commerce', '“{name}” deleted.') ,
-deleteFailMessage:     Craft.t('commerce', 'Couldn’t delete “{name}”.') ,
-});
+    {% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#shipping-rules',
+    noObjectsSelector: '#no-shipping-rules',
+    deleteAction: 'commerce/shipping-rules/delete',
+    sortable: true,
+    reorderAction: 'commerce/shipping-rules/reorder',
+    reorderSuccessMessage: Craft.t('commerce', 'Rules reordered.') ,
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder rules..') ,
+    confirmDeleteMessage:  Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
+    deleteSuccessMessage:  Craft.t('commerce', '“{name}” deleted.') ,
+    deleteFailMessage:     Craft.t('commerce', 'Couldn’t delete “{name}”.') ,
+    });
 {% endjs %}

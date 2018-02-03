@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce " ~ "Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Shipping Categories"|t('commerce'), url: url('commerce/settings/shippingcategories') },
+    { label: "Commerce " ~ "Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping Categories"|t('commerce'), url: url('commerce/settings/shippingcategories') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -10,8 +10,10 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/shipping-categories/save">
+    <input type="hidden" name="action"
+           value="commerce/shipping-categories/save">
     {{ redirectInput('commerce/settings/shippingcategories') }}
-    {% if shippingCategory.id %}<input type="hidden" name="shippingCategoryId" value="{{ shippingCategory.id }}">{% endif %}
+    {% if shippingCategory.id %}<input type="hidden" name="shippingCategoryId"
+                                       value="{{ shippingCategory.id }}">{% endif %}
     {% include "commerce/settings/shippingcategories/_fields" %}
 {% endblock %}

@@ -14,9 +14,8 @@ class DummyPaymentForm extends BasePaymentForm
 {
     /**
      * @param PaymentSource $paymentSource
-     *
-     * @return void
      */
-    public function populateFromPaymentSource(PaymentSource $paymentSource) {
+    public function populateFromPaymentSource(PaymentSource $paymentSource)
+    {
     }
 }
