@@ -148,14 +148,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getIsAvailable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function populateLineItem(LineItem $lineItem)
     {
     }

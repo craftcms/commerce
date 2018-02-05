@@ -19,6 +19,7 @@ use yii\web\HttpException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
+
 class Pdf extends Component
 {
     /**
@@ -50,7 +51,14 @@ class Pdf extends Component
             throw new Exception('No Order Found');
         }
 
-        $html = $view->render($template, compact('order', 'option'));
+        try {
+            $html = $view->render($template, compact('order', 'option'));
+        }catch(\Exception $e){
+            // Set the pdf html to the render error.
+            Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '. $e->getMessage());
+            $html = Craft::t('commerce', 'Order PDF temple render error occurred. Order '.$order->getShortNumber());
+        }
+
 
         $dompdf = new Dompdf();
 

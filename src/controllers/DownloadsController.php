@@ -6,13 +6,6 @@ use Craft;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
 
-if (!defined('DOMPDF_ENABLE_AUTOLOAD')) {
-    // disable DOMPDF's internal autoloader since we are using Composer
-    define('DOMPDF_ENABLE_AUTOLOAD', false);
-    // include DOMPDF's configuration
-    require_once __DIR__.'/../vendor/dompdf/dompdf/dompdf_config.inc.php';
-}
-
 /**
  * Class Downloads Controller
  *
@@ -30,8 +23,8 @@ class DownloadsController extends BaseFrontEndController
     public function actionPdf()
     {
 
-        $number = Craft::$app->getRequest()->getQuery('number');
-        $option = Craft::$app->getRequest()->getQuery('option', '');
+        $number = Craft::$app->getRequest()->getQueryParam('number');
+        $option = Craft::$app->getRequest()->getQueryParam('option', '');
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
@@ -48,7 +41,5 @@ class DownloadsController extends BaseFrontEndController
         }
 
         $pdf->stream($fileName.'.pdf');
-
-        Craft::$app->end();
     }
 }

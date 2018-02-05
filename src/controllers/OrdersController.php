@@ -432,7 +432,7 @@ class OrdersController extends BaseCpController
         ];
 
         $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'History'),
+            'label' => Craft::t('commerce', 'Status History'),
             'url' => '#orderHistoryTab',
             'class' => null
         ];

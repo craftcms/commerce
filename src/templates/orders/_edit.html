@@ -10,7 +10,7 @@
 {% import "_includes/forms" as forms %}
 
 {% set fullPageForm = true %}
-{% set pdfUrl = order.getPdfUrl() %}
+{% set pdfUrl = order.getPdfUrl('cp') %}
 {% set saveShortcutRedirect = continueEditingUrl %}
 {% hook "cp.commerce.order.edit" %}
 
@@ -21,7 +21,7 @@
     {% endif %}
     {{ block('contextMenu') }}
     <div class="flex-grow"></div>
-    <div class="btn">{{ "Order PDF"|t('commerce') }}</div>
+    <a class="btn" href="{{ pdfUrl }}">{{ "Order PDF"|t('commerce') }}</a>
     <div class="flex-grow"></div>
     {{ block('actionButton') }}
 {% endblock %}
