@@ -40,6 +40,8 @@ interface PurchasableInterface
     /**
      * This is the base price the item will be added to the line item with.
      *
+     * It provides opportunity to populate the salePrice if sales have not already been applied.
+     *
      * @return float decimal(14,4)
      */
     public function getSalePrice(): float;
@@ -59,21 +61,21 @@ interface PurchasableInterface
     public function getDescription(): string;
 
     /**
-     * Returns a Craft Commerce tax category id
+     * Returns the purchasable's tax category ID.
      *
      * @return int
      */
     public function getTaxCategoryId(): int;
 
     /**
-     * Returns a Craft Commerce shipping category id
+     * Returns the purchasable's shipping category ID.
      *
      * @return int
      */
     public function getShippingCategoryId(): int;
 
     /**
-     * Returns whether the purchasable is still available for purchase.
+     * Returns whether the purchasable is currently available for purchase.
      *
      * @return bool
      */
@@ -87,8 +89,6 @@ interface PurchasableInterface
      * and saleAmount. This is called before any onPopulateLineItem event listener.
      *
      * @param LineItem $lineItem
-     *
-     * @return void
      */
     public function populateLineItem(LineItem $lineItem);
 

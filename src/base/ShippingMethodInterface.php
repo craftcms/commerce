@@ -43,7 +43,7 @@ interface ShippingMethodInterface
     public function getHandle(): string;
 
     /**
-     * Returns the control panel URL to manage this method and it's rules.
+     * Returns the control panel URL to manage this method and its rules.
      * An empty string will result in no link.
      *
      * @return string

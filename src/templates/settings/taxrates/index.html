@@ -28,11 +28,13 @@
                     </th>
                     <td data-title="{{ 'Rate'|t('commerce') }}">{{ taxRate.rateAsPercent }}</td>
                     <td data-title="{{ 'Include in Price?'|t('commerce') }}">{% if taxRate.include %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td data-title="{{ 'Is Vat?'|t('commerce') }}">{% if taxRate.isVat %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td data-title="{{ 'Tax Zone'|t('commerce') }}"><a
                                 href="{{ taxRate.taxZone.cpEditUrl }}">{{ taxRate.taxZone.name }}</a>
                     </td>
@@ -56,9 +58,9 @@
 
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#tax-rates',
-noObjectsSelector: '#no-tax-rates',
-deleteAction: 'commerce/tax-rates/delete'
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#tax-rates',
+    noObjectsSelector: '#no-tax-rates',
+    deleteAction: 'commerce/tax-rates/delete'
+    });
 {% endjs %}

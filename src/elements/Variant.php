@@ -107,11 +107,6 @@ class Variant extends Purchasable
     public $maxQty;
 
     /**
-     * @var
-     */
-    private $_sales;
-
-    /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
@@ -227,8 +222,6 @@ class Variant extends Purchasable
      * Sets the product associated with this variant.
      *
      * @param Product|null $product The product associated with this variant
-     *
-     * @return void
      */
     public function setProduct(Product $product = null)
     {
@@ -326,9 +319,10 @@ class Variant extends Purchasable
     }
 
     /**
- * Cache on the purchasable table
- * @inheritdoc
- */
+     * Cache on the purchasable table
+     *
+     * @inheritdoc
+     */
     public function getPrice(): float
     {
         return $this->price;
@@ -360,9 +354,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getSku(): string
     {
@@ -465,8 +457,6 @@ class Variant extends Purchasable
                 $lineItem->addError('qty', $error);
             }
         }
-
-        return null;
     }
 
     /**
@@ -541,7 +531,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return (bool) $this->getProduct()->promotable;
+        return (bool)$this->getProduct()->promotable;
     }
 
     /**
@@ -591,16 +581,11 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        // remove the item from the cart if the product is not enabled
-        if ($this->getStatus() != Element::STATUS_ENABLED) {
+        if (!parent::getIsAvailable()) {
             return false;
         }
 
-        if ($this->stock < 1 && !$this->unlimitedStock) {
-            return false;
-        }
-
-        return true;
+        return $this->stock >= 1 || $this->unlimitedStock;
     }
 
     /**
@@ -796,33 +781,38 @@ class Variant extends Purchasable
         $productType = $this->product->getType();
 
         switch ($attribute) {
-            case 'sku': {
-                return $this->sku;
-            }
-            case 'price': {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-            }
-            case 'weight': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+            case 'sku':
+                {
+                    return $this->sku;
                 }
+            case 'price':
+                {
+                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                return '';
-            }
+                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                }
+            case 'weight':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                    }
+
+                    return '';
+                }
             case 'length':
             case 'width':
-            case 'height': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                }
+            case 'height':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                    }
 
-                return '';
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+                    return '';
+                }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 }

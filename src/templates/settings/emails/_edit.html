@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -12,7 +12,8 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/emails/save">
     {{ redirectInput('commerce/settings/emails') }}
-    {% if email.id %}<input type="hidden" name="emailId" value="{{ email.id }}">{% endif %}
+    {% if email.id %}<input type="hidden" name="emailId"
+                            value="{{ email.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,
@@ -43,8 +44,8 @@
                     id: 'recipient-type',
                     name: 'recipientType',
                     options: [
-                    { label: "Send to the customer"|t('commerce'), value: 'customer' },
-                    { label: "Send to custom recipient"|t('commerce'), value: 'custom' }
+                        { label: "Send to the customer"|t('commerce'), value: 'customer' },
+                        { label: "Send to custom recipient"|t('commerce'), value: 'custom' }
                     ],
                     value: email.recipientType,
                     toggle: true,

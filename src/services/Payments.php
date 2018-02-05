@@ -456,8 +456,6 @@ class Payments extends Component
      *
      * @param Transaction              $transaction
      * @param RequestResponseInterface $response
-     *
-     * @return void
      */
     private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
     {

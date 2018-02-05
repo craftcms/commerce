@@ -1,11 +1,11 @@
 {% macro number(settings) %}
 
     {%- set class = [
-    'text',
-    (settings.class is defined and settings.class ? settings.class : null),
-    (settings.placeholder is defined and settings.placeholder ? 'nicetext' : null),
-    (settings.disabled is defined and settings.disabled ? 'disabled' : null),
-    (settings.size is defined and settings.size ? null : 'fullwidth')
+        'text',
+        (settings.class is defined and settings.class ? settings.class : null),
+        (settings.placeholder is defined and settings.placeholder ? 'nicetext' : null),
+        (settings.disabled is defined and settings.disabled ? 'disabled' : null),
+        (settings.size is defined and settings.size ? null : 'fullwidth')
     ]|filter|join(' ') %}
 
     <input class="{{ class }}" type="number"

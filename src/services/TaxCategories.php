@@ -267,8 +267,6 @@ class TaxCategories extends Component
      * Memoize a tax category model by its ID and handle.
      *
      * @param TaxCategory $taxCategory
-     *
-     * @return void
      */
     private function _memoizeTaxCategory(TaxCategory $taxCategory)
     {

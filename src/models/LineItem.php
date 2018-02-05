@@ -303,8 +303,6 @@ class LineItem extends Model
 
     /**
      * @param \craft\commerce\base\Element $purchasable
-     *
-     * @return void
      */
     public function setPurchasable(Element $purchasable)
     {

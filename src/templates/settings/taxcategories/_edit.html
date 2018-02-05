@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Tax Categories"|t('commerce'), url: url('commerce/settings/taxcategories') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Tax Categories"|t('commerce'), url: url('commerce/settings/taxcategories') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -12,6 +12,7 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-categories/save">
     {{ redirectInput('commerce/settings/taxcategories') }}
-    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}
+    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId"
+                                  value="{{ taxCategory.id }}">{% endif %}
     {% include "commerce/settings/taxcategories/_fields" %}
 {% endblock %}

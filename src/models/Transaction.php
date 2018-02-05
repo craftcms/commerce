@@ -218,8 +218,6 @@ class Transaction extends Model
 
     /**
      * @param Gateway $gateway
-     *
-     * @return void
      */
     public function setGateway(Gateway $gateway)
     {

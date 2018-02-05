@@ -145,8 +145,7 @@ class OrderAdjustments extends Component
     {
         $orderAdjustment = OrderAdjustmentRecord::findOne($adjustmentId);
 
-        if(!$orderAdjustment)
-        {
+        if (!$orderAdjustment) {
             return false;
         }
 

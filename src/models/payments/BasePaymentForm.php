@@ -21,7 +21,8 @@ abstract class BasePaymentForm extends Model
      *
      * @throws NotSupportedException if not supported by current gateway.
      */
-    public function populateFromPaymentSource(PaymentSource $paymentSource) {
+    public function populateFromPaymentSource(PaymentSource $paymentSource)
+    {
         throw new NotSupportedException();
     }
 }

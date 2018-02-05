@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Payment Methods"|t('commerce'), url: url('commerce/settings/gateways') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Payment Methods"|t('commerce'), url: url('commerce/settings/gateways') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -104,17 +104,17 @@
 
 {% js %}
     $(function() {
-        $('#type').change(function() {
-            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
-            if($(this).val()) {
-                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
-            }
-        }).change();
+    $('#type').change(function() {
+    $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+    if($(this).val()) {
+    $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+    }
+    }).change();
     });
 {% endjs %}
 
 {% if gateway is not defined or not gateway.handle %}
     {% js %}
-    new Craft.HandleGenerator('#name', '#handle');
+        new Craft.HandleGenerator('#name', '#handle');
     {% endjs %}
 {% endif %}

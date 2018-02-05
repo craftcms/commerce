@@ -12,13 +12,13 @@ use craft\models\UserGroup;
 /**
  * Discount model
  *
- * @property Product[]     $products
- * @property array         $userGroupIds
- * @property string        $percentDiscountAsPercent
- * @property array         $productIds
- * @property array         $productTypeIds
- * @property string|false  $cpEditUrl
- * @property UserGroup[]   $userGroups
+ * @property Product[]    $products
+ * @property array        $userGroupIds
+ * @property string       $percentDiscountAsPercent
+ * @property array        $productIds
+ * @property array        $productTypeIds
+ * @property string|false $cpEditUrl
+ * @property UserGroup[]  $userGroups
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -230,8 +230,6 @@ class Discount extends Model
      * Set the related product type ids
      *
      * @param array $categoryIds
-     *
-     * @return void
      */
     public function setCategoryIds(array $categoryIds)
     {
@@ -242,8 +240,6 @@ class Discount extends Model
      * Set the related product ids
      *
      * @param array $purchasableIds
-     *
-     * @return void
      */
     public function setPurchasableIds(array $purchasableIds)
     {
@@ -254,8 +250,6 @@ class Discount extends Model
      * Set the related user group ids
      *
      * @param array $userGroupIds
-     *
-     * @return void
      */
     public function setUserGroupIds(array $userGroupIds)
     {
@@ -279,8 +273,6 @@ class Discount extends Model
 
     /**
      * Load the sale relations
-     *
-     * @return void
      */
     private function _loadRelations()
     {

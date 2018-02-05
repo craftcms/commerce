@@ -212,8 +212,6 @@ class Sale extends Model
      * Set the related category ids
      *
      * @param array $ids
-     *
-     * @return void
      */
     public function setCategoryIds(array $ids)
     {
@@ -224,8 +222,6 @@ class Sale extends Model
      * Set the related purchasable ids
      *
      * @param array $purchasableIds
-     *
-     * @return void
      */
     public function setPurchasableIds(array $purchasableIds)
     {
@@ -236,8 +232,6 @@ class Sale extends Model
      * Set the related user group ids
      *
      * @param array $userGroupIds
-     *
-     * @return void
      */
     public function setUserGroupIds(array $userGroupIds)
     {
@@ -249,8 +243,6 @@ class Sale extends Model
 
     /**
      * Load the sale relations
-     *
-     * @return void
      */
     private function _loadRelations()
     {

@@ -52,9 +52,9 @@ class States extends Component
     // =========================================================================
 
     /**
-     * Get a states by it's id.
+     * Get a states by its ID.
      *
-     * @param int $id The state's id.
+     * @param int $id the state's ID
      *
      * @return State|null The matched state or null if not found.
      */
@@ -130,7 +130,7 @@ class States extends Component
     /**
      * Returns all states in a tax zone.
      *
-     * @param int $taxZoneId The tax zone id.
+     * @param int $taxZoneId the tax zone's ID
      *
      * @return State[] Array of states in the matched tax zone.
      */
@@ -157,7 +157,7 @@ class States extends Component
     /**
      * Returns all states in a shipping zone.
      *
-     * @param int $shippingZoneId Shipping zone id.
+     * @param int $shippingZoneId the shipping zone's ID
      *
      * @return State[] Array of states in the matched shipping zone.
      */
@@ -223,11 +223,11 @@ class States extends Component
     }
 
     /**
-     * Delete a state by it's id.
+     * Deletes a state by its ID.
      *
-     * @param int $id The id of the state.
+     * @param int $id the state's ID
      *
-     * @return bool Whether the state was deleted successfully.
+     * @return bool whether the state was deleted successfully
      */
     public function deleteStateById(int $id): bool
     {

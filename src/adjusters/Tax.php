@@ -13,7 +13,6 @@ use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use DvK\Vat\Validator;
-use Snowcap\Vat\Validation;
 
 /**
  * Tax Adjustments

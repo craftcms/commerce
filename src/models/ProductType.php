@@ -184,8 +184,6 @@ class ProductType extends Model
      * Sets the product type's site-specific settings.
      *
      * @param ProductTypeSite[] $siteSettings
-     *
-     * @return void
      */
     public function setSiteSettings(array $siteSettings)
     {

@@ -6,8 +6,6 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderSettings as OrderSettingsModel;
 use craft\commerce\Plugin;
-use yii\base\Exception;
-use yii\web\HttpException;
 use yii\web\Response;
 
 /**

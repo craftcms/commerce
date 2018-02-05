@@ -82,8 +82,6 @@ class Customer extends Model
      * Sets the user this customer is related to.
      *
      * @param User $user
-     *
-     * @return void
      */
     public function setUser(User $user)
     {
@@ -118,9 +116,9 @@ class Customer extends Model
     }
 
     /**
-     * Gets a single address of a customer by address id
+     * Returns an address for the customer>
      *
-     * @param int|null $id
+     * @param int|null $id the ID of the address to return, if known
      *
      * @return Address|null
      */

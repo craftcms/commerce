@@ -89,8 +89,6 @@ class ProductTypeSite extends Model
      * Sets the Product Type.
      *
      * @param ProductType $productType
-     *
-     * @return void
      */
     public function setProductType(ProductType $productType)
     {

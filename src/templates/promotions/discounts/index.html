@@ -42,10 +42,12 @@
                     </td>
                     <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
                     <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">{% if discount.stopProcessing %}
-                            <span data-icon="check"
-                                  title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                        <span data-icon="check"
+                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
                     <td class="thin">
-                        <a class="move icon disabled" title="{{ 'Delete'|t('commerce') }}"
+                        <a class="move icon disabled"
+                           title="{{ 'Delete'|t('commerce') }}"
                            role="button"></a>
                     </td>
                     <td class="thin"><a class="delete icon"
@@ -66,13 +68,13 @@
 
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#discounts',
-noObjectsSelector: '#no-discounts',
-deleteAction: 'commerce/discounts/delete',
-sortable: true,
-reorderAction: 'commerce/discounts/reorder',
-reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
-reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.')
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#discounts',
+    noObjectsSelector: '#no-discounts',
+    deleteAction: 'commerce/discounts/delete',
+    sortable: true,
+    reorderAction: 'commerce/discounts/reorder',
+    reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.')
+    });
 {% endjs %}

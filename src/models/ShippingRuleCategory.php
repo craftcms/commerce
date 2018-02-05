@@ -22,17 +22,17 @@ class ShippingRuleCategory extends Model
     // =========================================================================
 
     /**
-     * @var int Category id
+     * @var int ID
      */
     public $id;
 
     /**
-     * @var int Rule ID
+     * @var int Shipping rule ID
      */
     public $shippingRuleId;
 
     /**
-     * @var int Category ID
+     * @var int Shipping category ID
      */
     public $shippingCategoryId;
 
@@ -42,12 +42,12 @@ class ShippingRuleCategory extends Model
     public $perItemRate;
 
     /**
-     * @var float Weight Rate
+     * @var float Weight rate
      */
     public $weightRate;
 
     /**
-     * @var float Percentage Rate
+     * @var float Percentage rate
      */
     public $percentageRate;
 

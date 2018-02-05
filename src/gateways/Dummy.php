@@ -6,12 +6,12 @@ use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\DummyPaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
+
 /**
  * Dummy represents a dummy gateway.
  *

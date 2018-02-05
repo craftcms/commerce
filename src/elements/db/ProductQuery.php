@@ -375,7 +375,6 @@ class ProductQuery extends ElementQuery
     /**
      * Applies the 'editable' param to the query being prepared.
      *
-     * @return void
      * @throws QueryAbortedException
      */
     private function _applyEditableParam()
@@ -398,8 +397,6 @@ class ProductQuery extends ElementQuery
 
     /**
      * Applies the 'ref' param to the query being prepared.
-     *
-     * @return void
      */
     private function _applyRefParam()
     {
@@ -435,9 +432,6 @@ class ProductQuery extends ElementQuery
         }
     }
 
-    /**
-     * @return void
-     */
     private function _applyHasSalesParam()
     {
         if (null !== $this->hasSales) {
@@ -449,8 +443,7 @@ class ProductQuery extends ElementQuery
 
             $productIds = [];
             foreach ($products as $product) {
-                foreach ($product->variants as $variant)
-                {
+                foreach ($product->variants as $variant) {
                     $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
 
                     if ($this->hasSales === true && count($sales) > 0) {
