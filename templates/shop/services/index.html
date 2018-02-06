@@ -8,8 +8,11 @@
                 {{ plan.getFriendlyPlanName() }}
             </div>
             <div class="ten columns">
-                {% set subscription = plan.getActiveUserSubscription(currentUser.id) %}
-                {% if subscription %}
+                {% set subscriptions = plan.getActiveUserSubscriptions(currentUser.id) %}
+                {% if subscriptions|length > 1 %}
+                    <p><strong>You have multiple subscriptions to this plan.</strong></p>
+                {% endif %}
+                {% for subscription in subscriptions %}
                     {% if subscription.isCanceled %}
                         Your subscription was canceled on {{ subscription.dateCanceled|date('Y-m-d') }} and will expire on {{ subscription.nextPaymentDate|date('Y-m-d') }}
                     {% else %}
@@ -18,20 +21,18 @@
                     <br /><br />
 
                     <a href="{{ url('/shop/services/subscription', {subscription: subscription.id}) }}">Manage subscription</a><br /><br />
+                {% endfor %}
+                <p><strong>Subscribe to this plan</strong></p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
+                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
+                    {{ redirectInput('shop/services') }}
+                    {{ csrfInput() }}
 
-                {% else %}
-                    You have not subscripbed to this plan. <br /><br />
-                    <form method="POST">
-                        <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-                        {{ redirectInput('shop/services') }}
-                        {{ csrfInput() }}
+                    {{ plan.getGateway().getSubscriptionFormHtml()|raw }}
 
-                        {{ plan.getGateway().getSubscriptionFormHtml()|raw }}
-
-                        <button type="submit">{{ "Subscribe"|t }}</button>
-                    </form>
-                {% endif %}
+                    <button type="submit">{{ "Subscribe"|t }}</button>
+                </form>
             </div>
         </div>
     {% endfor %}
