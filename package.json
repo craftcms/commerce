@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "main": "gulpfile.js",
+  "devDependencies": {
+    "craftcms-sass": "^1.4.0",
+    "gulp": "^3.9.1"
+  }
+}
