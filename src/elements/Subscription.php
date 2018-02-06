@@ -45,6 +45,11 @@ class Subscription extends Element
      */
     const STATUS_CANCELED = 'canceled';
 
+    /**
+     * @var string
+     */
+    const STATUS_TRIAL = 'trial';
+
     // Properties
     // =========================================================================
 
@@ -141,7 +146,7 @@ class Subscription extends Element
      */
     public function __toString()
     {
-        return Craft::t('commerce', 'Subscription to plan for “{plan}”', ['plan' => $this->getPlan()->getFriendlyName()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlan()->getFriendlyPlanName()]);
     }
 
     /**
@@ -215,10 +220,10 @@ class Subscription extends Element
     /**
      * Return the product type for the product tied to the license.
      *
-     * @return SubscriptionGatewayInterface|null
+     * @return SubscriptionGatewayInterface
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function getGateway()
+    public function getGateway(): SubscriptionGatewayInterface
     {
         if (null === $this->_gateway) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
@@ -341,8 +346,10 @@ class Subscription extends Element
             $planIds[] = $plan->id;
         }
 
+
         $sources = [
             '*' => [
+                'key' => '*',
                 'label' => Craft::t('commerce', 'All subscriptions'),
                 'criteria' => ['planId' => $planIds],
                 'defaultSort' => ['dateCreated', 'desc']
@@ -373,19 +380,6 @@ class Subscription extends Element
     public static function eagerLoadingMap(array $sourceElements, string $handle)
     {
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-
-        if ($handle === 'order') {
-            $map = (new Query())
-                ->select('id as source, orderId as target')
-                ->from('{{%commerce_subscriptions}}')
-                ->where(['in', 'id', $sourceElementIds])
-                ->all();
-
-            return array(
-                'elementType' => Order::class,
-                'map' => $map
-            );
-        }
 
         if ($handle === 'subscriber') {
             $map = (new Query())
@@ -443,7 +437,8 @@ class Subscription extends Element
         return [
             self::STATUS_ACTIVE => Craft::t('commerce', 'Active'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_CANCELED => Craft::t('commerce', 'Canceled')
+            self::STATUS_CANCELED => Craft::t('commerce', 'Canceled'),
+            self::STATUS_TRIAL => Craft::t('commerce', 'Trial')
         ];
 
     }
@@ -513,9 +508,11 @@ class Subscription extends Element
     protected static  function defineTableAttributes(): array
     {
         return [
-            'plan' => ['label' => Craft::t('commerce', 'Subscription plan')],
+            'title' => ['label' => Craft::t('commerce', 'Subscription plan')],
             'subscriber' => ['label' => Craft::t('commerce', 'Subscribing user')],
-            'orderLink' => ['label' => Craft::t('commerce', 'Associated Order')]
+            'orderLink' => ['label' => Craft::t('commerce', 'Associated Order')],
+            'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
+            'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')]
         ];
     }
 
@@ -526,11 +523,8 @@ class Subscription extends Element
     {
         $attributes = [];
 
-        if ($source === '*') {
-            $attributes[] = 'plan';
-        }
-
         $attributes[] = 'subscriber';
+        $attributes[] = 'orderLink';
         $attributes[] = 'orderLink';
 
 
@@ -574,7 +568,7 @@ class Subscription extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'subscriptions.dateCreated' => Craft::t('commerce', 'Subscription date'),
+            'commerce_subscriptions.dateCreated' => Craft::t('commerce', 'Subscription date'),
         ];
     }
 

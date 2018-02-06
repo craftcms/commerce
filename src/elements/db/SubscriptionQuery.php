@@ -13,6 +13,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * LicenseQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
@@ -458,21 +459,13 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if ($this->onTrial === true) {
-            if (Craft::$app->getDb()->getIsPgsql()) {
-                $this->subQuery->andWhere(Db::parseParam('NOW()', "<=, [[commerce_subscriptions.dateCreated]] + [[commerce_subscriptions.trialDays]] * INTERVAL '1 day'"));
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('NOW()', '<=, ADDDATE([[commerce_subscriptions.dateCreated]], [[commerce_subscriptions.trialDays]])'));
-            }
+            $this->subQuery->andWhere($this->_getTrialCondition(true));
         } else if ($this->onTrial === false) {
-            if (Craft::$app->getDb()->getIsPgsql()) {
-                $this->subQuery->andWhere(Db::parseParam('NOW()', ">, [[commerce_subscriptions.dateCreated]] + [[commerce_subscriptions.trialDays]] * INTERVAL '1 day'"));
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('NOW()', '>, ADDDATE([[commerce_subscriptions.dateCreated]], [[commerce_subscriptions.trialDays]])'));
-            }
+            $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 
         if (!$this->orderBy) {
-            $this->orderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
+            $this->orderBy = ['[[commerce_subscriptions.dateCreated]]' => SORT_DESC];
         }
 
         return parent::beforePrepare();
@@ -498,8 +491,33 @@ class SubscriptionQuery extends ElementQuery
                     'commerce_subscriptions.isCanceled' => '1',
                     'commerce_subscriptions.isExpired' => '1',
                 ];
+            case Subscription::STATUS_TRIAL:
+                return $this->_getTrialCondition(true);
             default:
                 return parent::statusCondition($status);
         }
+    }
+
+    /**
+     * Return the SQL condition to use for trial status.
+     *
+     * @param bool $onTrial
+     *
+     * @return mixed
+     */
+    private function _getTrialCondition(bool $onTrial) {
+        if ($onTrial) {
+            if (Craft::$app->getDb()->getIsPgsql()) {
+                return new Expression("NOW() <= [[commerce_subscriptions.dateCreated]] + [[commerce_subscriptions.trialDays]] * INTERVAL '1 day'");
+            }
+
+            return new Expression('NOW() <= ADDDATE([[commerce_subscriptions.dateCreated]], [[commerce_subscriptions.trialDays]])');
+        }
+
+        if (Craft::$app->getDb()->getIsPgsql()) {
+            return new Expression("NOW() > [[commerce_subscriptions.dateCreated]] + [[commerce_subscriptions.trialDays]] * INTERVAL '1 day'");
+        }
+
+        return new Expression('NOW() > ADDDATE([[commerce_subscriptions.dateCreated]], [[commerce_subscriptions.trialDays]])');
     }
 }
