@@ -160,7 +160,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Get a product type by it's handle.
+     * Get a product type by its handle.
      *
      * @param string $handle The product type's handle.
      *
@@ -190,9 +190,9 @@ class ProductTypes extends Component
     }
 
     /**
-     * Get an array of product type site settings for a product type by it's id.
+     * Get an array of product type site settings for a product type by its ID.
      *
-     * @param int $productTypeId The product type id.
+     * @param int $productTypeId the product type ID
      *
      * @return array The product type settings.
      */
@@ -547,9 +547,9 @@ class ProductTypes extends Component
     }
 
     /**
-     * Delete a product type by it's id.
+     * Delete a product type by its ID.
      *
-     * @param int $id The product type's id.
+     * @param int $id the product type's ID
      *
      * @return bool Whether the product type was deleted successfully.
      * @throws \Throwable if reasons
@@ -594,11 +594,11 @@ class ProductTypes extends Component
     }
 
     /**
-     * Get a product's type by id.
+     * Returns a product type by its ID.
      *
-     * @param int $productTypeId The product type's id.
+     * @param int $productTypeId the product type's ID
      *
-     * @return ProductType|null Either the product type or `null`.
+     * @return ProductType|null either the product type or `null`
      */
     public function getProductTypeById(int $productTypeId)
     {
@@ -656,8 +656,6 @@ class ProductTypes extends Component
      * Add new product type setting rows when a Site is added to Craft.
      *
      * @param SiteEvent $event The event that triggered this.
-     *
-     * @return void
      */
     public function addSiteHandler(SiteEvent $event)
     {

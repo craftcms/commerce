@@ -2,8 +2,8 @@
 
 namespace craft\commerce\helpers;
 
-use craft\commerce\Plugin;
 use craft\commerce\models\Currency as CurrencyModel;
+use craft\commerce\Plugin;
 
 /**
  * Class Currency

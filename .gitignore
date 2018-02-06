@@ -12,3 +12,4 @@ classdocs/cache/
 *aspnet_client/*
 commerce/vendor/
 /composer.lock
+/node_modules

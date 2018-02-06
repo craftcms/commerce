@@ -1,9 +1,9 @@
 {% extends "commerce/_layouts/settingscp" %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Shipping Methods"|t('commerce'), url: url('commerce/settings/shippingmethods') },
-{ label: shippingMethod.getName()|t('commerce'), url: url('commerce/settings/shippingmethods/'~methodId) },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping Methods"|t('commerce'), url: url('commerce/settings/shippingmethods') },
+    { label: shippingMethod.getName()|t('commerce'), url: url('commerce/settings/shippingmethods/'~methodId) },
 ] %}
 
 {% set fullPageForm = true %}
@@ -14,120 +14,120 @@
     {{ selectField(selectParams) }}
 
     {% js %}
-    (function () {
-    var $select = $('#{{ selectParams.id }}').selectize({
-    dropdownParent: 'body'
-    });
+        (function () {
+        var $select = $('#{{ selectParams.id }}').selectize({
+        dropdownParent: 'body'
+        });
 
-    var selectize = $select.get(0).selectize;
+        var selectize = $select.get(0).selectize;
 
-    selectize.addOption({
-    value: 'new',
-    text: '{{ newOptionLabel|e("js") }}'
-    });
+        selectize.addOption({
+        value: 'new',
+        text: '{{ newOptionLabel|e("js") }}'
+        });
 
-    selectize.on('item_add', function (value, $item) {
-    if (value == 'new') {
-    // Not a real option
-    selectize.clear();
+        selectize.on('item_add', function (value, $item) {
+        if (value == 'new') {
+        // Not a real option
+        selectize.clear();
 
-    var $form = $(
-    '
-    <form class="modal fitted lazy-create-modal">' +
+        var $form = $(
         '
-        <div class="header">' +
-            '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+        <form class="modal fitted lazy-create-modal">' +
             '
-        </div>
-        ' +
-        '
-        <div class="body">' +
-            '{{ html|e("js") }}' +
-            '
-        </div>
-        ' +
-        '
-        <div class="footer">' +
-            '
-            <div class="buttons right">' +
+            <div class="header">' +
+                '<h1 class="centeralign">{{ modalHeading }}</h1>' +
                 '
-                <div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>
-                ' +
-                '<input type="submit" class="btn submit"
-                        value="{{ 'Save'|t('commerce') }}"/>' +
+            </div>
+            ' +
+            '
+            <div class="body">' +
+                '{{ html|e("js") }}' +
                 '
-                <div class="spinner hidden"/>
+            </div>
+            ' +
+            '
+            <div class="footer">' +
+                '
+                <div class="buttons right">' +
+                    '
+                    <div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>
+                    ' +
+                    '<input type="submit" class="btn submit"
+                            value="{{ 'Save'|t('commerce') }}"/>' +
+                    '
+                    <div class="spinner hidden"/>
+                    ' +
+                    '
+                </div>
                 ' +
                 '
             </div>
             ' +
             '
-        </div>
-        ' +
-        '
-    </form>'
-    );
+        </form>'
+        );
 
-    var modal = new Garnish.Modal($form, {
-    onHide: function () {
-    modal.destroy();
-    delete modal;
-    }
-    });
+        var modal = new Garnish.Modal($form, {
+        onHide: function () {
+        modal.destroy();
+        delete modal;
+        }
+        });
 
-    eval('{{ js|e("js") }}');
+        eval('{{ js|e("js") }}');
 
-    setTimeout(function () {
-    $form.find('.text:first').focus();
+        setTimeout(function () {
+        $form.find('.text:first').focus();
 
-    modal.updateSizeAndPosition();
-    $form.find('.body:first').on('resize', function () {
-    modal.updateSizeAndPosition();
-    });
-    }, 100);
+        modal.updateSizeAndPosition();
+        $form.find('.body:first').on('resize', function () {
+        modal.updateSizeAndPosition();
+        });
+        }, 100);
 
-    $form.on('submit', function (ev) {
-    ev.preventDefault();
-    $form.find('.spinner').removeClass('hidden');
-    var namespacedData = Garnish.getPostData($form),
-    data = {};
+        $form.on('submit', function (ev) {
+        ev.preventDefault();
+        $form.find('.spinner').removeClass('hidden');
+        var namespacedData = Garnish.getPostData($form),
+        data = {};
 
-    for (var name in namespacedData) {
-    data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
-    }
+        for (var name in namespacedData) {
+        data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+        }
 
-    Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
-    $form.find('.spinner').addClass('hidden');
-    if (textStatus == 'success') {
-    if (response.success) {
-    Craft.cp.displayNotice('{{ successText|e("js") }}');
-    selectize.addOption({
-    value: response.id,
-    text: response.name,
-    $order: selectize.order - 1
-    });
-    selectize.setValue(response.id);
-    modal.hide();
-    } else {
-    Craft.ui.clearErrorsFromField($form.find('.field'));
+        Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
+        $form.find('.spinner').addClass('hidden');
+        if (textStatus == 'success') {
+        if (response.success) {
+        Craft.cp.displayNotice('{{ successText|e("js") }}');
+        selectize.addOption({
+        value: response.id,
+        text: response.name,
+        $order: selectize.order - 1
+        });
+        selectize.setValue(response.id);
+        modal.hide();
+        } else {
+        Craft.ui.clearErrorsFromField($form.find('.field'));
 
-    for (var attribute in response.errors) {
-    Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
-    }
+        for (var attribute in response.errors) {
+        Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
+        }
 
-    modal.updateSizeAndPosition();
-    Garnish.shake($form);
-    }
-    }
-    });
-    });
+        modal.updateSizeAndPosition();
+        Garnish.shake($form);
+        }
+        }
+        });
+        });
 
-    $form.find('.cancel-btn').on('click', function () {
-    modal.hide();
-    });
-    }
-    });
-    })();
+        $form.find('.cancel-btn').on('click', function () {
+        modal.hide();
+        });
+        }
+        });
+        })();
     {% endjs %}
 
 {% endmacro %}
@@ -138,9 +138,9 @@
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
     {% set tabs = {
-    0: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
-    1: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
-    2: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
+        0: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
+        1: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
+        2: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
     } %}
 
 {% block content %}
@@ -148,7 +148,8 @@
     {{ redirectInput('commerce/settings/shippingmethods/{methodId}#rules') }}
     <input type="hidden" name="methodId" value="{{ methodId }}">
 
-    {% if shippingRule.id %}<input type="hidden" name="id"value="{{ shippingRule.id }}">{% endif %}
+    {% if shippingRule.id %}<input type="hidden" name="id"
+                                   value="{{ shippingRule.id }}">{% endif %}
 
     <div id="rule-tab">
         {{ forms.textField({
@@ -185,25 +186,25 @@
         <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t('commerce') }}</p>
 
         {% set shippingZoneSelectParams = {
-        label: "Shipping Zone"|t('commerce'),
-        instructions: "Select a shipping zone."|t('commerce'),
-        id: 'shippingZoneId',
-        name: 'shippingZoneId',
-        value: shippingRule.shippingZoneId,
-        errors: shippingRule.getErrors('shippingZoneId'),
-        required: false,
-        options: shippingZones,
-        class: 'selectize fullwidth',
+            label: "Shipping Zone"|t('commerce'),
+            instructions: "Select a shipping zone."|t('commerce'),
+            id: 'shippingZoneId',
+            name: 'shippingZoneId',
+            value: shippingRule.shippingZoneId,
+            errors: shippingRule.getErrors('shippingZoneId'),
+            required: false,
+            options: shippingZones,
+            class: 'selectize fullwidth',
         } %}
 
         {{ lazyCreateSelect(
-        shippingZoneSelectParams,
-        'New shipping zone'|t('commerce'),
-        'Create a new shipping zone'|t('commerce'),
-        newShippingZoneFields,
-        newShippingZoneJs,
-        'commerce/shippingZones/save',
-        'Shipping zone saved.'|t
+            shippingZoneSelectParams,
+            'New shipping zone'|t('commerce'),
+            'Create a new shipping zone'|t('commerce'),
+            newShippingZoneFields,
+            newShippingZoneJs,
+            'commerce/shippingZones/save',
+            'Shipping zone saved.'|t
         ) }}
 
         {{ commerceForms.numberField({
@@ -457,17 +458,17 @@
 {% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
 
 {% js %}
-window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+    window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
 
-$("select[name^='ruleCategories']").change(function() {
-var id = $(this).closest('tr').data('id');
-var value = $(this).val();
-var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
-if (value == 'disallow')
-{
-$rateRow.addClass('hidden');
-}else{
-$rateRow.removeClass('hidden');
-}
-});
+    $("select[name^='ruleCategories']").change(function() {
+    var id = $(this).closest('tr').data('id');
+    var value = $(this).val();
+    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
+    if (value == 'disallow')
+    {
+    $rateRow.addClass('hidden');
+    }else{
+    $rateRow.removeClass('hidden');
+    }
+    });
 {% endjs %}

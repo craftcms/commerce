@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Category;
 use craft\records\UserGroup;
 use yii\db\ActiveQueryInterface;
 
@@ -29,8 +30,8 @@ use yii\db\ActiveQueryInterface;
  * @property bool                 $excludeOnSale
  * @property bool                 $freeShipping
  * @property bool                 $allGroups
- * @property bool                 $allProducts
- * @property bool                 $allProductTypes
+ * @property bool                 $allPurchasables
+ * @property bool                 $allCategories
  * @property bool                 $enabled
  * @property bool                 $stopProcessing
  * @property bool                 $sortOrder
@@ -84,17 +85,17 @@ class Discount extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getDiscountProducts(): ActiveQueryInterface
+    public function getDiscountPurchasables(): ActiveQueryInterface
     {
-        return $this->hasMany(DiscountProduct::class, ['discountId' => 'id']);
+        return $this->hasMany(DiscountPurchasable::class, ['discountId' => 'id']);
     }
 
     /**
      * @return ActiveQueryInterface
      */
-    public function getDiscountProductTypes(): ActiveQueryInterface
+    public function getDiscountCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(DiscountProductType::class, ['discountId' => 'id']);
+        return $this->hasMany(DiscountCategory::class, ['discountId' => 'id']);
     }
 
     /**
@@ -108,16 +109,16 @@ class Discount extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getProducts(): ActiveQueryInterface
+    public function getPurchasables(): ActiveQueryInterface
     {
-        return $this->hasMany(Product::class, ['id' => 'discountId'])->via('discountProducts');
+        return $this->hasMany(Purchasable::class, ['id' => 'discountId'])->via('discountPurchasables');
     }
 
     /**
      * @return ActiveQueryInterface
      */
-    public function getProductTypes(): ActiveQueryInterface
+    public function getCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(ProductType::class, ['id' => 'discountId'])->via('discountProductTypes');
+        return $this->hasMany(Category::class, ['id' => 'discountId'])->via('discountCategories');
     }
 }

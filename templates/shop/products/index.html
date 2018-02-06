@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% for product in craft.commerce.products.limit(5).all() %}
+{% for product in craft.commerce.products.all() %}
     <div class="row product">
         <div class="two columns">
             {% include "shop/_images/product" with { class: 'u-max-full-width' } %}
@@ -16,7 +16,7 @@
                     {{ csrfInput() }}
 
                     <select name="purchasableId" class="purchasableId">
-                        {%- for purchasable in product.variants -%}
+                        {%- for purchasable in product.getVariants() -%}
                             <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
                                     data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
                                     value="{{ purchasable.purchasableId }}">
@@ -43,7 +43,7 @@
                 {% endif %}
                 {% endif %}
 
-                {%- for purchasable in product.variants -%}
+                {%- for purchasable in product.getVariants() -%}
                     <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="purchasableInfo" style="display:none;">
                         <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
                         <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>

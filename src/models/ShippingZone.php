@@ -144,7 +144,7 @@ class ShippingZone extends Model
      * Set states in this shipping Zone.
      *
      * @param State[] $states
-    */
+     */
     public function setStates($states)
     {
         $this->_states = $states;

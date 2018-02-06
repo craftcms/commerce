@@ -12,8 +12,8 @@ use craft\helpers\UrlHelper;
  *
  * @property string       $discountAmountAsFlat
  * @property string|false $cpEditUrl
- * @property array        $productTypeIds
- * @property array        $productIds
+ * @property array        $categoryIds
+ * @property array        $purchasableIds
  * @property string       $discountAmountAsPercent
  * @property array        $userGroupIds
  *
@@ -66,14 +66,14 @@ class Sale extends Model
     public $allGroups = false;
 
     /**
-     * @var bool Match all products
+     * @var bool Match all purchasables
      */
-    public $allProducts = false;
+    public $allPurchasables = false;
 
     /**
-     * @var bool Match all product types
+     * @var bool Match all categories
      */
-    public $allProductTypes = false;
+    public $allCategories = false;
 
     /**
      * @var bool Enabled
@@ -83,12 +83,12 @@ class Sale extends Model
     /**
      * @var int[] Product Ids
      */
-    private $_productIds;
+    private $_purchsableIds;
 
     /**
      * @var int[] Product Type IDs
      */
-    private $_productTypeIds;
+    private $_categoryIds;
 
     /**
      * @var int[] Group IDs
@@ -113,7 +113,7 @@ class Sale extends Model
                 ],
             ],
             [['default', 'enabled'], 'boolean'],
-            [['discountType', 'allGroups', 'allProducts', 'allProductTypes'], 'required'],
+            [['discountType', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
     }
 
@@ -175,25 +175,25 @@ class Sale extends Model
     /**
      * @return array
      */
-    public function getProductTypeIds(): array
+    public function getCategoryIds(): array
     {
-        if (null === $this->_productTypeIds) {
+        if (null === $this->_categoryIds) {
             $this->_loadRelations();
         }
 
-        return $this->_productTypeIds;
+        return $this->_categoryIds;
     }
 
     /**
      * @return array
      */
-    public function getProductIds(): array
+    public function getPurchasableIds(): array
     {
-        if (null === $this->_productIds) {
+        if (null === $this->_purchsableIds) {
             $this->_loadRelations();
         }
 
-        return $this->_productIds;
+        return $this->_purchsableIds;
     }
 
     /**
@@ -209,35 +209,29 @@ class Sale extends Model
     }
 
     /**
-     * Set the related product type ids
+     * Set the related category ids
      *
      * @param array $ids
-     *
-     * @return void
      */
-    public function setProductTypeIds(array $ids)
+    public function setCategoryIds(array $ids)
     {
-        $this->_productTypeIds = array_unique($ids);
+        $this->_categoryIds = array_unique($ids);
     }
 
     /**
-     * Set the related product ids
+     * Set the related purchasable ids
      *
-     * @param array $productIds
-     *
-     * @return void
+     * @param array $purchasableIds
      */
-    public function setProductIds(array $productIds)
+    public function setPurchasableIds(array $purchasableIds)
     {
-        $this->_productIds = array_unique($productIds);
+        $this->_purchsableIds = array_unique($purchasableIds);
     }
 
     /**
      * Set the related user group ids
      *
      * @param array $userGroupIds
-     *
-     * @return void
      */
     public function setUserGroupIds(array $userGroupIds)
     {
@@ -249,8 +243,6 @@ class Sale extends Model
 
     /**
      * Load the sale relations
-     *
-     * @return void
      */
     private function _loadRelations()
     {

@@ -93,7 +93,7 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
-        // These are used to compare if the order changed during it's final
+        // These are used to compare if the order changed during its final
         // recalculation before payment.
         $originalTotalPrice = $order->outstandingBalance();
         $originalTotalQty = $order->getTotalQty();
@@ -151,7 +151,6 @@ class PaymentsController extends BaseFrontEndController
             if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
                 $plugin->getCart()->setPaymentSource($order, $paymentSource->id, $error);
-
             } else {
                 $paymentSource = $order->getPaymentSource();
             }

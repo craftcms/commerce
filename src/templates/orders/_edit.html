@@ -4,7 +4,7 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
-{    label: "Orders"|t('commerce'), url: url('commerce/orders') }
+    {    label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
 {% import "_includes/forms" as forms %}
@@ -21,19 +21,23 @@
                 <div class="order-info-box">
                     <table class="fullwidth data borderless">
                         <tr>
-                            <td><strong>{{ "Reference"|t('commerce') }}</strong></td>
+                            <td><strong>{{ "Reference"|t('commerce') }}</strong>
+                            </td>
                             <td>
                                 <span title="{{ "Full Reference Number"|t('commerce') }}: {{ order.number }}">{{ order.shortNumber }}</span>
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Customer"|t('commerce') }}</strong></td>
+                            <td><strong>{{ "Customer"|t('commerce') }}</strong>
+                            </td>
                             <td>{% if order.customer.user %}<a
                                     href="{{ order.customer.user.cpEditUrl }}">{{ order.email }}</a>{% else %}{{ order.email }}&nbsp;({{ "Guest"|t('commerce') }}) {% endif %}
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Order Date"|t('commerce') }}</strong></td>
+                            <td>
+                                <strong>{{ "Order Date"|t('commerce') }}</strong>
+                            </td>
                             <td>
                                 <div id="order-completion" class="hidden">
                                     {% if order.isCompleted %}
@@ -48,7 +52,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Status"|t('commerce') }}</strong></td>
+                            <td><strong>{{ "Status"|t('commerce') }}</strong>
+                            </td>
                             {% if order.orderStatus %}
                                 <td>
                                     <div id="order-status"
@@ -64,31 +69,40 @@
                                 <td><span class="status"></span></td>
                             {% endif %}
                         <tr>
-                            <td><strong>{{ "Total"|t('commerce') }}</strong></td>
+                            <td><strong>{{ "Total"|t('commerce') }}</strong>
+                            </td>
                             <td>{{ order.totalPrice|currency(order.currency) }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Paid"|t('commerce') }} </strong></td>
+                            <td><strong>{{ "Paid"|t('commerce') }} </strong>
+                            </td>
                             <td>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('D jS M Y') }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "IP Address"|t('commerce') }} </strong></td>
+                            <td>
+                                <strong>{{ "IP Address"|t('commerce') }} </strong>
+                            </td>
                             <td>{{ order.lastIp }}</td>
                         </tr>
                         <tr>
-                            <td><strong>{{ "Order Currency"|t('commerce') }} </strong></td>
+                            <td>
+                                <strong>{{ "Order Currency"|t('commerce') }} </strong>
+                            </td>
                             <td>{{ order.currency }}</td>
                         </tr>
                         {% if order.currency != order.paymentCurrency %}
                             <tr>
-                                <td><strong>{{ "Payment Currency"|t('commerce') }} </strong>
+                                <td>
+                                    <strong>{{ "Payment Currency"|t('commerce') }} </strong>
                                 </td>
                                 <td>{{ order.paymentCurrency }}</td>
                             </tr>
                         {% endif %}
                         {% if order.couponCode %}
                             <tr>
-                                <td><strong>{{ "Coupon"|t('commerce') }} </strong></td>
+                                <td>
+                                    <strong>{{ "Coupon"|t('commerce') }} </strong>
+                                </td>
                                 <td>{{ order.couponCode }}</td>
                             </tr>
                         {% endif %}
@@ -139,14 +153,14 @@
                     {% for lineItem in order.lineItems %}
 
                         {% set info = [
-                        { label: "Description", value: lineItem.description },
-                        { label: "Tax Category", value: lineItem.taxCategory.name },
-                        { label: "Price", value: lineItem.price|currency(order.currency) },
-                        { label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
-                        { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
-                        { label: "Quantity", value: lineItem.qty },
-                        { label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
-                        { label: "Total", value: lineItem.subtotal|currency(order.currency) },
+                            { label: "Description", value: lineItem.description },
+                            { label: "Tax Category", value: lineItem.taxCategory.name },
+                            { label: "Price", value: lineItem.price|currency(order.currency) },
+                            { label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
+                            { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
+                            { label: "Quantity", value: lineItem.qty },
+                            { label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
+                            { label: "Total", value: lineItem.subtotal|currency(order.currency) },
                         ] %}
 
                         <tr class="infoRow" data-id="{{ lineItem.id }}"
@@ -154,7 +168,8 @@
                             <td>
                                 {% if lineItem.purchasable %}
                                     {% if lineItem.purchasable.cpEditUrl %}
-                                        <a class="purchasable-link" href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
+                                        <a class="purchasable-link"
+                                           href="{{ lineItem.purchasable.cpEditUrl }}">{{ lineItem.description }}</a>
                                     {% else %}
                                         <span class="description">{{ lineItem.description }}</span>
                                     {% endif %}
@@ -169,7 +184,7 @@
                                           class="hidden">
                                 {% for key, option in lineItem.options %}
                                     {{ key|t('commerce') }}: {% if option is iterable %}
-                                <code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}
+                                    <code>{{ option|json_encode|raw }}</code>{% else %}{{ option }}{% endif %}
                                 <br>
                                 {% endfor %}
                                     </span>
@@ -214,7 +229,8 @@
                         <td></td>
                         <td>
                             {% if order.isPaid and order.totalPrice > 0 %}
-                                <div class="paidLogo"><span>{{ 'PAID'|t('commerce') }}</div>
+                                <div class="paidLogo">
+                                    <span>{{ 'PAID'|t('commerce') }}</div>
                             {% endif %}
                         </td>
                         <td></td>
@@ -289,7 +305,8 @@
               data-confirm-unload>
             <input type="hidden" name="action"
                    value="commerce/orders/save-order">
-            <input type="hidden" name="redirect" value="{{ 'commerce/orders'|hash }}">
+            <input type="hidden" name="redirect"
+                   value="{{ 'commerce/orders'|hash }}">
             {{ csrfInput() }}
 
 
@@ -302,8 +319,8 @@
                 {% for tab in orderSettings.getFieldLayout().getTabs() %}
                     <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
                         {% include "_includes/fields" with {
-                        fields: tab.getFields(),
-                        element: order,
+                            fields: tab.getFields(),
+                            element: order,
                         } only %}
                     </div>
                 {% endfor %}
@@ -377,13 +394,13 @@
 
     {% macro transactionRow(transaction, level) %}
         {% set info = [
-        { label: "ID", value: transaction.id },
-        { label: "Hash", value: transaction.hash },
-        { label: "Reference", value: transaction.reference },
-        { label: "Message", value: transaction.message|title },
-        { label: "Code", value: transaction.code },
-        { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-        { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|raw~"</textarea>" },
+            { label: "ID", value: transaction.id },
+            { label: "Hash", value: transaction.hash },
+            { label: "Reference", value: transaction.reference },
+            { label: "Message", value: transaction.message|title },
+            { label: "Code", value: transaction.code },
+            { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+            { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|raw~"</textarea>" },
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
@@ -482,18 +499,18 @@
 
     $(document).ready(function () {
 
-        {% if paymentForm is defined and paymentForm %}
-            new Craft.Commerce.OrderEdit({
-                orderId: {{ orderId|e('js') }},
-                paymentForm: {
-                    errors: {{ paymentForm.errors|json_encode|raw}},
-                    attributes: {{ paymentForm.attributes|json_encode|raw }}
-                }
-            });
-        {% endif %}
-
-        $.each($('.tableRowInfo'), function () {
-            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+    {% if paymentForm is defined and paymentForm %}
+        new Craft.Commerce.OrderEdit({
+        orderId: {{ orderId|e('js') }},
+        paymentForm: {
+        errors: {{ paymentForm.errors|json_encode|raw }},
+        attributes: {{ paymentForm.attributes|json_encode|raw }}
+        }
         });
+    {% endif %}
+
+    $.each($('.tableRowInfo'), function () {
+    new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+    });
     });
 {% endjs %}

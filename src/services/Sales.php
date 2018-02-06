@@ -3,16 +3,18 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
+use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
-use craft\commerce\records\SaleProduct as SaleProductRecord;
-use craft\commerce\records\SaleProductType as SaleProductTypeRecord;
+use craft\commerce\records\SaleCategory as SaleCategoryRecord;
+use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
+use craft\elements\Category;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -32,7 +34,7 @@ class Sales extends Component
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      */
-    const EVENT_BEFORE_MATCH_PRODUCT_SALE = 'beforeMatchProductSale';
+    const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
     // Properties
     // =========================================================================
@@ -49,6 +51,39 @@ class Sales extends Component
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * Apply applicable sales to a purchasable
+     *
+     * @param PurchasableInterface|PurchasableInterface[] Purchasables
+     */
+    public function applySales($purchasables)
+    {
+        if (!is_array($purchasables)) {
+            $purchasables = [$purchasables];
+        }
+
+        // reset the salePrice to be the same as price, and clear any sales applied.
+        foreach ($purchasables as $purchasable) {
+            $purchasable->setSales([]);
+            $purchasable->setSalePrice(Currency::round($purchasable->getPrice()));
+        }
+
+        /** @var $purchasable PurchasableInterface */
+        // Only bother calculating if the purchasable is persisted and promotable.
+        if ($purchasable->getPurchasableId() && $purchasable->getIsPromotable()) {
+            $sales = $this->getSalesForPurchasable($purchasable);
+            $purchasable->setSales($sales);
+            foreach ($sales as $sale) {
+                $purchasable->setSalePrice(Currency::round($purchasable->getSalePrice() + $sale->calculateTakeoff($purchasable->getPrice())));
+
+                // Cannot have a sale that makes the price negative.
+                if ($purchasable->getSalePrice() < 0) {
+                    $purchasable->setSalePrice(0);
+                }
+            }
+        }
+    }
 
     /**
      * @param int $id
@@ -81,38 +116,38 @@ class Sales extends Component
                 sales.discountType,
                 sales.discountAmount,
                 sales.allGroups,
-                sales.allProducts,
-                sales.allProductTypes,
+                sales.allPurchasables,
+                sales.allCategories,
                 sales.enabled,
-                sp.productId,
-                spt.productTypeId,
+                sp.purchasableId,
+                spt.categoryId,
                 sug.userGroupId')
                 ->from('{{%commerce_sales}} sales')
-                ->leftJoin('{{%commerce_sale_products}} sp', '[[sp.saleId]] = [[sales.id]]')
-                ->leftJoin('{{%commerce_sale_producttypes}} spt', '[[spt.saleId]] = [[sales.id]]')
+                ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]] = [[sales.id]]')
+                ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]] = [[sales.id]]')
                 ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]] = [[sales.id]]')
                 ->all();
 
             $allSalesById = [];
-            $products = [];
-            $productTypes = [];
+            $purchasables = [];
+            $categories = [];
             $groups = [];
 
             foreach ($sales as $sale) {
                 $id = $sale['id'];
-                if ($sale['productId']) {
-                    $products[$id][] = $sale['productId'];
+                if ($sale['purchasableId']) {
+                    $purchasables[$id][] = $sale['purchasableId'];
                 }
 
-                if ($sale['productTypeId']) {
-                    $productTypes[$id][] = $sale['productTypeId'];
+                if ($sale['categoryId']) {
+                    $categories[$id][] = $sale['categoryId'];
                 }
 
                 if ($sale['userGroupId']) {
                     $groups[$id][] = $sale['userGroupId'];
                 }
 
-                unset($sale['productId'], $sale['userGroupId'], $sale['productTypeId']);
+                unset($sale['purchasableId'], $sale['userGroupId'], $sale['categoryId']);
 
                 if (!isset($allSalesById[$id])) {
                     $allSalesById[$id] = new Sale($sale);
@@ -120,8 +155,8 @@ class Sales extends Component
             }
 
             foreach ($allSalesById as $id => $sale) {
-                $sale->setProductIds($products[$id] ?? []);
-                $sale->setProductTypeIds($productTypes[$id] ?? []);
+                $sale->setPurchasableIds($purchasables[$id] ?? []);
+                $sale->setCategoryIds($categories[$id] ?? []);
                 $sale->setUserGroupIds($groups[$id] ?? []);
             }
 
@@ -135,33 +170,31 @@ class Sales extends Component
      * Populate a sale's relations.
      *
      * @param Sale $sale
-     *
-     * @return void
      */
     public function populateSaleRelations(Sale $sale)
     {
         $rows = (new Query())->select(
-            'sp.productId,
-            spt.productTypeId,
+            'sp.purchasableId,
+            spt.categoryId,
             sug.userGroupId')
             ->from('{{%commerce_sales}} sales')
-            ->leftJoin('{{%commerce_sale_products}} sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin('{{%commerce_sale_producttypes}} spt', '[[spt.saleId]]=[[sales.id]]')
+            ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]]=[[sales.id]]')
+            ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]]=[[sales.id]]')
             ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]]=[[sales.id]]')
             ->where(['[[sales.id]]' => $sale->id])
             ->all();
 
-        $productIds = [];
-        $productTypeIds = [];
+        $purchasableIds = [];
+        $categoryIds = [];
         $userGroupIds = [];
 
         foreach ($rows as $row) {
-            if ($row['productId']) {
-                $productIds[] = $row['productId'];
+            if ($row['purchasableId']) {
+                $purchasableIds[] = $row['purchasableId'];
             }
 
-            if ($row['productTypeId']) {
-                $productTypeIds[] = $row['productTypeId'];
+            if ($row['categoryId']) {
+                $categoryIds[] = $row['categoryId'];
             }
 
             if ($row['userGroupId']) {
@@ -169,22 +202,22 @@ class Sales extends Component
             }
         }
 
-        $sale->setProductIds($productIds);
-        $sale->setProductTypeIds($productTypeIds);
+        $sale->setPurchasableIds($purchasableIds);
+        $sale->setCategoryIds($categoryIds);
         $sale->setUserGroupIds($userGroupIds);
     }
 
     /**
-     * @param Product $product
+     * @param PurchasableInterface $purchasable
      *
-     * @return Sale[]
+     * @return array
      */
-    public function getSalesForProduct(Product $product): array
+    public function getSalesForPurchasable(PurchasableInterface $purchasable): array
     {
         $matchedSales = [];
 
         foreach ($this->_getAllActiveSales() as $sale) {
-            if ($this->matchProductAndSale($product, $sale)) {
+            if ($this->matchPurchasableAndSale($purchasable, $sale)) {
                 $matchedSales[] = $sale;
             }
         }
@@ -192,26 +225,25 @@ class Sales extends Component
         return $matchedSales;
     }
 
-    /**
-     * @param Product $product
-     * @param Sale    $sale
-     *
-     * @return bool
-     */
-    public function matchProductAndSale(Product $product, Sale $sale): bool
+
+    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale): bool
     {
         // can't match something not promotable
-        if (!$product->promotable) {
+        if (!$purchasable->getIsPromotable()) {
             return false;
         }
 
-        // Product ID match
-        if (!$sale->allProducts && !in_array($product->id, $sale->getProductIds(), false)) {
+        // Purchsable ID match
+        if (!$sale->allPurchasables && !\in_array($purchasable->getPurchasableId(), $sale->getPurchasableIds(), false)) {
             return false;
         }
 
-        // Product Type match
-        if (!$sale->allProductTypes && !in_array($product->typeId, $sale->getProductTypeIds(), false)) {
+        // Category match
+        $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+        $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+        $saleCategories = $sale->getCategoryIds();
+        $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $saleCategories);
+        if (!$sale->allCategories && !$purchasableIsRelateToOneOrMoreCategories) {
             return false;
         }
 
@@ -225,24 +257,25 @@ class Sales extends Component
 
         $saleMatchEvent = new SaleMatchEvent(['sale' => $this]);
 
-        // Raising the 'beforeMatchProductSale' event
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PRODUCT_SALE)) {
-            $this->trigger(self::EVENT_BEFORE_MATCH_PRODUCT_SALE, $saleMatchEvent);
+        // Raising the 'beforeMatchPurchasableSale' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
+            $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
         }
 
         return $saleMatchEvent->isValid;
     }
 
     /**
-     * @param Variant $variant
+     * @param PurchasableInterface $purchasable
+     * @param Order                $order
      *
      * @return Sale[]
      */
-    public function getSalesForVariant(Variant $variant): array
+    public function getSalesForPurchasableInOrder(PurchasableInterface $purchasable, Order $order): array
     {
         $matchedSales = [];
         foreach ($this->_getAllActiveSales() as $sale) {
-            if ($this->matchProductAndSale($variant->product, $sale)) {
+            if ($this->matchPurchasableAndSale($purchasable, $sale, $order->getCustomer())) {
                 $matchedSales[] = $sale;
             }
         }
@@ -253,14 +286,14 @@ class Sales extends Component
     /**
      * @param Sale  $model
      * @param array $groups       ids
-     * @param array $productTypes ids
-     * @param array $products     ids
+     * @param array $categories   ids
+     * @param array $purchasables ids
      *
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveSale(Sale $model, array $groups, array $productTypes, array $products): bool
+    public function saveSale(Sale $model, array $groups, array $categories, array $purchasables): bool
     {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
@@ -287,8 +320,8 @@ class Sales extends Component
         }
 
         $record->allGroups = $model->allGroups = empty($groups);
-        $record->allProductTypes = $model->allProductTypes = empty($productTypes);
-        $record->allProducts = $model->allProducts = empty($products);
+        $record->allCategories = $model->allCategories = empty($categories);
+        $record->allPurchasables = $model->allPurchasables = empty($purchasables);
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -302,8 +335,8 @@ class Sales extends Component
                 $model->id = $record->id;
 
                 SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
-                SaleProductRecord::deleteAll(['saleId' => $model->id]);
-                SaleProductTypeRecord::deleteAll(['saleId' => $model->id]);
+                SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
+                SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
 
                 foreach ($groups as $groupId) {
                     $relation = new SaleUserGroupRecord();
@@ -312,16 +345,18 @@ class Sales extends Component
                     $relation->save();
                 }
 
-                foreach ($productTypes as $productTypeId) {
-                    $relation = new SaleProductTypeRecord;
-                    $relation->productTypeId = $productTypeId;
+                foreach ($categories as $categoryId) {
+                    $relation = new SaleCategoryRecord;
+                    $relation->categoryId = $categoryId;
                     $relation->saleId = $model->id;
                     $relation->save();
                 }
 
-                foreach ($products as $productId) {
-                    $relation = new SaleProductRecord();
-                    $relation->productId = $productId;
+                foreach ($purchasables as $purchasableId) {
+                    $relation = new SalePurchasableRecord();
+                    $relation->purchasableId = $purchasableId;
+                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+                    $relation->purchasableType = \get_class($purchasable);
                     $relation->saleId = $model->id;
                     $relation->save();
                 }
@@ -341,9 +376,12 @@ class Sales extends Component
     }
 
     /**
-     * @param int $id
+     * @param $id
      *
      * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function deleteSaleById($id): bool
     {

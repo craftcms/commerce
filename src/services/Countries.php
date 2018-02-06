@@ -48,11 +48,11 @@ class Countries extends Component
     // =========================================================================
 
     /**
-     * Get a country by it's id.
+     * Get a country by its ID.
      *
-     * @param int $id The country id.
+     * @param int $id the country's ID
      *
-     * @return Country|null The matched country or null if not found.
+     * @return Country|null the matched country or null if not found
      *
      */
     public function getCountryById(int $id)
@@ -77,9 +77,9 @@ class Countries extends Component
     }
 
     /**
-     * Get all countries as an array of id => name.
+     * Returns all country names, indexed by ID.
      *
-     * @return Country[] Array of countries indexed by id.
+     * @return array
      */
     public function getAllCountriesListData(): array
     {
@@ -108,11 +108,11 @@ class Countries extends Component
     }
 
     /**
-     * Returns all countries in a tax zone.
+     * Returns all countries in a tax zone, per the tax zone's ID.
      *
-     * @param int $taxZoneId Tax zone id.
+     * @param int $taxZoneId the tax zone's ID
      *
-     * @return Country[] An array of countries in the matched tax zone.
+     * @return Country[] an array of countries in the matched tax zone
      */
     public function getCountriesByTaxZoneId(int $taxZoneId): array
     {
@@ -134,9 +134,9 @@ class Countries extends Component
     }
 
     /**
-     * Returns all countries in a shipping zone.
+     * Returns all countries in a shipping zone, per the shipping zone's ID.
      *
-     * @param int $shippingZoneId Shipping zone id.
+     * @param int $shippingZoneId the shipping zone's ID
      *
      * @return Country[] An array of countries in the matched shipping zone.
      */
@@ -200,11 +200,11 @@ class Countries extends Component
     }
 
     /**
-     * Delete a country by it's id.
+     * Deletes a country by its ID.
      *
-     * @param int $id The id of the country.
+     * @param int $id the country's ID
      *
-     * @return bool Whether the country was deleted successfully.
+     * @return bool whether the country was deleted successfully
      */
     public function deleteCountryById(int $id): bool
     {

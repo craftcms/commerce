@@ -12,7 +12,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use Snowcap\Vat\Validation;
+use DvK\Vat\Validator;
 
 /**
  * Tax Adjustments
@@ -66,10 +66,14 @@ class Tax implements AdjusterInterface
 
         /** @var TaxRate $rate */
         foreach ($taxRates as $rate) {
-            // Apply all rates that match
-            if ($newAdjustments = $this->_getAdjustments($rate)) {
-                $adjustments = array_merge($adjustments, $newAdjustments);
+            $newAdjustments = $this->_getAdjustments($rate);
+            if ($newAdjustments) {
+                $adjustments[] = $newAdjustments;
             }
+        }
+
+        if ($adjustments) {
+            $adjustments = array_merge(...$adjustments);
         }
 
         return $adjustments;
@@ -89,22 +93,28 @@ class Tax implements AdjusterInterface
         $adjustments = [];
 
         $removeVat = false;
-        // Valid VAT ID and Address Matches then do not apply this tax
-        if ($taxRate->isVat && ($this->_address && $this->_address->businessTaxId && $this->_address->country) && $this->matchAddress($zone)) {
-            $validBusinessTaxIdData = Craft::$app->getCache()->get('commerce:validVatId:'.$this->_address->businessTaxId);
-            if ($validBusinessTaxIdData || ($this->_address->businessTaxId && $this->validateVatNumber($this->_address->businessTaxId))) {
-                // A valid vat ID from API was found, cache result.
-                if (!$validBusinessTaxIdData) {
-                    $validBusinessTaxIdData = $this->getVatValidator()->getData();
-                    Craft::$app->getCache()->set('commerce:validVatId:'.$this->_address->businessTaxId, $validBusinessTaxIdData);
-                }
 
-                if (isset($validBusinessTaxIdData['country']) && $validBusinessTaxIdData['country'] == $this->_address->country->iso) {
-                    $removeVat = true;
-                } else {
-                    // delete validated vat ID in cache if the address country no longer matches.
-                    Craft::$app->getCache()->delete('commerce:validVatId:'.$this->_address->businessTaxId);
-                }
+        $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
+
+        // Do not bother checking VAT ID if the address doesn't match the zone anyway.
+        if ($taxRate->isVat && $vatIdOnAddress && $this->matchAddress($zone)) {
+
+            // Do we have a valid VAT ID in our cache?
+            $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:'.$this->_address->businessTaxId);
+
+            // If we do not have a valid VAT ID in cache, see if we can get one from the API
+            if (!$validBusinessTaxId) {
+                $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
+            }
+
+            if ($validBusinessTaxId) {
+                Craft::$app->getCache()->set('commerce:validVatId:'.$this->_address->businessTaxId, '1');
+                $removeVat = true;
+            }
+
+            // Clean up if the API returned false and the item was still in cache
+            if (!$validBusinessTaxId) {
+                Craft::$app->getCache()->delete('commerce:validVatId:'.$this->_address->businessTaxId);
             }
         }
 
@@ -114,7 +124,7 @@ class Tax implements AdjusterInterface
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
                 // Is this an order level tax rate?
-                if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
+                if (\in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
                     $orderTaxableAmount = 0;
 
                     if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
@@ -262,10 +272,10 @@ class Tax implements AdjusterInterface
      *
      * @return bool
      */
-    private function validateVatNumber(int $businessVatId)
+    private function _validateVatNumber(int $businessVatId)
     {
         try {
-            return $this->getVatValidator()->checkNumber($businessVatId);
+            return $this->getVatValidator()->validate($businessVatId);
         } catch (\Exception $e) {
             Craft::error('Communication with VAT API failed: '.$e->getMessage(), __METHOD__);
 
@@ -274,12 +284,12 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @return Validation
+     * @return Validator
      */
     private function getVatValidator()
     {
         if ($this->_vatValidator === null) {
-            $this->_vatValidator = new Validation(['debug' => false]);
+            $this->_vatValidator = new Validator();
         }
 
         return $this->_vatValidator;

@@ -107,16 +107,6 @@ class Variant extends Purchasable
     public $maxQty;
 
     /**
-     * @var
-     */
-    private $_salePrice;
-
-    /**
-     * @var
-     */
-    private $_sales;
-
-    /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
@@ -129,9 +119,25 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Product Variant');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function refHandle()
+    {
+        return 'variant';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
-        return (string)$this->getContent()->title;
+        return parent::__toString();
     }
 
     /**
@@ -158,37 +164,7 @@ class Variant extends Purchasable
     {
         $fields = parent::fields();
 
-        $fields['salePrice'] = function() {
-            return $this->getSalePrice();
-        };
-
-        $fields['description'] = function() {
-            return $this->getDescription();
-        };
-
         return $fields;
-    }
-
-    /**
-     * Getter provides opportunity to populate the salePrice if sales have not already been applied.
-     *
-     * @return null|float
-     */
-    public function getSalePrice()
-    {
-        if ($this->getSales() === null) {
-            Plugin::getInstance()->getVariants()->applySales([$this], $this->getProduct());
-        }
-
-        return $this->_salePrice;
-    }
-
-    /**
-     * @param $value
-     */
-    public function setSalePrice($value)
-    {
-        $this->_salePrice = $value;
     }
 
     /**
@@ -220,26 +196,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * An array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @return Sale[]|null
-     */
-    public function getSales()
-    {
-        return $this->_sales;
-    }
-
-    /**
-     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @param Sale[] $sales
-     */
-    public function setSales(array $sales)
-    {
-        $this->_sales = $sales;
-    }
-
-    /**
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
@@ -266,8 +222,6 @@ class Variant extends Purchasable
      * Sets the product associated with this variant.
      *
      * @param Product|null $product The product associated with this variant
-     *
-     * @return void
      */
     public function setProduct(Product $product = null)
     {
@@ -365,6 +319,8 @@ class Variant extends Purchasable
     }
 
     /**
+     * Cache on the purchasable table
+     *
      * @inheritdoc
      */
     public function getPrice(): float
@@ -398,9 +354,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getSku(): string
     {
@@ -503,8 +457,6 @@ class Variant extends Purchasable
                 $lineItem->addError('qty', $error);
             }
         }
-
-        return null;
     }
 
     /**
@@ -561,23 +513,17 @@ class Variant extends Purchasable
         $lineItem->length = (float)$this->length; //converting nulls
         $lineItem->width = (float)$this->width; //converting nulls
 
-        $sales = Plugin::getInstance()->getSales()->getSalesForVariant($this);
-
-        foreach ($sales as $sale) {
-            $lineItem->saleAmount += $sale->calculateTakeoff($lineItem->price);
-        }
-
-        // Don't let sale amount be more than the price.
-        if (-$lineItem->saleAmount > $lineItem->price) {
-            $lineItem->saleAmount = -$lineItem->price;
-        }
-
-        // If the product is not promotable but has saleAmount, reset saleAmount to zero
-        if (!$this->getIsPromotable()) {
-            $lineItem->saleAmount = 0;
-        }
-
         return null;
+    }
+
+    /**
+     * A promotion category is related to this element if the category is related to the product OR the variant.
+     *
+     * @return array
+     */
+    public function getPromotionRelationSource(): array
+    {
+        return [$this->id, $this->getProduct()->id];
     }
 
     /**
@@ -585,7 +531,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return (bool) $this->getProduct()->promotable;
+        return (bool)$this->getProduct()->promotable;
     }
 
     /**
@@ -635,16 +581,11 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        // remove the item from the cart if the product is not enabled
-        if ($this->getStatus() != Element::STATUS_ENABLED) {
+        if (!parent::getIsAvailable()) {
             return false;
         }
 
-        if ($this->stock < 1 && !$this->unlimitedStock) {
-            return false;
-        }
-
-        return true;
+        return $this->stock >= 1 || $this->unlimitedStock;
     }
 
     /**
@@ -840,33 +781,38 @@ class Variant extends Purchasable
         $productType = $this->product->getType();
 
         switch ($attribute) {
-            case 'sku': {
-                return $this->sku;
-            }
-            case 'price': {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-            }
-            case 'weight': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+            case 'sku':
+                {
+                    return $this->sku;
                 }
+            case 'price':
+                {
+                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                return '';
-            }
+                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                }
+            case 'weight':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                    }
+
+                    return '';
+                }
             case 'length':
             case 'width':
-            case 'height': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                }
+            case 'height':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                    }
 
-                return '';
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+                    return '';
+                }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 }

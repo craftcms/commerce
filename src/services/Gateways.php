@@ -8,7 +8,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
@@ -129,9 +128,9 @@ class Gateways extends Component
     }
 
     /**
-     * Archive a gateway by it's id.
+     * Archive a gateway by its ID.
      *
-     * @param int $id gateway id.
+     * @param int $id gateway ID
      *
      * @return bool Whether the archiving was successful or not
      */
@@ -146,7 +145,7 @@ class Gateways extends Component
     }
 
     /**
-     * Get a gateway by it's id.
+     * Get a gateway by its ID.
      *
      * @param int $id
      *

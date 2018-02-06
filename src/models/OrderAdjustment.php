@@ -95,7 +95,7 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return void
+     * @inheritdoc
      */
     public function init()
     {

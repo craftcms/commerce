@@ -53,11 +53,11 @@ class Addresses extends Component
     // =========================================================================
 
     /**
-     * Return an address by it's id.
+     * Return an address by its ID.
      *
-     * @param int $addressId The address id.
+     * @param int $addressId the address' ID
      *
-     * @return Address|null The matched address or null if not found.
+     * @return Address|null the matched address or null if not found
      */
     public function getAddressById(int $addressId)
     {
@@ -73,11 +73,11 @@ class Addresses extends Component
     }
 
     /**
-     * Get an array of addresses by a customer id.
+     * Returns all of a customer's addresses, by the customer's ID.
      *
-     * @param int $customerId Customer ID
+     * @param int $customerId the customer's ID
      *
-     * @return Address[] An array of matched addresses.
+     * @return Address[] an array of matched addresses
      */
     public function getAddressesByCustomerId(int $customerId): array
     {
@@ -218,11 +218,11 @@ class Addresses extends Component
     }
 
     /**
-     * Delete an address by it's id.
+     * Deletes an address by its ID.
      *
-     * @param int $id The id.
+     * @param int $id the address' ID
      *
-     * @return bool Whether the address was deleted successfully.
+     * @return bool whether the address was deleted successfully
      */
     public function deleteAddressById(int $id): bool
     {

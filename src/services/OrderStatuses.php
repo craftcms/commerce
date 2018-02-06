@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -26,13 +27,22 @@ use yii\base\Exception;
  */
 class OrderStatuses extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event ProductTypeEvent The event that is triggered before a category group is saved.
+     */
+    const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+
+
     // Properties
     // =========================================================================
 
     /**
      * @var bool
      */
-    private $_fetchedAllStatues = false;
+    private $_fetchedAllStatuses = false;
 
     /**
      * @var OrderStatus[]
@@ -63,7 +73,7 @@ class OrderStatuses extends Component
             return $this->_orderStatusesByHandle[$handle];
         }
 
-        if ($this->_fetchedAllStatues) {
+        if ($this->_fetchedAllStatuses) {
             return null;
         }
 
@@ -111,11 +121,27 @@ class OrderStatuses extends Component
             ->where(['default' => 1])
             ->one();
 
-        if (!$result) {
-            return null;
-        }
+        return new OrderStatus($result);
+    }
 
-        return $this->_defaultOrderStatus = new OrderStatus($result);
+    /**
+     * Get the default order status for a particular order. Defaults to the CP configured default order status.
+     *
+     * @param Order $order
+     *
+     * @return OrderStatus|null
+     */
+    public function getDefaultOrderStatusForOrder(Order $order)
+    {
+        $orderStatus = $this->getDefaultOrderStatus();
+
+        $event = new DefaultOrderStatusEvent();
+        $event->orderStatus = $orderStatus;
+        $event->order = $order;
+
+        $this->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
+
+        return $event->orderStatus;
     }
 
     /**
@@ -151,8 +177,7 @@ class OrderStatuses extends Component
         $hasEmails = (boolean)count($emailIds);
 
         if (!$exist && $hasEmails) {
-            $model->addError('emails',
-                'One or more emails do not exist in the system.');
+            $model->addError('emails', 'One or more emails do not exist in the system.');
         }
 
         //saving
@@ -202,11 +227,14 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Delete an order status by id.
+     * Delete an order status by ID
      *
-     * @param int
+     * @param $id
      *
      * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function deleteOrderStatusById($id): bool
     {
@@ -237,14 +265,14 @@ class OrderStatuses extends Component
      */
     public function getAllOrderStatuses(): array
     {
-        if (!$this->_fetchedAllStatues) {
+        if (!$this->_fetchedAllStatuses) {
             $results = $this->_createOrderStatusesQuery()->all();
 
             foreach ($results as $row) {
                 $this->_memoizeOrderStatus(new OrderStatus($row));
             }
 
-            $this->_fetchedAllStatues = true;
+            $this->_fetchedAllStatuses = true;
         }
 
         return $this->_orderStatusesById;
@@ -256,13 +284,12 @@ class OrderStatuses extends Component
      * @param Order        $order
      * @param OrderHistory $orderHistory
      *
-     * @throws Exception
      */
     public function statusChangeHandler($order, $orderHistory)
     {
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && count($status->emails)) {
+            if ($status && \count($status->emails)) {
                 foreach ($status->emails as $email) {
                     Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
                 }
@@ -271,6 +298,8 @@ class OrderStatuses extends Component
     }
 
     /**
+     * Get an order status by ID
+     *
      * @param int $id
      *
      * @return OrderStatus|null
@@ -281,7 +310,7 @@ class OrderStatuses extends Component
             return $this->_orderStatusesById[$id];
         }
 
-        if ($this->_fetchedAllStatues) {
+        if ($this->_fetchedAllStatuses) {
             return null;
         }
 
@@ -299,9 +328,12 @@ class OrderStatuses extends Component
     }
 
     /**
-     * @param $ids
+     * Reorders the order statuses.
+     *
+     * @param array $ids
      *
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderOrderStatuses(array $ids): bool
     {
@@ -321,8 +353,6 @@ class OrderStatuses extends Component
      * Memoize an order status  by its ID and handle.
      *
      * @param OrderStatus $orderStatus
-     *
-     * @return void
      */
     private function _memoizeOrderStatus(OrderStatus $orderStatus)
     {

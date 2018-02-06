@@ -16,26 +16,12 @@ interface PurchasableInterface
     // =========================================================================
 
     /**
-     * Returns the Id of the Purchasable element that should be added to the line item.
-     * This elements model should meet the Purchasable Interface.
+     * Returns the ID of the Purchasable element that will be be added to the line item.
+     * This element should meet the Purchasable Interface.
      *
      * @return int
      */
     public function getPurchasableId(): int;
-
-    /**
-     * This is an array of data that should be saved in a serialized way to the line item.
-     *
-     * Use it as a way to store data on the lineItem even after the purchasable may be deleted.
-     * You may want to return all attributes of your purchasable elementType like this: ```$this->getAttributes()``` as well as any additional data.
-     *
-     * In addition to the data you supply we always overwrite `sku`, `price`, and `description` keys with the data your interface methods return.
-     *
-     * Example: return ['ticketType' => 'full', 'location' => 'N'];
-     *
-     * @return array
-     */
-    public function getSnapshot(): array;
 
     /**
      * This is the base price the item will be added to the line item with.
@@ -43,6 +29,22 @@ interface PurchasableInterface
      * @return float decimal(14,4)
      */
     public function getPrice(): float;
+
+    /**
+     * This is the price the item will be given the context
+     *
+     * @return float decimal(14,4)
+     */
+    public function getLivePrice(): float;
+
+    /**
+     * This is the base price the item will be added to the line item with.
+     *
+     * It provides opportunity to populate the salePrice if sales have not already been applied.
+     *
+     * @return float decimal(14,4)
+     */
+    public function getSalePrice(): float;
 
     /**
      * This must be a unique code. Unique as per the commerce_purchasables table.
@@ -59,21 +61,21 @@ interface PurchasableInterface
     public function getDescription(): string;
 
     /**
-     * Returns a Craft Commerce tax category id
+     * Returns the purchasable's tax category ID.
      *
      * @return int
      */
     public function getTaxCategoryId(): int;
 
     /**
-     * Returns a Craft Commerce shipping category id
+     * Returns the purchasable's shipping category ID.
      *
      * @return int
      */
     public function getShippingCategoryId(): int;
 
     /**
-     * Returns whether the purchasable is still available for purchase.
+     * Returns whether the purchasable is currently available for purchase.
      *
      * @return bool
      */
@@ -87,8 +89,6 @@ interface PurchasableInterface
      * and saleAmount. This is called before any onPopulateLineItem event listener.
      *
      * @param LineItem $lineItem
-     *
-     * @return void
      */
     public function populateLineItem(LineItem $lineItem);
 
@@ -98,8 +98,6 @@ interface PurchasableInterface
      * You can add model errors to the line item like this: `$lineItem->addError('qty', $errorText);`
      *
      * @param LineItem $lineItem
-     *
-     * @return mixed
      */
     public function validateLineItem(LineItem $lineItem);
 
@@ -116,4 +114,11 @@ interface PurchasableInterface
      * @return bool
      */
     public function getIsPromotable(): bool;
+
+    /**
+     * Returns the source param used for knowing if a promotion category is related to this purchasable.
+     *
+     * @return mixed
+     */
+    public function getPromotionRelationSource();
 }

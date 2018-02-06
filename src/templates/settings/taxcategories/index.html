@@ -32,8 +32,9 @@
                     {% endfor %}
                 </td>
                 <td data-title="{{ 'Default?'|t('commerce') }}">{% if taxCategory.default %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}</td>
+                    <span data-icon="check"
+                          title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                </td>
                 <td class="thin">{% if not taxCategory.taxRates|length %}<a
                         class="delete icon" title="{{ 'Delete'|t('commerce') }}"
                         role="button"></a>{% endif %}</td>
@@ -50,9 +51,9 @@
 {% endblock %}
 
 {% js %}
-var adminTable = new Craft.AdminTable({
-tableSelector: '#taxcategories',
-deleteAction: 'commerce/tax-categories/delete',
-minObjects: 1
-});
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#taxcategories',
+    deleteAction: 'commerce/tax-categories/delete',
+    minObjects: 1
+    });
 {% endjs %}

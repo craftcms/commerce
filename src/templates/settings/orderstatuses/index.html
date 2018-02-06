@@ -37,7 +37,8 @@
                 </td>
                 {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
                 <td class="thin">
-                    <a class="move icon disabled" title="{{ 'Delete'|t('commerce') }}"
+                    <a class="move icon disabled"
+                       title="{{ 'Delete'|t('commerce') }}"
                        role="button"></a>
                 </td>
                 {% if not orderExists | length %}
@@ -61,13 +62,13 @@
 
 
 {% js %}
-new Craft.AdminTable({
-tableSelector: '#order-statuses',
-deleteAction: 'commerce/order-statuses/delete',
-minObjects: 1,
-sortable: true,
-reorderAction: 'commerce/order-statuses/reorder',
-reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.') ,
-reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.')
-});
+    new Craft.AdminTable({
+    tableSelector: '#order-statuses',
+    deleteAction: 'commerce/order-statuses/delete',
+    minObjects: 1,
+    sortable: true,
+    reorderAction: 'commerce/order-statuses/reorder',
+    reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.') ,
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.')
+    });
 {% endjs %}

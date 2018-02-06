@@ -3,6 +3,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\records\Category;
 use craft\records\UserGroup;
 use yii\db\ActiveQueryInterface;
 
@@ -17,8 +18,8 @@ use yii\db\ActiveQueryInterface;
  * @property string        $discountType
  * @property float         $discountAmount
  * @property bool          $allGroups
- * @property bool          $allProducts
- * @property bool          $allProductTypes
+ * @property bool          $allPurchasables
+ * @property bool          $allCategories
  * @property bool          $enabled
  * @property Product[]     $products
  * @property ProductType[] $productTypes
@@ -32,8 +33,10 @@ class Sale extends ActiveRecord
     // Constants
     // =========================================================================
 
-    const TYPE_PERCENT = 'percent';
-    const TYPE_FLAT = 'flat';
+    const TYPE_BY_PERCENT = 'byPercent';
+    const TYPE_BY_FLAT = 'byFlat';
+    const TYPE_TO_PERCENT = 'toPercent';
+    const TYPE_TO_FLAT = 'toFlat';
 
     // Public Methods
     // =========================================================================
@@ -67,16 +70,16 @@ class Sale extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getProducts(): ActiveQueryInterface
+    public function getPurchasables(): ActiveQueryInterface
     {
-        return $this->hasMany(Product::class, ['id' => 'productId'])->viaTable('{{%commerce_sale_products}}', ['saleId' => 'id']);
+        return $this->hasMany(Purchasable::class, ['id' => 'purchasableId'])->viaTable('{{%commerce_sale_purchasables}}', ['saleId' => 'id']);
     }
 
     /**
      * @return ActiveQueryInterface
      */
-    public function getProductTypes(): ActiveQueryInterface
+    public function getCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(ProductType::class, ['id' => 'productTypeId'])->viaTable('{{%commerce_sale_productypes}}', ['saleId' => 'id']);
+        return $this->hasMany(Category::class, ['id' => 'categoryId'])->viaTable('{{%commerce_sale_categories}}', ['saleId' => 'id']);
     }
 }

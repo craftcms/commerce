@@ -12,13 +12,13 @@ use craft\models\UserGroup;
 /**
  * Discount model
  *
- * @property Product[]     $products
- * @property array         $userGroupIds
- * @property string        $percentDiscountAsPercent
- * @property array         $productIds
- * @property array         $productTypeIds
- * @property string|false  $cpEditUrl
- * @property UserGroup[]   $userGroups
+ * @property Product[]    $products
+ * @property array        $userGroupIds
+ * @property string       $percentDiscountAsPercent
+ * @property array        $productIds
+ * @property array        $productTypeIds
+ * @property string|false $cpEditUrl
+ * @property UserGroup[]  $userGroups
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -131,12 +131,12 @@ class Discount extends Model
     /**
      * @var bool Match all products
      */
-    public $allProducts;
+    public $allPurchasables;
 
     /**
      * @var bool Match all product types
      */
-    public $allProductTypes;
+    public $allCategories;
 
     /**
      * @var bool Discount enabled?
@@ -156,12 +156,12 @@ class Discount extends Model
     /**
      * @var int[] Product Ids
      */
-    private $_productIds;
+    private $_purchasableIds;
 
     /**
      * @var int[] Product Type IDs
      */
-    private $_productTypeIds;
+    private $_categoryIds;
 
     /**
      * @var int[] Group IDs
@@ -193,25 +193,25 @@ class Discount extends Model
     /**
      * @return array
      */
-    public function getProductTypeIds(): array
+    public function getCategoryIds(): array
     {
-        if (null === $this->_productTypeIds) {
+        if (null === $this->_categoryIds) {
             $this->_loadRelations();
         }
 
-        return $this->_productTypeIds;
+        return $this->_categoryIds;
     }
 
     /**
      * @return array
      */
-    public function getProductIds(): array
+    public function getPurchasableIds(): array
     {
-        if (null === $this->_productIds) {
+        if (null === $this->_purchasableIds) {
             $this->_loadRelations();
         }
 
-        return $this->_productIds;
+        return $this->_purchasableIds;
     }
 
     /**
@@ -229,33 +229,27 @@ class Discount extends Model
     /**
      * Set the related product type ids
      *
-     * @param array $ids
-     *
-     * @return void
+     * @param array $categoryIds
      */
-    public function setProductTypeIds(array $ids)
+    public function setCategoryIds(array $categoryIds)
     {
-        $this->_productTypeIds = array_unique($ids);
+        $this->_categoryIds = array_unique($categoryIds);
     }
 
     /**
      * Set the related product ids
      *
-     * @param array $productIds
-     *
-     * @return void
+     * @param array $purchasableIds
      */
-    public function setProductIds(array $productIds)
+    public function setPurchasableIds(array $purchasableIds)
     {
-        $this->_productIds = array_unique($productIds);
+        $this->_purchasableIds = array_unique($purchasableIds);
     }
 
     /**
      * Set the related user group ids
      *
      * @param array $userGroupIds
-     *
-     * @return void
      */
     public function setUserGroupIds(array $userGroupIds)
     {
@@ -279,8 +273,6 @@ class Discount extends Model
 
     /**
      * Load the sale relations
-     *
-     * @return void
      */
     private function _loadRelations()
     {

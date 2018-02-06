@@ -3,8 +3,8 @@
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-{ label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-{ label: "Sales"|t('commerce'), url: url('commerce/promotions/sales') },
+    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
+    { label: "Sales"|t('commerce'), url: url('commerce/promotions/sales') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -24,16 +24,17 @@
 {% endif %}
 
 {% set tabs = {
-0: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
-1: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-2: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+    0: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
+    1: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    2: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
     {{ redirectInput('commerce/promotions/sales') }}
-    {% if sale.id %}<input type="hidden" name="id" value="{{ sale.id }}">{% endif %}
+    {% if sale.id %}<input type="hidden" name="id"
+                           value="{{ sale.id }}">{% endif %}
 
     <div id="sale">
         {{ forms.textField({
@@ -86,41 +87,45 @@
             value: sale.dateTo,
             errors: sale.getErrors('dateTo'),
         }) }}
+        <div class="grid">
+            {% if groups|length %}
+                {{ forms.multiselectField({
+                    label: 'User Groups'|t('commerce'),
+                    instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t('commerce'),
+                    id: 'groups',
+                    name: 'groups',
+                    options: groups,
+                    values: sale.getUserGroupIds(),
+                    errors: sale.getErrors('groups'),
+                    class: 'selectize fullwidth',
+                }) }}
+            {% endif %}
 
-        {% if groups|length %}
-            {{ forms.multiselectField({
-                label: 'User Groups'|t('commerce'),
-                instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t('commerce'),
-                id: 'groups',
-                name: 'groups',
-                options: groups,
-                values: sale.getUserGroupIds(),
-                errors: sale.getErrors('groups'),
-                class: 'selectize fullwidth',
+            {% for purchasableType in purchasableTypes %}
+                {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
+                {{ forms.elementSelectField({
+                    id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
+                    label: purchasableType.name|capitalize,
+                    name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
+                    elements: purchasables[purchasableType.elementType] ?? null,
+                    elementType: purchasableType.elementType,
+                    limit: null,
+                    instructions: purchasableType.name~" "~instruction,
+                    errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+                }) }}
+            {% endfor %}
+
+            {{ forms.elementSelectField({
+                id: 'categories',
+                label: 'Categories'|t('commerce'),
+                name: 'categories',
+                elements: categories ? categories : null,
+                elementType: categoryElementType,
+                limit: null,
+                instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
+                errors: sale.getErrors('categories'),
             }) }}
-        {% endif %}
-
-        {{ forms.multiselectField({
-            label: 'Product Types'|t('commerce'),
-            instructions: "Product types for which this sale will be applicable to. Leave blank for all product types"|t('commerce'),
-            id: 'productTypes',
-            name: 'productTypes',
-            options: types,
-            values: sale.getProductTypeIds(),
-            errors: sale.getErrors('productTypes'),
-            class: 'selectize fullwidth',
-        }) }}
-
-        {{ forms.elementSelectField({
-            id: 'products',
-            label: 'Products'|t('commerce'),
-            name: 'products',
-            elements: products ? products : null,
-            elementType: productElementType,
-            limit: null,
-            instructions: "Products for which this sale will be applicable to. Leave blank for all products"|t('commerce'),
-            errors: sale.getErrors('products'),
-        }) }}
+        </div>
 
     </div>
 
@@ -157,10 +162,10 @@
 {% endblock %}
 
 {% js %}
-$(function() {
+    $(function() {
     $('#groups, #productTypes').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
+    plugins: ['remove_button'],
+    dropdownParent: 'body'
     });
-});
+    });
 {% endjs %}

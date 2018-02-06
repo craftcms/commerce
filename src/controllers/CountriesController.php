@@ -78,7 +78,7 @@ class CountriesController extends BaseAdminController
         $country->id = Craft::$app->getRequest()->getParam('countryId');
         $country->name = Craft::$app->getRequest()->getParam('name');
         $country->iso = Craft::$app->getRequest()->getParam('iso');
-        $country->stateRequired = Craft::$app->getRequest()->getParam('stateRequired');
+        $country->stateRequired = (bool)Craft::$app->getRequest()->getParam('stateRequired');
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {

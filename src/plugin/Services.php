@@ -41,6 +41,41 @@ use craft\commerce\services\Variants;
 /**
  * Trait Services
  *
+ * @property Addresses              $addresses
+ * @property Cart                   $cart
+ * @property Countries              $countries
+ * @property Currencies             $currencies
+ * @property Customers              $customers
+ * @property Discounts              $discounts
+ * @property Emails                 $emails
+ * @property Gateways               $gateways
+ * @property LineItems              $lineItems
+ * @property OrderAdjustments       $orderAdjustments
+ * @property OrderHistories         $orderHistories
+ * @property Orders                 $orders
+ * @property OrderSettings          $orderSettings
+ * @property OrderStatuses          $orderStatuses
+ * @property Gateways               $paymentMethods
+ * @property PaymentCurrencies      $paymentCurrencies
+ * @property Payments               $payments
+ * @property PaymentSources         $paymentSources
+ * @property Products               $products
+ * @property ProductTypes           $productTypes
+ * @property Purchasables           $purchasables
+ * @property Sales                  $sales
+ * @property Settings               $settings
+ * @property ShippingMethods        $shippingMethods
+ * @property ShippingRules          $shippingRules
+ * @property ShippingRuleCategories $shippingRuleCategories
+ * @property ShippingCategories     $shippingCategories
+ * @property ShippingZones          $shippingZones
+ * @property States                 $states
+ * @property TaxCategories          $taxCategories
+ * @property TaxRates               $taxRates
+ * @property TaxZones               $taxZones
+ * @property Transactions           $transactions
+ * @property Variants               $variants
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
@@ -394,8 +429,6 @@ trait Services
 
     /**
      * Set the components of the commerce plugin
-     *
-     * @return void
      */
     private function _setPluginComponents()
     {

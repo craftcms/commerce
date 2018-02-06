@@ -27,9 +27,9 @@ class ShippingRuleCategories extends Component
     // =========================================================================
 
     /**
-     * Return an array of shipping rules categories by a rule id.
+     * Return an array of shipping rules categories per the rule's ID.
      *
-     * @param int $ruleId The rule id.
+     * @param int $ruleId the rule's ID
      *
      * @return ShippingRuleCategory[] An array of matched shipping rule categories.
      */
@@ -89,9 +89,9 @@ class ShippingRuleCategories extends Component
     }
 
     /**
-     * Delete a shipping rule category by it's id.
+     * Delete a shipping rule category by its ID.
      *
-     * @param int $id The shipping rule category id.
+     * @param int $id the shipping rule category ID.
      *
      * @return bool Whether the category was deleted successfully.
      */

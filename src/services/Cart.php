@@ -59,7 +59,7 @@ class Cart extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cookieCartId = 'commerce_cookie';
+    protected $cartName = 'commerce_cookie';
 
     /**
      * @var Order
@@ -84,7 +84,7 @@ class Cart extends Component
     {
         $isNewLineItem = false;
 
-        //saving current cart if it's new and empty
+        // saving current cart if it's new and empty
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
@@ -92,7 +92,7 @@ class Cart extends Component
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
-        //filling item model
+        // filling item model
         $plugin = Plugin::getInstance();
         $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
@@ -388,7 +388,7 @@ class Cart extends Component
 
             // Update the cart if the customer has changed and recalculate the cart.
             $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-            if ($customer && (!$this->_cart->customerId || $this->_cart->customerId !== $customer->id)) {
+            if ($customer && (!$this->_cart->customerId || $this->_cart->customerId != $customer->id)) {
                 $this->_cart->customerId = $customer->id;
                 $this->_cart->email = $customer->email;
                 $this->_cart->billingAddressId = null;
@@ -402,14 +402,12 @@ class Cart extends Component
 
     /**
      * Forgets a Cart by deleting its cookie.
-     *
-     * @return void
      */
     public function forgetCart()
     {
         $this->_cart = null;
         $session = Craft::$app->getSession();
-        $session->remove($this->cookieCartId);
+        $session->remove($this->cartName);
     }
 
     /**
@@ -528,11 +526,11 @@ class Cart extends Component
     private function _getSessionCartNumber()
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session[$this->cookieCartId];
+        $cartNumber = $session[$this->cartName];
 
         if (!$cartNumber) {
             $cartNumber = $this->_uniqueCartNumber();
-            $session->set($this->cookieCartId, $cartNumber);
+            $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;

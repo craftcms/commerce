@@ -335,8 +335,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1'
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true
                     ],
                     ['<=', 'commerce_products.postDate', $currentTimeDb],
                     [
@@ -349,8 +349,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1',
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true,
                     ],
                     ['>', 'commerce_products.postDate', $currentTimeDb]
                 ];
@@ -358,8 +358,8 @@ class ProductQuery extends ElementQuery
                 return [
                     'and',
                     [
-                        'elements.enabled' => '1',
-                        'elements_sites.enabled' => '1'
+                        'elements.enabled' => true,
+                        'elements_sites.enabled' => true
                     ],
                     ['not', ['commerce_products.expiryDate' => null]],
                     ['<=', 'commerce_products.expiryDate', $currentTimeDb]
@@ -375,7 +375,6 @@ class ProductQuery extends ElementQuery
     /**
      * Applies the 'editable' param to the query being prepared.
      *
-     * @return void
      * @throws QueryAbortedException
      */
     private function _applyEditableParam()
@@ -398,8 +397,6 @@ class ProductQuery extends ElementQuery
 
     /**
      * Applies the 'ref' param to the query being prepared.
-     *
-     * @return void
      */
     private function _applyRefParam()
     {
@@ -435,9 +432,6 @@ class ProductQuery extends ElementQuery
         }
     }
 
-    /**
-     * @return void
-     */
     private function _applyHasSalesParam()
     {
         if (null !== $this->hasSales) {
@@ -449,14 +443,16 @@ class ProductQuery extends ElementQuery
 
             $productIds = [];
             foreach ($products as $product) {
-                $sales = Plugin::getInstance()->getSales()->getSalesForProduct($product);
+                foreach ($product->variants as $variant) {
+                    $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
 
-                if ($this->hasSales === true && count($sales) > 0) {
-                    $productIds[] = $product->id;
-                }
+                    if ($this->hasSales === true && count($sales) > 0) {
+                        $productIds[] = $product->id;
+                    }
 
-                if ($this->hasSales === false && count($sales) == 0) {
-                    $productIds[] = $product->id;
+                    if ($this->hasSales === false && count($sales) == 0) {
+                        $productIds[] = $product->id;
+                    }
                 }
             }
 

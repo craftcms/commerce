@@ -5,9 +5,9 @@ namespace craft\commerce\fields;
 use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
+use craft\commerce\models\Customer as CustomerModel;
 use craft\commerce\Plugin;
 use craft\elements\User;
-use craft\commerce\models\Customer as CustomerModel;
 
 /**
  * Class Customer

@@ -2,14 +2,14 @@
 {% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
 
 {% set crumbs = [
-{ label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-{ label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
 ] %}
 
 {% set tabs = {
-productTypeSettings: { label: "Settings"|t('commerce'), url: '#product-type-settings' },
-productFields:       { label: "Product Fields"|t('commerce'), url: '#product-fields' },
-variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
+    productTypeSettings: { label: "Settings"|t('commerce'), url: '#product-type-settings' },
+    productFields:       { label: "Product Fields"|t('commerce'), url: '#product-fields' },
+    variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fields', class: (not productType.hasVariants ? 'hidden') }
 } %}
 
 {% set fullPageForm = true %}
@@ -19,10 +19,11 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/product-types/save-product-type">
+    <input type="hidden" name="action"
+           value="commerce/product-types/save-product-type">
     {{ redirectInput('commerce/settings/producttypes') }}
     {% if productType.id %}
-    <input type="hidden" name="productTypeId" value="{{ productType.id }}">
+        <input type="hidden" name="productTypeId" value="{{ productType.id }}">
     {% endif %}
 
     <div id="product-type-settings">
@@ -232,7 +233,7 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     <div id="product-fields" class="hidden">
 
         {% include "_includes/fieldlayoutdesigner" with {
-        fieldLayout: productType.getProductFieldLayout(),
+            fieldLayout: productType.getProductFieldLayout(),
         } only %}
 
     </div>
@@ -241,8 +242,8 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
 
         {% namespace "variant-layout" %}
         {% include "_includes/fieldlayoutdesigner" with {
-        fieldLayout: productType.getVariantFieldLayout(),
-        customizableTabs: false
+            fieldLayout: productType.getVariantFieldLayout(),
+            customizableTabs: false
         } only %}
         {% endnamespace %}
 
@@ -258,62 +259,62 @@ variantFields:       { label: "Variant Fields"|t('commerce'), url: '#variant-fie
     {% endfor %}
 
     $('#hasVariants').on('change', function() {
-        if ($(this).prop('checked')) {
-            $('#tab-variantFields').removeClass('hidden');
-        } else {
-            $('#tab-variantFields').addClass('hidden');
-        }
+    if ($(this).prop('checked')) {
+    $('#tab-variantFields').removeClass('hidden');
+    } else {
+    $('#tab-variantFields').addClass('hidden');
+    }
     });
 
     window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
     window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories|json_encode(constant('JSON_HEX_APOS'))|raw }}'), function(value, index) { return [value] });
 
     $.each(window.shippingCategories, function(key, shippingCategory) {
-        if (shippingCategory.default == 1) {
-            window.defaultShippingCategory = shippingCategory;
-        }
+    if (shippingCategory.default == 1) {
+    window.defaultShippingCategory = shippingCategory;
+    }
     });
 
     $(function() {
-        var $shippingCategories = $('#shippingCategories').selectize({
-            options: window.shippingCategories,
-            items: window.productTypeShippingCategories,
-            valueField: 'id',
-            labelField: 'name',
-            plugins: ['remove_button'],
-            create: false,
-            dropdownParent: 'body',
-            onItemRemove: function() {
-                if (!$shippingCategories[0].selectize.items.length) {
-                    $shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
-                }
-            }
-        });
+    var $shippingCategories = $('#shippingCategories').selectize({
+    options: window.shippingCategories,
+    items: window.productTypeShippingCategories,
+    valueField: 'id',
+    labelField: 'name',
+    plugins: ['remove_button'],
+    create: false,
+    dropdownParent: 'body',
+    onItemRemove: function() {
+    if (!$shippingCategories[0].selectize.items.length) {
+    $shippingCategories[0].selectize.addItem(window.defaultShippingCategory.id);
+    }
+    }
+    });
     });
 
     window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
     window.taxCategories = $.map(JSON.parse('{{ craft.commerce.taxCategories|json_encode(constant('JSON_HEX_APOS'))|raw }}'), function(value, index) { return [value] });
 
     $.each(window.taxCategories, function(key, taxCategory) {
-        if (taxCategory.default == 1) {
-            window.defaultTaxCategory = taxCategory;
-        }
+    if (taxCategory.default == 1) {
+    window.defaultTaxCategory = taxCategory;
+    }
     });
 
     $(function() {
-        var $taxCategories = $('#taxCategories').selectize({
-            options: window.taxCategories,
-            items: window.productTypeTaxCategories,
-            valueField: 'id',
-            labelField: 'name',
-            plugins: ['remove_button'],
-            create: false,
-            dropdownParent: 'body',
-            onItemRemove: function() {
-                if (!$taxCategories[0].selectize.items.length) {
-                    $taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
-                }
-            }
-        });
+    var $taxCategories = $('#taxCategories').selectize({
+    options: window.taxCategories,
+    items: window.productTypeTaxCategories,
+    valueField: 'id',
+    labelField: 'name',
+    plugins: ['remove_button'],
+    create: false,
+    dropdownParent: 'body',
+    onItemRemove: function() {
+    if (!$taxCategories[0].selectize.items.length) {
+    $taxCategories[0].selectize.addItem(window.defaultTaxCategory.id);
+    }
+    }
+    });
     });
 {% endjs %}

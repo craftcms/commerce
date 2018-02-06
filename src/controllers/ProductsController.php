@@ -137,7 +137,7 @@ class ProductsController extends BaseCpController
             $variables['showPreviewBtn'] = false;
         }
 
-        $variables['promotions']['sales'] = Plugin::getInstance()->getSales()->getSalesForProduct($variables['product']);
+        $variables['promotions']['sales'] = [];//Plugin::getInstance()->getSales()->getSalesForPurchasable($variables['product']);
 
         $this->getView()->registerAssetBundle(EditProductAsset::class);
         return $this->renderTemplate('commerce/products/_edit', $variables);
@@ -201,7 +201,6 @@ class ProductsController extends BaseCpController
      * @param mixed $site
      *
      * @throws HttpException
-     * @return void
      */
     public function actionViewSharedProduct($productId, $site = null)
     {

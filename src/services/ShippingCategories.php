@@ -266,8 +266,6 @@ class ShippingCategories extends Component
      * Memoize a shipping category model by its ID and handle.
      *
      * @param ShippingCategory $shippingCategory
-     *
-     * @return void
      */
     private function _memoizeShippingCategory(ShippingCategory $shippingCategory)
     {
