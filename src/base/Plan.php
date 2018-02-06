@@ -99,9 +99,9 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return bool
      */
-    public function hasActiveSubscription(int $userId)
+    public function hasActiveSubscription(int $userId): bool
     {
-        return (bool) $this->getActiveUserSubscription($userId);
+        return (bool) count($this->getActiveUserSubscription($userId));
     }
 
     /**
@@ -109,14 +109,14 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @param int $userId the user id
      *
-     * @return ElementInterface|false
+     * @return ElementInterface[]
      */
-    public function getActiveUserSubscription(int $userId)
+    public function getActiveUserSubscriptions(int $userId)
     {
         return Subscription::find()
             ->userId($userId)
             ->planId($this->id)
             ->status(Subscription::STATUS_ACTIVE)
-            ->one();
+            ->all();
     }
 }
