@@ -438,7 +438,7 @@ class Subscription extends Element
             self::STATUS_ACTIVE => Craft::t('commerce', 'Active'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
             self::STATUS_CANCELED => Craft::t('commerce', 'Canceled'),
-            self::STATUS_TRIAL => Craft::t('commerce', 'Trial')
+            self::STATUS_TRIAL => ['label' => Craft::t('commerce', 'Trial'), 'color' => 'blue'],
         ];
 
     }
