@@ -10,6 +10,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
+use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
 use craft\helpers\Db;
@@ -78,8 +79,8 @@ class Subscriptions extends Component
         } catch (\Throwable $exception) {
             Craft::warning('Failed to subscribe '.$user.' to '.$plan.': '.$exception->getMessage());
 
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));}
-
+            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
+        }
     }
 
     /**
@@ -115,6 +116,46 @@ class Subscriptions extends Component
         }
 
         return false;
+    }
+
+    /**
+     * Switch a subscription to a different subscription plan.
+     *
+     * @param Subscription    $subscription the subscription to modify
+     * @param Plan            $plan         the plan to change the subscription to
+     * @param SwitchPlansForm $parameters   additional parameters to use
+     *
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SubscriptionException
+     */
+    public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): bool
+    {
+        $gateway = $subscription->getGateway();
+
+        if (!$gateway instanceof SubscriptionGatewayInterface) {
+            throw new InvalidConfigException('Gateway does not support subscriptions.');
+        }
+
+        if (!$plan->canSwitchFrom($subscription->getPlan())) {
+            throw new InvalidConfigException('The migration between these plans is not allowed.');
+        }
+
+        $response = $gateway->switchSubscriptionPlan($subscription, $plan, $parameters);
+
+        $subscription->planId = $plan->id;
+        $subscription->nextPaymentDate = $response->getNextPaymentDate();
+        $subscription->subscriptionData = $response->getData();
+        $subscription->isCanceled = false;
+        $subscription->isExpired = false;
+
+        try{
+            return Craft::$app->getElements()->saveElement($subscription);
+        } catch (\Throwable $exception) {
+            Craft::warning('Failed to switch the '.$subscription->reference.' subscription to '.$plan.': '.$exception->getMessage());
+
+            throw new SubscriptionException(Craft::t('commerce', 'Unable to switch subscription plan at this time.'));
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
+use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\elements\User;
 
 /**
@@ -90,9 +91,27 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface;
 
     /**
+     * Switch a subscription to a different subscription plan.
+     *
+     * @param Subscription    $subscription the subscription to modify
+     * @param Plan            $plan         the plan to change the subscription to
+     * @param SwitchPlansForm $parameters   additional parameters to use
+     *
+     * @return SubscriptionResponseInterface
+     */
+    public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): SubscriptionResponseInterface;
+
+    /**
      * Whether this gateway supports reactivating subscriptions.
      *
      * @return bool
      */
     public function supportsReactivation(): bool;
+
+    /**
+     * Whether this gateway supports reactivating subscriptions.
+     *
+     * @return bool
+     */
+    public function supportsPlanSwitch(): bool;
 }
