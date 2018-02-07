@@ -210,7 +210,7 @@ class Subscription extends Element
      */
     public function getTrialExpires(): DateTIme
     {
-        return $this->dateCreated->add(new DateInterval('P'.$this->trialDays.'D'));
+        return (clone $this->dateCreated)->add(new DateInterval('P'.$this->trialDays.'D'));
     }
 
     /**
