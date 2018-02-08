@@ -821,8 +821,9 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_shippingzone_states}}', 'shippingZoneId', false);
         $this->createIndex(null, '{{%commerce_shippingzone_states}}', 'stateId', false);
         $this->createIndex(null, '{{%commerce_shippingzones}}', 'name', true);
-        $this->createIndex(null, '{{%commerce_states}}', ['name', 'countryId'], true);
         $this->createIndex(null, '{{%commerce_states}}', 'countryId', false);
+        $this->createIndex(null, '{{%commerce_states}}', ['countryId', 'abbreviation'], true);
+        $this->createIndex(null, '{{%commerce_states}}', ['countryId', 'name'], true);
         $this->createIndex(null, '{{%commerce_taxcategories}}', 'handle', true);
         $this->createIndex(null, '{{%commerce_taxrates}}', 'taxZoneId', false);
         $this->createIndex(null, '{{%commerce_taxrates}}', 'taxCategoryId', false);
