@@ -48,11 +48,11 @@ class Countries extends Component
     // =========================================================================
 
     /**
-     * Get a country by its ID.
+     * Returns a country by its ID.
      *
      * @param int $id the country's ID
      *
-     * @return Country|null the matched country or null if not found
+     * @return Country|null
      *
      */
     public function getCountryById(int $id)

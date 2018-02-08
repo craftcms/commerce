@@ -52,11 +52,11 @@ class States extends Component
     // =========================================================================
 
     /**
-     * Get a states by its ID.
+     * Returns a state by its ID.
      *
      * @param int $id the state's ID
      *
-     * @return State|null The matched state or null if not found.
+     * @return State|null
      */
     public function getStateById(int $id)
     {
