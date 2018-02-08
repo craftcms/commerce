@@ -4,6 +4,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\events\SiteEvent;
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 
 /**
@@ -31,5 +33,31 @@ class Products extends Component
         $product = Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
 
         return $product;
+    }
+
+
+    /**
+     * @param SiteEvent $event
+     *
+     * @throws \craft\errors\SiteNotFoundException
+     */
+    public function afterSaveSiteHandler(SiteEvent $event)
+    {
+        $queue = Craft::$app->getQueue();
+        $siteId = Craft::$app->getSites()->getPrimarySite()->id;
+        $elementTypes = [
+            Product::class,
+        ];
+
+        foreach ($elementTypes as $elementType) {
+            $queue->push(new ResaveElements([
+                'elementType' => $elementType,
+                'criteria' => [
+                    'siteId' => $siteId,
+                    'status' => null,
+                    'enabledForSite' => false
+                ]
+            ]));
+        }
     }
 }
