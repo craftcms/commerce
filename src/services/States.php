@@ -80,6 +80,23 @@ class States extends Component
     }
 
     /**
+     * Returns a state by its abbreviation.
+     *
+     * @param int    $countryId    the state's country ID
+     * @param string $abbreviation the state's abbreviation
+     *
+     * @return State|null
+     */
+    public function getStateByAbbreviation(int $countryId, string $abbreviation)
+    {
+        $result = $this->_createStatesQuery()
+            ->where(['countryId' => $countryId, 'abbreviation' => $abbreviation])
+            ->one();
+
+        return $result ? new State($result) : null;
+    }
+
+    /**
      * Get all states grouped by countries.
      *
      * @return array 2D array of states indexed by their ids grouped by country ids.
