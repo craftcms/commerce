@@ -77,6 +77,23 @@ class Countries extends Component
     }
 
     /**
+     * Returns a country by its ISO code.
+     *
+     * @param string $iso the country's ISO code
+     *
+     * @return Country|null
+     *
+     */
+    public function getCountryByIso(string $iso)
+    {
+        $result = $this->_createCountryQuery()
+            ->where(['iso' => $iso])
+            ->one();
+
+        return $result ? new Country($result) : null;
+    }
+
+    /**
      * Returns all country names, indexed by ID.
      *
      * @return array
