@@ -106,6 +106,11 @@ class Addresses extends Component
             ->where(['stockLocation' => true])
             ->one();
 
+        if (!$result)
+        {
+            return new Address();
+        }
+
         return new Address($result);
     }
 
