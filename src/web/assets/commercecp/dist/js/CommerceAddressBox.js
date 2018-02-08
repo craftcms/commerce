@@ -8,12 +8,16 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
     $content: null,
     address: null,
     editorModal: null,
+    saveEndpoint: null,
     init: function($element, settings) {
         this.$addressBox = $element;
 
         this.$address = this.$addressBox.find('.address');
         this.address = this.$addressBox.data('address');
-
+        this.saveEndpoint = this.$addressBox.data('saveendpoint');
+        if (!this.saveEndpoint) {
+            this.saveEndpoint = 'commerce/addresses/save';
+        }
         this.setSettings(settings, this.defaults);
 
         this._renderAddress();
@@ -118,8 +122,9 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         }, this));
     },
     _updateAddress: function(data, onError) {
-        Craft.postActionRequest('commerce/addresses/save', data.address, $.proxy(function(response) {
-            if (response.success) {
+        Craft.postActionRequest(this.saveEndpoint, data.address, $.proxy(function(response) {
+            debugger;
+            if (response && response.success) {
                 this.address = response.address;
                 this.settings.onChange(response.address);
                 this._renderAddress();

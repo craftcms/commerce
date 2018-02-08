@@ -131,6 +131,25 @@ class Address extends Model
         return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
     }
 
+    public function rules(): array
+    {
+        return [
+            ['stateId', function ($attribute, $params, $validator) {
+                $plugin = Plugin::getInstance();
+
+                /** @var Country $state */
+                $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
+                /** @var State $state */
+                $state = $this->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
+
+                // Check country’s stateRequired option
+                if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+                    $this->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+                }
+            }],
+        ];
+    }
+
     /**
      * @inheritdoc
      */

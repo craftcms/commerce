@@ -5,8 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\Country;
-use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
@@ -102,7 +100,7 @@ class Addresses extends Component
      *
      * @return Address
      */
-    public function getStockLocation(): Address
+    public function getStoreLocationAddress(): Address
     {
         $result = $this->_createAddressQuery()
             ->where(['stockLocation' => true])
@@ -176,45 +174,30 @@ class Addresses extends Component
             $addressRecord->stateName = $addressModel->stateName;
         }
 
-        /** @var Country $state */
-        $country = $addressRecord->countryId ? $plugin->getCountries()->getCountryById($addressRecord->countryId) : null;
-        /** @var State $state */
-        $state = $addressRecord->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
-
-        // Check country’s stateRequired option
-        if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $addressModel->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+        if ($validate && !$addressModel->validate()) {
+            return false;
         }
 
-        if ($validate) {
-            $addressRecord->validate();
-            $addressModel->addErrors($addressRecord->getErrors());
+        if ($addressRecord->stockLocation && $addressRecord->id) {
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
-        if (!$addressModel->hasErrors()) {
-            if ($addressRecord->stockLocation && $addressRecord->id) {
-                Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
-            }
+        $addressRecord->save(false);
 
-            $addressRecord->save(false);
-
-            if ($isNewAddress) {
-                // Now that we have a record ID, save it on the model
-                $addressModel->id = $addressRecord->id;
-            }
-
-            //Raise the afterSaveAddress event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
-                    'address' => $addressModel,
-                    'isNewAddress' => $isNewAddress
-                ]));
-            }
-
-            return true;
+        if ($isNewAddress) {
+            // Now that we have a record ID, save it on the model
+            $addressModel->id = $addressRecord->id;
         }
 
-        return false;
+        //Raise the afterSaveAddress event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
+                'address' => $addressModel,
+                'isNewAddress' => $isNewAddress
+            ]));
+        }
+
+        return true;
     }
 
     /**

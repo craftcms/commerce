@@ -160,7 +160,7 @@ class Plugin extends \craft\base\Plugin
         if (Craft::$app->user->identity->admin) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
-                'url' => 'commerce/settings'
+                'url' => 'commerce/settings/general'
             ];
         }
 
