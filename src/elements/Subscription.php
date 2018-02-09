@@ -545,6 +545,7 @@ class Subscription extends Element
 
         $subscriptionRecord->save(false);
 
+        parent::afterSave($isNew);
     }
 
     /**
