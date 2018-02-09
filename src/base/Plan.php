@@ -92,7 +92,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function getInformation()
     {
-        if ($this->planInformationId !== null) {
+        if ($this->planInformationId) {
             return Entry::find()->id($this->planInformationId)->one();
         }
 

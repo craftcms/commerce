@@ -13,6 +13,7 @@ use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -66,7 +67,7 @@ class SubscriptionsController extends BaseController
      * Save a subscription's custom fields.
      *
      * @return Response|null
-     * @throws BadRequestHttpException if request
+     * @throws NotFoundHttpException if rsubscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
      * @throws \Throwable if reasons
@@ -76,10 +77,10 @@ class SubscriptionsController extends BaseController
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
 
-        $subscriptionId = Craft::$app->getRequest()->getValidatedBodyParam('subscriptionId');
+        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
-        if (!$subscriptionId || !($subscription = Subscription::find()->id($subscriptionId)->one())) {
-            throw new HttpException('Subscription not found');
+        if (!$subscription = Subscription::find()->id($subscriptionId)->one()) {
+            throw new NotFoundHttpException('Subscription not found');
         }
 
         $subscription->setFieldValuesFromRequest('fields');

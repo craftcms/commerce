@@ -22,7 +22,7 @@
         <form id="order-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ subscription.cpEditUrl|hash }}" data-confirm-unload>
             <input type="hidden" name="action" value="commerce/subscriptions/save">
             <input type="hidden" name="redirect" value="{{ 'commerce/subscriptions'|hash }}">
-            <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
             {{ csrfInput() }}
 
             {# Custom fields pane #}
