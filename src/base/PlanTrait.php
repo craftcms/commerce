@@ -34,6 +34,11 @@ trait PlanTrait
     public $handle;
 
     /**
+     * @var int ID of the entry containing plan information
+     */
+    public $planInformationId;
+
+    /**
      * @var string plan reference on the gateway
      */
     public $reference;

@@ -166,6 +166,14 @@ class Subscription extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getFieldLayout()
+    {
+        return Craft::$app->getFields()->getLayoutByType(static::class);
+    }
+
+    /**
      * Whether this subscription is on trial.
      *
      * @return bool
@@ -401,6 +409,14 @@ class Subscription extends Element
         }
 
         return $sources;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasContent(): bool
+    {
+        return true;
     }
 
     /**

@@ -37,9 +37,9 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            $event->rules['commerce/settings/plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/settings/plans/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/settings/plans/new'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';

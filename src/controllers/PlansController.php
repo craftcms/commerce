@@ -7,6 +7,7 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\base\Plan;
 use craft\commerce\Plugin;
+use craft\elements\Entry;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\HttpException;
@@ -39,7 +40,7 @@ class PlansController extends BaseAdminController
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/settings/plans/index', ['plans' => $plans]);
+        return $this->renderTemplate('commerce/settings/subscriptions/plans', ['plans' => $plans]);
     }
 
     /**
@@ -81,6 +82,7 @@ class PlansController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
 
+        $variables['entryElementType'] = Entry::class;
         $variables['supportedGateways'] = Plugin::getInstance()->getGateways()->getAllSubscriptionGateways();
         $variables['gatewayOptions'] = [''];
 
@@ -88,7 +90,7 @@ class PlansController extends BaseAdminController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        return $this->renderTemplate('commerce/settings/plans/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/subscriptions/_editPlan', $variables);
     }
 
     /**
@@ -113,6 +115,8 @@ class PlansController extends BaseAdminController
             throw new InvalidConfigException('This gateway does not support subscription plans.');
         }
 
+        $planInformationIds = $request->getBodyParam('planInformation');
+
         $plan = $gateway->getPlanModel();
 
         // Shared attributes
@@ -120,6 +124,7 @@ class PlansController extends BaseAdminController
         $plan->gatewayId = $gatewayId;
         $plan->name = $request->getParam('name');
         $plan->handle = $request->getParam('handle');
+        $plan->planInformationId = \is_array($planInformationIds) ? reset($planInformationIds) : null;
         $plan->reference = $reference;
         $plan->enabled = (bool) $request->getParam('enabled');
         $plan->planData = $planData;

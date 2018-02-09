@@ -375,6 +375,7 @@ class Install extends Migration
             'reference' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull(),
             'planData' => $this->text(),
+            'planInformationId' => $this->integer()->null(),
             'isArchived' => $this->boolean()->notNull(),
             'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -928,6 +929,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['userId'], '{{%users}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_plans}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_plans}}', 'planInformationId', '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_products}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_products}}', ['shippingCategoryId'], '{{%commerce_shippingcategories}}', ['id']);
         $this->addForeignKey(null, '{{%commerce_products}}', ['taxCategoryId'], '{{%commerce_taxcategories}}', ['id']);

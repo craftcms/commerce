@@ -10,6 +10,8 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -43,17 +45,60 @@ class SubscriptionsController extends BaseController
      */
     public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
+
         $variables = [
             'subscriptionId' => $subscriptionId,
-            'plan' => $subscription,
+            'subscription' => $subscription,
+            'fieldLayout' => $fieldLayout
         ];
+
+        if (empty($variables['subscription'])) {
+            $variables['subscription'] = Subscription::find()->id($subscriptionId)->one();
+        }
+
+        return $this->renderTemplate('commerce/subscriptions/_edit', $variables);
+    }
+
+    /**
+     * Save a subscription's custom fields.
+     *
+     * @return Response|null
+     * @throws BadRequestHttpException if request
+     * @throws ForbiddenHttpException if permissions are lacking
+     * @throws HttpException if invalid data posted
+     * @throws \Throwable if reasons
+     */
+    public function actionSave()
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $subscriptionId = Craft::$app->getRequest()->getValidatedBodyParam('subscriptionId');
+
+        if (!$subscriptionId || !($subscription = Subscription::find()->id($subscriptionId)->one())) {
+            throw new HttpException('Subscription not found');
+        }
+
+        $subscription->setFieldValuesFromRequest('fields');
+
+        if (Craft::$app->getElements()->saveElement($subscription)) {
+            $this->redirectToPostedUrl($subscription);
+        }
+
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription..'));
+        Craft::$app->getUrlManager()->setRouteParams([
+            'subscriptions' => $subscription
+        ]);
     }
 
     /**
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionSubscribe(): Response
     {
@@ -95,7 +140,7 @@ class SubscriptionsController extends BaseController
     /**
      * @return Response
      * @throws InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionReactivate(): Response
     {
@@ -136,7 +181,7 @@ class SubscriptionsController extends BaseController
     /**
      * @return Response
      * @throws InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionSwitch(): Response
     {
@@ -187,7 +232,7 @@ class SubscriptionsController extends BaseController
     /**
      * @return Response
      * @throws InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionCancel(): Response
     {

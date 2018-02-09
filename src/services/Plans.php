@@ -153,6 +153,7 @@ class Plans extends Component
         $record->gatewayId = $plan->gatewayId;
         $record->name = $plan->name;
         $record->handle = $plan->handle;
+        $record->planInformationId = $plan->planInformationId;
         $record->reference = $plan->reference;
         $record->planData = $plan->planData;
         $record->enabled = $plan->enabled;
@@ -209,6 +210,7 @@ class Plans extends Component
                 'gatewayId',
                 'name',
                 'handle',
+                'planInformationId',
                 'reference',
                 'planData',
                 'enabled',

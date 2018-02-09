@@ -3,7 +3,7 @@
 
 {% set crumbs = [
     { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-    { label: "Subscriptions"|t('commerce'), url: url('commerce/settings/plans') },
+    { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -12,7 +12,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/plans/save-plan">
-    {{ redirectInput('commerce/settings/plans') }}
+    {{ redirectInput('commerce/settings/subscriptions/plans') }}
 
     {% if plan is not null and plan.id %}
         <input type="hidden" name="planId" value="{{ plan.id }}">
@@ -41,6 +41,17 @@
             value: plan ? plan.handle : '',
             errors: plan ? plan.getErrors('handle') : [],
             required: true
+        }) }}
+
+        {{ forms.elementSelectField({
+            elementType: entryElementType,
+            elements: plan.planInformationId ? craft.entries.id(plan.planInformationId).find() : null,
+            instructions: "The Entry that contains description for this subscriptions plan."|t('commerce'),
+            id: 'planInformation',
+            label: "Description"|t(','),
+            class: 'ltr',
+            name: 'planInformation',
+            limit: 1
         }) }}
 
         {{ forms.selectField({

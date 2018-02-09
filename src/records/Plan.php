@@ -12,6 +12,7 @@ use yii\db\ActiveQueryInterface;
  * @property int                  $gatewayId
  * @property string               $name
  * @property string               $handle
+ * @property string               $planInformationId
  * @property string               $reference
  * @property bool                 $enabled
  * @property bool                 $isArchived
