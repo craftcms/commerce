@@ -58,7 +58,7 @@ class SettingsController extends BaseAdminController
     /**
      * @return Response|null
      */
-    public function actionSaveSettings()
+    public function actionSaveSettings(): Response
     {
         $this->requirePostRequest();
         $postData = Craft::$app->getRequest()->getParam('settings');
@@ -79,7 +79,7 @@ class SettingsController extends BaseAdminController
     /**
      *
      */
-    public function actionSavelocation()
+    public function actionSavelocation(): Response
     {
         $this->requirePostRequest();
 

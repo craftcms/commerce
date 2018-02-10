@@ -37,7 +37,7 @@ class OrdersController extends BaseCpController
     /**
      * Index of orders
      */
-    public function actionOrderIndex()
+    public function actionOrderIndex(): Response
     {
         // Remove all incomplete carts older than a certain date in config.
         Plugin::getInstance()->getCart()->purgeIncompleteCarts();
@@ -106,7 +106,7 @@ class OrdersController extends BaseCpController
     /**
      * Return Payment Modal
      */
-    public function actionGetPaymentModal()
+    public function actionGetPaymentModal(): Response
     {
         $this->requireAcceptsJson();
         $view = $this->getView();
@@ -178,7 +178,7 @@ class OrdersController extends BaseCpController
     /**
      * Capture Transaction
      */
-    public function actionTransactionCapture()
+    public function actionTransactionCapture(): Response
     {
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
@@ -209,7 +209,7 @@ class OrdersController extends BaseCpController
     /**
      * Refund transaction.
      */
-    public function actionTransactionRefund()
+    public function actionTransactionRefund(): Response
     {
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
@@ -239,7 +239,7 @@ class OrdersController extends BaseCpController
     /**
      *
      */
-    public function actionCompleteOrder()
+    public function actionCompleteOrder(): Response
     {
         $this->requireAcceptsJson();
         $orderId = Craft::$app->getRequest()->getParam('orderId');
@@ -257,7 +257,7 @@ class OrdersController extends BaseCpController
     /**
      *
      */
-    public function actionUpdateOrderAddress()
+    public function actionUpdateOrderAddress(): Response
     {
         $this->requireAcceptsJson();
 
@@ -298,7 +298,7 @@ class OrdersController extends BaseCpController
     /**
      *
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): Response
     {
         $this->requireAcceptsJson();
         $orderId = Craft::$app->getRequest()->getParam('orderId');
@@ -325,7 +325,7 @@ class OrdersController extends BaseCpController
     /**
      *
      */
-    public function actionSaveOrder()
+    public function actionSaveOrder(): Response
     {
         $this->requirePostRequest();
 
@@ -347,7 +347,7 @@ class OrdersController extends BaseCpController
      *
      * @throws Exception if you try to edit a non existing Id.
      */
-    public function actionDeleteOrder()
+    public function actionDeleteOrder(): Response
     {
         $this->requirePostRequest();
 

@@ -22,7 +22,7 @@ class CountriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
         return $this->renderTemplate('commerce/settings/countries/index',
@@ -68,7 +68,7 @@ class CountriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -95,7 +95,7 @@ class CountriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

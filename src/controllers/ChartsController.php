@@ -23,7 +23,7 @@ class ChartsController extends ElementIndexesController
     /**
      * Returns the data needed to display a Revenue chart.
      */
-    public function actionGetRevenueData()
+    public function actionGetRevenueData(): Response
     {
         $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');

@@ -26,7 +26,7 @@ class PaymentSourcesController extends BaseFrontEndController
      * @return Response
      * @throws \Throwable if something went wrong when adding the payment source
      */
-    public function actionAdd()
+    public function actionAdd(): Response
     {
         $this->requirePostRequest();
 
@@ -109,7 +109,7 @@ class PaymentSourcesController extends BaseFrontEndController
      * @throws \Throwable if failed to delete the payment source on the gateway
      * @throws \yii\web\BadRequestHttpException if user not logged in
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireLogin();

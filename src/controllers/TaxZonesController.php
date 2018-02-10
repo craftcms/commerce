@@ -73,7 +73,7 @@ class TaxZonesController extends BaseAdminController
     /**
      * @return null|Response
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -137,7 +137,7 @@ class TaxZonesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

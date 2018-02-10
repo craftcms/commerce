@@ -107,7 +107,7 @@ class ShippingRulesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -147,7 +147,7 @@ class ShippingRulesController extends BaseAdminController
      * @return null
      * @throws HttpException
      */
-    public function actionReorder()
+    public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -161,7 +161,7 @@ class ShippingRulesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

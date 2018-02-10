@@ -148,7 +148,7 @@ class ProductsController extends BaseCpController
      *
      * @throws HttpException
      */
-    public function actionPreviewProduct()
+    public function actionPreviewProduct(): Response
     {
         $this->requirePostRequest();
 
@@ -202,7 +202,7 @@ class ProductsController extends BaseCpController
      *
      * @throws HttpException
      */
-    public function actionViewSharedProduct($productId, $site = null)
+    public function actionViewSharedProduct($productId, $site = null): Response
     {
         $this->requireToken();
 
@@ -222,7 +222,7 @@ class ProductsController extends BaseCpController
      *
      * @throws Exception if you try to edit a non existing Id.
      */
-    public function actionDeleteProduct()
+    public function actionDeleteProduct(): Response
     {
         $this->requirePostRequest();
 
@@ -260,7 +260,7 @@ class ProductsController extends BaseCpController
     /**
      * Save a new or existing product.
      */
-    public function actionSaveProduct()
+    public function actionSaveProduct(): Response
     {
         $this->requirePostRequest();
 

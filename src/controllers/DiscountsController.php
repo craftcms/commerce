@@ -38,7 +38,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
         return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
@@ -138,7 +138,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -219,7 +219,7 @@ class DiscountsController extends BaseCpController
     /**
      *
      */
-    public function actionReorder()
+    public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -235,7 +235,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -250,7 +250,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionClearCouponUsageHistory()
+    public function actionClearCouponUsageHistory(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

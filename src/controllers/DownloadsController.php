@@ -31,7 +31,7 @@ class DownloadsController extends BaseFrontEndController
     /**
      * @throws HttpException
      */
-    public function actionPdf()
+    public function actionPdf(): Response
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;
         $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
