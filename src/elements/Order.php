@@ -77,7 +77,6 @@ use yii\base\Exception;
  * @property Gateway                 $gateway
  * @property Transaction[]           $transactions
  * @property OrderStatus             $orderStatus
- * @property null|string             $name
  * @property string                  $shortNumber
  * @property ShippingMethodInterface $shippingMethodId
  * @property float                   $totalTaxIncluded
@@ -251,6 +250,14 @@ class Order extends Element
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @return null|string
+     */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Orders');
+    }
 
     /**
      * @inheritdoc
@@ -1153,14 +1160,6 @@ class Order extends Element
     public function getOrderStatus()
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getName()
-    {
-        return Craft::t('commerce', 'Orders');
     }
 
     /**

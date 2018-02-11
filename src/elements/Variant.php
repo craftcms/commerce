@@ -607,14 +607,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return Craft::t('commerce', 'Variants');
-    }
-
-    /**
      * @inheritdoc
      */
     public static function hasContent(): bool
