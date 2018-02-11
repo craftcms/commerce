@@ -22,7 +22,6 @@ use yii\base\InvalidConfigException;
  *
  * @property Sale[]            $salesApplied
  * @property bool              $onSale
- * @property string            $name
  * @property null|array|Sale[] $sales
  * @property null|float        $salePrice
  * @property string            $eagerLoadedElements
