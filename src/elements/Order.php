@@ -69,7 +69,6 @@ use yii\base\Exception;
  * @property int                     $totalShippingCost
  * @property int                     $totalDiscount
  * @property string                  $pdfUrl
- * @property OrderSettings           $type
  * @property LineItem[]              $lineItems
  * @property Address                 $billingAddress
  * @property Customer                $customer
