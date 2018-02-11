@@ -84,7 +84,6 @@ use yii\base\Exception;
  * @property int                     $totalSaleAmount
  * @property int                     $itemSubtotal
  * @property OrderHistory[]          $histories
- * @property int                     $baseShippingCost
  * @property array|Transaction[]     $nestedTransactions
  * @property float                   $adjustmentsTotal
  * @property float                   $totalTaxablePrice
