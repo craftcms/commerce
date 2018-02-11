@@ -57,7 +57,6 @@ use yii\base\Exception;
  * @property int                     $billingAddressId
  * @property int                     $shippingAddressId
  * @property ShippingMethodInterface $shippingMethod
- * @property string                  $shippingMethodHandle
  * @property int                     $gatewayId
  * @property int                     $customerId
  * @property int                     $orderStatusId
@@ -488,8 +487,8 @@ class Order extends Element
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        if ($this->getShippingMethodHandle()) {
-            if (!isset($availableMethods[$this->getShippingMethodHandle()]) || empty($availableMethods)) {
+        if ($this->shippingMethodHandle) {
+            if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
                 $this->shippingMethodHandle = null;
                 $this->recalculate();
 
@@ -1064,15 +1063,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->getShippingMethodHandle());
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getShippingMethodHandle()
-    {
-        return $this->shippingMethodHandle;
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**

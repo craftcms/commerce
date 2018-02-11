@@ -49,7 +49,7 @@ class BaseFrontEndController extends BaseController
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
-        $data['shippingMethod'] = $cart->getShippingMethodHandle();
+        $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['customerId'] = $cart->customerId;
