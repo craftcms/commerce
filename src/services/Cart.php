@@ -517,6 +517,14 @@ class Cart extends Component
         return 0;
     }
 
+    /**
+     * @return string
+     */
+    public function generateCartNumber(): string
+    {
+        return md5(uniqid(mt_rand(), true));
+    }
+
     // Private Methods
     // =========================================================================
 
@@ -529,19 +537,11 @@ class Cart extends Component
         $cartNumber = $session[$this->cartName];
 
         if (!$cartNumber) {
-            $cartNumber = $this->_uniqueCartNumber();
+            $cartNumber = $this->generateCartNumber();
             $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;
-    }
-
-    /**
-     * @return string
-     */
-    private function _uniqueCartNumber(): string
-    {
-        return md5(uniqid(mt_rand(), true));
     }
 
     /**
