@@ -37,29 +37,10 @@ use yii\base\Exception;
 /**
  * Order or Cart model.
  *
- * @property int                     $id
- * @property string                  $number
- * @property string                  $couponCode
  * @property float                   $itemTotal
  * @property float                   $totalPrice
  * @property float                   $totalPaid
- * @property string                  $email
- * @property bool                    $isCompleted
- * @property \DateTime               $dateOrdered
- * @property string                  $currency
- * @property string                  $paymentCurrency
- * @property \DateTime               $datePaid
- * @property string                  $lastIp
- * @property string                  $orderLocale
- * @property string                  $message
- * @property string                  $returnUrl
- * @property string                  $cancelUrl
- * @property int                     $billingAddressId
- * @property int                     $shippingAddressId
  * @property ShippingMethodInterface $shippingMethod
- * @property int                     $gatewayId
- * @property int                     $customerId
- * @property int                     $orderStatusId
  * @property int                     $totalQty
  * @property int                     $totalWeight
  * @property int                     $totalHeight
