@@ -89,7 +89,6 @@ use yii\base\Exception;
  * @property float                   $totalTaxablePrice
  * @property bool                    $shouldRecalculateAdjustments
  * @property array                   $orderAdjustments
- * @property float                   baseDiscount
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
