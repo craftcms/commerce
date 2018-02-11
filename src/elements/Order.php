@@ -284,7 +284,7 @@ class Order extends Element
 
         $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
 
-        return true;
+        return parent::beforeValidate();
     }
 
     /**
