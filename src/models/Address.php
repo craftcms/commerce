@@ -153,27 +153,14 @@ class Address extends Model
     /**
      * @inheritdoc
      */
-    public function fields(): array
+    public function attributes(): array
     {
-        $fields = parent::fields();
-
-        $fields['fullName'] = function() {
-            return $this->getFullName();
-        };
-
-        $fields['countryText'] = function() {
-            return $this->getCountryText();
-        };
-
-        $fields['stateText'] = function() {
-            return $this->getStateText();
-        };
-
-        $fields['stateValue'] = function() {
-            return $this->getStateValue();
-        };
-
-        return $fields;
+        $attributes = parent::attributes();
+        $attributes[] = 'fullName';
+        $attributes[] = 'countryText';
+        $attributes[] = 'stateText';
+        $attributes[] = 'stateValue';
+        return $attributes;
     }
 
     /**

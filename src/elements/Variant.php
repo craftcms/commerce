@@ -158,16 +158,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        return $fields;
-    }
-
-    /**
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return Sale[]
