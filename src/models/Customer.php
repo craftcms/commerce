@@ -7,6 +7,7 @@ use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use yii\base\InvalidConfigException;
 
 /**
  * Customer model
@@ -68,14 +69,23 @@ class Customer extends Model
      * Returns the user element associated with this customer.
      *
      * @return User|null
+     * @throws InvalidConfigException if [[userId]] is invalid
      */
     public function getUser()
     {
-        if (null === $this->_user && $this->userId) {
-            $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
+        if ($this->_user !== null) {
+            return $this->_user;
         }
 
-        return $this->_user;
+        if (!$this->userId) {
+            return null;
+        }
+
+        if (($user = Craft::$app->getUsers()->getUserById($this->userId)) === null) {
+            throw new InvalidConfigException("Invalid user ID: {$this->userId}");
+        }
+
+        return $this->_user = $user;
     }
 
     /**
