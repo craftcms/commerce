@@ -20,12 +20,10 @@ use yii\base\InvalidConfigException;
 /**
  * Variant Model
  *
- * @property Sale[]            $salesApplied
- * @property bool              $onSale
- * @property null|array|Sale[] $sales
- * @property null|float        $salePrice
- * @property string            $eagerLoadedElements
- * @property Product           $product
+ * @property string  $eagerLoadedElements some eager-loaded elements on a given handle
+ * @property bool    $onSale
+ * @property Product $product             the product associated with this variant
+ * @property Sale[]  $salesApplied        sales models which are currently affecting the salePrice of this purchasable
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -762,38 +760,33 @@ class Variant extends Purchasable
         $productType = $this->product->getType();
 
         switch ($attribute) {
-            case 'sku':
-                {
-                    return $this->sku;
-                }
-            case 'price':
-                {
-                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+            case 'sku': {
+                return $this->sku;
+            }
+            case 'price': {
+                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+            }
+            case 'weight': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
                 }
-            case 'weight':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
-                    }
 
-                    return '';
-                }
+                return '';
+            }
             case 'length':
             case 'width':
-            case 'height':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                    }
+            case 'height': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                }
 
-                    return '';
-                }
-            default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+                return '';
+            }
+            default: {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 }

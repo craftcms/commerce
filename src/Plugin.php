@@ -32,8 +32,7 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
- * @property array $cpNavItem
- * @property mixed $settingsResponse
+ * @property mixed $settingsResponse the settings page response
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
