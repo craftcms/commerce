@@ -10,17 +10,10 @@ use DateTime;
 /**
  * Class Order History Class
  *
- * @property int         $id
- * @property string      $message
- * @property int         $orderId
- * @property int         $prevStatusId
- * @property int         $newStatusId
- * @property int         $customerId
- * @property \DateTime   $dateCreated
+ * @property Customer    $customer
+ * @property OrderStatus $newStatus
  * @property Order       $order
  * @property OrderStatus $prevStatus
- * @property OrderStatus $newStatus
- * @property Customer    $customer
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

@@ -32,7 +32,11 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
+<<<<<<< HEAD
  * @property mixed $settingsResponse
+=======
+ * @property mixed $settingsResponse the settings page response
+>>>>>>> c3cfcadf6838a6f740fddd66550a2063418ccb44
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

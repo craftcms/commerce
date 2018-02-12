@@ -9,12 +9,6 @@ use craft\helpers\UrlHelper;
 /**
  * Order status model.
  *
- * @property int     $id
- * @property string  $name
- * @property string  $handle
- * @property string  $color
- * @property int     $sortOrder
- * @property bool    $default
  * @property string  $cpEditUrl
  * @property array   $emailIds
  * @property Email[] $emails

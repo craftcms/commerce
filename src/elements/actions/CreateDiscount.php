@@ -8,9 +8,8 @@ use craft\base\ElementAction;
 /**
  * Class Create Discount
  *
- * @property void   $triggerHtml
- * @property string $triggerLabel
- * @property string $name
+ * @property void   $triggerHtml  the action’s trigger HTML
+ * @property string $triggerLabel the action’s trigger label
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

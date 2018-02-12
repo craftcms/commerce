@@ -11,8 +11,8 @@ use craft\elements\User;
 /**
  * Payment source model
  *
- * @property GatewayInterface $gateway
- * @property User             $user
+ * @property GatewayInterface $gateway the gateway associated with this payment source
+ * @property User             $user    the user element associated with this payment source
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -76,7 +76,7 @@ class PaymentSource extends Model
     }
 
     /**
-     * Returns the user element associated with this customer.
+     * Returns the user element associated with this payment source.
      *
      * @return User|null
      */
@@ -90,7 +90,7 @@ class PaymentSource extends Model
     }
 
     /**
-     * Returns the user element associated with this customer.
+     * Returns the gateway associated with this payment source.
      *
      * @return GatewayInterface|null
      */

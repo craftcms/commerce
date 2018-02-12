@@ -19,12 +19,12 @@ use craft\validators\HandleValidator;
  * @method FieldLayout getFieldLayout()
  * @property string                         $cpEditUrl
  * @property string                         $cpEditVariantUrl
- * @property ProductTypeSite[]              $siteSettings
- * @property mixed                          $variantFieldLayout
- * @property array|ShippingCategory[]|int[] $shippingCategories
- * @property TaxCategory[]|array|int[]      $taxCategories
  * @property FieldLayout                    $fieldLayout
  * @property mixed                          $productFieldLayout
+ * @property array|ShippingCategory[]|int[] $shippingCategories
+ * @property ProductTypeSite[]              $siteSettings       the product types' site-specific settings
+ * @property TaxCategory[]|array|int[]      $taxCategories
+ * @property mixed                          $variantFieldLayout
  * @mixin FieldLayoutBehavior
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

@@ -11,10 +11,10 @@ use craft\helpers\UrlHelper;
 /**
  * Shipping method model.
  *
- * @property string               $cpEditUrl
- * @property array|ShippingRule[] $shippingRules
- * @property bool                 $isEnabled
- * @property string               $type
+ * @property string               $cpEditUrl     the control panel URL to manage this method and its rules
+ * @property bool                 $isEnabled     whether the shipping method is enabled for listing and selection by customers
+ * @property array|ShippingRule[] $shippingRules rules that meet the `ShippingRules` interface
+ * @property string               $type          the type of Shipping Method
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

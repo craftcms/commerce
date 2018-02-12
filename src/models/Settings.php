@@ -8,22 +8,7 @@ use craft\commerce\base\Model;
 /**
  * Settings model.
  *
- * @property string $weightUnits
- * @property string $dimensionUnits
- * @property string $emailSenderAddress
- * @property string $emailSenderName
- * @property string $orderPdfPath
- * @property string $orderPdfFilenameFormat
- * @property string $cartCookieDuration
- * @property mixed  $paymentMethodSettings
- * @property bool   $purgeInactiveCarts
- * @property bool   $purgeInactiveCartsDuration
- * @property string $gatewayPostRedirectTemplate
- * @property bool   $requireEmailForAnonymousPayments
- * @property bool   $useBillingAddressForTax
- * @property array  $$weightUnitsOptions
  * @property array  $weightUnitsOptions
- * @property bool   $requireShippingAddressAtCheckout
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

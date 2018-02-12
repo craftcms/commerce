@@ -12,9 +12,8 @@ use craft\helpers\Json;
 /**
  * Class Update Order Status
  *
- * @property null|string $triggerHtml
- * @property string      $triggerLabel
- * @property mixed       $name
+ * @property null|string $triggerHtml  the action’s trigger HTML
+ * @property string      $triggerLabel the action’s trigger label
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
