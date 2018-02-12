@@ -59,9 +59,11 @@ class AddressesController extends BaseAdminController
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws \yii\base\Exception
+     * @throws \yii\web\BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -98,14 +100,14 @@ class AddressesController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => true, 'address' => $address]);
+                return $this->asJson(['success' => true, 'address' => $address]);
             }
 
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'error' => Craft::t('commerce', 'Couldn’t save address.'),
                     'errors' => $address->errors
                 ]);
@@ -121,7 +123,7 @@ class AddressesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -129,6 +131,6 @@ class AddressesController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredParam('id');
 
         Plugin::getInstance()->getAddresses()->deleteAddressById($id);
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 }

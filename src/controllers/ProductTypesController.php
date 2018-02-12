@@ -78,9 +78,12 @@ class ProductTypesController extends BaseAdminController
     }
 
     /**
+     * @return Response
      * @throws HttpException
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
      */
-    public function actionSaveProductType()
+    public function actionSaveProductType(): Response
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
 
@@ -156,6 +159,8 @@ class ProductTypesController extends BaseAdminController
 
     /**
      * @return Response
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionDeleteProductType(): Response
     {

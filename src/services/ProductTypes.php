@@ -657,7 +657,7 @@ class ProductTypes extends Component
      *
      * @param SiteEvent $event The event that triggered this.
      */
-    public function addSiteHandler(SiteEvent $event)
+    public function afterSaveSiteHandler(SiteEvent $event)
     {
         if ($event->isNew) {
             $allSiteSettings = (new Query())

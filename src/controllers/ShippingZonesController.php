@@ -23,7 +23,7 @@ class ShippingZonesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
         return $this->renderTemplate('commerce/settings/shippingzones/index', [
@@ -75,7 +75,7 @@ class ShippingZonesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -136,7 +136,7 @@ class ShippingZonesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

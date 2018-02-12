@@ -72,7 +72,7 @@ class ShippingMethodsController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
@@ -97,7 +97,7 @@ class ShippingMethodsController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

@@ -48,7 +48,7 @@ class RegistrationController extends BaseAdminController
     /**
      * @return bool|string
      */
-    public function actionUnregister()
+    public function actionUnregister(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -60,7 +60,7 @@ class RegistrationController extends BaseAdminController
     /**
      * @return bool|string|Response
      */
-    public function actionUpdateLicenseKey()
+    public function actionUpdateLicenseKey(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -91,7 +91,7 @@ class RegistrationController extends BaseAdminController
     /**
      * @return bool|string
      */
-    public function actionTransfer()
+    public function actionTransfer(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

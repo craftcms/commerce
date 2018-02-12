@@ -72,7 +72,7 @@ class OrderStatusesController extends BaseAdminController
     /**
      *
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -107,7 +107,7 @@ class OrderStatusesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionReorder()
+    public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -123,7 +123,7 @@ class OrderStatusesController extends BaseAdminController
     /**
      *
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requireAcceptsJson();
 

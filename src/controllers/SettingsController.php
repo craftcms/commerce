@@ -4,7 +4,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Subscription;
-use craft\commerce\models\Plan;
+use craft\commerce\models\Address;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
 use yii\web\Response;
@@ -21,19 +21,7 @@ class SettingsController extends BaseAdminController
     // =========================================================================
 
     /**
-     * Commerce Settings Index
-     *
-     * @return Response
-     */
-    public function actionIndex(): Response
-    {
-        return $this->redirect('commerce/settings/general');
-    }
-
-    /**
      * Commerce Settings Form
-     *
-     * @return Response
      */
     public function actionEdit(): Response
     {
@@ -43,13 +31,33 @@ class SettingsController extends BaseAdminController
         $settings->emailSenderAddressPlaceholder = $craftSettings['fromEmail'] ?? '';
         $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
 
-        return $this->renderTemplate('commerce/settings/general', ['settings' => $settings]);
+        $variables = [
+            'settings' => $settings
+        ];
+
+        return $this->renderTemplate('commerce/settings/general', $variables);
     }
 
     /**
-     * Save settings
-     *
      * @return Response
+     */
+    public function actionEditLocation(): Response
+    {
+        $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
+
+        if (!$storeLocation) {
+            $storeLocation = new Address();
+        }
+
+        $variables = [
+            'storeLocation' => $storeLocation
+        ];
+
+        return $this->renderTemplate('commerce/settings/location/_edit', $variables);
+    }
+
+    /**
+     * @return Response|null
      */
     public function actionSaveSettings(): Response
     {
@@ -63,49 +71,73 @@ class SettingsController extends BaseAdminController
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
-        return $this->redirectToPostedUrl();
+
+        $this->redirectToPostedUrl();
+
+        return null;
     }
 
     /**
-     * Save stock location
      *
-     * @return Response|null
      */
-    public function actionSaveStockLocation()
+    public function actionSavelocation(): Response
     {
         $this->requirePostRequest();
 
-        $address = Plugin::getInstance()->getAddresses()->getStockLocation();
+        $address = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
 
-        // Shared attributes
+        if (!$address) {
+            $address = new Address();
+        }
+
         $attributes = [
+            'attention',
+            'title',
             'firstName',
             'lastName',
             'address1',
             'address2',
             'city',
             'zipCode',
+            'phone',
+            'alternativePhone',
             'businessName',
+            'businessTaxId',
+            'businessId',
             'countryId',
+            'stateValue'
         ];
-
         foreach ($attributes as $attr) {
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
         }
 
-        $address->stateId = Craft::$app->getRequest()->getParam('stateId');
         $address->stockLocation = true;
 
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
+
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson(['success' => true, 'address' => $address]);
+            }
+
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
-            return $this->redirectToPostedUrl();
+            $this->redirectToPostedUrl();
         } else {
+
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson([
+                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
+                    'errors' => $address->errors
+                ]);
+            }
+
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
         }
 
         // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+        Craft::$app->getUrlManager()->setRouteParams(['stockLocation' => $address]);
+
+        $this->redirectToPostedUrl();
     }
 
     /**

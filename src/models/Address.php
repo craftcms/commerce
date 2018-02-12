@@ -131,30 +131,36 @@ class Address extends Model
         return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
     }
 
+    public function rules(): array
+    {
+        return [
+            ['stateId', function ($attribute, $params, $validator) {
+                $plugin = Plugin::getInstance();
+
+                /** @var Country $state */
+                $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
+                /** @var State $state */
+                $state = $this->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
+
+                // Check country’s stateRequired option
+                if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+                    $this->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+                }
+            }],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
-    public function fields(): array
+    public function attributes(): array
     {
-        $fields = parent::fields();
-
-        $fields['fullName'] = function() {
-            return $this->getFullName();
-        };
-
-        $fields['countryText'] = function() {
-            return $this->getCountryText();
-        };
-
-        $fields['stateText'] = function() {
-            return $this->getStateText();
-        };
-
-        $fields['stateValue'] = function() {
-            return $this->getStateValue();
-        };
-
-        return $fields;
+        $attributes = parent::attributes();
+        $attributes[] = 'fullName';
+        $attributes[] = 'countryText';
+        $attributes[] = 'stateText';
+        $attributes[] = 'stateValue';
+        return $attributes;
     }
 
     /**

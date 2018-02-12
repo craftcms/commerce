@@ -66,7 +66,7 @@ class ShippingCategoriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -82,7 +82,7 @@ class ShippingCategoriesController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'success' => true,
                     'id' => $shippingCategory->id,
                     'name' => $shippingCategory->name,
@@ -93,7 +93,7 @@ class ShippingCategoriesController extends BaseAdminController
             }
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'errors' => $shippingCategory->getErrors()
                 ]);
             } else {
@@ -110,7 +110,7 @@ class ShippingCategoriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

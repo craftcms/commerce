@@ -16,7 +16,7 @@ class PromotionsController extends BaseCpController
     /**
      *
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $this->redirect('commerce/promotions/sales');
     }
