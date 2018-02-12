@@ -12,8 +12,8 @@ use yii\base\Exception;
 /**
  * Shipping category service.
  *
- * @property null|ShippingCategory    $defaultShippingCategory
- * @property array|ShippingCategory[] $allShippingCategories
+ * @property array|ShippingCategory[] $allShippingCategories   all Shipping Categories
+ * @property null|ShippingCategory    $defaultShippingCategory the default shipping category
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

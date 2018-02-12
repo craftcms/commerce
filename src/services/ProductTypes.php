@@ -21,10 +21,10 @@ use yii\base\Exception;
 /**
  * Product type service.
  *
- * @property array               $editableProductTypeIds
- * @property array|ProductType[] $editableProductTypes
- * @property array               $allProductTypeIds
- * @property array|ProductType[] $allProductTypes
+ * @property array|ProductType[] $allProductTypes        all product types
+ * @property array               $allProductTypeIds      all of the product type IDs
+ * @property array|ProductType[] $editableProductTypes   all editable product types
+ * @property array               $editableProductTypeIds all of the product type IDs that are editable by the current user
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

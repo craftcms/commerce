@@ -12,8 +12,8 @@ use yii\base\Exception;
 /**
  * State service.
  *
- * @property State[]|array $allStates
- * @property array         $statesGroupedByCountries
+ * @property State[]|array $allStates                an array of all states
+ * @property array         $statesGroupedByCountries all states grouped by countries
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

@@ -11,9 +11,9 @@ use craft\i18n\Locale;
 /**
  * Tax rate model.
  *
- * @property TaxZone|null     $taxZone
- * @property string           $rateAsPercent
  * @property string           $cpEditUrl
+ * @property string           $rateAsPercent
+ * @property TaxZone|null     $taxZone
  * @property TaxCategory|null $taxCategory
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

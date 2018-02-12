@@ -13,8 +13,8 @@ use yii\base\Exception;
 /**
  * Country service.
  *
- * @property Country[]|array $allCountriesListData
- * @property Country[]|array $allCountries
+ * @property Country[]|array $allCountries         an array of all countries
+ * @property Country[]|array $allCountriesListData all country names, indexed by ID
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

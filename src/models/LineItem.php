@@ -19,37 +19,19 @@ use yii\base\InvalidConfigException;
 /**
  * Line Item model representing a line item on an order.
  *
- * @property int                     $id
- * @property float                   $price
- * @property float                   $saleAmount
- * @property float                   $salePrice
- * @property float                   $weight
- * @property float                   $height
- * @property float                   $width
- * @property float                   $length
- * @property float                   $total
- * @property int                     $qty
- * @property string                  $note
- * @property array                   $snapshot
- * @property int                     $orderId
- * @property int                     $purchasableId
- * @property string                  $optionsSignature
- * @property mixed                   $options
- * @property int                     $taxCategoryId
- * @property int                     $shippingCategoryId
+ * @property array|OrderAdjustment[] $adjustments
+ * @property string                  $description     the description from the snapshot of the purchasable
+ * @property float                   $discount
  * @property bool                    $onSale
- * @property Purchasable             $purchasable
  * @property Order                   $order
- * @property TaxCategory             $taxCategory
+ * @property Purchasable             $purchasable
  * @property ShippingCategory        $shippingCategory
  * @property int                     $shippingCost
- * @property string                  $sku
- * @property float                   $subtotal
+ * @property string                  $sku             the description from the snapshot of the purchasable
  * @property int                     $tax
- * @property string                  $description
- * @property array|OrderAdjustment[] $adjustments
+ * @property float                   $total           the Purchasable’s sale price multiplied by the quantity of the line item
+ * @property TaxCategory             $taxCategory
  * @property int                     $taxIncluded
- * @property float                   $discount
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

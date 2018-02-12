@@ -12,11 +12,10 @@ use DateTime;
 /**
  * Class Transaction
  *
- * @property Transaction         $parent
+ * @property array|Transaction[] $childTransactions child transactions
  * @property Gateway             $gateway
  * @property Order               $order
- * @property array|Transaction[] $childTransactions
- * @property User                $user
+ * @property Transaction         $parent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

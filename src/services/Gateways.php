@@ -19,9 +19,9 @@ use yii\base\Exception;
 /**
  * Gateway service.
  *
- * @property GatewayInterface[]|array $allFrontEndGateways
- * @property GatewayInterface[]|array $allGateways
- * @property string[]                 $allGatewayTypes
+ * @property GatewayInterface[]|array $allFrontEndGateways all frontend enabled gateways
+ * @property GatewayInterface[]|array $allGateways         all gateways
+ * @property string[]                 $allGatewayTypes     all registered gateway types
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -163,6 +163,7 @@ class Gateways extends Component
 
         if ($runValidation && !$gateway->validate()) {
             Craft::info('Gateway not saved due to validation error.', __METHOD__);
+
             return false;
         }
 

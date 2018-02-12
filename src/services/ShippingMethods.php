@@ -17,7 +17,7 @@ use yii\base\Exception;
 /**
  * Shipping method service.
  *
- * @property ShippingMethod[] $allShippingMethods
+ * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

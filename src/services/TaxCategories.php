@@ -12,8 +12,8 @@ use yii\base\Exception;
 /**
  * Tax category service.
  *
- * @property TaxCategory[]|array $allTaxCategories
- * @property TaxCategory|null    $defaultTaxCategory
+ * @property TaxCategory[]|array $allTaxCategories   all Tax Categories
+ * @property TaxCategory|null    $defaultTaxCategory the default tax category
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
