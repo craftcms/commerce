@@ -184,7 +184,7 @@ class Discounts extends Component
         }
 
         if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-            $error = Craft::t('commerce', 'Discount use has reached it’s limit');
+            $error = Craft::t('commerce', 'Discount use has reached its limit');
 
             return false;
         }
