@@ -177,12 +177,6 @@ class Discounts extends Component
             return false;
         }
 
-        if (!$model->enabled) {
-            $error = Craft::t('commerce', 'Discount is not available');
-
-            return false;
-        }
-
         if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
             $error = Craft::t('commerce', 'Discount use has reached its limit');
 
@@ -260,7 +254,7 @@ class Discounts extends Component
     }
 
     /**
-     * Returns a discount by a given code.
+     * Returns an enabled discount by its code.
      *
      * @param string $code
      *
