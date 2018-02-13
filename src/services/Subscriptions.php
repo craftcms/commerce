@@ -109,7 +109,7 @@ class Subscriptions extends Component
      * @return bool whether succesfully expired subscription
      * @throws \Throwable if cannot expire subscription
      */
-    public function expireSubscription(Subscription $subscription, $dateTime = null): bool
+    public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
     {
         // fire an 'expireSubscription' event
         if ($this->hasEventHandlers(self::EVENT_EXPIRE_SUBSCRIPTION)) {
