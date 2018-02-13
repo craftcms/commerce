@@ -276,7 +276,7 @@ class Discounts extends Component
     /**
      * Returns the user groups of the user param but defaults to the current user
      *
-     * @param User $user
+     * @param User|null $user
      *
      * @return array
      */
