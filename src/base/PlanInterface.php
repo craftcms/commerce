@@ -25,7 +25,7 @@ interface PlanInterface
      *
      * @return string
      */
-    public function getFriendlyPlanName(): string;
+    public function getFriendlyName(): string;
 
     /**
      * Return whether it's possible to switch to this plan from a different plan.

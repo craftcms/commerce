@@ -151,7 +151,7 @@ class Subscription extends Element
      */
     public function __toString()
     {
-        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlan()->getFriendlyPlanName()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlan()->getFriendlyName()]);
     }
 
     /**

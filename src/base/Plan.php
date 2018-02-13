@@ -49,7 +49,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function __toString()
     {
-        return $this->getFriendlyPlanName();
+        return $this->getFriendlyName();
     }
 
     /**

@@ -5,7 +5,7 @@
     {% for plan in craft.commerce.getPlans() %}
         <div class="row service">
             <div class="two columns">
-                <h4>{{ plan.getFriendlyPlanName() }}</h4>
+                <h4>{{ plan.getFriendlyName() }}</h4>
                 {% set information = plan.getInformation() %}
             </div>
             <div class="ten columns">
