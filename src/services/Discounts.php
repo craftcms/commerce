@@ -74,6 +74,11 @@ class Discounts extends Component
     {
         if (null === $this->_allDiscounts) {
             $discounts = $this->_createDiscountQuery()
+                ->addSelect([
+                    'dp.purchasableId',
+                    'dpt.categoryId',
+                    'dug.userGroupId',
+                ])
                 ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
                 ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
                 ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
@@ -543,36 +548,35 @@ class Discounts extends Component
      */
     private function _createDiscountQuery(): Query
     {
-        return (new Query())->select(
-            'discounts.id,
-            discounts.name,
-            discounts.description,
-            discounts.code,
-            discounts.perUserLimit,
-            discounts.perEmailLimit,
-            discounts.totalUseLimit,
-            discounts.totalUses,
-            discounts.dateFrom,
-            discounts.dateTo,
-            discounts.purchaseTotal,
-            discounts.purchaseQty,
-            discounts.maxPurchaseQty,
-            discounts.baseDiscount,
-            discounts.perItemDiscount,
-            discounts.percentDiscount,
-            discounts.percentageOffSubject,
-            discounts.excludeOnSale,
-            discounts.freeShipping,
-            discounts.allGroups,
-            discounts.allPurchasables,
-            discounts.allCategories,
-            discounts.enabled,
-            discounts.stopProcessing,
-            discounts.sortOrder,
-            dp.purchasableId,
-            dpt.categoryId,
-            dug.userGroupId')
-            ->from('{{%commerce_discounts}} discounts')
+        return (new Query())
+            ->select([
+                'discounts.id',
+                'discounts.name',
+                'discounts.description',
+                'discounts.code',
+                'discounts.perUserLimit',
+                'discounts.perEmailLimit',
+                'discounts.totalUseLimit',
+                'discounts.totalUses',
+                'discounts.dateFrom',
+                'discounts.dateTo',
+                'discounts.purchaseTotal',
+                'discounts.purchaseQty',
+                'discounts.maxPurchaseQty',
+                'discounts.baseDiscount',
+                'discounts.perItemDiscount',
+                'discounts.percentDiscount',
+                'discounts.percentageOffSubject',
+                'discounts.excludeOnSale',
+                'discounts.freeShipping',
+                'discounts.allGroups',
+                'discounts.allPurchasables',
+                'discounts.allCategories',
+                'discounts.enabled',
+                'discounts.stopProcessing',
+                'discounts.sortOrder',
+            ])
+            ->from(['discounts' => '{{%commerce_discounts}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }
