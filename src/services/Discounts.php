@@ -162,13 +162,13 @@ class Discounts extends Component
      * Fetches a discount by its code, ensures it's active, and applies it to
      * the current user.
      *
-     * @param int    $code
-     * @param int    $customerId
-     * @param string $error
+     * @param string      $code
+     * @param int|null    $customerId
+     * @param string|null $error
      *
      * @return bool
      */
-    public function matchCode($code, $customerId, &$error): bool
+    public function matchCode(string $code, int $customerId = null, string &$error = null): bool
     {
         $model = $this->getDiscountByCode($code);
         if (!$model) {
@@ -195,10 +195,10 @@ class Discounts extends Component
         $plugin = Plugin::getInstance();
 
         if (!$model->allGroups) {
-            $customer = $plugin->getCustomers()->getCustomerById($customerId);
+            $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
             $user = $customer ? $customer->getUser() : null;
-            $groupIds = $this->getCurrentUserGroupIds($user);
-            if (!$user || !array_intersect($groupIds, $model->getUserGroupIds())) {
+            $groupIds = $user ? $this->getCurrentUserGroupIds($user) : [];
+            if (empty(array_intersect($groupIds, $model->getUserGroupIds()))) {
                 $error = Craft::t('commerce', 'Discount is not allowed for the customer');
 
                 return false;
