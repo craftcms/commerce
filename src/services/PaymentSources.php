@@ -4,6 +4,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin as Commerce;
@@ -20,6 +21,24 @@ use yii\base\Exception;
  */
 class PaymentSources extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event PaymentSourceEvent The event that is triggered when a payment source is deleted
+     */
+    const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
+
+    /**
+     * @event PaymentSourceEvent The event that is triggered before a plan is saved.
+     */
+    const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
+
+    /**
+     * @event PaymentSourceEvent The event that is triggered after a plan is saved.
+     */
+    const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
+
     // Public Methods
     // =========================================================================
 
@@ -105,6 +124,13 @@ class PaymentSources extends Component
             $record = new PaymentSourceRecord();
         }
 
+        // fire a 'beforeSavePlan' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
+                'paymentSource' => $paymentSource,
+            ]));
+        }
+
         $record->userId = $paymentSource->userId;
         $record->gatewayId = $paymentSource->gatewayId;
         $record->token = $paymentSource->token;
@@ -120,6 +146,13 @@ class PaymentSources extends Component
 
             // Now that we have a record ID, save it on the model
             $paymentSource->id = $record->id;
+
+            // fire a 'beforeSavePlan' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
+                    'paymentSource' => $paymentSource,
+                ]));
+            }
 
             return true;
         }
@@ -144,6 +177,15 @@ class PaymentSources extends Component
 
             if ($gateway) {
                 $gateway->deletePaymentSource($record->token);
+            }
+
+            $paymentSource = $this->getPaymentSourceById($id);
+
+            // Fire an 'archivePlan' event.
+            if ($this->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
+                $this->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, new PaymentSourceEvent([
+                    'paymentSource' => $paymentSource,
+                ]));
             }
 
             return (bool)$record->delete();

@@ -5,6 +5,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\Plan;
+use craft\commerce\events\PlanEvent;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
@@ -20,6 +21,24 @@ use yii\base\InvalidConfigException;
  */
 class Plans extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event PlanEvent The event that is triggered when a plan is archived.
+     */
+    const EVENT_ARCHIVE_PLAN = 'archivePlan';
+
+    /**
+     * @event PlanEvent The event that is triggered before a plan is saved.
+     */
+    const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
+
+    /**
+     * @event PlanEvent The event that is triggered after a plan is saved.
+     */
+    const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
+
     // Public Methods
     // =========================================================================
 
@@ -131,6 +150,23 @@ class Plans extends Component
     }
 
     /**
+     * Returns a subscription plan by its reference.
+     *
+     * @param string $reference the plan reference
+     *
+     * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
+     */
+    public function getPlanByReference(string $reference)
+    {
+        $result = $this->_createPlansQuery()
+            ->where(['reference' => $reference])
+            ->one();
+
+        return $result ? $this->_populatePlan($result) : null;
+    }
+
+    /**
      * Save a subscription plan
      *
      * @param Plan $plan The payment source being saved.
@@ -148,6 +184,13 @@ class Plans extends Component
             }
         } else {
             $record = new PlanRecord();
+        }
+
+        // fire a 'beforeSavePlan' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PLAN)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_PLAN, new PlanEvent([
+                'plan' => $plan,
+            ]));
         }
 
         $record->gatewayId = $plan->gatewayId;
@@ -170,6 +213,13 @@ class Plans extends Component
             // Now that we have a record ID, save it on the model
             $plan->id = $record->id;
 
+            // Fire an 'afterSavePlan' event.
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PLAN)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_PLAN, new PlanEvent([
+                    'plan' => $plan,
+                ]));
+            }
+
             return true;
         }
 
@@ -187,6 +237,17 @@ class Plans extends Component
     public function archivePlanById(int $id): bool
     {
         $plan = $this->getPlanById($id);
+
+        if (!$plan) {
+            return false;
+        }
+
+        // Fire an 'archivePlan' event.
+        if ($this->hasEventHandlers(self::EVENT_ARCHIVE_PLAN)) {
+            $this->trigger(self::EVENT_ARCHIVE_PLAN, new PlanEvent([
+                'plan' => $plan,
+            ]));
+        }
 
         $plan->isArchived = true;
         $plan->dateArchived = Db::prepareDateForDb(new \DateTime());
