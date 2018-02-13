@@ -270,11 +270,7 @@ class Discounts extends Component
             ->where(['code' => $code, 'enabled' => true])
             ->all();
 
-        if ($result) {
-            return new Discount($result);
-        }
-
-        return null;
+        return $result ? new Discount($result) : null;
     }
 
     /**
