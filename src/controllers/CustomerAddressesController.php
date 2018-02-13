@@ -7,6 +7,7 @@ use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Customer Address Controller
@@ -22,10 +23,11 @@ class CustomerAddressesController extends BaseFrontEndController
     /**
      * Add New Address
      *
+     * @return Response
      * @throws Exception
      * @throws HttpException
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
 
