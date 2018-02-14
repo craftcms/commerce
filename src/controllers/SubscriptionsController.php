@@ -125,6 +125,19 @@ class SubscriptionsController extends BaseController
                 $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
             }
 
+            try {
+                $paymentForm = $gateway->getPaymentFormModel();
+                $paymentForm->setAttributes($request->getBodyParams(), false);
+
+                if ($paymentForm->validate()) {
+                    $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                }
+            } catch  (\Throwable $exception) {
+                Craft::error($exception->getMessage(), 'commerce');
+
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
+            }
+
             $success = $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
 
             if (!$success) {
