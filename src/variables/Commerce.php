@@ -194,6 +194,20 @@ class Commerce
     }
 
     /**
+     * Get all payment sources for the current user on a specified gateway.
+     *
+     * @param int $gatewayId the gateway id
+     *
+     * @return PaymentSource[]
+     */
+    public function getPaymentSourcesOnGateway(int $gatewayId): array
+    {
+        $userId = Craft::$app->getUser()->getId();
+
+        return CommercePlugin::getInstance()->getPaymentSources()->getAllGatewayPaymentSourcesByUserId($gatewayId, (int)$userId);
+    }
+
+    /**
      * Get all subscription plans.
      *
      * @return Plan[]

@@ -65,6 +65,30 @@ class PaymentSources extends Component
     }
 
     /**
+     * Returns a user's payment sources on a gateway, per the user's ID.
+     *
+     * @param int $gatewayId the gateway's ID
+     * @param int $userId    the user's ID
+     *
+     * @return PaymentSource[]
+     */
+    public function getAllGatewayPaymentSourcesByUserId(int $gatewayId, int $userId): array
+    {
+        $results = $this->_createPaymentSourcesQuery()
+            ->where(['userId' => $userId])
+            ->andWhere(['gatewayId' => $gatewayId])
+            ->all();
+
+        $sources = [];
+
+        foreach ($results as $result) {
+            $sources[] = new PaymentSource($result);
+        }
+
+        return $sources;
+    }
+
+    /**
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
