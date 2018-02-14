@@ -1,8 +1,10 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% if currentUser %}
-    {% for plan in craft.commerce.getPlans() %}
+{% set plans = craft.commerce.getPlans() %}
+
+{% if currentUser and plans|length%}
+    {% for plan in plans %}
         <div class="row service">
             <div class="two columns">
                 <h4>{{ plan.getFriendlyName() }}</h4>
@@ -10,6 +12,9 @@
             </div>
             <div class="ten columns">
                 {% set subscriptions = plan.getActiveUserSubscriptions(currentUser.id) %}
+                {% if subscriptions|length == 0 %}
+                    <p><strong>You have no subscriptions to this plan.</strong></p>
+                {% endif %}
                 {% if subscriptions|length > 1 %}
                     <p><strong>You have multiple subscriptions to this plan.</strong></p>
                 {% endif %}
@@ -23,19 +28,46 @@
 
                     <a href="{{ url('/shop/services/subscription', {subscription: subscription.id}) }}">Manage subscription</a><br /><br />
                 {% endfor %}
-                <p><strong>Subscribe to this plan</strong></p>
-                <form method="POST">
-                    <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-                    {{ redirectInput('shop/services') }}
-                    {{ csrfInput() }}
-
-                    {{ plan.getGateway().getSubscriptionFormHtml()|raw }}
-
-                    <button type="submit">{{ "Subscribe"|t }}</button>
-                </form>
             </div>
         </div>
+        {% if loop.last %}
+            <hr />
+        {% endif %}
     {% endfor %}
+    <div class="row">
+        <div class="two columns">
+            <h4>Subscribe</h4>
+        </div>
+        <div class="ten columns">
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
+                {{ redirectInput('shop/services') }}
+                {{ csrfInput() }}
+
+                <div>
+                    <select name="planId" id="planSelect">
+                        {% for plan in plans %}
+                            <option value="{{ plan.id|hash }}">{{ plan.getFriendlyName() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% set plan = plans[0] %}
+
+                {# Since only stripe currently supports subscriptions, we can get away with non-gateway-specific subscription forms #}
+                {{ plan.getGateway().getSubscriptionFormHtml()|raw }}
+
+                {% set storedCards = craft.commerce.getPaymentSourcesOnGateway(plan.getGateway().id) %}
+
+                {% if storedCards|length == 0 %}
+                    <div class="paymentForm">
+                        {{ plan.getGateway().getPaymentFormHtml({})|raw }}
+                    </div>
+                {% endif %}
+
+                <button type="submit">{{ "Subscribe"|t }}</button>
+            </form>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}
