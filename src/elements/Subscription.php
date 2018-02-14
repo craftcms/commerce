@@ -180,7 +180,7 @@ class Subscription extends Element
      */
     public function getIsOnTrial()
     {
-        return time() > $this->getTrialExpires()->getTimestamp();
+        return $this->trialDays > 0 && time() > $this->getTrialExpires()->getTimestamp();
     }
 
     /**
@@ -366,7 +366,7 @@ class Subscription extends Element
             return self::STATUS_TRIAL;
         }
 
-        return self::STATUS_TRIAL;
+        return self::STATUS_ACTIVE;
     }
 
 
@@ -556,6 +556,7 @@ class Subscription extends Element
         return [
             'title' => ['label' => Craft::t('commerce', 'Subscription plan')],
             'subscriber' => ['label' => Craft::t('commerce', 'Subscribing user')],
+            'reference' => ['label' => Craft::t('commerce', 'Subscription reference')],
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
             'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]

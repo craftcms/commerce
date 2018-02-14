@@ -58,54 +58,73 @@
 
         <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
 
-        {% set plans = subscription.alternativePlans %}
-        {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
+        {% if not subscription.isCanceled and not subscription.isExpired %}
+            {% set plans = subscription.alternativePlans %}
+            {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
 
-        {% for plan in plans %}
-            {% set planOptions = planOptions|merge([{label: plan.name, value:plan.id}]) %}
-        {% endfor %}
+            {% for plan in plans %}
+                {% set planOptions = planOptions|merge([{label: plan.name, value:plan.id}]) %}
+            {% endfor %}
 
-        {{ forms.selectField({
-            label: 'Switch plan'|t('commerce'),
-            options: planOptions,
-            id: 'switchPlans'
-        }) }}
+            {{ forms.selectField({
+                label: 'Switch plan'|t('commerce'),
+                options: planOptions,
+                id: 'switchPlans'
+            }) }}
 
-        {% for plan in plans %}
-            <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
-                <form method="POST">
-                    <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-                    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
-                    {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
-                    {{ csrfInput() }}
+            {% for plan in plans %}
+                <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="commerce/subscriptions/switch">
+                        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
+                        <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                        {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                        {{ csrfInput() }}
 
-                    {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
+                        {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
 
-                    <div class="field">
-                        <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Switch'|t('commerce') }}"></div>
-                    </div>
-                </form>
-            </div>
-        {% endfor %}
+                        <div class="field">
+                            <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Switch'|t('commerce') }}"></div>
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div>{{ 'Cannot switch plans for this subscription.'|t('commerce') }}</div>
+        {% endif %}
+
+        {% if subscription.canReactivate() %}
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                {{ csrfInput() }}
+
+                <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
+            </form>
+        {% endif %}
+
     </div>
-    <div class="pane">
-        <h2>{{ 'Cancel subscription'|t('commerce') }}</h2>
 
-        <form method="POST">
-            <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-            <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
-            {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
-            {{ csrfInput() }}
+    {% if not subscription.isCanceled and not subscription.isExpired %}
+        <div class="pane">
+            <h2>{{ 'Cancel subscription'|t('commerce') }}</h2>
 
-            {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/subscriptions/cancel">
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
+                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                {{ csrfInput() }}
 
-            <div class="field">
-                <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
-            </div>
+                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
 
-        </form>
-    </div>
+                <div class="field">
+                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
+                </div>
+
+            </form>
+        </div>
+    {% endif %}
 
     <div class="pane">
         <h2>Payment history</h2>
@@ -121,6 +140,20 @@
 
 {% block details %}
 
+    <div class="meta">
+        {{ forms.textField({
+            label: 'Subscription plan'|t('commerce'),
+            value: subscription.getPlan().getFriendlyName(),
+            readonly: true
+        }) }}
+
+        {{ forms.textField({
+            label: 'Subscription reference'|t('commerce'),
+            value: subscription.reference,
+            readonly: true
+        }) }}
+    </div>
+    <hr />
     <div class="meta">
         {{ forms.textField({
             label: 'Subscription date'|t('commerce'),
@@ -160,7 +193,6 @@
             label: 'Cancelation date'|t('commerce'),
             value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
             readonly: true
-
         }) }}
     </div>
 {% endblock %}
