@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% set number = craft.app.request.param('number') %}
-{% set order = craft.commerce.orders.number(number).first() %}
+{% set order = craft.commerce.orders.number(number).one() %}
 
 {% if not order %}
     {% redirect 'shop/customer' %}
