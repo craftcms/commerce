@@ -200,9 +200,11 @@ class ProductsController extends BaseCpController
      * @param mixed $productId
      * @param mixed $site
      *
+     * @return Response|null
+     *
      * @throws HttpException
      */
-    public function actionViewSharedProduct($productId, $site = null): Response
+    public function actionViewSharedProduct($productId, $site = null)
     {
         $this->requireToken();
 
@@ -259,8 +261,10 @@ class ProductsController extends BaseCpController
 
     /**
      * Save a new or existing product.
+     *
+     * @return Response|null
      */
-    public function actionSaveProduct(): Response
+    public function actionSaveProduct()
     {
         $this->requirePostRequest();
 

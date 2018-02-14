@@ -297,8 +297,9 @@ class OrdersController extends BaseCpController
 
     /**
      *
+     * @return Response|null
      */
-    public function actionUpdateStatus(): Response
+    public function actionUpdateStatus()
     {
         $this->requireAcceptsJson();
         $orderId = Craft::$app->getRequest()->getParam('orderId');
@@ -345,9 +346,11 @@ class OrdersController extends BaseCpController
     /**
      * Deletes a order.
      *
+     * @return Response|null
+     *
      * @throws Exception if you try to edit a non existing Id.
      */
-    public function actionDeleteOrder(): Response
+    public function actionDeleteOrder()
     {
         $this->requirePostRequest();
 

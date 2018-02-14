@@ -98,8 +98,10 @@ class GatewaysController extends BaseAdminController
 
     /**
      * @throws HttpException
+     *
+     * @return Response|null
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
 

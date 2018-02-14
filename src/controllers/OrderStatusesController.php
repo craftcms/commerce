@@ -122,8 +122,9 @@ class OrderStatusesController extends BaseAdminController
 
     /**
      *
+     * @return Response|null
      */
-    public function actionDelete(): Response
+    public function actionDelete()
     {
         $this->requireAcceptsJson();
 

@@ -24,10 +24,11 @@ class PaymentsController extends BaseFrontEndController
     // =========================================================================
 
     /**
-     * @return null|Response
+     * @return Response|null
+     *
      * @throws HttpException
      */
-    public function actionPay(): Response
+    public function actionPay()
     {
         $this->requirePostRequest();
 

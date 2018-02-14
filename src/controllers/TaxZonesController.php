@@ -73,7 +73,7 @@ class TaxZonesController extends BaseAdminController
     /**
      * @return null|Response
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
 
