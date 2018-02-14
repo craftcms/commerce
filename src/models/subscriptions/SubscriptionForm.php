@@ -19,7 +19,6 @@ class SubscriptionForm extends Model
      */
     public $trialDays = 0;
 
-    // TODO this form adds support for creating a payment source on the fly when subscribing.
     /**
      * @inheritdoc
      */
