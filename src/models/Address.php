@@ -2,9 +2,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use yii\validators\InlineValidator;
 
 /**
  * Address Model
@@ -134,19 +136,36 @@ class Address extends Model
     public function rules(): array
     {
         return [
-            ['stateId', function ($attribute, $params, $validator) {
-                $plugin = Plugin::getInstance();
-
-                /** @var Country $state */
-                $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
-                /** @var State $state */
-                $state = $this->stateId ? $plugin->getStates()->getStateById($addressRecord->stateId) : null;
-
-                // Check country’s stateRequired option
-                if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-                    $this->addError('stateId', Craft::t('commerce', 'Country requires a related state selected.'));
+            [
+                ['countryId'],
+                function (string $attribute, $params, InlineValidator $validator) {
+                    if (!Plugin::getInstance()->getCountries()->getCountryById($this->countryId)) {
+                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
+                    }
                 }
-            }],
+            ],
+            [
+                ['stateId'],
+                function (string $attribute, $params, InlineValidator $validator) {
+                    $plugin = Plugin::getInstance();
+
+                    // Make sure it's set if the country requires it
+                    $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
+                    if ($country && $country->stateRequired && !$this->stateId) {
+                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} cannot be blank.'));
+                        return;
+                    }
+
+                    // Make sure it's valid
+                    if ($this->stateId) {
+                        $state = $plugin->getStates()->getStateById($this->stateId);
+                        if (!$state || $state->countryId != $country->id) {
+                            $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
+                        }
+                    }
+                },
+                'skipOnEmpty' => false,
+            ],
         ];
     }
 
