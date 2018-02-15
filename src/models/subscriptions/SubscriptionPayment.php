@@ -32,4 +32,19 @@ class SubscriptionPayment extends Model
      * @var string the payment reference on gateway
      */
     public $paymentReference;
+
+    /**
+     * @var bool whether payment has been collected
+     */
+    public $paid = false;
+
+    /**
+     * @var bool whether the payment was forgiven
+     */
+    public $forgiven = false;
+
+    /**
+     * @var string the gateway response text
+     */
+    public $response;
 }

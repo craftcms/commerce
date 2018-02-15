@@ -33,6 +33,7 @@ class CommerceCpAsset extends AssetBundle
         $this->css[] = 'css/charts-explorer.css';
         $this->css[] = 'css/commerce.css';
         $this->css[] = 'css/order.css';
+        $this->css[] = 'css/subscriptions.css';
         $this->css[] = 'css/registration.css';
 
         $this->js[] = 'js/Commerce.js';

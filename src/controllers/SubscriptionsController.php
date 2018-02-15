@@ -8,6 +8,7 @@ use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -38,16 +39,19 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @param int|null  $subscriptionId
+     * @param int|null          $subscriptionId
      * @param Subscription|null $subscription
      *
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
     {
+
         $this->requirePermission('commerce-manageSubscriptions');
 
+        $this->getView()->registerAssetBundle(CommerceCpAsset::class);
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
         $variables = [

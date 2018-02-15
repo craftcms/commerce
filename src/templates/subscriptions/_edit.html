@@ -130,10 +130,33 @@
         <h2>Payment history</h2>
         {% set payments = subscription.getAllPayments() %}
 
-        {% for payment in payments %}
-            <div>{{ payment.paymentDate|datetime }} - {{ payment.paymentCurrency }} {{ payment.paymentAmount }}</div>
-        {% endfor %}
+        <table id="" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Invoice date'|t('commerce') }}</th>
+                <th scope="col">{{ 'Invoice amount'|t('commerce') }}</span></th>
+                <th scope="col">{{ 'Status'|t('commerce') }}</span></th>
+                <th scope="col">{{ 'Info'|t('commerce') }}</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for payment in payments %}
+                {% set info = [
+                    { label: "Reference", type: 'code', value: payment.paymentReference },
+                    { label: "Response", type: 'json', value: payment.response|raw },
+                ] %}
+                <tr class="infoRow" data-info="{{ info|json_encode }}">
+                    <td>{{ payment.paymentDate|datetime }}</td>
+                    <td>{{ payment.paymentCurrency }} {{ payment.paymentAmount }}</td>
+                    <td class="payment-status-{{ payment.paid ? 'paid' : (payment.forgiven ? 'forgiven' : 'unpaid') }}">
+                        {{ payment.paid ? 'Paid'|t('commerce') : (payment.forgiven ? 'Forgiven'|t('commerce') : 'Unpaid'|t('commerce')) }}
+                    </td>
+                    <td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
+                </tr>
+            {% endfor %}
 
+            </tbody>
+        </table>
     </div>
 {% endblock %}
 
@@ -203,5 +226,10 @@
             $('.switchPlansForm').addClass('hidden');
             $('#switch-'+ev.currentTarget.value).removeClass('hidden');
         });
+
+        $.each($('.tableRowInfo'), function () {
+            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
     });
+
 {% endjs %}
