@@ -34,7 +34,7 @@ class CartController extends BaseFrontEndController
      * @throws Exception
      * @throws HttpException
      */
-    public function actionUpdateLineItem(): Response
+    public function actionUpdateLineItem()
     {
         $this->requirePostRequest();
 
@@ -58,7 +58,7 @@ class CartController extends BaseFrontEndController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
-            $this->redirectToPostedUrl();
+            return $this->redirectToPostedUrl();
         }
 
         // Only update if it was provided in the POST data
@@ -76,18 +76,17 @@ class CartController extends BaseFrontEndController
         if (Plugin::getInstance()->getLineItems()->updateLineItem($this->_cart, $lineItem, $error)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line item updated.'));
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+                return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asErrorJson($error);
+                return $this->asErrorJson($error);
+            }
+            if ($error) {
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item: {message}', ['message' => $error]));
             } else {
-                if ($error) {
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item: {message}', ['message' => $error]));
-                } else {
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item.'));
-                }
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item.'));
             }
         }
     }
@@ -148,7 +147,7 @@ class CartController extends BaseFrontEndController
 
         $plugin = Plugin::getInstance();
 
-        $this->_cart =  Plugin::getInstance()->getCart()->getCart();
+        $this->_cart = Plugin::getInstance()->getCart()->getCart();
 
         // Saving current cart if it's new
         if (!$this->_cart->id && !Craft::$app->getElements()->saveElement($this->_cart, false)) {
