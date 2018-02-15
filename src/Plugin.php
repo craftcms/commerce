@@ -45,7 +45,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.11';
+    public $schemaVersion = '2.0.12';
 
     /**
      * @inheritdoc
@@ -80,7 +80,6 @@ class Plugin extends \craft\base\Plugin
     public function init()
     {
         parent::init();
-
         $this->_setPluginComponents();
         $this->_registerCpRoutes();
         $this->_addTwigExtensions();
