@@ -8,7 +8,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\commerce\web\assets\editorder\EditOrderAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Exception;
@@ -96,8 +95,7 @@ class OrdersController extends BaseCpController
                 }
             }
 
-            if($gateway instanceof MissingGateway)
-            {
+            if ($gateway instanceof MissingGateway) {
                 $variables['paymentMethodsAvailable'] = false;
             }
         }
