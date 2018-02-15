@@ -15,9 +15,6 @@ use yii\base\NotSupportedException;
 /**
  * MissingGateway represents a gateway with an invalid class.
  *
- * @property null $paymentFormModel
- * @property null $gatewayClassName
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */

@@ -37,63 +37,39 @@ use yii\base\Exception;
 /**
  * Order or Cart model.
  *
- * @property int                     $id
- * @property string                  $number
- * @property string                  $couponCode
- * @property float                   $itemTotal
- * @property float                   $totalPrice
- * @property float                   $totalPaid
- * @property string                  $email
- * @property bool                    $isCompleted
- * @property \DateTime               $dateOrdered
- * @property string                  $currency
- * @property string                  $paymentCurrency
- * @property \DateTime               $datePaid
- * @property string                  $lastIp
- * @property string                  $orderLocale
- * @property string                  $message
- * @property string                  $returnUrl
- * @property string                  $cancelUrl
- * @property int                     $billingAddressId
- * @property int                     $shippingAddressId
- * @property ShippingMethodInterface $shippingMethod
- * @property string                  $shippingMethodHandle
- * @property int                     $gatewayId
- * @property int                     $customerId
- * @property int                     $orderStatusId
- * @property int                     $totalQty
- * @property int                     $totalWeight
- * @property int                     $totalHeight
- * @property int                     $totalLength
- * @property int                     $totalWidth
- * @property int                     $totalTax
- * @property int                     $totalShippingCost
- * @property int                     $totalDiscount
- * @property string                  $pdfUrl
- * @property OrderSettings           $type
- * @property LineItem[]              $lineItems
+ * @property OrderAdjustment[]       $adjustments
+ * @property float|int               $adjustmentSubtotal           the total of adjustments made to order
+ * @property float                   $adjustmentsTotal
  * @property Address                 $billingAddress
  * @property Customer                $customer
- * @property Address                 $shippingAddress
- * @property OrderAdjustment[]       $adjustments
  * @property Gateway                 $gateway
- * @property Transaction[]           $transactions
- * @property OrderStatus             $orderStatus
- * @property null|string             $name
- * @property string                  $shortNumber
- * @property ShippingMethodInterface $shippingMethodId
- * @property float                   $totalTaxIncluded
- * @property float|int               $adjustmentSubtotal
- * @property int                     $totalSaleAmount
- * @property int                     $itemSubtotal
- * @property OrderHistory[]          $histories
- * @property int                     $baseShippingCost
- * @property array|Transaction[]     $nestedTransactions
- * @property float                   $adjustmentsTotal
- * @property float                   $totalTaxablePrice
- * @property bool                    $shouldRecalculateAdjustments
+ * @property OrderHistory[]          $histories                    order histories
+ * @property int                     $itemSubtotal                 the total of all line item subtotals
+ * @property float                   $itemTotal
+ * @property LineItem[]              $lineItems
+ * @property array|Transaction[]     $nestedTransactions           transactions for the order that have child transactions set on them
  * @property array                   $orderAdjustments
- * @property float                   baseDiscount
+ * @property OrderStatus             $orderStatus
+ * @property string                  $pdfUrl                       the URL to the order’s PDF invoice
+ * @property Address                 $shippingAddress
+ * @property ShippingMethodInterface $shippingMethod
+ * @property ShippingMethodInterface $shippingMethodId
+ * @property string                  $shortNumber
+ * @property bool                    $shouldRecalculateAdjustments
+ * @property int                     $totalDiscount
+ * @property int                     $totalHeight
+ * @property int                     $totalLength
+ * @property float                   $totalPaid                    the total `purchase` and `captured` transactions belonging to this order
+ * @property float                   $totalPrice
+ * @property int                     $totalQty                     the total number of items
+ * @property int                     $totalSaleAmount              the total sale amount
+ * @property int                     $totalShippingCost
+ * @property int                     $totalTax
+ * @property float                   $totalTaxablePrice
+ * @property float                   $totalTaxIncluded
+ * @property int                     $totalWeight
+ * @property int                     $totalWidth
+ * @property Transaction[]           $transactions
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -255,6 +231,14 @@ class Order extends Element
     // =========================================================================
 
     /**
+     * @return null|string
+     */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Orders');
+    }
+
+    /**
      * @inheritdoc
      *
      * @return OrderQuery The newly created [[OrderQuery]] instance.
@@ -300,7 +284,7 @@ class Order extends Element
 
         $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
 
-        return true;
+        return parent::beforeValidate();
     }
 
     /**
@@ -488,8 +472,8 @@ class Order extends Element
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        if ($this->getShippingMethodHandle()) {
-            if (!isset($availableMethods[$this->getShippingMethodHandle()]) || empty($availableMethods)) {
+        if ($this->shippingMethodHandle) {
+            if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
                 $this->shippingMethodHandle = null;
                 $this->recalculate();
 
@@ -1045,15 +1029,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->getShippingMethodHandle());
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getShippingMethodHandle()
-    {
-        return $this->shippingMethodHandle;
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
@@ -1149,90 +1125,73 @@ class Order extends Element
     }
 
     /**
-     * @return null|string
-     */
-    public function getName()
-    {
-        return Craft::t('commerce', 'Orders');
-    }
-
-    /**
      * @inheritdoc
      */
     public function getTableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'orderStatus':
-                {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->htmlLabel();
-                    }
-
-                    return '<span class="status"></span>';
+            case 'orderStatus': {
+                if ($this->orderStatus) {
+                    return $this->orderStatus->htmlLabel();
                 }
-            case 'shippingFullName':
-                {
-                    if ($this->shippingAddress) {
-                        return $this->shippingAddress->getFullName();
-                    }
 
-                    return '';
+                return '<span class="status"></span>';
+            }
+            case 'shippingFullName': {
+                if ($this->shippingAddress) {
+                    return $this->shippingAddress->getFullName();
                 }
-            case 'billingFullName':
-                {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->getFullName();
-                    }
 
-                    return '';
+                return '';
+            }
+            case 'billingFullName': {
+                if ($this->billingAddress) {
+                    return $this->billingAddress->getFullName();
                 }
-            case 'shippingBusinessName':
-                {
-                    if ($this->shippingAddress) {
-                        return $this->shippingAddress->businessName;
-                    }
 
-                    return '';
+                return '';
+            }
+            case 'shippingBusinessName': {
+                if ($this->shippingAddress) {
+                    return $this->shippingAddress->businessName;
                 }
-            case 'billingBusinessName':
-                {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->businessName;
-                    }
 
-                    return '';
+                return '';
+            }
+            case 'billingBusinessName': {
+                if ($this->billingAddress) {
+                    return $this->billingAddress->businessName;
                 }
-            case 'shippingMethodName':
-                {
-                    if ($this->shippingMethod) {
-                        return $this->shippingMethod->getName();
-                    }
 
-                    return '';
+                return '';
+            }
+            case 'shippingMethodName': {
+                if ($this->shippingMethod) {
+                    return $this->shippingMethod->getName();
                 }
-            case 'gatewayName':
-                {
-                    if ($this->gateway) {
-                        return $this->gateway->name;
-                    }
 
-                    return '';
+                return '';
+            }
+            case 'gatewayName': {
+                if ($this->gateway) {
+                    return $this->gateway->name;
                 }
+
+                return '';
+            }
             case 'totalPaid':
             case 'totalPrice':
             case 'totalShippingCost':
-            case 'totalDiscount':
-                {
-                    if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
-                    }
+            case 'totalDiscount': {
+                if ($this->$attribute >= 0) {
+                    return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                }
 
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
-                }
-            default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+                return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+            }
+            default: {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 

@@ -11,11 +11,10 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 /**
  * Shipping rule model
  *
- * @property array|ShippingRuleCategory[] $shippingRuleCategories
+ * @property bool                         $isEnabled              whether this shipping rule enabled for listing and selection
  * @property array                        $options
+ * @property array|ShippingRuleCategory[] $shippingRuleCategories
  * @property mixed                        $shippingZone
- * @property bool                         $isEnabled
- * @property ShippingMethod               $method
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

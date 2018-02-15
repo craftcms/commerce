@@ -17,11 +17,11 @@ use yii\validators\EmailValidator;
 /**
  * Cart service.
  *
- * @property Order $gateway
- * @property Order $email
- * @property mixed $paymentCurrency
- * @property Order $shippingMethod
  * @property Order $cart
+ * @property Order $email
+ * @property Order $gateway         the shipping method to the current order
+ * @property mixed $paymentCurrency the payment currency on the order
+ * @property Order $shippingMethod  the shipping method to the current order
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -319,6 +319,7 @@ class Cart extends Component
 
         if ($cart->getCustomer() && $cart->getCustomer()->getUser()) {
             $error = Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.');
+
             return false;
         }
 
@@ -520,6 +521,14 @@ class Cart extends Component
         return 0;
     }
 
+    /**
+     * @return string
+     */
+    public function generateCartNumber(): string
+    {
+        return md5(uniqid(mt_rand(), true));
+    }
+
     // Private Methods
     // =========================================================================
 
@@ -532,19 +541,11 @@ class Cart extends Component
         $cartNumber = $session[$this->cartName];
 
         if (!$cartNumber) {
-            $cartNumber = $this->_uniqueCartNumber();
+            $cartNumber = $this->generateCartNumber();
             $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;
-    }
-
-    /**
-     * @return string
-     */
-    private function _uniqueCartNumber(): string
-    {
-        return md5(uniqid(mt_rand(), true));
     }
 
     /**

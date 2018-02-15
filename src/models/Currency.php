@@ -7,12 +7,6 @@ use craft\commerce\base\Model;
 /**
  * Currency Model
  *
- * @property string $alphabeticCode
- * @property string $currency
- * @property string $entity
- * @property int    $minorUnit
- * @property int    $numericCode
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */

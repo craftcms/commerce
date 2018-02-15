@@ -18,9 +18,9 @@ use yii\base\Exception;
 /**
  * Order status service.
  *
- * @property OrderStatus[]|array $allOrderStatuses
- * @property null|int            $defaultOrderStatusId
- * @property OrderStatus|null    $defaultOrderStatus
+ * @property OrderStatus|null    $defaultOrderStatus   default order status from the DB
+ * @property OrderStatus[]|array $allOrderStatuses     all Order Statuses
+ * @property null|int            $defaultOrderStatusId default order status ID from the DB
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

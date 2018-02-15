@@ -12,8 +12,8 @@ use yii\base\Exception;
 /**
  * State service.
  *
- * @property State[]|array $allStates
- * @property array         $statesGroupedByCountries
+ * @property State[]|array $allStates                an array of all states
+ * @property array         $statesGroupedByCountries all states grouped by countries
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -52,11 +52,11 @@ class States extends Component
     // =========================================================================
 
     /**
-     * Get a states by its ID.
+     * Returns a state by its ID.
      *
      * @param int $id the state's ID
      *
-     * @return State|null The matched state or null if not found.
+     * @return State|null
      */
     public function getStateById(int $id)
     {
@@ -77,6 +77,23 @@ class States extends Component
         }
 
         return $this->_statesById[$id] = new State($result);
+    }
+
+    /**
+     * Returns a state by its abbreviation.
+     *
+     * @param int    $countryId    the state's country ID
+     * @param string $abbreviation the state's abbreviation
+     *
+     * @return State|null
+     */
+    public function getStateByAbbreviation(int $countryId, string $abbreviation)
+    {
+        $result = $this->_createStatesQuery()
+            ->where(['countryId' => $countryId, 'abbreviation' => $abbreviation])
+            ->one();
+
+        return $result ? new State($result) : null;
     }
 
     /**

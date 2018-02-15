@@ -13,8 +13,8 @@ use yii\base\Exception;
 /**
  * Country service.
  *
- * @property Country[]|array $allCountriesListData
- * @property Country[]|array $allCountries
+ * @property Country[]|array $allCountries         an array of all countries
+ * @property Country[]|array $allCountriesListData all country names, indexed by ID
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -48,11 +48,11 @@ class Countries extends Component
     // =========================================================================
 
     /**
-     * Get a country by its ID.
+     * Returns a country by its ID.
      *
      * @param int $id the country's ID
      *
-     * @return Country|null the matched country or null if not found
+     * @return Country|null
      *
      */
     public function getCountryById(int $id)
@@ -74,6 +74,23 @@ class Countries extends Component
         }
 
         return $this->_countriesById[$id] = new Country($result);
+    }
+
+    /**
+     * Returns a country by its ISO code.
+     *
+     * @param string $iso the country's ISO code
+     *
+     * @return Country|null
+     *
+     */
+    public function getCountryByIso(string $iso)
+    {
+        $result = $this->_createCountryQuery()
+            ->where(['iso' => $iso])
+            ->one();
+
+        return $result ? new Country($result) : null;
     }
 
     /**

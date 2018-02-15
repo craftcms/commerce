@@ -20,35 +20,6 @@ class Product
     // =========================================================================
 
     /**
-     * Populates a Product model from HUD or POST data
-     *
-     * @param ProductModel $product
-     * @param              $data
-     */
-    public static function populateProductModel(ProductModel $product, $data)
-    {
-        if (isset($data['typeId'])) {
-            $product->typeId = $data['typeId'];
-        }
-
-        if (isset($data['enabled'])) {
-            $product->enabled = $data['enabled'];
-        }
-
-        $product->postDate = (($postDate = $data['postDate']) ? DateTimeHelper::toDateTime($postDate) : $product->postDate);
-        if (!$product->postDate) {
-            $product->postDate = new \DateTime();
-        }
-        $product->expiryDate = (($expiryDate = $data['expiryDate']) ? DateTimeHelper::toDateTime($expiryDate) : null);
-
-        $product->promotable = $data['promotable'];
-        $product->freeShipping = $data['freeShipping'];
-        $product->taxCategoryId = $data['taxCategoryId'] ?: $product->taxCategoryId;
-        $product->shippingCategoryId = $data['shippingCategoryId'] ?: $product->shippingCategoryId;
-        $product->slug = $data['slug'] ?: $product->slug;
-    }
-
-    /**
      * Populates all Variant Models from HUD or POST data
      *
      * @param ProductModel  $product
@@ -61,13 +32,13 @@ class Product
     {
         $productId = $product->id;
 
-        if ($productId && $key !== 'new') {
+        $newVariant = 0 === strpos($key, 'new');
+        if ($productId && !$newVariant) {
             $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
         } else {
             $variantModel = new Variant();
         }
 
-        $variantModel->setProduct($product);
         $variantModel->enabled = $variant['enabled'] ?? 1;
         $variantModel->isDefault = $variant['isDefault'] ?? 0;
         $variantModel->sku = $variant['sku'] ?? '';

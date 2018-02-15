@@ -24,7 +24,8 @@ class PaymentsController extends BaseFrontEndController
     // =========================================================================
 
     /**
-     * @return null|Response
+     * @return Response|null
+     *
      * @throws HttpException
      */
     public function actionPay()
@@ -299,7 +300,7 @@ class PaymentsController extends BaseFrontEndController
      * @throws Exception
      * @throws HttpException
      */
-    public function actionCompletePayment()
+    public function actionCompletePayment(): Response
     {
         $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 

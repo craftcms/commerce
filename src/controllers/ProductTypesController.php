@@ -74,11 +74,32 @@ class ProductTypesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
 
+        $tabs = [
+            'productTypeSettings' => [
+                'label' => Craft::t('commerce', 'Settings'),
+                'url' => '#product-type-settings',
+            ],
+            'productFields' => [
+                'label' => Craft::t('commerce', 'Product Fields'),
+                'url' => '#product-fields',
+            ],
+            'variantFields' => [
+                'label' => Craft::t('commerce', 'Variant Fields'),
+                'url' => '#variant-fields',
+                'class' => !$variables['productType']->hasVariants ? 'hidden' : ''
+            ]
+        ];
+
+        $variables['tabs'] = $tabs;
+        $variables['selectedTab'] = 'productTypeSettings';
+
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
     /**
      * @throws HttpException
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionSaveProductType()
     {
@@ -156,6 +177,8 @@ class ProductTypesController extends BaseAdminController
 
     /**
      * @return Response
+     * @throws \Throwable
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionDeleteProductType(): Response
     {

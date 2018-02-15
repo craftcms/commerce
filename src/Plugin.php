@@ -32,8 +32,7 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
- * @property array $cpNavItem
- * @property mixed $settingsResponse
+ * @property mixed $settingsResponse the settings page response
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -46,7 +45,17 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.10';
+    public $schemaVersion = '2.0.12';
+
+    /**
+     * @inheritdoc
+     */
+    public $hasCpSettings = true;
+
+    /**
+     * @inheritdoc
+     */
+    public $hasCpSection = true;
 
     // Traits
     // =========================================================================
@@ -71,18 +80,17 @@ class Plugin extends \craft\base\Plugin
     public function init()
     {
         parent::init();
-
         $this->_setPluginComponents();
         $this->_registerCpRoutes();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
         $this->_registerRedactorLinkOptions();
         $this->_registerPermissions();
+        $this->_registerCraftEventListeners();
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
         $this->_registerWidgets();
-        $this->_registerElementEventListeners();
-        $this->_registerVariable();
+        $this->_registerVariables();
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
@@ -149,7 +157,7 @@ class Plugin extends \craft\base\Plugin
         if (Craft::$app->user->identity->admin) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
-                'url' => 'commerce/settings'
+                'url' => 'commerce/settings/general'
             ];
         }
 
@@ -234,8 +242,6 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerSessionEventListeners()
     {
-        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'addSiteHandler']);
-
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
             Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
@@ -279,11 +285,12 @@ class Plugin extends \craft\base\Plugin
     }
 
     /**
-     * Register Commerce’s after element save handler
+     * Register general event listeners
      */
-    private function _registerElementEventListeners()
+    private function _registerCraftEventListeners()
     {
-        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, [$this->getPurchasables(), 'saveElementHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
     }
 
     /**
@@ -312,7 +319,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * Register Commerce’s template variable.
      */
-    private function _registerVariable()
+    private function _registerVariables()
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             /** @var CraftVariable $variable */

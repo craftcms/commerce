@@ -9,17 +9,6 @@ use craft\commerce\Plugin;
 /**
  * Order adjustment model.
  *
- * @property int    $id
- * @property string $name
- * @property string $description
- * @property string $type
- * @property float  $amount
- * @property bool   $included
- * @property string $sourceSnapshot
- * @property int    $orderId
- * @property int    $lineItemId
- * @property Order  $order
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
@@ -69,7 +58,7 @@ class OrderAdjustment extends Model
     public $orderId;
 
     /**
-     * @var int Order ID
+     * @var int Line item ID
      */
     public $lineItemId;
 

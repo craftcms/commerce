@@ -64,6 +64,8 @@ class EmailsController extends BaseAdminController
     }
 
     /**
+     * @return null|Response
+     *
      * @throws HttpException
      */
     public function actionSave()
@@ -85,7 +87,7 @@ class EmailsController extends BaseAdminController
         // Save it
         if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Email saved.'));
-            $this->redirectToPostedUrl($email);
+            return $this->redirectToPostedUrl($email);
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save email.'));
         }
@@ -97,7 +99,7 @@ class EmailsController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

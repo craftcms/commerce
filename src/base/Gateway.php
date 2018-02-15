@@ -11,18 +11,16 @@ use craft\helpers\UrlHelper;
 /**
  * Class Gateway
  *
- * @property int                  $id
- * @property string               $type
- * @property string               $name
- * @property string               $paymentType
- * @property array                $settings
- * @property bool                 $frontendEnabled
- * @property bool                 $sendCartInfo
- * @property bool                 $isArchived
- * @property array                $paymentTypeOptions
- * @property null|BasePaymentForm $paymentFormModel
  * @property string               $cpEditUrl
  * @property bool                 $dateArchived
+ * @property bool                 $frontendEnabled
+ * @property bool                 $isArchived
+ * @property string               $name
+ * @property null|BasePaymentForm $paymentFormModel
+ * @property string               $paymentType
+ * @property array                $paymentTypeOptions
+ * @property bool                 $sendCartInfo
+ * @property array                $settings
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

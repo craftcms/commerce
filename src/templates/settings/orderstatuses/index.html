@@ -35,7 +35,7 @@
                 <td>{% if orderStatus.default %}<span data-icon="check"
                                                       title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                 </td>
-                {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).first() %}
+                {% set orderExists = craft.commerce.orders.orderStatusId(orderStatus.id).one() %}
                 <td class="thin">
                     <a class="move icon disabled"
                        title="{{ 'Delete'|t('commerce') }}"

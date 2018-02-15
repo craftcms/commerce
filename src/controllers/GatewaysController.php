@@ -98,6 +98,8 @@ class GatewaysController extends BaseAdminController
 
     /**
      * @throws HttpException
+     *
+     * @return Response|null
      */
     public function actionSave()
     {
@@ -148,7 +150,7 @@ class GatewaysController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionArchive()
+    public function actionArchive(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -165,7 +167,7 @@ class GatewaysController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionReorder()
+    public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

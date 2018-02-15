@@ -6,17 +6,18 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use yii\validators\InlineValidator;
 
 /**
  * Address Model
  *
- * @property int|string $stateValue
  * @property Country    $country
  * @property string     $countryText
- * @property string     $fullName
- * @property string     $stateText
  * @property string     $cpEditUrl
+ * @property string     $fullName
  * @property State      $state
+ * @property string     $stateText
+ * @property int|string $stateValue
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -132,30 +133,53 @@ class Address extends Model
         return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
     }
 
+    public function rules(): array
+    {
+        return [
+            [
+                ['countryId'],
+                function (string $attribute, $params, InlineValidator $validator) {
+                    if (!Plugin::getInstance()->getCountries()->getCountryById($this->countryId)) {
+                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
+                    }
+                }
+            ],
+            [
+                ['stateId'],
+                function (string $attribute, $params, InlineValidator $validator) {
+                    $plugin = Plugin::getInstance();
+
+                    // Make sure it's set if the country requires it
+                    $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
+                    if ($country && $country->stateRequired && !$this->stateId) {
+                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} cannot be blank.'));
+                        return;
+                    }
+
+                    // Make sure it's valid
+                    if ($this->stateId) {
+                        $state = $plugin->getStates()->getStateById($this->stateId);
+                        if (!$state || $state->countryId != $country->id) {
+                            $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
+                        }
+                    }
+                },
+                'skipOnEmpty' => false,
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
-    public function fields(): array
+    public function attributes(): array
     {
-        $fields = parent::fields();
-
-        $fields['fullName'] = function() {
-            return $this->getFullName();
-        };
-
-        $fields['countryText'] = function() {
-            return $this->getCountryText();
-        };
-
-        $fields['stateText'] = function() {
-            return $this->getStateText();
-        };
-
-        $fields['stateValue'] = function() {
-            return $this->getStateValue();
-        };
-
-        return $fields;
+        $attributes = parent::attributes();
+        $attributes[] = 'fullName';
+        $attributes[] = 'countryText';
+        $attributes[] = 'stateText';
+        $attributes[] = 'stateValue';
+        return $attributes;
     }
 
     /**

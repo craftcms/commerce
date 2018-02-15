@@ -8,16 +8,11 @@ use craft\helpers\UrlHelper;
 /**
  * Currency model.
  *
- * @property int         $id
- * @property string      $iso
- * @property bool        $primary
- * @property float       $rate
  * @property string      $alphabeticCode
- * @property string      $currency
+ * @property string      $cpEditUrl
  * @property string      $entity
  * @property int         $minorUnit
  * @property null|string $name
- * @property string      $cpEditUrl
  * @property int         $numericCode
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -75,33 +70,15 @@ class PaymentCurrency extends Model
     /**
      * @inheritdoc
      */
-    public function fields(): array
+    public function attributes(): array
     {
-        $fields = parent::fields();
-
-
-        $fields['minorUnits'] = function($model) {
-            /** @var PaymentCurrency $model */
-            return $model->getMinorUnit();
-        };
-        $fields['alphabeticCode'] = function($model) {
-            /** @var PaymentCurrency $model */
-            return $model->getAlphabeticCode();
-        };
-        $fields['currency'] = function($model) {
-            /** @var PaymentCurrency $model */
-            return $model->getCurrency();
-        };
-        $fields['numericCode'] = function($model) {
-            /** @var PaymentCurrency $model */
-            return $model->getNumericCode();
-        };
-        $fields['entity'] = function($model) {
-            /** @var PaymentCurrency $model */
-            return $model->getEntity();
-        };
-
-        return $fields;
+        $attributes = parent::attributes();
+        $attributes[] = 'minorUnits';
+        $attributes[] = 'alphabeticCode';
+        $attributes[] = 'currency';
+        $attributes[] = 'numericCode';
+        $attributes[] = 'entity';
+        return $attributes;
     }
 
     /**

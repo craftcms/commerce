@@ -20,13 +20,10 @@ use yii\base\InvalidConfigException;
 /**
  * Variant Model
  *
- * @property Sale[]            $salesApplied
- * @property bool              $onSale
- * @property string            $name
- * @property null|array|Sale[] $sales
- * @property null|float        $salePrice
- * @property string            $eagerLoadedElements
- * @property Product           $product
+ * @property string  $eagerLoadedElements some eager-loaded elements on a given handle
+ * @property bool    $onSale
+ * @property Product $product             the product associated with this variant
+ * @property Sale[]  $salesApplied        sales models which are currently affecting the salePrice of this purchasable
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -131,15 +128,7 @@ class Variant extends Purchasable
     {
         return 'variant';
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function __toString(): string
-    {
-        return parent::__toString();
-    }
-
+    
     /**
      * @inheritdoc
      */
@@ -160,11 +149,12 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function fields(): array
+    public function attributes()
     {
-        $fields = parent::fields();
+        $attributes = parent::attributes();
+        $attributes[] = 'product';
 
-        return $fields;
+        return $attributes;
     }
 
     /**
@@ -196,6 +186,14 @@ class Variant extends Purchasable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getFieldLayout()
+    {
+        return parent::getFieldLayout() ?? $this->getProduct()->getType()->getVariantFieldLayout();
+    }
+
+    /**
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
@@ -206,24 +204,17 @@ class Variant extends Purchasable
             if ($this->productId) {
                 $this->_product = Plugin::getInstance()->getProducts()->getProductById($this->productId);
             }
-            if ($this->_product === null) {
-                $this->_product = false;
-            }
         }
 
-        if ($this->_product !== false) {
-            return $this->_product;
-        }
-
-        return null;
+        return $this->_product;
     }
 
     /**
      * Sets the product associated with this variant.
      *
-     * @param Product|null $product The product associated with this variant
+     * @param $product The product associated with this variant
      */
-    public function setProduct(Product $product = null)
+    public function setProduct($product)
     {
         $this->_product = $product;
 
@@ -253,8 +244,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * If the product's type has no variants, return the products title.
-     *
      * @return string
      */
     public function getTitle(): string
@@ -279,12 +268,12 @@ class Variant extends Purchasable
     /**
      * @return bool
      */
-    public function isEditable(): bool
+    public function getIsEditable(): bool
     {
         $product = $this->getProduct();
 
         if ($product) {
-            return $product->isEditable();
+            return $product->getIsEditable();
         }
 
         return false;
@@ -304,18 +293,6 @@ class Variant extends Purchasable
     public function getUrl(): string
     {
         return $this->product->url.'?variant='.$this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFieldLayout()
-    {
-        if (($product = $this->getProduct()) !== null) {
-            return $product->getType()->getVariantFieldLayout();
-        }
-
-        return null;
     }
 
     /**
@@ -617,14 +594,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return Craft::t('commerce', 'Variants');
-    }
-
-    /**
      * @inheritdoc
      */
     public static function hasContent(): bool
@@ -659,18 +628,10 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeSave(bool $isNew): bool
     {
-        $productType = $this->getProduct()->getType() ?? null;
         $product = $this->getProduct();
-
-        if ($productType === null) {
-            throw new InvalidConfigException('Variant is missing its product type ID');
-        }
-
-        if ($productType === null) {
-            throw new InvalidConfigException('Variant is missing its product ID');
-        }
+        $productType = $product->getType();
 
         // Use the product type's titleFormat if the title field is not shown
         if (!$productType->hasVariantTitleField && $productType->hasVariants) {
@@ -701,7 +662,9 @@ class Variant extends Purchasable
             $this->stock = 0;
         }
 
-        return parent::beforeValidate();
+        $this->fieldLayoutId = $this->getProduct()->getType()->variantFieldLayoutId;
+
+        return parent::beforeSave($isNew);
     }
 
     // Protected Methods
@@ -781,38 +744,33 @@ class Variant extends Purchasable
         $productType = $this->product->getType();
 
         switch ($attribute) {
-            case 'sku':
-                {
-                    return $this->sku;
-                }
-            case 'price':
-                {
-                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+            case 'sku': {
+                return $this->sku;
+            }
+            case 'price': {
+                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+            }
+            case 'weight': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
                 }
-            case 'weight':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
-                    }
 
-                    return '';
-                }
+                return '';
+            }
             case 'length':
             case 'width':
-            case 'height':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                    }
+            case 'height': {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                }
 
-                    return '';
-                }
-            default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+                return '';
+            }
+            default: {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
@@ -82,7 +81,7 @@ class ProductsController extends BaseCpController
             }
         }
 
-        $this->_prepProductVariables($variables);
+        $this->_prepEditProductVariables($variables);
 
         if (!empty($variables['product']->id)) {
             $variables['title'] = $variables['product']->title;
@@ -148,7 +147,7 @@ class ProductsController extends BaseCpController
      *
      * @throws HttpException
      */
-    public function actionPreviewProduct()
+    public function actionPreviewProduct(): Response
     {
         $this->requirePostRequest();
 
@@ -200,6 +199,8 @@ class ProductsController extends BaseCpController
      * @param mixed $productId
      * @param mixed $site
      *
+     * @return Response|null
+     *
      * @throws HttpException
      */
     public function actionViewSharedProduct($productId, $site = null)
@@ -236,43 +237,38 @@ class ProductsController extends BaseCpController
 
         $this->enforceProductPermissions($product);
 
-        if (Craft::$app->getElements()->deleteElement($product)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => true]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
-                return $this->redirectToPostedUrl($product);
-            }
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => false]);
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));
+        if (!Craft::$app->getElements()->deleteElement($product)) {
 
-                Craft::$app->getUrlManager()->setRouteParams([
-                    'product' => $product
-
-                ]);
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson(['success' => false]);
             }
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));
+            Craft::$app->getUrlManager()->setRouteParams([
+                'product' => $product
+            ]);
         }
+
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
+        return $this->redirectToPostedUrl($product);
     }
 
     /**
      * Save a new or existing product.
+     *
+     * @return Response|null
      */
     public function actionSaveProduct()
     {
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $product = $this->_setProductFromPost();
 
-        $variants = $request->getParam('variants');
-        $newVariants = [];
-        foreach ($variants as $key => $variant) {
-            $newVariants[] = ProductHelper::populateProductVariantModel($product, $variant, $key);
-        }
-        $product->setVariants($newVariants);
+        $product = $this->_setProductFromPost();
 
         $this->enforceProductPermissions($product);
 
@@ -378,8 +374,6 @@ class ProductsController extends BaseCpController
                 'class' => $hasErrors ? 'error' : null
             ];
         }
-
-        $variables['primaryVariant'] = $product->getVariants()[0];
     }
 
     /**
@@ -389,7 +383,7 @@ class ProductsController extends BaseCpController
      * @throws HttpException
      * @throws NotFoundHttpException
      */
-    private function _prepProductVariables(&$variables)
+    private function _prepEditProductVariables(&$variables)
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
@@ -398,7 +392,7 @@ class ProductsController extends BaseCpController
         }
 
         if (empty($variables['productType'])) {
-            throw new NotFoundHttpException('Section not found');
+            throw new NotFoundHttpException('Product Type not found');
         }
 
         // Get the site
@@ -412,7 +406,7 @@ class ProductsController extends BaseCpController
         }
 
         if (!$variables['siteIds']) {
-            throw new ForbiddenHttpException('User not permitted to edit content in any sites supported by this section');
+            throw new ForbiddenHttpException('User not permitted to edit content in any sites supported by this product type');
         }
 
         if (empty($variables['site'])) {
@@ -421,6 +415,8 @@ class ProductsController extends BaseCpController
             if (!in_array($variables['site']->id, $variables['siteIds'], false)) {
                 $variables['site'] = Craft::$app->getSites()->getSiteById($variables['siteIds'][0]);
             }
+
+            $site = $variables['site'];
         } else {
             // Make sure they were requesting a valid site
             /** @var Site $site */
@@ -435,16 +431,18 @@ class ProductsController extends BaseCpController
         }
 
         if (empty($variables['productType'])) {
-            throw new HttpException(400,
-                craft::t('commerce', 'Wrong product type specified'));
+            throw new HttpException(400, craft::t('commerce', 'Wrong product type specified'));
         }
+
+        // Get the product
+        // ---------------------------------------------------------------------
 
         if (empty($variables['product'])) {
             if (!empty($variables['productId'])) {
                 $variables['product'] = Plugin::getInstance()->getProducts()->getProductById($variables['productId'], $variables['site']->id);
 
                 if (!$variables['product']) {
-                    throw new HttpException(404);
+                    throw new NotFoundHttpException('Product not found');
                 }
             } else {
                 $variables['product'] = new Product();
@@ -454,13 +452,12 @@ class ProductsController extends BaseCpController
                 $shippingCategories = $variables['productType']->getShippingCategories();
                 $variables['product']->shippingCategoryId = key($shippingCategories);
                 $variables['product']->typeId = $variables['productType']->id;
-                if ($variables['siteId']) {
-                    $variables['product']->site = $variables['siteId'];
-                }
+                $variables['product']->enabled = true;
+                $variables['product']->siteId = $site->id;
             }
         }
 
-        if (!empty($variables['product']->id)) {
+        if ($variables['product']->id) {
             $this->enforceProductPermissions($variables['product']);
             $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
@@ -480,34 +477,34 @@ class ProductsController extends BaseCpController
     {
         $request = Craft::$app->getRequest();
         $productId = $request->getParam('productId');
-        $site = $request->getParam('site');
+        $siteId = $request->getParam('site');
 
         if ($productId) {
-            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
+            $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new Exception(Craft::t('commerce', 'No product with the ID “{id}”',
-                    ['id' => $productId]));
+                throw new Exception(Craft::t('commerce', 'No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new Product();
         }
 
-        $data['typeId'] = $request->getBodyParam('typeId');
-        $data['enabled'] = $request->getBodyParam('enabled');
-        $data['postDate'] = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['postDate']);
-        $data['expiryDate'] = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : $data['expiryDate']);
-        $data['promotable'] = $request->getBodyParam('promotable');
-        $data['freeShipping'] = $request->getBodyParam('freeShipping');
-        $data['taxCategoryId'] = $request->getBodyParam('taxCategoryId');
-        $data['shippingCategoryId'] = $request->getBodyParam('shippingCategoryId');
-        $data['slug'] = $request->getBodyParam('slug');
-
-        ProductHelper::populateProductModel($product, $data);
+        $product->typeId = $request->getBodyParam('typeId');
+        $product->enabled = $request->getBodyParam('enabled');
+        $product->postDate = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : new \DateTime());
+        $product->expiryDate = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : null);
+        $product->promotable = $request->getBodyParam('promotable');
+        $product->freeShipping = $request->getBodyParam('freeShipping');
+        $product->taxCategoryId = $request->getBodyParam('taxCategoryId');
+        $product->shippingCategoryId = $request->getBodyParam('shippingCategoryId');
+        $product->slug = $request->getBodyParam('slug');
 
         $product->enabledForSite = (bool)$request->getParam('enabledForSite', $product->enabledForSite);
         $product->title = $request->getParam('title', $product->title);
+
         $product->setFieldValuesFromRequest('fields');
+
+        $product->setVariants($request->getBodyParam('variants'));
 
         return $product;
     }

@@ -5,19 +5,22 @@ namespace craft\commerce\base;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\records\Purchasable as PurchasableRecord;
 
 /**
  * Base Purchasable
  *
- * @property bool   $isPromotable
- * @property bool   $isAvailable
- * @property int    $purchasableId
- * @property int    $shippingCategoryId
- * @property float  $price
- * @property string $description
- * @property string $sku
- * @property array  $snapshot
- * @property int    $taxCategoryId
+ * @property string            $description        the element's title or any additional descriptive information
+ * @property bool              $isAvailable        whether the purchasable is currently available for purchase
+ * @property bool              $isPromotable       whether this purchasable can be subject to discounts or sales
+ * @property int               $purchasableId      the ID of the Purchasable element that will be be added to the line item
+ * @property float             $price              the base price the item will be added to the line item with
+ * @property null|float        $salePrice          the base price the item will be added to the line item with
+ * @property null|array|Sale[] $sales              sales models which are currently affecting the salePrice of this purchasable
+ * @property int               $shippingCategoryId the purchasable's shipping category ID
+ * @property string            $sku                a unique code as per the commerce_purchasables table
+ * @property array             $snapshot
+ * @property int               $taxCategoryId      the purchasable's tax category ID
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -182,5 +185,37 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getPromotionRelationSource()
     {
         return $this->id;
+    }
+
+    /**
+     * Update purchasable table
+     *
+     * @param bool $isNew
+     */
+    public function afterSave(bool $isNew)
+    {
+        $purchasable = PurchasableRecord::findOne($this->id) ?? new PurchasableRecord();
+
+        $purchasable->sku = $this->getSku();
+        $purchasable->price = $this->getPrice();
+        $purchasable->id = $this->id;
+
+        $purchasable->save(false);
+
+        parent::afterSave($isNew);
+    }
+
+    /**
+     * Clean up purchasable table
+     */
+    public function afterDelete(){
+        $purchasable = PurchasableRecord::findOne($this->id);
+
+        if($purchasable)
+        {
+            $purchasable->delete();
+        }
+
+        parent::afterDelete();
     }
 }

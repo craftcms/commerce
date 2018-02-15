@@ -20,7 +20,7 @@ class DownloadsController extends BaseFrontEndController
     /**
      * @throws HttpException
      */
-    public function actionPdf()
+    public function actionPdf(): Response
     {
 
         $number = Craft::$app->getRequest()->getQueryParam('number');

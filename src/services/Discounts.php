@@ -74,6 +74,11 @@ class Discounts extends Component
     {
         if (null === $this->_allDiscounts) {
             $discounts = $this->_createDiscountQuery()
+                ->addSelect([
+                    'dp.purchasableId',
+                    'dpt.categoryId',
+                    'dug.userGroupId',
+                ])
                 ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
                 ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
                 ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
@@ -162,36 +167,29 @@ class Discounts extends Component
      * Fetches a discount by its code, ensures it's active, and applies it to
      * the current user.
      *
-     * @param int    $code
-     * @param int    $customerId
-     * @param string $error
+     * @param string      $code
+     * @param int|null    $customerId
+     * @param string|null $error
      *
      * @return bool
      */
-    public function matchCode($code, $customerId, &$error): bool
+    public function matchCode(string $code, int $customerId = null, string &$error = null): bool
     {
-        $model = $this->getDiscountByCode($code);
-        if (!$model) {
+        $discount = $this->getDiscountByCode($code);
+
+        if (!$discount) {
             $error = Craft::t('commerce', 'Coupon not valid');
-
             return false;
         }
 
-        if (!$model->enabled) {
-            $error = Craft::t('commerce', 'Discount is not available');
-
-            return false;
-        }
-
-        if ($model->totalUseLimit > 0 && $model->totalUses >= $model->totalUseLimit) {
-            $error = Craft::t('commerce', 'Discount use has reached it’s limit');
-
+        if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
+            $error = Craft::t('commerce', 'Discount use has reached its limit');
             return false;
         }
 
         $now = new DateTime();
-        $from = $model->dateFrom;
-        $to = $model->dateTo;
+        $from = $discount->dateFrom;
+        $to = $discount->dateTo;
         if (($from && $from > $now) || ($to && $to < $now)) {
             $error = Craft::t('commerce', 'Discount is out of date');
 
@@ -200,11 +198,11 @@ class Discounts extends Component
 
         $plugin = Plugin::getInstance();
 
-        if (!$model->allGroups) {
-            $customer = $plugin->getCustomers()->getCustomerById($customerId);
+        if (!$discount->allGroups) {
+            $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
             $user = $customer ? $customer->getUser() : null;
-            $groupIds = $this->getCurrentUserGroupIds($user);
-            if (!$user || !array_intersect($groupIds, $model->getUserGroupIds())) {
+            $groupIds = $user ? $this->getCurrentUserGroupIds($user) : [];
+            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
                 $error = Craft::t('commerce', 'Discount is not allowed for the customer');
 
                 return false;
@@ -213,7 +211,7 @@ class Discounts extends Component
 
         if ($customerId) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-            if ($model->perUserLimit > 0 && !Craft::$app->getUser()->isLoggedIn()) {
+            if ($discount->perUserLimit > 0 && !Craft::$app->getUser()->isLoggedIn()) {
                 $error = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
 
                 return false;
@@ -222,7 +220,7 @@ class Discounts extends Component
             $allUsedUp = (new Query())
                 ->select('id')
                 ->from('{{%commerce_customer_discountuses}}')
-                ->where(['>=', 'uses', $model->perUserLimit])
+                ->where(['>=', 'uses', $discount->perUserLimit])
                 ->one();
 
             if ($allUsedUp) {
@@ -232,7 +230,7 @@ class Discounts extends Component
             }
         }
 
-        if ($model->perEmailLimit > 0) {
+        if ($discount->perEmailLimit > 0) {
             $cart = $plugin->getCart()->getCart();
             $email = $cart->email;
 
@@ -246,9 +244,9 @@ class Discounts extends Component
                     }
                 }
 
-                if ($usedCount >= $model->perEmailLimit) {
+                if ($usedCount >= $discount->perEmailLimit) {
                     $error = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
-                        'limit' => $model->perEmailLimit,
+                        'limit' => $discount->perEmailLimit,
                     ]);
 
                     return false;
@@ -260,7 +258,7 @@ class Discounts extends Component
     }
 
     /**
-     * Returns a discount by a given code.
+     * Returns an enabled discount by its code.
      *
      * @param string $code
      *
@@ -276,24 +274,20 @@ class Discounts extends Component
             ->where(['code' => $code, 'enabled' => true])
             ->all();
 
-        if ($result) {
-            return new Discount($result);
-        }
-
-        return null;
+        return $result ? new Discount($result) : null;
     }
 
     /**
      * Returns the user groups of the user param but defaults to the current user
      *
-     * @param User $user
+     * @param User|null $user
      *
      * @return array
      */
     public function getCurrentUserGroupIds(User $user = null): array
     {
         $groupIds = [];
-        $currentUser = $user ?: Craft::$app->getUser()->getIdentity();
+        $currentUser = $user ?? Craft::$app->getUser()->getIdentity();
 
         if ($currentUser) {
             foreach ($currentUser->getGroups() as $group) {
@@ -554,36 +548,35 @@ class Discounts extends Component
      */
     private function _createDiscountQuery(): Query
     {
-        return (new Query())->select(
-            'discounts.id,
-            discounts.name,
-            discounts.description,
-            discounts.code,
-            discounts.perUserLimit,
-            discounts.perEmailLimit,
-            discounts.totalUseLimit,
-            discounts.totalUses,
-            discounts.dateFrom,
-            discounts.dateTo,
-            discounts.purchaseTotal,
-            discounts.purchaseQty,
-            discounts.maxPurchaseQty,
-            discounts.baseDiscount,
-            discounts.perItemDiscount,
-            discounts.percentDiscount,
-            discounts.percentageOffSubject,
-            discounts.excludeOnSale,
-            discounts.freeShipping,
-            discounts.allGroups,
-            discounts.allPurchasables,
-            discounts.allCategories,
-            discounts.enabled,
-            discounts.stopProcessing,
-            discounts.sortOrder,
-            dp.purchasableId,
-            dpt.categoryId,
-            dug.userGroupId')
-            ->from('{{%commerce_discounts}} discounts')
+        return (new Query())
+            ->select([
+                'discounts.id',
+                'discounts.name',
+                'discounts.description',
+                'discounts.code',
+                'discounts.perUserLimit',
+                'discounts.perEmailLimit',
+                'discounts.totalUseLimit',
+                'discounts.totalUses',
+                'discounts.dateFrom',
+                'discounts.dateTo',
+                'discounts.purchaseTotal',
+                'discounts.purchaseQty',
+                'discounts.maxPurchaseQty',
+                'discounts.baseDiscount',
+                'discounts.perItemDiscount',
+                'discounts.percentDiscount',
+                'discounts.percentageOffSubject',
+                'discounts.excludeOnSale',
+                'discounts.freeShipping',
+                'discounts.allGroups',
+                'discounts.allPurchasables',
+                'discounts.allCategories',
+                'discounts.enabled',
+                'discounts.stopProcessing',
+                'discounts.sortOrder',
+            ])
+            ->from(['discounts' => '{{%commerce_discounts}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }

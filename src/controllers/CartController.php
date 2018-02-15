@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
+use craft\web\Response;
 use yii\base\Exception;
 use yii\web\HttpException;
 
@@ -33,7 +34,7 @@ class CartController extends BaseFrontEndController
      * @throws Exception
      * @throws HttpException
      */
-    public function actionUpdateLineItem()
+    public function actionUpdateLineItem(): Response
     {
         $this->requirePostRequest();
 
@@ -94,7 +95,7 @@ class CartController extends BaseFrontEndController
     /**
      * Remove Line item from the cart
      */
-    public function actionRemoveLineItem()
+    public function actionRemoveLineItem(): Response
     {
         $this->requirePostRequest();
 
@@ -121,7 +122,7 @@ class CartController extends BaseFrontEndController
     /**
      * Remove all line items from the cart
      */
-    public function actionRemoveAllLineItems()
+    public function actionRemoveAllLineItems(): Response
     {
         $this->requirePostRequest();
 
@@ -141,7 +142,7 @@ class CartController extends BaseFrontEndController
      * Updates the cart with optional params.
      *
      */
-    public function actionUpdateCart()
+    public function actionUpdateCart(): Response
     {
         $this->requirePostRequest();
 

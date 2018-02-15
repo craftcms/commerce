@@ -64,6 +64,8 @@ class TaxCategoriesController extends BaseAdminController
     }
 
     /**
+     *
+     * @return Response|null
      * @throws HttpException
      */
     public function actionSave()
@@ -112,7 +114,7 @@ class TaxCategoriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

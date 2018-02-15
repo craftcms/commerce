@@ -10,7 +10,7 @@ use yii\base\Component;
 /**
  * Settings service.
  *
- * @property SettingsModel $settings
+ * @property SettingsModel $settings all settings from plugin core class
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

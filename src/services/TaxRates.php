@@ -13,7 +13,7 @@ use yii\base\Exception;
 /**
  * Tax rate service.
  *
- * @property array|TaxRate[] $allTaxRates
+ * @property array|TaxRate[] $allTaxRates an array of all of the existing tax rates
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

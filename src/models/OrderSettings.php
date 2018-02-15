@@ -11,12 +11,7 @@ use craft\models\FieldLayout;
 /**
  * Order settings model.
  *
- * @property int         $id
- * @property string      $name
- * @property string      $handle
- * @property int         $fieldLayoutId
- * @property string      $cpEditUrl
- * @property FieldLayout $fieldLayout
+ * @property string $cpEditUrl
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

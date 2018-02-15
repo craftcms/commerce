@@ -36,7 +36,7 @@ class OrderSettingsController extends BaseAdminController
     /**
      *
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 

@@ -47,7 +47,7 @@ class Shipping implements AdjusterInterface
 
         /** @var ShippingMethod $method */
         foreach ($shippingMethods as $method) {
-            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->getShippingMethodHandle())) {
+            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->shippingMethodHandle)) {
                 /** @var ShippingMethod $shippingMethod */
                 $shippingMethod = $method['method'];
             }

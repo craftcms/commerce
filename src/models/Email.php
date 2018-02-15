@@ -8,15 +8,6 @@ use craft\commerce\records\Email as EmailRecord;
 /**
  * Email model.
  *
- * @property int    $id
- * @property string $name
- * @property string $subject
- * @property string $recipientType
- * @property string $to
- * @property string $bcc
- * @property bool   $enabled
- * @property string $templatePath
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */

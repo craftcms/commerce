@@ -14,8 +14,8 @@ use yii\base\Exception;
  * Payment currency service.
  *
  * @property PaymentCurrency[]|array $allPaymentCurrencies
- * @property PaymentCurrency|null    $primaryPaymentCurrency
- * @property string                  $primaryPaymentCurrencyIso
+ * @property PaymentCurrency|null    $primaryPaymentCurrency    the primary currency all prices are entered as
+ * @property string                  $primaryPaymentCurrencyIso the primary currencies ISO code as a string
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

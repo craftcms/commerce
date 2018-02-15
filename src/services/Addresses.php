@@ -5,8 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\Country;
-use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
@@ -15,8 +13,6 @@ use yii\base\Exception;
 
 /**
  * Address service.
- *
- * @property Address $stockLocation
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -102,11 +98,16 @@ class Addresses extends Component
      *
      * @return Address
      */
-    public function getStockLocation(): Address
+    public function getStoreLocationAddress(): Address
     {
         $result = $this->_createAddressQuery()
             ->where(['stockLocation' => true])
             ->one();
+
+        if (!$result)
+        {
+            return new Address();
+        }
 
         return new Address($result);
     }
@@ -181,32 +182,30 @@ class Addresses extends Component
             return false;
         }
 
-        if (!$addressModel->hasErrors()) {
-
-            $result = $addressRecord->save(false);
-
-            // There can only be a single stock location
-            if($result && $addressRecord->stockLocation && $addressRecord->id) {
-                Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
-            }
-
-            if ($isNewAddress) {
-                // Now that we have a record ID, save it on the model
-                $addressModel->id = $addressRecord->id;
-            }
-
-            //Raise the afterSaveAddress event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
-                    'address' => $addressModel,
-                    'isNewAddress' => $isNewAddress
-                ]));
-            }
-
-            return true;
+        if ($runValidation && !$addressModel->validate()) {
+            return false;
         }
 
-        return false;
+        if ($addressRecord->stockLocation && $addressRecord->id) {
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+        }
+
+        $addressRecord->save(false);
+
+        if ($isNewAddress) {
+            // Now that we have a record ID, save it on the model
+            $addressModel->id = $addressRecord->id;
+        }
+
+        //Raise the afterSaveAddress event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
+                'address' => $addressModel,
+                'isNewAddress' => $isNewAddress
+            ]));
+        }
+
+        return true;
     }
 
     /**

@@ -22,7 +22,7 @@ class CustomersController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionIndex()
+    public function actionIndex(): Response
     {
         $customers = Plugin::getInstance()->getCustomers()->getAllCustomers();
         return $this->renderTemplate('commerce/customers/index', compact('customers'));
@@ -58,7 +58,7 @@ class CustomersController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 

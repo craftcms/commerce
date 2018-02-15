@@ -7,6 +7,7 @@ use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Customer Address Controller
@@ -22,6 +23,7 @@ class CustomerAddressesController extends BaseFrontEndController
     /**
      * Add New Address
      *
+     * @return Response
      * @throws Exception
      * @throws HttpException
      */
@@ -62,7 +64,7 @@ class CustomerAddressesController extends BaseFrontEndController
         if ($address->id && !in_array($address->id, $addressIds, false)) {
             $error = Craft::t('commerce', 'Not allowed to edit that address.');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['error' => $error]);
+                return $this->asJson(['error' => $error]);
             }
             Craft::$app->getUser()->setFlash('error', $error);
 
@@ -78,12 +80,12 @@ class CustomerAddressesController extends BaseFrontEndController
             }
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => true]);
+                return $this->asJson(['success' => true]);
             }
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['error' => $address->errors]);
+                return $this->asJson(['error' => $address->errors]);
             }
             Craft::$app->getUrlManager()->setRouteParams([
                 'address' => $address,
@@ -96,7 +98,7 @@ class CustomerAddressesController extends BaseFrontEndController
      *
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
 
@@ -124,7 +126,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 Craft::$app->getElements()->saveElement($cart);
 
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    $this->asJson(['success' => true]);
+                    return $this->asJson(['success' => true]);
                 }
 
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
@@ -137,7 +139,7 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $this->asJson(['error' => $error]);
+            return $this->asJson(['error' => $error]);
         }
 
         Craft::$app->getUser()->setFlash('error', $error);

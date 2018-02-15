@@ -12,13 +12,9 @@ use craft\models\UserGroup;
 /**
  * Discount model
  *
- * @property Product[]    $products
- * @property array        $userGroupIds
- * @property string       $percentDiscountAsPercent
- * @property array        $productIds
- * @property array        $productTypeIds
  * @property string|false $cpEditUrl
- * @property UserGroup[]  $userGroups
+ * @property string       $percentDiscountAsPercent
+ * @property array        $userGroupIds
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
@@ -179,6 +175,7 @@ class Discount extends Model
         $attributes = parent::datetimeAttributes();
         $attributes[] = 'dateFrom';
         $attributes[] = 'dateTo';
+
         return $attributes;
     }
 

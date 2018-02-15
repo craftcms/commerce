@@ -40,40 +40,38 @@ use craft\commerce\services\Variants;
 /**
  * Trait Services
  *
- * @property Addresses              $addresses
- * @property Cart                   $cart
- * @property Countries              $countries
- * @property Currencies             $currencies
- * @property Customers              $customers
- * @property Discounts              $discounts
- * @property Emails                 $emails
- * @property Gateways               $gateways
- * @property LineItems              $lineItems
- * @property OrderAdjustments       $orderAdjustments
- * @property OrderHistories         $orderHistories
- * @property Orders                 $orders
- * @property OrderSettings          $orderSettings
- * @property OrderStatuses          $orderStatuses
- * @property Gateways               $paymentMethods
- * @property PaymentCurrencies      $paymentCurrencies
- * @property Payments               $payments
- * @property PaymentSources         $paymentSources
- * @property Products               $products
- * @property ProductTypes           $productTypes
- * @property Purchasables           $purchasables
- * @property Sales                  $sales
- * @property Settings               $settings
- * @property ShippingMethods        $shippingMethods
- * @property ShippingRules          $shippingRules
- * @property ShippingRuleCategories $shippingRuleCategories
- * @property ShippingCategories     $shippingCategories
- * @property ShippingZones          $shippingZones
- * @property States                 $states
- * @property TaxCategories          $taxCategories
- * @property TaxRates               $taxRates
- * @property TaxZones               $taxZones
- * @property Transactions           $transactions
- * @property Variants               $variants
+ * @property Addresses              $addresses              the address service
+ * @property Cart                   $cart                   the cart service
+ * @property Countries              $countries              the countries service
+ * @property Currencies             $currencies             the currencies service
+ * @property Customers              $customers              the customers service
+ * @property Discounts              $discounts              the discounts service
+ * @property Emails                 $emails                 the emails service
+ * @property Gateways               $gateways               the gateways service
+ * @property LineItems              $lineItems              the lineItems service
+ * @property OrderAdjustments       $orderAdjustments       the orderAdjustments service
+ * @property OrderHistories         $orderHistories         the orderHistories service
+ * @property Orders                 $orders                 the orders service
+ * @property OrderSettings          $orderSettings          the orderSettings service
+ * @property OrderStatuses          $orderStatuses          the orderStatuses service
+ * @property PaymentCurrencies      $paymentCurrencies      the paymentCurrencies service
+ * @property Payments               $payments               the payments service
+ * @property PaymentSources         $paymentSources         the payment sources service
+ * @property Products               $products               the products service
+ * @property ProductTypes           $productTypes           the productTypes service
+ * @property Purchasables           $purchasables           the purchasables service
+ * @property Sales                  $sales                  the sales service
+ * @property ShippingMethods        $shippingMethods        the shippingCategories service
+ * @property ShippingRules          $shippingRulesthe       shippingRules service
+ * @property ShippingRuleCategories $shippingRuleCategories the shippingRules service
+ * @property ShippingCategories     $shippingCategories     the shippingCategories service
+ * @property ShippingZones          $shippingZones          the shippingZones service
+ * @property States                 $states                 the states service
+ * @property TaxCategories          $taxCategories          the taxCategories service
+ * @property TaxRates               $taxRates               the taxRates service
+ * @property TaxZones               $taxZones               the taxZones service
+ * @property Transactions           $transactions           the transactions service
+ * @property Variants               $variants               the variants service
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

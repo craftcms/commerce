@@ -8,8 +8,8 @@
             <div class="twelve columns">
                 <a href="{{ url('shop') }}">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
 
-                <div class="flash">{{ craft.session.getFlash('notice') }}</div>
-                <div class="flash">{{ craft.session.getFlash('error') }}</div>
+                <div class="flash">{{ craft.app.session.getFlash('notice') }}</div>
+                <div class="flash">{{ craft.app.session.getFlash('error') }}</div>
 
                 {% if cart.isEmpty %}
                     <div class="flash">Your cart is empty.</div>

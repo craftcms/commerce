@@ -8,12 +8,7 @@ use craft\helpers\UrlHelper;
 /**
  * Shipping Category model.
  *
- * @property int    $id
- * @property string $name
- * @property string $handle
- * @property string $description
  * @property string $cpEditUrl
- * @property bool   $default
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
