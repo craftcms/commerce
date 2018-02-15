@@ -90,7 +90,7 @@ class Subscriptions extends Component
     /**
      * @event SubscriptionEvent The event that is triggered after an existing
      */
-    const EVENT_UPDATE_SUBSCRIPTION = 'afterUpdateSubscription';
+    const EVENT_BEFORE_UPDATE_SUBSCRIPTION = 'beforeUpdateSubscription';
 
     /**
      * @event SubscriptionPaymentEvent The event that is triggered after receiving a subscription payment
@@ -421,8 +421,8 @@ class Subscriptions extends Component
      */
     public function updateSubscription(Subscription $subscription): bool
     {
-        if ($this->hasEventHandlers(self::EVENT_UPDATE_SUBSCRIPTION)) {
-            $this->trigger(self::EVENT_UPDATE_SUBSCRIPTION, new SubscriptionEvent([
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION)) {
+            $this->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, new SubscriptionEvent([
                 'subscription' => $subscription
             ]));
         }
