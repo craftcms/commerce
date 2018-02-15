@@ -349,37 +349,18 @@
                 </table>
             </div>
         {% endif %}
-
-        {% if orderSettings.getFieldLayout().getTabs()|length %}
-            <form id="order-form" method="post" accept-charset="UTF-8"
-                  data-saveshortcut
-                  data-saveshortcut-redirect="{{ order.cpEditUrl|hash }}"
-                  data-confirm-unload>
-                <input type="hidden" name="action"
-                       value="commerce/orders/save-order">
-                <input type="hidden" name="redirect"
-                       value="{{ 'commerce/orders'|hash }}">
-                {{ csrfInput() }}
-
-
-                {# Custom fields pane #}
-                <div id="fields" class="pane">
-                    {% include "_includes/tabs" %}
-                    {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
-
-                    {% for tab in orderSettings.getFieldLayout().getTabs() %}
-                        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-                            {% include "_includes/fields" with {
-                                fields: tab.getFields(),
-                                element: order,
-                            } only %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </form>
-        {% endif %}
     </div>
 
+    {% for tab in orderSettings.getFieldLayout().getTabs() %}
+        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+            {% include "_includes/fields" with {
+                fields: tab.getFields(),
+                element: order,
+            } only %}
+        </div>
+    {% endfor %}
+
+    
     <div id="transactionsTab" class="pane hidden">
         {% macro transactionRow(transaction, level) %}
             {% set info = [

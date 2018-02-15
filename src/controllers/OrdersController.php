@@ -372,21 +372,21 @@ class OrdersController extends BaseCpController
 
         if (!Craft::$app->getElements()->deleteElementById($order->id)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => false]);
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
-                Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
+                return $this->asJson(['success' => false]);
             }
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
+            Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
 
             return null;
         }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $this->asJson(['success' => true]);
-        } else {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-            $this->redirect('commerce/orders');
+            return $this->asJson(['success' => true]);
         }
+
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
+        return $this->redirect('commerce/orders');
     }
 
     // Private Methods
@@ -408,25 +408,25 @@ class OrdersController extends BaseCpController
         ];
 
         $orderSettings = $variables['orderSettings'];
-//        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
-//            // Do any of the fields on this tab have errors?
-//            $hasErrors = false;
-//
-//            if ($variables['order']->hasErrors()) {
-//                foreach ($tab->getFields() as $field) {
-//                    if ($variables['order']->getErrors($field->getField()->handle)) {
-//                        $hasErrors = true;
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            $variables['tabs'][] = [
-//                'label' => Craft::t('commerce', $tab->name),
-//                'url' => '#tab'.($index + 1),
-//                'class' => $hasErrors ? 'error' : null
-//            ];
-//        }
+        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
+            // Do any of the fields on this tab have errors?
+            $hasErrors = false;
+
+            if ($variables['order']->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    if ($variables['order']->getErrors($field->getField()->handle)) {
+                        $hasErrors = true;
+                        break;
+                    }
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab'.($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
+        }
 
         $variables['tabs'][] = [
             'label' => Craft::t('commerce', 'Transactions'),
