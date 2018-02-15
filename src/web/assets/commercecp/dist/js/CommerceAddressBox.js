@@ -123,7 +123,6 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
     },
     _updateAddress: function(data, onError) {
         Craft.postActionRequest(this.saveEndpoint, data.address, $.proxy(function(response) {
-            debugger;
             if (response && response.success) {
                 this.address = response.address;
                 this.settings.onChange(response.address);
