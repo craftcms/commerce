@@ -142,7 +142,7 @@ class CartController extends BaseFrontEndController
      * Updates the cart with optional params.
      *
      */
-    public function actionUpdateCart(): Response
+    public function actionUpdateCart()
     {
         $this->requirePostRequest();
 

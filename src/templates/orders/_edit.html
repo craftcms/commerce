@@ -13,8 +13,33 @@
 
 {% hook "cp.commerce.order.edit" %}
 
-{% block main %}
-    <div class="pane">
+{% block header %}
+    {{ block('pageTitle') }}
+    <form id="order-actions" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="">
+        <input type="hidden" name="redirect" value="">
+        {{ csrfInput() }}
+
+        {% if pdfUrl %}
+            <div class="btngroup right">
+                <a class="btn" href="{{ order.pdfUrl }}"
+                   target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
+            </div>
+        {% endif %}
+        <div class="btngroup">
+            <input type="button" class="btn formsubmit"
+                   value="{{ 'Delete Order'|t('commerce') }}"
+                   data-action="commerce/orders/delete-order"
+                   data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t('commerce') }}"
+                   data-redirect="{{ 'commerce/orders'|hash }}"
+                   data-param="orderId"
+                   data-value="{{ order.id }}">
+        </div>
+    </form>
+{% endblock %}
+
+{% block details %}
+    <div class="meta">
         <div class="order-header">
             <div class="order-info">
 
@@ -110,32 +135,84 @@
                 </div>
             </div>
 
-            <div class="address-boxes right">
-                {% set address = order.shippingAddress %}
-                <div id="shippingAddressBox" class="address-box hidden"
-                     data-title='{{ "Shipping Address"|t('commerce') }}'
-                     data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-                    <div class="address-box-content">
-                        <div class="address-box-header"></div>
-                        <div class="address"></div>
-                    </div>
-                </div>
-
-                {% set address = order.billingAddress %}
-                <div id="billingAddressBox" class="address-box hidden"
-                     data-title='{{ "Billing Address"|t('commerce') }}'
-                     data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-                    <div class="address-box-content">
-                        <div class="address-box-header"></div>
-                        <div class="address"></div>
-                    </div>
-                </div>
-            </div><!-- order addresses -->
-
         </div>
 
+        <div class="address-boxes">
+            {% set address = order.shippingAddress %}
+            <div id="shippingAddressBox" class="address-box hidden"
+                 data-title='{{ "Shipping Address"|t('commerce') }}'
+                 data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+                <div class="address-box-content">
+                    <div class="address-box-header"></div>
+                    <div class="address"></div>
+                </div>
+            </div>
+
+            {% set address = order.billingAddress %}
+            <div id="billingAddressBox" class="address-box hidden"
+                 data-title='{{ "Billing Address"|t('commerce') }}'
+                 data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+                <div class="address-box-content">
+                    <div class="address-box-header"></div>
+                    <div class="address"></div>
+                </div>
+            </div>
+        </div><!-- order addresses -->
+    </div>
+{% endblock %}
+
+{% block content %}
+
+
+    <div id="orderHistoryTab" class="hidden">
+        {% if order.histories|length %}
+            <div class="pane">
+                <h3>{{ 'Order History'|t('commerce') }}</h3>
+
+                <table class="data fullwidth">
+                    <thead>
+                    <tr>
+                        <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Message'|t('commerce') }}</th>
+                        <th scope="col">{{ 'Date'|t('commerce') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for orderHistory in order.histories %}
+                        <tr data-id="{{ orderHistory.id }}">
+                            <td>
+                                {% if orderHistory.newStatus %}
+                                    <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if orderHistory.prevStatus %}
+                                    <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if orderHistory.customer.userId %}
+                                    <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                                {% else %}
+                                    {{ orderHistory.order.email }}
+                                {% endif %}
+                            </td>
+                            <td>{{ orderHistory.message }}</td>
+                            <td>{{ orderHistory.dateCreated|date }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+
+    <div id="orderDetailsTab">
         {% if order.lineItems | length or order.totalPrice > 0 %}
-            <div class="order-details">
+            <div class="order-details pane">
                 <table id="" class="data fullwidth collapsible">
                     <thead>
                     <tr>
@@ -273,188 +350,99 @@
             </div>
         {% endif %}
 
-        <form id="order-actions" method="post" accept-charset="UTF-8">
-            <input type="hidden" name="action" value="">
-            <input type="hidden" name="redirect" value="">
-            {{ csrfInput() }}
-            <div class="footer">
-                {% if pdfUrl %}
-                    <div class="btngroup right">
-                        <a class="btn" href="{{ order.pdfUrl }}"
-                           target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
-                    </div>
-                {% endif %}
-                <div class="btngroup">
-                    <input type="button" class="btn formsubmit"
-                           value="{{ 'Delete Order'|t('commerce') }}"
-                           data-action="commerce/orders/delete-order"
-                           data-confirm="{{ 'Are you sure you want to delete this order? Please note, this does not refund the customer.'|t('commerce') }}"
-                           data-redirect="{{ 'commerce/orders'|hash }}"
-                           data-param="orderId"
-                           data-value="{{ order.id }}">
+        {% if orderSettings.getFieldLayout().getTabs()|length %}
+            <form id="order-form" method="post" accept-charset="UTF-8"
+                  data-saveshortcut
+                  data-saveshortcut-redirect="{{ order.cpEditUrl|hash }}"
+                  data-confirm-unload>
+                <input type="hidden" name="action"
+                       value="commerce/orders/save-order">
+                <input type="hidden" name="redirect"
+                       value="{{ 'commerce/orders'|hash }}">
+                {{ csrfInput() }}
+
+
+                {# Custom fields pane #}
+                <div id="fields" class="pane">
+                    {% include "_includes/tabs" %}
+                    {% if order.id %}<input type="hidden" name="orderId" value="{{ order.id }}">{% endif %}
+
+                    {% for tab in orderSettings.getFieldLayout().getTabs() %}
+                        <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                            {% include "_includes/fields" with {
+                                fields: tab.getFields(),
+                                element: order,
+                            } only %}
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>{# end pane #}
-        </form>
+            </form>
+        {% endif %}
     </div>
 
+    <div id="transactionsTab" class="pane hidden">
+        {% macro transactionRow(transaction, level) %}
+            {% set info = [
+                { label: "ID", type:'code', value: transaction.id },
+                { label: "Hash", type:'code', value: transaction.hash },
+                { label: "Reference", type:'code', value: transaction.reference },
+                { label: "Message", type:'text', value: transaction.message|title },
+                { label: "Code", type:'code', value: transaction.code },
+                { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+                { label: "Response", type:'json', value: transaction.response|raw },
+            ] %}
 
-    {% if orderSettings.getFieldLayout().getTabs()|length %}
-        <form id="order-form" method="post" accept-charset="UTF-8"
-              data-saveshortcut
-              data-saveshortcut-redirect="{{ order.cpEditUrl|hash }}"
-              data-confirm-unload>
-            <input type="hidden" name="action"
-                   value="commerce/orders/save-order">
-            <input type="hidden" name="redirect"
-                   value="{{ 'commerce/orders'|hash }}">
-            {{ csrfInput() }}
+            <tr class="infoRow" data-info="{{ info|json_encode }}">
+                <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
+                <td class="transaction-status transaction-status-{{ transaction.status }}">
+                    {{ transaction.status|title|t('commerce') }}
+                </td>
+                <td>{{ transaction.amount|currency(transaction.currency) }}
+                    <small class="light">({{ transaction.currency }})
+                    </small>
+                </td>
+                <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
+                    <small class="light">
+                        ({{ transaction.paymentCurrency }})
+                    </small>
+                </td>
+                <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
+                <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
+                <td><span class="tableRowInfo" data-icon="info"
+                          href="#"></span></td>
+                <td>
+                    {% if transaction.canCapture() %}
+                        <form>
+                            <a class="small btn submit formsubmit"
+                               data-action="commerce/orders/transaction-capture"
+                               data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
+                               data-redirect="{{ transaction.order.cpEditUrl }}"
+                               data-param="id"
+                               data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
+                        </form>
+                    {% endif %}
+                    {% if transaction.canRefund() %}
+                        <form>
+                            <a class="small btn submit formsubmit"
+                               data-action="commerce/orders/transaction-refund"
+                               data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
+                               data-redirect="{{ transaction.order.cpEditUrl }}"
+                               data-param="id"
+                               data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
 
-
-            {# Custom fields pane #}
-            <div id="fields" class="pane">
-                {% include "_includes/tabs" %}
-                {% if order.id %}<input type="hidden" name="orderId"
-                                        value="{{ order.id }}">{% endif %}
-
-                {% for tab in orderSettings.getFieldLayout().getTabs() %}
-                    <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-                        {% include "_includes/fields" with {
-                            fields: tab.getFields(),
-                            element: order,
-                        } only %}
-                    </div>
+            {% set transactions = transaction.childTransactions %}
+            {% if transactions|length %}
+                {% import _self as self %}
+                {% for childTransaction in transactions %}
+                    {{ self.transactionRow(childTransaction, level +1) }}
                 {% endfor %}
-                <div class="footer">
-                    <div class="btngroup right submit first">
-                        <input type="submit" class="btn submit"
-                               value="{{ 'Save'|t('commerce') }}">
+            {% endif %}
+        {% endmacro %}
 
-                        <div class="btn submit menubtn"></div>
-                        <div class="menu">
-                            <ul>
-                                <li><a class="formsubmit"
-                                       data-redirect="{{ order.cpEditUrl|hash }}">
-                                        {{ "Save and continue editing"|t('commerce') }}
-                                        {{ forms.optionShortcutLabel('S') }}
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </form>
-    {% endif %}
-
-    {% hook "cp.commerce.order.edit.main-pane" %}
-
-    {% if order.histories|length %}
-        <div class="pane">
-            <h3>{{ 'Order History'|t('commerce') }}</h3>
-
-            <table class="data fullwidth">
-                <thead>
-                <tr>
-                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Message'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Date'|t('commerce') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for orderHistory in order.histories %}
-                    <tr data-id="{{ orderHistory.id }}">
-                        <td>
-                            {% if orderHistory.newStatus %}
-                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if orderHistory.prevStatus %}
-                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if orderHistory.customer.userId %}
-                                <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
-                            {% else %}
-                                {{ orderHistory.order.email }}
-                            {% endif %}
-                        </td>
-                        <td>{{ orderHistory.message }}</td>
-                        <td>{{ orderHistory.dateCreated|date }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
-
-    {% macro transactionRow(transaction, level) %}
-        {% set info = [
-            { label: "ID", type:'code', value: transaction.id },
-            { label: "Hash", type:'code', value: transaction.hash },
-            { label: "Reference", type:'code', value: transaction.reference },
-            { label: "Message", type:'text', value: transaction.message|title },
-            { label: "Code", type:'code', value: transaction.code },
-            { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-            { label: "Response", type:'json', value: transaction.response|raw },
-        ] %}
-
-        <tr class="infoRow" data-info="{{ info|json_encode }}">
-            <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
-            <td class="transaction-status transaction-status-{{ transaction.status }}">
-                {{ transaction.status|title|t('commerce') }}
-            </td>
-            <td>{{ transaction.amount|currency(transaction.currency) }}
-                <small class="light">({{ transaction.currency }})
-                </small>
-            </td>
-            <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
-                <small class="light">
-                    ({{ transaction.paymentCurrency }})
-                </small>
-            </td>
-            <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
-            <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
-            <td><span class="tableRowInfo" data-icon="info"
-                      href="#"></span></td>
-            <td>
-                {% if transaction.canCapture() %}
-                    <form>
-                        <a class="small btn submit formsubmit"
-                           data-action="commerce/orders/transaction-capture"
-                           data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
-                           data-redirect="{{ transaction.order.cpEditUrl }}"
-                           data-param="id"
-                           data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
-                    </form>
-                {% endif %}
-                {% if transaction.canRefund() %}
-                    <form>
-                        <a class="small btn submit formsubmit"
-                           data-action="commerce/orders/transaction-refund"
-                           data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
-                           data-redirect="{{ transaction.order.cpEditUrl }}"
-                           data-param="id"
-                           data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
-                    </form>
-                {% endif %}
-            </td>
-        </tr>
-
-        {% set transactions = transaction.childTransactions %}
-        {% if transactions|length %}
-            {% import _self as self %}
-            {% for childTransaction in transactions %}
-                {{ self.transactionRow(childTransaction, level +1) }}
-            {% endfor %}
-        {% endif %}
-    {% endmacro %}
-
-    <div class="pane">
         <h3>{{ "Transactions"|t('commerce') }}</h3>
 
         {% if order.nestedTransactions|length %}
@@ -489,6 +477,7 @@
                     Payment</a>
             </div>
         {% endif %}
+
     </div>
 
 {% endblock %}

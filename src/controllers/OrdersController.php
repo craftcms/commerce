@@ -217,7 +217,7 @@ class OrdersController extends BaseCpController
     /**
      * Refund transaction.
      */
-    public function actionTransactionRefund(): Response
+    public function actionTransactionRefund()
     {
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
@@ -408,25 +408,25 @@ class OrdersController extends BaseCpController
         ];
 
         $orderSettings = $variables['orderSettings'];
-        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-
-            if ($variables['order']->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($variables['order']->getErrors($field->getField()->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab'.($index + 1),
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
+//        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
+//            // Do any of the fields on this tab have errors?
+//            $hasErrors = false;
+//
+//            if ($variables['order']->hasErrors()) {
+//                foreach ($tab->getFields() as $field) {
+//                    if ($variables['order']->getErrors($field->getField()->handle)) {
+//                        $hasErrors = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            $variables['tabs'][] = [
+//                'label' => Craft::t('commerce', $tab->name),
+//                'url' => '#tab'.($index + 1),
+//                'class' => $hasErrors ? 'error' : null
+//            ];
+//        }
 
         $variables['tabs'][] = [
             'label' => Craft::t('commerce', 'Transactions'),
