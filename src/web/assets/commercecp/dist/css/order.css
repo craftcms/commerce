@@ -75,10 +75,24 @@
     color: #27AE60;
 }
 
-.transaction-response {
+.gateway-response {
     display: block;
     min-width: 250px;
-    height: 50px;
+    max-width: 400px;
+    min-height: 50px;
+    max-height: 400px;
     font-family: Menlo, monospace;
     font-size: 0.9em !important;
+    overflow: auto;
+    outline: 1px solid #ccc; padding: 5px; margin: 5px;
 }
+
+.detailHud code{
+    font-family: Menlo, monospace;
+}
+
+.gateway-response .string { color: green; }
+.gateway-response .number { color: darkorange; }
+.gateway-response .boolean { color: blue; }
+.gateway-response .null { color: magenta; }
+.gateway-response .key { color: red; }
