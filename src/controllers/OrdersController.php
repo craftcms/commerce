@@ -397,6 +397,13 @@ class OrdersController extends BaseCpController
      */
     private function _prepVariables(&$variables)
     {
+
+        // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
+        $variables['baseCpEditUrl'] = 'commerce/orders/'.$variables['order']->number;
+        // Set the "Continue Editing" URL
+        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
+
+
         $variables['tabs'] = [];
 
         $variables['tabs'][] = [
@@ -437,6 +444,9 @@ class OrdersController extends BaseCpController
             'url' => '#orderHistoryTab',
             'class' => null
         ];
+
+        $variables['fullPageForm'] = true;
+        $variables['saveShortcutRedirect'] = $variables['continueEditingUrl'];
     }
 
     /**
