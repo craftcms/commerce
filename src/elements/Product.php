@@ -3,6 +3,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\base\Element;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
@@ -15,6 +16,7 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
+use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\SetStatus;
@@ -135,11 +137,6 @@ class Product extends Element
     public $defaultWeight;
 
     /**
-     * @var ProductType Product type
-     */
-    public $type;
-
-    /**
      * @var TaxCategory Tax category
      */
     public $taxCategory;
@@ -153,6 +150,11 @@ class Product extends Element
      * @var Variant[] This product’s variants
      */
     private $_variants;
+
+    /**
+     * @var Variant This product's default variant
+     */
+    private $_defaultVariant;
 
     // Public Methods
     // =========================================================================
@@ -250,7 +252,9 @@ class Product extends Element
             throw new InvalidConfigException('Product is missing its product type ID');
         }
 
-        if (($productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId)) === null) {
+        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
+
+        if (null === $productType) {
             throw new InvalidConfigException('Invalid product type ID: '.$this->typeId);
         }
 
@@ -345,35 +349,25 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getFieldLayout()
-    {
-        $productType = $this->getType();
-
-        if ($productType) {
-            return $productType->getProductFieldLayout();
-        }
-
-        return null;
-    }
-
-    /**
      * Gets the default variant.
      *
      * @return Variant
      */
     public function getDefaultVariant(): Variant
     {
+        if ($this->_defaultVariant) {
+            return $this->_defaultVariant;
+        }
+
         $defaultVariant = null;
 
         foreach ($this->getVariants() as $variant) {
-            if ($defaultVariant === null || $variant->isDefault) {
-                $defaultVariant = $variant;
+            if (null === $defaultVariant || $variant->isDefault) {
+                $this->_defaultVariant = $variant;
             }
         }
 
-        return $defaultVariant;
+        return $this->_defaultVariant;
     }
 
     /**
@@ -390,9 +384,10 @@ class Product extends Element
                 if ($this->getType()->hasVariants) {
                     $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
                 } else {
-                    $variant = Plugin::getInstance()->getVariants()->getDefaultVariantByProductId($this->id, $this->siteId);
-                    if ($variant) {
-                        $this->setVariants([$variant]);
+                    $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
+                    if ($variants) {
+                        $variants[0]->isDefault = true;
+                        $this->setVariants([$variants[0]]);
                     }
                 }
             }
@@ -400,6 +395,7 @@ class Product extends Element
             // Must have at least one
             if (null === $this->_variants) {
                 $variant = new Variant();
+                $variant->isDefault = true;
                 $this->setVariants([$variant]);
             }
         }
@@ -416,12 +412,20 @@ class Product extends Element
     {
         $this->_variants = [];
         $count = 0;
+        $defaultVariant = null;
 
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
             }
             $variant->sortOrder = $count + 1;
+            $variant->setProduct($this);
+
+            if (null === $defaultVariant || $variant->isDefault) {
+                $variant->isDefault = true;
+                $this->_defaultVariant = $variant;
+            }
+
             $this->_variants[] = $variant;
         }
     }
@@ -615,26 +619,6 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeSave(bool $isNew): bool
-    {
-        $productValid = parent::beforeSave($isNew);
-
-        // Validate Variants
-        $variantsValid = true;
-
-        foreach ($this->getVariants() as $variant) {
-            $variant->validate();
-            if ($variant->hasErrors()) {
-                $variantsValid = false;
-            }
-        }
-
-        return $productValid && $variantsValid;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function afterSave(bool $isNew)
     {
         if (!$isNew) {
@@ -674,6 +658,8 @@ class Product extends Element
 
         /** @var Variant $variant */
         foreach ($this->getVariants() as $variant) {
+
+            // We already have set the default to the correct variant in beforeSave()
             if ($variant->isDefault) {
                 $this->defaultVariantId = $variant->id;
                 Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $this->id]);
@@ -681,7 +667,7 @@ class Product extends Element
 
             $keepVariantIds[] = $variant->id;
 
-            Craft::$app->getElements()->saveElement($variant);
+            Craft::$app->getElements()->saveElement($variant, false);
         }
 
         foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
@@ -700,8 +686,37 @@ class Product extends Element
 
         $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
+        $rules[] = [['variants'], 'validateVariants'];
 
         return $rules;
+    }
+
+    /**
+     * Validates an product element’s Variants.
+     *
+     * @return void
+     */
+    public function validateVariants()
+    {
+        $variantsValidate = true;
+        $count = 0;
+
+        foreach($this->getVariants() as $variant)
+        {
+            $count++;
+            if (!$variant->validate()) {
+                $variantsValidate = false;
+            }
+        }
+
+        if ($count == 0)
+        {
+            $this->addError('variants', Craft::t('commerce', 'Product must have at least one variant'));
+        }
+
+        if (!$variantsValidate) {
+            $this->addError('variants', Craft::t('app', 'Correct the errors listed above.'));
+        }
     }
 
     /**
@@ -718,7 +733,15 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function getFieldLayout()
+    {
+        return $this->getType()->getFieldLayout();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeSave(bool $isNew): bool
     {
         $taxCategoryIds = array_keys($this->getType()->getTaxCategories());
         if (!in_array($this->taxCategoryId, $taxCategoryIds, false)) {
@@ -739,7 +762,12 @@ class Product extends Element
             }
         }
 
-        return parent::beforeValidate();
+        $this->_defaultVariant = $defaultVariant;
+
+        // Make sure the field layout is set correctly
+        $this->fieldLayoutId = $this->getType()->fieldLayoutId;
+
+        return parent::beforeSave($isNew);
     }
 
     /**

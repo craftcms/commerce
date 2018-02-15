@@ -91,7 +91,6 @@ class Plugin extends \craft\base\Plugin
         $this->_registerSessionEventListeners();
         $this->_registerCpAlerts();
         $this->_registerWidgets();
-        $this->_registerElementEventListeners();
         $this->_registerVariables();
 
         // Fire an 'afterInit' event
@@ -286,18 +285,13 @@ class Plugin extends \craft\base\Plugin
         });
     }
 
+    /**
+     * Register general event listeners
+     */
     private function _registerCraftEventListeners()
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-    }
-
-    /**
-     * Register Commerce’s after element save handler
-     */
-    private function _registerElementEventListeners()
-    {
-        Event::on(Elements::class, Elements::EVENT_AFTER_SAVE_ELEMENT, [$this->getPurchasables(), 'saveElementHandler']);
     }
 
     /**

@@ -19,6 +19,7 @@ use craft\commerce\models\PaymentCurrency;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingZone;
 use craft\commerce\models\State;
@@ -27,6 +28,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\services\Addresses;
+use craft\commerce\services\ShippingCategories;
 use craft\helpers\ArrayHelper;
 
 /**
@@ -221,7 +223,7 @@ class Commerce
     }
 
     /**
-     * Get all ssales.
+     * Get all sales.
      *
      * @return Sale[]
      */
@@ -233,15 +235,21 @@ class Commerce
     /**
      * Returns all shipping categories.
      *
-     * @param bool $asList Whether to return an array of shipping category names indexed by ID. Defaults to `false`.
-     *
-     * @return array|ShippingZone[]
+     * @return ShippingCategory[]
      */
-    public function getShippingCategories($asList = false): array
+    public function getShippingCategories(): array
     {
-        $shippingCategories = CommercePlugin::getInstance()->getShippingCategories()->getAllShippingCategories();
+        return CommercePlugin::getInstance()->getShippingCategories()->getAllShippingCategories();
+    }
 
-        return $asList ? ArrayHelper::map($shippingCategories, 'id', 'name') : $shippingCategories;
+    /**
+     * Returns all tax categories.
+     *
+     * @return array|TaxCategory[]
+     */
+    public function getTaxCategories(): array
+    {
+        return CommercePlugin::getInstance()->getTaxCategories()->getAllTaxCategories();
     }
 
     /**
@@ -282,20 +290,6 @@ class Commerce
     public function getStatesArray(): array
     {
         return CommercePlugin::getInstance()->getStates()->getStatesGroupedByCountries();
-    }
-
-    /**
-     * Returns all tax categories.
-     *
-     * @param bool $asList Whether to return an array of tax category names indexed by ID. Defaults to `false`.
-     *
-     * @return array|TaxCategory[]
-     */
-    public function getTaxCategories($asList = false): array
-    {
-        $taxCategories = CommercePlugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-
-        return $asList ? ArrayHelper::map($taxCategories, 'id', 'name') : $taxCategories;
     }
 
     /**

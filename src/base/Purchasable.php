@@ -5,6 +5,7 @@ namespace craft\commerce\base;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\records\Purchasable as PurchasableRecord;
 
 /**
  * Base Purchasable
@@ -172,5 +173,37 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getPromotionRelationSource()
     {
         return $this->id;
+    }
+
+    /**
+     * Update purchasable table
+     *
+     * @param bool $isNew
+     */
+    public function afterSave(bool $isNew)
+    {
+        $purchasable = PurchasableRecord::findOne($this->id) ?? new PurchasableRecord();
+
+        $purchasable->sku = $this->getSku();
+        $purchasable->price = $this->getPrice();
+        $purchasable->id = $this->id;
+
+        $purchasable->save(false);
+
+        parent::afterSave($isNew);
+    }
+
+    /**
+     * Clean up purchasable table
+     */
+    public function afterDelete(){
+        $purchasable = PurchasableRecord::findOne($this->id);
+
+        if($purchasable)
+        {
+            $purchasable->delete();
+        }
+
+        parent::afterDelete();
     }
 }

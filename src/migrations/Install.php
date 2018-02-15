@@ -15,6 +15,7 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
 use craft\commerce\records\ProductTypeSite;
+use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
@@ -1512,7 +1513,8 @@ class Install extends Migration
             'A New Toga',
             'Parka with Stripes on Back',
             'Romper for a Red Eye',
-            'The Fleece Awakens'
+            'The Fleece Awakens',
+            'The Last Knee-high'
         ];
 
         $count = 1;
@@ -1605,6 +1607,13 @@ class Install extends Migration
             // Insert the actual product and variant
             $this->insert(ProductRecord::tableName(), $productData);
             $this->insert(VariantRecord::tableName(), $variantData);
+
+            $purchasableData = [
+                'id' => $variantId,
+                'sku' => $variantData['sku'],
+                'price' => $variantData['price']
+            ];
+            $this->insert(PurchasableRecord::tableName(), $purchasableData);
         }
     }
 

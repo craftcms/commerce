@@ -50,13 +50,6 @@ class Purchasables extends Component
     }
 
     /**
-     * @param ElementEvent $event
-     */
-    public function saveElementHandler(ElementEvent $event)
-    {
-    }
-
-    /**
      * Returns all available purchasable element classes.
      *
      * @return string[] The available purchasable element classes.
