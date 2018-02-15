@@ -9,13 +9,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Payment source record.
  *
- * @property int     $id
- * @property int     $userId
- * @property int     $gatewayId
- * @property string  $token
  * @property string  $description
- * @property string  $response
  * @property Gateway $gateway
+ * @property int     $gatewayId
+ * @property int     $id
+ * @property string  $response
+ * @property string  $token
+ * @property int     $userId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

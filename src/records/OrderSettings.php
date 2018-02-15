@@ -9,11 +9,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order settings record.
  *
+ * @property FieldLayout $fieldLayout
+ * @property int         $fieldLayoutId
+ * @property string      $handle
  * @property int         $id
  * @property string      $name
- * @property string      $handle
- * @property int         $fieldLayoutId
- * @property FieldLayout $fieldLayout
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

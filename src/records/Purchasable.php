@@ -9,11 +9,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Purchasable record.
  *
- * @property int                  $id
- * @property string               $sku
- * @property float                $price
  * @property ActiveQueryInterface $element
- * @property Variant              $implicit
+ * @property int                  $id
+ * @property float                $price
+ * @property string               $sku
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

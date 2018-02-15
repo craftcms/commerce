@@ -10,20 +10,18 @@ use yii\db\ActiveQueryInterface;
 /**
  * Sale record.
  *
- * @property int           $id
- * @property string        $name
- * @property string        $description
- * @property \DateTime     $dateFrom
- * @property \DateTime     $dateTo
- * @property string        $discountType
- * @property float         $discountAmount
+ * @property bool          $allCategories
  * @property bool          $allGroups
  * @property bool          $allPurchasables
- * @property bool          $allCategories
+ * @property \DateTime     $dateFrom
+ * @property \DateTime     $dateTo
+ * @property string        $description
+ * @property float         $discountAmount
+ * @property string        $discountType
  * @property bool          $enabled
- * @property Product[]     $products
- * @property ProductType[] $productTypes
  * @property UserGroup[]   $groups
+ * @property int           $id
+ * @property string        $name
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

@@ -9,41 +9,40 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property int                  $id
- * @property string               $number
+ * @property Address              $billingAddress
+ * @property int                  $billingAddressId
+ * @property string               $cancelUrl
  * @property string               $couponCode
- * @property float                $itemTotal
- * @property float                $totalPrice
- * @property float                $totalPaid
- * @property string               $email
- * @property bool                 $isCompleted
+ * @property string               $currency
+ * @property ActiveQueryInterface $customer
+ * @property int                  $customerId
  * @property \DateTime            $dateOrdered
  * @property \DateTime            $datePaid
- * @property string               $currency
- * @property string               $paymentCurrency
+ * @property ActiveQueryInterface $discount
+ * @property ActiveQueryInterface $element
+ * @property string               $email
+ * @property ActiveQueryInterface $gateway
+ * @property int                  $gatewayId
+ * @property OrderHistory[]       $histories
+ * @property int                  $id
+ * @property bool                 $isCompleted
+ * @property float                $itemTotal
  * @property string               $lastIp
- * @property string               $orderLocale
+ * @property LineItem[]           $lineItems
  * @property string               $message
+ * @property string               $number
+ * @property string               $orderLocale
+ * @property OrderStatus          $orderStatus
+ * @property int                  $orderStatusId
+ * @property string               $paymentCurrency
+ * @property int                  $paymentSourceId
  * @property string               $returnUrl
- * @property string               $cancelUrl
- * @property int                  $billingAddressId
+ * @property Address              $shippingAddress
  * @property int                  $shippingAddressId
  * @property string               $shippingMethodHandle
- * @property int                  $gatewayId
- * @property int                  $paymentSourceId
- * @property int                  $customerId
- * @property int                  $orderStatusId
- * @property LineItem[]           $lineItems
- * @property Address              $billingAddress
- * @property Address              $shippingAddress
- * @property Gateway              $paymentMethod
+ * @property float                $totalPaid
+ * @property float                $totalPrice
  * @property Transaction[]        $transactions
- * @property OrderStatus          $orderStatus
- * @property ActiveQueryInterface $customer
- * @property ActiveQueryInterface $element
- * @property ActiveQueryInterface $gateway
- * @property ActiveQueryInterface $discount
- * @property OrderHistory[]       $histories
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

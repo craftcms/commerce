@@ -8,9 +8,9 @@ use yii\db\ActiveQueryInterface;
 /**
  * Discount product record.
  *
- * @property int                  $id
- * @property int                  $discountId
  * @property ActiveQueryInterface $discount
+ * @property int                  $discountId
+ * @property int                  $id
  * @property ActiveQueryInterface $purchasable
  * @property int                  $purchasableId
  *

@@ -9,33 +9,28 @@ use yii\db\ActiveQueryInterface;
 /**
  * Line Item record.
  *
- * @property int                  $id
- * @property float                $price
- * @property float                $saleAmount
- * @property float                $salePrice
- * @property float                $tax
- * @property float                $taxIncluded
- * @property float                $shippingCost
- * @property float                $discount
- * @property float                $weight
  * @property float                $height
- * @property float                $width
+ * @property int                  $id
  * @property float                $length
- * @property float                $total
- * @property int                  $qty
  * @property string               $note
- * @property string               $snapshot
- * @property int                  $orderId
- * @property int                  $purchasableId
  * @property mixed                $options
  * @property string               $optionsSignature
- * @property int                  $taxCategoryId
- * @property int                  $shippingCategoryId
  * @property Order                $order
- * @property Variant              $variant
+ * @property int                  $orderId
+ * @property float                $price
  * @property ActiveQueryInterface $purchasable
+ * @property int                  $purchasableId
+ * @property int                  $qty
+ * @property float                $saleAmount
+ * @property float                $salePrice
  * @property ActiveQueryInterface $shippingCategory
+ * @property int                  $shippingCategoryId
+ * @property string               $snapshot
  * @property TaxCategory          $taxCategory
+ * @property int                  $taxCategoryId
+ * @property float                $total
+ * @property float                $weight
+ * @property float                $width
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

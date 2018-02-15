@@ -9,27 +9,26 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product record.
  *
- * @property int                  $id
- * @property int                  $taxCategoryId
- * @property int                  $shippingCategoryId
- * @property int                  $typeId
- * @property \DateTime            $postDate
- * @property \DateTime            $expiryDate
- * @property bool                 $promotable
- * @property bool                 $freeShipping
- * @property int                  defaultVariantId
- * @property string               defaultSku
- * @property float                defaultPrice
  * @property float                defaultHeight
  * @property float                defaultLength
- * @property float                defaultWidth
+ * @property float                defaultPrice
+ * @property string               defaultSku
+ * @property int                  defaultVariantId
  * @property float                defaultWeight
- * @property Variant              $implicit
- * @property Variant[]            $variants
+ * @property float                defaultWidth
  * @property ActiveQueryInterface $element
- * @property ActiveQueryInterface $type
+ * @property \DateTime            $expiryDate
+ * @property bool                 $freeShipping
+ * @property int                  $id
+ * @property \DateTime            $postDate
+ * @property bool                 $promotable
  * @property ActiveQueryInterface $shippingCategory
+ * @property int                  $shippingCategoryId
+ * @property int                  $taxCategoryId
  * @property TaxCategory          $taxCategory
+ * @property ActiveQueryInterface $type
+ * @property int                  $typeId
+ * @property Variant[]            $variants
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

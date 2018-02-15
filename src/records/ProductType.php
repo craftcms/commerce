@@ -9,25 +9,23 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property int                  $id
- * @property string               $name
+ * @property string               $descriptionFormat
+ * @property FieldLayout          $fieldLayout
+ * @property int                  $fieldLayoutId
  * @property string               $handle
- * @property bool                 $hasUrls
  * @property bool                 $hasDimensions
  * @property bool                 $hasVariants
  * @property bool                 $hasVariantTitleField
- * @property string               $template
- * @property string               $titleFormat
- * @property string               $skuFormat
- * @property string               $descriptionFormat
- * @property int                  $fieldLayoutId
- * @property int                  $variantFieldLayoutId
- * @property ActiveQueryInterface $shippingCategories
- * @property ActiveQueryInterface $taxCategories
- * @property ActiveQueryInterface $productTypesTaxCategories
- * @property ActiveQueryInterface $variantFieldLayout
+ * @property int                  $id
+ * @property string               $name
  * @property ActiveQueryInterface $productTypesShippingCategories
- * @property FieldLayout          $fieldLayout
+ * @property ActiveQueryInterface $productTypesTaxCategories
+ * @property ActiveQueryInterface $shippingCategories
+ * @property string               $skuFormat
+ * @property ActiveQueryInterface $taxCategories
+ * @property string               $titleFormat
+ * @property ActiveQueryInterface $variantFieldLayout
+ * @property int                  $variantFieldLayoutId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

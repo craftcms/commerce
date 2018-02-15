@@ -8,13 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order status record.
  *
- * @property int     $id
- * @property string  $name
- * @property string  $handle
  * @property string  $color
- * @property int     $sortOrder
  * @property bool    $default
  * @property Email[] $emails
+ * @property string  $handle
+ * @property int     $id
+ * @property string  $name
+ * @property int     $sortOrder
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

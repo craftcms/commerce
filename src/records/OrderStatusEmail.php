@@ -8,10 +8,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order status email record.
  *
- * @property int         $orderStatusId
+ * @property Email       $email
  * @property int         $emailId
  * @property OrderStatus $orderStatus
- * @property Email       $email
+ * @property int         $orderStatusId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

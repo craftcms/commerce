@@ -8,11 +8,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type shipping category record.
  *
- * @property int              $productTypeId
- * @property int              $siteId
- * @property string           $uriFormat
- * @property ShippingCategory $shippingCategory
  * @property ProductType      $productType
+ * @property int              $productTypeId
+ * @property ShippingCategory $shippingCategory
+ * @property int              $shippingCategoryId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
