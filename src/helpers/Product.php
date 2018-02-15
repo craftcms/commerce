@@ -20,17 +20,6 @@ class Product
     // =========================================================================
 
     /**
-     * Populates a Product model from HUD or POST data
-     *
-     * @param ProductModel $product
-     * @param              $data
-     */
-    public static function populateProductModel(ProductModel $product, $data)
-    {
-
-    }
-
-    /**
      * Populates all Variant Models from HUD or POST data
      *
      * @param ProductModel  $product
