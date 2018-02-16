@@ -64,7 +64,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         // Get all Product Types
         $productTypes = (new Query())
             ->select(['id', 'name', 'handle'])
-            ->from('{{%commerce_productTypes}}')
+            ->from('{{%commerce_producttypes}}')
             ->all();
 
         // Create a category group for the product types sales and discounts to link to

@@ -29,9 +29,17 @@ trait Routes
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
 
+            $event->rules['commerce/subscriptions'] = 'commerce/subscriptions/index';
+            $event->rules['commerce/subscriptions/<plan:{handle}>'] = 'commerce/subscriptions/index';
+            $event->rules['commerce/subscriptions/<subscriptionId:\d+>'] = 'commerce/subscriptions/edit';
+
             $event->rules['commerce/settings/producttypes'] = 'commerce/product-types/product-type-index';
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
+
+            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';

@@ -1,7 +1,11 @@
 
 ### Added
 - Added 'Copy' Reference tag to Product actions.
-- Added the possibility to save payment sources for users and use them when checking out.
+- Added the possibility for users to save payment sources.
+- Added subscriptions for gateways that support them.
+- Added `craft\commerce\services\PaymentSources` service.
+- Added `craft\commerce\services\Plans` service.
+- Added `craft\commerce\services\Subscriptions` service.
 
 ### Changed
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
@@ -11,7 +15,7 @@
 - `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales()` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
 - Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 
-- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file. 
+- The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file.
 - Vat ID validation is now using the MIT licenced dannyvankooten/vat.php 
 
 ### Event changes
@@ -23,9 +27,12 @@
 - `craft\commerce\services\LineLitems` now fires the following events: `beforeSaveLineItem`, `afterSaveLineItem`, `createLineItem`, and `populateLineItem`.
 - `craft\commerce\services\OrderHistories` now fires the `orderStatusChange` event.
 - `craft\commerce\services\Payments` now fires the following events: `beforeCaptureTransaction`, `afterCaptureTransaction`, `beforeRefundTransaction`, `afterRefundTransaction` and a cancelable `beforeGatewayRequestSend` event.
+- `craft\commerce\services\PaymentSources` now fires the following events: `deletePaymentSource`, `beforeSavePaymentSource` and `afterSavePaymentSource`events.
+- `craft\commerce\services\Plans` fires the following events: `archivePlan`, `beforeSavePlan` and `afterSavePlan`events.
+- `craft\commerce\services\Purchasables` fires the `registerPurchasableElementTypes` event.
+- `craft\commerce\services\Subscriptions` fires the `expireSubscription`, `afterCreateSubscription`, `afterReactivateSubscription`, `afterSwitchSubscriptionPlan`, `afterCancelSubscription`, `beforeUpdateSubscription`, `receiveSubscriptionPayment` and cancelable `beforeCreateSubscription`, `beforeReactivateSubscription`, `beforeSwitchSubscriptionPlan` and `beforeCancelSubscription` events.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.
-- `craft\commerce\services\Purchasables` now fires the `registerPurchasableElementTypes` event.
 
 ### Events that used to be hooks
 - Instead of the `commerce_modifyEmail` hook you should use the cancelable `beforeSendEmail` event fired by `craft\commerce\services\Emails`.

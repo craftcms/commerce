@@ -3,6 +3,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
@@ -137,5 +138,30 @@ class SettingsController extends BaseAdminController
         Craft::$app->getUrlManager()->setRouteParams(['stockLocation' => $address]);
 
         $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Saves the field layout.
+     *
+     * @return Response|null
+     */
+    public function actionSaveSubscriptionFieldLayout()
+    {
+        $this->requirePostRequest();
+        $this->requireAdmin();
+
+        // Set the field layout
+        $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout->type = Subscription::class;
+
+        if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
+            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save subscription fields.'));
+
+            return null;
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('app', 'Subscription fields saved.'));
+
+        return $this->redirectToPostedUrl();
     }
 }

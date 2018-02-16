@@ -2,6 +2,7 @@
 
 namespace craft\commerce\plugin;
 
+use craft\commerce\base\Plan;
 use craft\commerce\services\Addresses;
 use craft\commerce\services\Cart;
 use craft\commerce\services\Countries;
@@ -20,6 +21,7 @@ use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
 use craft\commerce\services\Pdf;
 use craft\commerce\services\PaymentSources;
+use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -31,6 +33,7 @@ use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
 use craft\commerce\services\States;
+use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
@@ -57,16 +60,19 @@ use craft\commerce\services\Variants;
  * @property PaymentCurrencies      $paymentCurrencies      the paymentCurrencies service
  * @property Payments               $payments               the payments service
  * @property PaymentSources         $paymentSources         the payment sources service
+ * @property Pdf                    $pdf                    the pdf service
+ * @property Plans                  $plans                  the plans service
  * @property Products               $products               the products service
  * @property ProductTypes           $productTypes           the productTypes service
  * @property Purchasables           $purchasables           the purchasables service
  * @property Sales                  $sales                  the sales service
  * @property ShippingMethods        $shippingMethods        the shippingCategories service
- * @property ShippingRules          $shippingRulesthe       shippingRules service
+ * @property ShippingRules          $shippingRules          the shippingRules service
  * @property ShippingRuleCategories $shippingRuleCategories the shippingRules service
  * @property ShippingCategories     $shippingCategories     the shippingCategories service
  * @property ShippingZones          $shippingZones          the shippingZones service
  * @property States                 $states                 the states service
+ * @property Subscriptions          $subscriptions          the subscriptions service
  * @property TaxCategories          $taxCategories          the taxCategories service
  * @property TaxRates               $taxRates               the taxRates service
  * @property TaxZones               $taxZones               the taxZones service
@@ -242,6 +248,16 @@ trait Services
     }
 
     /**
+     * Returns the payment sources service
+     *
+     * @return PaymentSources The payment sources service
+     */
+    public function getPaymentSources(): PaymentSources
+    {
+        return $this->get('paymentSources');
+    }
+
+    /**
      * Returns the PDF service
      *
      * @return Pdf The PDF service
@@ -255,11 +271,11 @@ trait Services
     /**
      * Returns the payment sources service
      *
-     * @return PaymentSources The payment sources service
+     * @return Plans The subscription plans service
      */
-    public function getPaymentSources(): PaymentSources
+    public function getPlans(): Plans
     {
-        return $this->get('paymentSources');
+        return $this->get('plans');
     }
 
     /**
@@ -363,6 +379,16 @@ trait Services
     }
 
     /**
+     * Returns the subscriptions service
+     *
+     * @return Subscriptions The subscriptions service
+     */
+    public function getSubscriptions(): Subscriptions
+    {
+        return $this->get('subscriptions');
+    }
+
+    /**
      * Returns the taxCategories service
      *
      * @return TaxCategories The taxCategories service
@@ -440,6 +466,7 @@ trait Services
             'payments' => Payments::class,
             'paymentSources' => PaymentSources::class,
             'pdf' => Pdf::class,
+            'plans' => Plan::class,
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
@@ -451,6 +478,7 @@ trait Services
             'shippingCategories' => ShippingCategories::class,
             'shippingZones' => ShippingZones::class,
             'states' => States::class,
+            'subscriptions' => Subscriptions::class,
             'taxCategories' => TaxCategories::class,
             'taxRates' => TaxRates::class,
             'taxZones' => TaxZones::class,

@@ -45,7 +45,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.12';
+    public $schemaVersion = '2.0.13';
 
     /**
      * @inheritdoc
@@ -94,6 +94,8 @@ class Plugin extends \craft\base\Plugin
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
+
+        // TODO onBeforeDeleteUser cancel all subscriptions
     }
 
     /**
@@ -151,6 +153,13 @@ class Plugin extends \craft\base\Plugin
             $ret['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
+            ];
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
+            $ret['subnav']['subscriptions'] = [
+                'label' => Craft::t('commerce', 'Subscriptions'),
+                'url' => 'commerce/subscriptions'
             ];
         }
 
@@ -233,6 +242,7 @@ class Plugin extends \craft\base\Plugin
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
+                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
             ];
         });
     }
@@ -255,7 +265,7 @@ class Plugin extends \craft\base\Plugin
     private function _registerCpAlerts()
     {
         Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
-            if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
+            if (Craft::$app->getRequest()->getPathInfo() != 'commerce/settings/registration') {
                 $message = null;
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
 

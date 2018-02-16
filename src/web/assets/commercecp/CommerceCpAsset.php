@@ -33,6 +33,7 @@ class CommerceCpAsset extends AssetBundle
         $this->css[] = 'css/charts-explorer.css';
         $this->css[] = 'css/commerce.css';
         $this->css[] = 'css/order.css';
+        $this->css[] = 'css/subscriptions.css';
         $this->css[] = 'css/registration.css';
 
         $this->js[] = 'js/Commerce.js';
@@ -45,6 +46,7 @@ class CommerceCpAsset extends AssetBundle
         $this->js[] = 'js/CommerceProductIndex.js';
         $this->js[] = 'js/CommerceRegistrationForm.js';
         $this->js[] = 'js/CommerceShippingItemRatesValuesInput.js';
+        $this->js[] = 'js/CommerceSubscriptionIndex.js';
         $this->js[] = 'js/CommerceUpdateOrderStatusModal.js';
         $this->js[] = 'js/CommerceVariantValuesInput.js';
         $this->js[] = 'js/TableRowAdditionalInfoIcon.js';

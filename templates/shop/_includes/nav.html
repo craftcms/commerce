@@ -2,6 +2,10 @@
 
     {% set page = craft.app.request.getSegment(2) %}
 
+    <a class="button {% if page == 'services' %}button-primary{% endif %}" href="{{ url('shop/services') }}">
+        {{ "Services"|t }}
+    </a>
+
     <a class="button {% if page == 'products' %}button-primary{% endif %}" href="{{ url('shop/products') }}">
         {{ "Products"|t }}
     </a>
