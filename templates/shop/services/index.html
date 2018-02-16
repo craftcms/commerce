@@ -7,7 +7,7 @@
     {% for plan in plans %}
         <div class="row service">
             <div class="two columns">
-                <h4>{{ plan.getFriendlyName() }}</h4>
+                <h4>{{ plan.name }}</h4>
                 {% set information = plan.getInformation() %}
             </div>
             <div class="ten columns">
@@ -47,7 +47,7 @@
                 <div>
                     <select name="planId" id="planSelect">
                         {% for plan in plans %}
-                            <option value="{{ plan.id|hash }}">{{ plan.getFriendlyName() }}</option>
+                            <option value="{{ plan.id|hash }}">{{ plan.name }}</option>
                         {% endfor %}
                     </select>
                 </div>

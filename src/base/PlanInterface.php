@@ -21,13 +21,6 @@ interface PlanInterface
     // =========================================================================
 
     /**
-     * Return a friendly name of the gateway subscription plan.
-     *
-     * @return string
-     */
-    public function getFriendlyName(): string;
-
-    /**
      * Return whether it's possible to switch to this plan from a different plan.
      *
      * @param PlanInterface $currentPlant

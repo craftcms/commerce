@@ -166,7 +166,7 @@
     <div class="meta">
         {{ forms.textField({
             label: 'Subscription plan'|t('commerce'),
-            value: subscription.getPlan().getFriendlyName(),
+            value: subscription.getPlan().name,
             readonly: true
         }) }}
 
