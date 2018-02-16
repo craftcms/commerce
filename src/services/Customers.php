@@ -328,6 +328,27 @@ class Customers extends Component
     }
 
     /**
+     * Returns the user groups of the user param but defaults to the current user
+     *
+     * @param User|null $user
+     *
+     * @return array
+     */
+    public function getUserGroupIdsForUser(User $user = null): array
+    {
+        $groupIds = [];
+        $currentUser = $user ?? Craft::$app->getUser()->getIdentity();
+
+        if ($currentUser) {
+            foreach ($currentUser->getGroups() as $group) {
+                $groupIds[] = $group->id;
+            }
+        }
+
+        return $groupIds;
+    }
+
+    /**
      * @param UserEvent $event
      *
      * @throws Exception

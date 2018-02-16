@@ -201,7 +201,7 @@ class Discounts extends Component
         if (!$discount->allGroups) {
             $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
             $user = $customer ? $customer->getUser() : null;
-            $groupIds = $user ? $this->getCurrentUserGroupIds($user) : [];
+            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
                 $error = Craft::t('commerce', 'Discount is not allowed for the customer');
 
@@ -275,29 +275,6 @@ class Discounts extends Component
             ->all();
 
         return $result ? new Discount($result) : null;
-    }
-
-    /**
-     * Returns the user groups of the user param but defaults to the current user
-     *
-     * @param User|null $user
-     *
-     * @return array
-     */
-    public function getCurrentUserGroupIds(User $user = null): array
-    {
-        $groupIds = [];
-        $currentUser = $user ?? Craft::$app->getUser()->getIdentity();
-
-        if ($currentUser) {
-            foreach ($currentUser->getGroups() as $group) {
-                $groupIds[] = $group->id;
-            }
-
-            return $groupIds;
-        }
-
-        return $groupIds;
     }
 
     /**

@@ -145,7 +145,7 @@ class Discount implements AdjusterInterface
                 if (!$this->_discount->allGroups) {
                     $customer = $this->_order->getCustomer();
                     $user = $customer ? $customer->getUser() : null;
-                    $userGroups = Plugin::getInstance()->getDiscounts()->getCurrentUserGroupIds($user);
+                    $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
                     if ($user && array_intersect($userGroups, $this->_discount->getUserGroupIds())) {
                         $matchingLineIds[] = $item->id;
                         $matchingQty += $item->qty;

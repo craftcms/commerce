@@ -178,8 +178,8 @@ class LineItem extends Model
                 [
                     'optionsSignature',
                     'price',
-                    'saleAmount',
                     'salePrice',
+                    'saleAmount',
                     'weight',
                     'length',
                     'height',
@@ -213,7 +213,7 @@ class LineItem extends Model
     public function getSubtotal(): float
     {
         // The subtotal should always be rounded.
-        return $this->qty * CurrencyHelper::round($this->salePrice);
+        return $this->qty * $this->salePrice;
     }
 
     /**
@@ -251,7 +251,7 @@ class LineItem extends Model
     }
 
     /**
-     * @return bool False when no related purchasable exists or order complete.
+     * @return bool False when no related purchasable exists
      */
     public function refreshFromPurchasable(): bool
     {
@@ -265,7 +265,7 @@ class LineItem extends Model
             return false;
         }
 
-        $this->fillFromPurchasable($purchasable);
+        $this->populateFromPurchasable($purchasable);
 
         return true;
     }
@@ -294,24 +294,22 @@ class LineItem extends Model
     /**
      * @param PurchasableInterface $purchasable
      */
-    public function fillFromPurchasable(PurchasableInterface $purchasable)
+    public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
-        $price = $purchasable->getPrice();
-        $this->price = $price;
+        $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-
-        // Since sales cannot apply to non core purchasables yet, set to price at default
-        $this->salePrice = $price;
-        $this->saleAmount = 0;
+        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+        $this->saleAmount = $this->salePrice - $this->price;
 
         $snapshot = [
-            'price' => $price,
+            'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
             'purchasableId' => $purchasable->getPurchasableId(),
             'cpEditUrl' => '#',
-            'options' => $this->options
+            'options' => $this->options,
+            'sales'=> Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -319,26 +317,8 @@ class LineItem extends Model
 
         $purchasable->populateLineItem($this);
 
-        $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable);
-
-        /** @var Sale $sale */
-        foreach ($sales as $sale) {
-            $this->saleAmount += $sale->calculateTakeoff($this->price);
-        }
-
-        // Don't let sale amount be more than the price.
-        if (-$this->saleAmount > $this->price) {
-            $this->saleAmount = -$this->price;
-        }
-
-        // If the product is not promotable but has saleAmount, reset saleAmount to zero
-        if (!$this->getPurchasable()->getIsPromotable()) {
-            $this->saleAmount = 0;
-        }
-
         $lineItemsService = Plugin::getInstance()->getLineItems();
 
-        // Raise the 'populateLineItem' event
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
@@ -346,8 +326,12 @@ class LineItem extends Model
             ]));
         }
 
-        // Always make sure salePrice is equal to the price and saleAmount
+        // If a plugin used the above event and changed the price of the product or
+        //it's saleAmount we need to ensure the salePrice works calculates correctly and is rounded
         $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);
+
+        // salePrice can not be negative
+        $this->salePrice = max($this->salePrice, 0);
     }
 
     /**

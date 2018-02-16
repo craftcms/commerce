@@ -31,13 +31,6 @@ interface PurchasableInterface
     public function getPrice(): float;
 
     /**
-     * This is the price the item will be given the context
-     *
-     * @return float decimal(14,4)
-     */
-    public function getLivePrice(): float;
-
-    /**
      * This is the base price the item will be added to the line item with.
      *
      * It provides opportunity to populate the salePrice if sales have not already been applied.
@@ -91,6 +84,14 @@ interface PurchasableInterface
      * @param LineItem $lineItem
      */
     public function populateLineItem(LineItem $lineItem);
+
+    /**
+     * Returns an array of data that is serializable to json for storing a line
+     * item at time of adding to the cart or order.
+     *
+     * @return array
+     */
+    public function getSnapShot(): array;
 
     /**
      * Any validation rules this purchasable required the line item to have.

@@ -53,39 +53,6 @@ class Sales extends Component
     // =========================================================================
 
     /**
-     * Apply applicable sales to a purchasable
-     *
-     * @param PurchasableInterface|PurchasableInterface[] Purchasables
-     */
-    public function applySales($purchasables)
-    {
-        if (!is_array($purchasables)) {
-            $purchasables = [$purchasables];
-        }
-
-        // reset the salePrice to be the same as price, and clear any sales applied.
-        foreach ($purchasables as $purchasable) {
-            $purchasable->setSales([]);
-            $purchasable->setSalePrice(Currency::round($purchasable->getPrice()));
-        }
-
-        /** @var $purchasable PurchasableInterface */
-        // Only bother calculating if the purchasable is persisted and promotable.
-        if ($purchasable->getPurchasableId() && $purchasable->getIsPromotable()) {
-            $sales = $this->getSalesForPurchasable($purchasable);
-            $purchasable->setSales($sales);
-            foreach ($sales as $sale) {
-                $purchasable->setSalePrice(Currency::round($purchasable->getSalePrice() + $sale->calculateTakeoff($purchasable->getPrice())));
-
-                // Cannot have a sale that makes the price negative.
-                if ($purchasable->getSalePrice() < 0) {
-                    $purchasable->setSalePrice(0);
-                }
-            }
-        }
-    }
-
-    /**
      * @param int $id
      *
      * @return Sale|null
@@ -208,16 +175,19 @@ class Sales extends Component
     }
 
     /**
-     * @param PurchasableInterface $purchasable
+     * Returns the sales that match the purchasable.
      *
-     * @return array
+     * @param PurchasableInterface $purchasable
+     * @param Order|null $order
+     *
+     * @return Sales[]
      */
-    public function getSalesForPurchasable(PurchasableInterface $purchasable): array
+    public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
     {
         $matchedSales = [];
 
-        foreach ($this->_getAllActiveSales() as $sale) {
-            if ($this->matchPurchasableAndSale($purchasable, $sale)) {
+        foreach ($this->_getAllEnabledSales() as $sale) {
+            if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
             }
         }
@@ -225,8 +195,40 @@ class Sales extends Component
         return $matchedSales;
     }
 
+    /**
+     * Returns the salePrice of the purchasable based on all the sales.
+     *
+     * @param PurchasableInterface $purchasable
+     * @param Order|null           $order
+     *
+     * @return float
+     */
+    public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
+    {
+        $sales = $this->getSalesForPurchasable($purchasable, $order);
+        $salePrice = $purchasable->getPrice();
 
-    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale): bool
+        /** @var Sale $sale */
+        foreach ($sales as $sale) {
+            $salePrice = Currency::round($salePrice + $sale->calculateTakeoff($purchasable->getPrice()));
+
+            // Cannot have a sale that makes the price negative.
+            if ($salePrice < 0) {
+                $salePrice = 0;
+            }
+        }
+
+        return $salePrice;
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @param Sale                 $sale
+     * @param Order                $order
+     *
+     * @return bool
+     */
+    public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
         // can't match something not promotable
         if (!$purchasable->getIsPromotable()) {
@@ -247,12 +249,62 @@ class Sales extends Component
             return false;
         }
 
-        if (!$sale->allGroups) {
-            // User Group match
-            $userGroups = Plugin::getInstance()->getDiscounts()->getCurrentUserGroupIds();
-            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                return false;
+
+        if ($order) {
+
+            $user = $order->getUser();
+
+            if (!$sale->allGroups) {
+                // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
+                if (null === $user) {
+                    return false;
+                }
+                // User groups of the order's user
+                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
+                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                    return false;
+                }
             }
+        }
+
+        if (!$order)
+        {
+            if (!$sale->allGroups) {
+                // User groups of the currently logged in user
+                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                    return false;
+                }
+            }
+        }
+
+        // Are we dealing with the current session outside of any cart/order context
+        if (!$order) {
+            if (!$sale->allGroups) {
+                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                    return false;
+                }
+            }
+        }
+
+        $date = new \DateTime();
+
+        if ($order)
+        {
+            // Date we care about in the context of an order is the date the order was placed.
+            // If the order is still a cart, use the current date time.
+            $date = $order->isCompleted ? $order->dateOrdered : new \DateTime();
+        }
+
+        if ($sale->dateFrom && $sale->dateFrom >= $date)
+        {
+            return false;
+        }
+
+        if ($sale->dateTo && $sale->dateTo <= $date)
+        {
+            return false;
         }
 
         $saleMatchEvent = new SaleMatchEvent(['sale' => $this]);
@@ -263,24 +315,6 @@ class Sales extends Component
         }
 
         return $saleMatchEvent->isValid;
-    }
-
-    /**
-     * @param PurchasableInterface $purchasable
-     * @param Order                $order
-     *
-     * @return Sale[]
-     */
-    public function getSalesForPurchasableInOrder(PurchasableInterface $purchasable, Order $order): array
-    {
-        $matchedSales = [];
-        foreach ($this->_getAllActiveSales() as $sale) {
-            if ($this->matchPurchasableAndSale($purchasable, $sale, $order->getCustomer())) {
-                $matchedSales[] = $sale;
-            }
-        }
-
-        return $matchedSales;
     }
 
     /**
@@ -400,19 +434,14 @@ class Sales extends Component
     /**
      * @return array|Sale[]
      */
-    private function _getAllActiveSales(): array
+    private function _getAllEnabledSales(): array
     {
         if (null === $this->_allActiveSales) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {
                 if ($sale->enabled) {
-                    $from = $sale->dateFrom;
-                    $to = $sale->dateTo;
-                    $now = new \DateTime();
-                    if (($from == null || $from < $now) && ($to == null || $to > $now)) {
-                        $activeSales[] = $sale;
-                    }
+                    $activeSales[] = $sale;
                 }
             }
 

@@ -27,6 +27,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\errors\DefaultOrderStatusNotFoundException;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -68,7 +69,6 @@ use yii\base\Exception;
  * @property float                   $totalTaxablePrice
  * @property float                   $totalTaxIncluded
  * @property int                     $totalWeight
- * @property int                     $totalWidth
  * @property Transaction[]           $transactions
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -295,6 +295,18 @@ class Order extends Element
         $attributes = parent::datetimeAttributes();
         $attributes[] = 'datePaid';
         $attributes[] = 'dateOrdered';
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $attributes = parent::attributes();
+        $attributes[] = 'lineItems';
+        $attributes[] = 'adjustments';
+
         return $attributes;
     }
 
@@ -660,6 +672,14 @@ class Order extends Element
         }
 
         return null;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser()
+    {
+        return $this->getCustomer() ? $this->getCustomer()->getUser() : null;
     }
 
     /**

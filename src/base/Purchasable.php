@@ -2,6 +2,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -70,19 +71,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getLivePrice(): float
-    {
-        return $this->getPrice();
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getSalePrice(): float
     {
-        if ($this->getSales() === null) {
-            Plugin::getInstance()->getSales()->applySales($this);
-        }
+        $this->_loadSales();
 
         return $this->_salePrice;
     }
@@ -102,6 +93,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getSales()
     {
+        $this->_loadSales();
+
         return $this->_sales;
     }
 
@@ -217,5 +210,22 @@ abstract class Purchasable extends Element implements PurchasableInterface
         }
 
         parent::afterDelete();
+    }
+
+    /**
+     * Reloads any sales applicable to the purchasable for the current user.
+     */
+    private function _loadSales()
+    {
+        if (null === $this->_sales) {
+            // Default the sales and salePrice to the original price without any sales
+            $this->_sales = [];
+            $this->_salePrice = Currency::round($this->getPrice());
+
+            if ($this->getPurchasableId() && $this->getIsPromotable()) {
+                $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
+                $this->_salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this);
+            }
+        }
     }
 }
