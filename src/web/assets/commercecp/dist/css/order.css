@@ -91,8 +91,8 @@
     font-family: Menlo, monospace;
 }
 
-.gateway-response .string { color: green; }
-.gateway-response .number { color: darkorange; }
-.gateway-response .boolean { color: blue; }
-.gateway-response .null { color: magenta; }
-.gateway-response .key { color: red; }
+.gateway-response .string { color: #61a45f; }
+.gateway-response .number { color: #b6885b; }
+.gateway-response .boolean { color: #4354af; font-weight: bold; }
+.gateway-response .null { color: #ba75bc; font-weight: bold; }
+.gateway-response .key { color: #ae4a4b; }

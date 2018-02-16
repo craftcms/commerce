@@ -2,26 +2,22 @@
 
 namespace craft\commerce\events;
 
-use yii\base\Event;
+use craft\commerce\elements\Subscription;
+use craft\events\CancelableEvent;
 
 /**
- * Class SendPaymentRequestEvent
+ * Class SubscriptionEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
  */
-class SendPaymentRequestEvent extends Event
+class SubscriptionEvent extends CancelableEvent
 {
     // Properties
     // ==========================================================================
 
     /**
-     * @var mixed Request data
+     * @var Subscription Subscription
      */
-    public $requestData;
-
-    /**
-     * @var mixed Modified request data
-     */
-    public $modifiedRequestData;
+    public $subscription;
 }

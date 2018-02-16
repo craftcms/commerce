@@ -368,6 +368,22 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable('{{%commerce_plans}}', [
+            'id' => $this->primaryKey(),
+            'gatewayId' => $this->integer(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'reference' => $this->string()->notNull(),
+            'enabled' => $this->boolean()->notNull(),
+            'planData' => $this->text(),
+            'planInformationId' => $this->integer()->null(),
+            'isArchived' => $this->boolean()->notNull(),
+            'dateArchived' => $this->dateTime(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable('{{%commerce_products}}', [
             'id' => $this->integer()->notNull(),
             'typeId' => $this->integer(),
@@ -589,6 +605,25 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable('{{%commerce_subscriptions}}', [
+            'id' => $this->primaryKey(),
+            'userId' => $this->integer()->notNull(),
+            'planId' => $this->integer(),
+            'gatewayId' => $this->integer(),
+            'orderId' => $this->integer(),
+            'reference' => $this->string()->notNull(),
+            'subscriptionData' => $this->text(),
+            'trialDays' => $this->integer()->notNull(),
+            'nextPaymentDate' => $this->dateTime(),
+            'isCanceled' => $this->boolean()->notNull(),
+            'dateCanceled' => $this->dateTime(),
+            'isExpired' => $this->boolean()->notNull(),
+            'dateExpired' => $this->dateTime(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable('{{%commerce_taxcategories}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -713,6 +748,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_orderstatuses}}');
         $this->dropTable('{{%commerce_paymentcurrencies}}');
         $this->dropTable('{{%commerce_paymentsources}}');
+        $this->dropTable('{{%commerce_plans}}');
         $this->dropTable('{{%commerce_products}}');
         $this->dropTable('{{%commerce_producttypes}}');
         $this->dropTable('{{%commerce_producttypes_sites}}');
@@ -731,6 +767,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_shippingzone_states}}');
         $this->dropTable('{{%commerce_shippingzones}}');
         $this->dropTable('{{%commerce_states}}');
+        $this->dropTable('{{%commerce_subscriptions}}');
         $this->dropTable('{{%commerce_taxcategories}}');
         $this->dropTable('{{%commerce_taxrates}}');
         $this->dropTable('{{%commerce_taxzone_countries}}');
@@ -767,6 +804,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_discounts}}', 'dateFrom', false);
         $this->createIndex(null, '{{%commerce_discounts}}', 'dateTo', false);
         $this->createIndex(null, '{{%commerce_gateways}}', 'name', true);
+        $this->createIndex(null, '{{%commerce_gateways}}', 'handle', true);
         $this->createIndex(null, '{{%commerce_lineitems}}', ['orderId', 'purchasableId', 'optionsSignature'], true);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'taxCategoryId', false);
@@ -787,6 +825,9 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'orderStatusId', false);
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'emailId', false);
         $this->createIndex(null, '{{%commerce_paymentcurrencies}}', 'iso', true);
+        $this->createIndex(null, '{{%commerce_plans}}', 'gatewayId', false);
+        $this->createIndex(null, '{{%commerce_plans}}', 'handle', true);
+        $this->createIndex(null, '{{%commerce_plans}}', 'reference', false);
         $this->createIndex(null, '{{%commerce_products}}', 'typeId', false);
         $this->createIndex(null, '{{%commerce_products}}', 'postDate', false);
         $this->createIndex(null, '{{%commerce_products}}', 'expiryDate', false);
@@ -825,6 +866,13 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_states}}', 'countryId', false);
         $this->createIndex(null, '{{%commerce_states}}', ['countryId', 'abbreviation'], true);
         $this->createIndex(null, '{{%commerce_states}}', ['countryId', 'name'], true);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'userId', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'planId', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'gatewayId', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'reference', true);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'nextPaymentDate', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'dateCreated', false);
+        $this->createIndex(null, '{{%commerce_subscriptions}}', 'dateExpired', false);
         $this->createIndex(null, '{{%commerce_taxcategories}}', 'handle', true);
         $this->createIndex(null, '{{%commerce_taxrates}}', 'taxZoneId', false);
         $this->createIndex(null, '{{%commerce_taxrates}}', 'taxCategoryId', false);
@@ -882,6 +930,8 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['userId'], '{{%users}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_plans}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_plans}}', ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_products}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_products}}', ['shippingCategoryId'], '{{%commerce_shippingcategories}}', ['id']);
         $this->addForeignKey(null, '{{%commerce_products}}', ['taxCategoryId'], '{{%commerce_taxcategories}}', ['id']);
@@ -910,6 +960,10 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_shippingzone_states}}', ['shippingZoneId'], '{{%commerce_shippingzones}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_shippingzone_states}}', ['stateId'], '{{%commerce_states}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_states}}', ['countryId'], '{{%commerce_countries}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', ['userId'], '{{%users}}', ['id'], 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', ['planId'], '{{%commerce_plans}}', ['id'], 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'RESTRICT');
+        $this->addForeignKey(null, '{{%commerce_subscriptions}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_taxrates}}', ['taxCategoryId'], '{{%commerce_taxcategories}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_taxrates}}', ['taxZoneId'], '{{%commerce_taxzones}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_taxzone_countries}}', ['countryId'], '{{%commerce_countries}}', ['id'], 'CASCADE', 'CASCADE');
@@ -943,6 +997,7 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_ordersettings}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_paymentsources}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_plans}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_products}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_sites}}', $this);
@@ -957,6 +1012,7 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_countries}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_states}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_states}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_subscriptions}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxrates}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_countries}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_states}}', $this);

@@ -1,0 +1,235 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set selectedSubnavItem = "subscriptions" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesubscriptions commercesubscriptionsedit" %}
+
+{% set title = subscription %}
+
+{% set crumbs = [
+    { label: "Subscriptions"|t('commerce'), url: url('commerce/subscriptions') }
+] %}
+
+{% import "_includes/forms" as forms %}
+
+{% block header %}
+    {{ block('pageTitle') }}
+    <div class="flex-grow"></div>
+{% endblock %}
+
+{% block content %}
+
+    {% if fieldLayout is not null and fieldLayout.getTabs()|length %}
+        <form id="order-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ subscription.cpEditUrl|hash }}" data-confirm-unload>
+            <input type="hidden" name="action" value="commerce/subscriptions/save">
+            <input type="hidden" name="redirect" value="{{ 'commerce/subscriptions'|hash }}">
+            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
+            {{ csrfInput() }}
+
+            {# Custom fields pane #}
+            <div id="fields" class="pane">
+
+
+                {% for tab in fieldLayout.getTabs() %}
+                    <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
+                        {% include "_includes/fields" with {
+                            fields: tab.getFields(),
+                            element: subscription,
+                        } only %}
+                    </div>
+                {% endfor %}
+                <div class="footer">
+                    <div class="btngroup right submit first">
+                        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
+                        <div class="btn submit menubtn"></div>
+                        <div class="menu">
+                            <ul>
+                                <li>
+                                    <a class="formsubmit" data-redirect="{{ subscription.cpEditUrl|hash }}"> {{ "Save and continue editing"|t('commerce') }} {{ forms.optionShortcutLabel('S') }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+
+    <div class="pane">
+
+        <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
+
+        {% if not subscription.isCanceled and not subscription.isExpired %}
+            {% set plans = subscription.alternativePlans %}
+            {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
+
+            {% for plan in plans %}
+                {% set planOptions = planOptions|merge([{label: plan.name, value:plan.id}]) %}
+            {% endfor %}
+
+            {{ forms.selectField({
+                label: 'Switch plan'|t('commerce'),
+                options: planOptions,
+                id: 'switchPlans'
+            }) }}
+
+            {% for plan in plans %}
+                <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="commerce/subscriptions/switch">
+                        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
+                        <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                        {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                        {{ csrfInput() }}
+
+                        {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
+
+                        <div class="field">
+                            <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Switch'|t('commerce') }}"></div>
+                        </div>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div>{{ 'Cannot switch plans for this subscription.'|t('commerce') }}</div>
+        {% endif %}
+
+        {% if subscription.canReactivate() %}
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                {{ csrfInput() }}
+
+                <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
+            </form>
+        {% endif %}
+
+    </div>
+
+    {% if not subscription.isCanceled and not subscription.isExpired %}
+        <div class="pane">
+            <h2>{{ 'Cancel subscription'|t('commerce') }}</h2>
+
+            <form method="POST">
+                <input type="hidden" name="action" value="commerce/subscriptions/cancel">
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
+                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                {{ csrfInput() }}
+
+                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
+
+                <div class="field">
+                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
+                </div>
+
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="pane">
+        <h2>Payment history</h2>
+        {% set payments = subscription.getAllPayments() %}
+
+        <table id="" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Invoice date'|t('commerce') }}</th>
+                <th scope="col">{{ 'Invoice amount'|t('commerce') }}</span></th>
+                <th scope="col">{{ 'Status'|t('commerce') }}</span></th>
+                <th scope="col">{{ 'Info'|t('commerce') }}</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for payment in payments %}
+                {% set info = [
+                    { label: "Reference", type: 'code', value: payment.paymentReference },
+                    { label: "Response", type: 'json', value: payment.response|raw },
+                ] %}
+                <tr class="infoRow" data-info="{{ info|json_encode }}">
+                    <td>{{ payment.paymentDate|datetime }}</td>
+                    <td>{{ payment.paymentCurrency }} {{ payment.paymentAmount }}</td>
+                    <td class="payment-status-{{ payment.paid ? 'paid' : (payment.forgiven ? 'forgiven' : 'unpaid') }}">
+                        {{ payment.paid ? 'Paid'|t('commerce') : (payment.forgiven ? 'Forgiven'|t('commerce') : 'Unpaid'|t('commerce')) }}
+                    </td>
+                    <td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+
+{% block details %}
+
+    <div class="meta">
+        {{ forms.textField({
+            label: 'Subscription plan'|t('commerce'),
+            value: subscription.getPlan().name,
+            readonly: true
+        }) }}
+
+        {{ forms.textField({
+            label: 'Subscription reference'|t('commerce'),
+            value: subscription.reference,
+            readonly: true
+        }) }}
+    </div>
+    <hr />
+    <div class="meta">
+        {{ forms.textField({
+            label: 'Subscription date'|t('commerce'),
+            value: subscription.dateCreated|datetime,
+            readonly: true
+        }) }}
+
+        {{ forms.textField({
+            label: 'Trial days credited'|t('commerce'),
+            value: subscription.trialDays,
+            readonly: true
+        }) }}
+
+        {% if subscription.trialDays %}
+            {{ forms.textField({
+                label: 'Trial expiration date'|t('commerce'),
+                value: subscription.trialExpires|datetime,
+                readonly: true
+            }) }}
+        {% endif %}
+    </div>
+    <hr>
+    <div class="meta">
+        {{ forms.textField({
+            label: 'Next payment date'|t('commerce'),
+            value: subscription.nextPaymentDate|datetime,
+            readonly: true
+        }) }}
+
+        {{ forms.textField({
+            label: 'Expiry date'|t('commerce'),
+            value: subscription.dateExpired ? subscription.dateExpired|datetime : '-',
+            readonly: true
+        }) }}
+
+        {{ forms.textField({
+            label: 'Cancelation date'|t('commerce'),
+            value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
+            readonly: true
+        }) }}
+    </div>
+{% endblock %}
+
+{% js %}
+    $(document).ready(function () {
+        $('#switchPlans').on('change', function (ev) {
+            $('.switchPlansForm').addClass('hidden');
+            $('#switch-'+ev.currentTarget.value).removeClass('hidden');
+        });
+
+        $.each($('.tableRowInfo'), function () {
+            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
+    });
+
+{% endjs %}

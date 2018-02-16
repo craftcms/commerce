@@ -4,11 +4,14 @@ namespace craft\commerce\variables;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\Plan;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\SubscriptionQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\Country;
 use craft\commerce\models\Currency;
@@ -193,6 +196,30 @@ class Commerce
     }
 
     /**
+     * Get all payment sources for the current user on a specified gateway.
+     *
+     * @param int $gatewayId the gateway id
+     *
+     * @return PaymentSource[]
+     */
+    public function getPaymentSourcesOnGateway(int $gatewayId): array
+    {
+        $userId = Craft::$app->getUser()->getId();
+
+        return CommercePlugin::getInstance()->getPaymentSources()->getAllGatewayPaymentSourcesByUserId($gatewayId, (int)$userId);
+    }
+
+    /**
+     * Get all subscription plans.
+     *
+     * @return Plan[]
+     */
+    public function getPlans(): array
+    {
+        return CommercePlugin::getInstance()->getPlans()->getAllEnabledPlans();
+    }
+
+    /**
      * Get the plugin instance.
      *
      * @return CommercePlugin
@@ -322,6 +349,24 @@ class Commerce
     public function orders($criteria = null): OrderQuery
     {
         $query = Order::find();
+
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Returns a new SubscriptionQuery instance.
+     *
+     * @param mixed $criteria
+     *
+     * @return SubscriptionQuery
+     */
+    public function subscriptions($criteria = null): SubscriptionQuery
+    {
+        $query = Subscription::find();
 
         if ($criteria) {
             Craft::configure($query, $criteria);

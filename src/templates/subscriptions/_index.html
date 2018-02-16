@@ -1,0 +1,16 @@
+{% extends "_layouts/elementindex" %}
+
+{% set title = "Subscriptions"|t('commerce') %}
+{% set docTitle = title~' - '~'Commerce' %}
+{% set elementType = 'craft\\commerce\\elements\\Subscription' %}
+{% set selectedTab = 'subscriptions' %}
+{% set selectedSubnavItem = "subscriptions" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesubscriptions commercesubscriptionsindex" %}
+
+
+{% js %}
+    if (typeof Craft.Commerce === 'undefined') {
+        Craft.Commerce = {};
+    }
+
+{% endjs %}

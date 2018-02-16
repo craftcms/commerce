@@ -1,0 +1,95 @@
+{% extends "commerce/_layouts/settingscp" %}
+{% set title = brandNewPlan ? 'Create a new subscription plan'|t('commerce') : plan.name %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/plans/save-plan">
+    {{ redirectInput('commerce/settings/subscriptions/plans') }}
+
+    {% if plan is not null and plan.id %}
+        <input type="hidden" name="planId" value="{{ plan.id }}">
+    {% endif %}
+
+    <div id="plan-settings">
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            instructions: "What this subscription plan will be called in the CP."|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: plan ? plan.name : '',
+            errors: plan ? plan.getErrors('name') : [],
+            autofocus: true,
+            required: true,
+            translatable: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Handle"|t('commerce'),
+            instructions: "How you’ll refer to this psubscription plan in the templates."|t('commerce'),
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: plan ? plan.handle : '',
+            errors: plan ? plan.getErrors('handle') : [],
+            required: true
+        }) }}
+
+        {{ forms.elementSelectField({
+            elementType: entryElementType,
+            elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).find() : null,
+            instructions: "The Entry that contains description for this subscriptions plan."|t('commerce'),
+            id: 'planInformation',
+            label: "Description"|t(','),
+            class: 'ltr',
+            name: 'planInformation',
+            limit: 1
+        }) }}
+
+        {{ forms.selectField({
+            label: "Gateway"|t('commerce'),
+            instructions: "Which payment gateway will be used for the subscription plan."|t('commerce'),
+            id: 'gatewayId',
+            class: 'gateway-select code ltr',
+            name: 'gatewayId',
+            value: plan ? plan.gatewayId,
+            options: gatewayOptions,
+            errors: plan ? plan.getErrors('gatewayId') : []
+        }) }}
+
+        {% for gateway in supportedGateways %}
+            {% set isCurrent = plan and (gateway.id == plan.gatewayId) %}
+
+            <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden"{% endif %}">
+                {% namespace 'gateway['~gateway.id~']' %}
+                    {{ gateway.getPlanSettingsHtml({'plan': plan, 'gateway': gateway})|raw }}
+                {% endnamespace %}
+            </div>
+        {% endfor %}
+
+        {{ forms.lightswitchField({
+            label: "Enabled for customers to select?"|t('commerce'),
+            name: 'enabled',
+            on: plan ? plan.enabled,
+            errors: plan ? plan.getErrors('enabled') : [],
+        }) }}
+    </div>
+{% endblock %}
+
+{% js %}
+    {% if plan is null or not plan.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+
+    $('#gatewayId').on('change', function (ev) {
+        $('.gateway-settings').addClass('hidden');
+        $('#gateway-settings-' + ev.currentTarget.value).removeClass('hidden');
+    });
+
+{% endjs %}
