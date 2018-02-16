@@ -18,7 +18,7 @@
                 <th scope="col">{{ "Gateway"|t('commerce') }}</th>
                 <th scope="col">{{ "Active subscriptions"|t('commerce') }}</th>
                 <th scope="col">{{ "Enabled?"|t('commerce') }}</th>
-                <th scope="col">{{ 'Information linked?'|t('commerce') }}"</th>
+                <th scope="col">{{ 'Information linked?'|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -41,7 +41,7 @@
     {% endif %}
 
     <div class="buttons">
-        <a href="{{ url('commerce/settings/plans/new') }}"
+        <a href="{{ url('commerce/settings/subscriptions/plan/new') }}"
            class="btn submit add icon">{{ 'New subscription plan'|t('commerce') }}</a>
     </div>
 {% endblock %}
