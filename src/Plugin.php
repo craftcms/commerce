@@ -255,7 +255,7 @@ class Plugin extends \craft\base\Plugin
     private function _registerCpAlerts()
     {
         Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
-            if (Craft::$app->getRequest()->getFullPath() != 'commerce/settings/registration') {
+            if (Craft::$app->getRequest()->getPathInfo() != 'commerce/settings/registration') {
                 $message = null;
                 $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
 
