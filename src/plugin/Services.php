@@ -2,7 +2,6 @@
 
 namespace craft\commerce\plugin;
 
-use craft\commerce\base\Plan;
 use craft\commerce\services\Addresses;
 use craft\commerce\services\Cart;
 use craft\commerce\services\Countries;
@@ -466,7 +465,7 @@ trait Services
             'payments' => Payments::class,
             'paymentSources' => PaymentSources::class,
             'pdf' => Pdf::class,
-            'plans' => Plan::class,
+            'plans' => Plans::class,
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
