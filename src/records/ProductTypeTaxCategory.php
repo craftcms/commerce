@@ -8,11 +8,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type tax category record.
  *
- * @property int         $productTypeId
- * @property int         $localeId
- * @property string      $uriFormat
- * @property TaxCategory $taxCategory
  * @property ProductType $productType
+ * @property int         $productTypeId
+ * @property TaxCategory $taxCategory
+ * @property int         $taxCategoryId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

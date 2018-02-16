@@ -8,12 +8,12 @@ use yii\db\ActiveQueryInterface;
 /**
  * Customer discount record.
  *
- * @property int      $id
- * @property int      $discountId
- * @property int      $customerId
- * @property int      $uses
- * @property Discount $discount
  * @property Customer $customer
+ * @property int      $customerId
+ * @property Discount $discount
+ * @property int      $discountId
+ * @property int      $id
+ * @property int      $uses
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

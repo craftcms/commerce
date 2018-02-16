@@ -9,8 +9,8 @@ use yii\db\ActiveQueryInterface;
  * Country record.
  *
  * @property int     $id
- * @property string  $name
  * @property string  $iso
+ * @property string  $name
  * @property bool    $stateRequired
  * @property State[] $states
  *

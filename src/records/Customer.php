@@ -8,13 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Customer record.
  *
- * @property int               $id
- * @property int               $userId
- * @property int               $lastUsedBillingAddressId
- * @property int               $lastUsedShippingAddressId
  * @property Address[]         $addresses
  * @property CustomerAddress[] $customerAddresses
+ * @property int               $id
+ * @property int               $lastUsedBillingAddressId
+ * @property int               $lastUsedShippingAddressId
  * @property Order[]           $orders
+ * @property int               $userId
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0

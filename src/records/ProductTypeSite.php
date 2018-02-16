@@ -9,14 +9,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type site record.
  *
+ * @property bool        $hasUrls
  * @property int         $id
- * @property int         $productTypeId
- * @property int         $siteId
- * @property string      $uriFormat
- * @property string      $hasUrls
- * @property string      $template
- * @property Site        $site
  * @property ProductType $productType
+ * @property int         $productTypeId
+ * @property Site        $site
+ * @property int         $siteId
+ * @property string      $template
+ * @property string      $uriFormat
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  2.0
