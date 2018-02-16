@@ -12,10 +12,4 @@ use craft\base\Model;
  */
 class SwitchPlansForm extends Model
 {
-    /**
-     * Whether plan change should be prorated
-     *
-     * @var int
-     */
-    public $prorate = false;
 }
