@@ -1,41 +1,47 @@
+{# Order History Tab #}
 
-{% if order.histories|length %}
-    <table class="data fullwidth">
-        <thead>
-        <tr>
-            <th scope="col">{{ 'Status'|t('commerce') }}</th>
-            <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
-            <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
-            <th scope="col">{{ 'Message'|t('commerce') }}</th>
-            <th scope="col">{{ 'Date'|t('commerce') }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for orderHistory in order.histories %}
-            <tr data-id="{{ orderHistory.id }}">
-                <td>
-                    {% if orderHistory.newStatus %}
-                        <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if orderHistory.prevStatus %}
-                        <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if orderHistory.customer.userId %}
-                        <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
-                    {% else %}
-                        {{ orderHistory.order.email }}
-                    {% endif %}
-                </td>
-                <td>{{ orderHistory.message }}</td>
-                <td>{{ orderHistory.dateCreated|date }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="light">{{ 'No order history items.'|t('commerce') }}</p>
-{% endif %}
+<div id="orderHistoryTab" class="hidden">
+    <div class="pane">
+        <h3>{{ "Order History"|t('commerce') }}</h3>
+        {% if order.histories|length %}
+            <table class="data fullwidth">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Message'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Date'|t('commerce') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for orderHistory in order.histories %}
+                    <tr data-id="{{ orderHistory.id }}">
+                        <td>
+                            {% if orderHistory.newStatus %}
+                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.prevStatus %}
+                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.customer.userId %}
+                                <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                            {% else %}
+                                {{ orderHistory.order.email }}
+                            {% endif %}
+                        </td>
+                        <td>{{ orderHistory.message }}</td>
+                        <td>{{ orderHistory.dateCreated|date }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="light">{{ 'No order status history items will exists until the cart becomes an order.'|t('commerce') }}</p>
+        {% endif %}
+    </div>
+</div>

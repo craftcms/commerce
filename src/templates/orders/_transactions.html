@@ -1,91 +1,99 @@
-{% macro transactionRow(transaction, level) %}
-    {% set info = [
-    { label: "ID", value: transaction.id },
-    { label: "Hash", value: transaction.hash },
-    { label: "Reference", value: transaction.reference },
-    { label: "Message", value: transaction.message|title },
-    { label: "Code", value: transaction.code },
-    { label: "Converted Price", value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-    { label: "Response", value: "<textarea class=\"transaction-response\">"~transaction.response|raw~"</textarea>" },
-    ] %}
+<div id="transactionsTab" class="pane hidden">
+    {% macro transactionRow(transaction, level) %}
+        {% set info = [
+            { label: "ID", type:'code', value: transaction.id },
+            { label: "Hash", type:'code', value: transaction.hash },
+            { label: "Reference", type:'code', value: transaction.reference },
+            { label: "Message", type:'text', value: transaction.message|title },
+            { label: "Code", type:'code', value: transaction.code },
+            { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
+            { label: "Response", type:'json', value: transaction.response|raw },
+        ] %}
 
-    <tr class="infoRow" data-info="{{ info|json_encode }}">
-        <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
-        <td class="transaction-status transaction-status-{{ transaction.status }}">
-            {{ transaction.status|title|t('commerce') }}
-        </td>
-        <td>{{ transaction.amount|currency(transaction.currency) }}
-            <small class="light">({{ transaction.currency }})
-            </small>
-        </td>
-        <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
-            <small class="light">
-                ({{ transaction.paymentCurrency }})
-            </small>
-        </td>
-        <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
-        <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
-        <td><span class="tableRowInfo" data-icon="info"
-                  href="#"></span></td>
-        <td>
-            {% if transaction.canCapture() %}
-                <form>
-                    <a class="small btn submit formsubmit"
-                       data-action="commerce/orders/transaction-capture"
-                       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
-                       data-redirect="{{ transaction.order.cpEditUrl }}"
-                       data-param="id"
-                       data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
-                </form>
-            {% endif %}
-            {% if transaction.canRefund() %}
-                <form>
-                    <a class="small btn submit formsubmit"
-                       data-action="commerce/orders/transaction-refund"
-                       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
-                       data-redirect="{{ transaction.order.cpEditUrl }}"
-                       data-param="id"
-                       data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
-                </form>
-            {% endif %}
-        </td>
-    </tr>
-
-    {% set transactions = transaction.childTransactions %}
-    {% if transactions|length %}
-        {% import _self as self %}
-        {% for childTransaction in transactions %}
-            {{ self.transactionRow(childTransaction, level +1) }}
-        {% endfor %}
-    {% endif %}
-{% endmacro %}
-
-{% if order.nestedTransactions|length %}
-    {% from _self import transactionRow %}
-    <table class="data fullwidth">
-        <thead>
-        <tr>
-            <th scope="col">{{ 'Type'|t('commerce') }}</span></th>
-            <th scope="col">{{ 'Status'|t('commerce') }}</th>
-            <th scope="col">{{ 'Amount'|t('commerce') }}</th>
-            <th scope="col">{{ 'Payment Amount'|t('commerce') }}</th>
-            <th scope="col">{{ 'Method'|t('commerce') }}</th>
-            <th scope="col">{{ 'Date'|t('commerce') }}</th>
-            <th scope="col">{{ 'Info'|t('commerce') }}</th>
-            <th></th>
+        <tr class="infoRow" data-info="{{ info|json_encode }}">
+            <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
+            <td class="transaction-status transaction-status-{{ transaction.status }}">
+                {{ transaction.status|title|t('commerce') }}
+            </td>
+            <td>{{ transaction.amount|currency(transaction.currency) }}
+                <small class="light">({{ transaction.currency }})
+                </small>
+            </td>
+            <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
+                <small class="light">
+                    ({{ transaction.paymentCurrency }})
+                </small>
+            </td>
+            <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
+            <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
+            <td><span class="tableRowInfo" data-icon="info"
+                      href="#"></span></td>
+            <td>
+                {% if transaction.canCapture() %}
+                    <form>
+                        <a class="small btn submit formsubmit"
+                           data-action="commerce/orders/transaction-capture"
+                           data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
+                           data-redirect="{{ transaction.order.cpEditUrl }}"
+                           data-param="id"
+                           data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
+                    </form>
+                {% endif %}
+                {% if transaction.canRefund() %}
+                    <form>
+                        <a class="small btn submit formsubmit"
+                           data-action="commerce/orders/transaction-refund"
+                           data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
+                           data-redirect="{{ transaction.order.cpEditUrl }}"
+                           data-param="id"
+                           data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
+                    </form>
+                {% endif %}
+            </td>
         </tr>
-        </thead>
-        <tbody>
-        {% for transaction in order.nestedTransactions %}
-            {{ transactionRow(transaction, 0) }}
-        {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p class="light">{{ 'No transactions.'|t('commerce') }}</p>
-{% endif %}
+
+        {% set transactions = transaction.childTransactions %}
+        {% if transactions|length %}
+            {% import _self as self %}
+            {% for childTransaction in transactions %}
+                {{ self.transactionRow(childTransaction, level +1) }}
+            {% endfor %}
+        {% endif %}
+    {% endmacro %}
+
+    <h3>{{ "Transactions"|t('commerce') }}</h3>
+
+    {% if order.nestedTransactions|length %}
+        {% from _self import transactionRow %}
+        <table class="data fullwidth">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Type'|t('commerce') }}</span></th>
+                <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                <th scope="col">{{ 'Amount'|t('commerce') }}</th>
+                <th scope="col">{{ 'Payment Amount'|t('commerce') }}</th>
+                <th scope="col">{{ 'Method'|t('commerce') }}</th>
+                <th scope="col">{{ 'Date'|t('commerce') }}</th>
+                <th scope="col">{{ 'Info'|t('commerce') }}</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for transaction in order.nestedTransactions %}
+                {{ transactionRow(transaction, 0) }}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="light">{{ 'No transactions.'|t('commerce') }}</p>
+    {% endif %}
 
 
-{% if not order.isPaid() %}
-    <a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make Payment</a>
-{% endif %}
+    {% if not order.isPaid() %}
+        <div class="footer">
+            <a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make
+                Payment</a>
+        </div>
+    {% endif %}
+
+</div>

@@ -133,42 +133,6 @@ class Address extends Model
         return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
     }
 
-    public function rules(): array
-    {
-        return [
-            [
-                ['countryId'],
-                function (string $attribute, $params, InlineValidator $validator) {
-                    if (!Plugin::getInstance()->getCountries()->getCountryById($this->countryId)) {
-                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
-                    }
-                }
-            ],
-            [
-                ['stateId'],
-                function (string $attribute, $params, InlineValidator $validator) {
-                    $plugin = Plugin::getInstance();
-
-                    // Make sure it's set if the country requires it
-                    $country = $this->countryId ? $plugin->getCountries()->getCountryById($this->countryId) : null;
-                    if ($country && $country->stateRequired && !$this->stateId) {
-                        $validator->addError($this, $attribute, Craft::t('yii', '{attribute} cannot be blank.'));
-                        return;
-                    }
-
-                    // Make sure it's valid
-                    if ($this->stateId) {
-                        $state = $plugin->getStates()->getStateById($this->stateId);
-                        if (!$state || $state->countryId != $country->id) {
-                            $validator->addError($this, $attribute, Craft::t('yii', '{attribute} is invalid.'));
-                        }
-                    }
-                },
-                'skipOnEmpty' => false,
-            ],
-        ];
-    }
-
     /**
      * @inheritdoc
      */
