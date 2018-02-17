@@ -81,8 +81,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
             $category = new Category();
             $category->groupId = $group->id;
-            $category->fieldLayoutId = $group->fieldLayoutId;
-
             $category->slug = $productType['handle'];
             $category->enabled = true;
             $category->title = $productType['name'];
