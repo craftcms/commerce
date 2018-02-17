@@ -79,8 +79,6 @@ class Cart extends Component
      */
     public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error): bool
     {
-        $isNewLineItem = false;
-
         // saving current cart if it's new and empty
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
@@ -97,8 +95,6 @@ class Cart extends Component
         $plugin = Plugin::getInstance();
         $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
-        $isNewLineItem = $lineItem->id ?? true;
-
         if ($lineItem) {
             foreach ($order->getLineItems() as $item) {
                 if ($item->id == $lineItem->id) {
@@ -106,8 +102,10 @@ class Cart extends Component
                 }
             }
             $lineItem->qty += $qty;
+            $isNewLineItem = false;
         } else {
             $lineItem = $plugin->getLineItems()->createLineItem($purchasableId, $order, $options, $qty);
+            $isNewLineItem = true;
         }
 
         if ($note) {
