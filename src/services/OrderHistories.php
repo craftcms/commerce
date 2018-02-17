@@ -16,7 +16,7 @@ use yii\base\Exception;
  * Order history service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderHistories extends Component
 {
@@ -33,7 +33,6 @@ class OrderHistories extends Component
 
     /**
      * @param int $id
-     *
      * @return OrderHistory|null
      */
     public function getOrderHistoryById($id)
@@ -47,7 +46,6 @@ class OrderHistories extends Component
 
     /**
      * @param int $id orderId
-     *
      * @return OrderHistory[]
      */
     public function getAllOrderHistoriesByOrderId($id): array
@@ -68,8 +66,7 @@ class OrderHistories extends Component
 
     /**
      * @param Order $order
-     * @param int   $oldStatusId
-     *
+     * @param int $oldStatusId
      * @return bool
      * @throws Exception
      */
@@ -101,7 +98,6 @@ class OrderHistories extends Component
 
     /**
      * @param OrderHistory $model
-     *
      * @return bool
      * @throws Exception
      */
@@ -142,7 +138,6 @@ class OrderHistories extends Component
 
     /**
      * @param $id
-     *
      * @return bool
      */
     public function deleteOrderHistoryById($id): bool

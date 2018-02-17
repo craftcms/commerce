@@ -8,29 +8,28 @@ use yii\db\ActiveQueryInterface;
 /**
  * Address record.
  *
- * @property string  $address1
- * @property string  $address2
- * @property string  $alternativePhone
- * @property string  $attention
- * @property string  $businessId
- * @property string  $businessName
- * @property string  $businessTaxId
- * @property string  $city
+ * @property string $address1
+ * @property string $address2
+ * @property string $alternativePhone
+ * @property string $attention
+ * @property string $businessId
+ * @property string $businessName
+ * @property string $businessTaxId
+ * @property string $city
  * @property Country $country
- * @property int     $countryId
- * @property string  $firstName
- * @property int     $id
- * @property string  $lastName
- * @property string  $phone
- * @property State   $state
- * @property int     $stateId
- * @property string  $stateName
- * @property bool    $stockLocation
- * @property string  $title
- * @property string  $zipCode
- *
+ * @property int $countryId
+ * @property string $firstName
+ * @property int $id
+ * @property string $lastName
+ * @property string $phone
+ * @property State $state
+ * @property int $stateId
+ * @property string $stateName
+ * @property bool $stockLocation
+ * @property string $title
+ * @property string $zipCode
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Address extends ActiveRecord
 {

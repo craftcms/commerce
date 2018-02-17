@@ -10,13 +10,12 @@ use yii\db\Connection;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
- *
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class VariantQuery extends ElementQuery
 {
@@ -58,7 +57,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function sku($value)
@@ -70,7 +68,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function product($value)
@@ -82,7 +79,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function productId($value)
@@ -94,7 +90,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function isDefault($value)
@@ -106,7 +101,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function stock($value)
@@ -118,7 +112,6 @@ class VariantQuery extends ElementQuery
 
     /**
      * @param $value
-     *
      * @return $this
      */
     public function hasStock($value)

@@ -18,9 +18,8 @@ use yii\base\Exception;
  * Email service.
  *
  * @property array|Email[] $allEmails
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Emails extends Component
 {
@@ -29,7 +28,6 @@ class Emails extends Component
 
     /**
      * @event MailEvent The event that is raised before an email is sent.
-     *
      * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
      */
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
@@ -44,7 +42,6 @@ class Emails extends Component
 
     /**
      * @param int $id
-     *
      * @return Email|null
      */
     public function getEmailById($id)
@@ -57,7 +54,6 @@ class Emails extends Component
     }
 
     /**
-     *
      * @return Email[]
      */
     public function getAllEmails(): array
@@ -74,7 +70,6 @@ class Emails extends Component
 
     /**
      * @param Email $model
-     *
      * @return bool
      * @throws \Exception
      */
@@ -116,7 +111,6 @@ class Emails extends Component
 
     /**
      * @param int $id
-     *
      * @return bool
      */
     public function deleteEmailById($id): bool
@@ -133,8 +127,8 @@ class Emails extends Component
     /**
      * Sends a commerce email
      *
-     * @param Email        $email
-     * @param Order        $order
+     * @param Email $email
+     * @param Order $order
      * @param OrderHistory $orderHistory
      */
     public function sendEmail($email, $order, $orderHistory)
@@ -353,7 +347,6 @@ class Emails extends Component
 
     /**
      * @param $id
-     *
      * @return Email[]
      */
     public function getAllEmailsByOrderStatusId($id): array

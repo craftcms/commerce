@@ -8,14 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Country record.
  *
- * @property int     $id
- * @property string  $iso
- * @property string  $name
- * @property bool    $stateRequired
+ * @property int $id
+ * @property string $iso
+ * @property string $name
+ * @property bool $stateRequired
  * @property State[] $states
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Country extends ActiveRecord
 {

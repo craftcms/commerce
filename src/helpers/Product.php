@@ -5,14 +5,13 @@ namespace craft\commerce\helpers;
 use craft\commerce\elements\Product as ProductModel;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 
 /**
  * Class CommerceVariantMatrixHelper
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Product
 {
@@ -22,10 +21,9 @@ class Product
     /**
      * Populates all Variant Models from HUD or POST data
      *
-     * @param ProductModel  $product
+     * @param ProductModel $product
      * @param               $variant
      * @param               $key
-     *
      * @return Variant
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant

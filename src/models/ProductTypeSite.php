@@ -10,9 +10,8 @@ use yii\base\InvalidConfigException;
  * Product type locale model class.
  *
  * @property ProductType $productType the Product Type
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypeSite extends Model
 {

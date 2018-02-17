@@ -10,36 +10,35 @@ use yii\db\ActiveQueryInterface;
 /**
  * Discount record.
  *
- * @property bool                 $allCategories
- * @property bool                 $allGroups
- * @property bool                 $allPurchasables
- * @property float                $baseDiscount
- * @property string               $code
- * @property \DateTime            $dateFrom
- * @property \DateTime            $dateTo
- * @property string               $description
+ * @property bool $allCategories
+ * @property bool $allGroups
+ * @property bool $allPurchasables
+ * @property float $baseDiscount
+ * @property string $code
+ * @property \DateTime $dateFrom
+ * @property \DateTime $dateTo
+ * @property string $description
  * @property ActiveQueryInterface $discountUserGroups
- * @property bool                 $enabled
- * @property bool                 $excludeOnSale
- * @property bool                 $freeShipping
- * @property UserGroup[]          $groups
- * @property int                  $id
- * @property int                  $maxPurchaseQty
- * @property string               $name
- * @property string               $percentageOffSubject
- * @property float                $percentDiscount
- * @property int                  $perEmailLimit
- * @property float                $perItemDiscount
- * @property int                  $perUserLimit
- * @property int                  $purchaseQty
- * @property int                  $purchaseTotal
- * @property bool                 $sortOrder
- * @property bool                 $stopProcessing
- * @property int                  $totalUseLimit
- * @property int                  $totalUses
- *
+ * @property bool $enabled
+ * @property bool $excludeOnSale
+ * @property bool $freeShipping
+ * @property UserGroup[] $groups
+ * @property int $id
+ * @property int $maxPurchaseQty
+ * @property string $name
+ * @property string $percentageOffSubject
+ * @property float $percentDiscount
+ * @property int $perEmailLimit
+ * @property float $perItemDiscount
+ * @property int $perUserLimit
+ * @property int $purchaseQty
+ * @property int $purchaseTotal
+ * @property bool $sortOrder
+ * @property bool $stopProcessing
+ * @property int $totalUseLimit
+ * @property int $totalUses
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Discount extends ActiveRecord
 {

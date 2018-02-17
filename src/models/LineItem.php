@@ -20,21 +20,20 @@ use yii\base\InvalidConfigException;
  * Line Item model representing a line item on an order.
  *
  * @property array|OrderAdjustment[] $adjustments
- * @property string                  $description     the description from the snapshot of the purchasable
- * @property float                   $discount
- * @property bool                    $onSale
- * @property Order                   $order
- * @property Purchasable             $purchasable
- * @property ShippingCategory        $shippingCategory
- * @property int                     $shippingCost
- * @property string                  $sku             the description from the snapshot of the purchasable
- * @property int                     $tax
- * @property float                   $total           the Purchasable’s sale price multiplied by the quantity of the line item
- * @property TaxCategory             $taxCategory
- * @property int                     $taxIncluded
- *
+ * @property string $description the description from the snapshot of the purchasable
+ * @property float $discount
+ * @property bool $onSale
+ * @property Order $order
+ * @property Purchasable $purchasable
+ * @property ShippingCategory $shippingCategory
+ * @property int $shippingCost
+ * @property string $sku the description from the snapshot of the purchasable
+ * @property int $tax
+ * @property float $total the Purchasable’s sale price multiplied by the quantity of the line item
+ * @property TaxCategory $taxCategory
+ * @property int $taxIncluded
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class LineItem extends Model
 {
@@ -193,12 +192,10 @@ class LineItem extends Model
             ]
         ];
 
-        if($this->purchasableId)
-        {
+        if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
-            if($purchasable)
-            {
+            if ($purchasable) {
                 $purchasableRules = $purchasable->getLineItemRules($this);
                 array_merge($rules, $purchasableRules);
             }
@@ -228,7 +225,6 @@ class LineItem extends Model
 
     /**
      * @param $taxable
-     *
      * @return float|int
      */
     public function getTaxableSubtotal($taxable)
@@ -272,7 +268,6 @@ class LineItem extends Model
 
     /**
      * @return PurchasableInterface|null
-     *
      */
     public function getPurchasable()
     {
@@ -309,7 +304,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getPurchasableId(),
             'cpEditUrl' => '#',
             'options' => $this->options,
-            'sales'=> Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -372,7 +367,6 @@ class LineItem extends Model
 
     /**
      * @return TaxCategory
-     *
      * @throws InvalidConfigException
      */
     public function getTaxCategory(): TaxCategory
@@ -386,7 +380,6 @@ class LineItem extends Model
 
     /**
      * @return ShippingCategory
-     *
      * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
@@ -418,7 +411,6 @@ class LineItem extends Model
 
     /**
      * @param bool $included
-     *
      * @return float
      */
     public function getAdjustmentsTotal($included = false): float
@@ -436,7 +428,6 @@ class LineItem extends Model
     /**
      * @param      $type
      * @param bool $included
-     *
      * @return float|int
      */
     public function getAdjustmentsTotalByType($type, $included = false)
@@ -474,7 +465,6 @@ class LineItem extends Model
 
     /**
      * @deprecated since 2.0
-     *
      * @return float
      */
     public function getShippingCost(): float
@@ -486,7 +476,6 @@ class LineItem extends Model
 
     /**
      * @deprecated since 2.0
-     *
      * @return float
      */
     public function getDiscount(): float

@@ -5,7 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\events\CancelSubscriptionEvent;
@@ -27,7 +26,7 @@ use yii\base\InvalidConfigException;
  * Susbcriptions service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Subscriptions extends Component
 {
@@ -41,7 +40,6 @@ class Subscriptions extends Component
 
     /**
      * @event CreateSubscriptionEvent The event that is triggered before a subscription is created.
-     *
      * You may set [[CreateSubscriptionEvent::isValid]] to `false` to prevent the user from being subscribed to the plan.
      */
     const EVENT_BEFORE_CREATE_SUBSCRIPTION = 'beforeCreateSubscription';
@@ -53,7 +51,6 @@ class Subscriptions extends Component
 
     /**
      * @event SubscriptionEvent The event that is triggered before a subscription is reactivated
-     *
      * You may set [[SubscriptionEvent::isValid]] to `false` to prevent the subscription from being reactivated
      */
     const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = 'beforeReactivateSubscription';
@@ -65,7 +62,6 @@ class Subscriptions extends Component
 
     /**
      * @event SubscriptionSwitchPlansEvent The event that is triggered before a plan switch happens for a subscription
-     *
      * You may set [[SubscriptionSwitchPlansEvent::isValid]] to `false` to prevent the switch from happening
      */
     const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = 'beforeSwitchSubscriptionPlan';
@@ -77,7 +73,6 @@ class Subscriptions extends Component
 
     /**
      * @event CancelSubscriptionEvent The event that is triggered before a subscription is canceled
-     *
      * You may set [[CancelSubscriptionEvent::isValid]] to `false` to prevent the subscription from being canceled
      */
     const EVENT_BEFORE_CANCEL_SUBSCRIPTION = 'beforeCancelSubscription';
@@ -104,8 +99,7 @@ class Subscriptions extends Component
      * Expire a subscription.
      *
      * @param Subscription $subscription subscription to expire
-     * @param \DateTime    $dateTime     expiry date time
-     *
+     * @param \DateTime $dateTime expiry date time
      * @return bool whether succesfully expired subscription
      * @throws \Throwable if cannot expire subscription
      */
@@ -128,7 +122,6 @@ class Subscriptions extends Component
      * Returns susbcription count for a plan.
      *
      * @param int $planId
-     *
      * @return int
      */
     public function getSubscriptionCountForPlanById(int $planId): int
@@ -139,10 +132,9 @@ class Subscriptions extends Component
     /**
      * Subscribe a user to a subscription plan.
      *
-     * @param User             $user       the user subscribing to a plan
-     * @param Plan             $plan       the plan the user is being subscribed to
+     * @param User $user the user subscribing to a plan
+     * @param Plan $plan the plan the user is being subscribed to
      * @param SubscriptionForm $parameters array of additional parameters to use
-     *
      * @return bool the result
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
@@ -188,9 +180,8 @@ class Subscriptions extends Component
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        try{
+        try {
             Craft::$app->getElements()->saveElement($subscription, false);
-
         } catch (\Throwable $exception) {
             Craft::warning('Failed to subscribe '.$user.' to '.$plan.': '.$exception->getMessage());
 
@@ -210,8 +201,7 @@ class Subscriptions extends Component
     /**
      * Reactivate a subscription.
      *
-     * @param Subscription           $subscription
-     *
+     * @param Subscription $subscription
      * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException  if something went wrong when reactivating subscription
@@ -246,7 +236,7 @@ class Subscriptions extends Component
             $subscription->isCanceled = false;
             $subscription->dateCanceled = null;
 
-            try{
+            try {
                 Craft::$app->getElements()->saveElement($subscription, false);
             } catch (\Throwable $exception) {
                 Craft::warning('Failed to reactivate subscription '.$subscription->reference.': '.$exception->getMessage());
@@ -268,10 +258,9 @@ class Subscriptions extends Component
     /**
      * Switch a subscription to a different subscription plan.
      *
-     * @param Subscription    $subscription the subscription to modify
-     * @param Plan            $plan         the plan to change the subscription to
-     * @param SwitchPlansForm $parameters   additional parameters to use
-     *
+     * @param Subscription $subscription the subscription to modify
+     * @param Plan $plan the plan to change the subscription to
+     * @param SwitchPlansForm $parameters additional parameters to use
      * @return bool
      * @throws InvalidConfigException
      * @throws SubscriptionException
@@ -317,8 +306,8 @@ class Subscriptions extends Component
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        try{
-            $result =  Craft::$app->getElements()->saveElement($subscription);
+        try {
+            $result = Craft::$app->getElements()->saveElement($subscription);
 
             if (!$result) {
                 throw new SubscriptionException('Could not save subscription.');
@@ -344,9 +333,8 @@ class Subscriptions extends Component
     /**
      * Cancel a subscription.
      *
-     * @param Subscription           $subscription
+     * @param Subscription $subscription
      * @param CancelSubscriptionForm $parameters
-     *
      * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException  if something went wrong when canceling subscription
@@ -389,7 +377,7 @@ class Subscriptions extends Component
                 $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
             }
 
-            try{
+            try {
                 Craft::$app->getElements()->saveElement($subscription, false);
 
                 // fire an 'afterCancelSubscription' event
@@ -413,7 +401,6 @@ class Subscriptions extends Component
      * Update a subscription.
      *
      * @param Subscription $subscription
-     *
      * @return bool
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
@@ -432,16 +419,17 @@ class Subscriptions extends Component
 
     /**
      * Receive a payment for a subscription
-     * @param Subscription        $subscription
-     * @param SubscriptionPayment $payment
-     * @param \DateTime           $paidUntil
      *
+     * @param Subscription $subscription
+     * @param SubscriptionPayment $payment
+     * @param \DateTime $paidUntil
      * @return bool
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
      * @throws \yii\base\Exception
      */
-    public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, \DateTime $paidUntil): bool {
+    public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, \DateTime $paidUntil): bool
+    {
 
         if ($this->hasEventHandlers(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT)) {
             $this->trigger(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, new SubscriptionPaymentEvent([

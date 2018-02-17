@@ -15,7 +15,7 @@ use yii\web\Response;
  * Class Shipping Rules Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingRulesController extends BaseAdminController
 {
@@ -33,10 +33,9 @@ class ShippingRulesController extends BaseAdminController
     }
 
     /**
-     * @param int|null          $methodId
-     * @param int|null          $ruleId
+     * @param int|null $methodId
+     * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
-     *
      * @return Response
      * @throws HttpException
      */

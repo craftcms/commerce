@@ -8,19 +8,18 @@ use yii\db\ActiveQueryInterface;
 /**
  * Tax rate record.
  *
- * @property int         $id
- * @property string      $name
- * @property float       $rate
- * @property bool        $include
- * @property bool        $isVat
- * @property string      $taxable
- * @property int         $taxZoneId
- * @property int         $taxCategoryId
- * @property TaxZone     $taxZone
+ * @property int $id
+ * @property string $name
+ * @property float $rate
+ * @property bool $include
+ * @property bool $isVat
+ * @property string $taxable
+ * @property int $taxZoneId
+ * @property int $taxCategoryId
+ * @property TaxZone $taxZone
  * @property TaxCategory $taxCategory
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxRate extends ActiveRecord
 {

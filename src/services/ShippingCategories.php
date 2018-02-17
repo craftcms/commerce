@@ -12,12 +12,10 @@ use yii\base\Exception;
 /**
  * Shipping category service.
  *
- * @property array|ShippingCategory[] $allShippingCategories   all Shipping Categories
- * @property null|ShippingCategory    $defaultShippingCategory the default shipping category
- *
+ * @property array|ShippingCategory[] $allShippingCategories all Shipping Categories
+ * @property null|ShippingCategory $defaultShippingCategory the default shipping category
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
- *
+ * @since 2.0
  */
 class ShippingCategories extends Component
 {
@@ -70,7 +68,6 @@ class ShippingCategories extends Component
 
     /**
      * @param int $shippingCategoryId
-     *
      * @return ShippingCategory|null
      */
     public function getShippingCategoryById(int $shippingCategoryId)
@@ -98,7 +95,6 @@ class ShippingCategories extends Component
 
     /**
      * @param string $shippingCategoryHandle
-     *
      * @return ShippingCategory|null
      */
     public function getShippingCategoryByHandle(string $shippingCategoryHandle)
@@ -148,7 +144,6 @@ class ShippingCategories extends Component
 
     /**
      * @param ShippingCategory $model
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -205,7 +200,6 @@ class ShippingCategories extends Component
 
     /**
      * @param int $id
-     *
      * @return bool
      */
     public function deleteShippingCategoryById($id): bool
@@ -226,7 +220,6 @@ class ShippingCategories extends Component
 
     /**
      * @param $productTypeId
-     *
      * @return array
      */
     public function getShippingCategoriesByProductId($productTypeId): array

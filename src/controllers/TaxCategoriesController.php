@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Tax Categories Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxCategoriesController extends BaseAdminController
 {
@@ -29,9 +29,8 @@ class TaxCategoriesController extends BaseAdminController
     }
 
     /**
-     * @param int|null         $id
+     * @param int|null $id
      * @param TaxCategory|null $taxCategory
-     *
      * @return Response
      * @throws HttpException
      */
@@ -64,7 +63,6 @@ class TaxCategoriesController extends BaseAdminController
     }
 
     /**
-     *
      * @return Response|null
      * @throws HttpException
      */

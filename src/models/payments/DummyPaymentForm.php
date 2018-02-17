@@ -8,7 +8,7 @@ use craft\commerce\models\PaymentSource;
  * Credit Card Payment form model.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class DummyPaymentForm extends BasePaymentForm
 {

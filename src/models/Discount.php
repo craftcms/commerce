@@ -4,20 +4,17 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
-use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
-use craft\models\UserGroup;
 
 /**
  * Discount model
  *
  * @property string|false $cpEditUrl
- * @property string       $percentDiscountAsPercent
- * @property array        $userGroupIds
- *
+ * @property string $percentDiscountAsPercent
+ * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Discount extends Model
 {

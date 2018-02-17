@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Order Settings Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderSettingsController extends BaseAdminController
 {
@@ -21,7 +21,6 @@ class OrderSettingsController extends BaseAdminController
 
     /**
      * @param array $variables
-     *
      * @return Response
      */
     public function actionEdit(array $variables = []): Response

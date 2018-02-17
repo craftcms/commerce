@@ -12,7 +12,7 @@ use craft\helpers\Json;
  * Class VariantMatrix
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class VariantMatrix
 {
@@ -23,8 +23,7 @@ class VariantMatrix
      * Returns the HTML for a given product’s variant matrix.
      *
      * @param ProductElement $product The product model
-     * @param string         $name    The input name (sans namespace). Default is 'variants'.
-     *
+     * @param string $name The input name (sans namespace). Default is 'variants'.
      * @return string The variant matrix HTML
      */
     public static function getVariantMatrixHtml(ProductElement $product, $name = 'variants'): string
@@ -64,8 +63,7 @@ class VariantMatrix
      * Returns info about each variant field type for a variant matrix.
      *
      * @param ProductElement $product The product model
-     * @param string         $name    The input name (sans namespace)
-     *
+     * @param string $name The input name (sans namespace)
      * @return array
      */
     private static function _getVariantFieldHtml($product, $name): array

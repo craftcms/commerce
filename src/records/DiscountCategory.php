@@ -10,13 +10,12 @@ use yii\db\ActiveQueryInterface;
  * Discount Product type record.
  *
  * @property ActiveQueryInterface $category
- * @property int                  $categoryId
+ * @property int $categoryId
  * @property ActiveQueryInterface $discount
- * @property int                  $discountId
- * @property int                  $id
- *
+ * @property int $discountId
+ * @property int $id
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class DiscountCategory extends ActiveRecord
 {

@@ -14,7 +14,7 @@ use craft\commerce\records\Discount as DiscountRecord;
  * Discount Adjuster
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Discount implements AdjusterInterface
 {
@@ -83,7 +83,6 @@ class Discount implements AdjusterInterface
 
     /**
      * @param DiscountModel $discount
-     *
      * @return OrderAdjustment
      */
     private function _createOrderAdjustment(DiscountModel $discount): OrderAdjustment
@@ -101,7 +100,6 @@ class Discount implements AdjusterInterface
 
     /**
      * @param DiscountModel $discount
-     *
      * @return OrderAdjustment[]|false
      */
     private function _getAdjustments(DiscountModel $discount)

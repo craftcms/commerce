@@ -10,21 +10,20 @@ use yii\db\ActiveQueryInterface;
 /**
  * Sale record.
  *
- * @property bool          $allCategories
- * @property bool          $allGroups
- * @property bool          $allPurchasables
- * @property \DateTime     $dateFrom
- * @property \DateTime     $dateTo
- * @property string        $description
- * @property float         $discountAmount
- * @property string        $discountType
- * @property bool          $enabled
- * @property UserGroup[]   $groups
- * @property int           $id
- * @property string        $name
- *
+ * @property bool $allCategories
+ * @property bool $allGroups
+ * @property bool $allPurchasables
+ * @property \DateTime $dateFrom
+ * @property \DateTime $dateTo
+ * @property string $description
+ * @property float $discountAmount
+ * @property string $discountType
+ * @property bool $enabled
+ * @property UserGroup[] $groups
+ * @property int $id
+ * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Sale extends ActiveRecord
 {

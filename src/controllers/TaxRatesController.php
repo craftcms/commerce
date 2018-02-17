@@ -15,7 +15,7 @@ use yii\web\Response;
  * Class Tax Rates Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxRatesController extends BaseAdminController
 {
@@ -40,9 +40,8 @@ class TaxRatesController extends BaseAdminController
     }
 
     /**
-     * @param int|null     $id
+     * @param int|null $id
      * @param TaxRate|null $taxRate
-     *
      * @return Response
      * @throws HttpException
      */

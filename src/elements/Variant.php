@@ -15,18 +15,16 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
 
 /**
  * Variant Model
  *
- * @property string  $eagerLoadedElements some eager-loaded elements on a given handle
- * @property bool    $onSale
- * @property Product $product             the product associated with this variant
- * @property Sale[]  $salesApplied        sales models which are currently affecting the salePrice of this purchasable
- *
+ * @property string $eagerLoadedElements some eager-loaded elements on a given handle
+ * @property bool $onSale
+ * @property Product $product the product associated with this variant
+ * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Variant extends Purchasable
 {
@@ -128,7 +126,7 @@ class Variant extends Purchasable
     {
         return 'variant';
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -161,7 +159,6 @@ class Variant extends Purchasable
      * An array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return Sale[]
-     *
      * @deprecated
      */
     public function getSalesApplied(): array
@@ -175,7 +172,6 @@ class Variant extends Purchasable
      * sets an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @param Sale[] $sales
-     *
      * @deprecated
      */
     public function setSalesApplied($sales)
@@ -438,7 +434,6 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
-     *
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
     public static function find(): ElementQueryInterface
@@ -744,33 +739,38 @@ class Variant extends Purchasable
         $productType = $this->product->getType();
 
         switch ($attribute) {
-            case 'sku': {
-                return $this->sku;
-            }
-            case 'price': {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-            }
-            case 'weight': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+            case 'sku':
+                {
+                    return $this->sku;
                 }
+            case 'price':
+                {
+                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                return '';
-            }
+                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                }
+            case 'weight':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                    }
+
+                    return '';
+                }
             case 'length':
             case 'width':
-            case 'height': {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
-                }
+            case 'height':
+                {
+                    if ($productType->hasDimensions) {
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                    }
 
-                return '';
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+                    return '';
+                }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 }

@@ -14,7 +14,7 @@ use yii\web\Response;
  * Class Order Status Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderStatusesController extends BaseAdminController
 {
@@ -32,9 +32,8 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @param int|null         $id
+     * @param int|null $id
      * @param OrderStatus|null $orderStatus
-     *
      * @return Response
      * @throws HttpException
      */
@@ -121,7 +120,6 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     *
      * @return Response|null
      */
     public function actionDelete()

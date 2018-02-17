@@ -12,10 +12,9 @@ use craft\elements\User;
  * Payment source model
  *
  * @property GatewayInterface $gateway the gateway associated with this payment source
- * @property User             $user    the user element associated with this payment source
- *
+ * @property User $user the user element associated with this payment source
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentSource extends Model
 {

@@ -8,13 +8,12 @@ use yii\db\ActiveQueryInterface;
 /**
  * Taz zone country
  *
- * @property int                  $shippingZoneId
+ * @property int $shippingZoneId
  * @property ActiveQueryInterface $shippingZone
  * @property ActiveQueryInterface $country
- * @property int                  $countryId
- *
+ * @property int $countryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingZoneCountry extends ActiveRecord
 {

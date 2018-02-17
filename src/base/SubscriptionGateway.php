@@ -12,7 +12,7 @@ use craft\commerce\models\subscriptions\SwitchPlansForm;
  * Class Subscription Gateway
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
@@ -34,7 +34,6 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      * Subscription plan settings HTML
      *
      * @param array $params
-     *
      * @return string|null
      */
     abstract public function getPlanSettingsHtml(array $params = []);
@@ -68,7 +67,6 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      *
      * @param PlanInterface $originalPlan
      * @param PlanInterface $targetPlan
-     *
      * @return string
      */
     public function getSwitchPlansFormHtml(PlanInterface $originalPlan, PlanInterface $targetPlan): string

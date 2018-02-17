@@ -9,31 +9,30 @@ use yii\db\ActiveQueryInterface;
 /**
  * Line Item record.
  *
- * @property float                $height
- * @property int                  $id
- * @property float                $length
- * @property string               $note
- * @property mixed                $options
- * @property string               $optionsSignature
- * @property Order                $order
- * @property int                  $orderId
- * @property float                $price
+ * @property float $height
+ * @property int $id
+ * @property float $length
+ * @property string $note
+ * @property mixed $options
+ * @property string $optionsSignature
+ * @property Order $order
+ * @property int $orderId
+ * @property float $price
  * @property ActiveQueryInterface $purchasable
- * @property int                  $purchasableId
- * @property int                  $qty
- * @property float                $saleAmount
- * @property float                $salePrice
+ * @property int $purchasableId
+ * @property int $qty
+ * @property float $saleAmount
+ * @property float $salePrice
  * @property ActiveQueryInterface $shippingCategory
- * @property int                  $shippingCategoryId
- * @property string               $snapshot
- * @property TaxCategory          $taxCategory
- * @property int                  $taxCategoryId
- * @property float                $total
- * @property float                $weight
- * @property float                $width
- *
+ * @property int $shippingCategoryId
+ * @property string $snapshot
+ * @property TaxCategory $taxCategory
+ * @property int $taxCategoryId
+ * @property float $total
+ * @property float $weight
+ * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class LineItem extends ActiveRecord
 {

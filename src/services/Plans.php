@@ -3,8 +3,8 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\Plan;
+use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\events\PlanEvent;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
@@ -17,7 +17,7 @@ use yii\base\InvalidConfigException;
  * Plans service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Plans extends Component
 {
@@ -93,7 +93,6 @@ class Plans extends Component
      * Return all subscription plans for a gateway.
      *
      * @param int $gatewayId
-     *
      * @return Plan[]
      */
     public function getAllGatewayPlans(int $gatewayId): array
@@ -119,7 +118,6 @@ class Plans extends Component
      * Returns a subscription plan by its id.
      *
      * @param int $planId The plan id.
-     *
      * @return Plan|null
      * @throws InvalidConfigException if the plan configuration is not correct
      */
@@ -136,7 +134,6 @@ class Plans extends Component
      * Returns a subscription plan by its handle.
      *
      * @param string $handle the plan handle
-     *
      * @return Plan|null
      * @throws InvalidConfigException if the plan configuration is not correct
      */
@@ -153,7 +150,6 @@ class Plans extends Component
      * Returns a subscription plan by its reference.
      *
      * @param string $reference the plan reference
-     *
      * @return Plan|null
      * @throws InvalidConfigException if the plan configuration is not correct
      */
@@ -170,7 +166,6 @@ class Plans extends Component
      * Save a subscription plan
      *
      * @param Plan $plan The payment source being saved.
-     *
      * @return bool Whether the plan was saved successfully
      * @throws InvalidConfigException if subscription plan not found by id.
      */
@@ -230,7 +225,6 @@ class Plans extends Component
      * Archive a subscription plan by it's id.
      *
      * @param int $id The id
-     *
      * @return bool
      * @throws InvalidConfigException
      */
@@ -286,7 +280,6 @@ class Plans extends Component
      * Populate a payment plan model from database table row.
      *
      * @param array $result
-     *
      * @return Plan
      * @throws InvalidConfigException if the gateway does not support subscriptions
      */
@@ -303,6 +296,5 @@ class Plans extends Component
         $plan->setAttributes($result, false);
 
         return $plan;
-
     }
 }

@@ -15,7 +15,7 @@ use yii\web\Response;
  * Class Gateways Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class GatewaysController extends BaseAdminController
 {
@@ -35,9 +35,8 @@ class GatewaysController extends BaseAdminController
     }
 
     /**
-     * @param int|null              $id
+     * @param int|null $id
      * @param GatewayInterface|null $gateway
-     *
      * @return Response
      * @throws HttpException
      */
@@ -98,7 +97,6 @@ class GatewaysController extends BaseAdminController
 
     /**
      * @throws HttpException
-     *
      * @return Response|null
      */
     public function actionSave()

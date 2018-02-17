@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Payments Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentSourcesController extends BaseFrontEndController
 {
@@ -24,7 +24,6 @@ class PaymentSourcesController extends BaseFrontEndController
      * Adds a payment source.
      *
      * @return Response|null
-     *
      * @throws \Throwable if something went wrong when adding the payment source
      */
     public function actionAdd()

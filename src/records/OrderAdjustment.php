@@ -8,19 +8,18 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order adjustment record.
  *
- * @property float  $amount
+ * @property float $amount
  * @property string $description
- * @property int    $id
- * @property bool   $included
- * @property int    $lineItemId
+ * @property int $id
+ * @property bool $included
+ * @property int $lineItemId
  * @property string $name
- * @property Order  $order
- * @property int    $orderId
+ * @property Order $order
+ * @property int $orderId
  * @property string $sourceSnapshot
  * @property string $type
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderAdjustment extends ActiveRecord
 {

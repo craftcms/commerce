@@ -10,7 +10,7 @@ use craft\fields\BaseRelationField;
  * Class Variant Field
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Variants extends BaseRelationField
 {

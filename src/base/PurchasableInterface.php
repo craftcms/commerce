@@ -8,7 +8,7 @@ use craft\commerce\models\LineItem;
  * Interface Purchasable
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 interface PurchasableInterface
 {
@@ -32,7 +32,6 @@ interface PurchasableInterface
 
     /**
      * This is the base price the item will be added to the line item with.
-     *
      * It provides opportunity to populate the salePrice if sales have not already been applied.
      *
      * @return float decimal(14,4)
@@ -77,7 +76,6 @@ interface PurchasableInterface
     /**
      * Populates the line item when this purchasable is found on it. Called when
      * Purchasable is added to the cart and when the cart recalculates.
-     *
      * This is your chance to modify the weight, height, width, length, price
      * and saleAmount. This is called before any onPopulateLineItem event listener.
      *
@@ -97,7 +95,6 @@ interface PurchasableInterface
      * Any validation rules this purchasable required the line item to have.
      *
      * @param LineItem $lineItem
-     *
      * @return array
      */
     public function getLineItemRules(LineItem $lineItem): array;

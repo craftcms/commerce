@@ -11,11 +11,10 @@ use craft\helpers\Json;
 /**
  * Class Revenue
  *
- * @property string|false $bodyHtml     the widget's body HTML
- * @property string       $settingsHtml returns the component’s settings HTML
- *
+ * @property string|false $bodyHtml the widget's body HTML
+ * @property string $settingsHtml returns the component’s settings HTML
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Revenue extends Widget
 {

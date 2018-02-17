@@ -12,7 +12,7 @@ use yii\base\Component;
  * Product service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Products extends Component
 {
@@ -24,7 +24,6 @@ class Products extends Component
      *
      * @param int $id
      * @param int $siteId
-     *
      * @return Product|null
      */
     public function getProductById(int $id, $siteId = null)
@@ -38,7 +37,6 @@ class Products extends Component
 
     /**
      * @param SiteEvent $event
-     *
      * @throws \craft\errors\SiteNotFoundException
      */
     public function afterSaveSiteHandler(SiteEvent $event)

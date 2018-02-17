@@ -18,10 +18,8 @@ use yii\base\Exception;
  * Order adjustment service.
  *
  * @property array|AdjusterInterface[] $adjusters
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
- *
+ * @since 2.0
  */
 class OrderAdjustments extends Component
 {
@@ -57,7 +55,6 @@ class OrderAdjustments extends Component
 
     /**
      * @param int $orderId
-     *
      * @return OrderAdjustment[]
      */
     public function getAllOrderAdjustmentsByOrderId($orderId): array
@@ -73,8 +70,7 @@ class OrderAdjustments extends Component
 
     /**
      * @param OrderAdjustment $orderAdjustment
-     * @param bool            $runValidation Whether the Order Adjustment should be validated
-     *
+     * @param bool $runValidation Whether the Order Adjustment should be validated
      * @return bool
      * @throws Exception
      */
@@ -128,7 +124,6 @@ class OrderAdjustments extends Component
 
     /**
      * @param int $orderId
-     *
      * @return bool
      */
     public function deleteAllOrderAdjustmentsByOrderId($orderId): bool
@@ -138,7 +133,6 @@ class OrderAdjustments extends Component
 
     /**
      * @param int $adjustmentId
-     *
      * @return bool
      */
     public function deleteOrderAdjustmentByAdjustmentId($adjustmentId): bool
@@ -157,7 +151,6 @@ class OrderAdjustments extends Component
 
     /**
      * @param OrderAdjustmentRecord $record
-     *
      * @return OrderAdjustment
      */
     private function _createOrderAdjustmentFromOrderAdjustmentRecord(OrderAdjustmentRecord $record): OrderAdjustment

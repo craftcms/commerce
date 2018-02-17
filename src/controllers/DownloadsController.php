@@ -10,7 +10,7 @@ use yii\web\HttpException;
  * Class Downloads Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class DownloadsController extends BaseFrontEndController
 {

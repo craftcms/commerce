@@ -10,13 +10,12 @@ use yii\db\ActiveQueryInterface;
  * Discount user record.
  *
  * @property ActiveQueryInterface $discount
- * @property int                  $discountId
- * @property int                  $id
+ * @property int $discountId
+ * @property int $id
  * @property ActiveQueryInterface $productType
- * @property int                  $userGroupId
- *
+ * @property int $userGroupId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class DiscountUserGroup extends ActiveRecord
 {

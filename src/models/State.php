@@ -11,10 +11,9 @@ use yii\base\InvalidConfigException;
  * State model.
  *
  * @property Country $country
- * @property string  $cpEditUrl
- *
+ * @property string $cpEditUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class State extends Model
 {
@@ -72,7 +71,6 @@ class State extends Model
 
     /**
      * @return Country
-     *
      * @throws InvalidConfigException if [[countryId]] is missing or invalid
      */
     public function getCountry(): Country

@@ -17,7 +17,7 @@ use yii\base\Exception;
  * Line item service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class LineItems extends Component
 {
@@ -59,7 +59,6 @@ class LineItems extends Component
      * Returns an order's line items, per the order's ID.
      *
      * @param int $orderId the order's ID
-     *
      * @return LineItem[] An array of all the line items for the matched order.
      */
     public function getAllLineItemsByOrderId(int $orderId): array
@@ -85,10 +84,9 @@ class LineItems extends Component
     /**
      * Returns a line item with any supplied options, per its order's ID and purchasable's ID
      *
-     * @param int   $orderId       the order's ID
-     * @param int   $purchasableId the purchasable's ID
-     * @param array $options       Options for the line item
-     *
+     * @param int $orderId the order's ID
+     * @param int $purchasableId the purchasable's ID
+     * @param array $options Options for the line item
      * @return LineItem|null Line item or null if not found.
      */
     public function getLineItemByOrderPurchasableOptions(int $orderId, int $purchasableId, array $options = [])
@@ -109,10 +107,9 @@ class LineItems extends Component
     /**
      * Update a line item for an order.
      *
-     * @param Order    $order    The order that is being updated.
+     * @param Order $order The order that is being updated.
      * @param LineItem $lineItem The line item that is being updated.
-     * @param string   $error    This will be populated with an error message, if any.
-     *
+     * @param string $error This will be populated with an error message, if any.
      * @return bool Whether the update was successful.
      */
     public function updateLineItem(Order $order, LineItem $lineItem, &$error): bool
@@ -141,7 +138,6 @@ class LineItems extends Component
      * Deletes a line item by its ID.
      *
      * @param int $lineItemId the line item's ID
-     *
      * @return bool Whether the line item was deleted successfully.
      */
     public function deleteLineItemById(int $lineItemId): bool
@@ -160,7 +156,6 @@ class LineItems extends Component
      *
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
-     *
      * @return bool
      * @throws \Throwable
      */
@@ -212,7 +207,7 @@ class LineItems extends Component
         $lineItemRecord->salePrice = $lineItem->salePrice;
         $lineItemRecord->total = $lineItem->total;
 
-        if($runValidation && !$lineItemRecord->validate()){
+        if ($runValidation && !$lineItemRecord->validate()) {
             Craft::info('Line Item not saved due to validation error.', __METHOD__);
             return false;
         }
@@ -255,7 +250,6 @@ class LineItems extends Component
      * Get a line item by its ID.
      *
      * @param int $id the line item ID
-     *
      * @return LineItem|null Line item or null, if not found.
      */
     public function getLineItemById($id)
@@ -270,11 +264,10 @@ class LineItems extends Component
     /**
      * Create a line item.
      *
-     * @param int   $purchasableId The ID of the purchasable the line item represents
-     * @param Order $order         The order the line item is associated with
-     * @param array $options       Options to set on the line item
-     * @param int   $qty           The quantity to set on the line item
-     *
+     * @param int $purchasableId The ID of the purchasable the line item represents
+     * @param Order $order The order the line item is associated with
+     * @param array $options Options to set on the line item
+     * @param int $qty The quantity to set on the line item
      * @return LineItem
      * @throws Exception if purchasable is not found.
      */
@@ -313,7 +306,6 @@ class LineItems extends Component
      * Deletes all line items associated with an order, per the order's ID.
      *
      * @param int $orderId the order's ID
-     *
      * @return bool whether any line items were deleted
      */
     public function deleteAllLineItemsByOrderId(int $orderId): bool

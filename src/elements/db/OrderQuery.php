@@ -18,13 +18,12 @@ use yii\db\Connection;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
- *
  * @method Order[]|array all($db = null)
  * @method Order|array|null one($db = null)
  * @method Order|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderQuery extends ElementQuery
 {
@@ -153,7 +152,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[number]] property.
      *
      * @param string $value The property value
-     *
      * @return static self reference
      */
     public function number($value)
@@ -167,7 +165,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[email]] property.
      *
      * @param string $value The property value
-     *
      * @return static self reference
      */
     public function email(string $value)
@@ -181,7 +178,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[isCompleted]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function isCompleted(bool $value)
@@ -195,7 +191,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[dateOrdered]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function dateOrdered($value)
@@ -209,7 +204,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[datePaid]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function datePaid($value)
@@ -223,7 +217,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[updatedOn]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function updatedOn($value)
@@ -237,7 +230,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[expiryDate]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function expiryDate($value)
@@ -251,7 +243,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[updatedAfter]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function updatedAfter($value)
@@ -270,7 +261,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[updatedBefore]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function updatedBefore($value)
@@ -289,7 +279,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[orderStatus]] property.
      *
      * @param OrderStatus|int $value The property value
-     *
      * @return static self reference
      */
     public function orderStatus($value)
@@ -313,7 +302,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[orderStatusId]] property.
      *
      * @param int $value The property value
-     *
      * @return static self reference
      */
     public function orderStatusId(int $value)
@@ -327,7 +315,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[customer]] property.
      *
      * @param Customer|int $value The property value
-     *
      * @return static self reference
      */
     public function customer($value)
@@ -347,7 +334,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[customerId]] property.
      *
      * @param int $value The property value
-     *
      * @return static self reference
      */
     public function customerId(int $value)
@@ -361,7 +347,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[gateway]] property.
      *
      * @param Gateway|int $value The property value
-     *
      * @return static self reference
      */
     public function gateway($value)
@@ -381,7 +366,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[gatewayId]] property.
      *
      * @param int $value The property value
-     *
      * @return static self reference
      */
     public function gatewayId(int $value)
@@ -395,7 +379,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[user]] property.
      *
      * @param User|int $value The property value
-     *
      * @return static self reference
      */
     public function user($value)
@@ -417,7 +400,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[isPaid]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function isPaid(bool $value)
@@ -431,7 +413,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[isUnpaid]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function isUnpaid(bool $value)
@@ -445,7 +426,6 @@ class OrderQuery extends ElementQuery
      * Sets the [[hasPurchasables]] property.
      *
      * @param PurchasableInterface|PurchasableInterface[] $value The property value
-     *
      * @return static self reference
      */
     public function hasPurchasables($value)

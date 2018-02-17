@@ -6,15 +6,13 @@ use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 
 /**
  * Order settings model.
  *
  * @property string $cpEditUrl
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderSettings extends Model
 {

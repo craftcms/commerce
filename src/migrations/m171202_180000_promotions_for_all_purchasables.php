@@ -344,9 +344,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
     /**
      * @param $categoryGroup
      * @param $productTypes
-     *
      * @return $field
-     *
      * @throws \Throwable
      */
     private function _createCategoryFieldsOnProducts($categoryGroup, array $productTypes)

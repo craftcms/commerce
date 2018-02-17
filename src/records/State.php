@@ -8,14 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * State record.
  *
- * @property int     $id
- * @property string  $name
- * @property string  $abbreviation
- * @property int     $countryId
+ * @property int $id
+ * @property string $name
+ * @property string $abbreviation
+ * @property int $countryId
  * @property Country $country
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class State extends ActiveRecord
 {

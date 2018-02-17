@@ -9,26 +9,25 @@ use yii\db\ActiveQueryInterface;
 /**
  * Transaction record.
  *
- * @property int         $id
- * @property string      $hash
- * @property string      $type
- * @property float       $amount
- * @property string      $status
- * @property string      $reference
- * @property string      $message
- * @property string      $response
- * @property string      $code
- * @property int         $parentId
- * @property int         $userId
- * @property int         $gatewayId
- * @property int         $orderId
+ * @property int $id
+ * @property string $hash
+ * @property string $type
+ * @property float $amount
+ * @property string $status
+ * @property string $reference
+ * @property string $message
+ * @property string $response
+ * @property string $code
+ * @property int $parentId
+ * @property int $userId
+ * @property int $gatewayId
+ * @property int $orderId
  * @property Transaction $parent
- * @property Gateway     $gateway
- * @property Order       $order
- * @property User        $user
- *
+ * @property Gateway $gateway
+ * @property Order $order
+ * @property User $user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Transaction extends ActiveRecord
 {

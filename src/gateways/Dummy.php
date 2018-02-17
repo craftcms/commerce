@@ -16,7 +16,7 @@ use craft\web\Response as WebResponse;
  * Dummy represents a dummy gateway.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Dummy extends Gateway
 {

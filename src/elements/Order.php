@@ -38,41 +38,40 @@ use yii\base\Exception;
 /**
  * Order or Cart model.
  *
- * @property OrderAdjustment[]       $adjustments
- * @property float|int               $adjustmentSubtotal           the total of adjustments made to order
- * @property float                   $adjustmentsTotal
- * @property Address                 $billingAddress
- * @property Customer                $customer
- * @property Gateway                 $gateway
- * @property OrderHistory[]          $histories                    order histories
- * @property int                     $itemSubtotal                 the total of all line item subtotals
- * @property float                   $itemTotal
- * @property LineItem[]              $lineItems
- * @property array|Transaction[]     $nestedTransactions           transactions for the order that have child transactions set on them
- * @property array                   $orderAdjustments
- * @property OrderStatus             $orderStatus
- * @property string                  $pdfUrl                       the URL to the order’s PDF invoice
- * @property Address                 $shippingAddress
+ * @property OrderAdjustment[] $adjustments
+ * @property float|int $adjustmentSubtotal the total of adjustments made to order
+ * @property float $adjustmentsTotal
+ * @property Address $billingAddress
+ * @property Customer $customer
+ * @property Gateway $gateway
+ * @property OrderHistory[] $histories order histories
+ * @property int $itemSubtotal the total of all line item subtotals
+ * @property float $itemTotal
+ * @property LineItem[] $lineItems
+ * @property array|Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
+ * @property array $orderAdjustments
+ * @property OrderStatus $orderStatus
+ * @property string $pdfUrl the URL to the order’s PDF invoice
+ * @property Address $shippingAddress
  * @property ShippingMethodInterface $shippingMethod
  * @property ShippingMethodInterface $shippingMethodId
- * @property string                  $shortNumber
- * @property bool                    $shouldRecalculateAdjustments
- * @property int                     $totalDiscount
- * @property int                     $totalHeight
- * @property int                     $totalLength
- * @property float                   $totalPaid                    the total `purchase` and `captured` transactions belonging to this order
- * @property float                   $totalPrice
- * @property int                     $totalQty                     the total number of items
- * @property int                     $totalSaleAmount              the total sale amount
- * @property int                     $totalShippingCost
- * @property int                     $totalTax
- * @property float                   $totalTaxablePrice
- * @property float                   $totalTaxIncluded
- * @property int                     $totalWeight
- * @property Transaction[]           $transactions
- *
+ * @property string $shortNumber
+ * @property bool $shouldRecalculateAdjustments
+ * @property int $totalDiscount
+ * @property int $totalHeight
+ * @property int $totalLength
+ * @property float $totalPaid the total `purchase` and `captured` transactions belonging to this order
+ * @property float $totalPrice
+ * @property int $totalQty the total number of items
+ * @property int $totalSaleAmount the total sale amount
+ * @property int $totalShippingCost
+ * @property int $totalTax
+ * @property float $totalTaxablePrice
+ * @property float $totalTaxIncluded
+ * @property int $totalWeight
+ * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Order extends Element
 {
@@ -240,7 +239,6 @@ class Order extends Element
 
     /**
      * @inheritdoc
-     *
      * @return OrderQuery The newly created [[OrderQuery]] instance.
      */
     public static function find(): ElementQueryInterface
@@ -559,7 +557,7 @@ class Order extends Element
         $this->_updateAdjustments();
         $this->_updateLineItems();
 
-        if($this->isCompleted) {
+        if ($this->isCompleted) {
             //creating order history record
             $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
 
@@ -613,7 +611,6 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
-     *
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      */
     public function getPdfUrl($option = null)
@@ -812,8 +809,7 @@ class Order extends Element
 
     /**
      * @param string|array $type
-     * @param bool         $includedOnly
-     *
+     * @param bool $includedOnly
      * @return float|int
      */
     public function getAdjustmentsTotalByType($type, $includedOnly = false)
@@ -857,7 +853,6 @@ class Order extends Element
 
     /**
      * @deprecated
-     *
      * @return float
      */
     public function getTotalDiscount(): float
@@ -1024,7 +1019,6 @@ class Order extends Element
     }
 
     /**
-     *
      * @param Address $address
      */
     public function setBillingAddress(Address $address)
@@ -1150,68 +1144,77 @@ class Order extends Element
     public function getTableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
-            case 'orderStatus': {
-                if ($this->orderStatus) {
-                    return $this->orderStatus->htmlLabel();
-                }
+            case 'orderStatus':
+                {
+                    if ($this->orderStatus) {
+                        return $this->orderStatus->htmlLabel();
+                    }
 
-                return '<span class="status"></span>';
-            }
-            case 'shippingFullName': {
-                if ($this->shippingAddress) {
-                    return $this->shippingAddress->getFullName();
+                    return '<span class="status"></span>';
                 }
+            case 'shippingFullName':
+                {
+                    if ($this->shippingAddress) {
+                        return $this->shippingAddress->getFullName();
+                    }
 
-                return '';
-            }
-            case 'billingFullName': {
-                if ($this->billingAddress) {
-                    return $this->billingAddress->getFullName();
+                    return '';
                 }
+            case 'billingFullName':
+                {
+                    if ($this->billingAddress) {
+                        return $this->billingAddress->getFullName();
+                    }
 
-                return '';
-            }
-            case 'shippingBusinessName': {
-                if ($this->shippingAddress) {
-                    return $this->shippingAddress->businessName;
+                    return '';
                 }
+            case 'shippingBusinessName':
+                {
+                    if ($this->shippingAddress) {
+                        return $this->shippingAddress->businessName;
+                    }
 
-                return '';
-            }
-            case 'billingBusinessName': {
-                if ($this->billingAddress) {
-                    return $this->billingAddress->businessName;
+                    return '';
                 }
+            case 'billingBusinessName':
+                {
+                    if ($this->billingAddress) {
+                        return $this->billingAddress->businessName;
+                    }
 
-                return '';
-            }
-            case 'shippingMethodName': {
-                if ($this->shippingMethod) {
-                    return $this->shippingMethod->getName();
+                    return '';
                 }
+            case 'shippingMethodName':
+                {
+                    if ($this->shippingMethod) {
+                        return $this->shippingMethod->getName();
+                    }
 
-                return '';
-            }
-            case 'gatewayName': {
-                if ($this->gateway) {
-                    return $this->gateway->name;
+                    return '';
                 }
+            case 'gatewayName':
+                {
+                    if ($this->gateway) {
+                        return $this->gateway->name;
+                    }
 
-                return '';
-            }
+                    return '';
+                }
             case 'totalPaid':
             case 'totalPrice':
             case 'totalShippingCost':
-            case 'totalDiscount': {
-                if ($this->$attribute >= 0) {
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
-                }
+            case 'totalDiscount':
+                {
+                    if ($this->$attribute >= 0) {
+                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                    }
 
-                return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
-            }
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+                }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 
@@ -1219,7 +1222,6 @@ class Order extends Element
      * Populate the Order.
      *
      * @param array $row
-     *
      * @return Element
      */
     public function populateElementModel($row): Element

@@ -3,14 +3,14 @@
 namespace craft\commerce\web\assets\editorder;
 
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\web\AssetBundle;
 use craft\vue\Asset as VueAsset;
+use craft\web\AssetBundle;
 
 /**
  * Edit Product asset bundle
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class EditOrderAsset extends AssetBundle
 {

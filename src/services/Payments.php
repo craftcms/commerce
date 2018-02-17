@@ -23,7 +23,7 @@ use yii\base\Component;
  * Payments service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Payments extends Component
 {
@@ -69,11 +69,10 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @param Order            $order
-     * @param BasePaymentForm  $form
-     * @param string|null      &$redirect
+     * @param Order $order
+     * @param BasePaymentForm $form
+     * @param string|null &$redirect
      * @param Transaction|null &$transaction
-     *
      * @return bool
      * @throws \Exception
      */
@@ -174,7 +173,6 @@ class Payments extends Component
 
     /**
      * @param Transaction $transaction
-     *
      * @return Transaction
      */
     public function captureTransaction(Transaction $transaction): Transaction
@@ -200,7 +198,6 @@ class Payments extends Component
 
     /**
      * @param Transaction $transaction
-     *
      * @return Transaction
      */
     public function refundTransaction(Transaction $transaction): Transaction
@@ -229,7 +226,6 @@ class Payments extends Component
      *
      * @param Transaction $transaction
      * @param string|null &$customError
-     *
      * @return bool
      */
     public function completePayment(Transaction $transaction, &$customError): bool
@@ -287,11 +283,9 @@ class Payments extends Component
     }
 
     /**
-     *
      * Gets the total transactions amount really paid (not authorized).
      *
      * @param Order $order
-     *
      * @return float
      */
     public function getTotalPaidForOrder(Order $order): float
@@ -305,8 +299,7 @@ class Payments extends Component
             ])
             ->sum('amount');
 
-        if (!$paid)
-        {
+        if (!$paid) {
             return 0;
         }
 
@@ -317,7 +310,6 @@ class Payments extends Component
      * Gets the total transactions amount with authorized.
      *
      * @param Order $order
-     *
      * @return float
      */
     public function getTotalAuthorizedForOrder(Order $order): float
@@ -340,7 +332,6 @@ class Payments extends Component
      *
      * @param RequestResponseInterface $response
      * @param                          $redirect
-     *
      * @return mixed
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
@@ -392,8 +383,7 @@ class Payments extends Component
      * Process a capture or refund exception.
      *
      * @param Transaction $parent
-     * @param string      $action
-     *
+     * @param string $action
      * @return Transaction
      * @throws TransactionException
      */
@@ -441,7 +431,6 @@ class Payments extends Component
 
     /**
      * @param Transaction $child
-     *
      * @throws TransactionException
      */
     private function _saveTransaction($child)
@@ -454,7 +443,7 @@ class Payments extends Component
     /**
      * Updates a transaction.
      *
-     * @param Transaction              $transaction
+     * @param Transaction $transaction
      * @param RequestResponseInterface $response
      */
     private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)

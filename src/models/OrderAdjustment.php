@@ -10,7 +10,7 @@ use craft\commerce\Plugin;
  * Order adjustment model.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderAdjustment extends Model
 {

@@ -12,15 +12,14 @@ use yii\base\InvalidConfigException;
 /**
  * Customer model
  *
- * @property Address[]    $addresses               the address for the customer
- * @property string       $email                   the customer's email address if it is related to a user
- * @property null|Address $lastUsedBillingAddress  the last used Billing Address used by the customer if it exists
+ * @property Address[] $addresses the address for the customer
+ * @property string $email the customer's email address if it is related to a user
+ * @property null|Address $lastUsedBillingAddress the last used Billing Address used by the customer if it exists
  * @property null|Address $lastUsedShippingAddress the last used Shipping Address used by the customer if it exists
- * @property Order[]      $orders                  the order elements associated with this customer
- * @property User         $user                    the user element associated with this customer
- *
+ * @property Order[] $orders the order elements associated with this customer
+ * @property User $user the user element associated with this customer
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Customer extends Model
 {
@@ -129,7 +128,6 @@ class Customer extends Model
      * Returns an address for the customer.
      *
      * @param int|null $id the ID of the address to return, if known
-     *
      * @return Address|null
      */
     public function getAddress($id = null)

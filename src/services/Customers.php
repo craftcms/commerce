@@ -19,14 +19,13 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
- * @property mixed            $lastUsedAddresses
+ * @property mixed $lastUsedAddresses
  * @property array|Customer[] $allCustomers
- * @property Customer         $customer
- * @property int              $customerId   id of current customer record
- * @property Customer         $savedCustomer
- *
+ * @property Customer $customer
+ * @property int $customerId id of current customer record
+ * @property Customer $savedCustomer
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Customers extends Component
 {
@@ -47,7 +46,6 @@ class Customers extends Component
     // =========================================================================
 
     /**
-     *
      * @return Customer[]
      */
     public function getAllCustomers(): array
@@ -61,7 +59,6 @@ class Customers extends Component
 
     /**
      * @param int $id
-     *
      * @return Customer|null
      */
     public function getCustomerById(int $id)
@@ -130,7 +127,6 @@ class Customers extends Component
      * Associates an address with the saved customer, and saves the address.
      *
      * @param Address $address
-     *
      * @return bool
      * @throws Exception
      */
@@ -160,7 +156,6 @@ class Customers extends Component
 
     /**
      * @param Customer $customer
-     *
      * @return bool
      * @throws Exception
      */
@@ -196,7 +191,6 @@ class Customers extends Component
 
     /**
      * @param $customerId
-     *
      * @return array
      */
     public function getAddressIds($customerId): array
@@ -216,7 +210,6 @@ class Customers extends Component
 
     /**
      * @param Customer $customer
-     *
      * @return mixed
      */
     public function deleteCustomer($customer)
@@ -252,7 +245,6 @@ class Customers extends Component
 
     /**
      * @param string $username
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -313,7 +305,6 @@ class Customers extends Component
 
     /**
      * @param $id
-     *
      * @return Customer|null
      */
     public function getCustomerByUserId($id)
@@ -331,7 +322,6 @@ class Customers extends Component
      * Returns the user groups of the user param but defaults to the current user
      *
      * @param User|null $user
-     *
      * @return array
      */
     public function getUserGroupIdsForUser(User $user = null): array
@@ -350,7 +340,6 @@ class Customers extends Component
 
     /**
      * @param UserEvent $event
-     *
      * @throws Exception
      */
     public function logoutHandler(UserEvent $event)
@@ -361,7 +350,6 @@ class Customers extends Component
 
     /**
      * Sets the last used addresses on the customer on order completion.
-     *
      * Duplicates the address records used for the order so they are independent to the
      * customers address book.
      *
@@ -456,7 +444,6 @@ class Customers extends Component
     /**
      * @param $billingId
      * @param $shippingId
-     *
      * @return bool
      * @throws Exception
      */
@@ -477,7 +464,6 @@ class Customers extends Component
 
     /**
      * @param Event $event
-     *
      * @throws Exception
      */
     public function saveUserHandler(Event $event)
@@ -522,7 +508,6 @@ class Customers extends Component
      * Creates a Customer with attributes from a CustomerRecord.
      *
      * @param CustomerRecord|null $record
-     *
      * @return Customer|null
      */
     private function _createCustomerFromCustomerRecord(CustomerRecord $record = null)

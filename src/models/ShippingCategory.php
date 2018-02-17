@@ -9,9 +9,8 @@ use craft\helpers\UrlHelper;
  * Shipping Category model.
  *
  * @property string $cpEditUrl
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingCategory extends Model
 {

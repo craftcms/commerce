@@ -8,7 +8,7 @@ use craft\commerce\base\Model;
  * Currency Model
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Currency extends Model
 {

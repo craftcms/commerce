@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Shipping Categories Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingCategoriesController extends BaseAdminController
 {
@@ -29,9 +29,8 @@ class ShippingCategoriesController extends BaseAdminController
     }
 
     /**
-     * @param int|null              $id
+     * @param int|null $id
      * @param ShippingCategory|null $shippingCategory
-     *
      * @return Response
      * @throws HttpException
      */

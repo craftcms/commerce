@@ -8,16 +8,15 @@ use craft\db\ActiveRecord;
  * Email record.
  *
  * @property string $bcc
- * @property bool   $enabled
- * @property int    $id
+ * @property bool $enabled
+ * @property int $id
  * @property string $name
  * @property string $recipientType
  * @property string $subject
  * @property string $templatePath
  * @property string $to
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Email extends ActiveRecord
 {

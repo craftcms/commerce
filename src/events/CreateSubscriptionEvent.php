@@ -11,7 +11,7 @@ use craft\events\CancelableEvent;
  * Class CreateSubscriptionEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CreateSubscriptionEvent extends CancelableEvent
 {

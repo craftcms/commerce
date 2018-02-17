@@ -14,7 +14,7 @@ use craft\commerce\Plugin;
  * Tax Adjustments
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Shipping implements AdjusterInterface
 {
@@ -122,8 +122,7 @@ class Shipping implements AdjusterInterface
 
     /**
      * @param ShippingMethod $shippingMethod
-     * @param ShippingRule   $rule
-     *
+     * @param ShippingRule $rule
      * @return OrderAdjustment
      */
     private function _createAdjustment($shippingMethod, $rule): OrderAdjustment

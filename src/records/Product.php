@@ -9,29 +9,28 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product record.
  *
- * @property float                defaultHeight
- * @property float                defaultLength
- * @property float                defaultPrice
- * @property string               defaultSku
- * @property int                  defaultVariantId
- * @property float                defaultWeight
- * @property float                defaultWidth
+ * @property float defaultHeight
+ * @property float defaultLength
+ * @property float defaultPrice
+ * @property string defaultSku
+ * @property int defaultVariantId
+ * @property float defaultWeight
+ * @property float defaultWidth
  * @property ActiveQueryInterface $element
- * @property \DateTime            $expiryDate
- * @property bool                 $freeShipping
- * @property int                  $id
- * @property \DateTime            $postDate
- * @property bool                 $promotable
+ * @property \DateTime $expiryDate
+ * @property bool $freeShipping
+ * @property int $id
+ * @property \DateTime $postDate
+ * @property bool $promotable
  * @property ActiveQueryInterface $shippingCategory
- * @property int                  $shippingCategoryId
- * @property int                  $taxCategoryId
- * @property TaxCategory          $taxCategory
+ * @property int $shippingCategoryId
+ * @property int $taxCategoryId
+ * @property TaxCategory $taxCategory
  * @property ActiveQueryInterface $type
- * @property int                  $typeId
- * @property Variant[]            $variants
- *
+ * @property int $typeId
+ * @property Variant[] $variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Product extends ActiveRecord
 {

@@ -9,12 +9,11 @@ use yii\db\ActiveQueryInterface;
  * Product type tax category record.
  *
  * @property ProductType $productType
- * @property int         $productTypeId
+ * @property int $productTypeId
  * @property TaxCategory $taxCategory
- * @property int         $taxCategoryId
- *
+ * @property int $taxCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypeTaxCategory extends ActiveRecord
 {

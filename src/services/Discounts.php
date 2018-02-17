@@ -15,7 +15,6 @@ use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
-use craft\elements\User;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
@@ -24,9 +23,8 @@ use yii\base\Exception;
  * Discount service.
  *
  * @property array|Discount[] $allDiscounts
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Discounts extends Component
 {
@@ -43,7 +41,6 @@ class Discounts extends Component
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
-     *
      * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the matched discount from apply.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
@@ -53,7 +50,6 @@ class Discounts extends Component
 
     /**
      * @param int $id
-     *
      * @return Discount|null
      */
     public function getDiscountById($id)
@@ -167,10 +163,9 @@ class Discounts extends Component
      * Fetches a discount by its code, ensures it's active, and applies it to
      * the current user.
      *
-     * @param string      $code
-     * @param int|null    $customerId
+     * @param string $code
+     * @param int|null $customerId
      * @param string|null $error
-     *
      * @return bool
      */
     public function matchCode(string $code, int $customerId = null, string &$error = null): bool
@@ -261,7 +256,6 @@ class Discounts extends Component
      * Returns an enabled discount by its code.
      *
      * @param string $code
-     *
      * @return Discount|null
      */
     public function getDiscountByCode($code)
@@ -280,7 +274,6 @@ class Discounts extends Component
     /**
      * @param LineItem $lineItem
      * @param Discount $discount
-     *
      * @return bool
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount): bool
@@ -329,10 +322,9 @@ class Discounts extends Component
 
     /**
      * @param Discount $model
-     * @param array    $groups       ids
-     * @param array    $categories   ids
-     * @param array    $purchasables ids
-     *
+     * @param array $groups ids
+     * @param array $categories ids
+     * @param array $purchasables ids
      * @return bool
      * @throws \Exception
      */
@@ -426,7 +418,6 @@ class Discounts extends Component
 
     /**
      * @param int $id
-     *
      * @return bool
      */
     public function deleteDiscountById($id): bool
@@ -460,7 +451,6 @@ class Discounts extends Component
 
     /**
      * @param $ids
-     *
      * @return bool
      */
     public function reorderDiscounts($ids): bool

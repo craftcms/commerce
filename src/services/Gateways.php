@@ -21,11 +21,10 @@ use yii\base\Exception;
  * Gateway service.
  *
  * @property GatewayInterface[]|array $allFrontEndGateways all frontend enabled gateways
- * @property GatewayInterface[]|array $allGateways         all gateways
- * @property string[]                 $allGatewayTypes     all registered gateway types
- *
+ * @property GatewayInterface[]|array $allGateways all gateways
+ * @property string[] $allGatewayTypes all registered gateway types
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Gateways extends Component
 {
@@ -131,7 +130,6 @@ class Gateways extends Component
      * Archive a gateway by its ID.
      *
      * @param int $id gateway ID
-     *
      * @return bool Whether the archiving was successful or not
      */
     public function archiveGatewayById(int $id): bool
@@ -148,7 +146,6 @@ class Gateways extends Component
      * Get a gateway by its ID.
      *
      * @param int $id
-     *
      * @return GatewayInterface|null The gateway or null if not found.
      */
     public function getGatewayById(int $id)
@@ -163,9 +160,8 @@ class Gateways extends Component
     /**
      * Save a gateway.
      *
-     * @param Gateway $gateway       The gateway to be saved.
-     * @param bool    $runValidation Whether the gateway should be validated
-     *
+     * @param Gateway $gateway The gateway to be saved.
+     * @param bool $runValidation Whether the gateway should be validated
      * @return bool Whether the gateway was saved successfully or not.
      * @throws Exception
      */
@@ -217,7 +213,6 @@ class Gateways extends Component
      * Reorder gateways by ids.
      *
      * @param array $ids Array of gateways.
-     *
      * @return bool Always true.
      */
     public function reorderGateways(array $ids): bool
@@ -245,7 +240,6 @@ class Gateways extends Component
      * Creates a gateway with a given config
      *
      * @param mixed $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
-     *
      * @return GatewayInterface The gateway
      */
     public function createGateway($config): GatewayInterface
@@ -289,7 +283,6 @@ class Gateways extends Component
      * Returns any custom gateway settings form config file.
      *
      * @param string $handle The gateway handle
-     *
      * @return array|null
      */
     public function getGatewayOverrides(string $handle)

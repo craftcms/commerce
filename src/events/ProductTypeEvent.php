@@ -9,7 +9,7 @@ use yii\base\Event;
  * Product type event class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypeEvent extends Event
 {

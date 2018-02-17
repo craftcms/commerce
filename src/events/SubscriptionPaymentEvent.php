@@ -11,7 +11,7 @@ use yii\base\Event;
  * Class SubscriptionPaymentEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class SubscriptionPaymentEvent extends Event
 {

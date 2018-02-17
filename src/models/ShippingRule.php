@@ -11,13 +11,12 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 /**
  * Shipping rule model
  *
- * @property bool                         $isEnabled              whether this shipping rule enabled for listing and selection
- * @property array                        $options
+ * @property bool $isEnabled whether this shipping rule enabled for listing and selection
+ * @property array $options
  * @property array|ShippingRuleCategory[] $shippingRuleCategories
- * @property mixed                        $shippingZone
- *
+ * @property mixed $shippingZone
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingRule extends Model implements ShippingRuleInterface
 {
@@ -374,7 +373,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @param $attribute
      * @param $shippingCategoryId
-     *
      * @return mixed
      */
     private function _getRate($attribute, $shippingCategoryId = null)

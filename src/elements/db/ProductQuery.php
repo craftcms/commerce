@@ -16,13 +16,12 @@ use yii\db\Connection;
 
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
- *
  * @method Product[]|array all($db = null)
  * @method Product|array|null one($db = null)
  * @method Product|array|null nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductQuery extends ElementQuery
 {
@@ -129,7 +128,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[typeId]] property based on a given product types(s)’s handle(s).
      *
      * @param string|string[]|ProductType|null $value The property value
-     *
      * @return static self reference
      */
     public function type($value)
@@ -153,7 +151,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[postDate]] property to only allow products whose Post Date is before the given value.
      *
      * @param DateTime|string $value The property value
-     *
      * @return static self reference
      */
     public function before($value)
@@ -172,7 +169,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[postDate]] property to only allow products whose Post Date is after the given value.
      *
      * @param DateTime|string $value The property value
-     *
      * @return static self reference
      */
     public function after($value)
@@ -191,7 +187,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[editable]] property.
      *
      * @param bool $value The property value (defaults to true)
-     *
      * @return static self reference
      */
     public function editable(bool $value = true)
@@ -205,7 +200,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[typeId]] property.
      *
      * @param int|int[]|null $value The property value
-     *
      * @return static self reference
      */
     public function typeId($value)
@@ -219,7 +213,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[postDate]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function postDate($value)
@@ -233,7 +226,6 @@ class ProductQuery extends ElementQuery
      * Sets the [[expiryDate]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function expiryDate($value)

@@ -14,21 +14,20 @@ use craft\validators\HandleValidator;
 
 /**
  * Product type model.
- *
  * @method null setFieldLayout(FieldLayout $fieldLayout)
  * @method FieldLayout getFieldLayout()
- * @property string                         $cpEditUrl
- * @property string                         $cpEditVariantUrl
- * @property FieldLayout                    $fieldLayout
- * @property mixed                          $productFieldLayout
- * @property array|ShippingCategory[]|int[] $shippingCategories
- * @property ProductTypeSite[]              $siteSettings       the product types' site-specific settings
- * @property TaxCategory[]|array|int[]      $taxCategories
- * @property mixed                          $variantFieldLayout
- * @mixin FieldLayoutBehavior
  *
+ * @property string $cpEditUrl
+ * @property string $cpEditVariantUrl
+ * @property FieldLayout $fieldLayout
+ * @property mixed $productFieldLayout
+ * @property array|ShippingCategory[]|int[] $shippingCategories
+ * @property ProductTypeSite[] $siteSettings the product types' site-specific settings
+ * @property TaxCategory[]|array|int[] $taxCategories
+ * @property mixed $variantFieldLayout
+ * @mixin FieldLayoutBehavior
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductType extends Model
 {
@@ -195,7 +194,6 @@ class ProductType extends Model
     }
 
     /**
-     *
      * @return ShippingCategory[]
      */
     public function getShippingCategories(): array

@@ -24,7 +24,7 @@ use yii\web\ServerErrorHttpException;
  * Class Products Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductsController extends BaseCpController
 {
@@ -57,11 +57,10 @@ class ProductsController extends BaseCpController
     }
 
     /**
-     * @param string       $productTypeHandle
-     * @param int|null     $productId
-     * @param string|null  $siteHandle
+     * @param string $productTypeHandle
+     * @param int|null $productId
+     * @param string|null $siteHandle
      * @param Product|null $product
-     *
      * @return Response
      * @throws NotFoundHttpException
      */
@@ -163,7 +162,6 @@ class ProductsController extends BaseCpController
      *
      * @param mixed $productId
      * @param mixed $site
-     *
      * @return Response
      * @throws HttpException
      */
@@ -198,9 +196,7 @@ class ProductsController extends BaseCpController
      *
      * @param mixed $productId
      * @param mixed $site
-     *
      * @return Response|null
-     *
      * @throws HttpException
      */
     public function actionViewSharedProduct($productId, $site = null)
@@ -311,7 +307,6 @@ class ProductsController extends BaseCpController
 
     /**
      * @param Product $product
-     *
      * @throws HttpException
      */
     protected function enforceProductPermissions(Product $product)
@@ -329,7 +324,6 @@ class ProductsController extends BaseCpController
 
     /**
      * @param array $variables
-     *
      * @throws HttpException
      */
     private function _prepVariables(array &$variables)
@@ -378,7 +372,6 @@ class ProductsController extends BaseCpController
 
     /**
      * @param $variables
-     *
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws NotFoundHttpException
@@ -513,7 +506,6 @@ class ProductsController extends BaseCpController
      * Displays a product.
      *
      * @param Product $product
-     *
      * @throws HttpException
      * @return Response
      */

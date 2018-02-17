@@ -10,15 +10,14 @@ use craft\helpers\UrlHelper;
 /**
  * Sale model.
  *
- * @property array        $categoryIds
+ * @property array $categoryIds
  * @property string|false $cpEditUrl
- * @property string       $discountAmountAsFlat
- * @property string       $discountAmountAsPercent
- * @property array        $purchasableIds
- * @property array        $userGroupIds
- *
+ * @property string $discountAmountAsFlat
+ * @property string $discountAmountAsPercent
+ * @property array $purchasableIds
+ * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Sale extends Model
 {
@@ -158,7 +157,6 @@ class Sale extends Model
 
     /**
      * @param float $price
-     *
      * @return float
      */
     public function calculateTakeoff($price): float

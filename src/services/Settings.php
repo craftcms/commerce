@@ -11,9 +11,8 @@ use yii\base\Component;
  * Settings service.
  *
  * @property SettingsModel $settings all settings from plugin core class
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Settings extends Component
 {
@@ -38,7 +37,6 @@ class Settings extends Component
 
     /**
      * @param string $option
-     *
      * @return mixed
      */
     public function getOption($option)
@@ -62,7 +60,6 @@ class Settings extends Component
      * Set all settings from plugin core class
      *
      * @param SettingsModel $settings
-     *
      * @return bool
      */
     public function saveSettings(SettingsModel $settings): bool

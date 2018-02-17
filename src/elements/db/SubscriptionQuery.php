@@ -17,13 +17,12 @@ use yii\db\Expression;
 
 /**
  * LicenseQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
- *
  * @method Subscription[]|array all($db = null)
  * @method Subscription|array|false one($db = null)
  * @method Subscription|array|false nth(int $n, Connection $db = null)
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class SubscriptionQuery extends ElementQuery
 {
@@ -133,10 +132,10 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[userId]] property based on a user element or username
      *
      * @param User|string $value
-     *
      * @return static self reference
      */
-    public function user($value) {
+    public function user($value)
+    {
         if ($value instanceof User) {
             $this->userId = $value->id;
         } else if ($value !== null) {
@@ -156,10 +155,10 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[planId]] property based on a plan model or handle
      *
      * @param Product $value
-     *
      * @return static self reference
      */
-    public function plan($value) {
+    public function plan($value)
+    {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
         } else if ($value !== null) {
@@ -179,7 +178,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[dateCreated]] property to only allow subscriptions before a given date
      *
      * @param DateTime|string $value The property value
-     *
      * @return static self reference
      */
     public function subscribedBefore($value)
@@ -198,7 +196,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[dateCreated]] property to only allow subscriptions after a given date
      *
      * @param DateTime|string $value The property value
-     *
      * @return static self reference
      */
     public function subscribedAfter($value)
@@ -217,7 +214,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[userId]] property.
      *
      * @param int|int[] $value The property value
-     *
      * @return static self reference
      */
     public function userId($value)
@@ -231,7 +227,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[planId]] property.
      *
      * @param int|int[] $value The property value
-     *
      * @return static self reference
      */
     public function planId($value)
@@ -245,7 +240,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[gatewayId]] property.
      *
      * @param int|int[] $value The property value
-     *
      * @return static self reference
      */
     public function gatewayId($value)
@@ -260,7 +254,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[orderId]] property.
      *
      * @param int|int[] $value The property value
-     *
      * @return static self reference
      */
     public function orderId($value)
@@ -274,7 +267,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[reference]] property.
      *
      * @param string|string[] $value The property value
-     *
      * @return static self reference
      */
     public function reference($value)
@@ -288,7 +280,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[trialDays]] property.
      *
      * @param int|int[] $value The property value
-     *
      * @return static self reference
      */
     public function trialDays($value)
@@ -302,7 +293,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[onTrial]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function onTrial($value)
@@ -316,7 +306,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[nextPaymentDate]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function nextPaymentDate($value)
@@ -330,7 +319,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[isCanceled]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function isCanceled(bool $value)
@@ -344,7 +332,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[dateCanceled]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function dateCanceled($value)
@@ -358,7 +345,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[isExpired]] property.
      *
      * @param bool $value The property value
-     *
      * @return static self reference
      */
     public function isExpired(bool $value)
@@ -372,7 +358,6 @@ class SubscriptionQuery extends ElementQuery
      * Sets the [[dateExpired]] property.
      *
      * @param mixed $value The property value
-     *
      * @return static self reference
      */
     public function dateExpired($value)
@@ -502,10 +487,10 @@ class SubscriptionQuery extends ElementQuery
      * Return the SQL condition to use for trial status.
      *
      * @param bool $onTrial
-     *
      * @return mixed
      */
-    private function _getTrialCondition(bool $onTrial) {
+    private function _getTrialCondition(bool $onTrial)
+    {
         if ($onTrial) {
             if (Craft::$app->getDb()->getIsPgsql()) {
                 return new Expression("NOW() <= [[commerce_subscriptions.dateCreated]] + [[commerce_subscriptions.trialDays]] * INTERVAL '1 day'");

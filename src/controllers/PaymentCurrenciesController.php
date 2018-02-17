@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Currencies Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentCurrenciesController extends BaseAdminController
 {
@@ -30,9 +30,8 @@ class PaymentCurrenciesController extends BaseAdminController
     }
 
     /**
-     * @param int|null             $id
+     * @param int|null $id
      * @param PaymentCurrency|null $currency
-     *
      * @return Response
      * @throws HttpException
      */

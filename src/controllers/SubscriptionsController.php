@@ -4,7 +4,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
@@ -21,7 +20,7 @@ use yii\web\Response;
  * Class Subscriptions Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  * TODO when checking if subscription is currentUser's, allow for commerce permission instead of admin
  */
 class SubscriptionsController extends BaseController
@@ -39,9 +38,8 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @param int|null          $subscriptionId
+     * @param int|null $subscriptionId
      * @param Subscription|null $subscription
-     *
      * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
@@ -136,7 +134,7 @@ class SubscriptionsController extends BaseController
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                 }
-            } catch  (\Throwable $exception) {
+            } catch (\Throwable $exception) {
                 Craft::error($exception->getMessage(), 'commerce');
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
@@ -147,7 +145,6 @@ class SubscriptionsController extends BaseController
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to subscribe at this time.'));
             }
-
         } catch (SubscriptionException $exception) {
             $session->setError($exception->getMessage());
         }
@@ -188,7 +185,6 @@ class SubscriptionsController extends BaseController
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
             }
-
         } catch (SubscriptionException $exception) {
             $session->setError($exception->getMessage());
         }
@@ -239,7 +235,6 @@ class SubscriptionsController extends BaseController
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to modify subscription at this time.'));
             }
-
         } catch (SubscriptionException $exception) {
             $session->setError($exception->getMessage());
         }
@@ -284,11 +279,10 @@ class SubscriptionsController extends BaseController
             }
 
             $success = $plugin->getSubscriptions()->cancelSubscription($subscription, $parameters);
-            
+
             if (!$success) {
                 $session->setError(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }
-
         } catch (SubscriptionException $exception) {
             $session->setError($exception->getMessage());
         }

@@ -9,7 +9,7 @@ use yii\base\Event;
  * Class AddressEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class AddressEvent extends Event
 {

@@ -9,15 +9,15 @@ use craft\helpers\UrlHelper;
 /**
  * Shipping zone model.
  *
- * @property Country[] $countries      countries in this Shipping Zone
- * @property array     $countryIds     all states in this Shipping Zone
- * @property array     $countriesNames the names of all countries in this Shipping Zone
- * @property string    $cpEditUrl
- * @property State[]   $states         all states in this Shipping Zone
- * @property array     $stateIds
- * @property array     $statesNames    the names of all states in this Shipping Zone
+ * @property Country[] $countries countries in this Shipping Zone
+ * @property array $countryIds all states in this Shipping Zone
+ * @property array $countriesNames the names of all countries in this Shipping Zone
+ * @property string $cpEditUrl
+ * @property State[] $states all states in this Shipping Zone
+ * @property array $stateIds
+ * @property array $statesNames the names of all states in this Shipping Zone
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingZone extends Model
 {

@@ -9,7 +9,7 @@ use craft\events\CancelableEvent;
  * Class ProductEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductEvent extends CancelableEvent
 {

@@ -9,16 +9,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Payment source record.
  *
- * @property string  $description
+ * @property string $description
  * @property Gateway $gateway
- * @property int     $gatewayId
- * @property int     $id
- * @property string  $response
- * @property string  $token
- * @property int     $userId
- *
+ * @property int $gatewayId
+ * @property int $id
+ * @property string $response
+ * @property string $token
+ * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentSource extends ActiveRecord
 {

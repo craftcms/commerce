@@ -12,11 +12,10 @@ use yii\base\Exception;
 /**
  * Tax category service.
  *
- * @property TaxCategory[]|array $allTaxCategories   all Tax Categories
- * @property TaxCategory|null    $defaultTaxCategory the default tax category
- *
+ * @property TaxCategory[]|array $allTaxCategories all Tax Categories
+ * @property TaxCategory|null $defaultTaxCategory the default tax category
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxCategories extends Component
 {
@@ -68,7 +67,6 @@ class TaxCategories extends Component
 
     /**
      * @param int $taxCategoryId
-     *
      * @return TaxCategory|null
      */
     public function getTaxCategoryById($taxCategoryId)
@@ -96,7 +94,6 @@ class TaxCategories extends Component
 
     /**
      * @param int $taxCategoryHandle
-     *
      * @return TaxCategory|null
      */
     public function getTaxCategoryByHandle($taxCategoryHandle)
@@ -147,7 +144,6 @@ class TaxCategories extends Component
 
     /**
      * @param TaxCategory $model
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -204,7 +200,6 @@ class TaxCategories extends Component
 
     /**
      * @param int $id
-     *
      * @return bool
      */
     public function deleteTaxCategoryById($id): bool
@@ -227,7 +222,6 @@ class TaxCategories extends Component
 
     /**
      * @param $productTypeId
-     *
      * @return array
      */
     public function getTaxCategoriesByProductTypeId($productTypeId): array

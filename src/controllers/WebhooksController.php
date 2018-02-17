@@ -11,7 +11,7 @@ use yii\web\Response;
  * Class Webhooks Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class WebhooksController extends BaseController
 {

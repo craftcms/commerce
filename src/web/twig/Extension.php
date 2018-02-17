@@ -9,7 +9,7 @@ use craft\commerce\Plugin;
  * Class CommerceTwigExtension
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Extension extends \Twig_Extension
 {
@@ -44,7 +44,6 @@ class Extension extends \Twig_Extension
      * @param bool $convert
      * @param bool $format
      * @param bool $stripZeros
-     *
      * @return string
      */
     public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): string
@@ -69,7 +68,6 @@ class Extension extends \Twig_Extension
 
     /**
      * @param $input
-     *
      * @return string
      */
     public function jsonEncodeFiltered($input): string
@@ -81,7 +79,6 @@ class Extension extends \Twig_Extension
 
     /**
      * @param $input
-     *
      * @return int|mixed
      */
     public static function sanitize($input)
@@ -108,7 +105,6 @@ class Extension extends \Twig_Extension
 
     /**
      * @param $currency
-     *
      * @throws \Twig_Error
      */
     private function _validatePaymentCurrency($currency)
@@ -122,7 +118,6 @@ class Extension extends \Twig_Extension
 
     /**
      * @param $array
-     *
      * @return array
      */
     private function _recursiveSanitizeArray($array): array

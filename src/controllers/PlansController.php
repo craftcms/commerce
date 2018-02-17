@@ -3,9 +3,8 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\base\Plan;
+use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use yii\base\Exception;
@@ -17,7 +16,7 @@ use yii\web\Response;
  * Class Plans Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PlansController extends BaseAdminController
 {
@@ -44,9 +43,8 @@ class PlansController extends BaseAdminController
     }
 
     /**
-     * @param int|null  $planId
+     * @param int|null $planId
      * @param Plan|null $plan
-     *
      * @return Response
      * @throws HttpException
      */
@@ -126,7 +124,7 @@ class PlansController extends BaseAdminController
         $plan->handle = $request->getParam('handle');
         $plan->planInformationId = \is_array($planInformationIds) ? reset($planInformationIds) : null;
         $plan->reference = $reference;
-        $plan->enabled = (bool) $request->getParam('enabled');
+        $plan->enabled = (bool)$request->getParam('enabled');
         $plan->planData = $planData;
         $plan->isArchived = false;
 

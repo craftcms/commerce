@@ -8,14 +8,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping method record.
  *
- * @property int            $id
- * @property string         $name
- * @property string         $handle
- * @property bool           $enabled
+ * @property int $id
+ * @property string $name
+ * @property string $handle
+ * @property bool $enabled
  * @property ShippingRule[] $rules
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingMethod extends ActiveRecord
 {

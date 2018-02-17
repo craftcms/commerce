@@ -8,20 +8,19 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order history record.
  *
- * @property Customer    $customer
- * @property int         $customerId
- * @property \DateTime   $dateCreated
- * @property int         $id
- * @property string      $message
+ * @property Customer $customer
+ * @property int $customerId
+ * @property \DateTime $dateCreated
+ * @property int $id
+ * @property string $message
  * @property OrderStatus $newStatus
- * @property int         $newStatusId
- * @property Order       $order
- * @property int         $orderId
+ * @property int $newStatusId
+ * @property Order $order
+ * @property int $orderId
  * @property OrderStatus $prevStatus
- * @property int         $prevStatusId
- *
+ * @property int $prevStatusId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderHistory extends ActiveRecord
 {

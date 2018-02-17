@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Emails Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class EmailsController extends BaseAdminController
 {
@@ -29,9 +29,8 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @param int|null   $id
+     * @param int|null $id
      * @param Email|null $email
-     *
      * @return Response
      * @throws HttpException
      */
@@ -65,7 +64,6 @@ class EmailsController extends BaseAdminController
 
     /**
      * @return null|Response
-     *
      * @throws HttpException
      */
     public function actionSave()

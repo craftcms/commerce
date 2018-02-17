@@ -15,7 +15,7 @@ use yii\web\Response;
  * Class Product Type Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypesController extends BaseAdminController
 {
@@ -33,9 +33,8 @@ class ProductTypesController extends BaseAdminController
     }
 
     /**
-     * @param int|null         $productTypeId
+     * @param int|null $productTypeId
      * @param ProductType|null $productType
-     *
      * @return Response
      * @throws HttpException
      */

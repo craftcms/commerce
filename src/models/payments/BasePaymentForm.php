@@ -10,7 +10,7 @@ use yii\base\NotSupportedException;
  * Class BasePaymentForm
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 abstract class BasePaymentForm extends Model
 {
@@ -18,7 +18,6 @@ abstract class BasePaymentForm extends Model
      * Populate the payment form from a payment form.
      *
      * @param PaymentSource $paymentSource the source to ue
-     *
      * @throws NotSupportedException if not supported by current gateway.
      */
     public function populateFromPaymentSource(PaymentSource $paymentSource)

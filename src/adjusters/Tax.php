@@ -18,7 +18,7 @@ use DvK\Vat\Validator;
  * Tax Adjustments
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Tax implements AdjusterInterface
 {
@@ -84,7 +84,6 @@ class Tax implements AdjusterInterface
 
     /**
      * @param TaxRate $taxRate
-     *
      * @return OrderAdjustment[]|false
      */
     private function _getAdjustments(TaxRate $taxRate)
@@ -231,7 +230,6 @@ class Tax implements AdjusterInterface
 
     /**
      * @param TaxZone $zone
-     *
      * @return bool
      */
     private function matchAddress(TaxZone $zone): bool
@@ -269,7 +267,6 @@ class Tax implements AdjusterInterface
 
     /**
      * @param int $businessVatId
-     *
      * @return bool
      */
     private function _validateVatNumber(int $businessVatId)
@@ -297,7 +294,6 @@ class Tax implements AdjusterInterface
 
     /**
      * @param $rate
-     *
      * @return OrderAdjustment
      */
     private function _createAdjustment($rate): OrderAdjustment

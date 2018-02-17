@@ -8,16 +8,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order status record.
  *
- * @property string  $color
- * @property bool    $default
+ * @property string $color
+ * @property bool $default
  * @property Email[] $emails
- * @property string  $handle
- * @property int     $id
- * @property string  $name
- * @property int     $sortOrder
- *
+ * @property string $handle
+ * @property int $id
+ * @property string $name
+ * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderStatus extends ActiveRecord
 {

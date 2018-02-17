@@ -13,7 +13,7 @@ use craft\i18n\Locale;
  * Class Charts Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ChartsController extends ElementIndexesController
 {

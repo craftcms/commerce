@@ -8,16 +8,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Customer record.
  *
- * @property Address[]         $addresses
+ * @property Address[] $addresses
  * @property CustomerAddress[] $customerAddresses
- * @property int               $id
- * @property int               $lastUsedBillingAddressId
- * @property int               $lastUsedShippingAddressId
- * @property Order[]           $orders
- * @property int               $userId
- *
+ * @property int $id
+ * @property int $lastUsedBillingAddressId
+ * @property int $lastUsedShippingAddressId
+ * @property Order[] $orders
+ * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Customer extends ActiveRecord
 {

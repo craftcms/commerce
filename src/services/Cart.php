@@ -19,12 +19,11 @@ use yii\validators\EmailValidator;
  *
  * @property Order $cart
  * @property Order $email
- * @property Order $gateway         the shipping method to the current order
+ * @property Order $gateway the shipping method to the current order
  * @property mixed $paymentCurrency the payment currency on the order
- * @property Order $shippingMethod  the shipping method to the current order
- *
+ * @property Order $shippingMethod the shipping method to the current order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Cart extends Component
 {
@@ -43,7 +42,6 @@ class Cart extends Component
 
     /**
      * @event CartEvent The event that is raised before an item is removed from cart
-     *
      * You may set [[CartEvent::isValid]] to `false` to prevent the item from being removed from the cart.
      */
     const EVENT_BEFORE_REMOVE_FROM_CART = 'beforeRemoveFromCart';
@@ -70,13 +68,12 @@ class Cart extends Component
     // =========================================================================
 
     /**
-     * @param Order  $order
-     * @param int    $purchasableId
-     * @param int    $qty
+     * @param Order $order
+     * @param int $purchasableId
+     * @param int $qty
      * @param string $note
-     * @param array  $options
+     * @param array $options
      * @param string $error
-     *
      * @return bool
      * @throws \Exception
      */
@@ -92,7 +89,7 @@ class Cart extends Component
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
-        if(!$order->id && !Craft::$app->getElements()->saveElement($order, false)) {
+        if (!$order->id && !Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Error creating new cart'));
         }
 
@@ -165,10 +162,9 @@ class Cart extends Component
     }
 
     /**
-     * @param Order  $cart
+     * @param Order $cart
      * @param string $code
      * @param string $error
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -191,7 +187,6 @@ class Cart extends Component
      * @param $order
      * @param $currency
      * @param $error
-     *
      * @return bool
      */
     public function setPaymentCurrency($order, $currency, &$error): bool
@@ -216,10 +211,9 @@ class Cart extends Component
     /**
      * Set shipping method to the current order
      *
-     * @param Order  $cart
-     * @param int    $shippingMethod
+     * @param Order $cart
+     * @param int $shippingMethod
      * @param string $error ;
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -244,10 +238,9 @@ class Cart extends Component
     /**
      * Set shipping method to the current order
      *
-     * @param Order  $cart
-     * @param int    $gatewayId
+     * @param Order $cart
+     * @param int $gatewayId
      * @param string $error
-     *
      * @return bool
      * @throws \Exception
      */
@@ -301,10 +294,9 @@ class Cart extends Component
     }
 
     /**
-     * @param Order  $cart
+     * @param Order $cart
      * @param        $email
      * @param string $error
-     *
      * @return bool
      */
     public function setEmail(Order $cart, $email, &$error): bool
@@ -418,8 +410,7 @@ class Cart extends Component
      * Removes a line item from the cart.
      *
      * @param Order $cart
-     * @param int   $lineItemId
-     *
+     * @param int $lineItemId
      * @return bool
      */
     public function removeFromCart(Order $cart, $lineItemId): bool
@@ -480,7 +471,6 @@ class Cart extends Component
      * Remove all items from a cart
      *
      * @param Order $cart
-     *
      * @throws \Exception
      */
     public function clearCart(Order $cart)

@@ -21,13 +21,12 @@ use yii\base\Exception;
 /**
  * Product type service.
  *
- * @property array|ProductType[] $allProductTypes        all product types
- * @property array               $allProductTypeIds      all of the product type IDs
- * @property array|ProductType[] $editableProductTypes   all editable product types
- * @property array               $editableProductTypeIds all of the product type IDs that are editable by the current user
- *
+ * @property array|ProductType[] $allProductTypes all product types
+ * @property array $allProductTypeIds all of the product type IDs
+ * @property array|ProductType[] $editableProductTypes all editable product types
+ * @property array $editableProductTypeIds all of the product type IDs that are editable by the current user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypes extends Component
 {
@@ -163,7 +162,6 @@ class ProductTypes extends Component
      * Get a product type by its handle.
      *
      * @param string $handle The product type's handle.
-     *
      * @return ProductType|null The product type or `null`.
      */
     public function getProductTypeByHandle($handle)
@@ -193,7 +191,6 @@ class ProductTypes extends Component
      * Get an array of product type site settings for a product type by its ID.
      *
      * @param int $productTypeId the product type ID
-     *
      * @return array The product type settings.
      */
     public function getProductTypeSites($productTypeId): array
@@ -224,9 +221,8 @@ class ProductTypes extends Component
     /**
      * Save a product type.
      *
-     * @param ProductType $productType   The product type model.
-     * @param bool        $runValidation If validation should be ran.
-     *
+     * @param ProductType $productType The product type model.
+     * @param bool $runValidation If validation should be ran.
      * @return bool Whether the product type was saved successfully.
      * @throws \Throwable if reasons
      */
@@ -550,7 +546,6 @@ class ProductTypes extends Component
      * Delete a product type by its ID.
      *
      * @param int $id the product type's ID
-     *
      * @return bool Whether the product type was deleted successfully.
      * @throws \Throwable if reasons
      */
@@ -597,7 +592,6 @@ class ProductTypes extends Component
      * Returns a product type by its ID.
      *
      * @param int $productTypeId the product type's ID
-     *
      * @return ProductType|null either the product type or `null`
      */
     public function getProductTypeById(int $productTypeId)
@@ -627,7 +621,6 @@ class ProductTypes extends Component
      * Returns whether a product type’s products have URLs, and if the template path is valid.
      *
      * @param ProductType $productType The product for which to validate the template.
-     *
      * @return bool Whether the template is valid.
      */
     public function isProductTypeTemplateValid(ProductType $productType): bool

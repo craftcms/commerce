@@ -8,15 +8,14 @@ use craft\helpers\UrlHelper;
 /**
  * Currency model.
  *
- * @property string      $alphabeticCode
- * @property string      $cpEditUrl
- * @property string      $entity
- * @property int         $minorUnit
+ * @property string $alphabeticCode
+ * @property string $cpEditUrl
+ * @property string $entity
+ * @property int $minorUnit
  * @property null|string $name
- * @property int         $numericCode
- *
+ * @property int $numericCode
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentCurrency extends Model
 {

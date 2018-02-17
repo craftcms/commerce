@@ -8,13 +8,12 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type shipping category record.
  *
- * @property ProductType      $productType
- * @property int              $productTypeId
+ * @property ProductType $productType
+ * @property int $productTypeId
  * @property ShippingCategory $shippingCategory
- * @property int              $shippingCategoryId
- *
+ * @property int $shippingCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductTypeShippingCategory extends ActiveRecord
 {

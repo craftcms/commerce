@@ -9,12 +9,11 @@ use craft\helpers\UrlHelper;
 /**
  * Order status model.
  *
- * @property string  $cpEditUrl
- * @property array   $emailIds
+ * @property string $cpEditUrl
+ * @property array $emailIds
  * @property Email[] $emails
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderStatus extends Model
 {

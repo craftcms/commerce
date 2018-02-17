@@ -8,15 +8,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Sale product record.
  *
- * @property int                  $id
- * @property int                  $saleId
+ * @property int $id
+ * @property int $saleId
  * @property ActiveQueryInterface $sale
  * @property ActiveQueryInterface $purchasable
- * @property int                  $purchasableId
- * @property string               $purchasableType
- *
+ * @property int $purchasableId
+ * @property string $purchasableType
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class SalePurchasable extends ActiveRecord
 {

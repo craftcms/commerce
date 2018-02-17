@@ -18,12 +18,11 @@ use yii\base\Exception;
 /**
  * Order status service.
  *
- * @property OrderStatus|null    $defaultOrderStatus   default order status from the DB
- * @property OrderStatus[]|array $allOrderStatuses     all Order Statuses
- * @property null|int            $defaultOrderStatusId default order status ID from the DB
- *
+ * @property OrderStatus|null $defaultOrderStatus default order status from the DB
+ * @property OrderStatus[]|array $allOrderStatuses all Order Statuses
+ * @property null|int $defaultOrderStatusId default order status ID from the DB
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderStatuses extends Component
 {
@@ -64,7 +63,6 @@ class OrderStatuses extends Component
 
     /**
      * @param string $handle
-     *
      * @return OrderStatus|null
      */
     public function getOrderStatusByHandle($handle)
@@ -128,7 +126,6 @@ class OrderStatuses extends Component
      * Get the default order status for a particular order. Defaults to the CP configured default order status.
      *
      * @param Order $order
-     *
      * @return OrderStatus|null
      */
     public function getDefaultOrderStatusForOrder(Order $order)
@@ -146,8 +143,7 @@ class OrderStatuses extends Component
 
     /**
      * @param OrderStatus $model
-     * @param array       $emailIds
-     *
+     * @param array $emailIds
      * @return bool
      * @throws \Exception
      */
@@ -230,7 +226,6 @@ class OrderStatuses extends Component
      * Delete an order status by ID
      *
      * @param $id
-     *
      * @return bool
      * @throws \Exception
      * @throws \Throwable
@@ -281,9 +276,8 @@ class OrderStatuses extends Component
     /**
      * Handler for order status change event
      *
-     * @param Order        $order
+     * @param Order $order
      * @param OrderHistory $orderHistory
-     *
      */
     public function statusChangeHandler($order, $orderHistory)
     {
@@ -301,7 +295,6 @@ class OrderStatuses extends Component
      * Get an order status by ID
      *
      * @param int $id
-     *
      * @return OrderStatus|null
      */
     public function getOrderStatusById($id)
@@ -331,7 +324,6 @@ class OrderStatuses extends Component
      * Reorders the order statuses.
      *
      * @param array $ids
-     *
      * @return bool
      * @throws \yii\db\Exception
      */

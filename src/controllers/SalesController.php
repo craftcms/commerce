@@ -18,7 +18,7 @@ use yii\web\Response;
  * Class Sales Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class SalesController extends BaseCpController
 {
@@ -44,9 +44,8 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @param int|null  $id
+     * @param int|null $id
      * @param Sale|null $sale
-     *
      * @return Response
      * @throws HttpException
      */

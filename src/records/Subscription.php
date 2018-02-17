@@ -9,25 +9,24 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property int                  $id
- * @property int                  $userId
- * @property int                  $planId
- * @property int                  $gatewayId
- * @property int                  $orderId
- * @property string               $reference
- * @property int                  $trialDays
- * @property \DateTime            $nextPaymentDate
- * @property string               $subscriptionData
- * @property bool                 $isCanceled
- * @property \DateTime            $dateCanceled
- * @property bool                 $isExpired
- * @property \DateTime            $dateExpired
+ * @property int $id
+ * @property int $userId
+ * @property int $planId
+ * @property int $gatewayId
+ * @property int $orderId
+ * @property string $reference
+ * @property int $trialDays
+ * @property \DateTime $nextPaymentDate
+ * @property string $subscriptionData
+ * @property bool $isCanceled
+ * @property \DateTime $dateCanceled
+ * @property bool $isExpired
+ * @property \DateTime $dateExpired
  * @property ActiveQueryInterface $gateway
  * @property ActiveQueryInterface $plan
  * @property ActiveQueryInterface $user
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Subscription extends ActiveRecord
 {

@@ -14,11 +14,10 @@ use yii\base\Exception;
  * Payment currency service.
  *
  * @property PaymentCurrency[]|array $allPaymentCurrencies
- * @property PaymentCurrency|null    $primaryPaymentCurrency    the primary currency all prices are entered as
- * @property string                  $primaryPaymentCurrencyIso the primary currencies ISO code as a string
- *
+ * @property PaymentCurrency|null $primaryPaymentCurrency the primary currency all prices are entered as
+ * @property string $primaryPaymentCurrencyIso the primary currencies ISO code as a string
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentCurrencies extends Component
 {
@@ -40,7 +39,6 @@ class PaymentCurrencies extends Component
 
     /**
      * @param int $id
-     *
      * @return PaymentCurrency|null
      */
     public function getPaymentCurrencyById($id)
@@ -84,7 +82,6 @@ class PaymentCurrencies extends Component
 
     /**
      * @param string $iso
-     *
      * @return PaymentCurrency|null
      */
     public function getPaymentCurrencyByIso($iso)
@@ -127,9 +124,8 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * @param float  $amount This is the unit of price in the primary store currency
+     * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
-     *
      * @return float
      */
     public function convert($amount, $currency): float
@@ -141,7 +137,6 @@ class PaymentCurrencies extends Component
 
     /**
      * @param PaymentCurrency $model
-     *
      * @return bool
      * @throws Exception
      */
@@ -184,7 +179,6 @@ class PaymentCurrencies extends Component
 
     /**
      * @param $id
-     *
      * @return bool
      */
     public function deletePaymentCurrencyById($id): bool

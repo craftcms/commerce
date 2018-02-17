@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\commerce\elements;
 
 use Craft;
@@ -23,12 +24,11 @@ use yii\base\InvalidConfigException;
 /**
  * Class Subscription
  *
- * @property bool      $isOnTrial    whether the subscription is still on trial
+ * @property bool $isOnTrial whether the subscription is still on trial
  * @property DateTime $trialExpires datetime of trial expiry
- *
- * @author    Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @since     1.0
+ * @since 1.0
  */
 class Subscription extends Element
 {
@@ -151,7 +151,7 @@ class Subscription extends Element
      */
     public function __toString()
     {
-        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string) $this->getPlan()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
 
     /**
@@ -204,7 +204,7 @@ class Subscription extends Element
      */
     public function getSubscriber(): User
     {
-       if (null === $this->_user) {
+        if (null === $this->_user) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
@@ -273,7 +273,7 @@ class Subscription extends Element
      */
     public function getPlanName(): string
     {
-        return (string) $this->getPlan();
+        return (string)$this->getPlan();
     }
 
     /**
@@ -332,6 +332,7 @@ class Subscription extends Element
     {
         return $this->getGateway()->getSubscriptionPayments($this);
     }
+
     /**
      * @return null|string
      */
@@ -433,10 +434,10 @@ class Subscription extends Element
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
-            return array(
+            return [
                 'elementType' => User::class,
                 'map' => $map
-            );
+            ];
         }
 
         return parent::eagerLoadingMap($sourceElements, $handle);
@@ -485,7 +486,6 @@ class Subscription extends Element
             self::STATUS_CANCELED => ['label' => Craft::t('commerce', 'Canceled'), 'color' => 'yellow'],
             self::STATUS_TRIAL => ['label' => Craft::t('commerce', 'Trial'), 'color' => 'blue'],
         ];
-
     }
 
     /**
@@ -502,7 +502,6 @@ class Subscription extends Element
 
     /**
      * @inheritdoc
-     *
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
     public static function find(): ElementQueryInterface
@@ -551,7 +550,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    protected static  function defineTableAttributes(): array
+    protected static function defineTableAttributes(): array
     {
         return [
             'title' => ['label' => Craft::t('commerce', 'Subscription plan')],
@@ -602,9 +601,10 @@ class Subscription extends Element
 
                 return $url ? '<a href="'.$url.'">'.Craft::t('commerce', 'View order').'</a>' : '';
 
-            default: {
-                return parent::tableAttributeHtml($attribute);
-            }
+            default:
+                {
+                    return parent::tableAttributeHtml($attribute);
+                }
         }
     }
 
@@ -628,16 +628,14 @@ class Subscription extends Element
     protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {
         /** @var ElementQuery $elementQuery */
-        if ($attribute === 'subscriber')
-        {
+        if ($attribute === 'subscriber') {
             $with = $elementQuery->with ?: [];
             $with[] = 'subscriber';
             $elementQuery->with = $with;
             return;
         }
 
-        if ($attribute === 'orderLink')
-        {
+        if ($attribute === 'orderLink') {
             $with = $elementQuery->with ?: [];
             $with[] = 'order';
             $elementQuery->with = $with;

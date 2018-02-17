@@ -4,30 +4,27 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
-use yii\base\Component;
 use craft\commerce\Plugin;
 use craft\helpers\FileHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use yii\base\Component;
 use yii\base\Exception;
-use yii\web\HttpException;
+
 /**
  * Pdf service.
  *
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
-
 class Pdf extends Component
 {
     /**
      * Returns a rendered PDF object for the order.
      *
-     * @param Order  $order
+     * @param Order $order
      * @param string $option
-     *
      * @return Dompdf
      * @throws Exception
      */
@@ -53,9 +50,9 @@ class Pdf extends Component
 
         try {
             $html = $view->render($template, compact('order', 'option'));
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             // Set the pdf html to the render error.
-            Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '. $e->getMessage());
+            Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '.$e->getMessage());
             $html = Craft::t('commerce', 'Order PDF temple render error occurred. Order '.$order->getShortNumber());
         }
 

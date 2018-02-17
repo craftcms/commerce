@@ -16,7 +16,7 @@ use yii\web\Response;
  * Class Payments Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentsController extends BaseFrontEndController
 {
@@ -25,7 +25,6 @@ class PaymentsController extends BaseFrontEndController
 
     /**
      * @return Response|null
-     *
      * @throws HttpException
      */
     public function actionPay()

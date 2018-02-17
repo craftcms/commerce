@@ -12,12 +12,11 @@ use craft\helpers\StringHelper;
 /**
  * Class Orders
  *
- * @property string|false $bodyHtml      the widget's body HTML
- * @property string       $settingsHtml  the component’s settings HTML
- * @property string       $title         the widget’s title
- *
+ * @property string|false $bodyHtml the widget's body HTML
+ * @property string $settingsHtml the component’s settings HTML
+ * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Orders extends Widget
 {

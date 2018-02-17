@@ -16,7 +16,7 @@ use yii\base\NotSupportedException;
  * MissingGateway represents a gateway with an invalid class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class MissingGateway extends Gateway implements MissingComponentInterface
 {

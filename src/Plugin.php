@@ -22,7 +22,6 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\services\Dashboard;
-use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -33,9 +32,8 @@ use yii\web\User;
 
 /**
  * @property mixed $settingsResponse the settings page response
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Plugin extends \craft\base\Plugin
 {
@@ -94,7 +92,6 @@ class Plugin extends \craft\base\Plugin
 
         // Fire an 'afterInit' event
         $this->trigger(Plugin::EVENT_AFTER_INIT);
-
         // TODO onBeforeDeleteUser cancel all subscriptions
     }
 

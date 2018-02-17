@@ -10,13 +10,12 @@ use DateTime;
 /**
  * Class Order History Class
  *
- * @property Customer    $customer
+ * @property Customer $customer
  * @property OrderStatus $newStatus
- * @property Order       $order
+ * @property Order $order
  * @property OrderStatus $prevStatus
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderHistory extends Model
 {

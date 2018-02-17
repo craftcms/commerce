@@ -17,9 +17,8 @@ use yii\base\Exception;
  * Shipping zone service.
  *
  * @property ShippingZone[]|array $allShippingZones
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingZones extends Component
 {
@@ -59,7 +58,6 @@ class ShippingZones extends Component
 
     /**
      * @param int $id
-     *
      * @return ShippingZone|null
      */
     public function getShippingZoneById($id)
@@ -85,9 +83,8 @@ class ShippingZones extends Component
 
     /**
      * @param ShippingZone $model
-     * @param array        $countryIds
-     * @param array        $stateIds
-     *
+     * @param array $countryIds
+     * @param array $stateIds
      * @return bool
      * @throws \Exception
      * @throws Exception
@@ -174,7 +171,6 @@ class ShippingZones extends Component
 
     /**
      * @param int $id
-     *
      * @return bool
      */
     public function deleteShippingZoneById($id): bool

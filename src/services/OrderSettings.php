@@ -13,7 +13,7 @@ use yii\base\Exception;
  * Order settings service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrderSettings extends Component
 {
@@ -30,7 +30,6 @@ class OrderSettings extends Component
 
     /**
      * @param int $orderSettingsId
-     *
      * @return OrderSettingsModel|null
      */
     public function getOrderSettingById($orderSettingsId)
@@ -58,7 +57,6 @@ class OrderSettings extends Component
 
     /**
      * @param string $handle
-     *
      * @return OrderSettingsModel|null
      */
     public function getOrderSettingByHandle($handle)
@@ -78,7 +76,6 @@ class OrderSettings extends Component
 
     /**
      * @param OrderSettingsModel $orderSettings
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception

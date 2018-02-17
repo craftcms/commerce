@@ -9,9 +9,8 @@ use craft\helpers\UrlHelper;
  * Country Model
  *
  * @property string $cpEditUrl
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Country extends Model
 {

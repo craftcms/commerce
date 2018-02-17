@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Countries Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CountriesController extends BaseAdminController
 {
@@ -30,9 +30,8 @@ class CountriesController extends BaseAdminController
     }
 
     /**
-     * @param int|null     $id
+     * @param int|null $id
      * @param Country|null $country
-     *
      * @return Response
      * @throws HttpException
      */

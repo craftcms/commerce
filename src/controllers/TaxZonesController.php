@@ -13,7 +13,7 @@ use yii\web\Response;
  * Class Tax Zone Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxZonesController extends BaseAdminController
 {
@@ -30,9 +30,8 @@ class TaxZonesController extends BaseAdminController
     }
 
     /**
-     * @param int|null     $id
+     * @param int|null $id
      * @param TaxZone|null $taxZone
-     *
      * @return Response
      * @throws HttpException
      */

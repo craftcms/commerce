@@ -18,7 +18,7 @@ use yii\base\Component;
  * Transaction service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Transactions extends Component
 {
@@ -41,7 +41,6 @@ class Transactions extends Component
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     *
      * @return bool
      */
     public function canCaptureTransaction(Transaction $transaction): bool
@@ -71,7 +70,6 @@ class Transactions extends Component
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     *
      * @return bool
      */
     public function canRefundTransaction(Transaction $transaction): bool
@@ -104,9 +102,8 @@ class Transactions extends Component
     /**
      * Create a transaction either from an order or a parent transaction. At least one must be present.
      *
-     * @param Order       $order             Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
+     * @param Order $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
      * @param Transaction $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
-     *
      * @return Transaction
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
      */
@@ -166,7 +163,6 @@ class Transactions extends Component
      * Delete a transaction.
      *
      * @param Transaction $transaction the transaction to delete
-     *
      * @return bool
      */
     public function deleteTransaction(Transaction $transaction): bool
@@ -184,7 +180,6 @@ class Transactions extends Component
      * Returns all transactions for an order, per the order's ID.
      *
      * @param int $orderId the order's ID
-     *
      * @return Transaction[]
      */
     public function getAllTransactionsByOrderId(int $orderId): array
@@ -206,7 +201,6 @@ class Transactions extends Component
      * Get all children transactions, per a parent transaction's ID.
      *
      * @param int $transactionId the parent transaction's ID
-     *
      * @return array
      */
     public function getChildrenByTransactionId(int $transactionId): array
@@ -228,7 +222,6 @@ class Transactions extends Component
      * Get a transaction by its hash.
      *
      * @param string $hash the hash of transaction
-     *
      * @return Transaction|null
      */
     public function getTransactionByHash(string $hash)
@@ -244,8 +237,7 @@ class Transactions extends Component
      * Get a transaction by its reference and status.
      *
      * @param string $reference the transaction reference
-     * @param string $status    the transaction status
-     *
+     * @param string $status the transaction status
      * @return Transaction|null
      */
     public function getTransactionByReferenceAndStatus(string $reference, string $status)
@@ -261,7 +253,6 @@ class Transactions extends Component
      * Get a transaction by its ID.
      *
      * @param int $id the ID of transaction
-     *
      * @return Transaction|null
      */
     public function getTransactionById(int $id)
@@ -277,7 +268,6 @@ class Transactions extends Component
      * Returns true if a transaction or a direct child of the transaction is successful.
      *
      * @param Transaction $transaction
-     *
      * @return bool
      */
     public function isTransactionSuccessful(Transaction $transaction): bool
@@ -299,7 +289,6 @@ class Transactions extends Component
      * Save a transaction.
      *
      * @param Transaction $model the transaction model
-     *
      * @return bool
      * @throws TransactionException if an attempt is made to modify an existing transaction
      */

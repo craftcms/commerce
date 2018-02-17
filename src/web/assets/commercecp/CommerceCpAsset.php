@@ -11,7 +11,7 @@ use yii\web\JqueryAsset;
  * Asset bundle for the Control Panel
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CommerceCpAsset extends AssetBundle
 {

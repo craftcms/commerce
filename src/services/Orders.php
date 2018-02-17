@@ -10,7 +10,7 @@ use yii\base\Component;
  * Orders service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Orders extends Component
 {
@@ -19,7 +19,6 @@ class Orders extends Component
 
     /**
      * @param int $id
-     *
      * @return Order|null
      */
     public function getOrderById(int $id)
@@ -37,7 +36,6 @@ class Orders extends Component
 
     /**
      * @param string $number
-     *
      * @return Order|null
      */
     public function getOrderByNumber($number)
@@ -50,7 +48,6 @@ class Orders extends Component
 
     /**
      * @param int|Customer $customer
-     *
      * @return Order[]|null
      */
     public function getOrdersByCustomer($customer)
@@ -65,7 +62,6 @@ class Orders extends Component
 
     /**
      * @param string $email
-     *
      * @return Order[]|null
      */
     public function getOrdersByEmail($email)

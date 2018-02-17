@@ -16,7 +16,7 @@ use craft\elements\User;
  * SubscriptionGatewayInterface defines the common interface to be implemented by gateway classes that support subscriptions.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 interface SubscriptionGatewayInterface extends SavableComponentInterface
 {
@@ -26,9 +26,8 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     /**
      * Cancel a subscription.
      *
-     * @param Subscription            $subscription the subscription to cancel
-     * @param CancelSubscriptionForm  $parameters   additional paramters touse
-     *
+     * @param Subscription $subscription the subscription to cancel
+     * @param CancelSubscriptionForm $parameters additional paramters touse
      * @return SubscriptionResponseInterface
      * @throws SubscriptionException for all subscription-related errors.
      */
@@ -38,7 +37,6 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * Returns the next payment amount for a subscription, taking into account all discounts.
      *
      * @param Subscription $subscription
-     *
      * @return string next payment amount with currency code
      */
     public function getNextPaymentAmount(Subscription $subscription): string;
@@ -47,7 +45,6 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * Get a list of subscription payments for a given subscription.
      *
      * @param Subscription $subscription
-     *
      * @return SubscriptionPayment[]
      */
     public function getSubscriptionPayments(Subscription $subscription): array;
@@ -56,7 +53,6 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * Fetch a subscription plan by its reference
      *
      * @param string $reference
-     *
      * @return string
      */
     public function getSubscriptionPlanByReference(string $reference): string;
@@ -72,7 +68,6 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * Reactivate a subscription.
      *
      * @param Subscription $subscription the canceled subscription to reactivate
-     *
      * @return SubscriptionResponseInterface
      * @throws NotImplementedException
      */
@@ -81,10 +76,9 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     /**
      * Subscribe user to a plan.
      *
-     * @param User             $user       the Craft user to subscribe
-     * @param Plan             $plan       the plan to subscribe to
+     * @param User $user the Craft user to subscribe
+     * @param Plan $plan the plan to subscribe to
      * @param SubscriptionForm $parameters additional parameters to use
-     *
      * @return SubscriptionResponseInterface
      * @throws SubscriptionException for all subscription-related errors.
      */
@@ -93,10 +87,9 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     /**
      * Switch a subscription to a different subscription plan.
      *
-     * @param Subscription    $subscription the subscription to modify
-     * @param Plan            $plan         the plan to change the subscription to
-     * @param SwitchPlansForm $parameters   additional parameters to use
-     *
+     * @param Subscription $subscription the subscription to modify
+     * @param Plan $plan the plan to change the subscription to
+     * @param SwitchPlansForm $parameters additional parameters to use
      * @return SubscriptionResponseInterface
      */
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): SubscriptionResponseInterface;

@@ -9,17 +9,16 @@ use craft\helpers\UrlHelper;
 /**
  * Tax zone model.
  *
- * @property Country[]       $countries      countries in this Tax Zone
- * @property array           $countryIds
- * @property array           $countriesNames the names of all countries in this Tax Zone
- * @property string          $cpEditUrl
- * @property State[]         $states         all states in this Tax Zone
- * @property array           $stateIds
- * @property array           $statesNames    the names of all states in this Tax Zone
+ * @property Country[] $countries countries in this Tax Zone
+ * @property array $countryIds
+ * @property array $countriesNames the names of all countries in this Tax Zone
+ * @property string $cpEditUrl
+ * @property State[] $states all states in this Tax Zone
+ * @property array $stateIds
+ * @property array $statesNames the names of all states in this Tax Zone
  * @property array|TaxRate[] $taxRates
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxZone extends Model
 {

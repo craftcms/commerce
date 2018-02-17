@@ -9,9 +9,8 @@ use yii\base\Component;
  * Currency service.
  *
  * @property array|Currency[] $allCurrencies
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Currencies extends Component
 {
@@ -28,7 +27,6 @@ class Currencies extends Component
 
     /**
      * @param string $iso
-     *
      * @return Currency|null
      */
     public function getCurrencyByIso($iso)

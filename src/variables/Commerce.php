@@ -31,14 +31,13 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxZone;
 use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\services\Addresses;
-use craft\commerce\services\ShippingCategories;
 use craft\helpers\ArrayHelper;
 
 /**
  * Variable class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Commerce
 {
@@ -129,7 +128,6 @@ class Commerce
      * Get a discount by its code.
      *
      * @param string $code the discount code
-     *
      * @return Discount|null
      */
     public function getDiscountByCode($code)
@@ -151,7 +149,6 @@ class Commerce
      * Returns all gateways enabled for front-end use.
      *
      * @param bool $asList Whether to return an array of gateway names indexed by ID. Defaults to `false`.
-     *
      * @return array|Gateway[]
      */
     public function getGateways($asList = false): array
@@ -199,7 +196,6 @@ class Commerce
      * Get all payment sources for the current user on a specified gateway.
      *
      * @param int $gatewayId the gateway id
-     *
      * @return PaymentSource[]
      */
     public function getPaymentSourcesOnGateway(int $gatewayId): array
@@ -343,7 +339,6 @@ class Commerce
      * Returns a new OrderQuery instance.
      *
      * @param mixed $criteria
-     *
      * @return OrderQuery
      */
     public function orders($criteria = null): OrderQuery
@@ -361,7 +356,6 @@ class Commerce
      * Returns a new SubscriptionQuery instance.
      *
      * @param mixed $criteria
-     *
      * @return SubscriptionQuery
      */
     public function subscriptions($criteria = null): SubscriptionQuery
@@ -379,7 +373,6 @@ class Commerce
      * Returns a new ProductQuery instance.
      *
      * @param mixed $criteria
-     *
      * @return ProductQuery
      */
     public function products($criteria = null): ProductQuery
@@ -407,7 +400,6 @@ class Commerce
      * Returns a new VariantQuery instance.
      *
      * @param mixed $criteria
-     *
      * @return VariantQuery
      */
     public function variants($criteria = null): VariantQuery

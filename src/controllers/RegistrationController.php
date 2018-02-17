@@ -11,7 +11,7 @@ use yii\web\Response;
  * Class Registration Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class RegistrationController extends BaseAdminController
 {
@@ -119,7 +119,6 @@ class RegistrationController extends BaseAdminController
      * Returns a response based on the EtService response.
      *
      * @param mixed
-     *
      * @return bool|string The response from EtService
      */
     private function _handleEtResponse($etResponse)

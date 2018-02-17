@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Customers Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CustomersController extends BaseCpController
 {
@@ -29,9 +29,8 @@ class CustomersController extends BaseCpController
     }
 
     /**
-     * @param int|null      $id
+     * @param int|null $id
      * @param Customer|null $customer
-     *
      * @return Response
      * @throws HttpException
      */

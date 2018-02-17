@@ -8,7 +8,7 @@ use craft\commerce\elements\Order;
  * Interface ShippingRule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 interface ShippingRuleInterface
 {
@@ -19,7 +19,6 @@ interface ShippingRuleInterface
      * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
      *
      * @param Order $order
-     *
      * @return bool
      */
     public function matchOrder(Order $order): bool;
@@ -43,7 +42,6 @@ interface ShippingRuleInterface
      * Zero will not make any changes.
      *
      * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     *
      * @return float
      */
     public function getPercentageRate($shippingCategory): float;
@@ -53,7 +51,6 @@ interface ShippingRuleInterface
      * Zero will not make any changes.
      *
      * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     *
      * @return float
      */
     public function getPerItemRate($shippingCategory): float;
@@ -63,7 +60,6 @@ interface ShippingRuleInterface
      * Zero will not make any changes.
      *
      * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     *
      * @return float
      */
     public function getWeightRate($shippingCategory): float;

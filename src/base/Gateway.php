@@ -11,19 +11,18 @@ use craft\helpers\UrlHelper;
 /**
  * Class Gateway
  *
- * @property string               $cpEditUrl
- * @property bool                 $dateArchived
- * @property bool                 $frontendEnabled
- * @property bool                 $isArchived
- * @property string               $name
+ * @property string $cpEditUrl
+ * @property bool $dateArchived
+ * @property bool $frontendEnabled
+ * @property bool $isArchived
+ * @property string $name
  * @property null|BasePaymentForm $paymentFormModel
- * @property string               $paymentType
- * @property array                $paymentTypeOptions
- * @property bool                 $sendCartInfo
- * @property array                $settings
- *
+ * @property string $paymentType
+ * @property array $paymentTypeOptions
+ * @property bool $sendCartInfo
+ * @property array $settings
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
@@ -49,7 +48,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Returns the webhook url for this gateway.
      *
      * @param array $params Parameters for the url.
-     *
      * @return string
      */
     public function getWebhookUrl(array $params = []): string
@@ -106,7 +104,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Return the html to use when paying with a stored payment source.
      *
      * @param array $params
-     *
      * @return mixed
      */
     public function getPaymentConfirmationFormHtml(array $params): string
@@ -118,7 +115,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Payment Form HTML
      *
      * @param array $params
-     *
      * @return string|null
      */
     abstract public function getPaymentFormHtml(array $params);

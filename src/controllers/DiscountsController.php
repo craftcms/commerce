@@ -19,7 +19,7 @@ use yii\web\Response;
  * Class Discounts Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class DiscountsController extends BaseCpController
 {
@@ -45,9 +45,8 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @param int|null      $id
+     * @param int|null $id
      * @param Discount|null $discount
-     *
      * @return Response
      * @throws HttpException
      */

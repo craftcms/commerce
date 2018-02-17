@@ -12,11 +12,10 @@ use yii\base\Exception;
 /**
  * State service.
  *
- * @property State[]|array $allStates                an array of all states
- * @property array         $statesGroupedByCountries all states grouped by countries
- *
+ * @property State[]|array $allStates an array of all states
+ * @property array $statesGroupedByCountries all states grouped by countries
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class States extends Component
 {
@@ -55,7 +54,6 @@ class States extends Component
      * Returns a state by its ID.
      *
      * @param int $id the state's ID
-     *
      * @return State|null
      */
     public function getStateById(int $id)
@@ -82,9 +80,8 @@ class States extends Component
     /**
      * Returns a state by its abbreviation.
      *
-     * @param int    $countryId    the state's country ID
+     * @param int $countryId the state's country ID
      * @param string $abbreviation the state's abbreviation
-     *
      * @return State|null
      */
     public function getStateByAbbreviation(int $countryId, string $abbreviation)
@@ -148,7 +145,6 @@ class States extends Component
      * Returns all states in a tax zone.
      *
      * @param int $taxZoneId the tax zone's ID
-     *
      * @return State[] Array of states in the matched tax zone.
      */
     public function getStatesByTaxZoneId(int $taxZoneId): array
@@ -175,7 +171,6 @@ class States extends Component
      * Returns all states in a shipping zone.
      *
      * @param int $shippingZoneId the shipping zone's ID
-     *
      * @return State[] Array of states in the matched shipping zone.
      */
     public function getStatesByShippingZoneId($shippingZoneId): array
@@ -202,7 +197,6 @@ class States extends Component
      * Save a state.
      *
      * @param State $model The state to be saved.
-     *
      * @return bool Whether the state was saved successfully.
      * @throws Exception if the sate does not exist.
      */
@@ -243,7 +237,6 @@ class States extends Component
      * Deletes a state by its ID.
      *
      * @param int $id the state's ID
-     *
      * @return bool whether the state was deleted successfully
      */
     public function deleteStateById(int $id): bool

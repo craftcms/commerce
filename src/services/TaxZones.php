@@ -17,9 +17,8 @@ use yii\base\Exception;
  * Tax zone service.
  *
  * @property TaxZone[]|array $allTaxZones
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxZones extends Component
 {
@@ -60,7 +59,6 @@ class TaxZones extends Component
 
     /**
      * @param int $id
-     *
      * @return TaxZone|null
      */
     public function getTaxZoneById($id)
@@ -86,9 +84,8 @@ class TaxZones extends Component
 
     /**
      * @param TaxZone $model
-     * @param array   $countryIds
-     * @param array   $stateIds
-     *
+     * @param array $countryIds
+     * @param array $stateIds
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -182,7 +179,6 @@ class TaxZones extends Component
 
     /**
      * @param $id
-     *
      * @return bool
      */
     public function deleteTaxZoneById($id): bool

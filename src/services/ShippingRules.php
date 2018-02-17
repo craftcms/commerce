@@ -17,9 +17,8 @@ use yii\base\Exception;
  * Shipping rule service.
  *
  * @property array|ShippingRule[] $allShippingRules
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingRules extends Component
 {
@@ -63,7 +62,6 @@ class ShippingRules extends Component
 
     /**
      * @param int $id
-     *
      * @return ShippingRule[]
      */
     public function getAllShippingRulesByShippingMethodId($id): array
@@ -96,7 +94,6 @@ class ShippingRules extends Component
 
     /**
      * @param int $id
-     *
      * @return ShippingRule|null
      */
     public function getShippingRuleById($id)
@@ -122,7 +119,6 @@ class ShippingRules extends Component
 
     /**
      * @param ShippingRule $model
-     *
      * @return bool
      * @throws Exception
      */
@@ -217,7 +213,6 @@ class ShippingRules extends Component
      * Reorders shipping rules by the given array of IDs.
      *
      * @param array $ids
-     *
      * @return bool
      */
     public function reorderShippingRules(array $ids): bool
@@ -233,7 +228,6 @@ class ShippingRules extends Component
      * Deletes a shipping rule by an ID.
      *
      * @param int $id
-     *
      * @return bool
      */
     public function deleteShippingRuleById($id): bool

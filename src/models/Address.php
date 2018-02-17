@@ -6,21 +6,19 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
-use yii\validators\InlineValidator;
 
 /**
  * Address Model
  *
- * @property Country    $country
- * @property string     $countryText
- * @property string     $cpEditUrl
- * @property string     $fullName
- * @property State      $state
- * @property string     $stateText
+ * @property Country $country
+ * @property string $countryText
+ * @property string $cpEditUrl
+ * @property string $fullName
+ * @property State $state
+ * @property string $stateText
  * @property int|string $stateValue
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Address extends Model
 {
@@ -164,7 +162,8 @@ class Address extends Model
      * @param $params
      * @param $validator
      */
-    public function validateState($attribute, $params, $validator) {
+    public function validateState($attribute, $params, $validator)
+    {
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
         if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {

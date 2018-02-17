@@ -8,10 +8,9 @@ use craft\commerce\base\Model;
 /**
  * Settings model.
  *
- * @property array  $weightUnitsOptions
- *
+ * @property array $weightUnitsOptions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Settings extends Model
 {

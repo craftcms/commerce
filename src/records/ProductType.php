@@ -9,26 +9,25 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property string               $descriptionFormat
- * @property FieldLayout          $fieldLayout
- * @property int                  $fieldLayoutId
- * @property string               $handle
- * @property bool                 $hasDimensions
- * @property bool                 $hasVariants
- * @property bool                 $hasVariantTitleField
- * @property int                  $id
- * @property string               $name
+ * @property string $descriptionFormat
+ * @property FieldLayout $fieldLayout
+ * @property int $fieldLayoutId
+ * @property string $handle
+ * @property bool $hasDimensions
+ * @property bool $hasVariants
+ * @property bool $hasVariantTitleField
+ * @property int $id
+ * @property string $name
  * @property ActiveQueryInterface $productTypesShippingCategories
  * @property ActiveQueryInterface $productTypesTaxCategories
  * @property ActiveQueryInterface $shippingCategories
- * @property string               $skuFormat
+ * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
- * @property string               $titleFormat
+ * @property string $titleFormat
  * @property ActiveQueryInterface $variantFieldLayout
- * @property int                  $variantFieldLayoutId
- *
+ * @property int $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ProductType extends ActiveRecord
 {

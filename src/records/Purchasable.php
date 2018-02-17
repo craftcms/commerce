@@ -10,12 +10,11 @@ use yii\db\ActiveQueryInterface;
  * Purchasable record.
  *
  * @property ActiveQueryInterface $element
- * @property int                  $id
- * @property float                $price
- * @property string               $sku
- *
+ * @property int $id
+ * @property float $price
+ * @property string $sku
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Purchasable extends ActiveRecord
 {

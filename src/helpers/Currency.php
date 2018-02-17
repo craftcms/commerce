@@ -9,7 +9,7 @@ use craft\commerce\Plugin;
  * Class Currency
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Currency
 {
@@ -20,9 +20,8 @@ class Currency
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
-     * @param float              $amount
+     * @param float $amount
      * @param CurrencyModel|null $currency
-     *
      * @return float
      */
     public static function round($amount, $currency = null): float

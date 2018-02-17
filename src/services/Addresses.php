@@ -15,7 +15,7 @@ use yii\base\Exception;
  * Address service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Addresses extends Component
 {
@@ -52,7 +52,6 @@ class Addresses extends Component
      * Return an address by its ID.
      *
      * @param int $addressId the address' ID
-     *
      * @return Address|null the matched address or null if not found
      */
     public function getAddressById(int $addressId)
@@ -72,7 +71,6 @@ class Addresses extends Component
      * Returns all of a customer's addresses, by the customer's ID.
      *
      * @param int $customerId the customer's ID
-     *
      * @return Address[] an array of matched addresses
      */
     public function getAddressesByCustomerId(int $customerId): array
@@ -104,8 +102,7 @@ class Addresses extends Component
             ->where(['stockLocation' => true])
             ->one();
 
-        if (!$result)
-        {
+        if (!$result) {
             return new Address();
         }
 
@@ -116,8 +113,7 @@ class Addresses extends Component
      * Save an address.
      *
      * @param Address $addressModel The address to be saved.
-     * @param bool    $runValidation     should we validate this address before saving.
-     *
+     * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
      * @throws Exception if an address does not exist.
      */
@@ -212,7 +208,6 @@ class Addresses extends Component
      * Deletes an address by its ID.
      *
      * @param int $id the address' ID
-     *
      * @return bool whether the address was deleted successfully
      */
     public function deleteAddressById(int $id): bool

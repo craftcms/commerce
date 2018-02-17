@@ -22,9 +22,8 @@ use yii\base\Exception;
  * Sale service.
  *
  * @property Sale[] $allSales
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Sales extends Component
 {
@@ -54,7 +53,6 @@ class Sales extends Component
 
     /**
      * @param int $id
-     *
      * @return Sale|null
      */
     public function getSaleById($id)
@@ -179,7 +177,6 @@ class Sales extends Component
      *
      * @param PurchasableInterface $purchasable
      * @param Order|null $order
-     *
      * @return Sales[]
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
@@ -199,8 +196,7 @@ class Sales extends Component
      * Returns the salePrice of the purchasable based on all the sales.
      *
      * @param PurchasableInterface $purchasable
-     * @param Order|null           $order
-     *
+     * @param Order|null $order
      * @return float
      */
     public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
@@ -223,9 +219,8 @@ class Sales extends Component
 
     /**
      * @param PurchasableInterface $purchasable
-     * @param Sale                 $sale
-     * @param Order                $order
-     *
+     * @param Sale $sale
+     * @param Order $order
      * @return bool
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
@@ -267,8 +262,7 @@ class Sales extends Component
             }
         }
 
-        if (!$order)
-        {
+        if (!$order) {
             if (!$sale->allGroups) {
                 // User groups of the currently logged in user
                 $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
@@ -290,20 +284,17 @@ class Sales extends Component
 
         $date = new \DateTime();
 
-        if ($order)
-        {
+        if ($order) {
             // Date we care about in the context of an order is the date the order was placed.
             // If the order is still a cart, use the current date time.
             $date = $order->isCompleted ? $order->dateOrdered : new \DateTime();
         }
 
-        if ($sale->dateFrom && $sale->dateFrom >= $date)
-        {
+        if ($sale->dateFrom && $sale->dateFrom >= $date) {
             return false;
         }
 
-        if ($sale->dateTo && $sale->dateTo <= $date)
-        {
+        if ($sale->dateTo && $sale->dateTo <= $date) {
             return false;
         }
 
@@ -318,11 +309,10 @@ class Sales extends Component
     }
 
     /**
-     * @param Sale  $model
-     * @param array $groups       ids
-     * @param array $categories   ids
+     * @param Sale $model
+     * @param array $groups ids
+     * @param array $categories ids
      * @param array $purchasables ids
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -411,7 +401,6 @@ class Sales extends Component
 
     /**
      * @param $id
-     *
      * @return bool
      * @throws \Exception
      * @throws \Throwable

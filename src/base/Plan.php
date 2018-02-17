@@ -14,10 +14,9 @@ use yii\base\InvalidConfigException;
  * Plan model
  *
  * @property GatewayInterface $gateway
- * @property User             $user
- *
+ * @property User $user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 abstract class Plan extends Model implements PlanInterface
 {
@@ -113,19 +112,17 @@ abstract class Plan extends Model implements PlanInterface
      * Whether there exists an active subscription for this plan for this user.
      *
      * @param int $userId
-     *
      * @return bool
      */
     public function hasActiveSubscription(int $userId): bool
     {
-        return (bool) count($this->getActiveUserSubscription($userId));
+        return (bool)count($this->getActiveUserSubscription($userId));
     }
 
     /**
      * Return the subscription count for this plan.
      *
      * @param int $userId the user id
-     *
      * @return ElementInterface[]
      */
     public function getActiveUserSubscriptions(int $userId)

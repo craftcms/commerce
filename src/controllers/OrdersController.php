@@ -18,7 +18,7 @@ use yii\web\Response;
  * Class Orders Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class OrdersController extends BaseCpController
 {
@@ -47,7 +47,6 @@ class OrdersController extends BaseCpController
 
     /**
      * @param $orderId
-     *
      * @return Response
      * @throws HttpException
      */
@@ -302,7 +301,6 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     *
      * @return Response|null
      */
     public function actionUpdateStatus()
@@ -353,7 +351,6 @@ class OrdersController extends BaseCpController
      * Deletes a order.
      *
      * @return Response|null
-     *
      * @throws Exception if you try to edit a non existing Id.
      */
     public function actionDeleteOrder()

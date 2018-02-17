@@ -13,7 +13,7 @@ use yii\web\HttpException;
  * Class Cart Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CartController extends BaseFrontEndController
 {
@@ -139,7 +139,6 @@ class CartController extends BaseFrontEndController
 
     /**
      * Updates the cart with optional params.
-     *
      */
     public function actionUpdateCart()
     {
@@ -352,7 +351,6 @@ class CartController extends BaseFrontEndController
      * @param Address $shippingAddress
      * @param Address $billingAddress
      * @param         $error
-     *
      * @return bool
      * @throws \Exception
      */

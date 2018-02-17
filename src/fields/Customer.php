@@ -13,7 +13,7 @@ use craft\elements\User;
  * Class Customer
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Customer extends Field
 {

@@ -9,7 +9,7 @@ use craft\commerce\models\Currency;
  * Class SubscriptionPayment
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class SubscriptionPayment extends Model
 {

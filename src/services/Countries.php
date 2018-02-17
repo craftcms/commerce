@@ -13,11 +13,10 @@ use yii\base\Exception;
 /**
  * Country service.
  *
- * @property Country[]|array $allCountries         an array of all countries
+ * @property Country[]|array $allCountries an array of all countries
  * @property Country[]|array $allCountriesListData all country names, indexed by ID
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Countries extends Component
 {
@@ -51,9 +50,7 @@ class Countries extends Component
      * Returns a country by its ID.
      *
      * @param int $id the country's ID
-     *
      * @return Country|null
-     *
      */
     public function getCountryById(int $id)
     {
@@ -80,9 +77,7 @@ class Countries extends Component
      * Returns a country by its ISO code.
      *
      * @param string $iso the country's ISO code
-     *
      * @return Country|null
-     *
      */
     public function getCountryByIso(string $iso)
     {
@@ -128,7 +123,6 @@ class Countries extends Component
      * Returns all countries in a tax zone, per the tax zone's ID.
      *
      * @param int $taxZoneId the tax zone's ID
-     *
      * @return Country[] an array of countries in the matched tax zone
      */
     public function getCountriesByTaxZoneId(int $taxZoneId): array
@@ -154,7 +148,6 @@ class Countries extends Component
      * Returns all countries in a shipping zone, per the shipping zone's ID.
      *
      * @param int $shippingZoneId the shipping zone's ID
-     *
      * @return Country[] An array of countries in the matched shipping zone.
      */
     public function getCountriesByShippingZoneId(int $shippingZoneId): array
@@ -180,7 +173,6 @@ class Countries extends Component
      * Save a country.
      *
      * @param Country $country The country to be saved.
-     *
      * @return bool Whether the country was saved successfully.
      * @throws Exception if the country does not exist.
      */
@@ -220,7 +212,6 @@ class Countries extends Component
      * Deletes a country by its ID.
      *
      * @param int $id the country's ID
-     *
      * @return bool whether the country was deleted successfully
      */
     public function deleteCountryById(int $id): bool

@@ -15,7 +15,7 @@ use yii\db\Expression;
  * Variant service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Variants extends Component
 {
@@ -33,9 +33,8 @@ class Variants extends Component
     /**
      * Returns a product's variants, per the product's ID.
      *
-     * @param int      $productId product ID
-     * @param int|null $siteId    Site ID for which to return the variants. Defaults to `null` which is current site.
-     *
+     * @param int $productId product ID
+     * @param int|null $siteId Site ID for which to return the variants. Defaults to `null` which is current site.
      * @return Variant[]
      */
     public function getAllVariantsByProductId(int $productId, int $siteId = null): array
@@ -48,9 +47,8 @@ class Variants extends Component
     /**
      * Returns the first variant, per its product's ID.
      *
-     * @param int      $productId the product's ID
-     * @param int|null $siteId    Site ID for which to return the variant. Defaults to `null` which is current site.
-     *
+     * @param int $productId the product's ID
+     * @param int|null $siteId Site ID for which to return the variant. Defaults to `null` which is current site.
      * @return Variant
      */
     public function getDefaultVariantByProductId(int $productId, int $siteId = null): Variant
@@ -61,9 +59,8 @@ class Variants extends Component
     /**
      * Returns a variant by its ID.
      *
-     * @param int      $variantId The variant’s ID.
-     * @param int|null $siteId    The site ID for which to fetch the variant. Defaults to `null` which is current site.
-     *
+     * @param int $variantId The variant’s ID.
+     * @param int|null $siteId The site ID for which to fetch the variant. Defaults to `null` which is current site.
      * @return ElementInterface|null
      */
     public function getVariantById(int $variantId, int $siteId = null)

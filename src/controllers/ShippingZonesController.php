@@ -13,7 +13,7 @@ use yii\web\Response;
  * Class Shipping Zones Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingZonesController extends BaseAdminController
 {
@@ -32,9 +32,8 @@ class ShippingZonesController extends BaseAdminController
     }
 
     /**
-     * @param int|null     $id
+     * @param int|null $id
      * @param ShippingZone $shippingZone
-     *
      * @return Response
      * @throws HttpException
      */

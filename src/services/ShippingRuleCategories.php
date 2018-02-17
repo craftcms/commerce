@@ -11,7 +11,7 @@ use yii\base\Component;
  * Shipping rule categories service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingRuleCategories extends Component
 {
@@ -30,7 +30,6 @@ class ShippingRuleCategories extends Component
      * Return an array of shipping rules categories per the rule's ID.
      *
      * @param int $ruleId the rule's ID
-     *
      * @return ShippingRuleCategory[] An array of matched shipping rule categories.
      */
     public function getShippingRuleCategoriesByRuleId(int $ruleId): array
@@ -53,7 +52,6 @@ class ShippingRuleCategories extends Component
      * Save a shipping rule category.
      *
      * @param ShippingRuleCategory $model The shipping rule model.
-     *
      * @return bool Whether the save was successful.
      */
     public function createShippingRuleCategory(ShippingRuleCategory $model): bool
@@ -92,7 +90,6 @@ class ShippingRuleCategories extends Component
      * Delete a shipping rule category by its ID.
      *
      * @param int $id the shipping rule category ID.
-     *
      * @return bool Whether the category was deleted successfully.
      */
     public function deleteShippingRuleCategoryById(int $id): bool

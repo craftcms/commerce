@@ -14,9 +14,8 @@ use yii\base\Exception;
  * Tax rate service.
  *
  * @property array|TaxRate[] $allTaxRates an array of all of the existing tax rates
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxRates extends Component
 {
@@ -60,7 +59,6 @@ class TaxRates extends Component
      * Gets a tax rate by ID.
      *
      * @param int $id
-     *
      * @return TaxRate|null
      */
     public function getTaxRateById($id)
@@ -86,7 +84,6 @@ class TaxRates extends Component
 
     /**
      * @param TaxRate $model
-     *
      * @return bool
      * @throws Exception
      * @throws \Exception
@@ -146,7 +143,6 @@ class TaxRates extends Component
      * Deletes a tax rate by ID.
      *
      * @param int $id
-     *
      * @return bool
      */
     public function deleteTaxRateById($id): bool

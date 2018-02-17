@@ -9,7 +9,7 @@ use craft\events\CancelableEvent;
  * Class PaymentSourceEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class PaymentSourceEvent extends CancelableEvent
 {

@@ -9,11 +9,10 @@ use craft\helpers\UrlHelper;
 /**
  * Tax Category model.
  *
- * @property string          $cpEditUrl
+ * @property string $cpEditUrl
  * @property array|TaxRate[] $taxRates
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxCategory extends Model
 {

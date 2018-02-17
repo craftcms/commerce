@@ -13,7 +13,7 @@ use yii\web\Response;
  * Class Customer Address Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class CustomerAddressesController extends BaseFrontEndController
 {

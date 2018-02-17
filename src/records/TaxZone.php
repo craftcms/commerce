@@ -8,16 +8,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Tax zone record.
  *
- * @property int       $id
- * @property string    $name
- * @property string    $description
- * @property bool      $countryBased
- * @property bool      $default
+ * @property int $id
+ * @property string $name
+ * @property string $description
+ * @property bool $countryBased
+ * @property bool $default
  * @property Country[] $countries
- * @property State[]   $states
- *
+ * @property State[] $states
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxZone extends ActiveRecord
 {

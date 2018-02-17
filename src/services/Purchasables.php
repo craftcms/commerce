@@ -5,7 +5,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Variant;
-use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use yii\base\Component;
 
@@ -13,7 +12,7 @@ use yii\base\Component;
  * Product type service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Purchasables extends Component
 {
@@ -31,7 +30,6 @@ class Purchasables extends Component
 
     /**
      * @param int $purchasableId
-     *
      * @return bool
      */
     public function deletePurchasableById(int $purchasableId): bool
@@ -41,7 +39,6 @@ class Purchasables extends Component
 
     /**
      * @param int $purchasableId
-     *
      * @return ElementInterface|null
      */
     public function getPurchasableById(int $purchasableId)

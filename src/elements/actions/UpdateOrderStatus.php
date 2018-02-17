@@ -12,11 +12,10 @@ use craft\helpers\Json;
 /**
  * Class Update Order Status
  *
- * @property null|string $triggerHtml  the action’s trigger HTML
- * @property string      $triggerLabel the action’s trigger label
- *
+ * @property null|string $triggerHtml the action’s trigger HTML
+ * @property string $triggerLabel the action’s trigger label
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class UpdateOrderStatus extends ElementAction
 {

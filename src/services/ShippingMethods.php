@@ -18,9 +18,8 @@ use yii\base\Exception;
  * Shipping method service.
  *
  * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class ShippingMethods extends Component
 {
@@ -89,7 +88,6 @@ class ShippingMethods extends Component
 
     /**
      * @param string $shippingMethodHandle
-     *
      * @return ShippingMethod|null
      */
     public function getShippingMethodByHandle(string $shippingMethodHandle)
@@ -117,7 +115,6 @@ class ShippingMethods extends Component
 
     /**
      * @param int $shippingMethodId
-     *
      * @return ShippingMethod|null
      */
     public function getShippingMethodById(int $shippingMethodId)
@@ -145,7 +142,6 @@ class ShippingMethods extends Component
 
     /**
      * @param Order $cart
-     *
      * @return array
      */
     public function getOrderedAvailableShippingMethods($cart): array
@@ -161,7 +157,6 @@ class ShippingMethods extends Component
 
     /**
      * @param Order $cart
-     *
      * @return array
      */
     public function getAvailableShippingMethods(Order $cart): array
@@ -212,9 +207,8 @@ class ShippingMethods extends Component
     }
 
     /**
-     * @param Order                   $order
+     * @param Order $order
      * @param ShippingMethodInterface $method
-     *
      * @return bool|ShippingRuleInterface
      */
     public function getMatchingShippingRule(Order $order, $method)
@@ -231,7 +225,6 @@ class ShippingMethods extends Component
 
     /**
      * @param ShippingMethod $model
-     *
      * @return bool
      * @throws Exception
      */
@@ -270,7 +263,6 @@ class ShippingMethods extends Component
 
     /**
      * @param $shippingMethodId int
-     *
      * @return bool
      */
     public function deleteShippingMethodById($shippingMethodId): bool

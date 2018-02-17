@@ -9,43 +9,42 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property Address              $billingAddress
- * @property int                  $billingAddressId
- * @property string               $cancelUrl
- * @property string               $couponCode
- * @property string               $currency
+ * @property Address $billingAddress
+ * @property int $billingAddressId
+ * @property string $cancelUrl
+ * @property string $couponCode
+ * @property string $currency
  * @property ActiveQueryInterface $customer
- * @property int                  $customerId
- * @property \DateTime            $dateOrdered
- * @property \DateTime            $datePaid
+ * @property int $customerId
+ * @property \DateTime $dateOrdered
+ * @property \DateTime $datePaid
  * @property ActiveQueryInterface $discount
  * @property ActiveQueryInterface $element
- * @property string               $email
+ * @property string $email
  * @property ActiveQueryInterface $gateway
- * @property int                  $gatewayId
- * @property OrderHistory[]       $histories
- * @property int                  $id
- * @property bool                 $isCompleted
- * @property float                $itemTotal
- * @property string               $lastIp
- * @property LineItem[]           $lineItems
- * @property string               $message
- * @property string               $number
- * @property string               $orderLocale
- * @property OrderStatus          $orderStatus
- * @property int                  $orderStatusId
- * @property string               $paymentCurrency
- * @property int                  $paymentSourceId
- * @property string               $returnUrl
- * @property Address              $shippingAddress
- * @property int                  $shippingAddressId
- * @property string               $shippingMethodHandle
- * @property float                $totalPaid
- * @property float                $totalPrice
- * @property Transaction[]        $transactions
- *
+ * @property int $gatewayId
+ * @property OrderHistory[] $histories
+ * @property int $id
+ * @property bool $isCompleted
+ * @property float $itemTotal
+ * @property string $lastIp
+ * @property LineItem[] $lineItems
+ * @property string $message
+ * @property string $number
+ * @property string $orderLocale
+ * @property OrderStatus $orderStatus
+ * @property int $orderStatusId
+ * @property string $paymentCurrency
+ * @property int $paymentSourceId
+ * @property string $returnUrl
+ * @property Address $shippingAddress
+ * @property int $shippingAddressId
+ * @property string $shippingMethodHandle
+ * @property float $totalPaid
+ * @property float $totalPrice
+ * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Order extends ActiveRecord
 {

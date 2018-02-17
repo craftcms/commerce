@@ -6,19 +6,17 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\web\User;
 use DateTime;
 
 /**
  * Class Transaction
  *
  * @property array|Transaction[] $childTransactions child transactions
- * @property Gateway             $gateway
- * @property Order               $order
- * @property Transaction         $parent
- *
+ * @property Gateway $gateway
+ * @property Order $order
+ * @property Transaction $parent
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class Transaction extends Model
 {

@@ -12,7 +12,7 @@ use yii\web\Response;
  * Class Address Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class AddressesController extends BaseAdminController
 {
@@ -29,9 +29,8 @@ class AddressesController extends BaseAdminController
     }
 
     /**
-     * @param int|null          $addressId
+     * @param int|null $addressId
      * @param AddressModel|null $address
-     *
      * @return Response
      * @throws HttpException
      */

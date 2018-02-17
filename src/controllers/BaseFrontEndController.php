@@ -9,7 +9,7 @@ use craft\commerce\Plugin;
  * Class BaseFrontEndController
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class BaseFrontEndController extends BaseController
 {
@@ -26,7 +26,6 @@ class BaseFrontEndController extends BaseController
 
     /**
      * @param Order $cart
-     *
      * @return array
      */
     protected function cartArray(Order $cart): array

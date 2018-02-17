@@ -11,13 +11,12 @@ use craft\i18n\Locale;
 /**
  * Tax rate model.
  *
- * @property string           $cpEditUrl
- * @property string           $rateAsPercent
- * @property TaxZone|null     $taxZone
+ * @property string $cpEditUrl
+ * @property string $rateAsPercent
+ * @property TaxZone|null $taxZone
  * @property TaxCategory|null $taxCategory
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since  2.0
+ * @since 2.0
  */
 class TaxRate extends Model
 {
