@@ -285,7 +285,7 @@ class LineItems extends Component
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
-            $lineItem->fillFromPurchasable($purchasable);
+            $lineItem->populateFromPurchasable($purchasable);
         } else {
             throw new Exception(Craft::t('commerce', 'Not a purchasable ID'));
         }

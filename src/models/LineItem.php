@@ -288,6 +288,17 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
+     * @deprecated in 2.0 Use populateFromPurchasable() instead.
+     */
+    public function fillFromPurchasables(PurchasableInterface $purchasable)
+    {
+        Craft::$app->getDeprecator()->log('LineItemModel::fillFromPurchasables()', 'LineItemModel::fillFromPurchasables() has been deprecated by renaming. Use LineItem::populateFromPurchasable($purchasable)');
+
+        $this->populateFromPurchasable($purchasable);
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
