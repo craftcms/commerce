@@ -104,7 +104,8 @@ class TaxZone extends Model
     }
 
     /**
-     * All countries in this Tax Zone.
+     *
+     * Returns all countries in this Tax Zone.
      *
      * @return array
      */
@@ -118,7 +119,7 @@ class TaxZone extends Model
     }
 
     /**
-     * Set countries in this Tax Zone.
+     * Sets countries in this Tax Zone.
      *
      * @param Country[] $countries
      */
@@ -142,7 +143,7 @@ class TaxZone extends Model
     }
 
     /**
-     * All states in this Tax Zone.
+     * Returns all states in this Tax Zone.
      *
      * @return array
      */
@@ -156,7 +157,7 @@ class TaxZone extends Model
     }
 
     /**
-     * Set states in this Tax Zone.
+     * Sets states in this Tax Zone.
      *
      * @param State[] $states
      */
@@ -166,7 +167,7 @@ class TaxZone extends Model
     }
 
     /**
-     * The names of all countries in this Tax Zone.
+     * Returns the names of all countries in this Tax Zone.
      *
      * @return array
      */
@@ -181,7 +182,7 @@ class TaxZone extends Model
     }
 
     /**
-     * The names of all states in this Tax Zone.
+     * Returns the names of all states in this Tax Zone.
      *
      * @return array
      */

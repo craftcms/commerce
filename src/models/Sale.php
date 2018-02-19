@@ -207,7 +207,7 @@ class Sale extends Model
     }
 
     /**
-     * Set the related category ids
+     * Sets the related category ids
      *
      * @param array $ids
      */
@@ -217,7 +217,7 @@ class Sale extends Model
     }
 
     /**
-     * Set the related purchasable ids
+     * Sets the related purchasable ids
      *
      * @param array $purchasableIds
      */
@@ -227,7 +227,7 @@ class Sale extends Model
     }
 
     /**
-     * Set the related user group ids
+     * Sets the related user group ids
      *
      * @param array $userGroupIds
      */
@@ -240,7 +240,7 @@ class Sale extends Model
     // =========================================================================
 
     /**
-     * Load the sale relations
+     * Loads the sale relations
      */
     private function _loadRelations()
     {

@@ -69,7 +69,7 @@ class Variants extends Component
     }
 
     /**
-     * Update Stock count from completed order.
+     * Updates Stock count from completed order.
      *
      * @param Order $order the order which was completed.
      */

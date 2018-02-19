@@ -27,7 +27,7 @@ class ShippingRuleCategories extends Component
     // =========================================================================
 
     /**
-     * Return an array of shipping rules categories per the rule's ID.
+     * Returns an array of shipping rules categories per the rule's ID.
      *
      * @param int $ruleId the rule's ID
      * @return ShippingRuleCategory[] An array of matched shipping rule categories.

@@ -57,7 +57,7 @@ class Settings extends Component
     }
 
     /**
-     * Set all settings from plugin core class
+     * Sets all settings from plugin core class
      *
      * @param SettingsModel $settings
      * @return bool

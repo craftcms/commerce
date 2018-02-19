@@ -159,7 +159,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Get a product type by its handle.
+     * Returns a product type by its handle.
      *
      * @param string $handle The product type's handle.
      * @return ProductType|null The product type or `null`.
@@ -188,7 +188,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Get an array of product type site settings for a product type by its ID.
+     * Returns an array of product type site settings for a product type by its ID.
      *
      * @param int $productTypeId the product type ID
      * @return array The product type settings.
@@ -219,7 +219,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Save a product type.
+     * Saves a product type.
      *
      * @param ProductType $productType The product type model.
      * @param bool $runValidation If validation should be ran.
@@ -543,7 +543,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Delete a product type by its ID.
+     * Deletes a product type by its ID.
      *
      * @param int $id the product type's ID
      * @return bool Whether the product type was deleted successfully.
@@ -646,7 +646,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Add new product type setting rows when a Site is added to Craft.
+     * Adds a new product type setting row when a Site is added to Craft.
      *
      * @param SiteEvent $event The event that triggered this.
      */

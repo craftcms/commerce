@@ -94,7 +94,7 @@ class States extends Component
     }
 
     /**
-     * Get all states grouped by countries.
+     *  Returns all states grouped by countries.
      *
      * @return array 2D array of states indexed by their ids grouped by country ids.
      */
@@ -117,7 +117,7 @@ class States extends Component
     }
 
     /**
-     * Get an array of all states.
+     * Returns an array of all states.
      *
      * @return State[] An array of all states.
      */
@@ -194,7 +194,7 @@ class States extends Component
     }
 
     /**
-     * Save a state.
+     * Saves a state.
      *
      * @param State $model The state to be saved.
      * @return bool Whether the state was saved successfully.

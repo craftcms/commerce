@@ -365,7 +365,7 @@ class LineItem extends Model
     }
 
     /**
-     * Returns the description from the snapshot of the purchasable
+     * Returns the Sku from the snapshot of the purchasable
      */
     public function getSku(): string
     {

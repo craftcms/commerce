@@ -101,7 +101,7 @@ class Countries extends Component
     }
 
     /**
-     * Get an array of all countries.
+     * Returns an array of all countries.
      *
      * @return Country[] An array of all countries.
      */
@@ -170,7 +170,7 @@ class Countries extends Component
     }
 
     /**
-     * Save a country.
+     * Saves a country.
      *
      * @param Country $country The country to be saved.
      * @return bool Whether the country was saved successfully.

@@ -439,7 +439,7 @@ trait Services
     // =========================================================================
 
     /**
-     * Set the components of the commerce plugin
+     * Sets the components of the commerce plugin
      */
     private function _setPluginComponents()
     {

@@ -53,7 +53,7 @@ class Commerce
     }
 
     /**
-     * Get the Address service.
+     * Returns the Address service.
      *
      * @return Addresses
      */
@@ -63,7 +63,7 @@ class Commerce
     }
 
     /**
-     * Get all available shipping methods for the current cart.
+     * Returns all available shipping methods for the current cart.
      *
      * @return array
      */
@@ -75,7 +75,7 @@ class Commerce
     }
 
     /**
-     * Get the current Cart.
+     * Returns the current Cart.
      *
      * @return Order
      */
@@ -105,7 +105,7 @@ class Commerce
     }
 
     /**
-     * Get all of the available currencies.
+     * Returns all of the available currencies.
      *
      * @return Currency[]
      */
@@ -115,7 +115,7 @@ class Commerce
     }
 
     /**
-     * Get the current customer.
+     * Returns the current customer.
      *
      * @return Customer
      */
@@ -125,7 +125,7 @@ class Commerce
     }
 
     /**
-     * Get a discount by its code.
+     * Returns a discount by its code.
      *
      * @param string $code the discount code
      * @return Discount|null
@@ -136,7 +136,7 @@ class Commerce
     }
 
     /**
-     * Get all discounts.
+     * Returns all discounts.
      *
      * @return Discount[]
      */
@@ -159,7 +159,7 @@ class Commerce
     }
 
     /**
-     * Get all order statuses.
+     * Returns all order statuses.
      *
      * @return OrderStatus[]
      */
@@ -169,7 +169,7 @@ class Commerce
     }
 
     /**
-     * Get all available payment currencies.
+     * Returns all available payment currencies.
      *
      * @return PaymentCurrency[]
      */
@@ -181,7 +181,7 @@ class Commerce
     }
 
     /**
-     * Get all payment sources for the current user.
+     * Returns all payment sources for the current user.
      *
      * @return PaymentSource[]
      */
@@ -193,7 +193,7 @@ class Commerce
     }
 
     /**
-     * Get all payment sources for the current user on a specified gateway.
+     * Returns all payment sources for the current user on a specified gateway.
      *
      * @param int $gatewayId the gateway id
      * @return PaymentSource[]
@@ -206,7 +206,7 @@ class Commerce
     }
 
     /**
-     * Get all subscription plans.
+     * Returns all subscription plans.
      *
      * @return Plan[]
      */
@@ -216,7 +216,7 @@ class Commerce
     }
 
     /**
-     * Get the plugin instance.
+     * Returns the plugin instance.
      *
      * @return CommercePlugin
      */
@@ -226,7 +226,7 @@ class Commerce
     }
 
     /**
-     * Get the primary payment currency.
+     * Returns the primary payment currency.
      *
      * @return PaymentCurrency|null
      */
@@ -236,7 +236,7 @@ class Commerce
     }
 
     /**
-     * Get all product types.
+     * Returns all product types.
      *
      * @return ProductType[]
      */
@@ -246,7 +246,7 @@ class Commerce
     }
 
     /**
-     * Get all sales.
+     * Returns all sales.
      *
      * @return Sale[]
      */
@@ -276,7 +276,7 @@ class Commerce
     }
 
     /**
-     * Get all shipping methods.
+     * Returns all shipping methods.
      *
      * @return ShippingMethod[]
      */
@@ -286,7 +286,7 @@ class Commerce
     }
 
     /**
-     * Get all shipping zones.
+     * Returns all shipping zones.
      *
      * @return ShippingZone[]
      */
@@ -296,7 +296,7 @@ class Commerce
     }
 
     /**
-     * Return all states.
+     * Returns all states.
      *
      * @return State[]
      */
@@ -306,7 +306,7 @@ class Commerce
     }
 
     /**
-     * Return a 2D array of state names indexed by state ids, grouped by country ids.
+     * Returns a 2D array of state names indexed by state ids, grouped by country ids.
      *
      * @return array [countryId => [id => name]]
      */
@@ -316,7 +316,7 @@ class Commerce
     }
 
     /**
-     * Get all tax rates.
+     * Returns all tax rates.
      *
      * @return TaxRate[]
      */
@@ -326,7 +326,7 @@ class Commerce
     }
 
     /**
-     * Get all tax zones.
+     * Returns all tax zones.
      *
      * @return TaxZone[]
      */
@@ -387,7 +387,7 @@ class Commerce
     }
 
     /**
-     * Get Commerce settings.
+     * Returns Commerce settings.
      *
      * @return mixed
      */

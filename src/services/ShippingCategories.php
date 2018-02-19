@@ -121,7 +121,7 @@ class ShippingCategories extends Component
     }
 
     /**
-     * Get the default shipping category
+     * Returns the default shipping category
      *
      * @return ShippingCategory|null
      */

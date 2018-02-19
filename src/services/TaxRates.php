@@ -56,7 +56,7 @@ class TaxRates extends Component
     }
 
     /**
-     * Gets a tax rate by ID.
+     * Returns a tax rate by ID.
      *
      * @param int $id
      * @return TaxRate|null

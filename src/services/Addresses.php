@@ -49,7 +49,7 @@ class Addresses extends Component
     // =========================================================================
 
     /**
-     * Return an address by its ID.
+     * Returns an address by its ID.
      *
      * @param int $addressId the address' ID
      * @return Address|null the matched address or null if not found
@@ -92,7 +92,7 @@ class Addresses extends Component
     }
 
     /**
-     * Get the stock location or a blank address if it's not defined.
+     * Returns the stock location or a blank address if it's not defined.
      *
      * @return Address
      */
@@ -110,7 +110,7 @@ class Addresses extends Component
     }
 
     /**
-     * Save an address.
+     * Saves an address.
      *
      * @param Address $addressModel The address to be saved.
      * @param bool $runValidation should we validate this address before saving.

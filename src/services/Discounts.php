@@ -119,7 +119,7 @@ class Discounts extends Component
     }
 
     /**
-     * Populate a discount's relations.
+     * Populates a discount's relations.
      *
      * @param Discount $discount
      */
@@ -465,7 +465,7 @@ class Discounts extends Component
     }
 
     /**
-     * Update discount uses counters
+     * Updates discount uses counters
      *
      * @param Order $order
      */

@@ -132,7 +132,7 @@ class Sales extends Component
     }
 
     /**
-     * Populate a sale's relations.
+     * Populates a sale's relations.
      *
      * @param Sale $sale
      */

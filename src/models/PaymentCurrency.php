@@ -129,7 +129,7 @@ class PaymentCurrency extends Model
     }
 
     /**
-     * Alias of getCurrency()
+     * Returns alias of getCurrency()
      *
      * @return string|null
      */

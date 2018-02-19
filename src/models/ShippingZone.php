@@ -84,7 +84,7 @@ class ShippingZone extends Model
     }
 
     /**
-     * All countries in this Shipping Zone.
+     * Returns all countries in this Shipping Zone.
      *
      * @return array
      */
@@ -98,7 +98,7 @@ class ShippingZone extends Model
     }
 
     /**
-     * Set countries in this Tax Zone.
+     * Sets countries in this Tax Zone.
      *
      * @param Country[] $countries
      */
@@ -121,7 +121,7 @@ class ShippingZone extends Model
     }
 
     /**
-     * All states in this Shipping Zone.
+     * Returns all states in this Shipping Zone.
      *
      * @return array
      */
@@ -145,7 +145,7 @@ class ShippingZone extends Model
     }
 
     /**
-     * The names of all countries in this Shipping Zone.
+     * Returns the names of all countries in this Shipping Zone.
      *
      * @return array
      */
@@ -160,7 +160,7 @@ class ShippingZone extends Model
     }
 
     /**
-     * The names of all states in this Shipping Zone.
+     * Returns the names of all states in this Shipping Zone.
      *
      * @return array
      */

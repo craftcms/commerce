@@ -207,7 +207,7 @@ class Cart extends Component
     }
 
     /**
-     * Set shipping method to the current order
+     * Sets shipping method to the current order
      *
      * @param Order $cart
      * @param int $shippingMethod
@@ -234,7 +234,7 @@ class Cart extends Component
     }
 
     /**
-     * Set shipping method to the current order
+     * Sets shipping method to the current order
      *
      * @param Order $cart
      * @param int $gatewayId
@@ -466,7 +466,7 @@ class Cart extends Component
     }
 
     /**
-     * Remove all items from a cart
+     * Removes all items from a cart
      *
      * @param Order $cart
      * @throws \Exception

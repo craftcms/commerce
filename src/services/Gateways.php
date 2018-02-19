@@ -65,7 +65,7 @@ class Gateways extends Component
     }
 
     /**
-     * Get all frontend enabled gateways.
+     * Returns all frontend enabled gateways.
      *
      * @return GatewayInterface[] All gateways that are enabled for frontend
      */
@@ -87,7 +87,7 @@ class Gateways extends Component
     }
 
     /**
-     * Get all subscription gateways.
+     * Returns all subscription gateways.
      *
      * @return array
      */
@@ -106,7 +106,7 @@ class Gateways extends Component
     }
 
     /**
-     * Get all gateways
+     * Returns  all gateways
      *
      * @return GatewayInterface[] All gateways
      */
@@ -127,7 +127,7 @@ class Gateways extends Component
     }
 
     /**
-     * Archive a gateway by its ID.
+     * Archives a gateway by its ID.
      *
      * @param int $id gateway ID
      * @return bool Whether the archiving was successful or not
@@ -143,7 +143,7 @@ class Gateways extends Component
     }
 
     /**
-     * Get a gateway by its ID.
+     * Returns a gateway by its ID.
      *
      * @param int $id
      * @return GatewayInterface|null The gateway or null if not found.
@@ -158,7 +158,7 @@ class Gateways extends Component
     }
 
     /**
-     * Save a gateway.
+     * Saves a gateway.
      *
      * @param Gateway $gateway The gateway to be saved.
      * @param bool $runValidation Whether the gateway should be validated
@@ -210,7 +210,7 @@ class Gateways extends Component
     }
 
     /**
-     * Reorder gateways by ids.
+     * Reorders gateways by ids.
      *
      * @param array $ids Array of gateways.
      * @return bool Always true.

@@ -221,7 +221,7 @@ class Discount extends Model
     }
 
     /**
-     * Set the related product type ids
+     * Sets the related product type ids
      *
      * @param array $categoryIds
      */
@@ -231,7 +231,7 @@ class Discount extends Model
     }
 
     /**
-     * Set the related product ids
+     * Sets the related product ids
      *
      * @param array $purchasableIds
      */
@@ -241,7 +241,7 @@ class Discount extends Model
     }
 
     /**
-     * Set the related user group ids
+     * Sets the related user group ids
      *
      * @param array $userGroupIds
      */
@@ -266,7 +266,7 @@ class Discount extends Model
     // =========================================================================
 
     /**
-     * Load the sale relations
+     * Loads the sale relations
      */
     private function _loadRelations()
     {

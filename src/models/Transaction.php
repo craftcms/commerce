@@ -222,7 +222,7 @@ class Transaction extends Model
     }
 
     /**
-     * Return child transactions.
+     * Returns child transactions.
      *
      * @return Transaction[]
      */
@@ -236,7 +236,7 @@ class Transaction extends Model
     }
 
     /**
-     * Add a child transaction.
+     * Adds a child transaction.
      *
      * @param Transaction $transaction
      */
@@ -250,7 +250,7 @@ class Transaction extends Model
     }
 
     /**
-     * Set child transactions.
+     * Sets child transactions.
      *
      * @param array $transactions
      */
