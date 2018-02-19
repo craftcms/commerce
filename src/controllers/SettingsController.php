@@ -77,9 +77,6 @@ class SettingsController extends BaseAdminController
         return null;
     }
 
-    /**
-     *
-     */
     public function actionSavelocation(): Response
     {
         $this->requirePostRequest();

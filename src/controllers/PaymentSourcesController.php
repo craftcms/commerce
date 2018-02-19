@@ -103,7 +103,7 @@ class PaymentSourcesController extends BaseFrontEndController
     }
 
     /**
-     * Adds a payment source.
+     * Deletes a payment source.
      *
      * @return Response|null
      * @throws \Throwable if failed to delete the payment source on the gateway

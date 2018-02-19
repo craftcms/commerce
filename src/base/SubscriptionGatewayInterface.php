@@ -24,7 +24,7 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     // =========================================================================
 
     /**
-     * Cancel a subscription.
+     * Cancels a subscription.
      *
      * @param Subscription $subscription the subscription to cancel
      * @param CancelSubscriptionForm $parameters additional paramters touse
@@ -42,7 +42,7 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function getNextPaymentAmount(Subscription $subscription): string;
 
     /**
-     * Get a list of subscription payments for a given subscription.
+     * Returns a list of subscription payments for a given subscription.
      *
      * @param Subscription $subscription
      * @return SubscriptionPayment[]
@@ -50,7 +50,7 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function getSubscriptionPayments(Subscription $subscription): array;
 
     /**
-     * Fetch a subscription plan by its reference
+     * Returns a subscription plan by its reference
      *
      * @param string $reference
      * @return string
@@ -58,14 +58,14 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function getSubscriptionPlanByReference(string $reference): string;
 
     /**
-     * Get all subscription plans as array containing hashes with `reference` and `name` as keys.
+     * Returns all subscription plans as array containing hashes with `reference` and `name` as keys.
      *
      * @return array
      */
     public function getSubscriptionPlans(): array;
 
     /**
-     * Reactivate a subscription.
+     * Reactivates a subscription.
      *
      * @param Subscription $subscription the canceled subscription to reactivate
      * @return SubscriptionResponseInterface
@@ -95,14 +95,14 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): SubscriptionResponseInterface;
 
     /**
-     * Whether this gateway supports reactivating subscriptions.
+     * Returns whether this gateway supports reactivating subscriptions.
      *
      * @return bool
      */
     public function supportsReactivation(): bool;
 
     /**
-     * Whether this gateway supports reactivating subscriptions.
+     * Returns whether this gateway supports switching plans.
      *
      * @return bool
      */

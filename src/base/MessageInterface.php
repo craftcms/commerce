@@ -15,7 +15,7 @@ interface MessageInterface
     // =========================================================================
 
     /**
-     * Get the raw data array for this message.
+     * Returns the raw data array for this message.
      *
      * @return mixed
      */

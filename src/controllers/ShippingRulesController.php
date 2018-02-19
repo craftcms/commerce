@@ -143,7 +143,7 @@ class ShippingRulesController extends BaseAdminController
     }
 
     /**
-     * @return null
+     * @return null|Response
      * @throws HttpException
      */
     public function actionReorder(): Response

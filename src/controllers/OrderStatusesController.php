@@ -68,9 +68,6 @@ class OrderStatusesController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
 
-    /**
-     *
-     */
     public function actionSave(): Response
     {
         $this->requirePostRequest();

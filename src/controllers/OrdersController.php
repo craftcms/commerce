@@ -109,7 +109,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Return Payment Modal
+     * Returns Payment Modal
      */
     public function actionGetPaymentModal(): Response
     {
@@ -241,9 +241,6 @@ class OrdersController extends BaseCpController
         $this->redirectToPostedUrl();
     }
 
-    /**
-     *
-     */
     public function actionCompleteOrder(): Response
     {
         $this->requireAcceptsJson();
@@ -259,9 +256,6 @@ class OrdersController extends BaseCpController
         return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
     }
 
-    /**
-     *
-     */
     public function actionUpdateOrderAddress(): Response
     {
         $this->requireAcceptsJson();
@@ -327,9 +321,6 @@ class OrdersController extends BaseCpController
         return null;
     }
 
-    /**
-     *
-     */
     public function actionSaveOrder(): Response
     {
         $this->requirePostRequest();
@@ -348,7 +339,7 @@ class OrdersController extends BaseCpController
     }
 
     /**
-     * Deletes a order.
+     * Deletes an order.
      *
      * @return Response|null
      * @throws Exception if you try to edit a non existing Id.

@@ -156,7 +156,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * An array of sales models which are currently affecting the salePrice of this purchasable.
+     * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return Sale[]
      * @deprecated
@@ -169,7 +169,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
+     * Sets an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @param Sale[] $sales
      * @deprecated
@@ -292,7 +292,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Cache on the purchasable table
+     * Cache on the purchasable table.
      *
      * @inheritdoc
      */
@@ -359,7 +359,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * Does this variant have stock?
+     * Returns whether this variant has stock.
      *
      * @return bool
      */
@@ -489,7 +489,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * A promotion category is related to this element if the category is related to the product OR the variant.
+     * Returns a promotion category related to this element if the category is related to the product OR the variant.
      *
      * @return array
      */

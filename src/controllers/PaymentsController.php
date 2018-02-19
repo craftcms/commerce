@@ -294,7 +294,7 @@ class PaymentsController extends BaseFrontEndController
     }
 
     /**
-     * Process return from off-site payment
+     * Processes return from off-site payment
      *
      * @throws Exception
      * @throws HttpException

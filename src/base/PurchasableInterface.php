@@ -24,14 +24,14 @@ interface PurchasableInterface
     public function getPurchasableId(): int;
 
     /**
-     * This is the base price the item will be added to the line item with.
+     * Returns the base price the item will be added to the line item with.
      *
      * @return float decimal(14,4)
      */
     public function getPrice(): float;
 
     /**
-     * This is the base price the item will be added to the line item with.
+     * Returns the base price the item will be added to the line item with.
      * It provides opportunity to populate the salePrice if sales have not already been applied.
      *
      * @return float decimal(14,4)
@@ -39,14 +39,14 @@ interface PurchasableInterface
     public function getSalePrice(): float;
 
     /**
-     * This must be a unique code. Unique as per the commerce_purchasables table.
+     * Returns a unique code. Unique as per the commerce_purchasables table.
      *
      * @return string
      */
     public function getSku(): string;
 
     /**
-     * This would usually be your elements title or any additional descriptive information.
+     * Returns your element's title or any additional descriptive information.
      *
      * @return string
      */
@@ -92,7 +92,7 @@ interface PurchasableInterface
     public function getSnapShot(): array;
 
     /**
-     * Any validation rules this purchasable required the line item to have.
+     * Returns any validation rules this purchasable required the line item to have.
      *
      * @param LineItem $lineItem
      * @return array
@@ -100,14 +100,14 @@ interface PurchasableInterface
     public function getLineItemRules(LineItem $lineItem): array;
 
     /**
-     * Lets the system know if this purchasable has free shipping.
+     * Returns whether this purchasable has free shipping.
      *
      * @return bool
      */
     public function hasFreeShipping(): bool;
 
     /**
-     * Lets the system know if this purchasable can be subject to discounts or sales.
+     * Returns whether this purchasable can be subject to discounts or sales.
      *
      * @return bool
      */

@@ -71,7 +71,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Get the stored plan data.
+     * Returns the stored plan data.
      *
      * @return mixed
      */
@@ -85,7 +85,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Get the plan's related Entry element, if any.
+     * Returns the plan's related Entry element, if any.
      *
      * @return Entry|null
      */
@@ -99,7 +99,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Return the subscription count for this plan.
+     * Returns the subscription count for this plan.
      *
      * @return int
      */
@@ -109,7 +109,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Whether there exists an active subscription for this plan for this user.
+     * Returns whether there exists an active subscription for this plan for this user.
      *
      * @param int $userId
      * @return bool
@@ -120,7 +120,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Return the subscription count for this plan.
+     * Returns the subscription count for this plan.
      *
      * @param int $userId the user id
      * @return ElementInterface[]

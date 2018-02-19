@@ -58,7 +58,7 @@ interface ShippingMethodInterface
     public function getShippingRules(): array;
 
     /**
-     * Is this shipping method enabled for listing and selection by customers.
+     * Returns whether this shipping method is enabled for listing and selection by customers.
      *
      * @return bool
      */

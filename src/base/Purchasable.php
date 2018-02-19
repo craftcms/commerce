@@ -86,7 +86,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * An array of sales models which are currently affecting the salePrice of this purchasable.
+     * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return Sale[]|null
      */
@@ -98,7 +98,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * sets an array of sales models which are currently affecting the salePrice of this purchasable.
+     * Sets an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @param Sale[] $sales
      */

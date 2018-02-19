@@ -17,7 +17,7 @@ interface AdjusterInterface
     // =========================================================================
 
     /**
-     * The adjust method returns adjustments to add to the order
+     * Returns adjustments to add to the order
      *
      * @param Order $order
      * @return OrderAdjustment[]

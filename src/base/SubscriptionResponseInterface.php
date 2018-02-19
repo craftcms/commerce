@@ -14,42 +14,42 @@ interface SubscriptionResponseInterface
     // =========================================================================
 
     /**
-     * Get the response data.
+     * Returns the response data.
      *
      * @return mixed
      */
     public function getData();
 
     /**
-     * Get the subscription reference.
+     * Returns the subscription reference.
      *
      * @return string
      */
     public function getReference(): string;
 
     /**
-     * Get the number of trial days on the subscription.
+     * Returns the number of trial days on the subscription.
      *
      * @return int
      */
     public function getTrialDays(): int;
 
     /**
-     * Get the time of next payment.
+     * Returns the time of next payment.
      *
      * @return \DateTime
      */
     public function getNextPaymentDate(): \DateTime;
 
     /**
-     * Whether the subscription is canceled.
+     * Returns whether the subscription is canceled.
      *
      * @return bool
      */
     public function isCanceled(): bool;
 
     /**
-     * Whether the subscription is scheduled to be canceled.
+     * Returns whether the subscription is scheduled to be canceled.
      *
      * @return bool
      */

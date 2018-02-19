@@ -32,9 +32,6 @@ class OrderSettingsController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
 
-    /**
-     *
-     */
     public function actionSave()
     {
         $this->requirePostRequest();

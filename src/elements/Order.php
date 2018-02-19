@@ -435,7 +435,7 @@ class Order extends Element
     }
 
     /**
-     * Add a line item to the order.
+     * Adds a line item to the order.
      *
      * @param $lineItem
      */
@@ -646,7 +646,7 @@ class Order extends Element
     }
 
     /**
-     * Whether or not this order is made by a guest user.
+     * Returns whether or not this order is made by a guest user.
      *
      * @return bool
      */
@@ -751,7 +751,7 @@ class Order extends Element
     }
 
     /**
-     * Is this order the users current active cart.
+     * Returns whether this order is the user's current active cart.
      *
      * @return bool
      */
@@ -763,7 +763,7 @@ class Order extends Element
     }
 
     /**
-     * Has the order got any items in it?
+     * Returns whether the order has any items in it.
      *
      * @return bool
      */
@@ -773,7 +773,7 @@ class Order extends Element
     }
 
     /**
-     * Total number of items.
+     * Returns total number of items.
      *
      * @return int
      */
@@ -1067,7 +1067,7 @@ class Order extends Element
     }
 
     /**
-     * Get the order's selected payment source if any.
+     * Returns the order's selected payment source if any.
      *
      * @return PaymentSource
      */
@@ -1099,7 +1099,7 @@ class Order extends Element
     }
 
     /**
-     * Return an array of transactions for the order that have child transactions set on them.
+     * Returns an array of transactions for the order that have child transactions set on them.
      *
      * @return Transaction[]
      */

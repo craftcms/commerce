@@ -155,7 +155,7 @@ class Subscription extends Element
     }
 
     /**
-     * Whether this subscription can be reactivated.
+     * Returns whether this subscription can be reactivated.
      *
      * @return bool
      * @throws InvalidConfigException if gateway misconfigured
@@ -174,7 +174,7 @@ class Subscription extends Element
     }
 
     /**
-     * Whether this subscription is on trial.
+     * Returns whether this subscription is on trial.
      *
      * @return bool
      */
@@ -184,7 +184,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the subscription plan for this subscription
+     * Returns the subscription plan for this subscription
      *
      * @return PlanInterface
      */
@@ -198,7 +198,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the User that is subscribed.
+     * Returns the User that is subscribed.
      *
      * @return User
      */
@@ -212,7 +212,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the datetime of trial expiry.
+     * Returns the datetime of trial expiry.
      *
      * @return DateTime
      */
@@ -222,7 +222,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the next payment amount with currency code as a string.
+     * Returns the next payment amount with currency code as a string.
      *
      * @return string
      * @throws InvalidConfigException
@@ -233,7 +233,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the order that included this subscription, if any.
+     * Returns the order that included this subscription, if any.
      *
      * @return null|Order
      */
@@ -251,7 +251,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return the product type for the product tied to the license.
+     * Returns the product type for the product tied to the license.
      *
      * @return SubscriptionGatewayInterface
      * @throws InvalidConfigException if gateway misconfigured
@@ -277,7 +277,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return possible alternative plans for this subscription
+     * Returns possible alternative plans for this subscription
      *
      * @return Plan[]
      */
@@ -309,7 +309,7 @@ class Subscription extends Element
     }
 
     /**
-     * Get the link for editing the order that purchased this license.
+     * Returns the link for editing the order that purchased this license.
      *
      * @return string
      */
@@ -323,7 +323,7 @@ class Subscription extends Element
     }
 
     /**
-     * Return an array of all payments for this subscription.
+     * Returns an array of all payments for this subscription.
      *
      * @return SubscriptionPayment[]
      * @throws InvalidConfigException

@@ -60,7 +60,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Whether this gateway allows payments in control panel.
+     * Returns whether this gateway allows payments in control panel.
      *
      * @return bool
      */
@@ -78,7 +78,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Return the payment type options.
+     * Returns the payment type options.
      *
      * @return array
      */
@@ -101,7 +101,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Return the html to use when paying with a stored payment source.
+     * Returns the html to use when paying with a stored payment source.
      *
      * @param array $params
      * @return mixed
@@ -112,7 +112,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Payment Form HTML
+     * Returns payment Form HTML
      *
      * @param array $params
      * @return string|null
@@ -120,7 +120,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     abstract public function getPaymentFormHtml(array $params);
 
     /**
-     * Payment Form model
+     * Returns payment Form model
      *
      * @return BasePaymentForm|null
      */

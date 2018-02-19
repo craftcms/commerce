@@ -14,70 +14,70 @@ interface RequestResponseInterface
     // =========================================================================
 
     /**
-     * Whether or not the payment was successful.
+     * Returns whether or not the payment was successful.
      *
      * @return bool
      */
     public function isSuccessful(): bool;
 
     /**
-     * Whether or not the payment is being processed by gateway.
+     * Returns whether or not the payment is being processed by gateway.
      *
      * @return bool
      */
     public function isProcessing(): bool;
 
     /**
-     * Whether or not the user needs to be redirected.
+     * Returns whether or not the user needs to be redirected.
      *
      * @return bool
      */
     public function isRedirect(): bool;
 
     /**
-     * The redirect method to use, if any.
+     * Returns the redirect method to use, if any.
      *
      * @return string
      */
     public function getRedirectMethod(): string;
 
     /**
-     * The redirect data provided.
+     * Returns the redirect data provided.
      *
      * @return array
      */
     public function getRedirectData(): array;
 
     /**
-     * The redirect URL to use, if any.
+     * Returns the redirect URL to use, if any.
      *
      * @return string
      */
     public function getRedirectUrl(): string;
 
     /**
-     * Get the transaction reference.
+     * Returns the transaction reference.
      *
      * @return string
      */
     public function getTransactionReference(): string;
 
     /**
-     * Get the response code.
+     * Returns the response code.
      *
      * @return string
      */
     public function getCode(): string;
 
     /**
-     * Get the data.
+     * Returns the data.
      *
      * @return mixed
      */
     public function getData();
 
     /**
-     * Get the gateway message.
+     * Returns the gateway message.
      *
      * @return string
      */

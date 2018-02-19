@@ -46,7 +46,7 @@ class RegistrationController extends BaseAdminController
     }
 
     /**
-     * @return bool|string
+     * @return bool|string|Response
      */
     public function actionUnregister(): Response
     {
@@ -89,7 +89,7 @@ class RegistrationController extends BaseAdminController
     }
 
     /**
-     * @return bool|string
+     * @return bool|string|Response
      */
     public function actionTransfer(): Response
     {

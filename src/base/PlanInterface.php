@@ -14,7 +14,7 @@ interface PlanInterface
     // =========================================================================
 
     /**
-     * Return whether it's possible to switch to this plan from a different plan.
+     * Returns whether it's possible to switch to this plan from a different plan.
      *
      * @param PlanInterface $currentPlant
      * @return bool

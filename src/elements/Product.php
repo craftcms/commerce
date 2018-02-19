@@ -237,7 +237,7 @@ class Product extends Element
     }
 
     /**
-     * Gets the products product type.
+     * Returns the product's product type.
      *
      * @return ProductType
      * @throws InvalidConfigException
@@ -258,7 +258,7 @@ class Product extends Element
     }
 
     /**
-     * Allow the variant to ask the product what data to snapshot
+     * Allows the variant to ask the product what data to snapshot.
      *
      * @return array
      */
@@ -300,7 +300,7 @@ class Product extends Element
     }
 
     /**
-     * Gets the tax category
+     * Returns the tax category.
      *
      * @return TaxCategory|null
      */
@@ -314,7 +314,7 @@ class Product extends Element
     }
 
     /**
-     * Gets the shipping category
+     * Returns the shipping category.
      *
      * @return ShippingCategory|null
      */
@@ -345,7 +345,7 @@ class Product extends Element
     }
 
     /**
-     * Gets the default variant.
+     * Returns the default variant.
      *
      * @return Variant
      */
@@ -367,7 +367,7 @@ class Product extends Element
     }
 
     /**
-     * Returns an array of the product's variants
+     * Returns an array of the product's variants.
      *
      * @return array
      * @throws InvalidConfigException
@@ -475,7 +475,7 @@ class Product extends Element
     }
 
     /**
-     * Does at least one variant have unlimited stock?
+     * Returns whether at least one variant has unlimited stock.
      *
      * @return bool
      */
@@ -687,7 +687,7 @@ class Product extends Element
     }
 
     /**
-     * Validates an product element’s Variants.
+     * Validates a product element’s Variants.
      *
      * @return void
      */

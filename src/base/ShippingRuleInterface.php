@@ -16,7 +16,7 @@ interface ShippingRuleInterface
     // =========================================================================
 
     /**
-     * Is this rule a match on the order? If false is returned, the shipping engine tries the next rule.
+     * Returns whether this rule a match on the order. If false is returned, the shipping engine tries the next rule.
      *
      * @param Order $order
      * @return bool
@@ -24,14 +24,14 @@ interface ShippingRuleInterface
     public function matchOrder(Order $order): bool;
 
     /**
-     * Is this shipping rule enabled for listing and selection
+     * Returns whether this shipping rule is enabled for listing and selection.
      *
      * @return bool
      */
     public function getIsEnabled(): bool;
 
     /**
-     * Stores this data as json on the orders shipping adjustment.
+     * Returns this data as json on the order's shipping adjustment.
      *
      * @return mixed
      */

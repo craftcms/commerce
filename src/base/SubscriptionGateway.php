@@ -17,21 +17,21 @@ use craft\commerce\models\subscriptions\SwitchPlansForm;
 abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
     /**
-     * Get the cancel subscription form model
+     * Returns the cancel subscription form HTML
      *
-     * @return CancelSubscriptionForm
+     * @return CancelSubscriptionHtml
      */
     abstract public function getCancelSubscriptionFormHtml(): string;
 
     /**
-     * Get the cancel subscription form model
+     * Returns the cancel subscription form model
      *
      * @return CancelSubscriptionForm
      */
     abstract public function getCancelSubscriptionFormModel(): CancelSubscriptionForm;
 
     /**
-     * Subscription plan settings HTML
+     * Returns the subscription plan settings HTML
      *
      * @param array $params
      * @return string|null
@@ -39,14 +39,14 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     abstract public function getPlanSettingsHtml(array $params = []);
 
     /**
-     * Get the subscription plan model.
+     * Returns the subscription plan model.
      *
      * @return Plan
      */
     abstract public function getPlanModel(): Plan;
 
     /**
-     * Get the subscription form html to use when subscribing to a plan.
+     * Returns the subscription form html to use when subscribing to a plan.
      *
      * @return string
      */
@@ -56,14 +56,14 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     }
 
     /**
-     * Get the subscription form model
+     * Returns the subscription form model
      *
      * @return SubscriptionForm
      */
     abstract public function getSubscriptionFormModel(): SubscriptionForm;
 
     /**
-     * Return the html to use when switching between two plans
+     * Returns the html to use when switching between two plans
      *
      * @param PlanInterface $originalPlan
      * @param PlanInterface $targetPlan
@@ -75,7 +75,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     }
 
     /**
-     * Get the form model used for switching plans.
+     * Returns the form model used for switching plans.
      *
      * @return SwitchPlansForm
      */

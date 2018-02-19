@@ -484,7 +484,7 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Return the SQL condition to use for trial status.
+     * Returns the SQL condition to use for trial status.
      *
      * @param bool $onTrial
      * @return mixed
