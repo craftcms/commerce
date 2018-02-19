@@ -8,14 +8,15 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping rule category record.
  *
- * @property int $id
- * @property bool $enabled
  * @property string $condition
- * @property float $perItemRate
- * @property float $weightRate
+ * @property int $id
  * @property float $percentageRate
- * @property ShippingRule $shippingRule
+ * @property float $perItemRate
  * @property ShippingCategory $shippingCategory
+ * @property int $shippingCategoryId
+ * @property ShippingRule $shippingRule
+ * @property int $shippingRuleId
+ * @property float $weightRate
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

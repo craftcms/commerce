@@ -10,9 +10,9 @@ use yii\db\ActiveQueryInterface;
  * Sale user group record.
  *
  * @property int $id
+ * @property ActiveQueryInterface $sale
  * @property int $saleId
  * @property ActiveQueryInterface $userGroup
- * @property ActiveQueryInterface $sale
  * @property int $userGroupId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

@@ -8,29 +8,27 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping rule record.
  *
- * @property int $id
- * @property string $name
- * @property string $description
- * @property int $shippingZoneId
- * @property int $methodId
- * @property int $priority
- * @property bool $enabled
- * @property int $minQty
- * @property int $maxQty
- * @property float $minTotal
- * @property float $maxTotal
- * @property float $minWeight
- * @property float $maxWeight
  * @property float $baseRate
- * @property float $perItemRate
- * @property float $weightRate
- * @property float $percentageRate
- * @property float $minRate
- * @property float $maxRate
- * @property Country $country
- * @property State $state
- * @property ActiveQueryInterface $shippingZone
+ * @property string $description
+ * @property bool $enabled
+ * @property int $id
  * @property ShippingMethod $method
+ * @property int $methodId
+ * @property int $maxQty
+ * @property float $maxRate
+ * @property float $maxTotal
+ * @property float $maxWeight
+ * @property int $minQty
+ * @property float $minRate
+ * @property float $minTotal
+ * @property float $minWeight
+ * @property string $name
+ * @property float $percentageRate
+ * @property float $perItemRate
+ * @property int $priority
+ * @property ActiveQueryInterface $shippingZone
+ * @property int $shippingZoneId
+ * @property float $weightRate
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

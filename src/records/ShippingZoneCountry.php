@@ -8,10 +8,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Taz zone country
  *
- * @property int $shippingZoneId
- * @property ActiveQueryInterface $shippingZone
  * @property ActiveQueryInterface $country
  * @property int $countryId
+ * @property int $id
+ * @property ActiveQueryInterface $shippingZone
+ * @property int $shippingZoneId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

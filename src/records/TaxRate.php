@@ -9,15 +9,15 @@ use yii\db\ActiveQueryInterface;
  * Tax rate record.
  *
  * @property int $id
- * @property string $name
- * @property float $rate
  * @property bool $include
  * @property bool $isVat
+ * @property string $name
+ * @property float $rate
  * @property string $taxable
- * @property int $taxZoneId
+ * @property TaxCategory $taxCategory
  * @property int $taxCategoryId
  * @property TaxZone $taxZone
- * @property TaxCategory $taxCategory
+ * @property int $taxZoneId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

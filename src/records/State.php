@@ -8,11 +8,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * State record.
  *
+ * @property string $abbreviation
+ * @property Country $country
+ * @property int $countryId
  * @property int $id
  * @property string $name
- * @property string $abbreviation
- * @property int $countryId
- * @property Country $country
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

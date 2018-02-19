@@ -9,22 +9,22 @@ use yii\db\ActiveQueryInterface;
 /**
  * Variant record.
  *
+ * @property ActiveQueryInterface $element
+ * @property float $height
  * @property int $id
+ * @property bool $isDefault
+ * @property float $length
+ * @property int $maxQty
+ * @property int $minQty
+ * @property float $price
+ * @property Product $product
  * @property int $productId
  * @property string $sku
- * @property bool $isDefault
- * @property float $price
  * @property int $sortOrder
- * @property float $width
- * @property float $height
- * @property float $length
- * @property float $weight
  * @property int $stock
  * @property bool $unlimitedStock
- * @property int $minQty
- * @property int $maxQty
- * @property ActiveQueryInterface $element
- * @property Product $product
+ * @property float $weight
+ * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

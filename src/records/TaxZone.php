@@ -8,12 +8,12 @@ use yii\db\ActiveQueryInterface;
 /**
  * Tax zone record.
  *
- * @property int $id
- * @property string $name
- * @property string $description
+ * @property Country[] $countries
  * @property bool $countryBased
  * @property bool $default
- * @property Country[] $countries
+ * @property string $description
+ * @property int $id
+ * @property string $name
  * @property State[] $states
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

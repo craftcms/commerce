@@ -9,23 +9,23 @@ use yii\db\ActiveQueryInterface;
 /**
  * Transaction record.
  *
- * @property int $id
- * @property string $hash
- * @property string $type
  * @property float $amount
- * @property string $status
- * @property string $reference
- * @property string $message
- * @property string $response
  * @property string $code
- * @property int $parentId
- * @property int $userId
+ * @property Gateway $gateway
  * @property int $gatewayId
+ * @property string $hash
+ * @property int $id
+ * @property string $message
+ * @property Order $order
  * @property int $orderId
  * @property Transaction $parent
- * @property Gateway $gateway
- * @property Order $order
+ * @property int $parentId
+ * @property string $reference
+ * @property string $response
+ * @property string $status
+ * @property string $type
  * @property User $user
+ * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

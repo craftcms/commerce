@@ -8,9 +8,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping zone state record.
  *
- * @property int $taxZoneId
- * @property ActiveQueryInterface $state
+ * @property int $id
  * @property ActiveQueryInterface $shippingZone
+ * @property int $shippingZoneId
+ * @property ActiveQueryInterface $state
  * @property int $stateId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

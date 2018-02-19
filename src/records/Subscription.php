@@ -9,22 +9,22 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product type record.
  *
- * @property int $id
- * @property int $userId
- * @property int $planId
- * @property int $gatewayId
- * @property int $orderId
- * @property string $reference
- * @property int $trialDays
- * @property \DateTime $nextPaymentDate
- * @property string $subscriptionData
- * @property bool $isCanceled
  * @property \DateTime $dateCanceled
- * @property bool $isExpired
  * @property \DateTime $dateExpired
  * @property ActiveQueryInterface $gateway
+ * @property int $gatewayId
+ * @property int $id
+ * @property bool $isCanceled
+ * @property bool $isExpired
+ * @property \DateTime $nextPaymentDate
+ * @property int $orderId
  * @property ActiveQueryInterface $plan
+ * @property int $planId
+ * @property string $reference
+ * @property string $subscriptionData
+ * @property int $trialDays
  * @property ActiveQueryInterface $user
+ * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -52,7 +52,7 @@ class Subscription extends ActiveRecord
     }
 
     /**
-     * Return the subscription's gateway
+     * Return the subscription's user
      *
      * @return ActiveQueryInterface The relational query object.
      */
@@ -62,7 +62,7 @@ class Subscription extends ActiveRecord
     }
 
     /**
-     * Return the subscription's gateway
+     * Return the subscription's plan
      *
      * @return ActiveQueryInterface The relational query object.
      */
