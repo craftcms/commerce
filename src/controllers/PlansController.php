@@ -81,10 +81,12 @@ class PlansController extends BaseAdminController
         }
 
         $variables['entryElementType'] = Entry::class;
-        $variables['supportedGateways'] = Plugin::getInstance()->getGateways()->getAllSubscriptionGateways();
-        $variables['gatewayOptions'] = [''];
 
-        foreach ($variables['supportedGateways'] as $gateway) {
+        $gateways = Plugin::getInstance()->getGateways()->getAllSubscriptionGateways();
+        $variables['supportedGateways'] = $gateways;
+        $variables['gatewayOptions'] = [];
+
+        foreach ($gateways as $gateway) {
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
