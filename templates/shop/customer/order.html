@@ -3,7 +3,7 @@
 {% set number = craft.app.request.param('number') %}
 {% set order = craft.commerce.orders.number(number).one() %}
 
-{% if not order %}
+{% if not order or order.isCompleted == false %}
     {% redirect 'shop/customer' %}
 {% endif %}
 

@@ -109,7 +109,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function refund(Transaction $transaction, string $reference): RequestResponseInterface
+    public function refund(Transaction $transaction, $amount): RequestResponseInterface
     {
         return new DummyRequestResponse();
     }
@@ -166,6 +166,14 @@ class Dummy extends Gateway
      * @inheritdoc
      */
     public function supportsRefund(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsPartialRefund(): bool
     {
         return true;
     }

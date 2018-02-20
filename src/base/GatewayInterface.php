@@ -83,10 +83,10 @@ interface GatewayInterface extends SavableComponentInterface
      * Makes an refund request.
      *
      * @param Transaction $transaction The refund transaction
-     * @param string $reference Reference for the transaction being refunded.
+     * @param float $amount The amount to be refunded.
      * @return RequestResponseInterface
      */
-    public function refund(Transaction $transaction, string $reference): RequestResponseInterface;
+    public function refund(Transaction $transaction, $amount): RequestResponseInterface;
 
     /**
      * Processes a webhook and return a response
@@ -143,6 +143,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsRefund(): bool;
+
+    /**
+     * Returns true if gateway supports partial refund requests.
+     *
+     * @return bool
+     */
+    public function supportsPartialRefund(): bool;
 
     /**
      * Returns true if gateway supports webhooks.

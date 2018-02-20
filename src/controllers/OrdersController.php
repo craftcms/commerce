@@ -216,12 +216,38 @@ class OrdersController extends BaseCpController
      */
     public function actionTransactionRefund()
     {
+
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
+        $amount = Craft::$app->getRequest()->getParam('amount');
+
+        if (!$transaction)
+        {
+            $error = Craft::t('commerce','Can not find the transaction to refund');
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+
+                return $this->asErrorJson($error);
+            }else{
+                Craft::$app->getSession()->setError($error);
+                return $this->redirectToPostedUrl();
+            }
+        }
+
+        if ($amount >= $transaction->paymentAmount)
+        {
+            $error = Craft::t('commerce','Can not refund amount greater than the original transaction');
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }else{
+                Craft::$app->getSession()->setError($error);
+                return $this->redirectToPostedUrl();
+            }
+        }
+
         if ($transaction->canRefund()) {
             // capture transaction and display result
-            $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction);
+            $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount);
 
             $message = $child->message ? ' ('.$child->message.')' : '';
 
@@ -238,7 +264,7 @@ class OrdersController extends BaseCpController
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction.'));
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     public function actionCompleteOrder(): Response
