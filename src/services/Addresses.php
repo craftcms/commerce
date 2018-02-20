@@ -99,7 +99,7 @@ class Addresses extends Component
     public function getStoreLocationAddress(): Address
     {
         $result = $this->_createAddressQuery()
-            ->where(['stockLocation' => true])
+            ->where(['storeLocation' => true])
             ->one();
 
         if (!$result) {
@@ -171,7 +171,7 @@ class Addresses extends Component
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
-        $addressRecord->stockLocation = $addressModel->stockLocation;
+        $addressRecord->storeLocation = $addressModel->storeLocation;
 
         if ($runValidation && !$addressModel->validate()) {
             Craft::info('Address could not save due to validation error.', __METHOD__);
@@ -182,8 +182,8 @@ class Addresses extends Component
             return false;
         }
 
-        if ($addressRecord->stockLocation && $addressRecord->id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['stockLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+        if ($addressRecord->storeLocation && $addressRecord->id) {
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['storeLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
         $addressRecord->save(false);

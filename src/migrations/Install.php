@@ -83,7 +83,7 @@ class Install extends Migration
     {
         $this->createTable('{{%commerce_addresses}}', [
             'id' => $this->primaryKey(),
-            'stockLocation' => $this->boolean()->notNull()->defaultValue(false),
+            'storeLocation' => $this->boolean()->notNull()->defaultValue(false),
             'attention' => $this->string(),
             'title' => $this->string(),
             'firstName' => $this->string()->notNull(),
