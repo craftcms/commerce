@@ -138,7 +138,7 @@
                value="{{ "Save"|t('commerce') }}">
     </form>
 
-    {% includejs %}
+    {% js %}
         function displayStates(id) {
           $('.stateSelector').addClass('hidden').find('select').prop('disabled', true);
           $('.stateSelector[data-country=' + id + ']').removeClass('hidden').find('select').prop('disabled', false);
@@ -150,5 +150,5 @@
         });
 
         displayStates($('.countrySelector select').val());
-    {% endincludejs %}
+    {% endjs %}
 {% endblock %}
