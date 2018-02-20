@@ -16,8 +16,8 @@ use craft\commerce\records\Purchasable as PurchasableRecord;
  * @property bool $isPromotable whether this purchasable can be subject to discounts or sales
  * @property int $purchasableId the ID of the Purchasable element that will be be added to the line item
  * @property float $price the base price the item will be added to the line item with
- * @property null|float $salePrice the base price the item will be added to the line item with
- * @property null|array|Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
+ * @property-read float $salePrice the base price the item will be added to the line item with
+ * @property-read Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
@@ -50,7 +50,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return array_pop($classNameParts);
     }
 
-
     /**
      * @inheritdoc
      */
@@ -78,14 +77,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * @param float|null $value
-     */
-    public function setSalePrice(float $value = null)
-    {
-        $this->_salePrice = $value;
-    }
-
-    /**
      * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
      *
      * @return Sale[]|null
@@ -95,16 +86,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $this->_loadSales();
 
         return $this->_sales;
-    }
-
-    /**
-     * Sets an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @param Sale[] $sales
-     */
-    public function setSales(array $sales)
-    {
-        $this->_sales = $sales;
     }
 
     /**

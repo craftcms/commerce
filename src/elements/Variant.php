@@ -169,19 +169,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * Sets an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @param Sale[] $sales
-     * @deprecated
-     */
-    public function setSalesApplied($sales)
-    {
-        Craft::$app->getDeprecator()->log('setSalesApplied()', 'The setSalesApplied() function has been deprecated. Use setSales() instead.');
-
-        $this->setSales($sales);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getFieldLayout()
