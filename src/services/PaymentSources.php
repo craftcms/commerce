@@ -26,16 +26,52 @@ class PaymentSources extends Component
 
     /**
      * @event PaymentSourceEvent The event that is triggered when a payment source is deleted
+     *
+     * Plugins can get notified when a payment source is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\PaymentSourceEvent;
+     * use craft\commerce\services\PaymentSources;
+     * use yii\base\Event;
+     *
+     * Event::on(PaymentSources::class, PaymentSources::EVENT_DELETE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
+     *     // Do something - perhaps warn a user they have no valid payment sources saved.
+     * });
+     * ```
      */
     const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered before a plan is saved.
+     *
+     * Plugins can get notified before a payment source is added.
+     *
+     * ```php
+     * use craft\commerce\events\PaymentSourceEvent;
+     * use craft\commerce\services\PaymentSources;
+     * use yii\base\Event;
+     *
+     * Event::on(PaymentSources::class, PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
+     *     // Do something
+     * });
+     * ```
      */
     const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered after a plan is saved.
+     *
+     * Plugins can get notified after a payment source is added.
+     *
+     * ```php
+     * use craft\commerce\events\PaymentSourceEvent;
+     * use craft\commerce\services\PaymentSources;
+     * use yii\base\Event;
+     *
+     * Event::on(PaymentSources::class, PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
+     *     // Do something - perhaps settle any outstanding balance
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
@@ -143,7 +179,7 @@ class PaymentSources extends Component
             $record = new PaymentSourceRecord();
         }
 
-        // fire a 'beforeSavePlan' event
+        // fire a 'beforeSavePaymentSource' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
                 'paymentSource' => $paymentSource,
@@ -166,7 +202,7 @@ class PaymentSources extends Component
             // Now that we have a record ID, save it on the model
             $paymentSource->id = $record->id;
 
-            // fire a 'beforeSavePlan' event
+            // fire a 'afterSavePaymentSource' event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
                     'paymentSource' => $paymentSource,
@@ -199,7 +235,7 @@ class PaymentSources extends Component
 
             $paymentSource = $this->getPaymentSourceById($id);
 
-            // Fire an 'archivePlan' event.
+            // Fire an 'deletePaymentSource' event.
             if ($this->hasEventHandlers(self::EVENT_DELETE_PAYMENT_SOURCE)) {
                 $this->trigger(self::EVENT_DELETE_PAYMENT_SOURCE, new PaymentSourceEvent([
                     'paymentSource' => $paymentSource,

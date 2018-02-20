@@ -35,60 +35,194 @@ class Subscriptions extends Component
 
     /**
      * @event SubscriptionEvent The event that is triggered when a subscription is expired.
+     *
+     * Plugins can get notified when a subscription is being expired.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     *     // Do something about it - perhaps make a call to 3rd party service to de-authorize a user.
+     * });
+     * ```
      */
     const EVENT_EXPIRE_SUBSCRIPTION = 'expireSubscription';
 
     /**
      * @event CreateSubscriptionEvent The event that is triggered before a subscription is created.
      * You may set [[CreateSubscriptionEvent::isValid]] to `false` to prevent the user from being subscribed to the plan.
+     *
+     * Plugins can get notified before a subscription is created.
+     *
+     * ```php
+     * use craft\commerce\events\CreateSubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_CREATE_SUBSCRIPTION, function(CreateSubscriptionEvent $e) {
+     *     // Do something - perhaps check if the user is eligible for the parameters set and prevent the subscription if not.
+     * });
+     * ```
      */
+
     const EVENT_BEFORE_CREATE_SUBSCRIPTION = 'beforeCreateSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered after a subscription is created
+     *
+     * Plugins can get notified after a subscription is created.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_CREATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     *     // Do something about it - perhaps make a call to 3rd party service to authorize a user
+     * });
+     * ```
      */
+
     const EVENT_AFTER_CREATE_SUBSCRIPTION = 'afterCreateSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered before a subscription is reactivated
      * You may set [[SubscriptionEvent::isValid]] to `false` to prevent the subscription from being reactivated
+     *
+     * Plugins can get notified before a subscription gets reactivated.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     *     // Do something - maybe the user does not qualify for reactivation due to some business logic.
+     * });
+     * ```
      */
     const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = 'beforeReactivateSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered after a subscription is reactivated
+     *
+     * Plugins can get notified before a subscription gets reactivated.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     *     // Do something - maybe the user needs to be re-authorized with a 3rd party service.
+     * });
+     * ```
      */
     const EVENT_AFTER_REACTIVATE_SUBSCRIPTION = 'afterReactivateSubscription';
 
     /**
      * @event SubscriptionSwitchPlansEvent The event that is triggered before a plan switch happens for a subscription
      * You may set [[SubscriptionSwitchPlansEvent::isValid]] to `false` to prevent the switch from happening
+     *
+     * Plugins can get notified before a subscription is switched to a different plan.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionSwitchPlansEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, function(SubscriptionSwitchPlansEvent $e) {
+     *     // Do something - maybe the user is not permitted to switch to that plan due to some business logic.
+     * });
+     * ```
      */
     const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = 'beforeSwitchSubscriptionPlan';
 
     /**
      * @event SubscriptionSwitchPlansEvent The event that is triggered after a subscription is switched to a different plan
+     *
+     * Plugins can get notified after a subscription gets switched to a different plan.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionSwitchPlansEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, function(SubscriptionSwitchPlansEvent $e) {
+     *     // Do something - maybe the user needs their permissions adjusted on a 3rd party service.
+     * });
+     * ```
      */
     const EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN = 'afterSwitchSubscriptionPlan';
 
     /**
      * @event CancelSubscriptionEvent The event that is triggered before a subscription is canceled
      * You may set [[CancelSubscriptionEvent::isValid]] to `false` to prevent the subscription from being canceled
+     *
+     * Plugins can get notified before a subscription is canceled.
+     *
+     * ```php
+     * use craft\commerce\events\CancelSubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_CANCEL_SUBSCRIPTION, function(CancelSubscriptionEvent $e) {
+     *     // Do something - maybe the user is not permitted to cancel the subscription for some reason.
+     * });
+     * ```
      */
     const EVENT_BEFORE_CANCEL_SUBSCRIPTION = 'beforeCancelSubscription';
 
     /**
      * @event CancelSubscriptionEvent The event that is triggered after a subscription is canceled
+     *
+     * Plugins can get notified after a subscription gets canceled.
+     *
+     * ```php
+     * use craft\commerce\events\CancelSubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_CANCEL_SUBSCRIPTION, function(CancelSubscriptionEvent $e) {
+     *     // Do something - maybe refund the user for the remainder of the subscription.
+     * });
+     * ```
      */
     const EVENT_AFTER_CANCEL_SUBSCRIPTION = 'afterCancelSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered after an existing
+     *
+     * Plugins can get notified before a subscription gets updated. Typically this event is fired when subscription data is updated on the gateway.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_UPDATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     *     // Do something - maybe refund the user for the remainder of the subscription.
+     * });
+     * ```
      */
     const EVENT_BEFORE_UPDATE_SUBSCRIPTION = 'beforeUpdateSubscription';
 
     /**
      * @event SubscriptionPaymentEvent The event that is triggered after receiving a subscription payment
+     *
+     * Plugins can get notified when a subscription payment is received.
+     *
+     * ```php
+     * use craft\commerce\events\SubscriptionPaymentEvent;
+     * use craft\commerce\services\Subscriptions;
+     * use yii\base\Event;
+     *
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, function(SubscriptionPaymentEvent $e) {
+     *     // Do something - perhaps update the loyalty reward data.
+     * });
+     * ```
      */
     const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = 'receiveSubscriptionPayment';
 

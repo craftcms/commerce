@@ -26,16 +26,53 @@ class Plans extends Component
 
     /**
      * @event PlanEvent The event that is triggered when a plan is archived.
+     *
+     * Plugins can get notified whenever a subscription plan is being archived.
+     * This is useful as sometimes this can be triggered by an action on the gateway.
+     *
+     * ```php
+     * use craft\commerce\events\PlanEvent;
+     * use craft\commerce\services\Plans;
+     * use yii\base\Event;
+     *
+     * Event::on(Plans::class, Plans::EVENT_ARCHIVE_PLAN, function(PlanEvent $e) {
+     *     // Do something as the plan is being retired.
+     * });
+     * ```
      */
     const EVENT_ARCHIVE_PLAN = 'archivePlan';
 
     /**
      * @event PlanEvent The event that is triggered before a plan is saved.
+     *
+     * Plugins can get notified before a subscription plan is being saved.
+     *
+     * ```php
+     * use craft\commerce\events\PlanEvent;
+     * use craft\commerce\services\Plans;
+     * use yii\base\Event;
+     *
+     * Event::on(Plans::class, Plans::EVENT_BEFORE_SAVE_PLAN, function(PlanEvent $e) {
+     *     // Do something
+     * });
+     * ```
      */
     const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
 
     /**
      * @event PlanEvent The event that is triggered after a plan is saved.
+     *
+     * Plugins can get notified after a subscription plan is being saved.
+     *
+     * ```php
+     * use craft\commerce\events\PlanEvent;
+     * use craft\commerce\services\Plans;
+     * use yii\base\Event;
+     *
+     * Event::on(Plans::class, Plans::EVENT_AFTER_SAVE_PLAN, function(PlanEvent $e) {
+     *     // Do something
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
 

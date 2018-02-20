@@ -6,82 +6,87 @@
     { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
 ] %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = gatewayOptions|length > 0 %}
 
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/plans/save-plan">
-    {{ redirectInput('commerce/settings/subscriptions/plans') }}
+    {% if gatewayOptions|length > 0 or plan is not null %}
 
-    {% if plan is not null and plan.id %}
-        <input type="hidden" name="planId" value="{{ plan.id }}">
-    {% endif %}
+        <input type="hidden" name="action" value="commerce/plans/save-plan">
+        {{ redirectInput('commerce/settings/subscriptions/plans') }}
 
-    <div id="plan-settings">
-        {{ forms.textField({
-            first: true,
-            label: "Name"|t('commerce'),
-            instructions: "What this subscription plan will be called in the CP."|t('commerce'),
-            id: 'name',
-            name: 'name',
-            value: plan ? plan.name : '',
-            errors: plan ? plan.getErrors('name') : [],
-            autofocus: true,
-            required: true,
-            translatable: true
-        }) }}
+        {% if plan is not null and plan.id %}
+            <input type="hidden" name="planId" value="{{ plan.id }}">
+        {% endif %}
 
-        {{ forms.textField({
-            label: "Handle"|t('commerce'),
-            instructions: "How you’ll refer to this psubscription plan in the templates."|t('commerce'),
-            id: 'handle',
-            class: 'code',
-            name: 'handle',
-            value: plan ? plan.handle : '',
-            errors: plan ? plan.getErrors('handle') : [],
-            required: true
-        }) }}
+        <div id="plan-settings">
+            {{ forms.textField({
+                first: true,
+                label: "Name"|t('commerce'),
+                instructions: "What this subscription plan will be called in the CP."|t('commerce'),
+                id: 'name',
+                name: 'name',
+                value: plan ? plan.name : '',
+                errors: plan ? plan.getErrors('name') : [],
+                autofocus: true,
+                required: true,
+                translatable: true
+            }) }}
 
-        {{ forms.elementSelectField({
-            elementType: entryElementType,
-            elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).find() : null,
-            instructions: "The Entry that contains description for this subscriptions plan."|t('commerce'),
-            id: 'planInformation',
-            label: "Description"|t(','),
-            class: 'ltr',
-            name: 'planInformation',
-            limit: 1
-        }) }}
+            {{ forms.textField({
+                label: "Handle"|t('commerce'),
+                instructions: "How you’ll refer to this psubscription plan in the templates."|t('commerce'),
+                id: 'handle',
+                class: 'code',
+                name: 'handle',
+                value: plan ? plan.handle : '',
+                errors: plan ? plan.getErrors('handle') : [],
+                required: true
+            }) }}
 
-        {{ forms.selectField({
-            label: "Gateway"|t('commerce'),
-            instructions: "Which payment gateway will be used for the subscription plan."|t('commerce'),
-            id: 'gatewayId',
-            class: 'gateway-select code ltr',
-            name: 'gatewayId',
-            value: plan ? plan.gatewayId,
-            options: gatewayOptions,
-            errors: plan ? plan.getErrors('gatewayId') : []
-        }) }}
+            {{ forms.elementSelectField({
+                elementType: entryElementType,
+                elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).find() : null,
+                instructions: "The Entry that contains description for this subscriptions plan."|t('commerce'),
+                id: 'planInformation',
+                label: "Description"|t(','),
+                class: 'ltr',
+                name: 'planInformation',
+                limit: 1
+            }) }}
 
-        {% for gateway in supportedGateways %}
-            {% set isCurrent = plan and (gateway.id == plan.gatewayId) %}
+            {{ forms.selectField({
+                label: "Gateway"|t('commerce'),
+                instructions: "Which payment gateway will be used for the subscription plan."|t('commerce'),
+                id: 'gatewayId',
+                class: 'gateway-select code ltr',
+                name: 'gatewayId',
+                value: plan ? plan.gatewayId,
+                options: gatewayOptions,
+                errors: plan ? plan.getErrors('gatewayId') : []
+            }) }}
 
-            <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden"{% endif %}">
+            {% for gateway in supportedGateways %}
+                {% set isCurrent = plan and (gateway.id == plan.gatewayId) %}
+
+                <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden"{% endif %}">
                 {% namespace 'gateway['~gateway.id~']' %}
                     {{ gateway.getPlanSettingsHtml({'plan': plan, 'gateway': gateway})|raw }}
                 {% endnamespace %}
-            </div>
-        {% endfor %}
+                </div>
+            {% endfor %}
 
-        {{ forms.lightswitchField({
-            label: "Enabled for customers to select?"|t('commerce'),
-            name: 'enabled',
-            on: plan ? plan.enabled,
-            errors: plan ? plan.getErrors('enabled') : [],
-        }) }}
-    </div>
+            {{ forms.lightswitchField({
+                label: "Enabled for customers to select?"|t('commerce'),
+                name: 'enabled',
+                on: plan ? plan.enabled,
+                errors: plan ? plan.getErrors('enabled') : [],
+            }) }}
+        </div>
+    {% else %}
+        <p class="error">{{ 'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.'|t('commerce', {'link': url('commerce/settings/gateways')})|raw }}</p>
+    {% endif %}
 {% endblock %}
 
 {% js %}
