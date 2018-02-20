@@ -45,15 +45,15 @@ class Customer extends Field
             return '<span style="color: #da5a47">'.Craft::t('commerce', 'Commerce Customer Info field is for user profiles only.').'</span>';
         }
 
-        return Craft::$app->getView()->render('commerce/_fieldtypes/customer/_input', [
-            'customer' => $this->getCustomer()
+        return Craft::$app->getView()->renderTemplate('commerce/_fieldtypes/customer/_input', [
+            'customer' => Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id)
         ]);
     }
 
     /**
      * @inheritdoc
      */
-    public function normalizeValue($value, ElementInterface $element = null): CustomerModel
+    public function normalizeValue($value, ElementInterface $element = null)
     {
         if ($element && $element->id) {
             return Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id);

@@ -412,7 +412,7 @@ class LineItem extends Model
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId === $this->id) {
+            if ($adjustment->lineItemId == $this->id) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
@@ -428,7 +428,7 @@ class LineItem extends Model
     {
         $amount = 0;
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included === $included) {
+            if ($adjustment->included == $included) {
                 $amount += $adjustment->amount;
             }
         }
@@ -446,7 +446,7 @@ class LineItem extends Model
         $amount = 0;
 
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included === $included && $adjustment->type === $type) {
+            if ($adjustment->included == $included && $adjustment->type === $type) {
                 $amount += $adjustment->amount;
             }
         }

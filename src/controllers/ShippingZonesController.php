@@ -74,7 +74,7 @@ class ShippingZonesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
 

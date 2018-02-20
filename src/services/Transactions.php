@@ -52,6 +52,10 @@ class Transactions extends Component
 
         $gateway = $transaction->getGateway();
 
+        if (!$gateway) {
+            return false;
+        }
+
         if (!$gateway->supportsCapture()) {
             return false;
         }
@@ -61,7 +65,8 @@ class Transactions extends Component
             ->where([
                 'type' => TransactionRecord::TYPE_CAPTURE,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
+                'orderId' => $transaction->orderId,
+                'parentId' => $transaction->id
             ])
             ->exists();
     }
@@ -85,18 +90,34 @@ class Transactions extends Component
 
         $gateway = $transaction->getGateway();
 
+        if (!$gateway) {
+            return false;
+        }
+
         if (!$gateway->supportsRefund()) {
             return false;
         }
 
-        // And only if we don't have a successful refund transaction for this order already
-        return !$this->_createTransactionQuery()
+        return ($this->refundableAmountForTransaction($transaction) > 0);
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @return float
+     */
+    public function refundableAmountForTransaction(Transaction $transaction): float
+    {
+        $amount = (new Query())
             ->where([
                 'type' => TransactionRecord::TYPE_REFUND,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
+                'orderId' => $transaction->orderId,
+                'parentId' => $transaction->id
             ])
-            ->exists();
+            ->from(['{{%commerce_transactions}}'])
+            ->sum('amount');
+
+        return $transaction->paymentAmount - $amount;
     }
 
     /**
@@ -126,6 +147,7 @@ class Transactions extends Component
             $transaction->paymentCurrency = $parentTransaction->paymentCurrency;
             $transaction->paymentRate = $parentTransaction->paymentRate;
             $transaction->setOrder($parentTransaction->getOrder());
+            $transaction->reference = $parentTransaction->reference;
         } else {
             $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);

@@ -184,7 +184,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->_processCaptureOrRefund($transaction, TransactionRecord::TYPE_CAPTURE);
+        $transaction = $this->_captureTransaction($transaction);
 
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
@@ -198,9 +198,10 @@ class Payments extends Component
 
     /**
      * @param Transaction $transaction
+     * @param float|null $amount
      * @return Transaction
      */
-    public function refundTransaction(Transaction $transaction): Transaction
+    public function refundTransaction(Transaction $transaction, $amount = null): Transaction
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
@@ -209,7 +210,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->_processCaptureOrRefund($transaction, TransactionRecord::TYPE_REFUND);
+        $transaction = $this->_refund($transaction, $amount);
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
@@ -387,15 +388,11 @@ class Payments extends Component
      * @return Transaction
      * @throws TransactionException
      */
-    private function _processCaptureOrRefund(Transaction $parent, $action): Transaction
+    private function _capture(Transaction $parent): Transaction
     {
-        if (!in_array($action, [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_REFUND], false)) {
-            throw new TransactionException('Tried to capture or refund with wrong action type: '.$action);
-        }
-
         $order = $parent->order;
         $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-        $child->type = $action;
+        $child->type = TransactionRecord::TYPE_CAPTURE;
 
         $gateway = $parent->getGateway();
 
@@ -403,21 +400,44 @@ class Payments extends Component
         Craft::$app->getElements()->saveElement($order);
 
         try {
-            /** @var RequestResponseInterface $response */
-            switch ($action) {
-                case TransactionRecord::TYPE_CAPTURE:
-                    $response = $gateway->capture($child, $parent->reference);
-                    break;
-                case TransactionRecord::TYPE_REFUND:
-                    $response = $gateway->refund($child, $parent->reference);
-                    break;
-            }
-
+            $response = $gateway->capture($child, $parent->reference);
             $this->_updateTransaction($child, $response);
-        } catch (GatewayRequestCancelledException $e) {
+        } catch (\Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
             $child->message = $e->getMessage();
             $this->_saveTransaction($child);
+
+            Craft::error($e->getMessage());
+        }
+
+        return $child;
+    }
+
+    /**
+     * Process a capture or refund exception.
+     *
+     * @param Transaction $parent
+     * @param float|null $amount
+     * @return Transaction
+     * @throws TransactionException
+     */
+    private function _refund(Transaction $parent, $amount): Transaction
+    {
+        $order = $parent->order;
+        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
+        $child->type = TransactionRecord::TYPE_REFUND;
+        $amount = ($amount ?: $parent->amount);
+        $child->paymentAmount = ($amount* $parent->paymentRate);
+        $child->amount = $amount * 1;
+
+        $gateway = $parent->getGateway();
+
+        $order->returnUrl = $order->getCpEditUrl();
+        Craft::$app->getElements()->saveElement($order);
+
+        try {
+            $response = $gateway->refund($child, $child->paymentAmount);
+            $this->_updateTransaction($child, $response);
         } catch (\Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
             $child->message = $e->getMessage();

@@ -256,41 +256,44 @@ class PaymentsController extends BaseFrontEndController
             $success = false;
         }
 
-        if ($success) {
-            if ($request->getAcceptsJson()) {
-                $response = ['success' => true];
-
-                if ($redirect) {
-                    $response['redirect'] = $redirect;
-                }
-
-                if ($transaction) {
-                    /** @var Transaction $transaction */
-                    $response['transactionId'] = $transaction->reference;
-                }
-
-                return $this->asJson($response);
-            }
-
-            if ($redirect) {
-                return $this->redirect($redirect);
-            }
-
-            if ($order->returnUrl) {
-                $this->redirect($order->returnUrl);
-            } else {
-                $this->redirectToPostedUrl($order);
-            }
-        } else {
+        if (!$success) {
             if ($request->getAcceptsJson()) {
                 return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
             }
 
             $session->setError($customError);
             Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+            return null;
         }
 
-        return $this->redirectToPostedUrl();
+        if ($request->getAcceptsJson()) {
+            $response = ['success' => true];
+
+            if ($redirect) {
+                $response['redirect'] = $redirect;
+            }
+
+            if ($transaction) {
+                /** @var Transaction $transaction */
+                $response['transactionId'] = $transaction->reference;
+            }
+
+            return $this->asJson($response);
+        }
+
+        if ($redirect) {
+            return $this->redirect($redirect);
+        }
+
+        if ($order->returnUrl) {
+            $this->redirect($order->returnUrl);
+        } else {
+            $this->redirectToPostedUrl($order);
+        }
+
+        // should have been handled by now
+        return null;
     }
 
     /**
