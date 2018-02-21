@@ -145,7 +145,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_categories}}', 'discountId,categoryId', true), '{{%commerce_discount_categories}}', 'discountId,categoryId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_categories}}', 'categoryId', false), '{{%commerce_discount_categories}}', 'categoryId', false);
 
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categories}}', 'productTypeId'), '{{%commerce_discount_categories}}', 'categoryId', '{{%categories}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categories}}', 'categoryId'), '{{%commerce_discount_categories}}', 'categoryId', '{{%categories}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categories}}', 'discountId'), '{{%commerce_discount_categories}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
 
         // So long product type conditions on discounts
@@ -184,7 +184,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_categories}}', 'saleId,categoryId', true), '{{%commerce_sale_categories}}', 'saleId,categoryId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_categories}}', 'categoryId', false), '{{%commerce_sale_categories}}', 'categoryId', false);
 
-        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'productTypeId'), '{{%commerce_sale_categories}}', 'categoryId', '{{%categories}}', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'categoryId'), '{{%commerce_sale_categories}}', 'categoryId', '{{%categories}}', 'id', 'CASCADE', 'CASCADE');
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'saleId'), '{{%commerce_sale_categories}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
 
         // So long product type condition on sales

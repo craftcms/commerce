@@ -6,14 +6,15 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use craft\commerce\records\Sale as SaleRecord;
 
 /**
  * Sale model.
  *
  * @property array $categoryIds
  * @property string|false $cpEditUrl
- * @property string $discountAmountAsFlat
- * @property string $discountAmountAsPercent
+ * @property string $applyAmountAsFlat
+ * @property string $applyAmountAsPercent
  * @property array $purchasableIds
  * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -50,14 +51,19 @@ class Sale extends Model
     public $dateTo;
 
     /**
-     * @var string Discount Type
+     * @var string How the sale should be applied
      */
-    public $discountType;
+    public $apply;
 
     /**
-     * @var float Discount amount
+     * @var float The amount field used by the apply option
      */
-    public $discountAmount;
+    public $applyAmount;
+
+    /**
+     * @var bool should the sales system stop processing other sales after this one
+     */
+    public $stopProcessing;
 
     /**
      * @var bool Match all groups
@@ -78,6 +84,11 @@ class Sale extends Model
      * @var bool Enabled
      */
     public $enabled = true;
+
+    /**
+     * @var int The order index of the application of the sale
+     */
+    public $sortOrder;
 
     /**
      * @var int[] Product Ids
@@ -104,15 +115,17 @@ class Sale extends Model
     {
         return [
             [
-                ['discountType'],
+                ['apply'],
                 'in',
                 'range' => [
-                    'percent',
-                    'flat'
+                    'toPercent',
+                    'toFlat',
+                    'byPercent',
+                    'byFlat'
                 ],
             ],
-            [['default', 'enabled'], 'boolean'],
-            [['discountType', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
+            [['enabled'], 'boolean'],
+            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
     }
 
@@ -138,10 +151,10 @@ class Sale extends Model
     /**
      * @return string
      */
-    public function getDiscountAmountAsPercent(): string
+    public function getApplyAmountAsPercent(): string
     {
-        if ($this->discountAmount !== 0) {
-            return Craft::$app->formatter->asPercent(-$this->discountAmount);
+        if ($this->applyAmount !== 0) {
+            return Craft::$app->formatter->asPercent(-$this->applyAmount);
         }
 
         return Craft::$app->formatter->asPercent(0);
@@ -150,24 +163,9 @@ class Sale extends Model
     /**
      * @return string
      */
-    public function getDiscountAmountAsFlat(): string
+    public function getApplyAmountAsFlat(): string
     {
-        return $this->discountAmount !== 0 ? (string)($this->discountAmount * -1) : '0';
-    }
-
-    /**
-     * @param float $price
-     * @return float
-     */
-    public function calculateTakeoff($price): float
-    {
-        if ($this->discountType === 'flat') {
-            $takeOff = $this->discountAmount;
-        } else {
-            $takeOff = $this->discountAmount * $price;
-        }
-
-        return $takeOff;
+        return $this->applyAmount !== 0 ? (string)($this->applyAmount * -1) : '0';
     }
 
     /**

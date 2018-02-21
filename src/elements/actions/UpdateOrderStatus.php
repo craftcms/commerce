@@ -49,12 +49,13 @@ class UpdateOrderStatus extends ElementAction
     public function getTriggerHtml()
     {
         $orderStatuses = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
+        $type = Json::encode(static::class);
 
         $js = <<<EOT
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        handle: 'Commerce_UpdateOrderStatus',
+        type: {$type},
         batch: true,
         activate: function(\$selectedItems)
         {

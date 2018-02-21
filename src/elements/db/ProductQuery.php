@@ -378,7 +378,7 @@ class ProductQuery extends ElementQuery
         $user = Craft::$app->getUser()->getIdentity();
 
         if (!$user) {
-            throw new QueryAbortedException();
+            throw new QueryAbortedException('Could not execute query for product when no user found');
         }
 
         // Limit the query to only the sections the user has permission to edit

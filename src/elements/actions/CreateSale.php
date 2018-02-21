@@ -4,6 +4,7 @@ namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
+use craft\helpers\Json;
 
 /**
  * Class Create Sale
@@ -31,11 +32,12 @@ class CreateSale extends ElementAction
      */
     public function getTriggerHtml()
     {
+        $type = Json::encode(static::class);
         $js = <<<EOT
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        handle: 'Commerce_CreateSale',
+        type: {$type},
         batch: true,
         activate: function(\$selectedItems)
         {

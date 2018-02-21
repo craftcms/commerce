@@ -75,15 +75,6 @@
             errors: discount.getErrors('enabled')
         }) }}
 
-        {{ forms.checkboxField({
-            label: "Don’t apply subsequent discounts if this discount is applied"|t('commerce'),
-            id: 'stopProcessing',
-            name: 'stopProcessing',
-            value: 1,
-            checked: discount.stopProcessing,
-            errors: discount.getErrors('stopProcessing')
-        }) }}
-
     </div>
 
     <div id="coupon" class="hidden">
@@ -181,6 +172,20 @@
             }) }}
         {% endif %}
 
+        {% for purchasableType in purchasableTypes %}
+            {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
+            {{ forms.elementSelectField({
+                id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
+                label: purchasableType.name|title,
+                name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
+                elements: purchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+            }) }}
+        {% endfor %}
+
         {{ forms.elementSelectField({
             id: 'categories',
             label: 'Categories'|t('commerce'),
@@ -191,20 +196,6 @@
             instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
             errors: discount.getErrors('categories'),
         }) }}
-
-        {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
-            {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
-                label: purchasableType.name|capitalize,
-                name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
-                elements: purchasables[purchasableType.elementType] ?? null,
-                elementType: purchasableType.elementType,
-                limit: null,
-                instructions: purchasableType.name~" "~instruction,
-                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
-            }) }}
-        {% endfor %}
 
         {{ forms.textField({
             label: "Purchase Total"|t('commerce'),
@@ -312,43 +303,49 @@
             errors: discount.getErrors('freeShipping')
         }) }}
 
-
+        {{ forms.checkboxField({
+            label: "Don’t apply subsequent discounts if this discount is applied"|t('commerce'),
+            id: 'stopProcessing',
+            name: 'stopProcessing',
+            value: 1,
+            checked: discount.stopProcessing,
+            errors: discount.getErrors('stopProcessing')
+        }) }}
     </div>
 {% endblock %}
 
 
 {% js %}
-    {#<script>#}
-    $(function() {
-    $('#groups, #productTypes').selectize({
-    plugins: ['remove_button'],
-    dropdownParent: 'body'
-    });
+        $(function() {
+            $('#groups, #productTypes').selectize({
+                plugins: ['remove_button'],
+                dropdownParent: 'body'
+            });
 
-    $('#code').on('keyup blur', function(event) {
-    if(this.value.length === 0){
-    $('#coupon-fields').addClass('hidden');
-    }else{
-    $('#coupon-fields').removeClass('hidden');
-    }
-    });
+            $('#code').on('keyup blur', function(event) {
+                if (this.value.length === 0) {
+                    $('#coupon-fields').addClass('hidden');
+                } else {
+                    $('#coupon-fields').removeClass('hidden');
+                }
+            });
 
-    $('#clear-coupon-btn').click(function(event){
-    var r = confirm("Are you sure you want to clear all usage history for this discount?");
+            $('#clear-coupon-btn').click(function(event) {
+                var r = confirm("Are you sure you want to clear all usage history for this discount?");
 
-    if (r == true) {
-    $('#clear-coupon-history-spinner').toggleClass('hidden');
-    $.post('', {
-    action: 'commerce/discounts/clearCouponUsageHistory',
-    id: '{% if discount.id %}{{ discount.id }}{% endif %}'
-    }, function (result) {
-    $('#clear-coupon-history-spinner').toggleClass('hidden');
-    $('#total-coupon-use-counter').val(0);
-    alert(Craft.t('commerce', 'All coupon usage counters have been cleared') );
-    $('#clear-coupon-history').hide();
-    });
-    }
+                if (r == true) {
+                    $('#clear-coupon-history-spinner').toggleClass('hidden');
+                    $.post('', {
+                        action: 'commerce/discounts/clearCouponUsageHistory',
+                        id: '{% if discount.id %}{{ discount.id }}{% endif %}'
+                    }, function(result) {
+                        $('#clear-coupon-history-spinner').toggleClass('hidden');
+                        $('#total-coupon-use-counter').val(0);
+                        alert(Craft.t('commerce', 'All coupon usage counters have been cleared'));
+                        $('#clear-coupon-history').hide();
+                    });
+                }
 
-    });
-    });
+            });
+        });
 {% endjs %}

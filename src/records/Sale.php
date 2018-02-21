@@ -16,8 +16,9 @@ use yii\db\ActiveQueryInterface;
  * @property \DateTime $dateFrom
  * @property \DateTime $dateTo
  * @property string $description
- * @property float $discountAmount
- * @property string $discountType
+ * @property float $applyAmount
+ * @property bool $stopProcessing
+ * @property string $apply
  * @property bool $enabled
  * @property UserGroup[] $groups
  * @property int $id
@@ -30,10 +31,10 @@ class Sale extends ActiveRecord
     // Constants
     // =========================================================================
 
-    const TYPE_BY_PERCENT = 'byPercent';
-    const TYPE_BY_FLAT = 'byFlat';
-    const TYPE_TO_PERCENT = 'toPercent';
-    const TYPE_TO_FLAT = 'toFlat';
+    const APPLY_BY_PERCENT = 'byPercent';
+    const APPLY_BY_FLAT = 'byFlat';
+    const APPLY_TO_PERCENT = 'toPercent';
+    const APPLY_TO_FLAT = 'toFlat';
 
     // Public Methods
     // =========================================================================
@@ -44,16 +45,6 @@ class Sale extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_sales}}';
-    }
-
-    /**
-     * @return array
-     */
-    public function rules(): array
-    {
-        return [
-            [['discountType'], 'required']
-        ];
     }
 
     /**

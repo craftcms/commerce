@@ -14,7 +14,7 @@
 
 
 {% set actionClasses = "" %}
-{% if (sale.getErrors('discountAmount') or sale.getErrors('discountType')) %}
+{% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
     {% set actionClasses = "error" %}
 {% endif %}
 
@@ -33,8 +33,10 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
     {{ redirectInput('commerce/promotions/sales') }}
-    {% if sale.id %}<input type="hidden" name="id"
-                           value="{{ sale.id }}">{% endif %}
+    {% if sale.id %}
+        <input type="hidden" name="id" value="{{ sale.id }}">
+        <input type="hidden" name="sortOrder" value="{{ sale.sortOrder }}">
+    {% endif %}
 
     <div id="sale">
         {{ forms.textField({
@@ -64,7 +66,8 @@
             name: 'enabled',
             value: 1,
             checked: sale.enabled,
-            errors: sale.getErrors('enabled')
+            errors: sale.getErrors('enabled'),
+            instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
         }) }}
 
     </div>
@@ -105,13 +108,13 @@
                 {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
                 {{ forms.elementSelectField({
                     id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
-                    label: purchasableType.name|capitalize,
-                    name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
+                    label: purchasableType.name|title,
+                    name: 'purchasables',
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
                     instructions: purchasableType.name~" "~instruction,
-                    errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+                    errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
                 }) }}
             {% endfor %}
 
@@ -132,30 +135,44 @@
     <div id="actions" class="hidden">
 
         {{ forms.radioGroupField({
-            label: 'Discount Type'|t('commerce'),
-            instructions: "Select how the discount for this sale will be calculated"|t('commerce'),
-            name: 'discountType',
-            options: {'flat' : 'Flat'|t('commerce'), 'percent' : 'Percent'|t},
-            value: sale.discountType,
-            errors: sale.getErrors('discountType'),
+            label: 'Apply'|t('commerce'),
+            instructions: "Select how the sale will be applied to the purchasable."|t('commerce'),
+            name: 'apply',
+            options: {
+                'byPercent' : 'By a percentage of the original Price'|t('commerce'),
+                'toPercent' : 'To a percentage of the original Price'|t('commerce'),
+                'byFlat' : 'By a flat Amount'|t('commerce'),
+                'toFlat' : 'To a flat Amount'|t('commerce'),
+            },
+            value: sale.apply,
+            errors: sale.getErrors('apply'),
             required: true,
         }) }}
 
-        {% set discountAmountValue %}{% spaceless %}
-            {% if sale.discountType == 'percent' %}
-                {{ sale.discountAmountAsPercent }}
+        {% set applyAmounyVzlue %}{% spaceless %}
+            {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
+                {{ sale.applyAmountAsPercent }}
             {% else %}
-                {{ sale.discountAmountAsFlat }}
+                {{ sale.applyAmountAsFlat }}
             {% endif %}
         {% endspaceless %}{% endset %}
         {{ forms.textField({
-            label: "Discount Amount"|t('commerce'),
-            instructions: "Percentage or a flat value of discount (for example: ‘3%’ for 3% off, and ‘10’ for $10 off)."|t('commerce'),
-            id: 'discountAmount',
-            name: 'discountAmount',
+            label: "Amount"|t('commerce'),
+            instructions: "A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off)."|t('commerce'),
+            id: 'applyAmount',
+            name: 'applyAmount',
             required: true,
-            value: discountAmountValue,
-            errors: sale.getErrors('discountAmount'),
+            value: applyAmounyVzlue,
+            errors: sale.getErrors('aplyAmount'),
+        }) }}
+
+        {{ forms.checkboxField({
+            label: "Do not apply subsequent matching sales beyond applying this sale."|t('commerce'),
+            id: 'stopProcessing',
+            name: 'stopProcessing',
+            value: 1,
+            checked: sale.stopProcessing,
+            errors: sale.getErrors('stopProcessing')
         }) }}
 
     </div>
@@ -163,9 +180,9 @@
 
 {% js %}
     $(function() {
-    $('#groups, #productTypes').selectize({
-    plugins: ['remove_button'],
-    dropdownParent: 'body'
-    });
+      $('#groups, #productTypes').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+      });
     });
 {% endjs %}
