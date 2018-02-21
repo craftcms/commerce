@@ -207,11 +207,13 @@ class Sales extends Component
     {
         $sales = [];
 
-        foreach ($this->getAllSales() as $sale){
-            $purchasableIds = $sale->getPurchasableIds();
-            $id = $purchasable->getPurchasableId();
-            if (\in_array($id, $purchasableIds, false)) {
-                $sales[] = $sale;
+        if ($purchasable->id) {
+            foreach ($this->getAllSales() as $sale) {
+                $purchasableIds = $sale->getPurchasableIds();
+                $id = $purchasable->getPurchasableId();
+                if (\in_array($id, $purchasableIds, false)) {
+                    $sales[] = $sale;
+                }
             }
         }
 
