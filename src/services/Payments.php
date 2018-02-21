@@ -11,6 +11,7 @@ use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\TransactionEvent;
+use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -31,39 +32,124 @@ class Payments extends Component
     // =========================================================================
 
     /**
+     * @event TransactionEvent The event that is triggered after a payment transaction is made
+     *
+     * Plugins can get notified after a payment transaction is made
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_AFTER_PAYMENT_TRANSACTION, function(TransactionEvent $e) {
+     *     // Do something - perhaps check if that was a authorize transaction and make sure that warehouse team is on top of it
+     * });
+     * ```
+     */
+    const EVENT_AFTER_PAYMENT_TRANSACTION = 'afterPaymentTransaction';
+
+    /**
      * @event TransactionEvent The event that is triggered before a transaction is captured
+     *
+     * Plugins can get notified before a payment transaction is captured
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_BEFORE_CAPTURE_TRANSACTION, function(TransactionEvent $e) {
+     *     // Do something - maybe check if the shipment is really ready before capturing
+     * });
+     * ```
      */
     const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction is captured
+     *
+     * Plugins can get notified after a payment transaction is captured
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_AFTER_CAPTURE_TRANSACTION, function(TransactionEvent $e) {
+     *     // Do something - probably notify warehouse that we're ready to ship
+     * });
+     * ```
      */
     const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered before a transaction is refunded
+     *
+     * Plugins can get notified before a transaction is refunded
+     *
+     * ```php
+     * use craft\commerce\events\RefundTransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_BEFORE_REFUND_TRANSACTION, function(RefundTransactionEvent $e) {
+     *     // Do something - perhaps check if refund amount more than half the transaction and do something based on that
+     * });
+     * ```
      */
     const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction is refunded
+     *
+     * Plugins can get notified after a transaction is refunded
+     *
+     * ```php
+     * use craft\commerce\events\RefundTransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_AFTER_REFUND_TRANSACTION, function(RefundTransactionEvent $e) {
+     *     // Do something - perhaps check if refund amount more than half the transaction and do something based on that
+     * });
+     * ```
      */
     const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
 
     /**
-     * @event ItemBagEvent The event that is triggered after an item bag is created
-     */
-    const EVENT_AFTER_CREATE_ITEM_BAG = 'afterCreateItemBag';
-
-    /**
-     * @event BuildPaymentRequestEvent The event that is triggered after a payment request is being built
-     */
-    const EVENT_BUILD_PAYMENT_REQUEST = 'afterBuildPaymentRequest';
-
-    /**
      * @event ProcessPaymentEvent The event is triggered before a payment is being processed
+     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the subscription from being canceled
+     *
+     * Plugins can get notified before a payment is being processed
+     *
+     * ```php
+     * use craft\commerce\events\ProcessPaymentEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, function(ProcessPaymentEvent $e) {
+     *     // Do something - perhaps check if the transaction is allowed for the order based on some business rules.
+     * });
+     * ```
      */
     const EVENT_BEFORE_PROCESS_PAYMENT_EVENT = 'beforeProcessPaymentEvent';
+
+    /**
+     * @event ProcessPaymentEvent The event is triggered after a payment is being processed
+     *
+     * Plugins can get notified after a payment is processed
+     *
+     * ```php
+     * use craft\commerce\events\ProcessPaymentEvent;
+     * use craft\commerce\services\Payments;
+     * use yii\base\Event;
+     *
+     * Event::on(Payments::class, Payments::EVENT_AFTER_PROCESS_PAYMENT_EVENT, function(ProcessPaymentEvent $e) {
+     *     // Do something - maybe let accounting dept. know that a transaction went through for an order.
+     * });
+     * ```
+     */
+    const EVENT_AFTER_PROCESS_PAYMENT_EVENT = 'afterProcessPaymentEvent';
 
     // Public Methods
     // =========================================================================
@@ -81,6 +167,8 @@ class Payments extends Component
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent([
             'order' => $order,
+            'transaction' => $transaction,
+            'form' => $form
         ]);
 
         $this->trigger(self::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, $event);
@@ -138,6 +226,15 @@ class Payments extends Component
 
             $this->_updateTransaction($transaction, $response);
 
+            if ($this->hasEventHandlers(self::EVENT_AFTER_PROCESS_PAYMENT_EVENT)) {
+                $this->trigger(self::EVENT_AFTER_PROCESS_PAYMENT_EVENT, new ProcessPaymentEvent([
+                    'order' => $order,
+                    'transaction' => $transaction,
+                    'form' => $form,
+                    'response' => $response
+                ]));
+            }
+
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 return $this->_handleRedirect($response, $redirect);
@@ -150,11 +247,6 @@ class Payments extends Component
             // Success!
             $order->updateOrderPaidTotal();
             $success = true;
-        } catch (GatewayRequestCancelledException $e) {
-            $transaction->status = TransactionRecord::STATUS_FAILED;
-            $transaction->message = $e->getMessage();
-            $this->_saveTransaction($transaction);
-            $success = false;
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
@@ -205,8 +297,9 @@ class Payments extends Component
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
-            $this->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+            $this->trigger(self::EVENT_BEFORE_REFUND_TRANSACTION, new RefundTransactionEvent([
+                'transaction' => $transaction,
+                'amount' => $amount
             ]));
         }
 
@@ -214,8 +307,9 @@ class Payments extends Component
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
-            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent([
+                'transaction' => $transaction,
+                'amount' => $amount
             ]));
         }
 
