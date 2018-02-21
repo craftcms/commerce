@@ -15,7 +15,9 @@
             <tr>
                 <th scope="col">{{ "Name"|t('commerce') }}</th>
                 <th scope="col">{{ "Duration"|t('commerce') }}</th>
-                <th scope="col">{{ "Discount Amount"|t('commerce') }}</th>
+                <th scope="col">{{ "Effect"|t('commerce') }}</th>
+                <th scope="col">{{ "Stops Processing?"|t('commerce') }}</th>
+                <td class="thin"></td>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -36,11 +38,21 @@
                         {{ sale.dateTo ? sale.dateTo|date('short') : '∞' }}
                     </td>
                     <td data-title="{{ 'Discount Amount'|t('commerce') }}">
-                        {% if sale.discountType == 'percent' %}
-                            {{ sale.discountAmountAsPercent }} {{ "off"|t('commerce') }}
+                        {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
+                            {{ sale.applyAmountAsPercent }} {% if sale.apply == 'byPercent' %}{{ "off original price"|t('commerce') }}{% else %}{{ "of original price"|t('commerce') }}{% endif %}
                         {% else %}
-                            {{ sale.discountAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {{ "off"|t('commerce') }}
+                            {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {% if sale.apply == 'byFlat' %}{{ "off original price"|t('commerce') }}{% else %}{{ "(new price)"|t('commerce') }}{% endif %}
                         {% endif %}
+                    </td>
+                    <td data-title="{{ 'Stops Processing?'|t('commerce') }}">
+                        {% if sale.stopProcessing %}
+                            <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
+                        {% endif %}
+                    </td>
+                    <td class="thin">
+                        <a class="move icon disabled"
+                           title="{{ 'Delete'|t('commerce') }}"
+                           role="button"></a>
                     </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
@@ -61,8 +73,12 @@
 
 {% js %}
     var adminTable = new Craft.AdminTable({
-    tableSelector: '#sales',
-    noObjectsSelector: '#no-sales',
-    deleteAction: 'commerce/sales/delete'
+      tableSelector: '#sales',
+      noObjectsSelector: '#no-sales',
+      deleteAction: 'commerce/sales/delete',
+      sortable: true,
+      reorderAction: 'commerce/sales/reorder',
+      reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
+      reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.')
     });
 {% endjs %}

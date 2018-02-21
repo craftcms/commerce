@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\elements\Category;
@@ -104,13 +105,22 @@ class DiscountsController extends BaseCpController
         $purchasables = $purchasableIds = [];
 
         if (empty($variables['id'])) {
-            $purchasableIds = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIds = [];
+            foreach ($purchasableIdsFromUrl as $purchasableId) {
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                if ($purchasable && $purchasable instanceof Product) {
+                    $purchasableIds[] = $purchasable->defaultVariantId;
+                } else {
+                    $purchasableIds[] = $purchasableId;
+                }
+            }
         } else {
             $purchasableIds = $variables['discount']->getPurchasableIds();
         }
 
-        foreach ($purchasableIds as $purchsableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchsableId);
+        foreach ($purchasableIds as $purchasableId) {
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
                 $class = \get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];

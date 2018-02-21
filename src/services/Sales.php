@@ -6,7 +6,6 @@ use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -78,8 +77,9 @@ class Sales extends Component
                 sales.description,
                 sales.dateFrom,
                 sales.dateTo,
-                sales.discountType,
-                sales.discountAmount,
+                sales.apply,
+                sales.applyAmount,
+                sales.stopProcessing,
                 sales.allGroups,
                 sales.allPurchasables,
                 sales.allCategories,
@@ -91,6 +91,7 @@ class Sales extends Component
                 ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]] = [[sales.id]]')
                 ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]] = [[sales.id]]')
                 ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]] = [[sales.id]]')
+                ->orderBy('sortOrder asc')
                 ->all();
 
             $allSalesById = [];
@@ -184,12 +185,39 @@ class Sales extends Component
         $matchedSales = [];
 
         foreach ($this->_getAllEnabledSales() as $sale) {
+
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
+            }
+
+            if ($sale->stopProcessing) {
+                break;
             }
         }
 
         return $matchedSales;
+    }
+
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return array
+     */
+    public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
+    {
+        $sales = [];
+
+        if ($purchasable->id) {
+            foreach ($this->getAllSales() as $sale) {
+                $purchasableIds = $sale->getPurchasableIds();
+                $id = $purchasable->getPurchasableId();
+                if (\in_array($id, $purchasableIds, false)) {
+                    $sales[] = $sale;
+                }
+            }
+        }
+
+        return $sales;
     }
 
     /**
@@ -202,16 +230,49 @@ class Sales extends Component
     public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
     {
         $sales = $this->getSalesForPurchasable($purchasable, $order);
-        $salePrice = $purchasable->getPrice();
+        $originalPrice = $purchasable->getPrice();
+
+        $takeOffAmount = 0;
+        $newPrice = null;
 
         /** @var Sale $sale */
         foreach ($sales as $sale) {
-            $salePrice = Currency::round($salePrice + $sale->calculateTakeoff($purchasable->getPrice()));
 
-            // Cannot have a sale that makes the price negative.
-            if ($salePrice < 0) {
-                $salePrice = 0;
+            switch ($sale->apply) {
+                case SaleRecord::APPLY_BY_PERCENT:
+                    // applyAmount is stored as a negative already
+                    $takeOffAmount += ($sale->applyAmount * $originalPrice);
+                    break;
+                case SaleRecord::APPLY_TO_PERCENT:
+                    // applyAmount needs to be reversed since it is stored as negative
+                    $newPrice = (-$sale->applyAmount * $originalPrice);
+                    break;
+                case SaleRecord::APPLY_BY_FLAT:
+                    // applyAmount is stored as a negative already
+                    $takeOffAmount += $sale->applyAmount;
+                    break;
+                case SaleRecord::APPLY_TO_FLAT:
+                    // applyAmount needs to be reversed since it is stored as negative
+                    $newPrice = -$sale->applyAmount;
+                    break;
             }
+
+            // If the stop processing flag is true, it must been the last
+            // since the sales for this purchasable would have returned it last.
+            if ($sale->stopProcessing) {
+                break;
+            }
+        }
+
+        $salePrice = ($originalPrice + $takeOffAmount);
+
+        // A newPrice has been set so use it.
+        if (null !== $newPrice) {
+            $salePrice = $newPrice;
+        }
+
+        if ($salePrice < 0) {
+            $salePrice = 0;
         }
 
         return $salePrice;
@@ -335,8 +396,9 @@ class Sales extends Component
             'description',
             'dateFrom',
             'dateTo',
-            'discountType',
-            'discountAmount',
+            'apply',
+            'applyAmount',
+            'stopProcessing',
             'enabled'
         ];
         foreach ($fields as $field) {
@@ -347,8 +409,7 @@ class Sales extends Component
         $record->allCategories = $model->allCategories = empty($categories);
         $record->allPurchasables = $model->allPurchasables = empty($purchasables);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        $model->validate();
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -397,6 +458,21 @@ class Sales extends Component
         $transaction->rollBack();
 
         return false;
+    }
+
+    /**
+     * @param $ids
+     * @return bool
+     */
+    public function reorderSales($ids): bool
+    {
+        foreach ($ids as $sortOrder => $id) {
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%commerce_sales}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->execute();
+        }
+
+        return true;
     }
 
     /**

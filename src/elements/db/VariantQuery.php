@@ -2,8 +2,12 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
@@ -23,12 +27,17 @@ class VariantQuery extends ElementQuery
     // =========================================================================
 
     /**
-     * @var
+     * @var string the SKU of the variant
      */
     public $sku;
 
     /**
-     * @var
+     * @var bool Whether to only return variants that the user has permission to edit.
+     */
+    public $editable = false;
+
+    /**
+     * @var Product
      */
     public $product;
 
@@ -36,6 +45,11 @@ class VariantQuery extends ElementQuery
      * @var
      */
     public $productId;
+
+    /**
+     * @var
+     */
+    public $typeId;
 
     /**
      * @var
@@ -87,6 +101,18 @@ class VariantQuery extends ElementQuery
 
         return $this;
     }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function typeId($value)
+    {
+        $this->typeId = $value;
+
+        return $this;
+    }
+
 
     /**
      * @param $value
@@ -148,9 +174,24 @@ class VariantQuery extends ElementQuery
             'commerce_variants.maxQty'
         ]);
 
+        $this->subQuery->leftJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+
+        if ($this->typeId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
+        }
+
         if ($this->sku) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
+
+//        if ($this->typeId) {
+//            $productsQuery = Product::find();
+//            $productsQuery->limit = null;
+//            $productsQuery->typeId = $this->typeId;
+//            $productIds = $productsQuery->ids();
+//
+//            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $productIds));
+//        }
 
         if ($this->product) {
             if ($this->product instanceof Product) {
@@ -158,6 +199,10 @@ class VariantQuery extends ElementQuery
             } else {
                 $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product));
             }
+        }
+
+        if ($this->productId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
         }
 
         if ($this->productId) {
@@ -182,10 +227,38 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere($hasStockCondition);
         }
 
+        $this->_applyEditableParam();
+
         if (!$this->orderBy) {
             $this->orderBy = ['commerce_variants.sortOrder' => SORT_DESC];
         }
 
         return parent::beforePrepare();
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * Applies the 'editable' param to the query being prepared.
+     *
+     * @throws QueryAbortedException
+     */
+    private function _applyEditableParam()
+    {
+//        if (!$this->editable) {
+//            return;
+//        }
+//
+//        $user = Craft::$app->getUser()->getIdentity();
+//
+//        if (!$user) {
+//            throw new QueryAbortedException('Could not execute query for variant when no user found');
+//        }
+//
+//        // Limit the query to only the sections the user has permission to edit
+//        $this->subQuery->andWhere([
+//            'commerce_variants.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
+//        ]);
     }
 }

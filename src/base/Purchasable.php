@@ -193,6 +193,14 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
+     * @return Sale[]
+     */
+    public function relatedSales(): array
+    {
+        return Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($this);
+    }
+
+    /**
      * Reloads any sales applicable to the purchasable for the current user.
      */
     private function _loadSales()

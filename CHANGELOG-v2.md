@@ -6,6 +6,7 @@
 - Added `craft\commerce\services\PaymentSources` service.
 - Added `craft\commerce\services\Plans` service.
 - Added `craft\commerce\services\Subscriptions` service.
+- Added additional ways for sales to affect the price of matching products.
 
 ### Changed
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
@@ -16,7 +17,7 @@
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
 - Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 
 - The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file.
-- Vat ID validation is now using the MIT licenced dannyvankooten/vat.php 
+- Vat ID validation is now using the MIT licenced dannyvankooten/vat.php
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.

@@ -200,20 +200,6 @@
                 <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
                 <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
             </div>
-            {% if promotions.sales|length %}
-                <div class="data">
-                    <h5 class="heading">{{ "Associated Sales"|t('commerce') }}</h5>
-                    <div class="value">
-                        <ul class="commerce-sales">
-                            {% for promotion in promotions.sales %}
-                                <li>
-                                    <a href="{{ promotion.getCpEditUrl() }}"><span>{{ promotion.name }}</span></a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            {% endif %}
         </div>
     {% endif %}
 

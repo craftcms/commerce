@@ -17,7 +17,7 @@
                 <th scope="col">{{ "Code"|t('commerce') }}</th>
                 <th scope="col">{{ "Duration"|t('commerce') }}</th>
                 <th scope="col">{{ "Times Used"|t('commerce') }}</th>
-                <th scope="col">{{ "Can Stop Processing?"|t('commerce') }}</th>
+                <th scope="col">{{ "Stops Processing?"|t('commerce') }}</th>
                 <td class="thin"></td>
                 <td class="thin"></td>
             </tr>
@@ -41,9 +41,10 @@
                         {{ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') }}
                     </td>
                     <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
-                    <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">{% if discount.stopProcessing %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">
+                        {% if discount.stopProcessing %}
+                          <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
+                        {% endif %}
                     </td>
                     <td class="thin">
                         <a class="move icon disabled"
@@ -69,12 +70,12 @@
 
 {% js %}
     var adminTable = new Craft.AdminTable({
-    tableSelector: '#discounts',
-    noObjectsSelector: '#no-discounts',
-    deleteAction: 'commerce/discounts/delete',
-    sortable: true,
-    reorderAction: 'commerce/discounts/reorder',
-    reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
-    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.')
+      tableSelector: '#discounts',
+      noObjectsSelector: '#no-discounts',
+      deleteAction: 'commerce/discounts/delete',
+      sortable: true,
+      reorderAction: 'commerce/discounts/reorder',
+      reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+      reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.')
     });
 {% endjs %}

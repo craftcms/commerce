@@ -57,6 +57,14 @@ class ProductsController extends BaseCpController
     }
 
     /**
+     * @return Response
+     */
+    public function actionVariantIndex(): Response
+    {
+        return $this->renderTemplate('commerce/variants/_index');
+    }
+
+    /**
      * @param string $productTypeHandle
      * @param int|null $productId
      * @param string|null $siteHandle
@@ -134,8 +142,6 @@ class ProductsController extends BaseCpController
         } else {
             $variables['showPreviewBtn'] = false;
         }
-
-        $variables['promotions']['sales'] = [];//Plugin::getInstance()->getSales()->getSalesForPurchasable($variables['product']);
 
         $this->getView()->registerAssetBundle(EditProductAsset::class);
         return $this->renderTemplate('commerce/products/_edit', $variables);

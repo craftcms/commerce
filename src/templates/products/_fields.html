@@ -205,6 +205,19 @@
         label: 'Allowed Qty'|t('commerce'),
         errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
     }, quantityRangeInput) }}
+
+    <div class="data">
+        <h5 class="heading">{{ "Explicitly Referenced Sales"|t('commerce') }}</h5>
+        <div class="value">
+            <ul class="commerce-sales">
+                {% for sale in variant.relatedSales %}
+                    <li>
+                        <a href="{{ sale.getCpEditUrl() }}"><span>{{ sale.name }}</span></a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endmacro %}
 
 

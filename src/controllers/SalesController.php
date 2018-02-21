@@ -5,11 +5,14 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Product;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\records\Sale as SaleRecord;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Json;
 use craft\i18n\Locale;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -104,13 +107,22 @@ class SalesController extends BaseCpController
         $purchasables = $purchasableIds = [];
 
         if (empty($variables['id'])) {
-            $purchasableIds = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIds = [];
+            foreach ($purchasableIdsFromUrl as $purchasableId) {
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                if ($purchasable && $purchasable instanceof Product) {
+                    $purchasableIds[] = $purchasable->defaultVariantId;
+                } else {
+                    $purchasableIds[] = $purchasableId;
+                }
+            }
         } else {
             $purchasableIds = $variables['sale']->getPurchasableIds();
         }
 
-        foreach ($purchasableIds as $purchsableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchsableId);
+        foreach ($purchasableIds as $purchasableId) {
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
                 $class = \get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
@@ -150,7 +162,8 @@ class SalesController extends BaseCpController
             'id',
             'name',
             'description',
-            'discountType',
+            'apply',
+            'stopProcessing',
             'enabled'
         ];
         $request = Craft::$app->getRequest();
@@ -171,20 +184,23 @@ class SalesController extends BaseCpController
             }
         }
 
-        $discountAmount = $request->getParam('discountAmount');
+        $applyAmount = $request->getParam('applyAmount');
+        $sale->sortOrder = $request->getParam('sortOrder');
+        $sale->stopProcessing = $request->getParam('stopProcessing');
 
-        if ($sale->discountType === 'percent') {
+        if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-            if (strpos($discountAmount, $percentSign) || (float)$discountAmount >= 1) {
-                $sale->discountAmount = (float)$discountAmount / -100;
+            if (strpos($applyAmount, $percentSign) || (float)$applyAmount >= 1) {
+                $sale->applyAmount = (float)$applyAmount / -100;
             } else {
-                $sale->discountAmount = (float)$discountAmount * -1;
+                $sale->applyAmount = (float)$applyAmount * -1;
             }
         } else {
-            $sale->discountAmount = (float)$discountAmount * -1;
+            $sale->applyAmount = (float)$applyAmount * -1;
         }
+
 
         $purchasables = $request->getParam('purchasables', []);
 
@@ -220,6 +236,22 @@ class SalesController extends BaseCpController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['sale' => $sale]);
+    }
+
+    /**
+     *
+     */
+    public function actionReorder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
+            return $this->asJson(['success' => $success]);
+        }
+
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder sales.')]);
     }
 
     /**

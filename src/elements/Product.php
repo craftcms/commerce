@@ -644,6 +644,8 @@ class Product extends Element
 
         $record->save(false);
 
+        $this->id = $record->id;
+
         $keepVariantIds = [];
         $oldVariantIds = (new Query())
             ->select('id')
@@ -657,7 +659,7 @@ class Product extends Element
             // We already have set the default to the correct variant in beforeSave()
             if ($variant->isDefault) {
                 $this->defaultVariantId = $variant->id;
-                Craft::$app->getDb()->createCommand()->update('commerce_products', ['defaultVariantId' => $variant->id], ['id' => $this->id]);
+                Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();;
             }
 
             $keepVariantIds[] = $variant->id;

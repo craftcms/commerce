@@ -530,7 +530,7 @@ class Variant extends Purchasable
             $record->weight = $this->weight = 0;
         }
 
-        $record->save();
+        $record->save(false);
 
         return parent::afterSave($isNew);
     }
@@ -657,14 +657,7 @@ class Variant extends Purchasable
      */
     protected static function defineSources(string $context = null): array
     {
-        $sources = [
-
-            '*' => [
-                'label' => Craft::t('commerce', 'All product\'s variants'),
-            ]
-        ];
-
-        return $sources;
+        return Product::defineSources($context);
     }
 
     /**
