@@ -347,7 +347,10 @@ class OrdersController extends BaseCpController
         return null;
     }
 
-    public function actionSaveOrder(): Response
+    /**
+     *
+     */
+    public function actionSaveOrder()
     {
         $this->requirePostRequest();
 
