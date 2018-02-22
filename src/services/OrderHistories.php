@@ -52,7 +52,7 @@ class OrderHistories extends Component
     {
         $rows = $this->_createOrderHistoryQuery()
             ->where(['orderId' => $id])
-            ->orderBy('dateCreated')
+            ->orderBy('dateCreated desc')
             ->all();
 
         $histories = [];
