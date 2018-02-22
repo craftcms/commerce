@@ -71,13 +71,13 @@ class PaymentCurrency extends Model
      */
     public function attributes(): array
     {
-        $attributes = parent::attributes();
-        $attributes[] = 'minorUnits';
-        $attributes[] = 'alphabeticCode';
-        $attributes[] = 'currency';
-        $attributes[] = 'numericCode';
-        $attributes[] = 'entity';
-        return $attributes;
+        $names = parent::attributes();
+        $names[] = 'minorUnits';
+        $names[] = 'alphabeticCode';
+        $names[] = 'currency';
+        $names[] = 'numericCode';
+        $names[] = 'entity';
+        return $names;
     }
 
     /**

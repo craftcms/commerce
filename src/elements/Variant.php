@@ -149,10 +149,9 @@ class Variant extends Purchasable
      */
     public function attributes()
     {
-        $attributes = parent::attributes();
-        $attributes[] = 'product';
-
-        return $attributes;
+        $names = parent::attributes();
+        $names[] = 'product';
+        return $names;
     }
 
     /**

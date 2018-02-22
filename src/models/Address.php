@@ -136,12 +136,12 @@ class Address extends Model
      */
     public function attributes(): array
     {
-        $attributes = parent::attributes();
-        $attributes[] = 'fullName';
-        $attributes[] = 'countryText';
-        $attributes[] = 'stateText';
-        $attributes[] = 'stateValue';
-        return $attributes;
+        $names = parent::attributes();
+        $names[] = 'fullName';
+        $names[] = 'countryText';
+        $names[] = 'stateText';
+        $names[] = 'stateValue';
+        return $names;
     }
 
     /**
