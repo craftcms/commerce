@@ -1,4 +1,4 @@
-## Overview 
+## Discounts 
 
 Discounts are deductions off line items and an order, while products are in the cart. Discounts are only calculated while items are in the cart, {entry:23:link} can apply to a product outside of the cart context.
 
