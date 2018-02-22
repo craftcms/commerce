@@ -303,7 +303,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->_refund($transaction, $amount);
+        $refundTransaction = $this->_refund($transaction, $amount);
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
@@ -313,7 +313,7 @@ class Payments extends Component
             ]));
         }
 
-        return $transaction;
+        return $refundTransaction;
     }
 
     /**
