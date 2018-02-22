@@ -14,6 +14,8 @@ use yii\base\InvalidConfigException;
  * Plan model
  *
  * @property GatewayInterface $gateway
+ * @property \craft\elements\Entry|null $information
+ * @property int $subscriptionCount
  * @property User $user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -29,12 +31,12 @@ abstract class Plan extends Model implements PlanInterface
     // =========================================================================
 
     /**
-     * @var SubscriptionGatewayInterface|null $_gateway
+     * @var SubscriptionGatewayInterface|null the gateway
      */
     private $_gateway;
 
     /**
-     * @var mixed
+     * @var mixed the plan data.
      */
     private $_data;
 
@@ -103,7 +105,7 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return int
      */
-    public function getSubscriptionCount()
+    public function getSubscriptionCount(): int
     {
         return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
     }
@@ -116,7 +118,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function hasActiveSubscription(int $userId): bool
     {
-        return (bool)count($this->getActiveUserSubscription($userId));
+        return (bool)\count($this->getActiveUserSubscriptions($userId));
     }
 
     /**
@@ -125,7 +127,7 @@ abstract class Plan extends Model implements PlanInterface
      * @param int $userId the user id
      * @return ElementInterface[]
      */
-    public function getActiveUserSubscriptions(int $userId)
+    public function getActiveUserSubscriptions(int $userId): array
     {
         return Subscription::find()
             ->userId($userId)
