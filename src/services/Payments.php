@@ -6,12 +6,13 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\GatewayRequestCancelledException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\RefundException;
+use craft\commerce\errors\SubscriptionException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\ProcessPaymentEvent;
-use craft\commerce\events\TransactionEvent;
 use craft\commerce\events\RefundTransactionEvent;
+use craft\commerce\events\TransactionEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -292,6 +293,7 @@ class Payments extends Component
      * @param Transaction $transaction
      * @param float|null $amount
      * @return Transaction
+     * @throws RefundException
      */
     public function refundTransaction(Transaction $transaction, $amount = null): Transaction
     {
@@ -513,29 +515,44 @@ class Payments extends Component
      * @param Transaction $parent
      * @param float|null $amount
      * @return Transaction
+     * @throws RefundException if anything goes wrong during a refund
      */
     private function _refund(Transaction $parent, float $amount = null): Transaction
     {
-        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-        $child->type = TransactionRecord::TYPE_REFUND;
-        $amount = ($amount ?: $parent->amount);
-        $child->paymentAmount = ($amount* $parent->paymentRate);
-        $child->amount = $amount * 1;
-
-        $gateway = $parent->getGateway();
-
         try {
-            $response = $gateway->refund($child, $child->paymentAmount);
-            $this->_updateTransaction($child, $response);
-        } catch (\Exception $e) {
-            $child->status = TransactionRecord::STATUS_FAILED;
-            $child->message = $e->getMessage();
-            $this->_saveTransaction($child);
+            $gateway = $parent->getGateway();
 
-            Craft::error($e->getMessage());
+            if (!$gateway->supportsRefund()) {
+                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support refunds.'));
+            }
+
+            if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
+                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support partial refunds.'));
+            }
+
+            $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
+            $child->type = TransactionRecord::TYPE_REFUND;
+            $amount = ($amount ?: $parent->amount);
+            $child->paymentAmount = ($amount* $parent->paymentRate);
+            $child->amount = $amount * 1;
+
+            $gateway = $parent->getGateway();
+
+            try {
+                $response = $gateway->refund($child, $child->paymentAmount);
+                $this->_updateTransaction($child, $response);
+            } catch (\Throwable $exception) {
+                $child->status = TransactionRecord::STATUS_FAILED;
+                $child->message = $exception->getMessage();
+                $this->_saveTransaction($child);
+
+                throw $exception;
+            }
+
+            return $child;
+        } catch (\Throwable $exception) {
+            throw new RefundException($exception->getMessage());
         }
-
-        return $child;
     }
 
     /**

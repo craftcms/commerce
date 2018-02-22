@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\RefundException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -246,19 +247,23 @@ class OrdersController extends BaseCpController
         }
 
         if ($transaction->canRefund()) {
-            //  transaction and display result
-            $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount);
+            try {
+                // refund transaction and display result
+                $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount);
 
-            $message = $child->message ? ' ('.$child->message.')' : '';
+                $message = $child->message ? ' ('.$child->message.')' : '';
 
-            if ($child->status == TransactionRecord::STATUS_SUCCESS) {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
-                    'message' => $message
-                ]));
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
-                    'message' => $message
-                ]));
+                if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                    Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
+                        'message' => $message
+                    ]));
+                } else {
+                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
+                        'message' => $message
+                    ]));
+                }
+            } catch (RefundException $exception) {
+                Craft::$app->getSession()->setError($exception->getMessage());
             }
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction.'));
