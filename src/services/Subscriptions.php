@@ -292,7 +292,7 @@ class Subscriptions extends Component
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
-                'plan' => $plan->getFriendlyName()
+                'plan' => (string) $plan
             ]);
 
             Craft::error($error, __METHOD__);
