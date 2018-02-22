@@ -116,7 +116,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function refund(Transaction $transaction, string $reference): RequestResponseInterface
+    public function refund(Transaction $transaction, float $amount): RequestResponseInterface
     {
         throw new NotSupportedException();
     }
