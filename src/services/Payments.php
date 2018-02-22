@@ -545,8 +545,6 @@ class Payments extends Component
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);
-
-                throw $exception;
             }
 
             return $child;
