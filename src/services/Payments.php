@@ -517,7 +517,6 @@ class Payments extends Component
      */
     private function _refund(Transaction $parent, $amount): Transaction
     {
-        $order = $parent->order;
         $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
         $child->type = TransactionRecord::TYPE_REFUND;
         $amount = ($amount ?: $parent->amount);
@@ -525,9 +524,6 @@ class Payments extends Component
         $child->amount = $amount * 1;
 
         $gateway = $parent->getGateway();
-
-        $order->returnUrl = $order->getCpEditUrl();
-        Craft::$app->getElements()->saveElement($order);
 
         try {
             $response = $gateway->refund($child, $child->paymentAmount);
