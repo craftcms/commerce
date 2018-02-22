@@ -184,4 +184,12 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     {
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsPartialRefund(): bool
+    {
+        return false;
+    }
 }
