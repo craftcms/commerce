@@ -513,9 +513,8 @@ class Payments extends Component
      * @param Transaction $parent
      * @param float|null $amount
      * @return Transaction
-     * @throws TransactionException
      */
-    private function _refund(Transaction $parent, $amount): Transaction
+    private function _refund(Transaction $parent, float $amount = null): Transaction
     {
         $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
         $child->type = TransactionRecord::TYPE_REFUND;
