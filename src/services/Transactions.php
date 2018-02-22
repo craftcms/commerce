@@ -171,7 +171,7 @@ class Transactions extends Component
             $transaction->userId = $user->id;
         }
 
-        // Raise 'afterSaveTransaction' event
+        // Raise 'afterCreateTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
                 'transaction' => $transaction
