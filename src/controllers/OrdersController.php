@@ -246,7 +246,7 @@ class OrdersController extends BaseCpController
         }
 
         if ($transaction->canRefund()) {
-            // capture transaction and display result
+            //  transaction and display result
             $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount);
 
             $message = $child->message ? ' ('.$child->message.')' : '';
