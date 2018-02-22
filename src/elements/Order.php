@@ -1219,14 +1219,20 @@ class Order extends Element
     }
 
     /**
-     * Populate the Order.
-     *
-     * @param array $row
-     * @return Element
+     * @inheritdoc
      */
-    public function populateElementModel($row): Element
+    protected static function defineSearchableAttributes(): array
     {
-        return new Order($row);
+        return [
+            'number',
+            'email',
+            'shortNumber',
+            'billingFirstName',
+            'billingLastName',
+            'shippingFirstName',
+            'shippingLastName',
+            'transactionReference'
+        ];
     }
 
     /**
@@ -1236,6 +1242,10 @@ class Order extends Element
     {
         if ($attribute === 'shortNumber') {
             return $this->getShortNumber();
+        }
+
+        if ($attribute === 'email') {
+            return $this->getEmail();
         }
 
         if ($attribute === 'billingFirstName') {
@@ -1248,11 +1258,41 @@ class Order extends Element
 
         if ($attribute === 'billingLastName') {
             if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-                return $this->billingAddress->firstName;
+                return $this->billingAddress->lastName;
             }
 
             return '';
         }
+
+        if ($attribute === 'shippingFirstName') {
+            if ($this->getShippingAddress() && $this->getShippingAddress()->firstName) {
+                return $this->shippingAddress->firstName;
+            }
+
+            return '';
+        }
+
+        if ($attribute === 'shippingLastName') {
+            if ($this->getShippingAddress() && $this->getShippingAddress()->lastName) {
+                return $this->shippingAddress->lastName;
+            }
+
+            return '';
+        }
+
+        if ($attribute === 'transactionReference') {
+            $transactions = $this->getTransactions();
+            if ($transactions) {
+                return implode(' ', array_map(function($transaction){
+                    return $transaction->reference;
+                }, $transactions));
+            }
+
+            return '';
+        }
+
+
+
 
         return parent::getSearchKeywords($attribute);
     }
@@ -1389,20 +1429,6 @@ class Order extends Element
         }
 
         return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSearchableAttributes(): array
-    {
-        return [
-            'number',
-            'email',
-            'billingFirstName',
-            'billingLastName',
-            'shortNumber'
-        ];
     }
 
     /**
