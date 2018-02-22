@@ -377,12 +377,12 @@ class ProductsController extends BaseCpController
     }
 
     /**
-     * @param $variables
+     * @param array $variables
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws NotFoundHttpException
      */
-    private function _prepEditProductVariables(&$variables)
+    private function _prepEditProductVariables(array &$variables)
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
