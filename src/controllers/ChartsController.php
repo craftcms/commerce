@@ -36,7 +36,7 @@ class ChartsController extends ElementIndexesController
 
         $query = clone $this->getElementQuery()
             ->search(null)
-            ->select(['sum([[commerce_orders.totalPrice]]) as [[value]]']);
+            ->select(['sum([[commerce_orders.totalPrice]])']);
 
         // Get the chart data table
         $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', [

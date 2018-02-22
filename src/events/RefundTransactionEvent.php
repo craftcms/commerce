@@ -2,21 +2,19 @@
 
 namespace craft\commerce\events;
 
-use yii\base\Event;
-
 /**
- * Class BuildPaymentRequestEvent
+ * Class RefundTransactionEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BuildPaymentRequestEvent extends Event
+class RefundTransactionEvent extends TransactionEvent
 {
     // Properties
     // =========================================================================
 
     /**
-     * @var array Request params
+     * @var float The amount to refund
      */
-    public $params;
+    public $amount;
 }
