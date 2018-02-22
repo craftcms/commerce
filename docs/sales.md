@@ -1,4 +1,4 @@
-# Overview
+# Sales
 
 Setting up sales allows a store owner to set up promotional discounts on products that apply dynamically based on conditions.
 
