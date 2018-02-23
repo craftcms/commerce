@@ -147,9 +147,9 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function extraAttributes(): array
     {
-        $names = parent::attributes();
+        $names = parent::extraAttributes();
         $names[] = 'product';
         return $names;
     }
