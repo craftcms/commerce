@@ -277,7 +277,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->_captureTransaction($transaction);
+        $transaction = $this->_capture($transaction);
 
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
