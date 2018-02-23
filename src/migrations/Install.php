@@ -503,6 +503,8 @@ class Install extends Migration
             'allPurchasables' => $this->boolean(),
             'allCategories' => $this->boolean(),
             'enabled' => $this->boolean(),
+            'ignorePrevious' => $this->boolean(),
+            'stopProcessing' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

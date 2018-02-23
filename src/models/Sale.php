@@ -61,6 +61,11 @@ class Sale extends Model
     public $applyAmount;
 
     /**
+     * @var bool ignore the previous sales that affect the purchasable
+     */
+    public $ignorePrevious;
+
+    /**
      * @var bool should the sales system stop processing other sales after this one
      */
     public $stopProcessing;

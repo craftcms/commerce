@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -80,6 +81,7 @@ class Sales extends Component
                 sales.apply,
                 sales.applyAmount,
                 sales.stopProcessing,
+                sales.ignorePrevious,
                 sales.allGroups,
                 sales.allPurchasables,
                 sales.allCategories,
@@ -242,6 +244,10 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_PERCENT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += ($sale->applyAmount * $originalPrice);
+                    if ($sale->ignorePrevious)
+                    {
+                        $newPrice = $originalPrice - ($sale->applyAmount * $originalPrice);
+                    }
                     break;
                 case SaleRecord::APPLY_TO_PERCENT:
                     // applyAmount needs to be reversed since it is stored as negative
@@ -250,6 +256,10 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_FLAT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += $sale->applyAmount;
+                    if ($sale->ignorePrevious)
+                    {
+                        $newPrice = $originalPrice - $sale->applyAmount;
+                    }
                     break;
                 case SaleRecord::APPLY_TO_FLAT:
                     // applyAmount needs to be reversed since it is stored as negative
@@ -399,6 +409,7 @@ class Sales extends Component
             'apply',
             'applyAmount',
             'stopProcessing',
+            'ignorePrevious',
             'enabled'
         ];
         foreach ($fields as $field) {

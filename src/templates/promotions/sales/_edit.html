@@ -135,14 +135,14 @@
     <div id="actions" class="hidden">
 
         {{ forms.radioGroupField({
-            label: 'Apply'|t('commerce'),
+            label: 'Effect'|t('commerce'),
             instructions: "Select how the sale will be applied to the purchasable."|t('commerce'),
             name: 'apply',
             options: {
-                'byPercent' : 'By a percentage of the original Price'|t('commerce'),
-                'toPercent' : 'To a percentage of the original Price'|t('commerce'),
-                'byFlat' : 'By a flat Amount'|t('commerce'),
-                'toFlat' : 'To a flat Amount'|t('commerce'),
+                'byPercent' : 'Reduce the price by a percentage of the original price'|t('commerce'),
+                'toPercent' : 'Set the price to a percentage of the original price'|t('commerce'),
+                'byFlat' : 'Reduce the price by a flat amount'|t('commerce'),
+                'toFlat' : 'Set the price to a flat amount'|t('commerce'),
             },
             value: sale.apply,
             errors: sale.getErrors('apply'),
@@ -166,6 +166,18 @@
             errors: sale.getErrors('aplyAmount'),
         }) }}
 
+        {% set ignoresPrevious = ['toFlat','toPercent'] %}
+        {% set checked = sale.apply in ignoresPrevious %}
+        {{ forms.checkboxField({
+            label: "Ignore previous matching sales if this sale matches."|t('commerce'),
+            id: 'ignorePrevious',
+            name: 'ignorePrevious',
+            value: 1,
+            checked: (checked or sale.ignorePrevious),
+            disabled: checked,
+            errors: sale.getErrors('ignorePrevious')
+        }) }}
+
         {{ forms.checkboxField({
             label: "Do not apply subsequent matching sales beyond applying this sale."|t('commerce'),
             id: 'stopProcessing',
@@ -184,5 +196,23 @@
         plugins: ['remove_button'],
         dropdownParent: 'body'
       });
+
+    $("form").submit(function() {
+        $("input[name=ignorePrevious]").prop('disabled', false);
+        if ($("input[name=ignorePrevious]").prop('checked') == true){
+            $("#ignorePrevious-field").css('opacity', 0.25);
+        };
+    });
+
+    $('input[name=apply]').change(function() {
+        if (this.value == 'toFlat' || this.value == 'toPercent') {
+            $('input[name=ignorePrevious]').prop('disabled', true);
+            $('input[name=ignorePrevious]').prop('checked', true);
+        }
+        if (this.value != 'toFlat' && this.value != 'toPercent') {
+            $('input[name=ignorePrevious]').prop('disabled', false);
+            $('input[name=ignorePrevious]').prop('checked', false);
+        }
+    });
     });
 {% endjs %}

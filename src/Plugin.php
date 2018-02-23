@@ -43,7 +43,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.18';
+    public $schemaVersion = '2.0.20';
 
     /**
      * @inheritdoc

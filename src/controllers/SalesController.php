@@ -112,7 +112,10 @@ class SalesController extends BaseCpController
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable && $purchasable instanceof Product) {
-                    $purchasableIds[] = $purchasable->defaultVariantId;
+                    foreach ($purchasable->getVariants() as $variant)
+                    {
+                        $purchasableIds[] = $variant->getPurchasableId();
+                    }
                 } else {
                     $purchasableIds[] = $purchasableId;
                 }
@@ -163,7 +166,6 @@ class SalesController extends BaseCpController
             'name',
             'description',
             'apply',
-            'stopProcessing',
             'enabled'
         ];
         $request = Craft::$app->getRequest();
@@ -186,6 +188,7 @@ class SalesController extends BaseCpController
 
         $applyAmount = $request->getParam('applyAmount');
         $sale->sortOrder = $request->getParam('sortOrder');
+        $sale->ignorePrevious = $request->getParam('ignorePrevious');
         $sale->stopProcessing = $request->getParam('stopProcessing');
 
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {

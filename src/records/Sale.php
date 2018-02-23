@@ -17,6 +17,7 @@ use yii\db\ActiveQueryInterface;
  * @property \DateTime $dateTo
  * @property string $description
  * @property float $applyAmount
+ * @property bool $ignorePrevious
  * @property bool $stopProcessing
  * @property string $apply
  * @property bool $enabled

@@ -369,7 +369,7 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @return array
+     * @return Variant[]
      * @throws InvalidConfigException
      */
     public function getVariants(): array
