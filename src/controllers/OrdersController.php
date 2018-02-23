@@ -235,7 +235,7 @@ class OrdersController extends BaseCpController
             }
         }
 
-        if ($amount >= $transaction->paymentAmount)
+        if ($amount > $transaction->paymentAmount)
         {
             $error = Craft::t('commerce','Can not refund amount greater than the original transaction');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
