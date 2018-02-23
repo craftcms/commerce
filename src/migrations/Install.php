@@ -505,6 +505,7 @@ class Install extends Migration
             'enabled' => $this->boolean(),
             'ignorePrevious' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
+            'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
