@@ -81,12 +81,10 @@ interface GatewayInterface extends SavableComponentInterface
 
     /**
      * Makes an refund request.
-     *
      * @param Transaction $transaction The refund transaction
-     * @param float $amount The amount to be refunded.
      * @return RequestResponseInterface
      */
-    public function refund(Transaction $transaction, float $amount): RequestResponseInterface;
+    public function refund(Transaction $transaction): RequestResponseInterface;
 
     /**
      * Processes a webhook and return a response
