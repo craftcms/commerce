@@ -115,7 +115,7 @@ class Transactions extends Component
                 'parentId' => $transaction->id
             ])
             ->from(['{{%commerce_transactions}}'])
-            ->sum('amount');
+            ->sum('[[paymentAmount]]');
 
         return $transaction->paymentAmount - $amount;
     }
