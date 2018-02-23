@@ -118,7 +118,7 @@ class Plugin extends \craft\base\Plugin
      */
     public function getSettingsResponse()
     {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
     /**
