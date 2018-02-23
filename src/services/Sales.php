@@ -244,8 +244,7 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_PERCENT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += ($sale->applyAmount * $originalPrice);
-                    if ($sale->ignorePrevious)
-                    {
+                    if ($sale->ignorePrevious) {
                         $newPrice = $originalPrice - ($sale->applyAmount * $originalPrice);
                     }
                     break;
@@ -256,8 +255,7 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_FLAT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += $sale->applyAmount;
-                    if ($sale->ignorePrevious)
-                    {
+                    if ($sale->ignorePrevious) {
                         $newPrice = $originalPrice - $sale->applyAmount;
                     }
                     break;

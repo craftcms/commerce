@@ -528,7 +528,7 @@ class Payments extends Component
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
             $child->type = TransactionRecord::TYPE_REFUND;
             $amount = ($amount ?: $parent->amount);
-            $child->paymentAmount = ($amount* $parent->paymentRate);
+            $child->paymentAmount = ($amount * $parent->paymentRate);
             $child->amount = $amount * 1;
 
             $gateway = $parent->getGateway();
