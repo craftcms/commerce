@@ -480,20 +480,15 @@ class Payments extends Component
      * Process a capture or refund exception.
      *
      * @param Transaction $parent
-     * @param string $action
      * @return Transaction
-     * @throws TransactionException
+     * @throws TransactionException if unable to save transaction
      */
     private function _capture(Transaction $parent): Transaction
     {
-        $order = $parent->order;
         $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
         $child->type = TransactionRecord::TYPE_CAPTURE;
 
         $gateway = $parent->getGateway();
-
-        $order->returnUrl = $order->getCpEditUrl();
-        Craft::$app->getElements()->saveElement($order);
 
         try {
             $response = $gateway->capture($child, $parent->reference);
