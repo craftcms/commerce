@@ -10,7 +10,7 @@ use craft\commerce\fields\Variants;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
-use craft\commerce\variables\Commerce as CommerceVariable;
+use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
@@ -331,7 +331,7 @@ class Plugin extends \craft\base\Plugin
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             /** @var CraftVariable $variable */
             $variable = $event->sender;
-            $variable->set('commerce', CommerceVariable::class);
+            $variable->attachBehavior('commerce', CraftVariableBehavior::class);
         });
     }
 }
