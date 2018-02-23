@@ -301,11 +301,10 @@ class Order extends Element
      */
     public function attributes()
     {
-        $attributes = parent::attributes();
-        $attributes[] = 'lineItems';
-        $attributes[] = 'adjustments';
-
-        return $attributes;
+        $names = parent::attributes();
+        $names[] = 'lineItems';
+        $names[] = 'adjustments';
+        return $names;
     }
 
     /**
