@@ -1282,15 +1282,13 @@ class Order extends Element
         if ($attribute === 'transactionReference') {
             $transactions = $this->getTransactions();
             if ($transactions) {
-                return implode(' ', array_map(function($transaction){
+                return implode(' ', array_map(function($transaction) {
                     return $transaction->reference;
                 }, $transactions));
             }
 
             return '';
         }
-
-
 
 
         return parent::getSearchKeywords($attribute);
