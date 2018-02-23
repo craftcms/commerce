@@ -209,7 +209,7 @@ class OrdersController extends BaseCpController
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction.', ['id' => $id]));
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
