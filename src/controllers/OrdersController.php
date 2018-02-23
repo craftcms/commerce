@@ -186,6 +186,7 @@ class OrdersController extends BaseCpController
      */
     public function actionTransactionCapture(): Response
     {
+        $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
@@ -218,6 +219,7 @@ class OrdersController extends BaseCpController
     public function actionTransactionRefund()
     {
 
+        $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
@@ -419,7 +421,6 @@ class OrdersController extends BaseCpController
      */
     private function _prepVariables(&$variables)
     {
-
         // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
         $variables['baseCpEditUrl'] = 'commerce/orders/'.$variables['order']->number;
         // Set the "Continue Editing" URL
