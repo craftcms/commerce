@@ -225,24 +225,22 @@ class OrdersController extends BaseCpController
 
         $amount = Craft::$app->getRequest()->getParam('amount');
 
-        if (!$transaction)
-        {
-            $error = Craft::t('commerce','Can not find the transaction to refund');
+        if (!$transaction) {
+            $error = Craft::t('commerce', 'Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
 
                 return $this->asErrorJson($error);
-            }else{
+            } else {
                 Craft::$app->getSession()->setError($error);
                 return $this->redirectToPostedUrl();
             }
         }
 
-        if ($amount > $transaction->paymentAmount)
-        {
-            $error = Craft::t('commerce','Can not refund amount greater than the original transaction');
+        if ($amount > $transaction->paymentAmount) {
+            $error = Craft::t('commerce', 'Can not refund amount greater than the original transaction');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
-            }else{
+            } else {
                 Craft::$app->getSession()->setError($error);
                 return $this->redirectToPostedUrl();
             }

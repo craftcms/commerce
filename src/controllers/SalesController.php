@@ -112,8 +112,7 @@ class SalesController extends BaseCpController
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable && $purchasable instanceof Product) {
-                    foreach ($purchasable->getVariants() as $variant)
-                    {
+                    foreach ($purchasable->getVariants() as $variant) {
                         $purchasableIds[] = $variant->getPurchasableId();
                     }
                 } else {
