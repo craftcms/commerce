@@ -23,7 +23,7 @@
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
 - `craft\commerce\services\Addresses` now fires the following events: `beforeSaveAddress`, and `afterSaveAddress`.
 - `craft\commerce\services\Cart` now fires the following events: `beforeAddToCart`, `afterAddToCart`, `afterRemoveFromCart` and a cancelable `beforeRemoveFromCart` event.
-- `craft\commerce\services\Discounts` now fires the cancelable `afterMatchLineItem` event.
+- `craft\commerce\services\Discounts` now fires the cancelable `beforeMatchLineItem` event.
 - `craft\commerce\services\Emails` now fires the following events: `afterSendEmail`, and a cancelable `beforeSendEmail`.
 - `craft\commerce\services\LineLitems` now fires the following events: `beforeSaveLineItem`, `afterSaveLineItem`, `createLineItem`, and `populateLineItem`.
 - `craft\commerce\services\OrderHistories` now fires the `orderStatusChange` event.
@@ -31,7 +31,7 @@
 - `craft\commerce\services\PaymentSources` now fires the following events: `deletePaymentSource`, `beforeSavePaymentSource` and `afterSavePaymentSource`events.
 - `craft\commerce\services\Plans` fires the following events: `archivePlan`, `beforeSavePlan` and `afterSavePlan`events.
 - `craft\commerce\services\Purchasables` fires the `registerPurchasableElementTypes` event.
-- `craft\commerce\services\Sales` now fires the cancelable `afterMatchPurchasableSale` event.
+- `craft\commerce\services\Sales` now fires the cancelable `beforeMatchPurchasableSale` event.
 - `craft\commerce\services\Subscriptions` fires the `expireSubscription`, `afterCreateSubscription`, `afterReactivateSubscription`, `afterSwitchSubscriptionPlan`, `afterCancelSubscription`, `beforeUpdateSubscription`, `receiveSubscriptionPayment` and cancelable `beforeCreateSubscription`, `beforeReactivateSubscription`, `beforeSwitchSubscriptionPlan` and `beforeCancelSubscription` events.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.

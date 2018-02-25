@@ -40,12 +40,12 @@ class Sales extends Component
      * use craft\commerce\services\Sales;
      * use yii\base\Event;
      *
-     * Event::on(Sales::class, Sales::EVENT_AFTER_MATCH_PURCHASABLE_SALE, function(SaleMatchEvent $e) {
+     * Event::on(Sales::class, Sales::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, function(SaleMatchEvent $e) {
      *      // Perhaps prevent the purchasable match with sale based on some business logic.
      * });
      * ```
      */
-    const EVENT_AFTER_MATCH_PURCHASABLE_SALE = 'afterMatchPurchasableSale';
+    const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
     // Properties
     // =========================================================================
@@ -387,9 +387,9 @@ class Sales extends Component
             'purchasable' => $purchasable
         ]);
 
-        // Raising the 'afterMatchPurchasableSale' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_MATCH_PURCHASABLE_SALE)) {
-            $this->trigger(self::EVENT_AFTER_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
+        // Raising the 'beforeMatchPurchasableSale' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
+            $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
         }
 
         return $saleMatchEvent->isValid;
