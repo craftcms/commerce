@@ -119,7 +119,7 @@ class Payments extends Component
 
     /**
      * @event ProcessPaymentEvent The event is triggered before a payment is being processed
-     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the subscription from being canceled
+     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the payment from being processed
      *
      * Plugins can get notified before a payment is being processed
      *
