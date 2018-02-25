@@ -93,7 +93,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * @inheritdoc
      */
-    public function rule(): array
+    public function rules()
     {
         return [
             [['paymentType'], 'required']
