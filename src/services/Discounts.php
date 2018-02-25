@@ -50,12 +50,12 @@ class Discounts extends Component
      * use craft\commerce\services\Discounts;
      * use yii\base\Event;
      *
-     * Event::on(Discounts::class, Discounts::EVENT_BEFORE_MATCH_LINE_ITEM, function(MatchLineItemEvent $e) {
+     * Event::on(Discounts::class, Discounts::EVENT_AFTER_MATCH_LINE_ITEM, function(MatchLineItemEvent $e) {
      *      // Maybe check some business rules and prevent a match from happening in some cases.
      * });
      * ```
      */
-    const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
+    const EVENT_AFTER_MATCH_LINE_ITEM = 'afterMatchLineItem';
 
     // Public Methods
     // =========================================================================
@@ -327,7 +327,7 @@ class Discounts extends Component
             'discount' => $discount
         ]);
 
-        $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
+        $this->trigger(self::EVENT_AFTER_MATCH_LINE_ITEM, $event);
 
         return $event->isValid;
     }
