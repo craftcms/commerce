@@ -27,7 +27,19 @@ class OrderAdjustments extends Component
     // =========================================================================
 
     /**
-     * @event AdjusterEvent This event is raised when compiling the list of adjusters for an order
+     * @event RegisterComponentTypesEvent This event is raised when compiling the list of adjusters for an order
+     *
+     * Plugins can register their own adjusters.
+     *
+     * ```php
+     * use craft\events\RegisterComponentTypesEvent;
+     * use craft\commerce\services\OrderAdjustments;
+     * use yii\base\Event;
+     *
+     * Event::on(OrderAdjustments::class, OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS, function(RegisterComponentTypesEvent $e) {
+     *     $e->types[] = MyAdjuster::class;
+     * });
+     * ```
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
