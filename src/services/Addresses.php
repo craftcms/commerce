@@ -32,7 +32,7 @@ class Addresses extends Component
      * use craft\commerce\services\Addresses;
      * use yii\base\Event;
      *
-     * Event::on(Addresses::class, Payments::EVENT_BEFORE_SAVE_ADDRESS, function(AddressEvent $e) {
+     * Event::on(Addresses::class, Addresses::EVENT_BEFORE_SAVE_ADDRESS, function(AddressEvent $e) {
      *     // Do something - perhaps let an external CRM system know about a client's new address
      * });
      * ```
@@ -49,7 +49,7 @@ class Addresses extends Component
      * use craft\commerce\services\Addresses;
      * use yii\base\Event;
      *
-     * Event::on(Addresses::class, Payments::EVENT_AFTER_SAVE_ADDRESS, function(AddressEvent $e) {
+     * Event::on(Addresses::class, Addresses::EVENT_AFTER_SAVE_ADDRESS, function(AddressEvent $e) {
      *     // Do something - perhaps set this address as default in an external CRM system
      * });
      * ```
