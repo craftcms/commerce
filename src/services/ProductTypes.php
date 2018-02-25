@@ -35,11 +35,35 @@ class ProductTypes extends Component
 
     /**
      * @event ProductTypeEvent The event that is triggered before a category group is saved.
+     *
+     * Plugins can get notified before a product type is being saved.
+     *
+     * ```php
+     * use craft\commerce\events\ProductTypeEvent;
+     * use craft\commerce\services\ProductTypes;
+     * use yii\base\Event;
+     *
+     * Event::on(ProductTypes::class, ProductTypes::EVENT_BEFORE_SAVE_PRODUCTTYPE, function(ProductTypeEvent $e) {
+     *      // Maybe create an audit trail of this action.
+     * });
+     * ```
      */
     const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
     /**
      * @event ProductTypeEvent The event that is triggered after a product type is saved.
+     *
+     * Plugins can get notified after a product type has been saved.
+     *
+     * ```php
+     * use craft\commerce\events\ProductTypeEvent;
+     * use craft\commerce\services\ProductTypes;
+     * use yii\base\Event;
+     *
+     * Event::on(ProductTypes::class, ProductTypes::EVENT_AFTER_SAVE_PRODUCTTYPE, function(ProductTypeEvent $e) {
+     *      // Maybe prepare some 3rd party system for a new product type
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
 
@@ -239,10 +263,12 @@ class ProductTypes extends Component
         $isNewProductType = !$productType->id;
 
         // Fire a 'beforeSaveProductType' event
-        $this->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, new ProductTypeEvent([
-            'productType' => $productType,
-            'isNew' => $isNewProductType,
-        ]));
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PRODUCTTYPE)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+                'productType' => $productType,
+                'isNew' => $isNewProductType,
+            ]));
+        }
 
         if (!$isNewProductType) {
             $productTypeRecord = ProductTypeRecord::findOne($productType->id);
@@ -533,11 +559,13 @@ class ProductTypes extends Component
             throw $e;
         }
 
-        // Fire an 'afterSaveGroup' event
-        $this->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
-            'productType' => $productType,
-            'isNew' => $isNewProductType,
-        ]));
+        // Fire an 'afterSaveProductType' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+                'productType' => $productType,
+                'isNew' => $isNewProductType,
+            ]));
+        }
 
         return true;
     }
