@@ -6,7 +6,6 @@ use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -32,8 +31,21 @@ class Sales extends Component
 
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
+     * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the email from being sent.
+     *
+     * Plugins can get notified when a purchasable matches a sale.
+     *
+     * ```php
+     * use craft\commerce\events\SaleMatchEvent;
+     * use craft\commerce\services\Sales;
+     * use yii\base\Event;
+     *
+     * Event::on(Sales::class, Sales::EVENT_AFTER_MATCH_PURCHASABLE_SALE, function(SaleMatchEvent $e) {
+     *      // Perhaps prevent the purchasable match with sale based on some business logic.
+     * });
+     * ```
      */
-    const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
+    const EVENT_AFTER_MATCH_PURCHASABLE_SALE = 'afterMatchPurchasableSale';
 
     // Properties
     // =========================================================================
@@ -375,9 +387,9 @@ class Sales extends Component
             'purchasable' => $purchasable
         ]);
 
-        // Raising the 'beforeMatchPurchasableSale' event
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
-            $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
+        // Raising the 'afterMatchPurchasableSale' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_MATCH_PURCHASABLE_SALE)) {
+            $this->trigger(self::EVENT_AFTER_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
         }
 
         return $saleMatchEvent->isValid;
