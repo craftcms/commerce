@@ -39,6 +39,18 @@ class Gateways extends Component
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering gateways.
+     *
+     * Plugins can register their own gateways.
+     *
+     * ```php
+     * use craft\events\RegisterComponentTypesEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(Gateways::class, Gateways::EVENT_REGISTER_GATEWAY_TYPES, function(RegisterComponentTypesEvent $e) {
+     *     $e->types[] = MyGateway::class;
+     * });
+     * ```
      */
     const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
 
