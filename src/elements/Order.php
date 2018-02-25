@@ -85,7 +85,7 @@ class Order extends Element
      *
      * ```php
      * use craft\commerce\events\OrderEvent;
-     * use craft\commerce\services\Order;
+     * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
      * Event::on(Order::class, Order::EVENT_BEFORE_COMPLETE_ORDER, function(OrderEvent $e) {
@@ -102,7 +102,7 @@ class Order extends Element
      *
      * ```php
      * use craft\commerce\events\OrderEvent;
-     * use craft\commerce\services\Order;
+     * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
      * Event::on(Order::class, Order::EVENT_AFTER_COMPLETE_ORDER, function(OrderEvent $e) {
