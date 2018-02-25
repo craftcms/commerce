@@ -287,6 +287,8 @@ class Sales extends Component
     }
 
     /**
+     * Match a product and a sale and return the result.
+     *
      * @param PurchasableInterface $purchasable
      * @param Sale $sale
      * @param Order $order
@@ -309,6 +311,7 @@ class Sales extends Component
         $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
         $saleCategories = $sale->getCategoryIds();
         $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $saleCategories);
+
         if (!$sale->allCategories && !$purchasableIsRelateToOneOrMoreCategories) {
             return false;
         }
@@ -381,6 +384,8 @@ class Sales extends Component
     }
 
     /**
+     * Save a Sale.
+     *
      * @param Sale $model
      * @param array $groups ids
      * @param array $categories ids
@@ -473,6 +478,8 @@ class Sales extends Component
     }
 
     /**
+     * Reorder Sales based on a list of ids.
+     *
      * @param $ids
      * @return bool
      */
@@ -488,6 +495,8 @@ class Sales extends Component
     }
 
     /**
+     * Delete a sale by it's id.
+     *
      * @param $id
      * @return bool
      * @throws \Exception
