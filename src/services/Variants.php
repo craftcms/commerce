@@ -24,6 +24,18 @@ class Variants extends Component
 
     /**
      * @event PurchaseVariantEvent The event is raised when an order has been completed, and the variant is considered to be ordered
+     *
+     * Plugins can get notified when a variant is part of an order that is being completed
+     *
+     * ```php
+     * use craft\commerce\events\PurchaseVariantEvent;
+     * use craft\commerce\services\Variants;
+     * use yii\base\Event;
+     *
+     * Event::on(Variants::class, Variants::EVENT_PURCHASE_VARIANT, function(PurchaseVariantEvent $e) {
+     *      // Perhaps alert the warehouse that this item is oficially purchased and should be set aside.
+     * });
+     * ```
      */
     const EVENT_PURCHASE_VARIANT = 'purchaseVariant';
 
