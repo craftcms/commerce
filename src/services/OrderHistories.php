@@ -24,7 +24,19 @@ class OrderHistories extends Component
     // =========================================================================
 
     /**
-     * @event TransactionEvent The event that is triggered when order status is changed
+     * @event OrderStatusEvent The event that is triggered when order status is changed
+     *
+     * Plugins can get notified when an order status is changed
+     *
+     * ```php
+     * use craft\commerce\events\OrderStatusEvent;
+     * use craft\commerce\services\OrderHistories;
+     * use yii\base\Event;
+     *
+     * Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, function(OrderStatusEvent $e) {
+     *      // Perhaps, let the delivery department know that the order is ready to be delivered.
+     * });
+     * ```
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
