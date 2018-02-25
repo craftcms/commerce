@@ -2,6 +2,7 @@
 
 namespace craft\commerce\events;
 
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\models\Sale;
 use craft\events\CancelableEvent;
 
@@ -20,6 +21,11 @@ class SaleMatchEvent extends CancelableEvent
      * @var Sale The sale
      */
     public $sale;
+
+    /**
+     * @var PurchasableInterface The purchasable matched
+     */
+    public $purchasable;
 
     /**
      * @var bool If this is a new sale

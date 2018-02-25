@@ -367,7 +367,10 @@ class Sales extends Component
             return false;
         }
 
-        $saleMatchEvent = new SaleMatchEvent(['sale' => $this]);
+        $saleMatchEvent = new SaleMatchEvent([
+            'sale' => $sale,
+            'purchasable' => $purchasable
+        ]);
 
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
