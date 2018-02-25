@@ -80,11 +80,35 @@ class Order extends Element
 
     /**
      * @event OrderEvent This event is raised when an order is completed
+     *
+     * Plugins can get notified before an order is completed
+     *
+     * ```php
+     * use craft\commerce\events\OrderEvent;
+     * use craft\commerce\services\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_BEFORE_COMPLETE_ORDER, function(OrderEvent $e) {
+     *     // Do something - perhaps let the accounting system know about the order.
+     * });
+     * ```
      */
     const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
 
     /**
      * @event OrderEvent This event is raised after an order is completed
+     *
+     * Plugins can get notified before an address is being saved
+     *
+     * ```php
+     * use craft\commerce\events\OrderEvent;
+     * use craft\commerce\services\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_COMPLETE_ORDER, function(OrderEvent $e) {
+     *     // Do something - maybe signal the custom warehouse solution to reserve stock.
+     * });
+     * ```
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
