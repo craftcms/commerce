@@ -26,11 +26,35 @@ class LineItems extends Component
 
     /**
      * @event LineItemEvent The event that is raised before a line item is saved.
+     *
+     * Plugins can get notified before a line item is being saved
+     *
+     * ```php
+     * use craft\commerce\events\LineItems;
+     * use craft\commerce\services\LineItemEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
+     *     // Do something - perhaps let a 3rd party service know about changes to an order
+     * });
+     * ```
      */
     const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
      * @event LineItemEvent The event that is raised after a line item is saved.
+     *
+     * Plugins can get notified after a line item is being saved
+     *
+     * ```php
+     * use craft\commerce\events\LineItems;
+     * use craft\commerce\services\LineItemEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
+     *     // Do something - perhaps reserve the stock
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
 
