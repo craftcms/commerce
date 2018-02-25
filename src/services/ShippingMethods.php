@@ -28,6 +28,7 @@ class ShippingMethods extends Component
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering additional shipping methods.
+     * TODO Not in use yet
      */
     const EVENT_REGISTER_SHIPPING_METHODS = 'registerShippingMethods';
 
