@@ -41,7 +41,7 @@ class Discounts extends Component
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
-     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the matched discount from apply.
+     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the application of the matched discount.
      *
      * Plugins can get notified before an item is removed from the cart.
      *

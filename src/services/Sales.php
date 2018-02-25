@@ -31,7 +31,7 @@ class Sales extends Component
 
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
-     * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the email from being sent.
+     * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the application of the matched sale.
      *
      * Plugins can get notified when a purchasable matches a sale.
      *
