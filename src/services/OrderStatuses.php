@@ -30,7 +30,20 @@ class OrderStatuses extends Component
     // =========================================================================
 
     /**
-     * @event ProductTypeEvent The event that is triggered before a category group is saved.
+     * @event DefaultOrderStatusEvent The event that is triggered when getting a default status for an order.
+     * You may set [[DefaultOrderStatusEvent::orderStatus]] to a desired OrderStatus to override the default status set in CP
+     *
+     * Plugins can get notified when a default order status is being fetched
+     *
+     * ```php
+     * use craft\commerce\events\DefaultOrderStatusEvent;
+     * use craft\commerce\services\OrderStatuses;
+     * use yii\base\Event;
+     *
+     * Event::on(OrderStatuses::class, OrderStatuses::EVENT_DEFAULT_ORDER_STATUS, function(DefaultOrderStatusEvent $e) {
+     *     // Do something - perhaps figure out a better default order statues than the one set in CP
+     * });
+     * ```
      */
     const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
