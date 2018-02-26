@@ -32,4 +32,4 @@ Click “Finish up” and let the database updates run.
 
 # Upgrading from Market Commerce
 
-Craft Commerce is the successor to Market Commerce. To upgrade from Market Commerce to Craft Commerce, [follow these instructions](en/upgading-from-market).
+Craft Commerce is the successor to Market Commerce. To upgrade from Market Commerce to Craft Commerce, [follow these instructions](upgrading-from-market.md).
