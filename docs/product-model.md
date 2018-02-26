@@ -4,7 +4,7 @@ Whenever you’re dealing with an product in your template, you’re actually wo
 
 ## Simple Output
 
-Outputting an `Commerce_ProductModel` object in your template without attaching a property or method will return the product’s [name](#name):
+Outputting an `Commerce_ProductModel` object in your template without attaching a property or method will return the product’s name:
 
 ```
 <h1>{{ product }}</h1>
