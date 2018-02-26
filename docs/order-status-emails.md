@@ -32,8 +32,8 @@ The subject of the email.
 Plain text can be entered or twig can also be used to set dynamic values.
 Two special variables available to you:
 
-- `order` an [Order Model](en/order-model.md).
-- `orderHistory` an [Order History Model](en/order-history-model.md).
+- `order` an [Order Model](order-model.md).
+- `orderHistory` an [Order History Model](order-history-model.md).
 
 `order` is the current cart or order that this email is a notification for. For example, for the subject we might use a template like:
 
@@ -52,8 +52,8 @@ If "Send to custom recipient" is selected, an email address can be entered. Plea
 Plain text can be entered or twig can also be used to set dynamic values.
 Two special variables available to you:
 
-- `order` an [Order Model](en/order-model.md).
-- `orderHistory` an [Order History Model](en/order-history-model.md).
+- `order` an [Order Model](order-model.md).
+- `orderHistory` an [Order History Model](order-history-model.md).
 
 `order` is the current cart or order that this email is a notification for. For example, for the subject we might use a template like:
 
