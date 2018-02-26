@@ -38,7 +38,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $this->_cart = Plugin::getInstance()->getCart()->getCart();
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
         $lineItemId = Craft::$app->getRequest()->getParam('lineItemId');
         $qty = Craft::$app->getRequest()->getParam('qty');
         $note = Craft::$app->getRequest()->getParam('note');
@@ -99,11 +99,11 @@ class CartController extends BaseFrontEndController
         $this->requirePostRequest();
 
         $lineItemId = Craft::$app->getRequest()->getParam('lineItemId');
-        $this->_cart = Plugin::getInstance()->getCart()->getCart();
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
 
         $this->_cart->setFieldValuesFromRequest('fields');
 
-        if (Plugin::getInstance()->getCart()->removeFromCart($this->_cart, $lineItemId)) {
+        if (Plugin::getInstance()->getCarts()->removeFromCart($this->_cart, $lineItemId)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
@@ -125,11 +125,11 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $this->_cart = Plugin::getInstance()->getCart()->getCart();
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
 
         $this->_cart->setFieldValuesFromRequest('fields');
 
-        Plugin::getInstance()->getCart()->clearCart($this->_cart);
+        Plugin::getInstance()->getCarts()->clearCart($this->_cart);
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
         }
@@ -146,7 +146,7 @@ class CartController extends BaseFrontEndController
 
         $plugin = Plugin::getInstance();
 
-        $this->_cart = Plugin::getInstance()->getCart()->getCart();
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
 
         // Saving current cart if it's new
         if (!$this->_cart->id && !Craft::$app->getElements()->saveElement($this->_cart, false)) {

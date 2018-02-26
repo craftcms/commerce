@@ -98,7 +98,7 @@ class States extends Component
      *
      * @return array 2D array of states indexed by their ids grouped by country ids.
      */
-    public function getStatesGroupedByCountries(): array
+    public function getAllStatesAsList(): array
     {
         $states = $this->getAllStates();
         $cid2state = [];

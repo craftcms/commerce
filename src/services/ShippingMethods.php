@@ -130,16 +130,13 @@ class ShippingMethods extends Component
     /**
      * @param Order $cart
      * @return array
+     * @deprecated as of 2.0
      */
-    public function getOrderedAvailableShippingMethods($cart): array
+    public function getOrderedAvailableShippingMethods(Order $cart): array
     {
-        $availableMethods = $this->getAvailableShippingMethods($cart);
+        Craft::$app->getDeprecator()->log('ShippingMethods::getOrderedAvailableShippingMethods','ShippingMethods::getOrderedAvailableShippingMethods us has been deprecated. Use ShippingMethods::getAvailableShippingMethods instead. Shipping Methods are now always returned in price order.');
 
-        uasort($availableMethods, function($a, $b) {
-            return $a['amount'] - $b['amount'];
-        });
-
-        return $availableMethods;
+        return $this->getAvailableShippingMethods($cart);
     }
 
     /**
@@ -189,6 +186,10 @@ class ShippingMethods extends Component
                 ];
             }
         }
+
+        uasort($availableMethods, function($a, $b) {
+            return $a['amount'] - $b['amount'];
+        });
 
         return $availableMethods;
     }

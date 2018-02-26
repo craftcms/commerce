@@ -3,7 +3,7 @@
 namespace craft\commerce\plugin;
 
 use craft\commerce\services\Addresses;
-use craft\commerce\services\Cart;
+use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -43,7 +43,7 @@ use craft\commerce\services\Variants;
  * Trait Services
  *
  * @property Addresses $addresses the address service
- * @property Cart $cart the cart service
+ * @property Carts $cart the cart service
  * @property Countries $countries the countries service
  * @property Currencies $currencies the currencies service
  * @property Customers $customers the customers service
@@ -98,11 +98,11 @@ trait Services
     /**
      * Returns the cart service
      *
-     * @return Cart The cart service
+     * @return Carts The cart service
      */
-    public function getCart(): Cart
+    public function getCarts(): Carts
     {
-        return $this->get('cart');
+        return $this->get('carts');
     }
 
     /**
@@ -445,7 +445,7 @@ trait Services
     {
         $this->setComponents([
             'addresses' => Addresses::class,
-            'cart' => Cart::class,
+            'carts' => Carts::class,
             'countries' => Countries::class,
             'currencies' => Currencies::class,
             'customers' => Customers::class,

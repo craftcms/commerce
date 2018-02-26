@@ -3,7 +3,7 @@
 {% block main %}
 
     {% set subscriptionId = craft.app.request.param('subscription') %}
-    {% set subscription = craft.commerce.subscriptions.id(subscriptionId).first() %}
+    {% set subscription = craft.subscriptions.id(subscriptionId).first() %}
 
     {% if not subscription or currentUser is null or subscription.userId != currentUser.id %}
         {% redirect 'shop/services' %}

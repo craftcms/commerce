@@ -1,5 +1,5 @@
-{% set countries = craft.commerce.countriesList %}
-{% set states = craft.commerce.statesArray %}
+{% set countries = craft.commerce.countries.allCountriesAsList %}
+{% set states = craft.commerce.states.allStatesAsList %}
 
 {% set modelName = modelName is defined ? modelName : 'address' %}
 {% set model = address is defined ? address : null %}
@@ -145,7 +145,7 @@
 </div>
 
     {% js %}
-    var states = {{ craft.commerce.statesArray|json_encode|raw }};
+    var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
 
     $('select.address-country').change(function ()
     {

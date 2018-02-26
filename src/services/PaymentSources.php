@@ -10,6 +10,7 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
+use craft\web\User;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -81,11 +82,16 @@ class PaymentSources extends Component
     /**
      * Returns a user's payment sources, per the user's ID.
      *
-     * @param int $userId the user's ID
+     * @param int|null $userId the user's ID
      * @return PaymentSource[]
      */
-    public function getAllPaymentSourcesByUserId(int $userId): array
+    public function getAllPaymentSourcesByUserId(int $userId = null): array
     {
+        if (null === $userId)
+        {
+            return [];
+        }
+
         $results = $this->_createPaymentSourcesQuery()
             ->where(['userId' => $userId])
             ->all();
@@ -102,12 +108,17 @@ class PaymentSources extends Component
     /**
      * Returns a user's payment sources on a gateway, per the user's ID.
      *
-     * @param int $gatewayId the gateway's ID
-     * @param int $userId the user's ID
+     * @param int|null $gatewayId the gateway's ID
+     * @param int|null $userId the user's ID
      * @return PaymentSource[]
      */
-    public function getAllGatewayPaymentSourcesByUserId(int $gatewayId, int $userId): array
+    public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $userId = null): array
     {
+        if (null === $gatewayId || null === $userId)
+        {
+            return [];
+        }
+
         $results = $this->_createPaymentSourcesQuery()
             ->where(['userId' => $userId])
             ->andWhere(['gatewayId' => $gatewayId])

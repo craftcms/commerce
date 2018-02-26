@@ -73,7 +73,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         if (Plugin::getInstance()->getCustomers()->saveAddress($address)) {
             // Refresh the cart, if this address was being used.
-            $cart = Plugin::getInstance()->getCart()->getCart();
+            $cart = Plugin::getInstance()->getCarts()->getCart();
             if ($cart->shippingAddressId == $address->id) {
                 $cart->setFieldValuesFromRequest('fields');
                 Craft::$app->getElements()->saveElement($cart);
@@ -104,7 +104,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         $customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
-        $cart = Plugin::getInstance()->getCart()->getCart();
+        $cart = Plugin::getInstance()->getCarts()->getCart();
 
         $id = Craft::$app->getRequest()->getParam('id', 0);
 

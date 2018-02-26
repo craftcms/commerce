@@ -7,7 +7,7 @@
 
 {% block main %}
 
-    {% set paymentSources = craft.commerce.paymentSources %}
+    {% set paymentSources = craft.commerce.paymentSources.availablePaymentSources(currentUser) %}
     {% if paymentSources|length %}
         <div class="row">
             <div class="column">
@@ -42,7 +42,7 @@
             <select id="gatewayId" class="form-control">
                 <option value="">---</option>
 
-                {% set gateways = craft.commerce.gateways %}
+                {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
                 {% set supportedGateways = {} %}
 
                 {% for gateway in gateways %}

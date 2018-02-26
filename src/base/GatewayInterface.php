@@ -156,4 +156,19 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsWebhooks(): bool;
+
+    /**
+     * Returns the payment Form HTML
+     *
+     * @param array $params
+     * @return string|null
+     */
+    public function getPaymentFormHtml(array $params);
+
+    /**
+     * Returns payment Form model
+     *
+     * @return BasePaymentForm|null
+     */
+    public function getPaymentFormModel(): BasePaymentForm;
 }

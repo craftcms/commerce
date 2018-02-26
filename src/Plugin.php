@@ -8,6 +8,7 @@ use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\models\Settings;
+use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\web\twig\CraftVariableBehavior;
@@ -59,6 +60,7 @@ class Plugin extends \craft\base\Plugin
     // =========================================================================
 
     use CommerceServices;
+    use DeprecatedVariables;
     use Routes;
 
     // Public Methods

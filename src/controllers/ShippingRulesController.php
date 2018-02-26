@@ -67,7 +67,7 @@ class ShippingRulesController extends BaseAdminController
         }
 
         $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesListData();
-        $variables['states'] = $plugin->getStates()->getStatesGroupedByCountries();
+        $variables['states'] = $plugin->getStates()->getAllStatesAsList();
 
         $this->getView()->setNamespace('new');
 

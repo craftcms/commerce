@@ -41,7 +41,7 @@ class OrdersController extends BaseCpController
     public function actionOrderIndex(): Response
     {
         // Remove all incomplete carts older than a certain date in config.
-        Plugin::getInstance()->getCart()->purgeIncompleteCarts();
+        Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
 
         return $this->renderTemplate('commerce/orders/_index');
     }

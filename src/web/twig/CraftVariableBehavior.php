@@ -6,9 +6,11 @@ use Craft;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\SubscriptionQuery;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use yii\base\Behavior;
 
@@ -72,6 +74,21 @@ class CraftVariableBehavior extends Behavior
     public function products($criteria = null): ProductQuery
     {
         $query = Product::find();
+        if ($criteria) {
+            Craft::configure($query, $criteria);
+        }
+        return $query;
+    }
+
+    /**
+     * Returns a new VariantQuery instance.
+     *
+     * @param mixed $criteria
+     * @return VariantQuery
+     */
+    public function variants($criteria = null): VariantQuery
+    {
+        $query = Variant::find();
         if ($criteria) {
             Craft::configure($query, $criteria);
         }

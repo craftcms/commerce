@@ -2,6 +2,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\Currency;
 use yii\base\Component;
 

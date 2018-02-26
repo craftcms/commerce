@@ -293,7 +293,7 @@ class Order extends Element
     {
         // Set default gateway if none present and no payment source selected
         if (!$this->gatewayId && !$this->paymentSourceId) {
-            $gateways = Plugin::getInstance()->getGateways()->getAllFrontEndGateways();
+            $gateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();
             if (count($gateways)) {
                 $this->gatewayId = key($gateways);
             }
@@ -780,7 +780,7 @@ class Order extends Element
      */
     public function isActiveCart(): bool
     {
-        $cart = Plugin::getInstance()->getCart()->getCart();
+        $cart = Plugin::getInstance()->getCarts()->getCart();
 
         return ($cart && $cart->id == $this->id);
     }

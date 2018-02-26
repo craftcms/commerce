@@ -285,7 +285,7 @@
     });
 
     window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
-    window.taxCategories = JSON.parse('{{ craft.commerce.taxCategories|values|json_encode|raw }}');
+    window.taxCategories = JSON.parse('{{ craft.commerce.taxCategories.allTaxCategories|values|json_encode|raw }}');
 
     $.each(window.taxCategories, function(key, taxCategory) {
         if (taxCategory.default == 1) {

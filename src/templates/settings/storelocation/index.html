@@ -110,7 +110,7 @@
                 id: 'countryId',
                 name: 'countryId',
                 value: storeLocation.countryId,
-                options: craft.commerce.getCountriesList(),
+                options: craft.commerce.countries.allCountriesAsList,
                 errors: storeLocation.getErrors('countryId'),
                 required: true,
             }) }}

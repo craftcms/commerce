@@ -66,7 +66,7 @@ class BaseFrontEndController extends BaseController
         $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('Shipping');
         $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('Discount');
 
-        $data['availableShippingMethods'] = Plugin::getInstance()->getShippingMethods()->getOrderedAvailableShippingMethods($cart);
+        $data['availableShippingMethods'] = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
