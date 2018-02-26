@@ -9,11 +9,14 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
+use craft\validators\UniqueValidator;
 use yii\base\InvalidConfigException;
 
 /**
@@ -189,7 +192,8 @@ class LineItem extends Model
                     'taxCategoryId',
                     'shippingCategoryId'
                 ], 'required'
-            ]
+            ],
+            [['optionsSignature'], UniqueValidator::class, 'targetClass' => LineItemRecord::class, 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature'], 'message' => 'Not Unique'],
         ];
 
         if ($this->purchasableId) {
@@ -197,7 +201,7 @@ class LineItem extends Model
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable) {
                 $purchasableRules = $purchasable->getLineItemRules($this);
-                array_merge($rules, $purchasableRules);
+                array_push($rules,...$purchasableRules);
             }
         }
 
@@ -214,7 +218,7 @@ class LineItem extends Model
     }
 
     /**
-     * Returns the Purchasable’s sale price multiplied by the quantity of the line item.
+     * Returns the Purchasable’s sale price multiplied by the quantity of the line item, plus any adjustment belonging to this lineitem.
      *
      * @return float
      */

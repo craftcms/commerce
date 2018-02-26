@@ -55,7 +55,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPurchasableId(): int
     {
-        throw new NotImplementedException('Purchasable needs a purchasable ID');
+        return $this->id;
     }
 
     /**
