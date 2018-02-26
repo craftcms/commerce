@@ -1,3 +1,5 @@
+# Update Cart Addresses
+
 You may wish for the customer to supply a shipping and billing address for the order. Although not required, the shipping address enables the tax and shipping engine to more accurately supply shipping options and and tax costs
 
 You can see if the cart has a billing and shipping address has been set with:
