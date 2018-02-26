@@ -199,8 +199,7 @@ class LineItem extends Model
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
-            if ($purchasable) {
-                $purchasableRules = $purchasable->getLineItemRules($this);
+            if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 array_push($rules,...$purchasableRules);
             }
         }
