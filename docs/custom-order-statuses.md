@@ -1,6 +1,6 @@
 ## Overview
 
-When a customer completes a Cart it becomes an Order. Carts and Orders are actually the same models; an [Order Model](en/order-model.md).
+When a customer completes a Cart it becomes an Order. Carts and Orders are actually the same models; an [Order Model](order-model.md).
 
 The only differences between an order and a cart is:
 
@@ -28,4 +28,4 @@ In addition to setting a new status, you can record a message which is stored wi
 
 In addition to using order statuses to manage your orders, You can choose emails that will be sent when an order moves into that status.
 
-See [Order Status Emails](en/order-status-emails)
+See [Order Status Emails](order-status-emails.md)
