@@ -336,7 +336,7 @@ class LineItem extends Model
         }
 
         // If a plugin used the above event and changed the price of the product or
-        //it's saleAmount we need to ensure the salePrice works calculates correctly and is rounded
+        //its saleAmount we need to ensure the salePrice works calculates correctly and is rounded
         $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);
 
         // salePrice can not be negative

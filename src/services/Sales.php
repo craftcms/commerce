@@ -507,7 +507,7 @@ class Sales extends Component
     }
 
     /**
-     * Delete a sale by it's id.
+     * Delete a sale by its id.
      *
      * @param $id
      * @return bool
