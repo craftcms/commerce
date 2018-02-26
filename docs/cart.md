@@ -17,4 +17,4 @@ In your templates, you can get the current user's cart with {entry:125:link}:
 The above code will generate a new cart in the session if none exists. Its likely you would only 
 want to make this assignment once per page request, but more than once does not affect performance.
 
-To see how to use the cart in templates look at the [order mode](en/order-model) documentation.
+To see how to use the cart in templates look at the [order model](en/order-model.md) documentation.
