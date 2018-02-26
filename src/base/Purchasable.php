@@ -2,6 +2,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\errors\NotImplementedException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
