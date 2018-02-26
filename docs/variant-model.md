@@ -1,3 +1,5 @@
+# Variant Model
+
 Variants are Craft Elements and also Purchasables.
 
 VariantModel's have the following attributes and methods:
