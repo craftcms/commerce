@@ -41,7 +41,7 @@ When a product is able to have multiple variants, the author can choose which on
 
 # Purchasables
 
-Anything that can be added to the cart by a customer is called a [Purchasable](en/purchasable.md).
+Anything that can be added to the cart by a customer is called a [Purchasable](purchasables.md).
 
 3rd party plugins can provide additional Purchasables, but Craft Commerce only provides a single type of purchasable, the aforementioned 'variant' that belongs to a product.
  
