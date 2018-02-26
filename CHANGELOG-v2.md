@@ -31,6 +31,7 @@
 - `craft\commerce\services\PaymentSources` now fires the following events: `deletePaymentSource`, `beforeSavePaymentSource` and `afterSavePaymentSource`events.
 - `craft\commerce\services\Plans` fires the following events: `archivePlan`, `beforeSavePlan` and `afterSavePlan`events.
 - `craft\commerce\services\Purchasables` fires the `registerPurchasableElementTypes` event.
+- `craft\commerce\services\Sales` now fires the cancelable `beforeMatchPurchasableSale` event.
 - `craft\commerce\services\Subscriptions` fires the `expireSubscription`, `afterCreateSubscription`, `afterReactivateSubscription`, `afterSwitchSubscriptionPlan`, `afterCancelSubscription`, `beforeUpdateSubscription`, `receiveSubscriptionPayment` and cancelable `beforeCreateSubscription`, `beforeReactivateSubscription`, `beforeSwitchSubscriptionPlan` and `beforeCancelSubscription` events.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.

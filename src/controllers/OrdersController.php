@@ -186,6 +186,7 @@ class OrdersController extends BaseCpController
      */
     public function actionTransactionCapture(): Response
     {
+        $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
@@ -209,7 +210,7 @@ class OrdersController extends BaseCpController
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction.', ['id' => $id]));
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
@@ -218,29 +219,28 @@ class OrdersController extends BaseCpController
     public function actionTransactionRefund()
     {
 
+        $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = Craft::$app->getRequest()->getParam('amount');
 
-        if (!$transaction)
-        {
-            $error = Craft::t('commerce','Can not find the transaction to refund');
+        if (!$transaction) {
+            $error = Craft::t('commerce', 'Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
 
                 return $this->asErrorJson($error);
-            }else{
+            } else {
                 Craft::$app->getSession()->setError($error);
                 return $this->redirectToPostedUrl();
             }
         }
 
-        if ($amount >= $transaction->paymentAmount)
-        {
-            $error = Craft::t('commerce','Can not refund amount greater than the original transaction');
+        if ($amount > $transaction->paymentAmount) {
+            $error = Craft::t('commerce', 'Can not refund amount greater than the original transaction');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
-            }else{
+            } else {
                 Craft::$app->getSession()->setError($error);
                 return $this->redirectToPostedUrl();
             }
@@ -419,7 +419,6 @@ class OrdersController extends BaseCpController
      */
     private function _prepVariables(&$variables)
     {
-
         // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
         $variables['baseCpEditUrl'] = 'commerce/orders/'.$variables['order']->number;
         // Set the "Continue Editing" URL

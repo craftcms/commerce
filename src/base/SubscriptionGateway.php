@@ -63,7 +63,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     abstract public function getSubscriptionFormModel(): SubscriptionForm;
 
     /**
-     * Returns the html to use when switching between two plans
+     * Returns the html form to use when switching between two plans
      *
      * @param PlanInterface $originalPlan
      * @param PlanInterface $targetPlan

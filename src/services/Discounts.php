@@ -41,7 +41,19 @@ class Discounts extends Component
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
-     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the matched discount from apply.
+     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the application of the matched discount.
+     *
+     * Plugins can get notified before an item is removed from the cart.
+     *
+     * ```php
+     * use craft\commerce\events\MatchLineItemEvent;
+     * use craft\commerce\services\Discounts;
+     * use yii\base\Event;
+     *
+     * Event::on(Discounts::class, Discounts::EVENT_BEFORE_MATCH_LINE_ITEM, function(MatchLineItemEvent $e) {
+     *      // Maybe check some business rules and prevent a match from happening in some cases.
+     * });
+     * ```
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 

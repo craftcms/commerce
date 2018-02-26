@@ -109,7 +109,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function refund(Transaction $transaction, float $amount): RequestResponseInterface
+    public function refund(Transaction $transaction): RequestResponseInterface
     {
         return new DummyRequestResponse();
     }

@@ -374,6 +374,16 @@ class ProductsController extends BaseCpController
                 'class' => $hasErrors ? 'error' : null
             ];
         }
+
+        $sales = [];
+        foreach ($product->getVariants() as $variant) {
+            $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
+            foreach ($variantSales as $sale) {
+                $sales[$sale->id] = $sale;
+            }
+        }
+
+        $variables['sales'] = $sales;
     }
 
     /**

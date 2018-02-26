@@ -24,11 +24,35 @@ class Addresses extends Component
 
     /**
      * @event AddressEvent The event that is raised before an address is saved.
+     *
+     * Plugins can get notified before an address is being saved
+     *
+     * ```php
+     * use craft\commerce\events\AddressEvent;
+     * use craft\commerce\services\Addresses;
+     * use yii\base\Event;
+     *
+     * Event::on(Addresses::class, Addresses::EVENT_BEFORE_SAVE_ADDRESS, function(AddressEvent $e) {
+     *     // Do something - perhaps let an external CRM system know about a client's new address
+     * });
+     * ```
      */
     const EVENT_BEFORE_SAVE_ADDRESS = 'beforeSaveAddress';
 
     /**
      * @event AddressEvent The event that is raised after an address is saved.
+     *
+     * Plugins can get notified before an address is being saved
+     *
+     * ```php
+     * use craft\commerce\events\AddressEvent;
+     * use craft\commerce\services\Addresses;
+     * use yii\base\Event;
+     *
+     * Event::on(Addresses::class, Addresses::EVENT_AFTER_SAVE_ADDRESS, function(AddressEvent $e) {
+     *     // Do something - perhaps set this address as default in an external CRM system
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
 

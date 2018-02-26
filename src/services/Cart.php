@@ -32,22 +32,70 @@ class Cart extends Component
 
     /**
      * @event CartEvent The event that is raised before an item is added to cart
+     *
+     * Plugins can get notified before an item is added to the cart.
+     *
+     * ```php
+     * use craft\commerce\events\CartEvent;
+     * use craft\commerce\services\Cart;
+     * use yii\base\Event;
+     *
+     * Event::on(Cart::class, Cart::EVENT_BEFORE_ADD_TO_CART, function(CartEvent $e) {
+     *      // Perhaps perform some extra steps based on the item being added to the cart.
+     * });
+     * ```
      */
     const EVENT_BEFORE_ADD_TO_CART = 'beforeAddToCart';
 
     /**
      * @event CartEvent The event that is raised after an item is added to cart
+     *
+     * Plugins can get notified after an item has been added to the cart.
+     *
+     * ```php
+     * use craft\commerce\events\CartEvent;
+     * use craft\commerce\services\Cart;
+     * use yii\base\Event;
+     *
+     * Event::on(Cart::class, Cart::EVENT_BEFORE_ADD_TO_CART, function(CartEvent $e) {
+     *      // Maybe let the warehouse system to flag one unit of the product as "reserved"
+     * });
+     * ```
      */
     const EVENT_AFTER_ADD_TO_CART = 'afterAddToCart';
 
     /**
      * @event CartEvent The event that is raised before an item is removed from cart
      * You may set [[CartEvent::isValid]] to `false` to prevent the item from being removed from the cart.
+     *
+     * Plugins can get notified before an item is removed from the cart.
+     *
+     * ```php
+     * use craft\commerce\events\CartEvent;
+     * use craft\commerce\services\Cart;
+     * use yii\base\Event;
+     *
+     * Event::on(Cart::class, Cart::EVENT_BEFORE_ADD_TO_CART, function(CartEvent $e) {
+     *      // Maybe prevent this item from being removed, if this item is required for some other item.
+     * });
+     * ```
      */
     const EVENT_BEFORE_REMOVE_FROM_CART = 'beforeRemoveFromCart';
 
     /**
      * @event CartEvent The event that is raised after an item is removed from cart
+     *
+     * Plugins can get notified after an item has been removed from the cart.
+     *
+     * ```php
+     * use craft\commerce\events\CartEvent;
+     * use craft\commerce\services\Cart;
+     * use yii\base\Event;
+     *
+     * Event::on(Cart::class, Cart::EVENT_BEFORE_ADD_TO_CART, function(CartEvent $e) {
+     *      // Perhaps, if this item was a dependency for some other item, remove that one too.
+     * });
+     * ```
      */
     const EVENT_AFTER_REMOVE_FROM_CART = 'afterRemoveFromCart';
 

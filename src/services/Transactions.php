@@ -26,11 +26,35 @@ class Transactions extends Component
     // =========================================================================
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been saved.
+     *
+     * Plugins can get notified after a transaction has been saved.
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Transactions;
+     * use yii\base\Event;
+     *
+     * Event::on(Transactions::class, Transactions::EVENT_AFTER_SAVE_TRANSACTION, function(TransactionEvent $e) {
+     *     // Do something - perhaps run our custom logic for failed transactions
+     * });
+     * ```
      */
     const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been created.
+     *
+     * Plugins can get notified after a transaction has been created.
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Transactions;
+     * use yii\base\Event;
+     *
+     * Event::on(Transactions::class, Transactions::EVENT_AFTER_CREATE_TRANSACTION, function(TransactionEvent $e) {
+     *     // Do something - perhaps run our custom logic depending on the transaction type
+     * });
+     * ```
      */
     const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
@@ -115,7 +139,7 @@ class Transactions extends Component
                 'parentId' => $transaction->id
             ])
             ->from(['{{%commerce_transactions}}'])
-            ->sum('amount');
+            ->sum('[[paymentAmount]]');
 
         return $transaction->paymentAmount - $amount;
     }

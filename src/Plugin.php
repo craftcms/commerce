@@ -43,7 +43,7 @@ class Plugin extends \craft\base\Plugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.18';
+    public $schemaVersion = '2.0.22';
 
     /**
      * @inheritdoc
@@ -60,14 +60,6 @@ class Plugin extends \craft\base\Plugin
 
     use CommerceServices;
     use Routes;
-
-    // Constants
-    // =========================================================================
-
-    /**
-     * @event \yii\base\Event The event that is triggered after the plugin has been initialized
-     */
-    const EVENT_AFTER_INIT = 'afterInit';
 
     // Public Methods
     // =========================================================================
@@ -90,8 +82,6 @@ class Plugin extends \craft\base\Plugin
         $this->_registerWidgets();
         $this->_registerVariables();
 
-        // Fire an 'afterInit' event
-        $this->trigger(Plugin::EVENT_AFTER_INIT);
         // TODO onBeforeDeleteUser cancel all subscriptions
     }
 
@@ -118,7 +108,7 @@ class Plugin extends \craft\base\Plugin
      */
     public function getSettingsResponse()
     {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
 
     /**

@@ -16,7 +16,8 @@
                 <th scope="col">{{ "Name"|t('commerce') }}</th>
                 <th scope="col">{{ "Duration"|t('commerce') }}</th>
                 <th scope="col">{{ "Effect"|t('commerce') }}</th>
-                <th scope="col">{{ "Stops Processing?"|t('commerce') }}</th>
+                <th scope="col">{{ "Overrides previous?"|t('commerce') }}</th>
+                <th scope="col">{{ "Stops subsequent?"|t('commerce') }}</th>
                 <td class="thin"></td>
                 <td class="thin"></td>
             </tr>
@@ -42,6 +43,11 @@
                             {{ sale.applyAmountAsPercent }} {% if sale.apply == 'byPercent' %}{{ "off original price"|t('commerce') }}{% else %}{{ "of original price"|t('commerce') }}{% endif %}
                         {% else %}
                             {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {% if sale.apply == 'byFlat' %}{{ "off original price"|t('commerce') }}{% else %}{{ "(new price)"|t('commerce') }}{% endif %}
+                        {% endif %}
+                    </td>
+                    <td data-title="{{ 'Ignore Previous?'|t('commerce') }}">
+                        {% if sale.ignorePrevious %}
+                            <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
                         {% endif %}
                     </td>
                     <td data-title="{{ 'Stops Processing?'|t('commerce') }}">

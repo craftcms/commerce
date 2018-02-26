@@ -119,7 +119,7 @@ class Payments extends Component
 
     /**
      * @event ProcessPaymentEvent The event is triggered before a payment is being processed
-     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the subscription from being canceled
+     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the payment from being processed
      *
      * Plugins can get notified before a payment is being processed
      *
@@ -277,7 +277,7 @@ class Payments extends Component
             ]));
         }
 
-        $transaction = $this->_captureTransaction($transaction);
+        $transaction = $this->_capture($transaction);
 
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
@@ -480,20 +480,15 @@ class Payments extends Component
      * Process a capture or refund exception.
      *
      * @param Transaction $parent
-     * @param string $action
      * @return Transaction
-     * @throws TransactionException
+     * @throws TransactionException if unable to save transaction
      */
     private function _capture(Transaction $parent): Transaction
     {
-        $order = $parent->order;
         $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
         $child->type = TransactionRecord::TYPE_CAPTURE;
 
         $gateway = $parent->getGateway();
-
-        $order->returnUrl = $order->getCpEditUrl();
-        Craft::$app->getElements()->saveElement($order);
 
         try {
             $response = $gateway->capture($child, $parent->reference);
@@ -533,13 +528,13 @@ class Payments extends Component
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
             $child->type = TransactionRecord::TYPE_REFUND;
             $amount = ($amount ?: $parent->amount);
-            $child->paymentAmount = ($amount* $parent->paymentRate);
-            $child->amount = $amount * 1;
+            $child->paymentAmount = $amount;
+            $child->amount = $amount / $parent->paymentRate;
 
             $gateway = $parent->getGateway();
 
             try {
-                $response = $gateway->refund($child, $child->paymentAmount);
+                $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
             } catch (\Throwable $exception) {
                 $child->status = TransactionRecord::STATUS_FAILED;

@@ -29,11 +29,35 @@ class Emails extends Component
     /**
      * @event MailEvent The event that is raised before an email is sent.
      * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
+     *
+     * Plugins can get notified before an email is being sent out.
+     *
+     * ```php
+     * use craft\commerce\events\MailEvent;
+     * use craft\commerce\services\Emails;
+     * use yii\base\Event;
+     *
+     * Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, function(MailEvent $e) {
+     *      // Maybe prevent the email based on some business rules or client preferences.
+     * });
+     * ```
      */
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
     /**
      * @event MailEvent The event that is raised after an email is sent
+     *
+     * Plugins can get notified after an email has been sent out.
+     *
+     * ```php
+     * use craft\commerce\events\MailEvent;
+     * use craft\commerce\services\Emails;
+     * use yii\base\Event;
+     *
+     * Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, function(MailEvent $e) {
+     *      // Perhaps add the email to a CRM system
+     * });
+     * ```
      */
     const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
 

@@ -31,6 +31,19 @@ class Sales extends Component
 
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
+     * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the application of the matched sale.
+     *
+     * Plugins can get notified when a purchasable matches a sale.
+     *
+     * ```php
+     * use craft\commerce\events\SaleMatchEvent;
+     * use craft\commerce\services\Sales;
+     * use yii\base\Event;
+     *
+     * Event::on(Sales::class, Sales::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, function(SaleMatchEvent $e) {
+     *      // Perhaps prevent the purchasable match with sale based on some business logic.
+     * });
+     * ```
      */
     const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
@@ -80,6 +93,7 @@ class Sales extends Component
                 sales.apply,
                 sales.applyAmount,
                 sales.stopProcessing,
+                sales.ignorePrevious,
                 sales.allGroups,
                 sales.allPurchasables,
                 sales.allCategories,
@@ -242,6 +256,9 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_PERCENT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += ($sale->applyAmount * $originalPrice);
+                    if ($sale->ignorePrevious) {
+                        $newPrice = $originalPrice - ($sale->applyAmount * $originalPrice);
+                    }
                     break;
                 case SaleRecord::APPLY_TO_PERCENT:
                     // applyAmount needs to be reversed since it is stored as negative
@@ -250,6 +267,9 @@ class Sales extends Component
                 case SaleRecord::APPLY_BY_FLAT:
                     // applyAmount is stored as a negative already
                     $takeOffAmount += $sale->applyAmount;
+                    if ($sale->ignorePrevious) {
+                        $newPrice = $originalPrice - $sale->applyAmount;
+                    }
                     break;
                 case SaleRecord::APPLY_TO_FLAT:
                     // applyAmount needs to be reversed since it is stored as negative
@@ -279,6 +299,8 @@ class Sales extends Component
     }
 
     /**
+     * Match a product and a sale and return the result.
+     *
      * @param PurchasableInterface $purchasable
      * @param Sale $sale
      * @param Order $order
@@ -301,6 +323,7 @@ class Sales extends Component
         $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
         $saleCategories = $sale->getCategoryIds();
         $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $saleCategories);
+
         if (!$sale->allCategories && !$purchasableIsRelateToOneOrMoreCategories) {
             return false;
         }
@@ -359,7 +382,10 @@ class Sales extends Component
             return false;
         }
 
-        $saleMatchEvent = new SaleMatchEvent(['sale' => $this]);
+        $saleMatchEvent = new SaleMatchEvent([
+            'sale' => $sale,
+            'purchasable' => $purchasable
+        ]);
 
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
@@ -370,6 +396,8 @@ class Sales extends Component
     }
 
     /**
+     * Save a Sale.
+     *
      * @param Sale $model
      * @param array $groups ids
      * @param array $categories ids
@@ -399,6 +427,7 @@ class Sales extends Component
             'apply',
             'applyAmount',
             'stopProcessing',
+            'ignorePrevious',
             'enabled'
         ];
         foreach ($fields as $field) {
@@ -461,6 +490,8 @@ class Sales extends Component
     }
 
     /**
+     * Reorder Sales based on a list of ids.
+     *
      * @param $ids
      * @return bool
      */
@@ -476,6 +507,8 @@ class Sales extends Component
     }
 
     /**
+     * Delete a sale by it's id.
+     *
      * @param $id
      * @return bool
      * @throws \Exception

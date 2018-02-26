@@ -28,6 +28,7 @@ class ShippingMethods extends Component
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering additional shipping methods.
+     * TODO Not in use yet
      */
     const EVENT_REGISTER_SHIPPING_METHODS = 'registerShippingMethods';
 
@@ -59,20 +60,6 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods(): array
     {
-        // TODO this will happen when shipping methods are refactored. For now just make sure it runs at all on Craft 3.
-
-//        if (null === $this->_shippingMethods) {
-//            $shippingMethods = ShippingMethod::populateModels(ShippingMethodRecord::findAll());
-//
-//            $event = new RegisterComponentTypesEvent([
-//                'types' => $shippingMethods
-//            ]);
-//            $this->trigger(self::EVENT_REGISTER_SHIPPING_METHODS, $event);
-//
-//            $this->_shippingMethods = $event->types;
-//        }
-//
-//        return $this->_shippingMethods;
         if (!$this->_fetchedAllShippingMethods) {
             $results = $this->_createShippingMethodQuery()->all();
 

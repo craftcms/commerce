@@ -39,7 +39,7 @@ interface GatewayInterface extends SavableComponentInterface
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface;
 
     /**
-     * Makes a complete authorize request.
+     * Complete the authorization for offsite payments.
      *
      * @param Transaction $transaction The transaction
      * @return RequestResponseInterface
@@ -47,7 +47,7 @@ interface GatewayInterface extends SavableComponentInterface
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface;
 
     /**
-     * Makes a complete purchase request.
+     * Complete the purchase for offsite payments.
      *
      * @param Transaction $transaction The transaction
      * @return RequestResponseInterface
@@ -83,10 +83,9 @@ interface GatewayInterface extends SavableComponentInterface
      * Makes an refund request.
      *
      * @param Transaction $transaction The refund transaction
-     * @param float $amount The amount to be refunded.
      * @return RequestResponseInterface
      */
-    public function refund(Transaction $transaction, float $amount): RequestResponseInterface;
+    public function refund(Transaction $transaction): RequestResponseInterface;
 
     /**
      * Processes a webhook and return a response
