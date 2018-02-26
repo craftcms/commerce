@@ -1,3 +1,5 @@
+# Transaction Model
+
 Order Transactions are the payment history of an order.
 
 A transaction can be of a certain type and status, and contain information relevant to the payment and communication to the 3rd party payment gateway.
