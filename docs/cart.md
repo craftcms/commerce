@@ -1,6 +1,6 @@
 # Cart
 
-A cart is just an [Order](en/order.md) that has not yet been completed. A customer can edit the contents of a cart, but once the cart becomes an order it is no longer editable by the customer.
+A cart is just an [Order](en/orders.md) that has not yet been completed. A customer can edit the contents of a cart, but once the cart becomes an order it is no longer editable by the customer.
 
 You can view carts in the 'Orders' section of the control panel. You can also view Active Carts
 which are carts that have been updated in the last 24 hours, and inactive carts older than 24 hours
