@@ -1,4 +1,4 @@
-# Overview
+# Customer Model
 
 A customer record is created for both guests and registered users. It is used to store information about the user.
 
