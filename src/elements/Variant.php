@@ -323,14 +323,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getPurchasableId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getTaxCategoryId(): int
     {
         return $this->getProduct()->taxCategoryId;

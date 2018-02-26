@@ -2,7 +2,6 @@
 
 namespace craft\commerce\base;
 
-use craft\commerce\errors\NotImplementedException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
@@ -56,7 +55,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPurchasableId(): int
     {
-        throw new NotImplementedException('Purchasable needs a purchasable ID');
+        return $this->id;
     }
 
     /**
