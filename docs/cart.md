@@ -6,7 +6,7 @@ You can view carts in the 'Orders' section of the control panel. You can also vi
 which are carts that have been updated in the last 24 hours, and inactive carts older than 24 hours
 and likely to become abandoned.
 
-You can set the system to purge (delete) abandoned carts after a given time period in [your config](en/general-config.md#purgeinactivecartsduration), the default of which is 3 months.
+You can set the system to purge (delete) abandoned carts after a given time period in [your config](general-config.md), the default of which is 3 months.
 
 
 In your templates, you can get the current user's cart with [craft.commerce.cart](craft-commerce-cart.md)
