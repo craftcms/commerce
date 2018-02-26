@@ -66,4 +66,4 @@ If the store currency is USD and the order's payment currency is AUD with a exch
 {{ order.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true,format=true)}} // A$ 13.00
 ```
 
-See [Twig Filters](en/twig-filters.md) form documentation on the `commerceCurrency` filter.
+See [Twig Filters](twig-filters.md) form documentation on the `commerceCurrency` filter.
