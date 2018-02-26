@@ -19,7 +19,7 @@ The states’ name followed by the states’ country in parenthesis. For example
 The states’s ISO code (required).
 
 ### country
-The {entry:604:link} of the country this state belongs to (required).
+The [Country Model](country-model.md) of the country this state belongs to (required).
 
 ### countryId
 The record ID of the country this state belongs to (required).
