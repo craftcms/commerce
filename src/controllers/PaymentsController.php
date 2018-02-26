@@ -57,7 +57,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Get the cart if no order number was passed.
         if (!$order) {
-            $order = $plugin->getCart()->getCart();
+            $order = $plugin->getCarts()->getCart();
         }
 
         // Are we paying anonymously?
@@ -103,7 +103,7 @@ class PaymentsController extends BaseFrontEndController
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
 
-            if (!$plugin->getCart()->setPaymentCurrency($order, $currency, $error)) {
+            if (!$plugin->getCarts()->setPaymentCurrency($order, $currency, $error)) {
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($error);
                 }
@@ -118,7 +118,7 @@ class PaymentsController extends BaseFrontEndController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->getParam('gatewayId');
 
-        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCart()->setGateway($order, $gatewayId, $error)) {
+        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCarts()->setGateway($order, $gatewayId, $error)) {
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             }
@@ -150,7 +150,7 @@ class PaymentsController extends BaseFrontEndController
         try {
             if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
-                $plugin->getCart()->setPaymentSource($order, $paymentSource->id, $error);
+                $plugin->getCarts()->setPaymentSource($order, $paymentSource->id, $error);
             } else {
                 $paymentSource = $order->getPaymentSource();
             }

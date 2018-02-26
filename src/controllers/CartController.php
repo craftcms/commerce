@@ -168,7 +168,7 @@ class CartController extends BaseFrontEndController
             $options = $request->getParam('options', []);
             $qty = $request->getParam('qty', 1);
             $error = '';
-            if (!$plugin->getCart()->addToCart($this->_cart, $purchasableId, $qty, $note, $options, $error)) {
+            if (!$plugin->getCarts()->addToCart($this->_cart, $purchasableId, $qty, $note, $options, $error)) {
                 $addToCartError = Craft::t('commerce', 'Could not add to cart: {error}', [
                     'error' => $error,
                 ]);
@@ -255,7 +255,7 @@ class CartController extends BaseFrontEndController
             if (null !== $request->getParam('email')) {
                 $error = '';
                 $email = $request->getParam('email'); // empty string vs null (strict type checking)
-                if (!$plugin->getCart()->setEmail($this->_cart, $email, $error)) {
+                if (!$plugin->getCarts()->setEmail($this->_cart, $email, $error)) {
                     $updateErrors['email'] = $error;
                 } else {
                     $cartSaved = true;
@@ -267,7 +267,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
             $error = '';
-            if (!$plugin->getCart()->setPaymentCurrency($this->_cart, $currency, $error)) {
+            if (!$plugin->getCarts()->setPaymentCurrency($this->_cart, $currency, $error)) {
                 $updateErrors['paymentCurrency'] = $error;
             } else {
                 $cartSaved = true;
@@ -278,7 +278,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('couponCode')) {
             $error = '';
             $couponCode = $request->getParam('couponCode');
-            if (!$plugin->getCart()->applyCoupon($this->_cart, $couponCode, $error)) {
+            if (!$plugin->getCarts()->applyCoupon($this->_cart, $couponCode, $error)) {
                 $updateErrors['couponCode'] = $error;
             } else {
                 $cartSaved = true;
@@ -289,7 +289,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('gatewayId')) {
             $error = '';
             $gatewayId = $request->getParam('gatewayId');
-            if (!$plugin->getCart()->setGateway($this->_cart, $gatewayId, $error)) {
+            if (!$plugin->getCarts()->setGateway($this->_cart, $gatewayId, $error)) {
                 $updateErrors['gatewayId'] = $error;
             } else {
                 $cartSaved = true;
@@ -300,7 +300,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('paymentSourceId')) {
             $error = '';
             $paymentSourceId = $request->getParam('paymentSourceId');
-            if (!$plugin->getCart()->setPaymentSource($this->_cart, $paymentSourceId, $error)) {
+            if (!$plugin->getCarts()->setPaymentSource($this->_cart, $paymentSourceId, $error)) {
                 $updateErrors['$paymentSourceId'] = $error;
             } else {
                 $cartSaved = true;
@@ -311,7 +311,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('shippingMethod')) {
             $error = '';
             $shippingMethod = $request->getParam('shippingMethod');
-            if (!$plugin->getCart()->setShippingMethod($this->_cart, $shippingMethod, $error)) {
+            if (!$plugin->getCarts()->setShippingMethod($this->_cart, $shippingMethod, $error)) {
                 $updateErrors['shippingMethod'] = $error;
             } else {
                 $cartSaved = true;

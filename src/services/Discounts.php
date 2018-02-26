@@ -238,7 +238,7 @@ class Discounts extends Component
         }
 
         if ($discount->perEmailLimit > 0) {
-            $cart = $plugin->getCart()->getCart();
+            $cart = $plugin->getCarts()->getCart();
             $email = $cart->email;
 
             if ($email) {
