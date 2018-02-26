@@ -69,8 +69,8 @@ The 'BCC' addresses for this email. You can seperate the addresses by a comma: `
 Plain text can be entered or twig can also be used to set dynamic values.
 Two special variables available to you:
 
-- `order` an [Order Model](en/order-model.md).
-- `orderHistory` an [Order History Model](en/order-history-model.md).
+- `order` an [Order Model](order-model.md).
+- `orderHistory` an [Order History Model](order-history-model.md).
 
 Most likely, you would BCC the store owner on order confirmation.
 
@@ -81,8 +81,8 @@ Plain text template path can be entered or Twig code can also be used to set dyn
 
 You can use the following variables in both the template path & template file body:
 
-- `order` an [Order Model](en/order-model.md).
-- `orderHistory` an [Order History Model](en/order-history-model.md).
+- `order` an [Order Model](order-model.md).
+- `orderHistory` an [Order History Model](order-history-model.md).
 
 This allows you to have full design flexibility.
 
