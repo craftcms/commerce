@@ -162,8 +162,6 @@ class Carts extends Component
 
         $lineItem->validate();
 
-        $lineItem->purchasable->validateLineItem($lineItem);
-
         try {
             if (!$lineItem->hasErrors()) {
                 // Raise the 'beforeAddToCart' event

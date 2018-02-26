@@ -94,7 +94,7 @@ class CartController extends BaseFrontEndController
     /**
      * Remove Line item from the cart
      */
-    public function actionRemoveLineItem(): Response
+    public function actionRemoveLineItem()
     {
         $this->requirePostRequest();
 

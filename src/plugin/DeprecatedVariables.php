@@ -24,7 +24,7 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.availableShippingMethods', 'craft.commerce.availableShippingMethods has been deprecated. Use craft.commmerce.shippingMethods.availableShippingMethods(cart) instead');
 
-        $cart = $this->getCart()->getCart();
+        $cart = $this->getCarts()->getCart();
 
         return $this->getShippingMethods()->getAvailableShippingMethods($cart);
     }
