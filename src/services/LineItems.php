@@ -229,45 +229,42 @@ class LineItems extends Component
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
-        $lineItemRecord->total = $lineItem->total;
+        $lineItemRecord->total = $lineItem->getTotal();
+        $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
-        if ($runValidation && !$lineItemRecord->validate()) {
-            Craft::info('Line Item not saved due to validation error.', __METHOD__);
-            return false;
-        }
+        $lineItem->validate();
 
-        $lineItem->addErrors($lineItemRecord->getErrors());
+        if (!$lineItem->hasErrors()) {
 
-        if ($lineItem->hasErrors()) {
-            return false;
-        }
+            $db = Craft::$app->getDb();
+            $transaction = $db->beginTransaction();
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
+            try {
+                $success = $lineItemRecord->save(false);
 
-        try {
-            $success = $lineItemRecord->save(false);
+                if ($success) {
+                    if ($isNewLineItem) {
+                        $lineItem->id = $lineItemRecord->id;
+                    }
 
-            if ($success) {
-                if ($isNewLineItem) {
-                    $lineItem->id = $lineItemRecord->id;
+                    $transaction->commit();
                 }
-
-                $transaction->commit();
+            } catch (\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
             }
-        } catch (\Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
+
+            if ($success && $this->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
+                    'lineItem' => $lineItem,
+                    'isNew' => $isNewLineItem,
+                ]));
+            }
+
+            return $success;
         }
 
-        if ($success && $this->hasEventHandlers(self::EVENT_AFTER_SAVE_LINE_ITEM)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_LINE_ITEM, new LineItemEvent([
-                'lineItem' => $lineItem,
-                'isNew' => $isNewLineItem,
-            ]));
-        }
-
-        return $success;
+        return false;
     }
 
     /**

@@ -29,6 +29,7 @@ use yii\db\ActiveQueryInterface;
  * @property TaxCategory $taxCategory
  * @property int $taxCategoryId
  * @property float $total
+ * @property float $subtotal
  * @property float $weight
  * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -45,16 +46,6 @@ class LineItem extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_lineitems}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['orderId', 'purchasableId', 'optionsSignature'], 'unique', 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature']]
-        ];
     }
 
     /**
