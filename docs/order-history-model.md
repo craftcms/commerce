@@ -23,7 +23,7 @@ The order ID.
 
 ## prevStatus
 
-Returns an [Order Status Model](en/order-status-model.md) of the previous status this order was in.
+Returns an [Order Status Model](order-status-model.md) of the previous status this order was in.
 
 Returns `null` if there was no previous status, as is the case when a new order is created.
 
@@ -33,7 +33,7 @@ The the ID of the previous status this order was in.
 
 ## newStatus
 
-Returns an [Order Status Model](en/order-status-model.md) of the new status this order is in.
+Returns an [Order Status Model](order-status-model.md) of the new status this order is in.
 
 ## newStatusId
 
