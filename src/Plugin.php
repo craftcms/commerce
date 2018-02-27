@@ -83,8 +83,6 @@ class Plugin extends \craft\base\Plugin
         $this->_registerCpAlerts();
         $this->_registerWidgets();
         $this->_registerVariables();
-
-        // TODO onBeforeDeleteUser cancel all subscriptions
     }
 
     /**
