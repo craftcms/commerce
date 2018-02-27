@@ -26,7 +26,7 @@ trait DeprecatedVariables
 
         $cart = $this->getCarts()->getCart();
 
-        return $this->getShippingMethods()->getAvailableShippingMethods($cart);
+        return $cart->getAvailableShippingMethods();
     }
 
     /**

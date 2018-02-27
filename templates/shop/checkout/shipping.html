@@ -24,7 +24,7 @@
             {{ redirectInput('shop/checkout/payment') }}
             {{ csrfInput() }}
 
-            {% for handle, method in craft.commerce.shippingMethods.availableShippingMethods %}
+            {% for handle, method in cart.availableShippingMethods %}
                 <div class="shipping-select">
                     <label>
 
