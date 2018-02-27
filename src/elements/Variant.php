@@ -15,6 +15,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
+use yii\db\Expression;
 
 /**
  * Variant Model
@@ -534,6 +535,28 @@ class Variant extends Purchasable
         $record->save(false);
 
         return parent::afterSave($isNew);
+    }
+
+    /**
+     * Updates Stock count from completed order.
+     *
+     * @inheritdoc
+     */
+    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    {
+        // Update the qty in the db directly
+        Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+            ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
+            ['id' => $this->id])->execute();
+
+        // Update the stock
+        $this->stock = (new Query())
+            ->select(['stock'])
+            ->from('{{%commerce_variants}}')
+            ->where('id = :variantId', [':variantId' => $this->id])
+            ->scalar();
+
+        Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
     }
 
     /**

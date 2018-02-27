@@ -2,6 +2,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
@@ -134,6 +135,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getLineItemRules(LineItem $lineItem): array
     {
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    {
     }
 
     /**

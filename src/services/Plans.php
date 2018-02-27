@@ -259,7 +259,7 @@ class Plans extends Component
     }
 
     /**
-     * Archive a subscription plan by it's id.
+     * Archive a subscription plan by its id.
      *
      * @param int $id The id
      * @return bool

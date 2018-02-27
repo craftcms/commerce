@@ -2,6 +2,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 
 /**
@@ -98,6 +99,17 @@ interface PurchasableInterface
      * @return array
      */
     public function getLineItemRules(LineItem $lineItem): array;
+
+    /**
+     * Runs any logic needed for this purchasable after it was on an order that was just completed.
+     *
+     * This is called for each line item the purchasable was contained within.
+     *
+     * @param Order $order
+     * @param LineItem $lineItem
+     * @return void
+     */
+    public function afterOrderComplete(Order $order, LineItem $lineItem);
 
     /**
      * Returns whether this purchasable has free shipping.
