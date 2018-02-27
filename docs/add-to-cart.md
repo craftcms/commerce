@@ -7,7 +7,7 @@ The core [Variant Model](variant-model.md) are [Purchasable](purchasables.md) an
 The following is an example of getting the first product found in your store. We then get the product's default variant and use its purchasableId in the form that will add that item to the cart:
 
 ```twig
-{% set product = craft.commerce.products.first() %}
+{% set product = craft.products.one() %}
 {% set variant = product.defaultVariant %}
 
 <form method="POST">
@@ -23,7 +23,7 @@ The following is an example of getting the first product found in your store. We
 The above is a simple example, if your product's type has multiple variants you could loop over all the products variants and allow the customer to choose the variant from a dropdown:
 
 ```twig
-{% set product = craft.commerce.products.first() %}
+{% set product = craft.products.one() %}
 
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/updateCart">
@@ -46,7 +46,7 @@ When submitting a product to the cart, you can optionally include a text note fr
 Here is an example of an add to cart form with both a `notes` and `options` param.
 
 ```twig
-{% set product = craft.commerce.products.first() %}
+{% set product = craft.products.one() %}
 {% set variant = product.defaultVariant %}
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/updateCart">

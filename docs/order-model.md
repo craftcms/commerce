@@ -17,12 +17,12 @@ Usually you will be working with an order model in your template in 2 situations
 
 1. When you are working with the active cart of the current customer.
 ```
-{% set cart = craft.commerce.getCart() %}
+{% set cart = craft.commerce.carts.cart %}
 ```
 
 2. When working with completed orders.
 ```
-{% set pastOrders = craft.commerce.orders.customer(craft.commerce.customer).find() %}`
+{% set pastOrders = craft.orders.customer(craft.commerce.customer).all() %}`
 {% for order in pastOrders %}
 	Order Number: {{ order.shortNumber }}<br>
 	Order Total: {{ order.totalPrice }}<br><br>

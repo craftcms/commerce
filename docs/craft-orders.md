@@ -1,11 +1,12 @@
-# craft.commerce.orders 
+# craft.orders 
+
 ## How to get orders
 
-You can access your site’s orders from your templates via `craft.commerce.orders`
-It returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/elementcriteriamodel) object.
+You can access your site’s orders from your templates via `craft.orders`
+It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
 
 ```twig
-{% set orders = craft.commerce.orders.find() %}
+{% set orders = craft.orders.all() %}
 
 {% for order in orders %}
     {{ order.number }} - {{ order.totalPrice}} <br>
@@ -14,7 +15,7 @@ It returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/e
 
 ## Parameters
 
-`craft.commerce.orders` supports the following parameters:
+`craft.orders` supports the following parameters:
 
 ### type
 Product Type model or handle.
@@ -26,11 +27,11 @@ Product type id.
 The unique hash of the order.
 
 ### completed
-Accepts `true`.  e.g ```{% set orders = craft.commerce.orders.completed(true).find() %}``` would 
+Accepts `true`.  e.g ```{% set orders = craft.orders.completed(true).all() %}``` would 
 return completed orders since they have `isCompleted` set to true.
 
 ### isCompleted
-Accepts `1` or `not 1`.  e.g ```{% set orders = craft.commerce.orders.isCompleted('not 1').find() %}``` would 
+Accepts `1` or `not 1`.  e.g ```{% set orders = craft.orders.isCompleted('not 1').all() %}``` would 
 return incomplete orders (carts) since they have `isCompleted` set to false.
 
 ### dateOrdered
@@ -43,12 +44,12 @@ accepts an `orderStatus` model.
 Accepts the id of an Order Status.
 
 ### customer
-A customer Model can be passed to get orders for that customer only. e.g `{% set orders = craft.commerce.orders.customer(craft.commerce.customer).find() %}`
+A customer Model can be passed to get orders for that customer only. e.g `{% set orders = craft.orders.customer(craft.commerce.customer).all() %}`
 Do not use this to get a cart, as the default response does not include orders that are still 
 carts (use `{% set cart = craft.commerce.getCart %}` to get the current user's cart).
 
 ### user
-A customer Model can be passed to get orders for that user only. e.g `{% set orders = craft.commerce.orders.user(currentUser).find() %}`
+A customer Model can be passed to get orders for that user only. e.g `{% set orders = craft.orders.user(currentUser).all() %}`
 Do not use this to get a cart, as the default response does not include orders that are still 
 carts (use `{% set cart = craft.commerce.getCart %}` to get the current user's cart).
 
@@ -103,7 +104,7 @@ For example:
 
 ```twig
 {% if currentUser %}
-    {% set order = craft.commerce.orders.user(currentUser).hasPurchasables([product.defaultVariant]).first() %}
+    {% set order = craft.orders.user(currentUser).hasPurchasables([product.defaultVariant]).one() %}
     {% if order %}
         I already own this product:  <a href="shop/order?orderNumber={{ order.number }}">Order #{{ order.shortNumber }}</a>
     {% endif %}
@@ -113,7 +114,7 @@ For example:
 or
 
 ```twig
-{% set  orders = craft.commerce.orders({
+{% set  orders = craft.orders({
   hasPurchasables: [32,34,35]
 }) %}
 ```

@@ -1,10 +1,12 @@
+# craft.products
+
 ## How to get products
 
-You can access your site’s products from your templates via `craft.commerce.products`
-It returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/elementcriteriamodel) object.
+You can access your site’s products from your templates via `craft.products`
+It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
 
 ```twig
-{% set products = craft.commerce.products.type('normal').find() %}
+{% set products = craft.products.type('normal').all() %}
 
 {% for product in products %}
   {% for variant in product.variants %}
@@ -15,7 +17,7 @@ It returns an [ElementCriteriaModel](http://buildwithcraft.com/docs/templating/e
 
 ## Parameters
 
-`craft.commerce.products` supports the following parameters:
+`craft.products` supports the following parameters:
 
 ### ID
 The Product's element ID.
@@ -69,7 +71,7 @@ Only return products where the `hasVariant` params match the product's variants.
 For example:
 
 ```twig
-{% set products = craft.commerce.products.type('tshirt').hasVariant({ color: 'red' }) %}
+{% set products = craft.products.type('tshirt').hasVariant({ color: 'red' }) %}
 ```
 
 ## Variant Parameters
@@ -85,7 +87,7 @@ Accepts: `true` or `false`
 For example:
 
 ```twig
-{% set products = craft.commerce.products({
+{% set products = craft.products({
   hasVariant: {
     hasStock: true
   },
@@ -100,7 +102,7 @@ Accepts: `true` or `false`
 For example:
 
 ```twig
-{% set products = craft.commerce.products({
+{% set products = craft.products({
   hasSales: true
 }) %}
 ```

@@ -33,7 +33,7 @@ If you have an element with a Products field in your template, you can access it
 That will give you an ElementCriteriaModel object, prepped to output all of the selected roductsp for the given field. In other words, the line above is really just a shortcut for this:
 
 ```twig
-{% set products = craft.commerce.products({
+{% set products = craft.products({
     relatedTo: { sourceElement: entry, field: "productsFieldHandle" },
     order:     "sortOrder",
     limit:     null
@@ -84,7 +84,7 @@ You can add parameters to the ElementCriteriaModel object as well:
 If your Products field is only meant to have a single product selected, remember that calling your Products field will still give you the same ElementCriteriaModel, not the selected product. To get the first (and only) product selected, use `first()`:
 
 ```twig
-{% set product = entry.productsFieldHandle.first() %}
+{% set product = entry.productsFieldHandle.one() %}
 
 {% if product %}
     ...

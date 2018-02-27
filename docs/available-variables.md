@@ -4,24 +4,25 @@ The following twig template variables are available:
 
 ## craft.commerce.settings
 
-To get all Craft Commerce general settings:
+To get the Craft Commerce general settings model:
 
 ```twig
 {% set settings = craft.commerce.settings %}
 ```
-## craft.commerce.products
 
-See [craft.commerce.products](craft-commerce-products.md)
+## craft.products
 
-## craft.commerce.orders
+See [craft.products](craft-products.md)
 
-See [craft.commerce.orders](craft-commerce-orders.md)
+## craft.orders
 
-## craft.commerce.cart
+See [craft.orders](craft-orders.md)
 
-See [craft.commerce.cart](craft-commerce-cart.md)
+## craft.commerce.carts.cart
 
-## craft.commerce.countriesList
+See [craft.commerce.carts.cart](craft-commerce-carts-cart.md)
+
+## craft.commerce.countries.countriesAsList
 
 Returns a list usable for a dropdown select box.
 
@@ -34,7 +35,7 @@ Data returned as `[32:'Australia', 72:'USA']`
 {% endfor %}
 </select>
 ```
-## craft.commerce.countries
+## craft.commerce.countries.allCountries
 
 Returns an array of [Country Models](country-model.md).
 

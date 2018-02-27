@@ -9,9 +9,9 @@ and likely to become abandoned.
 You can set the system to purge (delete) abandoned carts after a given time period in [your config](general-config.md), the default of which is 3 months.
 
 
-In your templates, you can get the current user's cart with [craft.commerce.cart](craft-commerce-cart.md)
+In your templates, you can get the current user's cart with [craft.commerce.carts.cart](craft-commerce-carts-cart.md)
 ```twig
-{% set cart = craft.commerce.getCart() %}
+{% set cart = craft.commerce.carts.cart %}
 ```
 
 The above code will generate a new cart in the session if none exists. Its likely you would only 

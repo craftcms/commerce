@@ -17,7 +17,7 @@ This is the name of the product type as displayed in the control panel.
 The handle is how you will reference the product type in code. For example, in twig, to get product types with a handle of 'clothes', you would do:
 
 ```twig
-{% set clothes = craft.commerce.products.type('clothes').find() %}
+{% set clothes = craft.products.type('clothes').all() %}
 ```
 ### Automatic SKU Format
 
