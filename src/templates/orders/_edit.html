@@ -78,8 +78,8 @@
 {% endblock %}
 
 {% js %}
-    window.countries = JSON.parse('{{ craft.commerce.countries|json_encode|raw }}');
-    window.states = JSON.parse('{{ craft.commerce.states|json_encode|raw }}');
+    window.countries = JSON.parse('{{ craft.commerce.countries.allCountries|json_encode|raw }}');
+    window.states = JSON.parse('{{ craft.commerce.states.allStates|json_encode|raw }}');
 
     $(document).ready(function () {
 

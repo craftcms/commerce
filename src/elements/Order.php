@@ -518,7 +518,7 @@ class Order extends Element
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $availableMethods = $this->getAvailableShippingMethods();
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
                 $this->shippingMethodHandle = null;
@@ -527,6 +527,14 @@ class Order extends Element
                 return;
             }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getAvailableShippingMethods(): array
+    {
+        return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
     }
 
     /**

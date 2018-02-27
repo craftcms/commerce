@@ -259,7 +259,7 @@
     });
 
     window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
-    window.shippingCategories = JSON.parse('{{ craft.commerce.shippingCategories|values|json_encode|raw }}');
+    window.shippingCategories = JSON.parse('{{ craft.commerce.shippingCategories.allShippingCategories|values|json_encode|raw }}');
 
     $.each(window.shippingCategories, function(key, shippingCategory) {
         if (shippingCategory.default == 1) {

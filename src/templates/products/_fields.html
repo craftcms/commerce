@@ -141,7 +141,7 @@
         name: 'price',
         value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
         placeholder: 'Enter price'|t('commerce'),
-        unit: craft.commerce.primaryPaymentCurrency.iso,
+        unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
         required: true,
         errors: variant.getErrors('price')
     }) }}

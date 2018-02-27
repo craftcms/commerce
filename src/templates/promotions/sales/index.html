@@ -42,7 +42,7 @@
                         {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
                             {{ sale.applyAmountAsPercent }} {% if sale.apply == 'byPercent' %}{{ "off original price"|t('commerce') }}{% else %}{{ "of original price"|t('commerce') }}{% endif %}
                         {% else %}
-                            {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.primaryPaymentCurrency.iso,convert=true) }} {% if sale.apply == 'byFlat' %}{{ "off original price"|t('commerce') }}{% else %}{{ "(new price)"|t('commerce') }}{% endif %}
+                            {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }} {% if sale.apply == 'byFlat' %}{{ "off original price"|t('commerce') }}{% else %}{{ "(new price)"|t('commerce') }}{% endif %}
                         {% endif %}
                     </td>
                     <td data-title="{{ 'Ignore Previous?'|t('commerce') }}">
