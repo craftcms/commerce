@@ -12,6 +12,7 @@ use craft\db\Query;
 use craft\helpers\StringHelper;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\validators\EmailValidator;
 
 /**
@@ -116,14 +117,17 @@ class Carts extends Component
     // =========================================================================
 
     /**
-     * @param Order $order
-     * @param int $purchasableId
-     * @param int $qty
-     * @param string $note
-     * @param array $options
-     * @param string $error
-     * @return bool
-     * @throws \Exception
+     * Add a purchasable to a cart by its id.
+     *
+     * @param Order $order the cart
+     * @param int $purchasableId the purchasable id
+     * @param int $qty quantity
+     * @param string $note a note for the linieitem
+     * @param array  $options an array of options
+     * @param string $error error message (if any) will be set on this by reference
+     * @return bool whether item was addede to the cart
+     * @throws InvalidConfigException if purchasable not found with that id
+     * @throws Exception if unable to create a cart
      */
     public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error): bool
     {
@@ -134,10 +138,6 @@ class Carts extends Component
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
-
-        if (!$order->id && !Craft::$app->getElements()->saveElement($order, false)) {
-            throw new Exception(Craft::t('commerce', 'Error creating new cart'));
-        }
 
         // filling item model
         $plugin = Plugin::getInstance();
@@ -206,12 +206,12 @@ class Carts extends Component
     }
 
     /**
-     * @param Order $cart
-     * @param string $code
-     * @param string $error
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
+     * Apply a coupon by its code to a cart.
+     *
+     * @param Order $cart the cart
+     * @param string $code the coupon code
+     * @param string $error error message (if any) will be set on this by reference
+     * @return bool whether the coupon was applied successfully
      */
     public function applyCoupon(Order $cart, $code, &$error): bool
     {
@@ -228,10 +228,10 @@ class Carts extends Component
     /**
      * Sets the payment currency on the order.
      *
-     * @param $order
-     * @param $currency
-     * @param $error
-     * @return bool
+     * @param Order $order the order
+     * @param string $currency
+     * @param $error error message (if any) will be set on this by reference
+     * @return bool whether the currency was set successfully
      */
     public function setPaymentCurrency($order, $currency, &$error): bool
     {
@@ -257,10 +257,8 @@ class Carts extends Component
      *
      * @param Order $cart
      * @param int $shippingMethod
-     * @param string $error ;
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
+     * @param string $error error message (if any) will be set on this by reference
+     * @return bool whether the method was set successfully
      */
     public function setShippingMethod(Order $cart, $shippingMethod, &$error): bool
     {
@@ -280,15 +278,14 @@ class Carts extends Component
     }
 
     /**
-     * Sets shipping method to the current order
+     * Sets gateway to the current cart
      *
-     * @param Order $cart
-     * @param int $gatewayId
-     * @param string $error
+     * @param Order $cart the cart
+     * @param int $gatewayId the gateway id
+     * @param string $error error message (if any) will be set on this by reference
      * @return bool
-     * @throws \Exception
      */
-    public function setGateway(Order $cart, $gatewayId, &$error): bool
+    public function setGateway(Order $cart, int $gatewayId, &$error): bool
     {
         if (!$gatewayId) {
             $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
@@ -311,7 +308,15 @@ class Carts extends Component
         return true;
     }
 
-    public function setPaymentSource(Order $cart, $paymentSourceId, &$error): bool
+    /**
+     * Set a payment source on the cart
+     *
+     * @param Order $cart the cart
+     * @param int $paymentSourceId ID of payment source
+     * @param string $error error message (if any) will be set on this by reference
+     * @return bool whether the source was set successfully
+     */
+    public function setPaymentSource(Order $cart, int $paymentSourceId, &$error): bool
     {
         $user = Craft::$app->getUser();
 
@@ -338,10 +343,12 @@ class Carts extends Component
     }
 
     /**
-     * @param Order $cart
-     * @param        $email
-     * @param string $error
-     * @return bool
+     * Set an email address on the cart.
+     *
+     * @param Order $cart the cart
+     * @param string $email the email address to set
+     * @param string $error error message (if any) will be set on this by reference
+     * @return bool whether the email address was set successfully
      */
     public function setEmail(Order $cart, $email, &$error): bool
     {
@@ -372,6 +379,8 @@ class Carts extends Component
     }
 
     /**
+     * Get the current cart for this session.
+     *
      * @return Order
      */
     public function getCart(): Order
@@ -442,6 +451,8 @@ class Carts extends Component
 
     /**
      * Forgets a Cart by deleting its cookie.
+     *
+     * @return void
      */
     public function forgetCart()
     {
@@ -512,7 +523,7 @@ class Carts extends Component
     }
 
     /**
-     * Removes all items from a cart
+     * Removes all items from a cart.
      *
      * @param Order $cart
      * @throws \Exception
@@ -537,7 +548,6 @@ class Carts extends Component
      * Removes all carts that are incomplete and older than the config setting.
      *
      * @return int The number of carts purged from the database
-     * @throws \Exception
      */
     public function purgeIncompleteCarts(): int
     {
