@@ -11,7 +11,7 @@
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
-            <td style="padding-left: {{ level * 30 }}px;">{{ transaction.type|title }}</td>
+            <td style="padding-left: {{ level * 20 }}px;">{{ transaction.type|title }}</td>
             <td class="transaction-status transaction-status-{{ transaction.status }}">
                 {{ transaction.status|title|t('commerce') }}
             </td>
@@ -79,7 +79,7 @@
                 <th scope="col">{{ 'Status'|t('commerce') }}</th>
                 <th scope="col">{{ 'Amount'|t('commerce') }}</th>
                 <th scope="col">{{ 'Payment Amount'|t('commerce') }}</th>
-                <th scope="col">{{ 'Method'|t('commerce') }}</th>
+                <th scope="col">{{ 'Gateway'|t('commerce') }}</th>
                 <th scope="col">{{ 'Date'|t('commerce') }}</th>
                 <th scope="col">{{ 'Info'|t('commerce') }}</th>
                 <th></th>
