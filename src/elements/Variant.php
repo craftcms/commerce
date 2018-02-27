@@ -540,10 +540,9 @@ class Variant extends Purchasable
     /**
      * Updates Stock count from completed order.
      *
-     * @param LineItem $lineItem the line item this purchasable was on when order was completed.
-     * @throws \yii\db\Exception
+     * @inheritdoc
      */
-    public function afterOrderComplete(LineItem $lineItem)
+    public function afterOrderComplete(Order $order, LineItem $lineItem)
     {
         // Update the qty in the db directly
         Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
