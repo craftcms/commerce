@@ -9,11 +9,12 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
-use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Address service.
  *
+ * @property Address $storeLocationAddress the store location address.
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -139,7 +140,7 @@ class Addresses extends Component
      * @param Address $addressModel The address to be saved.
      * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
-     * @throws Exception if an address does not exist.
+     * @throws InvalidConfigException if an address does not exist.
      */
     public function saveAddress(Address $addressModel, bool $runValidation = true): bool
     {
@@ -150,7 +151,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new Exception(Craft::t('commerce', 'No address exists with the ID “{id}”',
+                throw new InvalidConfigException(Craft::t('commerce', 'No address exists with the ID “{id}”',
                     ['id' => $addressModel->id]));
             }
         } else {
