@@ -35,12 +35,10 @@ class ChartsController extends ElementIndexesController
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
 
         $query = clone $this->getElementQuery()
-            ->search(null)
-            ->select(['sum([[commerce_orders.totalPrice]])'])
-            ->orderBy(null);
+            ->search(null);
 
         // Get the chart data table
-        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', [
+        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', 'sum', '[[commerce_orders.totalPrice]]', [
             'intervalUnit' => $intervalUnit,
             'valueLabel' => Craft::t('commerce', 'Revenue'),
             'valueType' => 'currency',
