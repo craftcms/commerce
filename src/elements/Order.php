@@ -422,15 +422,8 @@ class Order extends Element
         }
 
         if (Craft::$app->getElements()->saveElement($this)) {
-            // Run order complete handlers directly.
-            Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
-            Plugin::getInstance()->getVariants()->orderCompleteHandler($this);
-            Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
-            // Raising the 'afterCompleteOrder' event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
-                $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
-            }
+            $this->afterOrderComplete();
 
             return true;
         }
@@ -441,6 +434,27 @@ class Order extends Element
         return false;
     }
 
+    /**
+     * Called after the order successfully completes
+     */
+    public function afterOrderComplete()
+    {
+        // Run order complete handlers directly.
+        Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
+        Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
+
+        foreach ($this->getLineItems() as $lineItem)
+        {
+            if ($lineItem->getPurchasable()){
+                $lineItem->getPurchasable()->afterOrderComplete($lineItem);
+            }
+        }
+
+        // Raising the 'afterCompleteOrder' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
+            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
+        }
+    }
     /**
      * Removes a specific line item from the order.
      *

@@ -137,6 +137,14 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
+     * @param LineItem $lineItem
+     */
+    public function afterOrderComplete(LineItem $lineItem)
+    {
+        return;
+    }
+
+    /**
      * @inheritdoc
      */
     public function hasFreeShipping(): bool

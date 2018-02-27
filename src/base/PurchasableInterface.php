@@ -100,6 +100,16 @@ interface PurchasableInterface
     public function getLineItemRules(LineItem $lineItem): array;
 
     /**
+     * Runs any logic needed for this purchasable after it was on an order that was just completed.
+     *
+     * This is called for each line item the purchasable contained within.
+     *
+     * @param LineItem $lineItem
+     * @return void
+     */
+    public function afterOrderComplete(LineItem $lineItem);
+
+    /**
      * Returns whether this purchasable has free shipping.
      *
      * @return bool

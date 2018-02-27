@@ -18,6 +18,7 @@
 - Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 
 - The payment method overrides in commerce.php config file have been moved to a commerce-gateway.php config file.
 - Vat ID validation is now using the MIT licenced dannyvankooten/vat.php
+- The `Variants::EVENT_PURCHASE_VARIANT` event has been replaced by `ElementInterface::afterOrderComplete($lineItem)`
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
