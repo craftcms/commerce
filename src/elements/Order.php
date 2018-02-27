@@ -446,7 +446,7 @@ class Order extends Element
         foreach ($this->getLineItems() as $lineItem)
         {
             if ($lineItem->getPurchasable()){
-                $lineItem->getPurchasable()->afterOrderComplete($lineItem);
+                $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
             }
         }
 
