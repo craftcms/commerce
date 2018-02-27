@@ -230,7 +230,7 @@ class Carts extends Component
      *
      * @param Order $order the order
      * @param string $currency
-     * @param $error error message (if any) will be set on this by reference
+     * @param string $error error message (if any) will be set on this by reference
      * @return bool whether the currency was set successfully
      */
     public function setPaymentCurrency($order, $currency, &$error): bool
