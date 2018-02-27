@@ -135,10 +135,6 @@ class Cart extends Component
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
-        if (!$order->id && !Craft::$app->getElements()->saveElement($order, false)) {
-            throw new Exception(Craft::t('commerce', 'Error creating new cart'));
-        }
-
         // filling item model
         $plugin = Plugin::getInstance();
         $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
