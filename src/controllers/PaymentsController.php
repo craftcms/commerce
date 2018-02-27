@@ -118,7 +118,7 @@ class PaymentsController extends BaseFrontEndController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->getParam('gatewayId');
 
-        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCarts()->setGateway($order, $gatewayId, $error)) {
+        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCarts()->setGateway($order, (int) $gatewayId, $error)) {
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             }

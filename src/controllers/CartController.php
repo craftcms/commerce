@@ -289,7 +289,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('gatewayId')) {
             $error = '';
             $gatewayId = $request->getParam('gatewayId');
-            if (!$plugin->getCarts()->setGateway($this->_cart, $gatewayId, $error)) {
+            if (!$plugin->getCarts()->setGateway($this->_cart, (int) $gatewayId, $error)) {
                 $updateErrors['gatewayId'] = $error;
             } else {
                 $cartSaved = true;
@@ -300,7 +300,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('paymentSourceId')) {
             $error = '';
             $paymentSourceId = $request->getParam('paymentSourceId');
-            if (!$plugin->getCarts()->setPaymentSource($this->_cart, $paymentSourceId, $error)) {
+            if (!$plugin->getCarts()->setPaymentSource($this->_cart, (int) $paymentSourceId, $error)) {
                 $updateErrors['$paymentSourceId'] = $error;
             } else {
                 $cartSaved = true;
