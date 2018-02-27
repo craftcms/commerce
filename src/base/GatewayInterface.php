@@ -71,6 +71,13 @@ interface GatewayInterface extends SavableComponentInterface
     public function deletePaymentSource($token): bool;
 
     /**
+     * Returns payment form model to use in payment forms.
+     *
+     * @return BasePaymentForm
+     */
+     public function getPaymentFormModel(): BasePaymentForm;
+
+    /**
      * Makes a purchase request.
      *
      * @param Transaction $transaction The purchase transaction

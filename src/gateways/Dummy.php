@@ -34,7 +34,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormModel(): DummyPaymentForm
+    public function getPaymentFormModel(): BasePaymentForm
     {
         return new DummyPaymentForm();
     }
