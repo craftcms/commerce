@@ -127,7 +127,7 @@ class Carts extends Component
      *
      * @param Order $order the cart
      * @param LineItem $lineItem
-     * @return bool whether item was addedeto the cart
+     * @return bool whether item was added to the cart
      * @throws Exception if unable to create a cart
      */
     public function addToCart(Order $order, LineItem $lineItem): bool
