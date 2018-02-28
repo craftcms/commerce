@@ -315,7 +315,7 @@ class CartController extends BaseFrontEndController
             $error = '';
             $paymentSourceId = $request->getParam('paymentSourceId');
             if (!$cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId, $error)) {
-                $updateErrors['$paymentSourceId'] = $error;
+                $updateErrors['paymentSourceId'] = $error;
             } else {
                 $cartSaved = true;
             }
