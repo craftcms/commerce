@@ -164,7 +164,18 @@ class PaymentsController extends BaseFrontEndController
         try {
             if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
-                $plugin->getCarts()->setPaymentSource($order, $paymentSource->id, $error);
+
+                try {
+                    $plugin->getCarts()->setPaymentSource($order, $paymentSource->id);
+                } catch (PaymentSourceException $exception) {
+                    if ($request->getAcceptsJson()) {
+                        return $this->asErrorJson($exception->getMessage());
+                    }
+
+                    $session->setError($exception->getMessage());
+
+                    return null;
+                }
             } else {
                 $paymentSource = $order->getPaymentSource();
             }

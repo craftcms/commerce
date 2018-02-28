@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
@@ -312,12 +313,11 @@ class CartController extends BaseFrontEndController
 
         // Set Payment source on Cart.
         if (null !== $request->getParam('paymentSourceId')) {
-            $error = '';
             $paymentSourceId = $request->getParam('paymentSourceId');
-            if (!$cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId, $error)) {
-                $updateErrors['paymentSourceId'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId);
+            } catch (PaymentSourceException $exception) {
+                $updateErrors['gatewayId'] = $exception->getMessage();
             }
         }
 

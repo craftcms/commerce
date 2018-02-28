@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
@@ -274,33 +275,21 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param int $paymentSourceId ID of payment source
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool whether the source was set successfully
+     * @throws PaymentSourceException if applicable payment source not found
      */
-    public function setPaymentSource(Order $cart, int $paymentSourceId, &$error): bool
+    public function setPaymentSource(Order $cart, int $paymentSourceId): bool
     {
         $user = Craft::$app->getUser();
-
-        if ($user->getIsGuest()) {
-            $error = Craft::t('commerce', 'You must be logged in to select a payment source.');
-        }
-
         $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
 
-        if (!$source) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        // TODO probably admins should be able to select any payment source for the user that has this order
+        if ($user->getIsGuest() || !$source || $source->userId !== $user->getId() || true) {
+            throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
         }
-
-        // TODO maybe allow admins to do this?
-        if ($user->getId() !== $source->userId) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
-        }
-
         $cart->gatewayId = null;
         $cart->paymentSourceId = $paymentSourceId;
-        Craft::$app->getElements()->saveElement($cart);
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
