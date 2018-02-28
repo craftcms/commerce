@@ -168,6 +168,7 @@ class CartController extends BaseFrontEndController
         $updateErrors = [];
 
         $cartsService = $plugin->getCarts();
+
         if (null !== $request->getParam('purchasableId')) {
             $purchasableId = $request->getRequiredParam('purchasableId');
             $note = $request->getParam('note', '');
@@ -175,7 +176,7 @@ class CartController extends BaseFrontEndController
             $qty = (int) $request->getParam('qty', 1);
             $error = '';
 
-            $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($this->_cart, $purchasableId, $options, $qty, $note);
+            $lineItem = $plugin->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options, $qty, $note);
 
             if (!$cartsService->addToCart($this->_cart, $lineItem)) {
                 $addToCartError = Craft::t('commerce', 'Could not add to cart: {error}', [

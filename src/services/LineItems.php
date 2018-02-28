@@ -112,7 +112,10 @@ class LineItems extends Component
     }
 
     /**
-     * Returns a line item with any supplied options, per its order's ID and purchasable's ID
+     * Takes an Order, a purchasable id, options and resolves it to a line item.
+     *
+     * If a line item is found for that order with those exact options, that line item is
+     * return with its quantity increased. Otherwise, a new line item is returned.
      *
      * @param Order $order
      * @param int $purchasableId the purchasable's ID
@@ -122,7 +125,7 @@ class LineItems extends Component
      * @return LineItem
      * @throws InvalidConfigException if invalid purchasable id supplied
      */
-    public function getLineItemByOrderPurchasableOptions(Order $order, int $purchasableId, array $options = [], int $qty = 0, string $note = ''): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], int $qty = 0, string $note = ''): LineItem
     {
         ksort($options);
         $signature = md5(json_encode($options));
