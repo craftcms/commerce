@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -108,13 +109,15 @@ class PaymentsController extends BaseFrontEndController
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
 
-            if (!$plugin->getCarts()->setPaymentCurrency($order, $currency, $error)) {
+            try {
+                $plugin->getCarts()->setPaymentCurrency($order, $currency);
+            } catch (CurrencyException $exception) {
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($error);
                 }
 
-                $order->addError('paymentCurrency', $error);
-                $session->setError($error);
+                $order->addError('paymentCurrency', $exception->getMessage());
+                $session->setError($exception->getMessage());
 
                 return null;
             }

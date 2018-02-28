@@ -219,9 +219,7 @@ class Carts extends Component
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
         $order->paymentCurrency = $currency->iso;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
-            return false;
-        }
+        Craft::$app->getElements()->saveElement($order);
 
         return true;
     }
