@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
@@ -301,12 +302,11 @@ class CartController extends BaseFrontEndController
 
         // Set Gateway on Cart.
         if (null !== $request->getParam('gatewayId')) {
-            $error = '';
             $gatewayId = $request->getParam('gatewayId');
-            if (!$cartsService->setGateway($this->_cart, (int) $gatewayId, $error)) {
-                $updateErrors['gatewayId'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setGateway($this->_cart, (int)$gatewayId);
+            } catch (GatewayException $exception) {
+                $updateErrors['gatewayId'] = $exception->getMessage();
             }
         }
 

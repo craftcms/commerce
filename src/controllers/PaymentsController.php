@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -126,14 +127,19 @@ class PaymentsController extends BaseFrontEndController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->getParam('gatewayId');
 
-        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCarts()->setGateway($order, (int) $gatewayId, $error)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+        if ($gatewayId && $order->gatewayId != $gatewayId) {
+            try{
+                $plugin->getCarts()->setGateway($order, (int)$gatewayId);
+            } catch (GatewayException $exception) {
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($exception->getMessage());
+                }
+
+                $order->addError('gatewayId', $exception->getMessage());
+                $session->setError($exception->getMessage());
+
+                return null;
             }
-
-            $session->setError($error);
-
-            return null;
         }
 
         $gateway = $order->getGateway();

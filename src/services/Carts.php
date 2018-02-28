@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
@@ -228,7 +229,7 @@ class Carts extends Component
      * @param Order $cart
      * @param string $shippingMethodHandle
      * @return bool whether the method was set successfully
-     * @throws ShippingMethodException if shipping method not found
+     * @throws ShippingMethodException if applicable shipping method not found
      */
     public function setShippingMethod(Order $cart, string $shippingMethodHandle): bool
     {
@@ -250,30 +251,22 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param int $gatewayId the gateway id
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool
+     * @throws GatewayException if applicable gateway not found
      */
-    public function setGateway(Order $cart, int $gatewayId, &$error): bool
+    public function setGateway(Order $cart, int $gatewayId): bool
     {
-        if (!$gatewayId) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
-        }
 
         /** @var Gateway $gateway */
-        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        if (!$gatewayId
+            || ($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId))
+            || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
 
-        if (!$gateway || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
+            throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
         }
 
         $cart->gatewayId = $gatewayId;
-        Craft::$app->getElements()->saveElement($cart);
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
