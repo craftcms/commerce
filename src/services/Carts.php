@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\EmailException;
 use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\errors\ShippingMethodException;
@@ -263,6 +264,7 @@ class Carts extends Component
         }
 
         $cart->gatewayId = $gatewayId;
+
         return Craft::$app->getElements()->saveElement($cart);
     }
 
@@ -285,6 +287,7 @@ class Carts extends Component
         }
         $cart->gatewayId = null;
         $cart->paymentSourceId = $paymentSourceId;
+
         return Craft::$app->getElements()->saveElement($cart);
     }
 
@@ -293,35 +296,24 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param string $email the email address to set
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool whether the email address was set successfully
+     * @throws EmailException if cannot set the email address
      */
-    public function setEmail(Order $cart, $email, &$error): bool
+    public function setEmail(Order $cart, $email): bool
     {
         $validator = new EmailValidator();
 
         if (empty($email) || !$validator->validate($email)) {
-            $error = Craft::t('commerce', 'Not a valid email address');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Not a valid email address'));
         }
 
         if ($cart->getCustomer() && $cart->getCustomer()->getUser()) {
-            $error = Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.'));
         }
 
-        try {
-            $cart->setEmail($email);
-            Craft::$app->getElements()->saveElement($cart);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
+        $cart->setEmail($email);
 
-            return false;
-        }
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**

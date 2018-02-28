@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\EmailException;
 use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\errors\ShippingMethodException;
@@ -270,12 +271,11 @@ class CartController extends BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest) {
             if (null !== $request->getParam('email')) {
-                $error = '';
                 $email = $request->getParam('email'); // empty string vs null (strict type checking)
-                if (!$cartsService->setEmail($this->_cart, $email, $error)) {
-                    $updateErrors['email'] = $error;
-                } else {
-                    $cartSaved = true;
+                try {
+                    $cartSaved = $cartsService->setEmail($this->_cart, $email);
+                } catch (EmailException $exception) {
+                    $updateErrors['email'] = $exception->getMessage();
                 }
             }
         }
