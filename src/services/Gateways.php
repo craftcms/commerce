@@ -181,6 +181,21 @@ class Gateways extends Component
     }
 
     /**
+     * Returns a gateway by its handle.
+     *
+     * @param string $handle
+     * @return GatewayInterface|null The gateway or null if not found.
+     */
+    public function getGatewayByHandle(string $handle)
+    {
+        $result = $this->_createGatewayQuery()
+            ->where(['handle' => $handle])
+            ->one();
+
+        return $result ? $this->createGateway($result) : null;
+    }
+
+    /**
      * Saves a gateway.
      *
      * @param Gateway $gateway The gateway to be saved.
