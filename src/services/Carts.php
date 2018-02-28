@@ -259,7 +259,7 @@ class Carts extends Component
 
         /** @var Gateway $gateway */
         if (!$gatewayId
-            || ($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId))
+            || !($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId))
             || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
 
             throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
