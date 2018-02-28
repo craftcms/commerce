@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -222,28 +223,26 @@ class Carts extends Component
     }
 
     /**
-     * Sets shipping method to the current order
+     * Sets shipping method to the current order.
      *
      * @param Order $cart
-     * @param int $shippingMethod
-     * @param string $error error message (if any) will be set on this by reference
+     * @param string $shippingMethodHandle
      * @return bool whether the method was set successfully
+     * @throws ShippingMethodException if shipping method not found
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error): bool
+    public function setShippingMethod(Order $cart, string $shippingMethodHandle): bool
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
         foreach ($methods as $method) {
-            if ($method['handle'] == $shippingMethod) {
-                $cart->shippingMethodHandle = $shippingMethod;
+            if ($method['handle'] == $shippingMethodHandle) {
+                $cart->shippingMethodHandle = $shippingMethodHandle;
 
                 return Craft::$app->getElements()->saveElement($cart);
             }
         }
 
-        $error = Craft::t('commerce', 'Shipping method not available');
-
-        return false;
+        throw new ShippingMethodException(Craft::t('commerce', 'Shipping method “{handle}” not available', ['handle' => $shippingMethodHandle]));
     }
 
     /**

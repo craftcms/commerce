@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use craft\web\Response;
@@ -322,12 +323,11 @@ class CartController extends BaseFrontEndController
 
         // Set Shipping Method on Cart.
         if (null !== $request->getParam('shippingMethod')) {
-            $error = '';
             $shippingMethod = $request->getParam('shippingMethod');
-            if (!$cartsService->setShippingMethod($this->_cart, $shippingMethod, $error)) {
-                $updateErrors['shippingMethod'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setShippingMethod($this->_cart, $shippingMethod);
+            } catch (ShippingMethodException $exception) {
+                $updateErrors['shippingMethod'] = $exception->getMessage();
             }
         }
 
