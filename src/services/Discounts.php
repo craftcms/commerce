@@ -182,20 +182,20 @@ class Discounts extends Component
      *
      * @param string $code
      * @param int|null $customerId
-     * @param string|null $error
+     * @param string|null $explanation
      * @return bool
      */
-    public function matchCode(string $code, int $customerId = null, string &$error = null): bool
+    public function matchCode(string $code, int $customerId = null, string &$explanation = null): bool
     {
         $discount = $this->getDiscountByCode($code);
 
         if (!$discount) {
-            $error = Craft::t('commerce', 'Coupon not valid');
+            $explanation = Craft::t('commerce', 'Coupon not valid');
             return false;
         }
 
         if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
-            $error = Craft::t('commerce', 'Discount use has reached its limit');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit');
             return false;
         }
 
@@ -203,7 +203,7 @@ class Discounts extends Component
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
         if (($from && $from > $now) || ($to && $to < $now)) {
-            $error = Craft::t('commerce', 'Discount is out of date');
+            $explanation = Craft::t('commerce', 'Discount is out of date');
 
             return false;
         }
@@ -215,7 +215,7 @@ class Discounts extends Component
             $user = $customer ? $customer->getUser() : null;
             $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                $error = Craft::t('commerce', 'Discount is not allowed for the customer');
+                $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
 
                 return false;
             }
@@ -224,7 +224,7 @@ class Discounts extends Component
         if ($customerId) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             if ($discount->perUserLimit > 0 && !Craft::$app->getUser()->isLoggedIn()) {
-                $error = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
+                $explanation = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
 
                 return false;
             }
@@ -236,7 +236,7 @@ class Discounts extends Component
                 ->one();
 
             if ($allUsedUp) {
-                $error = Craft::t('commerce', 'You can not use this discount anymore');
+                $explanation = Craft::t('commerce', 'You can not use this discount anymore');
 
                 return false;
             }
@@ -257,7 +257,7 @@ class Discounts extends Component
                 }
 
                 if ($usedCount >= $discount->perEmailLimit) {
-                    $error = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
+                    $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
                         'limit' => $discount->perEmailLimit,
                     ]);
 

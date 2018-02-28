@@ -191,12 +191,12 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param string $code the coupon code
-     * @param string $error error message (if any) will be set on this by reference
+     * @param string $explanation error message (if any) will be set on this by reference
      * @return bool whether the coupon was applied successfully
      */
-    public function applyCoupon(Order $cart, $code, &$error): bool
+    public function applyCoupon(Order $cart, $code, &$explanation): bool
     {
-        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
+        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $explanation)) {
             $cart->couponCode = $code ?: null;
             Craft::$app->getElements()->saveElement($cart);
 
