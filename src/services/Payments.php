@@ -173,7 +173,6 @@ class Payments extends Component
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent([
             'order' => $order,
-            'transaction' => $transaction,
             'form' => $form
         ]);
 
