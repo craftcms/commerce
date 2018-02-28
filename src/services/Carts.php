@@ -123,7 +123,7 @@ class Carts extends Component
     // =========================================================================
 
     /**
-     * Add a purchasable to a cart by its id.
+     * Add a line item to a cart.
      *
      * @param Order $order the cart
      * @param LineItem $lineItem
