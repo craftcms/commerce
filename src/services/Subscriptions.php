@@ -264,6 +264,17 @@ class Subscriptions extends Component
     }
 
     /**
+     * Return true if the user has any subscriptions at all, even expired ones.
+     *
+     * @param int $userId
+     * @return bool
+     */
+    public function doesUserHaveAnySubscriptions(int $userId): bool
+    {
+        return (bool) SubscriptionRecord::find()->where(['userId' => $userId])->count();
+    }
+
+    /**
      * Subscribe a user to a subscription plan.
      *
      * @param User $user the user subscribing to a plan
