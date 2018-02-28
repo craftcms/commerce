@@ -3,6 +3,7 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Plugin as BasePlugin;
 use craft\commerce\elements\Product;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
@@ -32,11 +33,12 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
+ * @property array $cpNavItem the control panel navigation menu
  * @property mixed $settingsResponse the settings page response
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends BasePlugin
 {
     // Public Properties
     // =========================================================================
@@ -150,7 +152,7 @@ class Plugin extends \craft\base\Plugin
             ];
         }
 
-        if (Craft::$app->user->identity->admin) {
+        if (Craft::$app->getUser()->getIsAdmin()) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings/general'
