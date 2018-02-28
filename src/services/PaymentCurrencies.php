@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
@@ -87,9 +88,10 @@ class PaymentCurrencies extends Component
 
     /**
      * @param string $iso
-     * @return PaymentCurrency|null
+     * @return PaymentCurrency
+     * @throws CurrencyException
      */
-    public function getPaymentCurrencyByIso($iso)
+    public function getPaymentCurrencyByIso($iso): PaymentCurrency
     {
         if ($this->_allCurrenciesByIso === null) {
             $this->getAllPaymentCurrencies();
@@ -99,7 +101,7 @@ class PaymentCurrencies extends Component
             return $this->_allCurrenciesByIso[$iso];
         }
 
-        return null;
+        throw new CurrencyException(Craft::t('commerce', 'No currency found with ISO code “{iso}”.', ['iso' => $iso]));
     }
 
     /**

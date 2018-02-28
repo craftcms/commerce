@@ -10,15 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\StringHelper;
-use Svg\Tag\Line;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
 use yii\validators\EmailValidator;
 
 /**
@@ -212,19 +211,12 @@ class Carts extends Component
      *
      * @param Order $order the order
      * @param string $currency
-     * @param $error error message (if any) will be set on this by reference
      * @return bool whether the currency was set successfully
+     * @throws CurrencyException if currency not found
      */
-    public function setPaymentCurrency($order, $currency, &$error): bool
+    public function setPaymentCurrency($order, $currency): bool
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
-
-        if (!$currency) {
-            $error = Craft::t('commerce', 'Not an available payment currency');
-
-            return false;
-        }
-
         $order->paymentCurrency = $currency->iso;
 
         if (!Craft::$app->getElements()->saveElement($order)) {

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use craft\web\Response;
@@ -279,11 +280,11 @@ class CartController extends BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
-            $error = '';
-            if (!$cartsService->setPaymentCurrency($this->_cart, $currency, $error)) {
-                $updateErrors['paymentCurrency'] = $error;
-            } else {
+            try {
+                $cartsService->setPaymentCurrency($this->_cart, $currency);
                 $cartSaved = true;
+            } catch (CurrencyException $exception) {
+                $updateErrors['paymentCurrency'] = $exception->getMessage();
             }
         }
 
