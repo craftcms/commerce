@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use yii\base\Exception;
