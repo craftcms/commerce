@@ -125,7 +125,7 @@ class LineItems extends Component
      * @return LineItem
      * @throws InvalidConfigException if invalid purchasable id supplied
      */
-    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], int $qty = 0, string $note = ''): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
     {
         ksort($options);
         $signature = md5(json_encode($options));
