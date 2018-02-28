@@ -27,10 +27,6 @@ use yii\validators\EmailValidator;
  * Cart service.
  *
  * @property Order $cart
- * @property Order $email
- * @property Order $gateway the shipping method to the current order
- * @property mixed $paymentCurrency the payment currency on the order
- * @property Order $shippingMethod the shipping method to the current order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
