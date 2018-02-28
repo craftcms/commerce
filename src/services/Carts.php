@@ -497,13 +497,15 @@ class Carts extends Component
                 Craft::$app->getElements()->deleteElementById($id);
             }
 
-            return count($cartIds);
+            return \count($cartIds);
         }
 
         return 0;
     }
 
     /**
+     * Generate a cart number and return it.
+     *
      * @return string
      */
     public function generateCartNumber(): string
@@ -515,6 +517,8 @@ class Carts extends Component
     // =========================================================================
 
     /**
+     * Get the session cart number.
+     *
      * @return mixed|string
      */
     private function _getSessionCartNumber()
@@ -531,7 +535,7 @@ class Carts extends Component
     }
 
     /**
-     * Which Carts IDs need to be deleted
+     * Return cart IDs to be deleted
      *
      * @return int[]
      */
