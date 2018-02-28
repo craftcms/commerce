@@ -18,6 +18,7 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
+use craft\events\ModelEvent;
 use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -228,6 +229,22 @@ class Subscriptions extends Component
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * Prevent deleting a user if they have any subscriptions - active or otherwise.
+     *
+     * @param ModelEvent $event the event.
+     */
+    public function beforeDeleteUserHandler(ModelEvent $event)
+    {
+        /** @var User $user */
+        $user = $event->sender;
+
+        // If there are any subscriptions, make sure that this is not allowed.
+        if ($this->doesUserHaveAnySubscriptions($user->id)) {
+            $event->isValid = false;
+        }
+    }
 
     /**
      * Expire a subscription.
