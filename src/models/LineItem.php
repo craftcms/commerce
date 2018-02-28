@@ -213,6 +213,27 @@ class LineItem extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+        ArrayHelper::removeValue($names, 'snapshot');
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'order',
+            'purchasable',
+        ];
+    }
+
+    /**
      * @return float
      */
     public function getSubtotal(): float
