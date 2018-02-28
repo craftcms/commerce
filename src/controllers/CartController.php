@@ -281,8 +281,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
             try {
-                $cartsService->setPaymentCurrency($this->_cart, $currency);
-                $cartSaved = true;
+                $cartSaved = $cartsService->setPaymentCurrency($this->_cart, $currency);
             } catch (CurrencyException $exception) {
                 $updateErrors['paymentCurrency'] = $exception->getMessage();
             }

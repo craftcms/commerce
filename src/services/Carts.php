@@ -198,9 +198,8 @@ class Carts extends Component
     {
         if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $explanation)) {
             $cart->couponCode = $code ?: null;
-            Craft::$app->getElements()->saveElement($cart);
 
-            return true;
+            return Craft::$app->getElements()->saveElement($cart);
         }
 
         return false;
@@ -210,7 +209,7 @@ class Carts extends Component
      * Sets the payment currency on the order.
      *
      * @param Order $order the order
-     * @param string $currency
+     * @param string $currency the ISO code for currency
      * @return bool whether the currency was set successfully
      * @throws CurrencyException if currency not found
      */
@@ -219,9 +218,7 @@ class Carts extends Component
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
         $order->paymentCurrency = $currency->iso;
 
-        Craft::$app->getElements()->saveElement($order);
-
-        return true;
+        return Craft::$app->getElements()->saveElement($order);
     }
 
     /**
