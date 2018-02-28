@@ -113,7 +113,7 @@ class PaymentsController extends BaseFrontEndController
                 $plugin->getCarts()->setPaymentCurrency($order, $currency);
             } catch (CurrencyException $exception) {
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($error);
+                    return $this->asErrorJson($exception->getMessage());
                 }
 
                 $order->addError('paymentCurrency', $exception->getMessage());
