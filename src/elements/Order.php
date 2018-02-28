@@ -33,7 +33,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\errors\DefaultOrderStatusNotFoundException;
+use craft\errors\OrderStatusException;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -399,7 +399,7 @@ class Order extends Element
 
     /**
      * @return bool
-     * @throws DefaultOrderStatusNotFoundException
+     * @throws OrderStatusException
      * @throws Exception
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
@@ -418,7 +418,7 @@ class Order extends Element
         if ($orderStatus && $orderStatus->id) {
             $this->orderStatusId = $orderStatus->id;
         } else {
-            throw new DefaultOrderStatusNotFoundException('Could not find a valid default order status.');
+            throw new OrderStatusException('Could not find a valid default order status.');
         }
 
         // Raising the 'beforeCompleteOrder' event
