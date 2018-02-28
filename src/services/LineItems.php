@@ -114,24 +114,45 @@ class LineItems extends Component
     /**
      * Returns a line item with any supplied options, per its order's ID and purchasable's ID
      *
-     * @param int $orderId the order's ID
+     * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
-     * @return LineItem|null Line item or null if not found.
+     * @param int $qty
+     * @param string $note
+     * @return LineItem
+     * @throws InvalidConfigException if invalid purchasable id supplied
      */
-    public function getLineItemByOrderPurchasableOptions(int $orderId, int $purchasableId, array $options = [])
+    public function getLineItemByOrderPurchasableOptions(Order $order, int $purchasableId, array $options = [], int $qty = 0, string $note = ''): LineItem
     {
         ksort($options);
         $signature = md5(json_encode($options));
         $result = $this->_createLineItemQuery()
             ->where([
-                'orderId' => $orderId,
+                'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
                 'optionsSignature' => $signature
             ])
             ->one();
 
-        return $result ? new LineItem($result) : null;
+        if ($result) {
+            $lineItem = new LineItem($result);
+
+            foreach ($order->getLineItems() as $item) {
+                if ($item->id == $lineItem->id) {
+                    $lineItem = $item;
+                }
+            }
+
+            $lineItem->qty += $qty;
+        } else {
+            $lineItem = $this->createLineItem($purchasableId, $order, $options, $qty);
+        }
+
+        if ($note) {
+            $lineItem->note = $note;
+        }
+
+        return $lineItem;
     }
 
     /**

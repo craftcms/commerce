@@ -15,6 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\StringHelper;
+use Svg\Tag\Line;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -125,47 +126,26 @@ class Carts extends Component
      * Add a purchasable to a cart by its id.
      *
      * @param Order $order the cart
-     * @param int $purchasableId the purchasable id
-     * @param int $qty quantity
-     * @param string $note a note for the linieitem
-     * @param array  $options an array of options
-     * @param string $error error message (if any) will be set on this by reference
-     * @return bool whether item was addede to the cart
-     * @throws InvalidConfigException if purchasable not found with that id
+     * @param LineItem $lineItem
+     * @return bool whether item was addedeto the cart
      * @throws Exception if unable to create a cart
      */
-    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error): bool
+    public function addToCart(Order $order, LineItem $lineItem): bool
     {
         // saving current cart if it's new and empty
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
         // filling item model
         $plugin = Plugin::getInstance();
-        $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
-        if ($lineItem) {
-            foreach ($order->getLineItems() as $item) {
-                if ($item->id == $lineItem->id) {
-                    $lineItem = $item;
-                }
-            }
-            $lineItem->qty += $qty;
-            $isNewLineItem = false;
-        } else {
-            $lineItem = $plugin->getLineItems()->createLineItem($purchasableId, $order, $options, $qty);
-            $isNewLineItem = true;
+        if (!$lineItem->validate()) {
+            return false;
         }
 
-        if ($note) {
-            $lineItem->note = $note;
-        }
-
-        $lineItem->validate();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         try {
             if (!$lineItem->hasErrors()) {
@@ -177,37 +157,34 @@ class Carts extends Component
                     ]));
                 }
 
-                if ($plugin->getLineItems()->saveLineItem($lineItem)) {
-                    if ($isNewLineItem) {
-                        $order->addLineItem($lineItem);
-                    }
+                $isNewLineItem = !$lineItem->id;
 
-                    Craft::$app->getElements()->saveElement($order);
-
-                    $transaction->commit();
-
-                    // Raise the 'afterAddToCart' event
-                    if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_TO_CART)) {
-                        $this->trigger(self::EVENT_AFTER_ADD_TO_CART, new CartEvent([
-                            'lineItem' => $lineItem,
-                            'order' => $order
-                        ]));
-                    }
-
-                    return true;
+                if (!$plugin->getLineItems()->saveLineItem($lineItem)) {
+                    return false;
                 }
+
+                if ($isNewLineItem) {
+                    $order->addLineItem($lineItem);
+                }
+
+                Craft::$app->getElements()->saveElement($order);
+                $transaction->commit();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
+
             throw $e;
         }
 
-        $transaction->rollBack();
+        // Raise the 'afterAddToCart' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_TO_CART)) {
+            $this->trigger(self::EVENT_AFTER_ADD_TO_CART, new CartEvent([
+                'lineItem' => $lineItem,
+                'order' => $order
+            ]));
+        }
 
-        $errors = $lineItem->getFirstErrors();
-        $error = array_pop($errors);
-
-        return false;
+        return true;
     }
 
     /**
@@ -235,7 +212,7 @@ class Carts extends Component
      *
      * @param Order $order the order
      * @param string $currency
-     * @param string $error error message (if any) will be set on this by reference
+     * @param $error error message (if any) will be set on this by reference
      * @return bool whether the currency was set successfully
      */
     public function setPaymentCurrency($order, $currency, &$error): bool
