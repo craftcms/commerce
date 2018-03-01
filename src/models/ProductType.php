@@ -138,7 +138,7 @@ class ProductType extends Model
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],

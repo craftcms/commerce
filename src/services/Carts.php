@@ -10,25 +10,24 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\EmailException;
+use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\StringHelper;
-use Svg\Tag\Line;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
 use yii\validators\EmailValidator;
 
 /**
  * Cart service.
  *
  * @property Order $cart
- * @property Order $email
- * @property Order $gateway the shipping method to the current order
- * @property mixed $paymentCurrency the payment currency on the order
- * @property Order $shippingMethod the shipping method to the current order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -192,16 +191,15 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param string $code the coupon code
-     * @param string $error error message (if any) will be set on this by reference
+     * @param string $explanation error message (if any) will be set on this by reference
      * @return bool whether the coupon was applied successfully
      */
-    public function applyCoupon(Order $cart, $code, &$error): bool
+    public function applyCoupon(Order $cart, $code, &$explanation): bool
     {
-        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
+        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $explanation)) {
             $cart->couponCode = $code ?: null;
-            Craft::$app->getElements()->saveElement($cart);
 
-            return true;
+            return Craft::$app->getElements()->saveElement($cart);
         }
 
         return false;
@@ -211,52 +209,39 @@ class Carts extends Component
      * Sets the payment currency on the order.
      *
      * @param Order $order the order
-     * @param string $currency
-     * @param $error error message (if any) will be set on this by reference
+     * @param string $currency the ISO code for currency
      * @return bool whether the currency was set successfully
+     * @throws CurrencyException if currency not found
      */
-    public function setPaymentCurrency($order, $currency, &$error): bool
+    public function setPaymentCurrency($order, $currency): bool
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
-
-        if (!$currency) {
-            $error = Craft::t('commerce', 'Not an available payment currency');
-
-            return false;
-        }
-
         $order->paymentCurrency = $currency->iso;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
-            return false;
-        }
-
-        return true;
+        return Craft::$app->getElements()->saveElement($order);
     }
 
     /**
-     * Sets shipping method to the current order
+     * Sets shipping method to the current order.
      *
      * @param Order $cart
-     * @param int $shippingMethod
-     * @param string $error error message (if any) will be set on this by reference
+     * @param string $shippingMethodHandle
      * @return bool whether the method was set successfully
+     * @throws ShippingMethodException if applicable shipping method not found
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error): bool
+    public function setShippingMethod(Order $cart, string $shippingMethodHandle): bool
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
         foreach ($methods as $method) {
-            if ($method['handle'] == $shippingMethod) {
-                $cart->shippingMethodHandle = $shippingMethod;
+            if ($method['handle'] == $shippingMethodHandle) {
+                $cart->shippingMethodHandle = $shippingMethodHandle;
 
                 return Craft::$app->getElements()->saveElement($cart);
             }
         }
 
-        $error = Craft::t('commerce', 'Shipping method not available');
-
-        return false;
+        throw new ShippingMethodException(Craft::t('commerce', 'Shipping method “{handle}” not available', ['handle' => $shippingMethodHandle]));
     }
 
     /**
@@ -264,30 +249,23 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param int $gatewayId the gateway id
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool
+     * @throws GatewayException if applicable gateway not found
      */
-    public function setGateway(Order $cart, int $gatewayId, &$error): bool
+    public function setGateway(Order $cart, int $gatewayId): bool
     {
-        if (!$gatewayId) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
-        }
 
         /** @var Gateway $gateway */
-        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        if (!$gatewayId
+            || !($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId))
+            || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
 
-        if (!$gateway || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
+            throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
         }
 
         $cart->gatewayId = $gatewayId;
-        Craft::$app->getElements()->saveElement($cart);
 
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
@@ -295,33 +273,22 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param int $paymentSourceId ID of payment source
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool whether the source was set successfully
+     * @throws PaymentSourceException if applicable payment source not found
      */
-    public function setPaymentSource(Order $cart, int $paymentSourceId, &$error): bool
+    public function setPaymentSource(Order $cart, int $paymentSourceId): bool
     {
         $user = Craft::$app->getUser();
-
-        if ($user->getIsGuest()) {
-            $error = Craft::t('commerce', 'You must be logged in to select a payment source.');
-        }
-
         $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
 
-        if (!$source) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
+        // TODO probably admins should be able to select any payment source for the user that has this order
+        if ($user->getIsGuest() || !$source || $source->userId !== $user->getId() || true) {
+            throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
         }
-
-        // TODO maybe allow admins to do this?
-        if ($user->getId() !== $source->userId) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
-        }
-
         $cart->gatewayId = null;
         $cart->paymentSourceId = $paymentSourceId;
-        Craft::$app->getElements()->saveElement($cart);
 
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
@@ -329,35 +296,24 @@ class Carts extends Component
      *
      * @param Order $cart the cart
      * @param string $email the email address to set
-     * @param string $error error message (if any) will be set on this by reference
      * @return bool whether the email address was set successfully
+     * @throws EmailException if cannot set the email address
      */
-    public function setEmail(Order $cart, $email, &$error): bool
+    public function setEmail(Order $cart, $email): bool
     {
         $validator = new EmailValidator();
 
         if (empty($email) || !$validator->validate($email)) {
-            $error = Craft::t('commerce', 'Not a valid email address');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Not a valid email address'));
         }
 
         if ($cart->getCustomer() && $cart->getCustomer()->getUser()) {
-            $error = Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.'));
         }
 
-        try {
-            $cart->setEmail($email);
-            Craft::$app->getElements()->saveElement($cart);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
+        $cart->setEmail($email);
 
-            return false;
-        }
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
@@ -541,13 +497,15 @@ class Carts extends Component
                 Craft::$app->getElements()->deleteElementById($id);
             }
 
-            return count($cartIds);
+            return \count($cartIds);
         }
 
         return 0;
     }
 
     /**
+     * Generate a cart number and return it.
+     *
      * @return string
      */
     public function generateCartNumber(): string
@@ -559,6 +517,8 @@ class Carts extends Component
     // =========================================================================
 
     /**
+     * Get the session cart number.
+     *
      * @return mixed|string
      */
     private function _getSessionCartNumber()
@@ -575,7 +535,7 @@ class Carts extends Component
     }
 
     /**
-     * Which Carts IDs need to be deleted
+     * Return cart IDs to be deleted
      *
      * @return int[]
      */

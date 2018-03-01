@@ -35,7 +35,7 @@ class PaymentCurrency extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['iso'], 'unique']

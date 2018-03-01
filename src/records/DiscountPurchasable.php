@@ -37,7 +37,7 @@ class DiscountPurchasable extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['discountId', 'purchasableId'], 'unique', 'targetAttribute' => ['discountId', 'purchasableId']]

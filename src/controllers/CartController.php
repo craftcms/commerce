@@ -8,6 +8,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\EmailException;
+use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use craft\web\Response;
@@ -266,12 +271,11 @@ class CartController extends BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest) {
             if (null !== $request->getParam('email')) {
-                $error = '';
                 $email = $request->getParam('email'); // empty string vs null (strict type checking)
-                if (!$cartsService->setEmail($this->_cart, $email, $error)) {
-                    $updateErrors['email'] = $error;
-                } else {
-                    $cartSaved = true;
+                try {
+                    $cartSaved = $cartsService->setEmail($this->_cart, $email);
+                } catch (EmailException $exception) {
+                    $updateErrors['email'] = $exception->getMessage();
                 }
             }
         }
@@ -279,11 +283,10 @@ class CartController extends BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
-            $error = '';
-            if (!$cartsService->setPaymentCurrency($this->_cart, $currency, $error)) {
-                $updateErrors['paymentCurrency'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setPaymentCurrency($this->_cart, $currency);
+            } catch (CurrencyException $exception) {
+                $updateErrors['paymentCurrency'] = $exception->getMessage();
             }
         }
 
@@ -300,34 +303,31 @@ class CartController extends BaseFrontEndController
 
         // Set Gateway on Cart.
         if (null !== $request->getParam('gatewayId')) {
-            $error = '';
             $gatewayId = $request->getParam('gatewayId');
-            if (!$cartsService->setGateway($this->_cart, (int) $gatewayId, $error)) {
-                $updateErrors['gatewayId'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setGateway($this->_cart, (int)$gatewayId);
+            } catch (GatewayException $exception) {
+                $updateErrors['gatewayId'] = $exception->getMessage();
             }
         }
 
         // Set Payment source on Cart.
         if (null !== $request->getParam('paymentSourceId')) {
-            $error = '';
             $paymentSourceId = $request->getParam('paymentSourceId');
-            if (!$cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId, $error)) {
-                $updateErrors['$paymentSourceId'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId);
+            } catch (PaymentSourceException $exception) {
+                $updateErrors['gatewayId'] = $exception->getMessage();
             }
         }
 
         // Set Shipping Method on Cart.
         if (null !== $request->getParam('shippingMethod')) {
-            $error = '';
             $shippingMethod = $request->getParam('shippingMethod');
-            if (!$cartsService->setShippingMethod($this->_cart, $shippingMethod, $error)) {
-                $updateErrors['shippingMethod'] = $error;
-            } else {
-                $cartSaved = true;
+            try {
+                $cartSaved = $cartsService->setShippingMethod($this->_cart, $shippingMethod);
+            } catch (ShippingMethodException $exception) {
+                $updateErrors['shippingMethod'] = $exception->getMessage();
             }
         }
 

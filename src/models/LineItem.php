@@ -178,7 +178,7 @@ class LineItem extends Model
     /**
      * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = [
             [

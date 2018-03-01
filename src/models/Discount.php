@@ -267,6 +267,16 @@ class Discount extends Model
         return Craft::$app->formatter->asPercent(0);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'required']
+        ];
+    }
+
     // Private Methods
     // =========================================================================
 

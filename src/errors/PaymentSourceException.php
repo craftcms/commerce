@@ -5,16 +5,16 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\errors;
+namespace craft\commerce\errors;
 
 use yii\base\Exception;
 
 /**
- * Class DefaultOrderStatusNotFoundException
+ * Class PaymentSourceException
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DefaultOrderStatusNotFoundException extends Exception
+class PaymentSourceException extends Exception
 {
 }

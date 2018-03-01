@@ -65,16 +65,6 @@ class Discount extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['name'], 'required']
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getDiscountUserGroups(): ActiveQueryInterface

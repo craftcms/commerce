@@ -38,7 +38,7 @@ class SaleCategory extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['saleId', 'categoryId'], 'unique', 'targetAttribute' => ['saleId', 'categoryId']]

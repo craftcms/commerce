@@ -38,7 +38,7 @@ class SaleUserGroup extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['saleId', 'userGroupId'], 'unique', 'targetAttribute' => ['saleId', 'userGroupId']]

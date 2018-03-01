@@ -471,7 +471,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = parent::rules();
 
