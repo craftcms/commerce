@@ -22,7 +22,7 @@ use yii\base\Exception;
 /**
  * Order adjustment service.
  *
- * @property array|AdjusterInterface[] $adjusters
+ * @property AdjusterInterface[] $adjusters
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -52,6 +52,8 @@ class OrderAdjustments extends Component
     // =========================================================================
 
     /**
+     * Get all order adjusters.
+     *
      * @return AdjusterInterface[]
      */
     public function getAdjusters(): array
@@ -71,6 +73,8 @@ class OrderAdjustments extends Component
     }
 
     /**
+     * Get all order adjustments by order's ID.
+     *
      * @param int $orderId
      * @return OrderAdjustment[]
      */
@@ -86,6 +90,8 @@ class OrderAdjustments extends Component
     }
 
     /**
+     * Save an order adjustment.
+     *
      * @param OrderAdjustment $orderAdjustment
      * @param bool $runValidation Whether the Order Adjustment should be validated
      * @return bool
@@ -107,6 +113,11 @@ class OrderAdjustments extends Component
             $record = new OrderAdjustmentRecord();
         }
 
+        if ($runValidation && !$orderAdjustment->validate()) {
+            Craft::info('Order Adjustment not saved due to validation error.', __METHOD__);
+            return false;
+        }
+
         $fields = [
             'name',
             'type',
@@ -117,13 +128,9 @@ class OrderAdjustments extends Component
             'lineItemId',
             'sourceSnapshot'
         ];
+
         foreach ($fields as $field) {
             $record->$field = $orderAdjustment->$field;
-        }
-
-        if ($runValidation && !$orderAdjustment->validate()) {
-            Craft::info('Order Adjustment not saved due to validation error.', __METHOD__);
-            return false;
         }
 
         $record->save(false);
@@ -140,6 +147,8 @@ class OrderAdjustments extends Component
     // =========================================================================
 
     /**
+     * Delete all adjustments belonging to an order by its ID.
+     *
      * @param int $orderId
      * @return bool
      */
@@ -149,6 +158,8 @@ class OrderAdjustments extends Component
     }
 
     /**
+     * Delete an order adjustment by its ID.
+     *
      * @param int $adjustmentId
      * @return bool
      */
