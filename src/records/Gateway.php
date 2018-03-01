@@ -42,7 +42,7 @@ class Gateway extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['handle'], 'unique', 'targetAttribute' => ['handle']]

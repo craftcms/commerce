@@ -38,7 +38,7 @@ class DiscountCategory extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['discountId', 'categoryId'], 'unique', 'targetAttribute' => ['discountId', 'categoryId']]

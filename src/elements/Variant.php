@@ -136,7 +136,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = parent::rules();
 

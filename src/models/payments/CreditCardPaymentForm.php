@@ -94,7 +94,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
