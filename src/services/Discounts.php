@@ -435,10 +435,6 @@ class Discounts extends Component
             $transaction->rollBack();
             throw $e;
         }
-
-        $transaction->rollBack();
-
-        return false;
     }
 
     /**
