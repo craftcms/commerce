@@ -66,6 +66,8 @@ class Discounts extends Component
     // =========================================================================
 
     /**
+     * Get a discount by its ID.
+     *
      * @param int $id
      * @return Discount|null
      */
@@ -81,6 +83,8 @@ class Discounts extends Component
     }
 
     /**
+     * Get all discounts.
+     *
      * @return Discount[]
      */
     public function getAllDiscounts(): array
@@ -177,8 +181,7 @@ class Discounts extends Component
     }
 
     /**
-     * Fetches a discount by its code, ensures it's active, and applies it to
-     * the current user.
+     * Fetches a discount by its code and tries to apply it to the current cart.
      *
      * @param string $code
      * @param int|null $customerId
@@ -289,6 +292,8 @@ class Discounts extends Component
     }
 
     /**
+     * Match a line item against a discount.
+     *
      * @param LineItem $lineItem
      * @param Discount $discount
      * @return bool
@@ -338,6 +343,8 @@ class Discounts extends Component
     }
 
     /**
+     * Save a discount.
+     *
      * @param Discount $model
      * @param array $groups ids
      * @param array $categories ids
@@ -345,7 +352,7 @@ class Discounts extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables): bool
+    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables, $runValidation = true): bool
     {
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
@@ -355,6 +362,12 @@ class Discounts extends Component
             }
         } else {
             $record = new DiscountRecord();
+        }
+
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Discount not saved due to validation error.', __METHOD__);
+
+            return false;
         }
 
         $record->name = $model->name;
@@ -383,46 +396,41 @@ class Discounts extends Component
         $record->allCategories = $model->allCategories = empty($categories);
         $record->allPurchasables = $model->allPurchasables = empty($purchasables);
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-            if (!$model->hasErrors()) {
-                $record->save(false);
-                $model->id = $record->id;
+            $record->save(false);
+            $model->id = $record->id;
 
-                DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
-                DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
-                DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
+            DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
+            DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
+            DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
-                foreach ($groups as $groupId) {
-                    $relation = new DiscountUserGroupRecord;
-                    $relation->userGroupId = $groupId;
-                    $relation->discountId = $model->id;
-                    $relation->save();
-                }
-
-                foreach ($categories as $categoryId) {
-                    $relation = new DiscountCategoryRecord();
-                    $relation->categoryId = $categoryId;
-                    $relation->discountId = $model->id;
-                    $relation->save();
-                }
-
-                foreach ($purchasables as $purchasableId) {
-                    $relation = new DiscountPurchasableRecord();
-                    $relation->purchasableId = $purchasableId;
-                    $relation->discountId = $model->id;
-                    $relation->save();
-                }
-
-                $transaction->commit();
-
-                return true;
+            foreach ($groups as $groupId) {
+                $relation = new DiscountUserGroupRecord;
+                $relation->userGroupId = $groupId;
+                $relation->discountId = $model->id;
+                $relation->save();
             }
+
+            foreach ($categories as $categoryId) {
+                $relation = new DiscountCategoryRecord();
+                $relation->categoryId = $categoryId;
+                $relation->discountId = $model->id;
+                $relation->save();
+            }
+
+            foreach ($purchasables as $purchasableId) {
+                $relation = new DiscountPurchasableRecord();
+                $relation->purchasableId = $purchasableId;
+                $relation->discountId = $model->id;
+                $relation->save();
+            }
+
+            $transaction->commit();
+
+            return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
@@ -434,6 +442,8 @@ class Discounts extends Component
     }
 
     /**
+     * Delete a discount by its ID.
+     *
      * @param int $id
      * @return bool
      */
@@ -467,10 +477,12 @@ class Discounts extends Component
     }
 
     /**
-     * @param $ids
+     * Reorder discounts by an array of ids.
+     *
+     * @param array $ids
      * @return bool
      */
-    public function reorderDiscounts($ids): bool
+    public function reorderDiscounts(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
@@ -482,7 +494,7 @@ class Discounts extends Component
     }
 
     /**
-     * Updates discount uses counters
+     * Updates discount uses counters.
      *
      * @param Order $order
      */
