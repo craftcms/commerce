@@ -97,6 +97,8 @@ class Customers extends Component
      */
     public function getCustomer(): Customer
     {
+        $session = Craft::$app->getSession();
+
         if ($this->_customer === null) {
             $user = Craft::$app->getUser()->getIdentity();
 
@@ -105,10 +107,10 @@ class Customers extends Component
                 $record = CustomerRecord::find()->where(['userId' => $user->id])->one();
 
                 if ($record) {
-                    Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record->id);
+                    $session->set(self::SESSION_CUSTOMER, $record->id);
                 }
-            } else {
-                $id = Craft::$app->getSession()->get(self::SESSION_CUSTOMER);
+            } else if ($session->getHasSessionId() || $session->getIsActive()) {
+                $id = $session->get(self::SESSION_CUSTOMER);
                 if ($id) {
                     $record = CustomerRecord::findOne($id);
 
@@ -259,7 +261,11 @@ class Customers extends Component
     public function forgetCustomer()
     {
         $this->_customer = null;
-        Craft::$app->getSession()->remove(self::SESSION_CUSTOMER);
+
+        $session = Craft::$app->getSession();
+        if ($session->getHasSessionId() || $session->getIsActive()) {
+            $session->remove(self::SESSION_CUSTOMER);
+        }
     }
 
     /**
@@ -515,7 +521,7 @@ class Customers extends Component
 
     /**
      * Get the current customer.
-     * 
+     *
      * @return Customer
      * @throws Exception if failed to save customer.
      */
