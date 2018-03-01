@@ -34,6 +34,7 @@ use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\OrderStatusException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -48,6 +49,7 @@ use yii\base\Exception;
  * @property float $adjustmentsTotal
  * @property Address $billingAddress
  * @property Customer $customer
+ * @property string $email the email for this order
  * @property Gateway $gateway
  * @property OrderHistory[] $histories order histories
  * @property int $itemSubtotal the total of all line item subtotals
@@ -134,11 +136,6 @@ class Order extends Element
      * @var string Coupon Code
      */
     public $couponCode;
-
-    /**
-     * @var string Email
-     */
-    public $email = 0;
 
     /**
      * @var bool Is completed
@@ -331,6 +328,7 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
+        $names[] = 'email';
         $names[] = 'lineItems';
         $names[] = 'adjustments';
         return $names;
@@ -746,9 +744,9 @@ class Order extends Element
     /**
      * Sets the orders email address. Will have no affect if the order's customer is a registered user.
      *
-     * @param $value
+     * @param string $value
      */
-    public function setEmail($value)
+    public function setEmail(string $value)
     {
         $this->_email = $value;
     }
@@ -1290,59 +1288,20 @@ class Order extends Element
      */
     public function getSearchKeywords(string $attribute): string
     {
-        if ($attribute === 'shortNumber') {
-            return $this->getShortNumber();
+        switch ($attribute) {
+            case 'billingFirstName':
+                return $this->billingAddress->firstName ?? '';
+            case 'billingLastName':
+                return $this->billingAddress->lastName ?? '';
+            case 'shippingFirstName':
+                return $this->shippingAddress->firstName ?? '';
+            case 'shippingLastName':
+                return $this->shippingAddress->lastName ?? '';
+            case 'transactionReference':
+                return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
+            default:
+                return parent::getSearchKeywords($attribute);
         }
-
-        if ($attribute === 'email') {
-            return $this->getEmail();
-        }
-
-        if ($attribute === 'billingFirstName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'billingLastName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-                return $this->billingAddress->lastName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'shippingFirstName') {
-            if ($this->getShippingAddress() && $this->getShippingAddress()->firstName) {
-                return $this->shippingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'shippingLastName') {
-            if ($this->getShippingAddress() && $this->getShippingAddress()->lastName) {
-                return $this->shippingAddress->lastName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'transactionReference') {
-            $transactions = $this->getTransactions();
-            if ($transactions) {
-                return implode(' ', array_map(function($transaction) {
-                    return $transaction->reference;
-                }, $transactions));
-            }
-
-            return '';
-        }
-
-
-        return parent::getSearchKeywords($attribute);
     }
 
     // Protected Methods

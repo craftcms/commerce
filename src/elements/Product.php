@@ -603,14 +603,8 @@ class Product extends Element
      */
     public function getSearchKeywords(string $attribute): string
     {
-        $skus = '';
-
         if ($attribute === 'sku') {
-            foreach ($this->getVariants() as $variant) {
-                $skus .= $variant->sku.' ';
-            }
-
-            return $skus;
+            return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
         }
 
         return parent::getSearchKeywords($attribute);
