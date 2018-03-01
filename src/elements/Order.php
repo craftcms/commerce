@@ -306,7 +306,10 @@ class Order extends Element
             $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         }
 
-        $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($email = $customer->getEmail()) {
+            $this->setEmail($email);
+        }
 
         return parent::beforeValidate();
     }
