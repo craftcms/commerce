@@ -35,16 +35,6 @@ class DiscountPurchasable extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['discountId', 'purchasableId'], 'unique', 'targetAttribute' => ['discountId', 'purchasableId']]
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getDiscount(): ActiveQueryInterface

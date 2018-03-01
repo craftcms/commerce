@@ -411,21 +411,21 @@ class Discounts extends Component
                 $relation = new DiscountUserGroupRecord;
                 $relation->userGroupId = $groupId;
                 $relation->discountId = $model->id;
-                $relation->save();
+                $relation->save(false);
             }
 
             foreach ($categories as $categoryId) {
                 $relation = new DiscountCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->discountId = $model->id;
-                $relation->save();
+                $relation->save(false);
             }
 
             foreach ($purchasables as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;
-                $relation->save();
+                $relation->save(false);
             }
 
             $transaction->commit();

@@ -36,16 +36,6 @@ class DiscountUserGroup extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['discountId', 'userGroupId'], 'unique', 'targetAttribute' => ['discountId', 'userGroupId']],
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getDiscount(): ActiveQueryInterface
