@@ -386,9 +386,9 @@ class CartController extends BaseFrontEndController
                 $ownAddress = false;
             }
 
-            // TODO shouldn't code terminate in this case, then, instead of continuing as normal
             if (!$ownAddress) {
                 $error = Craft::t('commerce', 'Can not choose an address ID that does not belong to the customer.');
+                return false;
             }
 
             $result1 = Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress);
