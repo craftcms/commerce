@@ -1060,7 +1060,7 @@ class Order extends Element
     public function getBillingAddress()
     {
         if (null === $this->_billingAddress && $this->billingAddressId) {
-            $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId)-;
+            $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
         }
 
         return $this->_billingAddress;
