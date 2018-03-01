@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\EmailException;
 use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\LineItemException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\models\Address;
@@ -49,9 +50,10 @@ class CartController extends BaseFrontEndController
         $this->requirePostRequest();
 
         $this->_cart = Plugin::getInstance()->getCarts()->getCart();
-        $lineItemId = Craft::$app->getRequest()->getParam('lineItemId');
-        $qty = Craft::$app->getRequest()->getParam('qty');
-        $note = Craft::$app->getRequest()->getParam('note');
+        $request = Craft::$app->getRequest();
+        $lineItemId = $request->getParam('lineItemId');
+        $qty = $request->getParam('qty');
+        $note = $request->getParam('note');
 
         $this->_cart->setFieldValuesFromRequest('fields');
 
@@ -65,7 +67,7 @@ class CartController extends BaseFrontEndController
 
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($this->_cart->id != $lineItem->orderId)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if ($request->getAcceptsJson()) {
                 $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
             return $this->redirectToPostedUrl();
@@ -76,29 +78,40 @@ class CartController extends BaseFrontEndController
         $lineItem->note = ($note === null) ? $lineItem->note : (string)$note;
 
         // If the options param exists, set it
-        if (null !== Craft::$app->getRequest()->getParam('options')) {
-            $options = Craft::$app->getRequest()->getParam('options', []);
+        if (null !== $request->getParam('options')) {
+            $options = $request->getParam('options', []);
             ksort($options);
             $lineItem->options = $options;
             $lineItem->optionsSignature = md5(json_encode($options));
         }
 
-        if (Plugin::getInstance()->getLineItems()->updateLineItem($this->_cart, $lineItem, $error)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line item updated.'));
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+        $session = Craft::$app->getSession();
+
+        try {
+            if (Plugin::getInstance()->getLineItems()->updateLineItem($this->_cart, $lineItem)) {
+                $session->setNotice(Craft::t('commerce', 'Line item updated.'));
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+                }
+
+                return $this->redirectToPostedUrl();
+            } else {
+                $error = $lineItem->hasErrors() ? array_values($lineItem->getFirstErrors())[0] : '';
             }
-            $this->redirectToPostedUrl();
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+        } catch (LineItemException $exception) {
+            $error = $exception->getMessage();
+        }
+
+        if ($error) {
+            if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             }
-            if ($error) {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item: {message}', ['message' => $error]));
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update line item.'));
-            }
+
+            $session->setError(Craft::t('commerce', 'Couldn’t update line item: {message}', ['message' => $error]));
         }
+
+        return $this->redirectToPostedUrl();
     }
 
     /**
