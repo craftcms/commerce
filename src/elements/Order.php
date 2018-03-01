@@ -338,6 +338,17 @@ class Order extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        $names = parent::extraFields();
+        $names[] = 'billingAddress';
+        $names[] = 'shippingAddress';
+        return $names;
+    }
+
+    /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      */
     public function updateOrderPaidTotal()
