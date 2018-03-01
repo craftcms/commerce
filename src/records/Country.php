@@ -43,15 +43,4 @@ class Country extends ActiveRecord
     {
         return $this->hasMany(State::class, ['id' => 'countryId']);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['iso', 'name'], 'required'],
-            [['iso'], 'string', 'length' => 2],
-        ];
-    }
 }
