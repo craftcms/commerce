@@ -1032,7 +1032,7 @@ class Product extends Element
             case 'defaultWeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1042,7 +1042,7 @@ class Product extends Element
             case 'defaultHeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';
