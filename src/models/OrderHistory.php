@@ -96,5 +96,16 @@ class OrderHistory extends Model
     {
         return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['orderId', 'customerId'], 'required'],
+        ];
+
+    }
 }
 

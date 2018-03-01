@@ -23,6 +23,7 @@ use craft\elements\Category;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount service.
@@ -345,10 +346,11 @@ class Discounts extends Component
     /**
      * Save a discount.
      *
-     * @param Discount $model
-     * @param array $groups ids
-     * @param array $categories ids
-     * @param array $purchasables ids
+     * @param Discount $model the discount being saved
+     * @param array $groups ids of user groups this discount applies to
+     * @param array $categories ids of categories this discount applies to
+     * @param array $purchasables ids of purchasables this discount applies to
+     * @param bool $runValidation should we validate this discount before saving.
      * @return bool
      * @throws \Exception
      */

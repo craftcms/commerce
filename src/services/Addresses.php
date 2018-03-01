@@ -171,6 +171,11 @@ class Addresses extends Component
             ]));
         }
 
+        if ($runValidation && !$addressModel->validate()) {
+            Craft::info('Address could not save due to validation error.', __METHOD__);
+            return false;
+        }
+
         // Normalize state name values
         if (!empty($addressModel->stateValue)) {
             if ($plugin->getStates()->getStateById($addressModel->stateValue)) {
@@ -202,15 +207,6 @@ class Addresses extends Component
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
         $addressRecord->storeLocation = $addressModel->storeLocation;
-
-        if ($runValidation && !$addressModel->validate()) {
-            Craft::info('Address could not save due to validation error.', __METHOD__);
-            return false;
-        }
-
-        if ($runValidation && !$addressModel->validate()) {
-            return false;
-        }
 
         if ($addressRecord->storeLocation && $addressRecord->id) {
             Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['storeLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();

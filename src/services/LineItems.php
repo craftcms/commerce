@@ -233,7 +233,7 @@ class LineItems extends Component
         }
 
         if ($runValidation && !$lineItem->validate()) {
-            Craft::info('Section not saved due to validation error.', __METHOD__);
+            Craft::info('Line item not saved due to validation error.', __METHOD__);
             return false;
         }
 

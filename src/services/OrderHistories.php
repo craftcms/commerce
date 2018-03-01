@@ -49,6 +49,8 @@ class OrderHistories extends Component
     // =========================================================================
 
     /**
+     * Get order history by its ID.
+     *
      * @param int $id
      * @return OrderHistory|null
      */
@@ -62,6 +64,8 @@ class OrderHistories extends Component
     }
 
     /**
+     * Get all order histories by an order ID.
+     *
      * @param int $id orderId
      * @return OrderHistory[]
      */
@@ -82,10 +86,11 @@ class OrderHistories extends Component
     }
 
     /**
+     * Create an order history from an order.
+     *
      * @param Order $order
      * @param int $oldStatusId
      * @return bool
-     * @throws Exception
      */
     public function createOrderHistoryFromOrder(Order $order, $oldStatusId): bool
     {
@@ -114,11 +119,14 @@ class OrderHistories extends Component
     }
 
     /**
+     * Save an order history.
+     *
      * @param OrderHistory $model
+     * @param bool $runValidation Whether the Order Adjustment should be validated
      * @return bool
      * @throws Exception
      */
-    public function saveOrderHistory(OrderHistory $model): bool
+    public function saveOrderHistory(OrderHistory $model, $runValidation = true): bool
     {
         if ($model->id) {
             $record = OrderHistoryRecord::findOne($model->id);
@@ -131,29 +139,31 @@ class OrderHistories extends Component
             $record = new OrderHistoryRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Order history not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->message = $model->message;
         $record->newStatusId = $model->newStatusId;
         $record->prevStatusId = $model->prevStatusId;
         $record->customerId = $model->customerId;
         $record->orderId = $model->orderId;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
+        $model->dateCreated = $record->dateCreated;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-            $model->dateCreated = $record->dateCreated;
-
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
+     * Delete an order history by its ID.
+     *
      * @param $id
      * @return bool
      */

@@ -191,7 +191,7 @@ class Countries extends Component
      * Saves a country.
      *
      * @param Country $country The country to be saved.
-     * @param bool $runValidation should we validate this address before saving.
+     * @param bool $runValidation should we validate this country before saving.
      * @return bool Whether the country was saved successfully.
      * @throws Exception if the country does not exist.
      */

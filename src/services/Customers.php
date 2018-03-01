@@ -171,10 +171,11 @@ class Customers extends Component
      * Save a customer by its model.
      *
      * @param Customer $customer
+     * @param bool $runValidation should we validate this address before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveCustomer(Customer $customer): bool
+    public function saveCustomer(Customer $customer, $runValidation = true): bool
     {
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();
@@ -187,6 +188,12 @@ class Customers extends Component
             }
         }
 
+        if ($runValidation && !$customer->validate()) {
+            Craft::info('Customer not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $customerRecord->userId = $customer->userId;
         $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
         $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
@@ -194,14 +201,10 @@ class Customers extends Component
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
 
-        if (!$customer->hasErrors()) {
-            $customerRecord->save(false);
-            $customer->id = $customerRecord->id;
+        $customerRecord->save(false);
+        $customer->id = $customerRecord->id;
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
