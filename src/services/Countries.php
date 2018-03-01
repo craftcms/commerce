@@ -212,7 +212,7 @@ class Countries extends Component
 
             return false;
         }
-        
+
         $record->name = $country->name;
         $record->iso = strtoupper($country->iso);
         $record->stateRequired = $country->stateRequired;
