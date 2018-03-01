@@ -24,7 +24,6 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
- * @property mixed $lastUsedAddresses
  * @property array|Customer[] $allCustomers
  * @property Customer $customer
  * @property int $customerId id of current customer record
@@ -51,6 +50,8 @@ class Customers extends Component
     // =========================================================================
 
     /**
+     * Get all customers.
+     *
      * @return Customer[]
      */
     public function getAllCustomers(): array
@@ -63,6 +64,8 @@ class Customers extends Component
     }
 
     /**
+     * Get a customer by its ID.
+     *
      * @param int $id
      * @return Customer|null
      */
@@ -78,6 +81,8 @@ class Customers extends Component
     }
 
     /**
+     * Return true, if the current customer is saved to the database.
+     *
      * @return bool
      */
     public function isCustomerSaved(): bool
@@ -86,7 +91,7 @@ class Customers extends Component
     }
 
     /**
-     * Must always return a customer
+     * Get the current customer.
      *
      * @return Customer
      */
@@ -151,6 +156,7 @@ class Customers extends Component
 
             $customerAddress->customerId = $customer->id;
             $customerAddress->addressId = $address->id;
+
             if ($customerAddress->save()) {
                 return true;
             }
@@ -160,6 +166,8 @@ class Customers extends Component
     }
 
     /**
+     * Save a customer by its model.
+     *
      * @param Customer $customer
      * @return bool
      * @throws Exception
@@ -195,6 +203,8 @@ class Customers extends Component
     }
 
     /**
+     * Get all address IDs for a customer by its ID.
+     *
      * @param $customerId
      * @return array
      */
@@ -214,6 +224,8 @@ class Customers extends Component
     }
 
     /**
+     * Delete a customer.
+     *
      * @param Customer $customer
      * @return mixed
      */
@@ -229,6 +241,8 @@ class Customers extends Component
     }
 
     /**
+     * When a user logs in, consolidate all his/her orders.
+     *
      * @param UserEvent $event
      */
     public function loginHandler(UserEvent $event)
@@ -249,10 +263,10 @@ class Customers extends Component
     }
 
     /**
-     * @param string $username
+     * Grabs all orders for a user by its username and sets the customer ID on them.
+     *
+     * @param string $username the username that should have it's orders consolidated.
      * @return bool
-     * @throws Exception
-     * @throws \Exception
      */
     public function consolidateOrdersToUser($username): bool
     {
@@ -309,6 +323,8 @@ class Customers extends Component
     }
 
     /**
+     * Get a customer by user ID. Returns null, if it doesn't exist.
+     *
      * @param $id
      * @return Customer|null
      */
@@ -344,6 +360,8 @@ class Customers extends Component
     }
 
     /**
+     * Handle the user logout.
+     *
      * @param UserEvent $event
      * @throws Exception
      */
@@ -370,6 +388,7 @@ class Customers extends Component
         }
 
         // Now duplicate the addresses on the order
+        $addressesService = Plugin::getInstance()->getAddresses();
         if ($order->billingAddress) {
             $snapShotBillingAddress = new Address($order->billingAddress->toArray([
                     'id',
@@ -393,7 +412,7 @@ class Customers extends Component
             ));
             $originalBillingAddressId = $snapShotBillingAddress->id;
             $snapShotBillingAddress->id = null;
-            if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotBillingAddress, false)) {
+            if ($addressesService->saveAddress($snapShotBillingAddress, false)) {
                 $order->billingAddressId = $snapShotBillingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
@@ -424,7 +443,7 @@ class Customers extends Component
             ));
             $originalShippingAddressId = $snapShotShippingAddress->id;
             $snapShotShippingAddress->id = null;
-            if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotShippingAddress, false)) {
+            if ($addressesService->saveAddress($snapShotShippingAddress, false)) {
                 $order->shippingAddressId = $snapShotShippingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
@@ -447,10 +466,12 @@ class Customers extends Component
     }
 
     /**
-     * @param $billingId
-     * @param $shippingId
+     * Set the last used billing and shipping addresses for the current customer.
+     *
+     * @param int $billingId ID of billing address.
+     * @param int $shippingId ID of shipping address.
      * @return bool
-     * @throws Exception
+     * @throws Exception if failed to save addresses on customer.
      */
     public function setLastUsedAddresses($billingId, $shippingId): bool
     {
@@ -468,6 +489,8 @@ class Customers extends Component
     }
 
     /**
+     * Handle a saved user.
+     *
      * @param Event $event
      * @throws Exception
      */
@@ -491,8 +514,10 @@ class Customers extends Component
     // =========================================================================
 
     /**
+     * Get the current customer.
+     * 
      * @return Customer
-     * @throws Exception
+     * @throws Exception if failed to save customer.
      */
     private function _getSavedCustomer(): Customer
     {
