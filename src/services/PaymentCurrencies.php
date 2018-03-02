@@ -44,6 +44,8 @@ class PaymentCurrencies extends Component
     // =========================================================================
 
     /**
+     * Get payment currency by its ID.
+     *
      * @param int $id
      * @return PaymentCurrency|null
      */
@@ -61,6 +63,8 @@ class PaymentCurrencies extends Component
     }
 
     /**
+     * Get all payment currencies.
+     *
      * @return PaymentCurrency[]
      */
     public function getAllPaymentCurrencies(): array
@@ -87,6 +91,8 @@ class PaymentCurrencies extends Component
     }
 
     /**
+     * Get a payment currency by its ISO code.
+     *
      * @param string $iso
      * @return PaymentCurrency
      * @throws CurrencyException
@@ -131,11 +137,14 @@ class PaymentCurrencies extends Component
     }
 
     /**
+     * Convert an amount in site's primary currency to a different currecny by its ISO code.
+     *
      * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
      * @return float
+     * @throws CurrencyException if currency not found by its ISO code
      */
-    public function convert($amount, $currency): float
+    public function convert(float $amount, string $currency): float
     {
         $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
 
@@ -143,11 +152,14 @@ class PaymentCurrencies extends Component
     }
 
     /**
+     * Save a payment currency.
+     *
      * @param PaymentCurrency $model
+     * @param bool $runValidation should we validate this payment currency before saving.
      * @return bool
      * @throws Exception
      */
-    public function savePaymentCurrency(PaymentCurrency $model): bool
+    public function savePaymentCurrency(PaymentCurrency $model, $runValidation = true): bool
     {
         if ($model->id) {
             $record = PaymentCurrencyRecord::findOne($model->id);
@@ -160,31 +172,33 @@ class PaymentCurrencies extends Component
             $record = new PaymentCurrencyRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Payment currency not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
+
         $record->iso = strtoupper($model->iso);
         $record->primary = $model->primary;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
         $record->rate = $model->primary ? 1 : $model->rate;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        if (!$model->hasErrors()) {
-            if ($record->primary) {
-                PaymentCurrencyRecord::updateAll(['primary' => 0]);
-            }
-
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
+        if ($record->primary) {
+            PaymentCurrencyRecord::updateAll(['primary' => 0]);
         }
 
-        return false;
+        $record->save(false);
+
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
+
+        return true;
     }
 
     /**
+     * Delete a payment currency by its ID.
+     *
      * @param $id
      * @return bool
      */
