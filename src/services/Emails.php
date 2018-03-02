@@ -134,18 +134,12 @@ class Emails extends Component
         $record->enabled = $model->enabled;
         $record->templatePath = $model->templatePath;
 
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
