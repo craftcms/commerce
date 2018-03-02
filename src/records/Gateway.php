@@ -38,14 +38,4 @@ class Gateway extends ActiveRecord
     {
         return '{{%commerce_gateways}}';
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['handle'], 'unique', 'targetAttribute' => ['handle']]
-        ];
-    }
 }
