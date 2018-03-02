@@ -106,7 +106,7 @@ class OrderSettings extends Component
         }
 
         if ($runValidation && !$orderSettings->validate()) {
-            Craft::info('Gateway not saved due to validation error.', __METHOD__);
+            Craft::info('Order Settings not saved due to validation error.', __METHOD__);
 
             return false;
         }
