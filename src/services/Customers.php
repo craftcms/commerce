@@ -177,7 +177,7 @@ class Customers extends Component
      * Save a customer by its model.
      *
      * @param Customer $customer
-     * @param bool $runValidation should we validate this address before saving.
+     * @param bool $runValidation should we validate this customer before saving.
      * @return bool
      * @throws Exception
      */

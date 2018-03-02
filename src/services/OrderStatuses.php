@@ -166,7 +166,7 @@ class OrderStatuses extends Component
      *
      * @param OrderStatus $model
      * @param array $emailIds
-     * @param bool $runValidation should we validate this address before saving.
+     * @param bool $runValidation should we validate this order status before saving.
      * @return bool
      * @throws Exception
      */
