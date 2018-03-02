@@ -164,4 +164,14 @@ class PaymentCurrency extends Model
     {
         $this->_currency = $currency;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['iso'], 'unique']
+        ];
+    }
 }

@@ -31,14 +31,4 @@ class PaymentCurrency extends ActiveRecord
     {
         return '{{%commerce_paymentcurrencies}}';
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['iso'], 'unique']
-        ];
-    }
 }
