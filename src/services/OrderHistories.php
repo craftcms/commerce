@@ -182,7 +182,7 @@ class OrderHistories extends Component
     // =========================================================================
 
     /**
-     * Returns a Query object prepped for retrieving Transactions.
+     * Returns a Query object prepped for retrieving Order History.
      *
      * @return Query The query object.
      */

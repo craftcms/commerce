@@ -14,8 +14,8 @@ use craft\commerce\adjusters\Tax;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\db\Query;
 use craft\events\RegisterComponentTypesEvent;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -80,13 +80,17 @@ class OrderAdjustments extends Component
      */
     public function getAllOrderAdjustmentsByOrderId($orderId): array
     {
-        $records = OrderAdjustmentRecord::find()
+        $rows = $this->_createOrderAdjustmentQuery()
             ->where(['orderId' => $orderId])
             ->all();
 
-        return ArrayHelper::map($records, 'id', function($record) {
-            return $this->_createOrderAdjustmentFromOrderAdjustmentRecord($record);
-        });
+        $adjustments = [];
+
+        foreach ($rows as $row) {
+            $adjustments[] = new OrderAdjustment($row);
+        }
+
+        return $adjustments;
     }
 
     /**
@@ -178,21 +182,24 @@ class OrderAdjustments extends Component
     // =========================================================================
 
     /**
-     * @param OrderAdjustmentRecord $record
-     * @return OrderAdjustment
+     * Returns a Query object prepped for retrieving Order Adjustment.
+     *
+     * @return Query The query object.
      */
-    private function _createOrderAdjustmentFromOrderAdjustmentRecord(OrderAdjustmentRecord $record): OrderAdjustment
+    private function _createOrderAdjustmentQuery(): Query
     {
-        return new OrderAdjustment($record->toArray([
-            'id',
-            'name',
-            'description',
-            'type',
-            'amount',
-            'included',
-            'sourceSnapshot',
-            'lineItemId',
-            'orderId'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'description',
+                'type',
+                'amount',
+                'included',
+                'sourceSnapshot',
+                'lineItemId',
+                'orderId'
+            ])
+            ->from(['{{%commerce_orderadjustments}}']);
     }
 }
