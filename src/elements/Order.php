@@ -331,9 +331,26 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
+        $names[] = 'adjustmentSubtotal';
+        $names[] = 'adjustmentsTotal';
         $names[] = 'email';
+        $names[] = 'itemSubtotal';
+        $names[] = 'itemTotal';
         $names[] = 'lineItems';
-        $names[] = 'adjustments';
+        $names[] = 'orderAdjustments';
+        $names[] = 'shortNumber';
+        $names[] = 'totalDiscount';
+        $names[] = 'totalHeight';
+        $names[] = 'totalLength';
+        $names[] = 'totalPaid';
+        $names[] = 'totalPrice';
+        $names[] = 'totalQty';
+        $names[] = 'totalSaleAmount';
+        $names[] = 'totalShippingCost';
+        $names[] = 'totalTax';
+        $names[] = 'totalTaxablePrice';
+        $names[] = 'totalTaxIncluded';
+        $names[] = 'totalWeight';
         return $names;
     }
 
@@ -343,8 +360,18 @@ class Order extends Element
     public function extraFields()
     {
         $names = parent::extraFields();
+        $names[] = 'adjustments';
         $names[] = 'billingAddress';
+        $names[] = 'customer';
+        $names[] = 'gateway';
+        $names[] = 'histories';
+        $names[] = 'nestedTransactions';
+        $names[] = 'orderStatus';
+        $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
+        $names[] = 'shippingMethod';
+        $names[] = 'shippingMethodId';
+        $names[] = 'transactions';
         return $names;
     }
 
