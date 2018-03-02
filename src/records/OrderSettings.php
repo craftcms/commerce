@@ -36,16 +36,6 @@ class OrderSettings extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['handle'], 'unique']
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getFieldLayout(): ActiveQueryInterface

@@ -77,4 +77,14 @@ class OrderSettings extends Model
 
         return $behaviors;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['handle'], 'unique']
+        ];
+    }
 }
