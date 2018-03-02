@@ -161,10 +161,12 @@ class Payments extends Component
     // =========================================================================
 
     /**
-     * @param Order $order
-     * @param BasePaymentForm $form
-     * @param string|null &$redirect
-     * @param Transaction|null &$transaction
+     * Process a payment.
+     *
+     * @param Order $order the order for which the payment is.
+     * @param BasePaymentForm $form the payment form.
+     * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
+     * @param Transaction|null &$transaction the transaction
      * @return bool
      * @throws \Exception
      */
@@ -269,8 +271,11 @@ class Payments extends Component
     }
 
     /**
-     * @param Transaction $transaction
+     * Capture a transaction.
+     *
+     * @param Transaction $transaction the transaction to capture.
      * @return Transaction
+     * @throws TransactionException if something went wrong when saving the transaction
      */
     public function captureTransaction(Transaction $transaction): Transaction
     {
@@ -294,10 +299,12 @@ class Payments extends Component
     }
 
     /**
-     * @param Transaction $transaction
-     * @param float|null $amount
+     * Regund a transcation.
+     *
+     * @param Transaction $transaction the transaction to refund.
+     * @param float|null $amount the amount to refund or null for full amount.
      * @return Transaction
-     * @throws RefundException
+     * @throws RefundException if something went wrong during the refund.
      */
     public function refundTransaction(Transaction $transaction, $amount = null): Transaction
     {
@@ -323,7 +330,7 @@ class Payments extends Component
     }
 
     /**
-     * Process return from off-site payment
+     * Process return from off-site payment.
      *
      * @param Transaction $transaction
      * @param string|null &$customError
@@ -399,12 +406,6 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
-
-        if (!$paid) {
-            return 0;
-        }
-
-        return $paid;
     }
 
     /**
@@ -553,6 +554,8 @@ class Payments extends Component
     }
 
     /**
+     * Save a transaction.
+     *
      * @param Transaction $child
      * @throws TransactionException
      */
