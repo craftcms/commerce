@@ -57,15 +57,4 @@ class PaymentSource extends ActiveRecord
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
-            [['gatewayId', 'userId', 'token', 'description'], 'required']
-        ];
-    }
 }

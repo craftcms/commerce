@@ -107,4 +107,14 @@ class PaymentSource extends Model
         return $this->_gateway;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
+            [['gatewayId', 'userId', 'token', 'description'], 'required']
+        ];
+    }
 }
