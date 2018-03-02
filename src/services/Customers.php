@@ -563,6 +563,6 @@ class Customers extends Component
                 'lastUsedBillingAddressId',
                 'lastUsedShippingAddressId'
             ])
-            ->from(['{{%commerce_customer}}']);
+            ->from(['{{%commerce_customers}}']);
     }
 }
