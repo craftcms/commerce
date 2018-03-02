@@ -14,8 +14,8 @@ use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
+use craft\db\Query;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -56,11 +56,16 @@ class Customers extends Component
      */
     public function getAllCustomers(): array
     {
-        $records = CustomerRecord::find()->all();
+        $rows = $this->_createCustomerQuery()
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($item) {
-            return $this->_createCustomerFromCustomerRecord($item);
-        });
+        $customers = [];
+
+        foreach ($rows as $row) {
+            $customers[] = new Customer($row);
+        }
+
+        return $customers;
     }
 
     /**
@@ -71,13 +76,11 @@ class Customers extends Component
      */
     public function getCustomerById(int $id)
     {
-        $result = CustomerRecord::findOne($id);
+        $row = $this->_createCustomerQuery()
+            ->where(['id' => $id])
+            ->one();
 
-        if ($result) {
-            return $this->_createCustomerFromCustomerRecord($result);
-        }
-
-        return null;
+        return $row ? new Customer($row) : null;
     }
 
     /**
@@ -102,34 +105,37 @@ class Customers extends Component
         if ($this->_customer === null) {
             $user = Craft::$app->getUser()->getIdentity();
 
+            $customer = null;
+
             // Find user's customer or the current customer in the session.
             if ($user) {
-                $record = CustomerRecord::find()->where(['userId' => $user->id])->one();
+                $customer = $this->getCustomerByUserId($user->id);
 
-                if ($record) {
-                    $session->set(self::SESSION_CUSTOMER, $record->id);
+                if ($customer) {
+                    $session->set(self::SESSION_CUSTOMER, $customer->id);
                 }
             } else if ($session->getHasSessionId() || $session->getIsActive()) {
                 $id = $session->get(self::SESSION_CUSTOMER);
+
                 if ($id) {
-                    $record = CustomerRecord::findOne($id);
+                    $customer = $this->getCustomerById($id);
 
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
-                    if ($record && $record['userId']) {
-                        $record = null;
+                    if ($customer && $customer->userId) {
+                        $customer = null;
                     }
                 }
             }
 
-            if (empty($record)) {
-                $record = new CustomerRecord();
+            if ($customer === null) {
+                $customer = new Customer();
 
                 if ($user) {
-                    $record->userId = $user->id;
+                    $customer->userId = $user->id;
                 }
             }
 
-            $this->_customer = $this->_createCustomerFromCustomerRecord($record);
+            $this->_customer = $customer;
         }
 
         return $this->_customer;
@@ -339,13 +345,12 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-        $result = CustomerRecord::find()->where(['userId' => $id])->one();
 
-        if ($result) {
-            return $this->_createCustomerFromCustomerRecord($result);
-        }
+        $row = $this->_createCustomerQuery()
+            ->where(['userId' => $id])
+            ->one();
 
-        return null;
+        return $row ? new Customer($row) : null;
     }
 
     /**
@@ -531,6 +536,7 @@ class Customers extends Component
     private function _getSavedCustomer(): Customer
     {
         $customer = $this->getCustomer();
+
         if (!$customer->id) {
             if ($this->saveCustomer($customer)) {
                 Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
@@ -544,22 +550,19 @@ class Customers extends Component
     }
 
     /**
-     * Creates a Customer with attributes from a CustomerRecord.
+     * Returns a Query object prepped for retrieving Order Adjustment.
      *
-     * @param CustomerRecord|null $record
-     * @return Customer|null
+     * @return Query The query object.
      */
-    private function _createCustomerFromCustomerRecord(CustomerRecord $record = null)
+    private function _createCustomerQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
-
-        return new Customer($record->toArray([
-            'id',
-            'userId',
-            'lastUsedBillingAddressId',
-            'lastUsedShippingAddressId'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'userId',
+                'lastUsedBillingAddressId',
+                'lastUsedShippingAddressId'
+            ])
+            ->from(['{{%commerce_customer}}']);
     }
 }
