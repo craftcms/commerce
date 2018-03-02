@@ -23,6 +23,8 @@ class Orders extends Component
     // =========================================================================
 
     /**
+     * Get an order by its ID.
+     *
      * @param int $id
      * @return Order|null
      */
@@ -40,6 +42,8 @@ class Orders extends Component
     }
 
     /**
+     * Get an order by its number.
+     *
      * @param string $number
      * @return Order|null
      */
@@ -52,6 +56,8 @@ class Orders extends Component
     }
 
     /**
+     * Get all orders by their customer.
+     *
      * @param int|Customer $customer
      * @return Order[]|null
      */
@@ -66,6 +72,8 @@ class Orders extends Component
     }
 
     /**
+     * Get all orders by their email.
+     *
      * @param string $email
      * @return Order[]|null
      */
