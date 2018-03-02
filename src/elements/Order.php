@@ -65,8 +65,6 @@ use yii\base\Exception;
  * @property string $shortNumber
  * @property bool $shouldRecalculateAdjustments
  * @property int $totalDiscount
- * @property int $totalHeight
- * @property int $totalLength
  * @property float $totalPaid the total `purchase` and `captured` transactions belonging to this order
  * @property float $totalPrice
  * @property int $totalQty the total number of items
@@ -340,8 +338,6 @@ class Order extends Element
         $names[] = 'orderAdjustments';
         $names[] = 'shortNumber';
         $names[] = 'totalDiscount';
-        $names[] = 'totalHeight';
-        $names[] = 'totalLength';
         $names[] = 'totalPaid';
         $names[] = 'totalPrice';
         $names[] = 'totalQty';

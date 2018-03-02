@@ -63,9 +63,6 @@ class BaseFrontEndController extends BaseController
         $data['isEmpty'] = $cart->isEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->totalWeight;
-        $data['totalWidth'] = $cart->totalWidth;
-        $data['totalHeight'] = $cart->totalHeight;
-        $data['totalLength'] = $cart->totalLength;
         $data['totalTax'] = $cart->getAdjustmentsTotalByType('Tax');
         $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('Tax', true);
         $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('Shipping');
