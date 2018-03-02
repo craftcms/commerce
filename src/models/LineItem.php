@@ -219,6 +219,17 @@ class LineItem extends Model
     {
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
+
+        $names[] = 'adjustments';
+        $names[] = 'description';
+        $names[] = 'discount';
+        $names[] = 'onSale';
+        $names[] = 'shippingCost';
+        $names[] = 'sku';
+        $names[] = 'tax';
+        $names[] = 'total';
+        $names[] = 'taxIncluded';
+
         return $names;
     }
 
@@ -230,6 +241,8 @@ class LineItem extends Model
         return [
             'order',
             'purchasable',
+            'shippingCategory',
+            'taxCategory',
         ];
     }
 
