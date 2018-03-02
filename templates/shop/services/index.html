@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% set plans = craft.commerce.getPlans() %}
+{% set plans = craft.commerce.getPlans().getAllPlans() %}
 
 {% if currentUser and plans|length%}
     {% for plan in plans %}
@@ -57,7 +57,7 @@
                 {# Since only stripe currently supports subscriptions, we can get away with non-gateway-specific subscription forms #}
                 {{ plan.gateway.subscriptionFormHtml|raw }}
 
-                {% set paymentSources = craft.commerce.getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
+                {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
 
                 {% if not paymentSources|length %}
                     <div class="paymentForm">
