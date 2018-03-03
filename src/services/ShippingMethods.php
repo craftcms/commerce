@@ -79,6 +79,8 @@ class ShippingMethods extends Component
     }
 
     /**
+     * Get a shipping method by its handle.
+     *
      * @param string $shippingMethodHandle
      * @return ShippingMethod|null
      */
@@ -106,6 +108,8 @@ class ShippingMethods extends Component
     }
 
     /**
+     * Get a shipping method by its ID.
+     *
      * @param int $shippingMethodId
      * @return ShippingMethod|null
      */
@@ -145,6 +149,8 @@ class ShippingMethods extends Component
     }
 
     /**
+     * Get all available shipping methods.
+     *
      * @param Order $cart
      * @return array
      */
@@ -200,6 +206,8 @@ class ShippingMethods extends Component
     }
 
     /**
+     * Get a matching shipping rule for Order and shipping method.
+     *
      * @param Order $order
      * @param ShippingMethodInterface $method
      * @return bool|ShippingRuleInterface
@@ -217,11 +225,14 @@ class ShippingMethods extends Component
     }
 
     /**
+     * Save a shipping method.
+     *
      * @param ShippingMethod $model
+     * @param bool $runValidation should we validate this method before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveShippingMethod(ShippingMethod $model): bool
+    public function saveShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = ShippingMethodRecord::findOne($model->id);
@@ -234,6 +245,12 @@ class ShippingMethods extends Component
             $record = new ShippingMethodRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Shipping method not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
@@ -241,20 +258,18 @@ class ShippingMethods extends Component
         $record->validate();
         $model->addErrors($record->getErrors());
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Save it!
+        $record->save(false);
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
+     * Delete a shipping method by its ID.
+     *
      * @param $shippingMethodId int
      * @return bool
      */
@@ -266,6 +281,7 @@ class ShippingMethods extends Component
 
         try {
             $rules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($shippingMethodId);
+
             foreach ($rules as $rule) {
                 Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($rule->id);
             }

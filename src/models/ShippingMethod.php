@@ -106,4 +106,14 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     {
         return UrlHelper::cpUrl('commerce/settings/shippingmethods/'.$this->id);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'unique']
+        ];
+    }
 }

@@ -35,16 +35,6 @@ class ShippingMethod extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['name'], 'unique']
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getRules(): ActiveQueryInterface
