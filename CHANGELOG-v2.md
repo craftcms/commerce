@@ -22,6 +22,7 @@
 - `craft\commerce\services\Cart` is now `craft\commerce\services\Carts`
 - `craft\commerce\services\Carts::addToCart()` now requires a `craft\commerce\models\LineItem` object as the second parameter.
 - `craft\commerce\services\LineItems::getLineItemByOrderPurchasableOptions()` is now `craft\commerce\services\LineItems::resolveLineItem()`
+- `craft\commerce\services\Pdf::pdfForOrder()` is now `craft\commerce\services\Pdf::renderPdfForOrder()`
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.

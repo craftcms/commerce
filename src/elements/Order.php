@@ -703,7 +703,7 @@ class Order extends Element
         $url = null;
 
         try {
-            $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($this, $option);
+            $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
                 $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }

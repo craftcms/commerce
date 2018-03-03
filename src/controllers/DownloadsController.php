@@ -36,7 +36,7 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException('No Order Found');
         }
 
-        $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($order, $option);
+        $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);
         $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
