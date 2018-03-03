@@ -178,4 +178,14 @@ class ShippingZone extends Model
 
         return $states;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'unique']
+        ];
+    }
 }

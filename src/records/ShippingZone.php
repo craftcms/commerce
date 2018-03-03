@@ -36,16 +36,6 @@ class ShippingZone extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['name'], 'unique']
-        ];
-    }
-
-    /**
      * @return ActiveQueryInterface
      */
     public function getCountries(): ActiveQueryInterface
