@@ -57,13 +57,13 @@ class ShippingRuleCategories extends Component
      * Save a shipping rule category.
      *
      * @param ShippingRuleCategory $model The shipping rule model.
-     * @param bool $runValidation should we validate this rule before saving.
+     * @param bool $runValidation should we validate this rule category before saving.
      * @return bool Whether the save was successful.
      */
     public function createShippingRuleCategory(ShippingRuleCategory $model, bool $runValidation = true): bool
     {
         if ($runValidation && !$model->validate()) {
-            Craft::info('Shipping rule not saved due to validation error.', __METHOD__);
+            Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
 
             return false;
         }
