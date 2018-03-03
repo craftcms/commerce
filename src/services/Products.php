@@ -47,7 +47,6 @@ class Products extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event)
     {
-        // todo - is it just me or does it look like it's resaving all products that are disabled for primary site?
         $queue = Craft::$app->getQueue();
         $siteId = Craft::$app->getSites()->getPrimarySite()->id;
         $elementTypes = [
