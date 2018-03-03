@@ -44,6 +44,8 @@ class TaxZones extends Component
     // =========================================================================
 
     /**
+     * Get all tax zones.
+     *
      * @return TaxZone[]
      */
     public function getAllTaxZones(): array
@@ -63,6 +65,8 @@ class TaxZones extends Component
     }
 
     /**
+     * Get a tax zone by its ID.
+     *
      * @param int $id
      * @return TaxZone|null
      */
@@ -88,14 +92,17 @@ class TaxZones extends Component
     }
 
     /**
+     * Save a tax zone.
+     *
      * @param TaxZone $model
      * @param array $countryIds
      * @param array $stateIds
+     * @param bool $runValidation should we validate this zone before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveTaxZone(TaxZone $model, $countryIds, $stateIds): bool
+    public function saveTaxZone(TaxZone $model, $countryIds, $stateIds, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = TaxZoneRecord::findOne($model->id);
@@ -108,14 +115,16 @@ class TaxZones extends Component
             $record = new TaxZoneRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Tax zone not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
         $record->countryBased = $model->countryBased;
         $record->default = $model->default;
-
-        $record->validate();
-        $model->addErrors($record->getErrors());
 
         //validating given ids
         if ($record->countryBased) {
@@ -132,54 +141,54 @@ class TaxZones extends Component
             }
         }
 
-        //saving
-        if (!$model->hasErrors()) {
-            $db = Craft::$app->getDb();
-            $transaction = $db->beginTransaction();
-
-            try {
-                // Save it!
-                $record->save(false);
-
-                // Now that we have a record ID, save it on the model
-                $model->id = $record->id;
-
-                // Clean out all old links
-                TaxZoneCountryRecord::deleteAll(['taxZoneId' => $record->id]);
-                TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
-
-                //saving new links
-                if ($model->countryBased) {
-                    $rows = array_map(function($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $countryIds);
-                    $cols = ['countryId', 'taxZoneId'];
-                    $table = TaxZoneCountryRecord::tableName();
-                } else {
-                    $rows = array_map(function($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $stateIds);
-                    $cols = ['stateId', 'taxZoneId'];
-                    $table = TaxZoneStateRecord::tableName();
-                }
-                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-                //If this was the default make all others not the default.
-                if ($model->default) {
-                    TaxZoneRecord::updateAll(['default' => 0], 'id <> :thisId', [':thisId' => $record->id]);
-                }
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-
-                throw $e;
-            }
-
-            return true;
+        if ($model->hasErrors()) {
+            return false;
         }
 
-        return false;
+        //saving
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
+
+        try {
+            // Save it!
+            $record->save(false);
+
+            // Now that we have a record ID, save it on the model
+            $model->id = $record->id;
+
+            // Clean out all old links
+            TaxZoneCountryRecord::deleteAll(['taxZoneId' => $record->id]);
+            TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
+
+            //saving new links
+            if ($model->countryBased) {
+                $rows = array_map(function($id) use ($model) {
+                    return [$id, $model->id];
+                }, $countryIds);
+                $cols = ['countryId', 'taxZoneId'];
+                $table = TaxZoneCountryRecord::tableName();
+            } else {
+                $rows = array_map(function($id) use ($model) {
+                    return [$id, $model->id];
+                }, $stateIds);
+                $cols = ['stateId', 'taxZoneId'];
+                $table = TaxZoneStateRecord::tableName();
+            }
+            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
+
+            //If this was the default make all others not the default.
+            if ($model->default) {
+                TaxZoneRecord::updateAll(['default' => 0], 'id <> :thisId', [':thisId' => $record->id]);
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
+        }
+
+        return true;
     }
 
     /**
