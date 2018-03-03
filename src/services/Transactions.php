@@ -131,6 +131,8 @@ class Transactions extends Component
     }
 
     /**
+     * Return the refundable amount for a transaction.
+     *
      * @param Transaction $transaction
      * @return float
      */
@@ -340,13 +342,20 @@ class Transactions extends Component
      * Save a transaction.
      *
      * @param Transaction $model the transaction model
+     * @param bool $runValidation should we validate this transaction before saving.
      * @return bool
      * @throws TransactionException if an attempt is made to modify an existing transaction
      */
-    public function saveTransaction(Transaction $model): bool
+    public function saveTransaction(Transaction $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             throw new TransactionException('Transactions cannot be modified.');
+        }
+
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Transaction not saved due to validation error.', __METHOD__);
+
+            return false;
         }
 
         $fields = [
@@ -374,32 +383,25 @@ class Transactions extends Component
             $record->$field = $model->$field;
         }
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        $record->save(false);
+        $model->id = $record->id;
 
-        if (!$model->hasErrors()) {
-            $record->save(false);
-            $model->id = $record->id;
-
-            if ($model->status === TransactionRecord::STATUS_SUCCESS) {
-                $model->order->updateOrderPaidTotal();
-            }
-
-            if ($model->status === TransactionRecord::STATUS_PROCESSING) {
-                $model->order->markAsComplete();
-            }
-
-            // Raise 'afterSaveTransaction' event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
-                    'transaction' => $model
-                ]));
-            }
-
-            return true;
+        if ($model->status === TransactionRecord::STATUS_SUCCESS) {
+            $model->order->updateOrderPaidTotal();
         }
 
-        return false;
+        if ($model->status === TransactionRecord::STATUS_PROCESSING) {
+            $model->order->markAsComplete();
+        }
+
+        // Raise 'afterSaveTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
+                'transaction' => $model
+            ]));
+        }
+
+        return true;
     }
 
     // Private methods

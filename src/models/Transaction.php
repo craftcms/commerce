@@ -292,4 +292,14 @@ class Transaction extends Model
     {
         $this->_children = $transactions;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['type', 'status', 'orderId'], 'required']
+        ];
+    }
 }
