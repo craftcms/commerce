@@ -140,4 +140,15 @@ abstract class Plan extends Model implements PlanInterface
             ->status(Subscription::STATUS_ACTIVE)
             ->all();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['handle'], 'unique'],
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+        ];
+    }
 }

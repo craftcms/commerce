@@ -49,16 +49,4 @@ class Plan extends ActiveRecord
     {
         return $this->hasOne(Gateway::class, ['gatewayId' => 'id']);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['handle'], 'unique'],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
-        ];
-    }
-
 }
