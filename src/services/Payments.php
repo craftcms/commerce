@@ -398,7 +398,7 @@ class Payments extends Component
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        return (float)(new Query())
+        $paid = (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -406,6 +406,17 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
+
+        $refunded = (float)(new Query())
+            ->from(['{{%commerce_transactions}}'])
+            ->where([
+                'orderId' => $order->id,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'type' => [TransactionRecord::TYPE_REFUND]
+            ])
+            ->sum('amount');
+
+        return $paid - $refunded;
     }
 
     /**
