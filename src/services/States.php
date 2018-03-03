@@ -99,7 +99,7 @@ class States extends Component
     }
 
     /**
-     *  Returns all states grouped by countries.
+     * Returns all states grouped by countries.
      *
      * @return array 2D array of states indexed by their ids grouped by country ids.
      */
@@ -202,10 +202,11 @@ class States extends Component
      * Saves a state.
      *
      * @param State $model The state to be saved.
+     * @param bool $runValidation should we validate this state before saving.
      * @return bool Whether the state was saved successfully.
      * @throws Exception if the sate does not exist.
      */
-    public function saveState(State $model): bool
+    public function saveState(State $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = StateRecord::findOne($model->id);
@@ -218,24 +219,23 @@ class States extends Component
             $record = new StateRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('State not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->abbreviation = $model->abbreviation;
         $record->countryId = $model->countryId;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
