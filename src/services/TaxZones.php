@@ -120,6 +120,7 @@ class TaxZones extends Component
 
             return false;
         }
+
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
