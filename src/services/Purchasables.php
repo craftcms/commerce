@@ -18,6 +18,8 @@ use yii\base\Component;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property array|string[] $allPurchasableElementTypes
  */
 class Purchasables extends Component
 {
@@ -46,6 +48,8 @@ class Purchasables extends Component
     // =========================================================================
 
     /**
+     * Delete a purhasable by its ID.
+     *
      * @param int $purchasableId
      * @return bool
      */
@@ -55,6 +59,8 @@ class Purchasables extends Component
     }
 
     /**
+     * Get a purchasable by its ID.
+     * 
      * @param int $purchasableId
      * @return ElementInterface|null
      */
