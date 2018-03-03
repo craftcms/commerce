@@ -89,7 +89,7 @@ class TaxRates extends Component
 
     /**
      * @param TaxRate $model
-     * @param bool $runValidation should we validate this state before saving.
+     * @param bool $runValidation should we validate this rate before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
