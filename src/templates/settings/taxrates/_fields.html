@@ -186,19 +186,18 @@
         'Tax category saved.'|t
     ) }}
 
-    {{ forms.checkboxField({
+    {{ forms.lightSwitchField({
         label: "This tax is already included in the taxable subject."|t('commerce'),
         name: 'include',
-        value: 1,
+        on: taxRate.include,
         checked: taxRate.include,
         errors: taxRate.getErrors('include'),
     }) }}
 
-    {{ forms.checkboxField({
+    {{ forms.lightSwitchField({
         label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t('commerce'),
         name: 'isVat',
-        value: 1,
-        checked: taxRate.isVat,
+        on: taxRate.isVat,
         errors: taxRate.getErrors('isVat'),
         toggle: '#isVat'
     }) }}
