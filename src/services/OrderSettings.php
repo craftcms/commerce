@@ -92,7 +92,7 @@ class OrderSettings extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveOrderSetting(OrderSettingsModel $orderSettings, $runValidation = true): bool
+    public function saveOrderSetting(OrderSettingsModel $orderSettings, bool $runValidation = true): bool
     {
         if ($orderSettings->id) {
             $orderSettingsRecord = OrderSettingsRecord::findOne($orderSettings->id);

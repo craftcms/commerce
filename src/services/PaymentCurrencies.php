@@ -159,7 +159,7 @@ class PaymentCurrencies extends Component
      * @return bool
      * @throws Exception
      */
-    public function savePaymentCurrency(PaymentCurrency $model, $runValidation = true): bool
+    public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = PaymentCurrencyRecord::findOne($model->id);

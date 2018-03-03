@@ -181,7 +181,7 @@ class Customers extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveCustomer(Customer $customer, $runValidation = true): bool
+    public function saveCustomer(Customer $customer, bool $runValidation = true): bool
     {
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();

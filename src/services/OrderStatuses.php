@@ -170,7 +170,7 @@ class OrderStatuses extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveOrderStatus(OrderStatus $model, array $emailIds, $runValidation = true): bool
+    public function saveOrderStatus(OrderStatus $model, array $emailIds, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = OrderStatusRecord::findOne($model->id);

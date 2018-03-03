@@ -183,7 +183,7 @@ class PaymentSources extends Component
      * @return bool Whether the payment source was saved successfully
      * @throws Exception if the payment source couldn't be found
      */
-    public function savePaymentSource(PaymentSource $paymentSource, $runValidation = true): bool
+    public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
         if ($paymentSource->id) {
             $record = PaymentSourceRecord::findOne($paymentSource->id);

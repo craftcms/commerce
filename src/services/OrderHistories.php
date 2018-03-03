@@ -126,7 +126,7 @@ class OrderHistories extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveOrderHistory(OrderHistory $model, $runValidation = true): bool
+    public function saveOrderHistory(OrderHistory $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = OrderHistoryRecord::findOne($model->id);

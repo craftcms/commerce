@@ -108,7 +108,7 @@ class Emails extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveEmail(Email $model, $runValidation = true): bool
+    public function saveEmail(Email $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = EmailRecord::findOne($model->id);

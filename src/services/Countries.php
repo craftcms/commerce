@@ -195,7 +195,7 @@ class Countries extends Component
      * @return bool Whether the country was saved successfully.
      * @throws Exception if the country does not exist.
      */
-    public function saveCountry(Country $country, $runValidation = true): bool
+    public function saveCountry(Country $country, bool $runValidation = true): bool
     {
         if ($country->id) {
             $record = CountryRecord::findOne($country->id);

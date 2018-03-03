@@ -354,7 +354,7 @@ class Discounts extends Component
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables, $runValidation = true): bool
+    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
