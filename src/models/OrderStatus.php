@@ -72,7 +72,7 @@ class OrderStatus extends Model
     public function rules()
     {
         return [
-            [['name', 'handle', 'default'], 'required']
+            [['name', 'handle'], 'required']
         ];
     }
 

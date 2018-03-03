@@ -540,7 +540,7 @@ class Sales extends Component
 
     /**
      * Get all enabled sales.
-     * 
+     *
      * @return array|Sale[]
      */
     private function _getAllEnabledSales(): array
