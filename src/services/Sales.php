@@ -69,6 +69,8 @@ class Sales extends Component
     // =========================================================================
 
     /**
+     * Get a sale by its ID.
+     *
      * @param int $id
      * @return Sale|null
      */
@@ -84,6 +86,8 @@ class Sales extends Component
     }
 
     /**
+     * Get all sales.
+     *
      * @return Sale[]
      */
     public function getAllSales(): array
@@ -407,11 +411,12 @@ class Sales extends Component
      * @param array $groups ids
      * @param array $categories ids
      * @param array $purchasables ids
+     * @param bool $runValidation should we validate this before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveSale(Sale $model, array $groups, array $categories, array $purchasables): bool
+    public function saveSale(Sale $model, array $groups, array $categories, array $purchasables, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
@@ -422,6 +427,12 @@ class Sales extends Component
             }
         } else {
             $record = new SaleRecord();
+        }
+
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Sale not saved due to validation error.', __METHOD__);
+
+            return false;
         }
 
         $fields = [
@@ -443,55 +454,48 @@ class Sales extends Component
         $record->allCategories = $model->allCategories = empty($categories);
         $record->allPurchasables = $model->allPurchasables = empty($purchasables);
 
-        $model->validate();
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-            if (!$model->hasErrors()) {
-                $record->save(false);
-                $model->id = $record->id;
+            $record->save(false);
+            $model->id = $record->id;
 
-                SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
-                SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
-                SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
+            SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
+            SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
+            SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
 
-                foreach ($groups as $groupId) {
-                    $relation = new SaleUserGroupRecord();
-                    $relation->userGroupId = $groupId;
-                    $relation->saleId = $model->id;
-                    $relation->save();
-                }
-
-                foreach ($categories as $categoryId) {
-                    $relation = new SaleCategoryRecord;
-                    $relation->categoryId = $categoryId;
-                    $relation->saleId = $model->id;
-                    $relation->save();
-                }
-
-                foreach ($purchasables as $purchasableId) {
-                    $relation = new SalePurchasableRecord();
-                    $relation->purchasableId = $purchasableId;
-                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-                    $relation->purchasableType = \get_class($purchasable);
-                    $relation->saleId = $model->id;
-                    $relation->save();
-                }
-
-                $transaction->commit();
-
-                return true;
+            foreach ($groups as $groupId) {
+                $relation = new SaleUserGroupRecord();
+                $relation->userGroupId = $groupId;
+                $relation->saleId = $model->id;
+                $relation->save();
             }
+
+            foreach ($categories as $categoryId) {
+                $relation = new SaleCategoryRecord;
+                $relation->categoryId = $categoryId;
+                $relation->saleId = $model->id;
+                $relation->save();
+            }
+
+            foreach ($purchasables as $purchasableId) {
+                $relation = new SalePurchasableRecord();
+                $relation->purchasableId = $purchasableId;
+                $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+                $relation->purchasableType = \get_class($purchasable);
+                $relation->saleId = $model->id;
+                $relation->save();
+            }
+
+            $transaction->commit();
+
+            return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
-
-        $transaction->rollBack();
-
-        return false;
     }
 
     /**
@@ -535,6 +539,8 @@ class Sales extends Component
     // =========================================================================
 
     /**
+     * Get all enabled sales.
+     * 
      * @return array|Sale[]
      */
     private function _getAllEnabledSales(): array

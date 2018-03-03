@@ -60,7 +60,7 @@ class Purchasables extends Component
 
     /**
      * Get a purchasable by its ID.
-     * 
+     *
      * @param int $purchasableId
      * @return ElementInterface|null
      */
