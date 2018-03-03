@@ -71,6 +71,8 @@ class TaxCategories extends Component
     }
 
     /**
+     * Get a tax category by its ID.
+     *
      * @param int $taxCategoryId
      * @return TaxCategory|null
      */
@@ -98,6 +100,8 @@ class TaxCategories extends Component
     }
 
     /**
+     * Get a tax category by its handle.
+     *
      * @param int $taxCategoryHandle
      * @return TaxCategory|null
      */
@@ -148,12 +152,15 @@ class TaxCategories extends Component
     }
 
     /**
+     * Save a tax category.
+     *
      * @param TaxCategory $model
+     * @param bool $runValidation should we validate this state before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveTaxCategory(TaxCategory $model): bool
+    public function saveTaxCategory(TaxCategory $model, bool $runValidation = true): bool
     {
         $oldHandle = null;
 
@@ -170,37 +177,36 @@ class TaxCategories extends Component
             $record = new TaxCategoryRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Tax category not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->description = $model->description;
         $record->default = $model->default;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        if (!$model->hasErrors()) {
-            // If this was the default make all others not the default.
-            if ($model->default) {
-                TaxCategoryRecord::updateAll(['default' => 0]);
-            }
-
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            // Update Service cache
-            $this->_memoizeTaxCategory($model);
-
-            if (null !== $oldHandle && $model->handle != $oldHandle) {
-                unset($this->_taxCategoriesByHandle[$oldHandle]);
-            }
-
-            return true;
+        // If this was the default make all others not the default.
+        if ($model->default) {
+            TaxCategoryRecord::updateAll(['default' => 0]);
         }
 
-        return false;
+        // Save it!
+        $record->save(false);
+
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
+
+        // Update Service cache
+        $this->_memoizeTaxCategory($model);
+
+        if (null !== $oldHandle && $model->handle != $oldHandle) {
+            unset($this->_taxCategoriesByHandle[$oldHandle]);
+        }
+
+        return true;
     }
 
     /**
