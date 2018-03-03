@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements;
 
@@ -131,7 +136,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = parent::rules();
 
@@ -756,7 +761,7 @@ class Variant extends Purchasable
             case 'weight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -766,7 +771,7 @@ class Variant extends Purchasable
             case 'height':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';

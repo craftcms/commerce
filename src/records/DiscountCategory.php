@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -28,16 +33,6 @@ class DiscountCategory extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_discount_categories}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['discountId', 'categoryId'], 'unique', 'targetAttribute' => ['discountId', 'categoryId']]
-        ];
     }
 
     /**

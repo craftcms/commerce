@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -18,6 +23,9 @@ use yii\base\InvalidConfigException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property array|\craft\commerce\base\Plan[] $allEnabledPlans
+ * @property array|\craft\commerce\base\Plan[] $allPlans
  */
 class Plans extends Component
 {
@@ -203,10 +211,11 @@ class Plans extends Component
      * Save a subscription plan
      *
      * @param Plan $plan The payment source being saved.
+     * @param bool $runValidation should we validate this plan before saving.
      * @return bool Whether the plan was saved successfully
      * @throws InvalidConfigException if subscription plan not found by id.
      */
-    public function savePlan(Plan $plan)
+    public function savePlan(Plan $plan, bool $runValidation = true)
     {
         if ($plan->id) {
             $record = PlanRecord::findOne($plan->id);
@@ -225,6 +234,12 @@ class Plans extends Component
             ]));
         }
 
+        if ($runValidation && !$plan->validate()) {
+            Craft::info('Subscription plan not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->gatewayId = $plan->gatewayId;
         $record->name = $plan->name;
         $record->handle = $plan->handle;
@@ -235,27 +250,20 @@ class Plans extends Component
         $record->isArchived = $plan->isArchived;
         $record->dateArchived = $plan->dateArchived;
 
-        $record->validate();
-        $plan->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$plan->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $plan->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $plan->id = $record->id;
-
-            // Fire an 'afterSavePlan' event.
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PLAN)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_PLAN, new PlanEvent([
-                    'plan' => $plan,
-                ]));
-            }
-
-            return true;
+        // Fire an 'afterSavePlan' event.
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PLAN)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_PLAN, new PlanEvent([
+                'plan' => $plan,
+            ]));
         }
 
-        return false;
+        return true;
     }
 
     /**

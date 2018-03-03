@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\gateways;
 
@@ -34,7 +39,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormModel(): DummyPaymentForm
+    public function getPaymentFormModel(): BasePaymentForm
     {
         return new DummyPaymentForm();
     }

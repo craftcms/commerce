@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -186,10 +191,11 @@ class Countries extends Component
      * Saves a country.
      *
      * @param Country $country The country to be saved.
+     * @param bool $runValidation should we validate this country before saving.
      * @return bool Whether the country was saved successfully.
      * @throws Exception if the country does not exist.
      */
-    public function saveCountry(Country $country): bool
+    public function saveCountry(Country $country, bool $runValidation = true): bool
     {
         if ($country->id) {
             $record = CountryRecord::findOne($country->id);
@@ -201,16 +207,16 @@ class Countries extends Component
             $record = new CountryRecord();
         }
 
+        if ($runValidation && !$country->validate()) {
+            Craft::info('Country not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $country->name;
         $record->iso = strtoupper($country->iso);
         $record->stateRequired = $country->stateRequired;
 
-        $record->validate();
-        $country->addErrors($record->getErrors());
-
-        if ($country->hasErrors()) {
-            return false;
-        }
 
         // Save it!
         $record->save(false);

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -6,6 +11,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use DateTime;
 
 /**
@@ -150,6 +156,26 @@ class Transaction extends Model
         $this->hash = md5(uniqid(mt_rand(), true));
 
         parent::__construct($attributes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+        ArrayHelper::removeValue($names, 'response');
+        return $names;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function extraFields()
+    {
+        return [
+            'response',
+        ];
     }
 
     /**

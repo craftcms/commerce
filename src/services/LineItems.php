@@ -1,10 +1,16 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\LineItemException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
@@ -12,6 +18,7 @@ use craft\db\Query;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Line item service.
@@ -106,26 +113,50 @@ class LineItems extends Component
     }
 
     /**
-     * Returns a line item with any supplied options, per its order's ID and purchasable's ID
+     * Takes an Order, a purchasable id, options, and resolves it to a line item.
      *
-     * @param int $orderId the order's ID
+     * If a line item is found for that order with those exact options, that line item is
+     * return with its quantity increased. Otherwise, a new line item is returned.
+     *
+     * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
-     * @return LineItem|null Line item or null if not found.
+     * @param int $qty
+     * @param string $note
+     * @return LineItem
+     * @throws InvalidConfigException if invalid purchasable id supplied
      */
-    public function getLineItemByOrderPurchasableOptions(int $orderId, int $purchasableId, array $options = [])
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
     {
         ksort($options);
         $signature = md5(json_encode($options));
         $result = $this->_createLineItemQuery()
             ->where([
-                'orderId' => $orderId,
+                'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
                 'optionsSignature' => $signature
             ])
             ->one();
 
-        return $result ? new LineItem($result) : null;
+        if ($result) {
+            $lineItem = new LineItem($result);
+
+            foreach ($order->getLineItems() as $item) {
+                if ($item->id == $lineItem->id) {
+                    $lineItem = $item;
+                }
+            }
+
+            $lineItem->qty += $qty;
+        } else {
+            $lineItem = $this->createLineItem($purchasableId, $order, $options, $qty);
+        }
+
+        if ($note) {
+            $lineItem->note = $note;
+        }
+
+        return $lineItem;
     }
 
     /**
@@ -133,29 +164,22 @@ class LineItems extends Component
      *
      * @param Order $order The order that is being updated.
      * @param LineItem $lineItem The line item that is being updated.
-     * @param string $error This will be populated with an error message, if any.
      * @return bool Whether the update was successful.
+     * @throws LineItemException if item no longer sold
      */
-    public function updateLineItem(Order $order, LineItem $lineItem, &$error): bool
+    public function updateLineItem(Order $order, LineItem $lineItem): bool
     {
         if (!$lineItem->purchasableId) {
             $this->deleteLineItemById($lineItem->id);
             Craft::$app->getElements()->saveElement($order);
-            $error = Craft::t('commerce', 'Item no longer for sale. Removed from cart.');
+            throw new LineItemException(Craft::t('commerce', 'Item no longer for sale. Removed from cart.'));
+        }
 
+        if (!$this->saveLineItem($lineItem)) {
             return false;
         }
 
-        if ($this->saveLineItem($lineItem)) {
-            Craft::$app->getElements()->saveElement($order);
-
-            return true;
-        }
-
-        $errors = $lineItem->getFirstErrors();
-        $error = array_pop($errors);
-
-        return false;
+        return Craft::$app->getElements()->saveElement($order);
     }
 
     /**
@@ -208,6 +232,11 @@ class LineItems extends Component
             ]));
         }
 
+        if ($runValidation && !$lineItem->validate()) {
+            Craft::info('Line item not saved due to validation error.', __METHOD__);
+            return false;
+        }
+
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
@@ -232,7 +261,6 @@ class LineItems extends Component
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
-        $lineItem->validate();
 
         if (!$lineItem->hasErrors()) {
 
@@ -290,7 +318,7 @@ class LineItems extends Component
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @return LineItem
-     * @throws Exception if purchasable is not found.
+     * @throws InvalidConfigException if purchasable is not found.
      */
     public function createLineItem(int $purchasableId, Order $order, array $options, int $qty): LineItem
     {
@@ -308,7 +336,7 @@ class LineItems extends Component
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
             $lineItem->populateFromPurchasable($purchasable);
         } else {
-            throw new Exception(Craft::t('commerce', 'Not a purchasable ID'));
+            throw new InvalidConfigException(Craft::t('commerce', 'Not a purchasable ID'));
         }
 
         // Raise a 'createLineItem' event

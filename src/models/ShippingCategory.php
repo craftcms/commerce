@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -61,5 +66,15 @@ class ShippingCategory extends Model
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/shippingcategories/'.$this->id);
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['name', 'handle'], 'required']
+        ];
     }
 }

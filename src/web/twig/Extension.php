@@ -1,8 +1,14 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\web\twig;
 
 use Craft;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
 
 /**
@@ -109,10 +115,10 @@ class Extension extends \Twig_Extension
      */
     private function _validatePaymentCurrency($currency)
     {
-        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
-
-        if (!$currency) {
-            throw new \Twig_Error(Craft::t('commerce', 'Not a valid currency code'));
+        try {
+            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
+        } catch (CurrencyException $exception) {
+            throw new \Twig_Error($exception->getMessage());
         }
     }
 

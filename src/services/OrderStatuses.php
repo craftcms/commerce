@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -75,6 +80,8 @@ class OrderStatuses extends Component
     // =========================================================================
 
     /**
+     * Get order status by its handle.
+     *
      * @param string $handle
      * @return OrderStatus|null
      */
@@ -155,12 +162,15 @@ class OrderStatuses extends Component
     }
 
     /**
+     * Save the order status.
+     *
      * @param OrderStatus $model
      * @param array $emailIds
+     * @param bool $runValidation should we validate this order status before saving.
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function saveOrderStatus(OrderStatus $model, array $emailIds): bool
+    public function saveOrderStatus(OrderStatus $model, array $emailIds, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = OrderStatusRecord::findOne($model->id);
@@ -172,14 +182,17 @@ class OrderStatuses extends Component
             $record = new OrderStatusRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Order status not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->color = $model->color;
         $record->sortOrder = $model->sortOrder ?: 999;
         $record->default = $model->default;
-
-        $record->validate();
-        $model->addErrors($record->getErrors());
 
         //validating emails ids
         $exist = EmailRecord::find()->where(['in', 'id', $emailIds])->exists();
@@ -189,50 +202,47 @@ class OrderStatuses extends Component
             $model->addError('emails', 'One or more emails do not exist in the system.');
         }
 
-        //saving
-        if (!$model->hasErrors()) {
-            $db = Craft::$app->getDb();
-            $transaction = $db->beginTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
-            try {
-                //only one default status can be among statuses of one order type
-                if ($record->default) {
-                    OrderStatusRecord::updateAll(['default' => 0]);
-                }
-
-                // Save it!
-                $record->save(false);
-
-                //Delete old links
-                if ($model->id) {
-                    $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
-
-                    foreach ($records as $record) {
-                        $record->delete();
-                    }
-                }
-
-                //Save new links
-                $rows = array_map(function($id) use ($record) {
-                    return [$id, $record->id];
-                }, $emailIds);
-                $cols = ['emailId', 'orderStatusId'];
-                $table = OrderStatusEmailRecord::tableName();
-                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-                // Now that we have a calendar ID, save it on the model
-                $model->id = $record->id;
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                throw $e;
+        try {
+            //only one default status can be among statuses of one order type
+            if ($record->default) {
+                OrderStatusRecord::updateAll(['default' => 0]);
             }
 
-            return true;
+            // Save it!
+            $record->save(false);
+
+            //Delete old links
+            if ($model->id) {
+                $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
+
+                foreach ($records as $record) {
+                    $record->delete();
+                }
+            }
+
+            //Save new links
+            $rows = array_map(
+                function($id) use ($record) {
+                    return [$id, $record->id];
+                }, $emailIds);
+
+            $cols = ['emailId', 'orderStatusId'];
+            $table = OrderStatusEmailRecord::tableName();
+            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
+
+            // Now that we have a calendar ID, save it on the model
+            $model->id = $record->id;
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -257,7 +267,7 @@ class OrderStatuses extends Component
             return false;
         }
 
-        if (count($statuses) >= 2) {
+        if (\count($statuses) >= 2) {
             $record = OrderStatusRecord::findOne($id);
 
             return (bool)$record->delete();

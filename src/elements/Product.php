@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements;
 
@@ -598,14 +603,8 @@ class Product extends Element
      */
     public function getSearchKeywords(string $attribute): string
     {
-        $skus = '';
-
         if ($attribute === 'sku') {
-            foreach ($this->getVariants() as $variant) {
-                $skus .= $variant->sku.' ';
-            }
-
-            return $skus;
+            return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
         }
 
         return parent::getSearchKeywords($attribute);
@@ -677,7 +676,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = parent::rules();
 
@@ -1033,7 +1032,7 @@ class Product extends Element
             case 'defaultWeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1043,7 +1042,7 @@ class Product extends Element
             case 'defaultHeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';

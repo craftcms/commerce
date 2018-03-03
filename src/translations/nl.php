@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 return [
     'A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount.' => 'Een gebruiker zal deze code in moeten voeren om deze korting te activeren. Als hier een lege couponcode staat zal deze altijd overeenkomen met deze korting.',

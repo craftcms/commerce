@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -35,15 +40,5 @@ class State extends ActiveRecord
     public function getCountry(): ActiveQueryInterface
     {
         return $this->hasOne(Country::class, ['id' => 'countryId']);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['countryId', 'name', 'abbreviation'], 'required']
-        ];
     }
 }

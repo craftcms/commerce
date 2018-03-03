@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -260,6 +265,16 @@ class Discount extends Model
         }
 
         return Craft::$app->formatter->asPercent(0);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'required']
+        ];
     }
 
     // Private Methods

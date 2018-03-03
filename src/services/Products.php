@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -36,11 +41,13 @@ class Products extends Component
 
 
     /**
+     * Handle a Site being saved.
+     *
      * @param SiteEvent $event
-     * @throws \craft\errors\SiteNotFoundException
      */
     public function afterSaveSiteHandler(SiteEvent $event)
     {
+        // todo - is it just me or does it look like it's resaving all products that are disabled for primary site?
         $queue = Craft::$app->getQueue();
         $siteId = Craft::$app->getSites()->getPrimarySite()->id;
         $elementTypes = [

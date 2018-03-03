@@ -1,10 +1,20 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\EmailException;
+use craft\commerce\errors\GatewayException;
+use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\errors\ShippingMethodException;
 use craft\commerce\events\CartEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -18,10 +28,6 @@ use yii\validators\EmailValidator;
  * Cart service.
  *
  * @property Order $cart
- * @property Order $email
- * @property Order $gateway the shipping method to the current order
- * @property mixed $paymentCurrency the payment currency on the order
- * @property Order $shippingMethod the shipping method to the current order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -116,51 +122,29 @@ class Carts extends Component
     // =========================================================================
 
     /**
-     * @param Order $order
-     * @param int $purchasableId
-     * @param int $qty
-     * @param string $note
-     * @param array $options
-     * @param string $error
-     * @return bool
-     * @throws \Exception
+     * Add a line item to a cart.
+     *
+     * @param Order $order the cart
+     * @param LineItem $lineItem
+     * @return bool whether item was added to the cart
+     * @throws Exception if unable to create a cart
      */
-    public function addToCart(Order $order, int $purchasableId, int $qty = 1, string $note = '', array $options = [], &$error): bool
+    public function addToCart(Order $order, LineItem $lineItem): bool
     {
         // saving current cart if it's new and empty
         if (!$order->id && !Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Error on creating empty cart'));
         }
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        if (!$order->id && !Craft::$app->getElements()->saveElement($order, false)) {
-            throw new Exception(Craft::t('commerce', 'Error creating new cart'));
-        }
-
         // filling item model
         $plugin = Plugin::getInstance();
-        $lineItem = $plugin->getLineItems()->getLineItemByOrderPurchasableOptions($order->id, $purchasableId, $options);
 
-        if ($lineItem) {
-            foreach ($order->getLineItems() as $item) {
-                if ($item->id == $lineItem->id) {
-                    $lineItem = $item;
-                }
-            }
-            $lineItem->qty += $qty;
-            $isNewLineItem = false;
-        } else {
-            $lineItem = $plugin->getLineItems()->createLineItem($purchasableId, $order, $options, $qty);
-            $isNewLineItem = true;
+        if (!$lineItem->validate()) {
+            return false;
         }
 
-        if ($note) {
-            $lineItem->note = $note;
-        }
-
-        $lineItem->validate();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
         try {
             if (!$lineItem->hasErrors()) {
@@ -172,54 +156,50 @@ class Carts extends Component
                     ]));
                 }
 
-                if ($plugin->getLineItems()->saveLineItem($lineItem)) {
-                    if ($isNewLineItem) {
-                        $order->addLineItem($lineItem);
-                    }
+                $isNewLineItem = !$lineItem->id;
 
-                    Craft::$app->getElements()->saveElement($order);
-
-                    $transaction->commit();
-
-                    // Raise the 'afterAddToCart' event
-                    if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_TO_CART)) {
-                        $this->trigger(self::EVENT_AFTER_ADD_TO_CART, new CartEvent([
-                            'lineItem' => $lineItem,
-                            'order' => $order
-                        ]));
-                    }
-
-                    return true;
+                if (!$plugin->getLineItems()->saveLineItem($lineItem)) {
+                    return false;
                 }
+
+                if ($isNewLineItem) {
+                    $order->addLineItem($lineItem);
+                }
+
+                Craft::$app->getElements()->saveElement($order);
+                $transaction->commit();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
+
             throw $e;
         }
 
-        $transaction->rollBack();
+        // Raise the 'afterAddToCart' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_TO_CART)) {
+            $this->trigger(self::EVENT_AFTER_ADD_TO_CART, new CartEvent([
+                'lineItem' => $lineItem,
+                'order' => $order
+            ]));
+        }
 
-        $errors = $lineItem->getFirstErrors();
-        $error = array_pop($errors);
-
-        return false;
+        return true;
     }
 
     /**
-     * @param Order $cart
-     * @param string $code
-     * @param string $error
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
+     * Apply a coupon by its code to a cart.
+     *
+     * @param Order $cart the cart
+     * @param string $code the coupon code
+     * @param string $explanation error message (if any) will be set on this by reference
+     * @return bool whether the coupon was applied successfully
      */
-    public function applyCoupon(Order $cart, $code, &$error): bool
+    public function applyCoupon(Order $cart, $code, &$explanation): bool
     {
-        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $error)) {
+        if (empty($code) || Plugin::getInstance()->getDiscounts()->matchCode($code, $cart->customerId, $explanation)) {
             $cart->couponCode = $code ?: null;
-            Craft::$app->getElements()->saveElement($cart);
 
-            return true;
+            return Craft::$app->getElements()->saveElement($cart);
         }
 
         return false;
@@ -228,150 +208,117 @@ class Carts extends Component
     /**
      * Sets the payment currency on the order.
      *
-     * @param $order
-     * @param $currency
-     * @param $error
-     * @return bool
+     * @param Order $order the order
+     * @param string $currency the ISO code for currency
+     * @return bool whether the currency was set successfully
+     * @throws CurrencyException if currency not found
      */
-    public function setPaymentCurrency($order, $currency, &$error): bool
+    public function setPaymentCurrency($order, $currency): bool
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
-
-        if (!$currency) {
-            $error = Craft::t('commerce', 'Not an available payment currency');
-
-            return false;
-        }
-
         $order->paymentCurrency = $currency->iso;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
-            return false;
-        }
-
-        return true;
+        return Craft::$app->getElements()->saveElement($order);
     }
 
     /**
-     * Sets shipping method to the current order
+     * Sets shipping method to the current order.
      *
      * @param Order $cart
-     * @param int $shippingMethod
-     * @param string $error ;
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
+     * @param string $shippingMethodHandle
+     * @return bool whether the method was set successfully
+     * @throws ShippingMethodException if applicable shipping method not found
      */
-    public function setShippingMethod(Order $cart, $shippingMethod, &$error): bool
+    public function setShippingMethod(Order $cart, string $shippingMethodHandle): bool
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
 
         foreach ($methods as $method) {
-            if ($method['handle'] == $shippingMethod) {
-                $cart->shippingMethodHandle = $shippingMethod;
+            if ($method['handle'] == $shippingMethodHandle) {
+                $cart->shippingMethodHandle = $shippingMethodHandle;
 
                 return Craft::$app->getElements()->saveElement($cart);
             }
         }
 
-        $error = Craft::t('commerce', 'Shipping method not available');
-
-        return false;
+        throw new ShippingMethodException(Craft::t('commerce', 'Shipping method “{handle}” not available', ['handle' => $shippingMethodHandle]));
     }
 
     /**
-     * Sets shipping method to the current order
+     * Sets gateway to the current cart
      *
-     * @param Order $cart
-     * @param int $gatewayId
-     * @param string $error
+     * @param Order $cart the cart
+     * @param int $gatewayId the gateway id
      * @return bool
-     * @throws \Exception
+     * @throws GatewayException if applicable gateway not found
      */
-    public function setGateway(Order $cart, $gatewayId, &$error): bool
+    public function setGateway(Order $cart, int $gatewayId): bool
     {
-        if (!$gatewayId) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
-        }
 
         /** @var Gateway $gateway */
-        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+        if (!$gatewayId
+            || !($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId))
+            || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
 
-        if (!$gateway || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->frontendEnabled)) {
-            $error = Craft::t('commerce', 'Payment gateway does not exist or is not allowed.');
-
-            return false;
+            throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
         }
 
         $cart->gatewayId = $gatewayId;
-        Craft::$app->getElements()->saveElement($cart);
 
-        return true;
-    }
-
-    public function setPaymentSource(Order $cart, $paymentSourceId, &$error): bool
-    {
-        $user = Craft::$app->getUser();
-
-        if ($user->getIsGuest()) {
-            $error = Craft::t('commerce', 'You must be logged in to select a payment source.');
-        }
-
-        $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
-
-        if (!$source) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
-        }
-
-        // TODO maybe allow admins to do this?
-        if ($user->getId() !== $source->userId) {
-            $error = Craft::t('commerce', 'Payment source does not exist or is not allowed.');
-        }
-
-        $cart->gatewayId = null;
-        $cart->paymentSourceId = $paymentSourceId;
-        Craft::$app->getElements()->saveElement($cart);
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
-     * @param Order $cart
-     * @param        $email
-     * @param string $error
-     * @return bool
+     * Set a payment source on the cart
+     *
+     * @param Order $cart the cart
+     * @param int $paymentSourceId ID of payment source
+     * @return bool whether the source was set successfully
+     * @throws PaymentSourceException if applicable payment source not found
      */
-    public function setEmail(Order $cart, $email, &$error): bool
+    public function setPaymentSource(Order $cart, int $paymentSourceId): bool
+    {
+        $user = Craft::$app->getUser();
+        $source = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($paymentSourceId);
+
+        // TODO probably admins should be able to select any payment source for the user that has this order
+        if ($user->getIsGuest() || !$source || $source->userId !== $user->getId() || true) {
+            throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
+        }
+        $cart->gatewayId = null;
+        $cart->paymentSourceId = $paymentSourceId;
+
+        return Craft::$app->getElements()->saveElement($cart);
+    }
+
+    /**
+     * Set an email address on the cart.
+     *
+     * @param Order $cart the cart
+     * @param string $email the email address to set
+     * @return bool whether the email address was set successfully
+     * @throws EmailException if cannot set the email address
+     */
+    public function setEmail(Order $cart, $email): bool
     {
         $validator = new EmailValidator();
 
         if (empty($email) || !$validator->validate($email)) {
-            $error = Craft::t('commerce', 'Not a valid email address');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Not a valid email address'));
         }
 
         if ($cart->getCustomer() && $cart->getCustomer()->getUser()) {
-            $error = Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.');
-
-            return false;
+            throw new EmailException(Craft::t('commerce', 'Can not set email on a cart as a logged in and registered user.'));
         }
 
-        try {
-            $cart->setEmail($email);
-            Craft::$app->getElements()->saveElement($cart);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
+        $cart->setEmail($email);
 
-            return false;
-        }
-
-        return true;
+        return Craft::$app->getElements()->saveElement($cart);
     }
 
     /**
+     * Get the current cart for this session.
+     *
      * @return Order
      */
     public function getCart(): Order
@@ -442,6 +389,8 @@ class Carts extends Component
 
     /**
      * Forgets a Cart by deleting its cookie.
+     *
+     * @return void
      */
     public function forgetCart()
     {
@@ -512,7 +461,7 @@ class Carts extends Component
     }
 
     /**
-     * Removes all items from a cart
+     * Removes all items from a cart.
      *
      * @param Order $cart
      * @throws \Exception
@@ -537,7 +486,6 @@ class Carts extends Component
      * Removes all carts that are incomplete and older than the config setting.
      *
      * @return int The number of carts purged from the database
-     * @throws \Exception
      */
     public function purgeIncompleteCarts(): int
     {
@@ -549,13 +497,15 @@ class Carts extends Component
                 Craft::$app->getElements()->deleteElementById($id);
             }
 
-            return count($cartIds);
+            return \count($cartIds);
         }
 
         return 0;
     }
 
     /**
+     * Generate a cart number and return it.
+     *
      * @return string
      */
     public function generateCartNumber(): string
@@ -567,6 +517,8 @@ class Carts extends Component
     // =========================================================================
 
     /**
+     * Get the session cart number.
+     *
      * @return mixed|string
      */
     private function _getSessionCartNumber()
@@ -583,7 +535,7 @@ class Carts extends Component
     }
 
     /**
-     * Which Carts IDs need to be deleted
+     * Return cart IDs to be deleted
      *
      * @return int[]
      */

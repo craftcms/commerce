@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -65,6 +70,8 @@ class Emails extends Component
     // =========================================================================
 
     /**
+     * Get an email by its ID.
+     *
      * @param int $id
      * @return Email|null
      */
@@ -78,6 +85,8 @@ class Emails extends Component
     }
 
     /**
+     * Get all emails.
+     *
      * @return Email[]
      */
     public function getAllEmails(): array
@@ -93,11 +102,13 @@ class Emails extends Component
     }
 
     /**
+     * Save an email.
+     *
      * @param Email $model
      * @return bool
      * @throws \Exception
      */
-    public function saveEmail(Email $model): bool
+    public function saveEmail(Email $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = EmailRecord::findOne($model->id);
@@ -109,6 +120,12 @@ class Emails extends Component
             $record = new EmailRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Email not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->subject = $model->subject;
         $record->recipientType = $model->recipientType;
@@ -117,23 +134,17 @@ class Emails extends Component
         $record->enabled = $model->enabled;
         $record->templatePath = $model->templatePath;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
+     * Delete an email by its ID.
+     *
      * @param int $id
      * @return bool
      */
@@ -149,16 +160,17 @@ class Emails extends Component
     }
 
     /**
-     * Sends a commerce email
+     * Send a commerce email.
      *
      * @param Email $email
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @return bool $result
      */
-    public function sendEmail($email, $order, $orderHistory)
+    public function sendEmail($email, $order, $orderHistory): bool
     {
         if (!$email->enabled) {
-            return;
+            return false;
         }
 
         // Set Craft to the site template mode
@@ -208,7 +220,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $templatesService->setTemplateMode($oldTemplateMode);
 
-                return;
+                return false;
             }
         }
 
@@ -219,7 +231,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         // BCC:
@@ -228,9 +240,11 @@ class Emails extends Component
             $bcc = str_replace(';', ',', $bcc);
             $bcc = explode(',', $bcc);
             $bccEmails = [];
+
             foreach ($bcc as $bccEmail) {
                 $bccEmails[] = ['email' => $bccEmail];
             }
+
             $newEmail->setBcc($bccEmails);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
@@ -243,7 +257,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         // Subject:
@@ -260,7 +274,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         // Template Path
@@ -277,7 +291,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         // Email Body
@@ -293,7 +307,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         try {
@@ -311,7 +325,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $templatesService->setTemplateMode($oldTemplateMode);
 
-            return;
+            return false;
         }
 
         try {
@@ -332,7 +346,10 @@ class Emails extends Component
 
                 Craft::error($error, __METHOD__);
 
-                return;
+                Craft::$app->language = $originalLanguage;
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                return false;
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
@@ -343,16 +360,11 @@ class Emails extends Component
                 ]);
 
                 Craft::error($error, __METHOD__);
-            } else {
-                // Raise an 'afterSendEmail' event
-                if ($this->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
-                    $this->trigger(self::EVENT_AFTER_SEND_MAIL, new MailEvent([
-                        'craftEmail' => $newEmail,
-                        'commerceEmail' => $email,
-                        'order' => $order,
-                        'orderHistory' => $orderHistory
-                    ]));
-                }
+
+                Craft::$app->language = $originalLanguage;
+                $templatesService->setTemplateMode($oldTemplateMode);
+
+                return false;
             }
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error}', [
@@ -362,18 +374,36 @@ class Emails extends Component
             ]);
 
             Craft::error($error, __METHOD__);
+
+            Craft::$app->language = $originalLanguage;
+            $templatesService->setTemplateMode($oldTemplateMode);
+
+            return false;
         }
 
-        // Restore original values
+        // Raise an 'afterSendEmail' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SEND_MAIL)) {
+            $this->trigger(self::EVENT_AFTER_SEND_MAIL, new MailEvent([
+                'craftEmail' => $newEmail,
+                'commerceEmail' => $email,
+                'order' => $order,
+                'orderHistory' => $orderHistory
+            ]));
+        }
+
         Craft::$app->language = $originalLanguage;
         $templatesService->setTemplateMode($oldTemplateMode);
+
+        return true;
     }
 
     /**
-     * @param $id
+     * Get all emails by an order status ID.
+     *
+     * @param int $id
      * @return Email[]
      */
-    public function getAllEmailsByOrderStatusId($id): array
+    public function getAllEmailsByOrderStatusId(int $id): array
     {
         $results = $this->_createEmailQuery()
             ->innerJoin('{{%commerce_orderstatus_emails}} statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
@@ -394,7 +424,7 @@ class Emails extends Component
     // =========================================================================
 
     /**
-     * Returns a Query object prepped for retrieving Emails
+     * Returns a Query object prepped for retrieving Emails.
      *
      * @return Query
      */

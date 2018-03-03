@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -158,5 +163,15 @@ class PaymentCurrency extends Model
     public function setCurrency(Currency $currency)
     {
         $this->_currency = $currency;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['iso'], 'unique']
+        ];
     }
 }

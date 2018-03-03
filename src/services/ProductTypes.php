@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -254,12 +259,6 @@ class ProductTypes extends Component
     {
         $titleFormatChanged = false;
 
-        if ($runValidation && !$productType->validate()) {
-            Craft::info('Product type not saved due to validation error.', __METHOD__);
-
-            return false;
-        }
-
         $isNewProductType = !$productType->id;
 
         // Fire a 'beforeSaveProductType' event
@@ -268,6 +267,12 @@ class ProductTypes extends Component
                 'productType' => $productType,
                 'isNew' => $isNewProductType,
             ]));
+        }
+
+        if ($runValidation && !$productType->validate()) {
+            Craft::info('Product type not saved due to validation error.', __METHOD__);
+
+            return false;
         }
 
         if (!$isNewProductType) {

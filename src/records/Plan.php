@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -44,16 +49,4 @@ class Plan extends ActiveRecord
     {
         return $this->hasOne(Gateway::class, ['gatewayId' => 'id']);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['handle'], 'unique'],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
-        ];
-    }
-
 }

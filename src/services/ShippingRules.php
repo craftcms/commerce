@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -44,6 +49,8 @@ class ShippingRules extends Component
     // =========================================================================
 
     /**
+     * Get all shipping rules.
+     *
      * @return ShippingRule[]
      */
     public function getAllShippingRules(): array
@@ -61,6 +68,8 @@ class ShippingRules extends Component
     }
 
     /**
+     * Get all shipping rules by a shipping method ID.
+     *
      * @param int $id
      * @return ShippingRule[]
      */
@@ -93,6 +102,8 @@ class ShippingRules extends Component
     }
 
     /**
+     * Get a shipping rule by its ID.
+     *
      * @param int $id
      * @return ShippingRule|null
      */
@@ -118,11 +129,14 @@ class ShippingRules extends Component
     }
 
     /**
+     * Save a shipping rule.
+     *
      * @param ShippingRule $model
+     * @param bool $runValidation should we validate this rule before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveShippingRule(ShippingRule $model): bool
+    public function saveShippingRule(ShippingRule $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = ShippingRuleRecord::findOne($model->id);
@@ -133,6 +147,12 @@ class ShippingRules extends Component
             }
         } else {
             $record = new ShippingRuleRecord();
+        }
+
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Shipping rule not saved due to validation error.', __METHOD__);
+
+            return false;
         }
 
         $fields = [
@@ -168,45 +188,38 @@ class ShippingRules extends Component
             $model->priority = $record->priority;
         }
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
+        ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
 
-            ShippingRuleCategoryRecord::deleteAll(['shippingRuleId' => $model->id]);
-
-            // Generate a rule category record for all categories regardless of data submitted
-            foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
-                /** @var ShippingCategory $ruleCategory */
-                if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
-                    $ruleCategory = new ShippingRuleCategory([
-                        'shippingRuleId' => $model->id,
-                        'shippingCategoryId' => $shippingCategory->id,
-                        'condition' => $ruleCategory->condition,
-                        'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
-                        'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
-                        'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
-                    ]);
-                } else {
-                    $ruleCategory = new ShippingRuleCategory([
-                        'shippingRuleId' => $model->id,
-                        'shippingCategoryId' => $shippingCategory->id,
-                        'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
-                    ]);
-                }
-
-                Plugin::getInstance()->getShippingRuleCategories()->createShippingRuleCategory($ruleCategory);
+        // Generate a rule category record for all categories regardless of data submitted
+        foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
+            /** @var ShippingCategory $ruleCategory */
+            if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
+                $ruleCategory = new ShippingRuleCategory([
+                    'shippingRuleId' => $model->id,
+                    'shippingCategoryId' => $shippingCategory->id,
+                    'condition' => $ruleCategory->condition,
+                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
+                    'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
+                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                ]);
+            } else {
+                $ruleCategory = new ShippingRuleCategory([
+                    'shippingRuleId' => $model->id,
+                    'shippingCategoryId' => $shippingCategory->id,
+                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
+                ]);
             }
 
-            return true;
+            Plugin::getInstance()->getShippingRuleCategories()->createShippingRuleCategory($ruleCategory, $runValidation);
         }
 
-        return false;
+        return true;
     }
 
     /**

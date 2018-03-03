@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -39,6 +44,8 @@ class ShippingZones extends Component
     // =========================================================================
 
     /**
+     * Get all shipping zones.
+     *
      * @return ShippingZone[]
      */
     public function getAllShippingZones(): array
@@ -57,6 +64,8 @@ class ShippingZones extends Component
     }
 
     /**
+     * Get a shipping zoneby its ID.
+     *
      * @param int $id
      * @return ShippingZone|null
      */
@@ -82,14 +91,17 @@ class ShippingZones extends Component
     }
 
     /**
+     * Save a shipping zone.
+     *
      * @param ShippingZone $model
      * @param array $countryIds
      * @param array $stateIds
+     * @param bool $runValidation should we validate this rule before saving.
      * @return bool
      * @throws \Exception
      * @throws Exception
      */
-    public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds): bool
+    public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = ShippingZoneRecord::findOne($model->id);
@@ -101,13 +113,16 @@ class ShippingZones extends Component
             $record = new ShippingZoneRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Shipping rule not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
         $record->countryBased = $model->countryBased;
-
-        $record->validate();
-        $model->addErrors($record->getErrors());
 
         //validating given ids
         if ($record->countryBased) {
@@ -124,49 +139,44 @@ class ShippingZones extends Component
             }
         }
 
-        //saving
-        if (!$model->hasErrors()) {
-            $db = Craft::$app->getDb();
-            $transaction = $db->beginTransaction();
+        $db = Craft::$app->getDb();
+        $transaction = $db->beginTransaction();
 
-            try {
-                // Save it!
-                $record->save(false);
+        try {
+            // Save it!
+            $record->save(false);
 
-                // Now that we have a record ID, save it on the model
-                $model->id = $record->id;
+            // Now that we have a record ID, save it on the model
+            $model->id = $record->id;
 
-                //deleting old links
-                ShippingZoneCountryRecord::deleteAll(['shippingZoneId' => $record->id]);
-                ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
+            //deleting old links
+            ShippingZoneCountryRecord::deleteAll(['shippingZoneId' => $record->id]);
+            ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
 
-                //saving new links
-                if ($model->countryBased) {
-                    $rows = array_map(function($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $countryIds);
-                    $cols = ['countryId', 'shippingZoneId'];
-                    $table = ShippingZoneCountryRecord::tableName();
-                } else {
-                    $rows = array_map(function($id) use ($model) {
-                        return [$id, $model->id];
-                    }, $stateIds);
-                    $cols = ['stateId', 'shippingZoneId'];
-                    $table = ShippingZoneStateRecord::tableName();
-                }
-                Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-
-                throw $e;
+            //saving new links
+            if ($model->countryBased) {
+                $rows = array_map(function($id) use ($model) {
+                    return [$id, $model->id];
+                }, $countryIds);
+                $cols = ['countryId', 'shippingZoneId'];
+                $table = ShippingZoneCountryRecord::tableName();
+            } else {
+                $rows = array_map(function($id) use ($model) {
+                    return [$id, $model->id];
+                }, $stateIds);
+                $cols = ['stateId', 'shippingZoneId'];
+                $table = ShippingZoneStateRecord::tableName();
             }
+            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
-            return true;
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+
+            throw $e;
         }
 
-        return false;
+        return true;
     }
 
     /**

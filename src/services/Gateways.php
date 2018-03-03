@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -175,6 +180,21 @@ class Gateways extends Component
     {
         $result = $this->_createGatewayQuery()
             ->where(['id' => $id])
+            ->one();
+
+        return $result ? $this->createGateway($result) : null;
+    }
+
+    /**
+     * Returns a gateway by its handle.
+     *
+     * @param string $handle
+     * @return GatewayInterface|null The gateway or null if not found.
+     */
+    public function getGatewayByHandle(string $handle)
+    {
+        $result = $this->_createGatewayQuery()
+            ->where(['handle' => $handle])
             ->one();
 
         return $result ? $this->createGateway($result) : null;

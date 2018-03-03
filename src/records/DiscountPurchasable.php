@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -27,16 +32,6 @@ class DiscountPurchasable extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_discount_purchasables}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['discountId', 'purchasableId'], 'unique', 'targetAttribute' => ['discountId', 'purchasableId']]
-        ];
     }
 
     /**

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements;
 
@@ -28,7 +33,8 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\errors\DefaultOrderStatusNotFoundException;
+use craft\errors\OrderStatusException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -43,6 +49,7 @@ use yii\base\Exception;
  * @property float $adjustmentsTotal
  * @property Address $billingAddress
  * @property Customer $customer
+ * @property string $email the email for this order
  * @property Gateway $gateway
  * @property OrderHistory[] $histories order histories
  * @property int $itemSubtotal the total of all line item subtotals
@@ -58,8 +65,6 @@ use yii\base\Exception;
  * @property string $shortNumber
  * @property bool $shouldRecalculateAdjustments
  * @property int $totalDiscount
- * @property int $totalHeight
- * @property int $totalLength
  * @property float $totalPaid the total `purchase` and `captured` transactions belonging to this order
  * @property float $totalPrice
  * @property int $totalQty the total number of items
@@ -129,11 +134,6 @@ class Order extends Element
      * @var string Coupon Code
      */
     public $couponCode;
-
-    /**
-     * @var string Email
-     */
-    public $email = 0;
 
     /**
      * @var bool Is completed
@@ -304,7 +304,10 @@ class Order extends Element
             $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         }
 
-        $this->email = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)->email;
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($email = $customer->getEmail()) {
+            $this->setEmail($email);
+        }
 
         return parent::beforeValidate();
     }
@@ -326,8 +329,45 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
+        $names[] = 'adjustmentSubtotal';
+        $names[] = 'adjustmentsTotal';
+        $names[] = 'email';
+        $names[] = 'itemSubtotal';
+        $names[] = 'itemTotal';
         $names[] = 'lineItems';
+        $names[] = 'orderAdjustments';
+        $names[] = 'shortNumber';
+        $names[] = 'totalDiscount';
+        $names[] = 'totalPaid';
+        $names[] = 'totalPrice';
+        $names[] = 'totalQty';
+        $names[] = 'totalSaleAmount';
+        $names[] = 'totalShippingCost';
+        $names[] = 'totalTax';
+        $names[] = 'totalTaxablePrice';
+        $names[] = 'totalTaxIncluded';
+        $names[] = 'totalWeight';
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        $names = parent::extraFields();
         $names[] = 'adjustments';
+        $names[] = 'billingAddress';
+        $names[] = 'customer';
+        $names[] = 'gateway';
+        $names[] = 'histories';
+        $names[] = 'nestedTransactions';
+        $names[] = 'orderStatus';
+        $names[] = 'pdfUrl';
+        $names[] = 'shippingAddress';
+        $names[] = 'shippingMethod';
+        $names[] = 'shippingMethodId';
+        $names[] = 'transactions';
         return $names;
     }
 
@@ -394,7 +434,7 @@ class Order extends Element
 
     /**
      * @return bool
-     * @throws DefaultOrderStatusNotFoundException
+     * @throws OrderStatusException
      * @throws Exception
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
@@ -413,7 +453,7 @@ class Order extends Element
         if ($orderStatus && $orderStatus->id) {
             $this->orderStatusId = $orderStatus->id;
         } else {
-            throw new DefaultOrderStatusNotFoundException('Could not find a valid default order status.');
+            throw new OrderStatusException('Could not find a valid default order status.');
         }
 
         // Raising the 'beforeCompleteOrder' event
@@ -663,7 +703,7 @@ class Order extends Element
         $url = null;
 
         try {
-            $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($this, $option);
+            $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
                 $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
             }
@@ -741,9 +781,9 @@ class Order extends Element
     /**
      * Sets the orders email address. Will have no affect if the order's customer is a registered user.
      *
-     * @param $value
+     * @param string $value
      */
-    public function setEmail($value)
+    public function setEmail(string $value)
     {
         $this->_email = $value;
     }
@@ -1036,8 +1076,8 @@ class Order extends Element
      */
     public function getShippingAddress()
     {
-        if (null === $this->_shippingAddress) {
-            $this->_shippingAddress = $this->shippingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId) : null;
+        if (null === $this->_shippingAddress && $this->shippingAddressId) {
+            $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
         }
 
         return $this->_shippingAddress;
@@ -1056,8 +1096,8 @@ class Order extends Element
      */
     public function getBillingAddress()
     {
-        if (null === $this->_billingAddress) {
-            $this->_billingAddress = $this->billingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId) : null;
+        if (null === $this->_billingAddress && $this->billingAddressId) {
+            $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
         }
 
         return $this->_billingAddress;
@@ -1285,59 +1325,20 @@ class Order extends Element
      */
     public function getSearchKeywords(string $attribute): string
     {
-        if ($attribute === 'shortNumber') {
-            return $this->getShortNumber();
+        switch ($attribute) {
+            case 'billingFirstName':
+                return $this->billingAddress->firstName ?? '';
+            case 'billingLastName':
+                return $this->billingAddress->lastName ?? '';
+            case 'shippingFirstName':
+                return $this->shippingAddress->firstName ?? '';
+            case 'shippingLastName':
+                return $this->shippingAddress->lastName ?? '';
+            case 'transactionReference':
+                return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
+            default:
+                return parent::getSearchKeywords($attribute);
         }
-
-        if ($attribute === 'email') {
-            return $this->getEmail();
-        }
-
-        if ($attribute === 'billingFirstName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->firstName) {
-                return $this->billingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'billingLastName') {
-            if ($this->getBillingAddress() && $this->getBillingAddress()->lastName) {
-                return $this->billingAddress->lastName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'shippingFirstName') {
-            if ($this->getShippingAddress() && $this->getShippingAddress()->firstName) {
-                return $this->shippingAddress->firstName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'shippingLastName') {
-            if ($this->getShippingAddress() && $this->getShippingAddress()->lastName) {
-                return $this->shippingAddress->lastName;
-            }
-
-            return '';
-        }
-
-        if ($attribute === 'transactionReference') {
-            $transactions = $this->getTransactions();
-            if ($transactions) {
-                return implode(' ', array_map(function($transaction) {
-                    return $transaction->reference;
-                }, $transactions));
-            }
-
-            return '';
-        }
-
-
-        return parent::getSearchKeywords($attribute);
     }
 
     // Protected Methods

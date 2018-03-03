@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\base;
 
@@ -69,6 +74,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function deletePaymentSource($token): bool;
+
+    /**
+     * Returns payment form model to use in payment forms.
+     *
+     * @return BasePaymentForm
+     */
+     public function getPaymentFormModel(): BasePaymentForm;
 
     /**
      * Makes a purchase request.

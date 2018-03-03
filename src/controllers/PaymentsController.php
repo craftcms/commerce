@@ -1,10 +1,18 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\GatewayException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use yii\base\Exception;
@@ -103,13 +111,15 @@ class PaymentsController extends BaseFrontEndController
         if (null !== $request->getParam('paymentCurrency')) {
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
 
-            if (!$plugin->getCarts()->setPaymentCurrency($order, $currency, $error)) {
+            try {
+                $plugin->getCarts()->setPaymentCurrency($order, $currency);
+            } catch (CurrencyException $exception) {
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($error);
+                    return $this->asErrorJson($exception->getMessage());
                 }
 
-                $order->addError('paymentCurrency', $error);
-                $session->setError($error);
+                $order->addError('paymentCurrency', $exception->getMessage());
+                $session->setError($exception->getMessage());
 
                 return null;
             }
@@ -118,14 +128,19 @@ class PaymentsController extends BaseFrontEndController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $request->getParam('gatewayId');
 
-        if ($gatewayId && $order->gatewayId != $gatewayId && !$plugin->getCarts()->setGateway($order, $gatewayId, $error)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+        if ($gatewayId && $order->gatewayId != $gatewayId) {
+            try{
+                $plugin->getCarts()->setGateway($order, (int)$gatewayId);
+            } catch (GatewayException $exception) {
+                if ($request->getAcceptsJson()) {
+                    return $this->asErrorJson($exception->getMessage());
+                }
+
+                $order->addError('gatewayId', $exception->getMessage());
+                $session->setError($exception->getMessage());
+
+                return null;
             }
-
-            $session->setError($error);
-
-            return null;
         }
 
         $gateway = $order->getGateway();
@@ -150,7 +165,18 @@ class PaymentsController extends BaseFrontEndController
         try {
             if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
-                $plugin->getCarts()->setPaymentSource($order, $paymentSource->id, $error);
+
+                try {
+                    $plugin->getCarts()->setPaymentSource($order, $paymentSource->id);
+                } catch (PaymentSourceException $exception) {
+                    if ($request->getAcceptsJson()) {
+                        return $this->asErrorJson($exception->getMessage());
+                    }
+
+                    $session->setError($exception->getMessage());
+
+                    return null;
+                }
             } else {
                 $paymentSource = $order->getPaymentSource();
             }

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -173,7 +178,7 @@ class LineItem extends Model
     /**
      * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         $rules = [
             [
@@ -205,6 +210,40 @@ class LineItem extends Model
         }
 
         return $rules;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+        ArrayHelper::removeValue($names, 'snapshot');
+
+        $names[] = 'adjustments';
+        $names[] = 'description';
+        $names[] = 'discount';
+        $names[] = 'onSale';
+        $names[] = 'shippingCost';
+        $names[] = 'sku';
+        $names[] = 'tax';
+        $names[] = 'total';
+        $names[] = 'taxIncluded';
+
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'order',
+            'purchasable',
+            'shippingCategory',
+            'taxCategory',
+        ];
     }
 
     /**

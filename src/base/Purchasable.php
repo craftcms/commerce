@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\base;
 
@@ -40,6 +45,35 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+        $names[] = 'description';
+        $names[] = 'isAvailable';
+        $names[] = 'isPromotable';
+        $names[] = 'purchasableId';
+        $names[] = 'price';
+        $names[] = 'salePrice';
+        $names[] = 'shippingCategoryId';
+        $names[] = 'sku';
+        $names[] = 'taxCategoryId';
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        $names = parent::extraFields();
+        $names[] = 'sales';
+        $names[] = 'snapshot';
+        return $names;
+    }
 
     /**
      * @inheritdoc

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -26,9 +31,9 @@ class Pdf extends Component
      * @param Order $order
      * @param string $option
      * @return Dompdf
-     * @throws Exception
+     * @throws Exception if no template or order found.
      */
-    public function pdfForOrder(Order $order, $option = '')
+    public function renderPdfForOrder(Order $order, $option = ''): Dompdf
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;
 

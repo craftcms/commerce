@@ -1,8 +1,14 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Plugin as BasePlugin;
 use craft\commerce\elements\Product;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
@@ -22,6 +28,8 @@ use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
+use craft\redactor\events\RegisterLinkOptionsEvent;
+use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Fields;
 use craft\services\Sites;
@@ -32,11 +40,12 @@ use yii\base\Exception;
 use yii\web\User;
 
 /**
+ * @property array $cpNavItem the control panel navigation menu
  * @property mixed $settingsResponse the settings page response
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Plugin extends \craft\base\Plugin
+class Plugin extends BasePlugin
 {
     // Public Properties
     // =========================================================================
@@ -83,8 +92,6 @@ class Plugin extends \craft\base\Plugin
         $this->_registerCpAlerts();
         $this->_registerWidgets();
         $this->_registerVariables();
-
-        // TODO onBeforeDeleteUser cancel all subscriptions
     }
 
     /**
@@ -152,7 +159,7 @@ class Plugin extends \craft\base\Plugin
             ];
         }
 
-        if (Craft::$app->user->identity->admin) {
+        if (Craft::$app->getUser()->getIsAdmin()) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => 'commerce/settings/general'
@@ -189,11 +196,11 @@ class Plugin extends \craft\base\Plugin
      */
     private function _registerRedactorLinkOptions()
     {
-        if (!class_exists('\craft\redactor\Field')) {
+        if (!class_exists(RedactorField::class)) {
             return;
         }
 
-        Event::on('\craft\redactor\Field', \craft\redactor\Field::EVENT_REGISTER_LINK_OPTIONS, function(\craft\redactor\events\RegisterLinkOptionsEvent $event) {
+        Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
@@ -290,6 +297,7 @@ class Plugin extends \craft\base\Plugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
     }
 
     /**

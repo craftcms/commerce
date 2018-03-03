@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models\payments;
 
@@ -89,7 +94,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],

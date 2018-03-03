@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -52,11 +57,19 @@ class ShippingRuleCategories extends Component
      * Save a shipping rule category.
      *
      * @param ShippingRuleCategory $model The shipping rule model.
+     * @param bool $runValidation should we validate this rule category before saving.
      * @return bool Whether the save was successful.
      */
-    public function createShippingRuleCategory(ShippingRuleCategory $model): bool
+    public function createShippingRuleCategory(ShippingRuleCategory $model, bool $runValidation = true): bool
     {
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record = new ShippingRuleCategoryRecord();
+
         $fields = [
             'shippingRuleId',
             'shippingCategoryId',
@@ -70,20 +83,13 @@ class ShippingRuleCategories extends Component
             $record->$field = $model->$field;
         }
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**

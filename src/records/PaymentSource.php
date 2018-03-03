@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -51,16 +56,5 @@ class PaymentSource extends ActiveRecord
     public function getUser(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
-            [['gatewayId', 'userId', 'token', 'description'], 'required']
-        ];
     }
 }

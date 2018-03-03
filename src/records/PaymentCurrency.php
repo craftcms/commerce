@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -25,15 +30,5 @@ class PaymentCurrency extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_paymentcurrencies}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['iso'], 'unique']
-        ];
     }
 }

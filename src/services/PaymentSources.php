@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -174,10 +179,11 @@ class PaymentSources extends Component
      * Saves a payment source.
      *
      * @param PaymentSource $paymentSource The payment source being saved.
+     * @param bool $runValidation should we validate this payment source before saving.
      * @return bool Whether the payment source was saved successfully
      * @throws Exception if the payment source couldn't be found
      */
-    public function savePaymentSource(PaymentSource $paymentSource): bool
+    public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
         if ($paymentSource->id) {
             $record = PaymentSourceRecord::findOne($paymentSource->id);
@@ -197,33 +203,32 @@ class PaymentSources extends Component
             ]));
         }
 
+        if ($runValidation && !$paymentSource->validate()) {
+            Craft::info('Payment source not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->userId = $paymentSource->userId;
         $record->gatewayId = $paymentSource->gatewayId;
         $record->token = $paymentSource->token;
         $record->description = $paymentSource->description;
         $record->response = $paymentSource->response;
 
-        $record->validate();
-        $paymentSource->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$paymentSource->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $paymentSource->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $paymentSource->id = $record->id;
-
-            // fire a 'afterSavePaymentSource' event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
-                $this->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
-                    'paymentSource' => $paymentSource,
-                ]));
-            }
-
-            return true;
+        // fire a 'afterSavePaymentSource' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_PAYMENT_SOURCE, new PaymentSourceEvent([
+                'paymentSource' => $paymentSource,
+            ]));
         }
 
-        return false;
+        return true;
     }
 
     /**

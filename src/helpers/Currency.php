@@ -1,8 +1,14 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\helpers;
 
 use craft\commerce\models\Currency as CurrencyModel;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 
 /**
@@ -21,7 +27,7 @@ class Currency
      * a currency model results in rounding in default currency.
      *
      * @param float $amount
-     * @param CurrencyModel|null $currency
+     * @param PaymentCurrency|null $currency
      * @return float
      */
     public static function round($amount, $currency = null): float

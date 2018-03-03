@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -57,16 +62,6 @@ class Discount extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_discounts}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['name'], 'required']
-        ];
     }
 
     /**

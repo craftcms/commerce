@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -27,10 +32,12 @@ class Currencies extends Component
     // =========================================================================
 
     /**
+     * Get a currency by it's ISO code.
+     *
      * @param string $iso
      * @return Currency|null
      */
-    public function getCurrencyByIso($iso)
+    public function getCurrencyByIso(string $iso)
     {
         /** @var Currency $currency */
         foreach ($this->getAllCurrencies() as $currency) {
@@ -43,6 +50,8 @@ class Currencies extends Component
     }
 
     /**
+     * Get a list of all available currencies.
+     *
      * @return Currency[]
      */
     public function getAllCurrencies(): array

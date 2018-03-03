@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -102,4 +107,14 @@ class PaymentSource extends Model
         return $this->_gateway;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
+            [['gatewayId', 'userId', 'token', 'description'], 'required']
+        ];
+    }
 }

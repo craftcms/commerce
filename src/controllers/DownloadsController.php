@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\controllers;
 
@@ -31,7 +36,7 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException('No Order Found');
         }
 
-        $pdf = Plugin::getInstance()->getPdf()->pdfForOrder($order, $option);
+        $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);
         $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);

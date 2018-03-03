@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\base;
 
@@ -134,5 +139,16 @@ abstract class Plan extends Model implements PlanInterface
             ->planId($this->id)
             ->status(Subscription::STATUS_ACTIVE)
             ->all();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['handle'], 'unique'],
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+        ];
     }
 }

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\plugin;
 
@@ -25,7 +30,6 @@ use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
 use craft\commerce\services\Sales;
-use craft\commerce\services\Settings;
 use craft\commerce\services\ShippingCategories;
 use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
@@ -468,7 +472,6 @@ trait Services
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
             'sales' => Sales::class,
-            'settings' => Settings::class,
             'shippingMethods' => ShippingMethods::class,
             'shippingRules' => ShippingRules::class,
             'shippingRuleCategories' => ShippingRuleCategories::class,

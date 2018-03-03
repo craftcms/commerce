@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
@@ -90,6 +95,17 @@ class OrderHistory extends Model
     public function getCustomer()
     {
         return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['orderId', 'customerId'], 'required'],
+        ];
+
     }
 }
 

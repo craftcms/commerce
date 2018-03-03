@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\services;
 
@@ -9,8 +14,8 @@ use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
+use craft\db\Query;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -19,7 +24,6 @@ use yii\web\UserEvent;
 /**
  * Customer service.
  *
- * @property mixed $lastUsedAddresses
  * @property array|Customer[] $allCustomers
  * @property Customer $customer
  * @property int $customerId id of current customer record
@@ -46,33 +50,42 @@ class Customers extends Component
     // =========================================================================
 
     /**
+     * Get all customers.
+     *
      * @return Customer[]
      */
     public function getAllCustomers(): array
     {
-        $records = CustomerRecord::find()->all();
+        $rows = $this->_createCustomerQuery()
+            ->all();
 
-        return ArrayHelper::map($records, 'id', function($item) {
-            return $this->_createCustomerFromCustomerRecord($item);
-        });
+        $customers = [];
+
+        foreach ($rows as $row) {
+            $customers[] = new Customer($row);
+        }
+
+        return $customers;
     }
 
     /**
+     * Get a customer by its ID.
+     *
      * @param int $id
      * @return Customer|null
      */
     public function getCustomerById(int $id)
     {
-        $result = CustomerRecord::findOne($id);
+        $row = $this->_createCustomerQuery()
+            ->where(['id' => $id])
+            ->one();
 
-        if ($result) {
-            return $this->_createCustomerFromCustomerRecord($result);
-        }
-
-        return null;
+        return $row ? new Customer($row) : null;
     }
 
     /**
+     * Return true, if the current customer is saved to the database.
+     *
      * @return bool
      */
     public function isCustomerSaved(): bool
@@ -81,43 +94,48 @@ class Customers extends Component
     }
 
     /**
-     * Must always return a customer
+     * Get the current customer.
      *
      * @return Customer
      */
     public function getCustomer(): Customer
     {
+        $session = Craft::$app->getSession();
+
         if ($this->_customer === null) {
             $user = Craft::$app->getUser()->getIdentity();
 
+            $customer = null;
+
             // Find user's customer or the current customer in the session.
             if ($user) {
-                $record = CustomerRecord::find()->where(['userId' => $user->id])->one();
+                $customer = $this->getCustomerByUserId($user->id);
 
-                if ($record) {
-                    Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $record->id);
+                if ($customer) {
+                    $session->set(self::SESSION_CUSTOMER, $customer->id);
                 }
-            } else {
-                $id = Craft::$app->getSession()->get(self::SESSION_CUSTOMER);
+            } else if ($session->getHasSessionId() || $session->getIsActive()) {
+                $id = $session->get(self::SESSION_CUSTOMER);
+
                 if ($id) {
-                    $record = CustomerRecord::findOne($id);
+                    $customer = $this->getCustomerById($id);
 
                     // If there is a customer record but it is associated with a real user, don't use it when guest.
-                    if ($record && $record['userId']) {
-                        $record = null;
+                    if ($customer && $customer->userId) {
+                        $customer = null;
                     }
                 }
             }
 
-            if (empty($record)) {
-                $record = new CustomerRecord();
+            if ($customer === null) {
+                $customer = new Customer();
 
                 if ($user) {
-                    $record->userId = $user->id;
+                    $customer->userId = $user->id;
                 }
             }
 
-            $this->_customer = $this->_createCustomerFromCustomerRecord($record);
+            $this->_customer = $customer;
         }
 
         return $this->_customer;
@@ -146,6 +164,7 @@ class Customers extends Component
 
             $customerAddress->customerId = $customer->id;
             $customerAddress->addressId = $address->id;
+
             if ($customerAddress->save()) {
                 return true;
             }
@@ -155,11 +174,14 @@ class Customers extends Component
     }
 
     /**
+     * Save a customer by its model.
+     *
      * @param Customer $customer
+     * @param bool $runValidation should we validate this customer before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveCustomer(Customer $customer): bool
+    public function saveCustomer(Customer $customer, bool $runValidation = true): bool
     {
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();
@@ -172,6 +194,12 @@ class Customers extends Component
             }
         }
 
+        if ($runValidation && !$customer->validate()) {
+            Craft::info('Customer not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $customerRecord->userId = $customer->userId;
         $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
         $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
@@ -179,17 +207,15 @@ class Customers extends Component
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
 
-        if (!$customer->hasErrors()) {
-            $customerRecord->save(false);
-            $customer->id = $customerRecord->id;
+        $customerRecord->save(false);
+        $customer->id = $customerRecord->id;
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
+     * Get all address IDs for a customer by its ID.
+     *
      * @param $customerId
      * @return array
      */
@@ -209,6 +235,8 @@ class Customers extends Component
     }
 
     /**
+     * Delete a customer.
+     *
      * @param Customer $customer
      * @return mixed
      */
@@ -224,6 +252,8 @@ class Customers extends Component
     }
 
     /**
+     * When a user logs in, consolidate all his/her orders.
+     *
      * @param UserEvent $event
      */
     public function loginHandler(UserEvent $event)
@@ -240,14 +270,18 @@ class Customers extends Component
     public function forgetCustomer()
     {
         $this->_customer = null;
-        Craft::$app->getSession()->remove(self::SESSION_CUSTOMER);
+
+        $session = Craft::$app->getSession();
+        if ($session->getHasSessionId() || $session->getIsActive()) {
+            $session->remove(self::SESSION_CUSTOMER);
+        }
     }
 
     /**
-     * @param string $username
+     * Grabs all orders for a user by its username and sets the customer ID on them.
+     *
+     * @param string $username the username that should have it's orders consolidated.
      * @return bool
-     * @throws Exception
-     * @throws \Exception
      */
     public function consolidateOrdersToUser($username): bool
     {
@@ -304,18 +338,19 @@ class Customers extends Component
     }
 
     /**
+     * Get a customer by user ID. Returns null, if it doesn't exist.
+     *
      * @param $id
      * @return Customer|null
      */
     public function getCustomerByUserId($id)
     {
-        $result = CustomerRecord::find()->where(['userId' => $id])->one();
 
-        if ($result) {
-            return $this->_createCustomerFromCustomerRecord($result);
-        }
+        $row = $this->_createCustomerQuery()
+            ->where(['userId' => $id])
+            ->one();
 
-        return null;
+        return $row ? new Customer($row) : null;
     }
 
     /**
@@ -339,6 +374,8 @@ class Customers extends Component
     }
 
     /**
+     * Handle the user logout.
+     *
      * @param UserEvent $event
      * @throws Exception
      */
@@ -365,6 +402,7 @@ class Customers extends Component
         }
 
         // Now duplicate the addresses on the order
+        $addressesService = Plugin::getInstance()->getAddresses();
         if ($order->billingAddress) {
             $snapShotBillingAddress = new Address($order->billingAddress->toArray([
                     'id',
@@ -388,7 +426,7 @@ class Customers extends Component
             ));
             $originalBillingAddressId = $snapShotBillingAddress->id;
             $snapShotBillingAddress->id = null;
-            if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotBillingAddress, false)) {
+            if ($addressesService->saveAddress($snapShotBillingAddress, false)) {
                 $order->billingAddressId = $snapShotBillingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
@@ -419,7 +457,7 @@ class Customers extends Component
             ));
             $originalShippingAddressId = $snapShotShippingAddress->id;
             $snapShotShippingAddress->id = null;
-            if (Plugin::getInstance()->getAddresses()->saveAddress($snapShotShippingAddress, false)) {
+            if ($addressesService->saveAddress($snapShotShippingAddress, false)) {
                 $order->shippingAddressId = $snapShotShippingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
@@ -442,10 +480,12 @@ class Customers extends Component
     }
 
     /**
-     * @param $billingId
-     * @param $shippingId
+     * Set the last used billing and shipping addresses for the current customer.
+     *
+     * @param int $billingId ID of billing address.
+     * @param int $shippingId ID of shipping address.
      * @return bool
-     * @throws Exception
+     * @throws Exception if failed to save addresses on customer.
      */
     public function setLastUsedAddresses($billingId, $shippingId): bool
     {
@@ -463,6 +503,8 @@ class Customers extends Component
     }
 
     /**
+     * Handle a saved user.
+     *
      * @param Event $event
      * @throws Exception
      */
@@ -486,12 +528,15 @@ class Customers extends Component
     // =========================================================================
 
     /**
+     * Get the current customer.
+     *
      * @return Customer
-     * @throws Exception
+     * @throws Exception if failed to save customer.
      */
     private function _getSavedCustomer(): Customer
     {
         $customer = $this->getCustomer();
+
         if (!$customer->id) {
             if ($this->saveCustomer($customer)) {
                 Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
@@ -505,22 +550,19 @@ class Customers extends Component
     }
 
     /**
-     * Creates a Customer with attributes from a CustomerRecord.
+     * Returns a Query object prepped for retrieving Order Adjustment.
      *
-     * @param CustomerRecord|null $record
-     * @return Customer|null
+     * @return Query The query object.
      */
-    private function _createCustomerFromCustomerRecord(CustomerRecord $record = null)
+    private function _createCustomerQuery(): Query
     {
-        if (!$record) {
-            return null;
-        }
-
-        return new Customer($record->toArray([
-            'id',
-            'userId',
-            'lastUsedBillingAddressId',
-            'lastUsedShippingAddressId'
-        ]));
+        return (new Query())
+            ->select([
+                'id',
+                'userId',
+                'lastUsedBillingAddressId',
+                'lastUsedShippingAddressId'
+            ])
+            ->from(['{{%commerce_customers}}']);
     }
 }

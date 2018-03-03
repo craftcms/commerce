@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\base;
 
@@ -96,7 +101,8 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function rules()
     {
         return [
-            [['paymentType'], 'required']
+            [['paymentType', 'handle'], 'required'],
+            [['handle'], 'unique', 'targetAttribute' => ['handle']]
         ];
     }
 
@@ -118,11 +124,4 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * @return string|null
      */
     abstract public function getPaymentFormHtml(array $params);
-
-    /**
-     * Returns payment Form model
-     *
-     * @return BasePaymentForm|null
-     */
-    abstract public function getPaymentFormModel();
 }

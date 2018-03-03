@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\records;
 
@@ -32,15 +37,5 @@ class Gateway extends ActiveRecord
     public static function tableName(): string
     {
         return '{{%commerce_gateways}}';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['handle'], 'unique', 'targetAttribute' => ['handle']]
-        ];
     }
 }
