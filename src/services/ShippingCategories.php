@@ -72,6 +72,8 @@ class ShippingCategories extends Component
     }
 
     /**
+     * Get a shipping category by its ID.
+     *
      * @param int $shippingCategoryId
      * @return ShippingCategory|null
      */
@@ -99,6 +101,8 @@ class ShippingCategories extends Component
     }
 
     /**
+     * Get a shipping category by its handle.
+     *
      * @param string $shippingCategoryHandle
      * @return ShippingCategory|null
      */
@@ -126,7 +130,7 @@ class ShippingCategories extends Component
     }
 
     /**
-     * Returns the default shipping category
+     * Returns the default shipping category.
      *
      * @return ShippingCategory|null
      */
@@ -149,11 +153,12 @@ class ShippingCategories extends Component
 
     /**
      * @param ShippingCategory $model
+     * @param bool $runValidation should we validate this before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveShippingCategory(ShippingCategory $model): bool
+    public function saveShippingCategory(ShippingCategory $model, bool $runValidation = true): bool
     {
         $oldHandle = null;
 
@@ -170,37 +175,36 @@ class ShippingCategories extends Component
             $record = new ShippingCategoryRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Shipping category not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->description = $model->description;
         $record->default = $model->default;
 
-        $record->validate();
-        $model->addErrors($record->getErrors());
-
-        if (!$model->hasErrors()) {
-            // If this was the default make all others not the default.
-            if ($model->default) {
-                ShippingCategoryRecord::updateAll(['default' => 0]);
-            }
-
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            // Update Service cache
-            $this->_memoizeShippingCategory($model);
-
-            if (null !== $oldHandle && $model->handle != $oldHandle) {
-                unset($this->_shippingCategoriesByHandle[$oldHandle]);
-            }
-
-            return true;
+        // If this was the default make all others not the default.
+        if ($model->default) {
+            ShippingCategoryRecord::updateAll(['default' => 0]);
         }
 
-        return false;
+        // Save it!
+        $record->save(false);
+
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
+
+        // Update Service cache
+        $this->_memoizeShippingCategory($model);
+
+        if (null !== $oldHandle && $model->handle != $oldHandle) {
+            unset($this->_shippingCategoriesByHandle[$oldHandle]);
+        }
+
+        return true;
     }
 
     /**
