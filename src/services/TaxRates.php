@@ -89,11 +89,12 @@ class TaxRates extends Component
 
     /**
      * @param TaxRate $model
+     * @param bool $runValidation should we validate this state before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveTaxRate(TaxRate $model): bool
+    public function saveTaxRate(TaxRate $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = TaxRateRecord::findOne($model->id);
@@ -106,6 +107,12 @@ class TaxRates extends Component
             $record = new TaxRateRecord();
         }
 
+        if ($runValidation && !$model->validate()) {
+            Craft::info('Tax rate not saved due to validation error.', __METHOD__);
+
+            return false;
+        }
+
         $record->name = $model->name;
         $record->rate = $model->rate;
         $record->include = $model->include;
@@ -113,8 +120,6 @@ class TaxRates extends Component
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
         $record->taxZoneId = $model->taxZoneId;
-
-        $record->validate();
 
         if ($record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
@@ -124,24 +129,19 @@ class TaxRates extends Component
             }
 
             if ($record->include && !$taxZone->default) {
-                $record->addError('taxZoneId',
-                    Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
+                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
+
+                return false;
             }
         }
 
-        $model->addErrors($record->getErrors());
+        // Save it!
+        $record->save(false);
 
-        if (!$model->hasErrors()) {
-            // Save it!
-            $record->save(false);
+        // Now that we have a record ID, save it on the model
+        $model->id = $record->id;
 
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
