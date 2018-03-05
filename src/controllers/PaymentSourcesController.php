@@ -45,7 +45,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $userId = Craft::$app->getUser()->getId();
 
         if (!$userId) {
-            throw new HttpException(401, Craft::t('commerce', 'Not authorized to make payments on this order.'));
+            throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
         }
 
         // Allow setting the payment method at time of submitting payment.
