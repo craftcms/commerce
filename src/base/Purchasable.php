@@ -55,9 +55,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'description';
         $names[] = 'isAvailable';
         $names[] = 'isPromotable';
-        $names[] = 'purchasableId';
         $names[] = 'price';
-        $names[] = 'salePrice';
         $names[] = 'shippingCategoryId';
         $names[] = 'sku';
         $names[] = 'taxCategoryId';
@@ -70,6 +68,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function extraFields()
     {
         $names = parent::extraFields();
+        $names[] = 'purchasableId';
+        $names[] = 'salePrice';
         $names[] = 'sales';
         $names[] = 'snapshot';
         return $names;
