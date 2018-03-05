@@ -412,7 +412,7 @@ class Product extends Element
     {
         $this->_variants = [];
         $count = 0;
-        $defaultVariant = null;
+        $this->_defaultVariant = null;
 
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
@@ -421,7 +421,7 @@ class Product extends Element
             $variant->sortOrder = $count + 1;
             $variant->setProduct($this);
 
-            if (null === $defaultVariant || $variant->isDefault) {
+            if (null === $this->_defaultVariant || $variant->isDefault ) {
                 $variant->isDefault = true;
                 $this->_defaultVariant = $variant;
             }
