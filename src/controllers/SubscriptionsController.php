@@ -197,11 +197,11 @@ class SubscriptionsController extends BaseController
             $validAction = $subscription->canReactivate();
             $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
 
-            if (!($validData && $validAction && $canModifySubscription)) {
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
-            }
-
-            if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
+            if ($validData && $validAction && $canModifySubscription) {
+                if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
+                    $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
+                }
+            } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
@@ -254,19 +254,19 @@ class SubscriptionsController extends BaseController
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
             $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
 
-            if (!($validData && $validAction && $canModifySubscription)) {
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to modify subscription at this time.'));
-            }
+            if ($validData && $validAction && $canModifySubscription) {
+                /** @var SubscriptionGateway $gateway */
+                $gateway = $subscription->getGateway();
+                $parameters = $gateway->getSwitchPlansFormModel();
 
-            /** @var SubscriptionGateway $gateway */
-            $gateway = $subscription->getGateway();
-            $parameters = $gateway->getSwitchPlansFormModel();
+                foreach ($parameters->attributes() as $attributeName) {
+                    $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                }
 
-            foreach ($parameters->attributes() as $attributeName) {
-                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
-            }
-
-            if (!$plugin->getSubscriptions()->switchSubscriptionPlan($subscription, $plan, $parameters)) {
+                if (!$plugin->getSubscriptions()->switchSubscriptionPlan($subscription, $plan, $parameters)) {
+                    $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
+                }
+            } else {
                 $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
@@ -316,19 +316,19 @@ class SubscriptionsController extends BaseController
             $validData = $subscriptionId && $subscription;
             $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
 
-            if (!($validData && $canModifySubscription)) {
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
-            }
+            if ($validData && $canModifySubscription) {
+                /** @var SubscriptionGateway $gateway */
+                $gateway = $subscription->getGateway();
+                $parameters = $gateway->getCancelSubscriptionFormModel();
 
-            /** @var SubscriptionGateway $gateway */
-            $gateway = $subscription->getGateway();
-            $parameters = $gateway->getCancelSubscriptionFormModel();
+                foreach ($parameters->attributes() as $attributeName) {
+                    $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                }
 
-            foreach ($parameters->attributes() as $attributeName) {
-                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
-            }
-
-            if (!$plugin->getSubscriptions()->cancelSubscription($subscription, $parameters)) {
+                if (!$plugin->getSubscriptions()->cancelSubscription($subscription, $parameters)) {
+                    $error = Craft::t('commerce', 'Unable to cancel subscription at this time.');
+                }
+            } else {
                 $error = Craft::t('commerce', 'Unable to cancel subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
