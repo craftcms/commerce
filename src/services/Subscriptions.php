@@ -392,6 +392,7 @@ class Subscriptions extends Component
         if (!$response->isScheduledForCancelation()) {
             $subscription->isCanceled = false;
             $subscription->dateCanceled = null;
+            $subscription->subscriptionData = $response->getData();
 
             Craft::$app->getElements()->saveElement($subscription, false);
 
@@ -520,6 +521,8 @@ class Subscriptions extends Component
                 $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
             }
 
+            $subscription->subscriptionData = $response->getData();
+            
             try {
                 Craft::$app->getElements()->saveElement($subscription, false);
 
