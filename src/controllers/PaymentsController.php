@@ -39,7 +39,6 @@ class PaymentsController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $error = '';
         $customError = '';
         $order = null;
 
