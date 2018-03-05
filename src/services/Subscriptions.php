@@ -302,17 +302,13 @@ class Subscriptions extends Component
      * @param User $user the user subscribing to a plan
      * @param Plan $plan the plan the user is being subscribed to
      * @param SubscriptionForm $parameters array of additional parameters to use
-     * @return bool the result
+     * @return Subscription the subscription
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
      */
-    public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): bool
+    public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters): Subscription
     {
         $gateway = $plan->getGateway();
-
-        if (!$gateway instanceof SubscriptionGatewayInterface) {
-            throw new SubscriptionException('Gateway does not support subscriptions.');
-        }
 
         // fire a 'beforeCreateSubscription' event
         $event = new CreateSubscriptionEvent([
@@ -330,7 +326,7 @@ class Subscriptions extends Component
 
             Craft::error($error, __METHOD__);
 
-            return false;
+            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
         }
 
         $response = $gateway->subscribe($user, $plan, $parameters);
@@ -347,13 +343,7 @@ class Subscriptions extends Component
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        try {
-            Craft::$app->getElements()->saveElement($subscription, false);
-        } catch (\Throwable $exception) {
-            Craft::warning('Failed to subscribe '.$user.' to '.$plan.': '.$exception->getMessage());
-
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
-        }
+        Craft::$app->getElements()->saveElement($subscription, false);
 
         // Fire an 'afterCreateSubscription' event.
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_SUBSCRIPTION)) {
@@ -362,7 +352,7 @@ class Subscriptions extends Component
             ]));
         }
 
-        return true;
+        return $subscription;
     }
 
     /**
