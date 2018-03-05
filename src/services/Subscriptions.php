@@ -393,23 +393,19 @@ class Subscriptions extends Component
             $subscription->isCanceled = false;
             $subscription->dateCanceled = null;
 
-            try {
-                Craft::$app->getElements()->saveElement($subscription, false);
-            } catch (\Throwable $exception) {
-                Craft::warning('Failed to reactivate subscription '.$subscription->reference.': '.$exception->getMessage());
+            Craft::$app->getElements()->saveElement($subscription, false);
 
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            // Fire a 'afterReactivateSubscription' event.
+            if ($this->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
+                $this->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, new SubscriptionEvent([
+                    'subscription' => $subscription
+                ]));
             }
+
+            return true;
         }
 
-        // Fire a 'afterReactivateSubscription' event.
-        if ($this->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
-            $this->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
-            ]));
-        }
-
-        return true;
+        return false;
     }
 
     /**
@@ -463,25 +459,15 @@ class Subscriptions extends Component
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
 
-        try {
-            $result = Craft::$app->getElements()->saveElement($subscription);
+        Craft::$app->getElements()->saveElement($subscription);
 
-            if (!$result) {
-                throw new SubscriptionException('Could not save subscription.');
-            }
-
-            // fire an 'afterSwitchSubscriptionPlan' event
-            if ($this->hasEventHandlers(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN)) {
-                $this->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, new SubscriptionSwitchPlansEvent([
-                    'oldPlan' => $oldPlan,
-                    'subscription' => $subscription,
-                    'newPlan' => $plan
-                ]));
-            }
-        } catch (\Throwable $exception) {
-            Craft::warning('Failed to switch the '.$subscription->reference.' subscription to '.$plan.': '.$exception->getMessage());
-
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to switch subscription plan at this time.'));
+        // fire an 'afterSwitchSubscriptionPlan' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN)) {
+            $this->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, new SubscriptionSwitchPlansEvent([
+                'oldPlan' => $oldPlan,
+                'subscription' => $subscription,
+                'newPlan' => $plan
+            ]));
         }
 
         return true;

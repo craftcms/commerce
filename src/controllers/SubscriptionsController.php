@@ -123,6 +123,8 @@ class SubscriptionsController extends BaseController
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
+        $error = false;
+
         try {
             /** @var SubscriptionGateway $gateway */
             $gateway = $plan->getGateway();
@@ -145,13 +147,25 @@ class SubscriptionsController extends BaseController
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
 
-            $success = $plugin->getSubscriptions()->subscribe(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
+            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
 
-            if (!$success) {
-                $session->setError(Craft::t('commerce', 'Unable to subscribe at this time.'));
-            }
         } catch (SubscriptionException $exception) {
-            $session->setError($exception->getMessage());
+            $error = $exception->getMessage();
+        }
+
+        if ($error) {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'subscription' => $subscription
+            ]);
         }
 
         return $this->redirectToPostedUrl();
@@ -172,6 +186,8 @@ class SubscriptionsController extends BaseController
 
         $request = Craft::$app->getRequest();
 
+        $error = false;
+
         try {
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
             $subscription = Subscription::find()->id($subscriptionId)->one();
@@ -185,13 +201,26 @@ class SubscriptionsController extends BaseController
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
             }
 
-            $success = $plugin->getSubscriptions()->reactivateSubscription($subscription);
-
-            if (!$success) {
-                $session->setError(Craft::t('commerce', 'Unable to reactivate subscription at this time.'));
+            if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
+                $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $session->setError($exception->getMessage());
+            $error = $exception->getMessage();
+        }
+
+        if ($error) {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'subscription' => $subscription
+            ]);
         }
 
         return $this->redirectToPostedUrl();
@@ -214,6 +243,8 @@ class SubscriptionsController extends BaseController
         $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
         $planId = $request->getValidatedBodyParam('planId');
 
+        $error = false;
+
         try {
             $subscription = Subscription::find()->id($subscriptionId)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanById($planId);
@@ -235,13 +266,26 @@ class SubscriptionsController extends BaseController
                 $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
             }
 
-            $success = $plugin->getSubscriptions()->switchSubscriptionPlan($subscription, $plan, $parameters);
-
-            if (!$success) {
-                $session->setError(Craft::t('commerce', 'Unable to modify subscription at this time.'));
+            if (!$plugin->getSubscriptions()->switchSubscriptionPlan($subscription, $plan, $parameters)) {
+                $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $session->setError($exception->getMessage());
+            $error = $session->setError($exception->getMessage());
+        }
+
+        if ($error) {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'subscription' => $subscription
+            ]);
         }
 
         return $this->redirectToPostedUrl();
@@ -259,8 +303,9 @@ class SubscriptionsController extends BaseController
 
         $session = Craft::$app->getSession();
         $plugin = Commerce::getInstance();
-
         $request = Craft::$app->getRequest();
+
+        $error = false;
 
         try {
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
@@ -283,13 +328,26 @@ class SubscriptionsController extends BaseController
                 $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
             }
 
-            $success = $plugin->getSubscriptions()->cancelSubscription($subscription, $parameters);
-
-            if (!$success) {
-                $session->setError(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+            if (!$plugin->getSubscriptions()->cancelSubscription($subscription, $parameters)) {
+                $error = Craft::t('commerce', 'Unable to cancel subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $session->setError($exception->getMessage());
+            $error = $exception->getMessage();
+        }
+
+        if ($error) {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'subscription' => $subscription
+            ]);
         }
 
         return $this->redirectToPostedUrl();
