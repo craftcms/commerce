@@ -522,7 +522,7 @@ class Subscriptions extends Component
             }
 
             $subscription->subscriptionData = $response->getData();
-            
+
             try {
                 Craft::$app->getElements()->saveElement($subscription, false);
 
