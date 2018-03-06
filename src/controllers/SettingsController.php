@@ -70,7 +70,8 @@ class SettingsController extends BaseAdminController
         $postData = Craft::$app->getRequest()->getParam('settings');
         $settings = new SettingsModel($postData);
 
-        if (!Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray())) {
+
+        if (!$settings->validate() || !Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray())) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/settings/general/index', ['settings' => $settings]);
         }

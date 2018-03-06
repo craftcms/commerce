@@ -160,4 +160,14 @@ class Settings extends Model
             'in' => Craft::t('commerce', 'Inches (in)'),
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['weightUnits', 'dimensionUnits', 'orderPdfPath','orderPdfFilenameFormat'], 'required']
+        ];
+    }
 }
