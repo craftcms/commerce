@@ -99,11 +99,6 @@ class LineItem extends Model
     public $width = 0;
 
     /**
-     * @var float Total
-     */
-    public $total = 0;
-
-    /**
      * @var int Quantity
      */
     public $qty;
