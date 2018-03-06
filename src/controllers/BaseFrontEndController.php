@@ -62,13 +62,13 @@ class BaseFrontEndController extends BaseController
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
         $data['isEmpty'] = $cart->isEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
-        $data['totalWeight'] = $cart->totalWeight;
+        $data['totalWeight'] = $cart->getTotalWeight();
         $data['totalTax'] = $cart->getAdjustmentsTotalByType('Tax');
         $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('Tax', true);
         $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('Shipping');
         $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('Discount');
 
-        $data['availableShippingMethods'] = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
+        $data['availableShippingMethods'] = $cart->getAvailableShippingMethods();
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
