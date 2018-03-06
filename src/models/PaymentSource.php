@@ -11,7 +11,9 @@ use Craft;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
+use craft\validators\UniqueValidator;
 
 /**
  * Payment source model
@@ -113,8 +115,8 @@ class PaymentSource extends Model
     public function rules()
     {
         return [
-            [['token'], 'unique', 'targetAttribute' => ['gatewayId', 'token']],
-            [['gatewayId', 'userId', 'token', 'description'], 'required']
+            [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
+            [['gatewayId', 'userId', 'token', 'description'], 'required'],
         ];
     }
 }
