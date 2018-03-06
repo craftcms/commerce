@@ -70,12 +70,12 @@ class Email extends Model
     public function rules()
     {
         return [
-            [['id'], 'required'],
             [['name'], 'required'],
             [['subject'], 'required'],
             [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
-            [['to'], 'required'],
-            [['enabled'], 'required'],
+            [['to'], 'required', 'when' => function ($model) {
+                return $model->recipientType == EmailRecord::TYPE_CUSTOM;
+            }],
             [['templatePath'], 'required']
         ];
     }
