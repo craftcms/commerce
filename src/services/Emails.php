@@ -121,7 +121,7 @@ class Emails extends Component
         }
 
         if ($runValidation && !$model->validate()) {
-            Craft::info('Email not saved due to validation error.', __METHOD__);
+            Craft::info('Email not saved due to validation error(s).', __METHOD__);
 
             return false;
         }
@@ -174,14 +174,13 @@ class Emails extends Component
         }
 
         // Set Craft to the site template mode
-        $templatesService = Craft::$app->getView();
-        $oldTemplateMode = $templatesService->getTemplateMode();
-        $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
+        $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 
         //sending emails
         $renderVariables = [
             'order' => $order,
-            'update' => $orderHistory, // TODO: Remove and deprecate 'update' variable in 2.0
             'orderHistory' => $orderHistory
         ];
 
@@ -199,16 +198,14 @@ class Emails extends Component
             Craft::$app->language = $orderLanguage;
 
             if ($order->getCustomer()) {
-                $newEmail->setTo($order->getCustomer()->email);
-            } else {
-                $newEmail->setTo($order->email);
+                $newEmail->setTo($order->getEmail());
             }
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $newEmail->setTo($templatesService->renderString($email->to, $renderVariables));
+                $newEmail->setTo($view->renderString($email->to, $renderVariables));
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}”', [
                     'email' => $email->name,
@@ -218,34 +215,32 @@ class Emails extends Component
                 Craft::error($error, __METHOD__);
 
                 Craft::$app->language = $originalLanguage;
-                $templatesService->setTemplateMode($oldTemplateMode);
+                $view->setTemplateMode($oldTemplateMode);
 
                 return false;
             }
         }
 
-        if (empty($newEmail->toEmail)) {
+        if (!$newEmail->getTo()) {
             $error = Craft::t('commerce', 'Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
 
         // BCC:
         try {
-            $bcc = $templatesService->renderString($email->bcc, $renderVariables);
+            $bcc = $view->renderString($email->bcc, $renderVariables);
             $bcc = str_replace(';', ',', $bcc);
             $bcc = explode(',', $bcc);
-            $bccEmails = [];
 
-            foreach ($bcc as $bccEmail) {
-                $bccEmails[] = ['email' => $bccEmail];
+            if(array_filter($bcc))
+            {
+                $newEmail->setBcc($bcc);
             }
-
-            $newEmail->setBcc($bccEmails);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
                 'email' => $email->name,
@@ -255,14 +250,14 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
 
         // Subject:
         try {
-            $newEmail->setSubject($templatesService->renderString($email->subject, $renderVariables));
+            $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}”', [
                 'email' => $email->name,
@@ -272,14 +267,14 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
 
         // Template Path
         try {
-            $templatePath = $templatesService->renderString($email->templatePath, $renderVariables);
+            $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}”', [
                 'email' => $email->name,
@@ -289,13 +284,13 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
 
         // Email Body
-        if (!$templatesService->doesTemplateExist($templatePath)) {
+        if (!$view->doesTemplateExist($templatePath)) {
             $error = Craft::t('commerce', 'Email template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->templatePath,
                 'templateParsedPath' => $templatePath,
@@ -305,15 +300,14 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
 
         try {
-            $body = $templatesService->render($templatePath, $renderVariables);
+            $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
-            $newEmail->setTextBody($body);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}”', [
                 'email' => $email->name,
@@ -323,7 +317,7 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
@@ -347,14 +341,13 @@ class Emails extends Component
                 Craft::error($error, __METHOD__);
 
                 Craft::$app->language = $originalLanguage;
-                $templatesService->setTemplateMode($oldTemplateMode);
+                $view->setTemplateMode($oldTemplateMode);
 
                 return false;
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
-                $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Errors: {errors}', [
-                    'errors' => implode(', ', $email->errors),
+                $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
@@ -362,7 +355,7 @@ class Emails extends Component
                 Craft::error($error, __METHOD__);
 
                 Craft::$app->language = $originalLanguage;
-                $templatesService->setTemplateMode($oldTemplateMode);
+                $view->setTemplateMode($oldTemplateMode);
 
                 return false;
             }
@@ -376,7 +369,7 @@ class Emails extends Component
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             return false;
         }
@@ -392,7 +385,7 @@ class Emails extends Component
         }
 
         Craft::$app->language = $originalLanguage;
-        $templatesService->setTemplateMode($oldTemplateMode);
+        $view->setTemplateMode($oldTemplateMode);
 
         return true;
     }
