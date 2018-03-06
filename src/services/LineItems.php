@@ -222,8 +222,6 @@ class LineItems extends Component
             }
         }
 
-        $lineItem->total = $lineItem->getTotal();
-
         // Raise a 'beforeSaveLineItem' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_LINE_ITEM)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_LINE_ITEM, new LineItemEvent([
@@ -384,7 +382,6 @@ class LineItems extends Component
                 'length',
                 'height',
                 'width',
-                'total',
                 'qty',
                 'snapshot',
                 'note',
