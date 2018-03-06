@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
@@ -18,6 +19,7 @@ use craft\db\Query;
 use craft\web\User;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment Sources service.
@@ -160,10 +162,10 @@ class PaymentSources extends Component
      * @param GatewayInterface $gateway the gateway
      * @param BasePaymentForm $paymentForm the payment form to use
      * @param string $sourceDescription the payment form to use
-     * @return bool|PaymentSource The saved payment source.
-     * @throws Exception if unable to create the payment source
+     * @return PaymentSource The saved payment source.
+     * @throws PaymentSourceException If unable to create the payment source
      */
-    public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null)
+    public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
     {
         $source = $gateway->createPaymentSource($paymentForm);
         $source->userId = $userId;
@@ -172,7 +174,11 @@ class PaymentSources extends Component
             $source->description = $sourceDescription;
         }
 
-        return $this->savePaymentSource($source) ? $source : false;
+        if (!$this->savePaymentSource($source)) {
+            throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
+        }
+
+        return $source;
     }
 
     /**
@@ -181,7 +187,7 @@ class PaymentSources extends Component
      * @param PaymentSource $paymentSource The payment source being saved.
      * @param bool $runValidation should we validate this payment source before saving.
      * @return bool Whether the payment source was saved successfully
-     * @throws Exception if the payment source couldn't be found
+     * @throws InvalidConfigException if the payment source couldn't be found
      */
     public function savePaymentSource(PaymentSource $paymentSource, bool $runValidation = true): bool
     {
@@ -189,7 +195,7 @@ class PaymentSources extends Component
             $record = PaymentSourceRecord::findOne($paymentSource->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No payment source exists with the ID “{id}”',
+                throw new InvalidConfigException(Craft::t('commerce', 'No payment source exists with the ID “{id}”',
                     ['id' => $paymentSource->id]));
             }
         } else {
