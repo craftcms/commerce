@@ -25,6 +25,7 @@ use craft\helpers\UrlHelper;
  * @property string $paymentType
  * @property array $paymentTypeOptions
  * @property bool $sendCartInfo
+ * @property array $settings
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
