@@ -237,8 +237,7 @@ class Emails extends Component
             $bcc = str_replace(';', ',', $bcc);
             $bcc = explode(',', $bcc);
 
-            if(array_filter($bcc))
-            {
+            if (array_filter($bcc)) {
                 $newEmail->setBcc($bcc);
             }
         } catch (\Exception $e) {
