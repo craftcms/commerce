@@ -289,7 +289,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         // Set default gateway if none present and no payment source selected
         if (!$this->gatewayId && !$this->paymentSourceId) {

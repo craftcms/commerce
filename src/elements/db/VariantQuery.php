@@ -174,7 +174,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.length',
             'commerce_variants.weight',
             'commerce_variants.stock',
-            'commerce_variants.unlimitedStock',
+            'commerce_variants.hasUnlimitedStock',
             'commerce_variants.minQty',
             'commerce_variants.maxQty'
         ]);
@@ -223,12 +223,12 @@ class VariantQuery extends ElementQuery
         }
 
         if (null !== $this->hasStock && $this->hasStock === true) {
-            $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.unlimitedStock != 1)', 'commerce_variants.unlimitedStock = 1'];
+            $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.hasUnlimitedStock != 1)', 'commerce_variants.hasUnlimitedStock = 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
 
         if (null !== $this->hasStock && $this->hasStock === false) {
-            $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.unlimitedStock != 1'];
+            $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.hasUnlimitedStock != 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
 

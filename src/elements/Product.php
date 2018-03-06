@@ -41,7 +41,7 @@ use yii\base\InvalidConfigException;
  * @property null|ShippingCategory $shippingCategory the shipping category
  * @property string $snapshot allow the variant to ask the product what data to snapshot
  * @property int $totalStock
- * @property bool $unlimitedStock whether at least one variant has unlimited stock
+ * @property bool $hasUnlimitedStock whether at least one variant has unlimited stock
  * @property Variant[]|array $variants an array of the product's variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -471,7 +471,7 @@ class Product extends Element
     {
         $stock = 0;
         foreach ($this->getVariants() as $variant) {
-            if (!$variant->unlimitedStock) {
+            if (!$variant->hasUnlimitedStock) {
                 $stock += $variant->stock;
             }
         }
@@ -487,7 +487,7 @@ class Product extends Element
     public function getUnlimitedStock(): bool
     {
         foreach ($this->getVariants() as $variant) {
-            if ($variant->unlimitedStock) {
+            if ($variant->hasUnlimitedStock) {
                 return true;
             }
         }
@@ -1023,7 +1023,7 @@ class Product extends Element
                     /** @var Variant $variant */
                     foreach ($this->getVariants() as $variant) {
                         $stock += $variant->stock;
-                        if ($variant->unlimitedStock) {
+                        if ($variant->hasUnlimitedStock) {
                             $hasUnlimited = true;
                         }
                     }

@@ -93,9 +93,9 @@ class Variant extends Purchasable
     public $stock;
 
     /**
-     * @var int $unlimitedStock
+     * @var int $hasUnlimitedStock
      */
-    public $unlimitedStock;
+    public $hasUnlimitedStock;
 
     /**
      * @var int $minQty
@@ -142,10 +142,10 @@ class Variant extends Purchasable
 
         $rules[] = [['sku'], 'string'];
         $rules[] = [['sku', 'price'], 'required'];
-
-        if (!$this->unlimitedStock) {
-            $rules[] = [['stock'], 'required'];
-        }
+        $rules[] = [['stock'], 'required', 'when' => function ($model) {
+            /** @var Variant $model */
+            return !$model->hasUnlimitedStock;
+        }];
 
         return $rules;
     }
@@ -349,7 +349,7 @@ class Variant extends Purchasable
      */
     public function hasStock(): bool
     {
-        return $this->stock > 0 || $this->unlimitedStock;
+        return $this->stock > 0 || $this->hasUnlimitedStock;
     }
 
     /**
@@ -401,7 +401,7 @@ class Variant extends Purchasable
             ],
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if (!$this->unlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
+                if (!$this->hasUnlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
                     $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
@@ -470,7 +470,7 @@ class Variant extends Purchasable
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($lineItem->qty > $this->stock) && !$this->unlimitedStock) {
+        if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
             $lineItem->qty = $this->stock;
         }
 
@@ -528,7 +528,7 @@ class Variant extends Purchasable
         $record->stock = $this->stock;
         $record->isDefault = $this->isDefault;
         $record->sortOrder = $this->sortOrder;
-        $record->unlimitedStock = $this->unlimitedStock;
+        $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
         if (!$this->getProduct()->getType()->hasDimensions) {
             $record->width = $this->width = 0;
@@ -573,7 +573,7 @@ class Variant extends Purchasable
             return false;
         }
 
-        return $this->stock >= 1 || $this->unlimitedStock;
+        return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
     /**
@@ -639,7 +639,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeSave(bool $isNew): bool
+    public function beforeValidate()
     {
         $product = $this->getProduct();
         $productType = $product->getType();
@@ -669,13 +669,13 @@ class Variant extends Purchasable
             }
         }
 
-        if ($this->unlimitedStock) {
+        if ($this->hasUnlimitedStock) {
             $this->stock = 0;
         }
 
         $this->fieldLayoutId = $this->getProduct()->getType()->variantFieldLayoutId;
 
-        return parent::beforeSave($isNew);
+        return parent::beforeValidate();
     }
 
     // Protected Methods
@@ -726,7 +726,7 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'unlimitedStock', 'minQty', 'maxQty'];
+        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'hasUnlimitedStock', 'minQty', 'maxQty'];
     }
 
     /**

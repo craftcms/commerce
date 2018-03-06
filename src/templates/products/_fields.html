@@ -152,9 +152,9 @@
                 {{ forms.text({
                     id: 'stock',
                     name: 'stock',
-                    value: (variant.unlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
+                    value: (variant.hasUnlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
                     placeholder: 'Enter stock'|t('commerce'),
-                    disabled: variant.unlimitedStock
+                    disabled: variant.hasUnlimitedStock
                 }) }}
             </div>
             <div class="nowrap">
@@ -162,8 +162,8 @@
                     id: 'unlimited-stock',
                     class: 'unlimited-stock',
                     label: 'Unlimited'|t('commerce'),
-                    name: 'unlimitedStock',
-                    checked: variant.unlimitedStock,
+                    name: 'hasUnlimitedStock',
+                    checked: variant.hasUnlimitedStock,
                 }) }}
             </div>
         </div>
@@ -173,7 +173,7 @@
         id: 'stock',
         label: 'Stock'|t('commerce'),
         required: true,
-        errors: variant.getErrors('unlimitedStock')|merge(variant.getErrors('stock')),
+        errors: variant.getErrors('hasUnlimitedStock')|merge(variant.getErrors('stock')),
     }, stockInput) }}
 
     {% set quantityRangeInput %}

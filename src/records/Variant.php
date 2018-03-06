@@ -27,7 +27,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $sku
  * @property int $sortOrder
  * @property int $stock
- * @property bool $unlimitedStock
+ * @property bool $hasUnlimitedStock
  * @property float $weight
  * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

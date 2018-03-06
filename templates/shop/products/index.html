@@ -17,7 +17,7 @@
 
                     <select name="purchasableId" class="purchasableId">
                         {%- for purchasable in product.getVariants() -%}
-                            <option {% if purchasable.stock <= 0 and purchasable.unlimitedStock == false %}disabled {% endif %}
+                            <option {% if purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false %}disabled {% endif %}
                                     data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
                                     value="{{ purchasable.purchasableId }}">
                                     {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
@@ -29,7 +29,7 @@
                         <option value="no">No gift wrap.</option>
                         <option value="yes">Gift wrapped.</option>
                     </select>
-                    {% if product.unlimitedStock or (product.unlimitedStock == false and product.totalStock > 0 ) %}
+                    {% if product.hasUnlimitedStock or (product.hasUnlimitedStock == false and product.totalStock > 0 ) %}
                         <button type="submit">{{ "Add to cart"|t }}</button>
                     {% else %}
                         {{ "Out of Stock"|t }}

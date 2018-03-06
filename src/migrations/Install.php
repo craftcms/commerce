@@ -722,7 +722,7 @@ class Install extends Migration
             'length' => $this->decimal(14, 4),
             'weight' => $this->decimal(14, 4),
             'stock' => $this->integer()->notNull()->defaultValue(0),
-            'unlimitedStock' => $this->boolean(),
+            'hasUnlimitedStock' => $this->boolean(),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -1653,7 +1653,7 @@ class Install extends Migration
                 'id' => $variantId,
                 'sku' => $productName,
                 'price' => 10 * $count,
-                'unlimitedStock' => true,
+                'hasUnlimitedStock' => true,
                 'isDefault' => true
             ];
 
