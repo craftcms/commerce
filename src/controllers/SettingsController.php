@@ -85,7 +85,7 @@ class SettingsController extends BaseAdminController
     /**
      * @return Response
      */
-    public function actionSavelocation(): Repsonse
+    public function actionSaveLocation(): Response
     {
         $this->requirePostRequest();
 
