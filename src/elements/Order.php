@@ -878,7 +878,8 @@ class Order extends Element
     public function getLineItems(): array
     {
         if (null === $this->_lineItems) {
-            $this->setLineItems($this->id ? Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id) : []);
+            $lineItems = $this->id ? Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id) : [];
+            $this->_lineItems = $lineItems;
         }
 
         return $this->_lineItems;
