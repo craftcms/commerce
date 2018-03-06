@@ -7,7 +7,7 @@
 
 {% block main %}
 
-    {% set paymentSources = craft.commerce.paymentSources.availablePaymentSources(currentUser) %}
+    {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
     {% if paymentSources|length %}
         <div class="row">
             <div class="column">
