@@ -16,6 +16,7 @@ use craft\helpers\UrlHelper;
  * Order settings model.
  *
  * @property string $cpEditUrl
+ * @mixin FieldLayoutBehavior
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
