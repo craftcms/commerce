@@ -20,33 +20,28 @@
                 <div class="four columns">
                     <h4>Details</h4>
 
-                    <ul>
-                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
-                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}</li>
-                        <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}</li>
-                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('D jS M Y') }}</li>
-                    </ul>
-
+                    <strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}<br>
+                    <strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}<br>
+                    <strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}<br>
+                    <strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('D jS M Y') }}<br>
+                    {% if order.pdfUrl %}
+                        <strong>Receipt:</strong> <a href="{{ order.getPdfUrl('receipt') }}">Download</a>
+                    {% endif %}
                 </div>
-                <div class="four columns">
+                <div class="four columns order-address">
                     <h4>Shipping Address</h4>
 
                     {% if order.shippingAddress %}
                     {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
                     {% endif %}
                 </div>
-                <div class="four columns">
+                <div class="four columns order-address">
                     <h4>Billing Address</h4>
                     {% if order.billingAddress %}
                     {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
                     {% endif %}
                 </div>
             </div>
-
-
-            {% if order.pdfUrl %}
-            <h4>Receipt (<a href="{{ order.getPdfUrl('receipt') }}">Download</a>)</h4>
-            {% endif %}
 
             <table class="u-full-width">
                 <thead>

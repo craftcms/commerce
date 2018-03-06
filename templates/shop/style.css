@@ -698,6 +698,8 @@ img.product { width: 100%; }
 
 .address-select .body { padding: 14px; }
 
+.order-address ul.address-data li { list-style: none; }
+
 .hidden { display: none; }
 
 .product.row {

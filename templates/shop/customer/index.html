@@ -20,7 +20,7 @@
                     {% for order in craft.orders.customer(craft.commerce.customers.customer).all() %}
                         <tr>
                             <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order #{{ order.id }}</a></td>
-                            <td>{{ order.dateOrdered }}</td>
+                            <td>{{ order.dateOrdered|date }}</td>
                             <td>{{ order.totalQty }} items</td>
                             <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
                         </tr>
