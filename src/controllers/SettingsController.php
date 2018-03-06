@@ -58,7 +58,7 @@ class SettingsController extends BaseAdminController
             'storeLocation' => $storeLocation
         ];
 
-        return $this->renderTemplate('commerce/settings/storelocation/index', $variables);
+        return $this->renderTemplate('commerce/settings/location/index', $variables);
     }
 
     /**
@@ -80,69 +80,6 @@ class SettingsController extends BaseAdminController
         $this->redirectToPostedUrl();
 
         return null;
-    }
-
-    /**
-     * @return Response
-     */
-    public function actionSaveLocation(): Response
-    {
-        $this->requirePostRequest();
-
-        $address = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
-
-        if (!$address) {
-            $address = new Address();
-        }
-
-        $attributes = [
-            'attention',
-            'title',
-            'firstName',
-            'lastName',
-            'address1',
-            'address2',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'businessName',
-            'businessTaxId',
-            'businessId',
-            'countryId',
-            'stateValue'
-        ];
-        foreach ($attributes as $attr) {
-            $address->$attr = Craft::$app->getRequest()->getParam($attr);
-        }
-
-        $address->storeLocation = true;
-
-        // Save it
-        if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'address' => $address]);
-            }
-
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
-            return $this->redirectToPostedUrl();
-        }
-
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson([
-                'error' => Craft::t('commerce', 'Couldn’t save address.'),
-                'errors' => $address->errors
-            ]);
-        }
-
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
-
-
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['storeLocation' => $address]);
-
-        return $this->redirectToPostedUrl();
     }
 
     /**
