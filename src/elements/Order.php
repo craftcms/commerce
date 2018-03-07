@@ -1518,6 +1518,7 @@ class Order extends Element
             $attributes[] = 'dateOrdered';
             $attributes[] = 'totalPaid';
             $attributes[] = 'datePaid';
+            $attributes[] = 'paidStatus';
         } else {
             $attributes[] = 'dateUpdated';
             $attributes[] = 'totalPrice';
