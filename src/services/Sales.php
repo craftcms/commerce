@@ -170,7 +170,7 @@ class Sales extends Component
             ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]]=[[sales.id]]')
             ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]]=[[sales.id]]')
             ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]]=[[sales.id]]')
-            ->where(['[[sales.id]]' => $sale->id])
+            ->where(['sales.id' => $sale->id])
             ->all();
 
         $purchasableIds = [];

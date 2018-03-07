@@ -455,7 +455,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if (!$this->orderBy) {
-            $this->orderBy = ['[[commerce_subscriptions.dateCreated]]' => SORT_DESC];
+            $this->orderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
         }
 
         return parent::beforePrepare();
