@@ -65,15 +65,11 @@ use yii\base\Exception;
  * @property ShippingMethodInterface $shippingMethodId
  * @property string $shortNumber
  * @property bool $shouldRecalculateAdjustments
- * @property int $totalDiscount
  * @property float $totalPaid the total `purchase` and `captured` transactions belonging to this order
  * @property float $totalPrice
  * @property int $totalQty the total number of items
  * @property int $totalSaleAmount the total sale amount
- * @property int $totalShippingCost
- * @property int $totalTax
  * @property float $totalTaxablePrice
- * @property float $totalTaxIncluded
  * @property int $totalWeight
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -342,15 +338,11 @@ class Order extends Element
         $names[] = 'lineItems';
         $names[] = 'orderAdjustments';
         $names[] = 'shortNumber';
-        $names[] = 'totalDiscount';
         $names[] = 'totalPaid';
         $names[] = 'totalPrice';
         $names[] = 'totalQty';
         $names[] = 'totalSaleAmount';
-        $names[] = 'totalShippingCost';
-        $names[] = 'totalTax';
         $names[] = 'totalTaxablePrice';
-        $names[] = 'totalTaxIncluded';
         $names[] = 'totalWeight';
         return $names;
     }
