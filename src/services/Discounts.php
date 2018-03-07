@@ -23,6 +23,7 @@ use craft\elements\Category;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\Expression;
 
 /**
  * Discount service.
@@ -510,7 +511,11 @@ class Discounts extends Component
         if ($record->totalUseLimit) {
             // Increment total uses.
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_discounts}}', ['[[totalUses]]' => '[[totalUses]] + 1'], ['code' => $order->couponCode])
+                ->update('{{%commerce_discounts}}', [
+                    'totalUses' => new Expression('[[totalUses]] + 1')
+                ], [
+                    'code' => $order->couponCode
+                ])
                 ->execute();
         }
 
@@ -525,7 +530,12 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_customer_discountuse}}', ['[[uses]]' => '[[uses]] + 1'], ['customerId' => $order->customerId, 'discountId' => $record->id])
+                    ->update('{{%commerce_customer_discountuse}}', [
+                        'uses' => new Expression('[[uses]] + 1')
+                    ], [
+                        'customerId' => $order->customerId,
+                        'discountId' => $record->id
+                    ])
                     ->execute();
             }
         }
