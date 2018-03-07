@@ -973,7 +973,7 @@ class Order extends Element
      */
     public function getTotalTax(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
+        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
 
         return $this->getAdjustmentsTotalByType('tax');
     }
@@ -984,7 +984,7 @@ class Order extends Element
      */
     public function getTotalTaxIncluded(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") ');
+        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
 
         return $this->getAdjustmentsTotalByType('tax', true);
     }
@@ -995,7 +995,7 @@ class Order extends Element
      */
     public function getTotalDiscount(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
+        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") instead.');
 
         return $this->getAdjustmentsTotalByType('discount');
     }
