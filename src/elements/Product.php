@@ -483,8 +483,21 @@ class Product extends Element
      * Returns whether at least one variant has unlimited stock.
      *
      * @return bool
+     * @deprecated as of 2.0
      */
-    public function getUnlimitedStock(): bool
+    public function getUnlimitedStock()
+    {
+        Craft::$app->getDeprecator()->log('Product::getUnlimitedStock()', 'Product::getUnlimitedStock() has been deprecated. Use Product::getHasUnlimitedStock() instead');
+
+        return $this->getHasUnlimitedStock();
+    }
+
+    /**
+     * Returns whether at least one variant has unlimited stock.
+     *
+     * @return bool
+     */
+    public function getHasUnlimitedStock(): bool
     {
         foreach ($this->getVariants() as $variant) {
             if ($variant->hasUnlimitedStock) {
