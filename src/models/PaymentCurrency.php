@@ -172,6 +172,7 @@ class PaymentCurrency extends Model
     public function rules()
     {
         return [
+            [['iso'], 'required'],
             [['iso'],  UniqueValidator::class, 'targetClass' => \craft\commerce\records\PaymentCurrency::class, 'targetAttribute' => ['iso'], 'message' => 'Unique ISO only.'],
         ];
     }
