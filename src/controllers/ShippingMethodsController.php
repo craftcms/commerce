@@ -76,7 +76,7 @@ class ShippingMethodsController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
@@ -86,6 +86,7 @@ class ShippingMethodsController extends BaseAdminController
         $shippingMethod->name = Craft::$app->getRequest()->getParam('name');
         $shippingMethod->handle = Craft::$app->getRequest()->getParam('handle');
         $shippingMethod->enabled = Craft::$app->getRequest()->getParam('enabled');
+
         // Save it
         if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping method saved.'));
