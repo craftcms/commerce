@@ -173,6 +173,7 @@ class DiscountsController extends BaseCpController
         $discount->percentageOffSubject = $request->getParam('percentageOffSubject');
         $discount->freeShipping = (bool)$request->getParam('freeShipping');
         $discount->excludeOnSale = (bool)$request->getParam('excludeOnSale');
+        $discount->code = $request->getParam('code') ?: null;
         $discount->perUserLimit = $request->getParam('perUserLimit');
         $discount->perEmailLimit = $request->getParam('perEmailLimit');
         $discount->totalUseLimit = $request->getParam('totalUseLimit');
