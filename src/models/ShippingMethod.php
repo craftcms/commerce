@@ -11,7 +11,9 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Shipping method model.
@@ -72,7 +74,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getName(): string
     {
-        return $this->name;
+        return (string) $this->name;
     }
 
     /**
@@ -80,7 +82,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getHandle(): string
     {
-        return $this->handle;
+        return (string) $this->handle;
     }
 
     /**
@@ -96,7 +98,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getIsEnabled(): bool
     {
-        return $this->enabled;
+        return (bool) $this->enabled;
     }
 
     /**
@@ -113,7 +115,9 @@ class ShippingMethod extends Model implements ShippingMethodInterface
     public function rules()
     {
         return [
-            [['name'], 'unique']
+            [['name', 'handle'], 'required'],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+            [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class]
         ];
     }
 }
