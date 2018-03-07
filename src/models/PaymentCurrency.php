@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 
@@ -173,7 +174,7 @@ class PaymentCurrency extends Model
     {
         return [
             [['iso'], 'required'],
-            [['iso'],  UniqueValidator::class, 'targetClass' => \craft\commerce\records\PaymentCurrency::class, 'targetAttribute' => ['iso'], 'message' => 'Unique ISO only.'],
+            [['iso'],  UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
         ];
     }
 }
