@@ -29,7 +29,6 @@ class PaymentSourcesController extends BaseFrontEndController
      * Adds a payment source.
      *
      * @return Response|null
-     * @throws \Throwable if something went wrong when adding the payment source
      */
     public function actionAdd()
     {
@@ -74,20 +73,28 @@ class PaymentSourcesController extends BaseFrontEndController
         // Save the return and cancel URLs to the order
         $returnUrl = $request->getValidatedBodyParam('redirect');
 
-        $error = '';
+        $error = false;
 
         try {
-            $success = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
+            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
         } catch (\Throwable $exception) {
             $error = $exception->getMessage();
-            $success = false;
         }
 
-        if ($success) {
+        if ($error) {
             if ($request->getAcceptsJson()) {
-                $response = ['success' => true];
+                return $this->asJson(['error' => $error, 'paymentForm' => $paymentForm->getErrors()]);
+            }
 
-                return $this->asJson($response);
+            $session->setError($error);
+            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+        } else {
+            if ($request->getAcceptsJson()) {
+                return $this->asJson([
+                    'success' => true,
+                    'paymentSource' => $paymentSource
+                ]);
             }
 
             if ($returnUrl) {
@@ -95,13 +102,6 @@ class PaymentSourcesController extends BaseFrontEndController
             } else {
                 $this->redirectToPostedUrl($order);
             }
-        } else {
-            if ($request->getAcceptsJson()) {
-                return $this->asJson(['error' => $error, 'paymentForm' => $paymentForm->getErrors()]);
-            }
-
-            $session->setError($error);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
         }
 
         return $this->redirectToPostedUrl();
@@ -118,6 +118,8 @@ class PaymentSourcesController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $this->requireLogin();
+
+        $request = Craft::$app->getRequest();
 
         $id = Craft::$app->getRequest()->getParam('id');
 
@@ -137,8 +139,16 @@ class PaymentSourcesController extends BaseFrontEndController
         $result = $paymentSources->deletePaymentSourceById($id);
 
         if ($result) {
+            if ($request->getAcceptsJson()) {
+                return $this->asJson(['success' => true]);
+            }
+
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Payment source deleted.'));
         } else {
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+            }
+
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete the payment source.'));
         }
 
