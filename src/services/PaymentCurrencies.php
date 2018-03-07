@@ -15,6 +15,7 @@ use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment currency service.
@@ -48,11 +49,16 @@ class PaymentCurrencies extends Component
      *
      * @param int $id
      * @return PaymentCurrency|null
+     * @throws InvalidConfigException if currency has invalid iso code defined
      */
     public function getPaymentCurrencyById($id)
     {
         if ($this->_allCurrenciesById === null) {
-            $this->getAllPaymentCurrencies();
+            try {
+                $this->getAllPaymentCurrencies();
+            } catch (CurrencyException $exception) {
+                throw new InvalidConfigException($exception->getMessage());
+            }
         }
 
         if (isset($this->_allCurrenciesById[$id])) {
@@ -66,6 +72,7 @@ class PaymentCurrencies extends Component
      * Get all payment currencies.
      *
      * @return PaymentCurrency[]
+     * @throws CurrencyException if currency does not exist with tat iso code
      */
     public function getAllPaymentCurrencies(): array
     {
@@ -80,7 +87,10 @@ class PaymentCurrencies extends Component
                 $paymentCurrency = new PaymentCurrency($row);
 
                 // TODO: Fix this with money/money package
-                $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso);
+                if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
+                    throw new CurrencyException(Craft::t('commerce', 'No currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
+                }
+
                 $paymentCurrency->setCurrency($currency);
 
                 $this->_memoizePaymentCurrency($paymentCurrency);
@@ -95,7 +105,7 @@ class PaymentCurrencies extends Component
      *
      * @param string $iso
      * @return PaymentCurrency
-     * @throws CurrencyException
+     * @throws CurrencyException if currency does not exist with tat iso code
      */
     public function getPaymentCurrencyByIso($iso): PaymentCurrency
     {
