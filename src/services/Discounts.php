@@ -287,7 +287,7 @@ class Discounts extends Component
 
         $result = $this->_createDiscountQuery()
             ->where(['code' => $code, 'enabled' => true])
-            ->all();
+            ->one();
 
         return $result ? new Discount($result) : null;
     }
