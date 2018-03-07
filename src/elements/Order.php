@@ -118,6 +118,10 @@ class Order extends Element
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
+    const PAID_STATUS_PAID = 'paid';
+    const PAID_STATUS_PARTIAL = 'partial';
+    const PAID_STATUS_UNPAID = 'unpaid';
+
     // Properties
     // =========================================================================
 
@@ -795,7 +799,12 @@ class Order extends Element
      */
     public function isPaid(): bool
     {
-        return $this->outstandingBalance() <= 0;
+        // don't return true if no money has been paid, even if the outstanding balance is 0
+        if (($totalPaid = Currency::round($this->totalPaid)) === 0) {
+            return false;
+        }
+        $totalPrice = Currency::round($this->totalPrice);
+        return $totalPaid >= $totalPrice;
     }
 
     /**
@@ -806,14 +815,12 @@ class Order extends Element
     public function getPaidStatus()
     {
         if ($this->isPaid()) {
-            return OrderRecord::PAID_STATUS_PAID;
+            return self::PAID_STATUS_PAID;
         }
         if ($this->totalPaid > 0) {
-            return OrderRecord::PAID_STATUS_PARTIAL;
+            return self::PAID_STATUS_PARTIAL;
         }
-        if ($this->isUnpaid()) {
-            return OrderRecord::PAID_STATUS_UNPAID;
-        }
+        return self::PAID_STATUS_UNPAID;
     }
 
     /**
