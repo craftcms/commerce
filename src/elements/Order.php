@@ -662,9 +662,9 @@ class Order extends Element
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
-    public function isEditable(): bool
+    public function getIsEditable(): bool
     {
         // Still a cart, allow full editing.
         if (!$this->isCompleted) {
