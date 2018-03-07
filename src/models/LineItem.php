@@ -37,9 +37,10 @@ use yii\base\InvalidConfigException;
  * @property int $shippingCost
  * @property string $sku the description from the snapshot of the purchasable
  * @property int $tax
- * @property float $total the Purchasable’s sale price multiplied by the quantity of the line item
+ * @property float $total the subTotal plus any adjustments belonging to this line item
  * @property TaxCategory $taxCategory
  * @property int $taxIncluded
+ * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

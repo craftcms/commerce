@@ -182,13 +182,13 @@ class Transactions extends Component
         } else {
             $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
-            $paymentAmount = $order->outstandingBalance() * $paymentCurrency->rate;
+            $paymentAmount = $order->getOutstandingBalance() * $paymentCurrency->rate;
 
             /** @var Gateway $gateway */
             $gateway = $order->getGateway();
 
             $transaction->gatewayId = $gateway->id;
-            $transaction->amount = $order->outstandingBalance();
+            $transaction->amount = $order->getOutstandingBalance();
             $transaction->currency = $currency->iso;
             $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
             $transaction->paymentCurrency = $paymentCurrency->iso;

@@ -54,13 +54,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
-    const PAID_STATUS_PAID = 'customer';
-    const PAID_STATUS_PARTIAL = 'partial';
-    const PAID_STATUS_UNPAID = 'unpaid';
-
     // Public Methods
     // =========================================================================
 

@@ -102,7 +102,7 @@ class PaymentsController extends BaseFrontEndController
 
         // These are used to compare if the order changed during its final
         // recalculation before payment.
-        $originalTotalPrice = $order->outstandingBalance();
+        $originalTotalPrice = $order->getOutstandingBalance();
         $originalTotalQty = $order->getTotalQty();
         $originalTotalAdjustments = count($order->getAdjustments());
 
@@ -234,7 +234,7 @@ class PaymentsController extends BaseFrontEndController
         // Do one final save to confirm the price does not change out from under the customer.
         // This also confirms the products are available and discounts are current.
         if (Craft::$app->getElements()->saveElement($order)) {
-            $totalPriceChanged = $originalTotalPrice != $order->outstandingBalance();
+            $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
             $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 

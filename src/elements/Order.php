@@ -45,33 +45,40 @@ use yii\base\Exception;
  * Order or Cart model.
  *
  * @property OrderAdjustment[] $adjustments
- * @property float|int $adjustmentSubtotal the total of adjustments made to order
- * @property float $adjustmentsTotal
- * @property Address $billingAddress
- * @property Customer $customer
- * @property string $email the email for this order
- * @property Gateway $gateway
- * @property OrderHistory[] $histories order histories
- * @property int $itemSubtotal the total of all line item subtotals
- * @property float $itemTotal
- * @property LineItem[] $lineItems
- * @property array|Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
- * @property array $orderAdjustments
- * @property OrderStatus $orderStatus
- * @property string $pdfUrl the URL to the order’s PDF invoice
- * @property string $paidStatus the order’s paid status
- * @property Address $shippingAddress
- * @property ShippingMethodInterface $shippingMethod
- * @property ShippingMethodInterface $shippingMethodId
- * @property string $shortNumber
  * @property bool $shouldRecalculateAdjustments
- * @property float $totalPaid the total `purchase` and `captured` transactions belonging to this order
- * @property float $totalPrice
- * @property int $totalQty the total number of items
- * @property int $totalSaleAmount the total sale amount
- * @property float $totalTaxablePrice
- * @property int $totalWeight
- * @property Transaction[] $transactions
+ * @property string $email the email for this order
+ * @property LineItem[] $lineItems
+ * @property Address $billingAddress
+ * @property Address $shippingAddress
+ * @property-read ShippingMethod[] $availableShippingMethods
+ * @property-read Customer $customer
+ * @property-read Gateway $gateway
+ * @property-read OrderStatus $orderStatus
+ * @property-read float $outstandingBalance The balance amount to be paid on the Order
+ * @property-read PaymentSource $paymentSource the order’s current payment source
+ * @property-read ShippingMethodInterface $shippingMethod
+ * @property-read ShippingMethodInterface $shippingMethodId
+ * @property-read User|null $user
+ * @property-read OrderAdjustment[] $orderAdjustments
+ * @property-read string $pdfUrl the URL to the order’s PDF invoice
+ * @property-read float|int $adjustmentSubtotal the total of adjustments made to order
+ * @property-read float $adjustmentsTotal
+ * @property-read OrderHistory[] $histories order histories
+ * @property-read bool $isPaid if the order is paid
+ * @property-read bool $isUnpaid if the order is not paid
+ * @property-read float $itemTotal
+ * @property-read int $itemSubtotal the total of all line item subtotals
+ * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
+ * @property-read string $paidStatus the order’s paid status
+ * @property-read string $paidStatusHtml the order’s paid status as HTML
+ * @property-read string $shortNumber
+ * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $totalPrice
+ * @property-read int $totalSaleAmount the total sale amount
+ * @property-read float $totalTaxablePrice
+ * @property-read int $totalQty the total number of items
+ * @property-read int $totalWeight
+ * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -79,6 +86,10 @@ class Order extends Element
 {
     // Constants
     // =========================================================================
+
+    const PAID_STATUS_PAID = 'paid';
+    const PAID_STATUS_PARTIAL = 'partial';
+    const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
      * @event OrderEvent This event is raised when an order is completed
@@ -113,10 +124,6 @@ class Order extends Element
      * ```
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
-
-    const PAID_STATUS_PAID = 'paid';
-    const PAID_STATUS_PARTIAL = 'partial';
-    const PAID_STATUS_UNPAID = 'unpaid';
 
     // Properties
     // =========================================================================
@@ -249,7 +256,7 @@ class Order extends Element
     /**
      * @var bool Should the order recalculate?
      */
-    private $_relcalculate = true;
+    private $_recalculate = true;
 
     // Public Methods
     // =========================================================================
@@ -260,23 +267,6 @@ class Order extends Element
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Orders');
-    }
-
-    /**
-     * @inheritdoc
-     * @return OrderQuery The newly created [[OrderQuery]] instance.
-     */
-    public static function find(): ElementQueryInterface
-    {
-        return new OrderQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
     }
 
     /**
@@ -337,6 +327,7 @@ class Order extends Element
         $names[] = 'itemTotal';
         $names[] = 'lineItems';
         $names[] = 'orderAdjustments';
+        $names[] = 'outstandingBalance';
         $names[] = 'shortNumber';
         $names[] = 'totalPaid';
         $names[] = 'totalPrice';
@@ -373,7 +364,7 @@ class Order extends Element
      */
     public function updateOrderPaidTotal()
     {
-        if ($this->isPaid()) {
+        if ($this->getIsPaid()) {
             if ($this->datePaid === null) {
                 $this->datePaid = Db::prepareDateForDb(new \DateTime());
             }
@@ -385,7 +376,7 @@ class Order extends Element
         Craft::$app->getElements()->saveElement($this);
 
         if (!$this->isCompleted) {
-            if ($this->isPaid()) {
+            if ($this->getIsPaid()) {
                 $this->markAsComplete();
             } else {
                 // maybe not paid in full, but authorized enough to complete order.
@@ -418,7 +409,7 @@ class Order extends Element
      */
     public function getShouldRecalculateAdjustments(): bool
     {
-        return $this->_relcalculate;
+        return $this->_recalculate;
     }
 
     /**
@@ -426,7 +417,7 @@ class Order extends Element
      */
     public function setShouldRecalculateAdjustments(bool $value)
     {
-        $this->_relcalculate = $value;
+        $this->_recalculate = $value;
     }
 
     /**
@@ -714,35 +705,6 @@ class Order extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getFieldLayout()
-    {
-        /** @var OrderSettings $orderSettings */
-        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
-        if ($orderSettings) {
-            return $orderSettings->getFieldLayout();
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns whether or not this order is made by a guest user.
-     *
-     * @return bool
-     */
-    public function isGuest(): bool
-    {
-        if ($this->getCustomer()) {
-            return !$this->getCustomer()->userId;
-        }
-
-        return true;
-    }
-
-    /**
      * @return Customer|null
      */
     public function getCustomer()
@@ -789,7 +751,7 @@ class Order extends Element
     /**
      * @return bool
      */
-    public function isPaid(): bool
+    public function getIsPaid(): bool
     {
         // don't return true if no money has been paid, even if the outstanding balance is 0
         if (($totalPaid = Currency::round($this->totalPaid)) === 0) {
@@ -804,14 +766,16 @@ class Order extends Element
      *
      * @return string
      */
-    public function getPaidStatus()
+    public function getPaidStatus(): string
     {
-        if ($this->isPaid()) {
+        if ($this->getIsPaid()) {
             return self::PAID_STATUS_PAID;
         }
+
         if ($this->totalPaid > 0) {
             return self::PAID_STATUS_PARTIAL;
         }
+
         return self::PAID_STATUS_UNPAID;
     }
 
@@ -823,15 +787,15 @@ class Order extends Element
     public function getPaidStatusHtml(): string
     {
         switch ($this->getPaidStatus()) {
-            case OrderRecord::PAID_STATUS_PAID:
+            case self::PAID_STATUS_PAID:
                 {
                     return '<span class="commerceStatusLabel"><span class="status green"></span> '.Craft::t('commerce', 'Paid').'</span>';
                 }
-            case OrderRecord::PAID_STATUS_PARTIAL:
+            case self::PAID_STATUS_PARTIAL:
                 {
                     return '<span class="commerceStatusLabel"><span class="status orange"></span> '.Craft::t('commerce', 'Partial').'</span>';
                 }
-            case OrderRecord::PAID_STATUS_UNPAID:
+            case self::PAID_STATUS_UNPAID:
                 {
                     return '<span class="commerceStatusLabel"><span class="status red"></span> '.Craft::t('commerce', 'Unpaid').'</span>';
                 }
@@ -853,7 +817,7 @@ class Order extends Element
      *
      * @return float
      */
-    public function outstandingBalance(): float
+    public function getOutstandingBalance(): float
     {
         $totalPaid = Currency::round($this->totalPaid);
         $totalPrice = Currency::round($this->totalPrice);
@@ -874,9 +838,9 @@ class Order extends Element
     /**
      * @return bool
      */
-    public function isUnpaid(): bool
+    public function getIsUnpaid(): bool
     {
-        return $this->outstandingBalance() > 0;
+        return $this->getOutstandingBalance() > 0;
     }
 
     /**
@@ -1268,6 +1232,41 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @inheritdoc
+     * @return OrderQuery The newly created [[OrderQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new OrderQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFieldLayout()
+    {
+        /** @var OrderSettings $orderSettings */
+        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
+
+        if ($orderSettings) {
+            return $orderSettings->getFieldLayout();
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasContent(): bool
+    {
+        return true;
+    }
+
     /**
      * @inheritdoc
      */
@@ -1284,8 +1283,8 @@ class Order extends Element
                 }
             case 'shippingFullName':
                 {
-                    if ($this->shippingAddress) {
-                        return $this->shippingAddress->getFullName();
+                    if ($this->getShippingAddress()) {
+                        return $this->getShippingAddress()->getFullName();
                     }
 
                     return '';
@@ -1300,8 +1299,8 @@ class Order extends Element
                 }
             case 'shippingBusinessName':
                 {
-                    if ($this->shippingAddress) {
-                        return $this->shippingAddress->businessName;
+                    if ($this->getShippingAddress()) {
+                        return $this->getShippingAddress()->businessName;
                     }
 
                     return '';
