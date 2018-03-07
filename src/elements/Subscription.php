@@ -30,6 +30,16 @@ use yii\base\InvalidConfigException;
  * Class Subscription
  *
  * @property bool $isOnTrial whether the subscription is still on trial
+ * @property string $nextPaymentAmount
+ * @property SubscriptionGatewayInterface $gateway
+ * @property PlanInterface $plan
+ * @property string $name
+ * @property Plan[] $alternativePlans
+ * @property string $orderEditUrl
+ * @property string $planName
+ * @property SubscriptionPayment[] $allPayments
+ * @property User $subscriber
+ * @property string $eagerLoadedElements
  * @property DateTime $trialExpires datetime of trial expiry
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
@@ -343,7 +353,6 @@ class Subscription extends Element
      */
     public function getName()
     {
-
         return Craft::t('commerce', 'Subscription for {plan}', ['plan' => $this->getPlanName()]);
     }
 
