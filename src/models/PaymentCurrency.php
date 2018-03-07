@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Currency model.
@@ -171,7 +172,7 @@ class PaymentCurrency extends Model
     public function rules()
     {
         return [
-            [['iso'], 'unique']
+            [['iso'],  UniqueValidator::class, 'targetClass' => \craft\commerce\records\PaymentCurrency::class, 'targetAttribute' => ['iso'], 'message' => 'Unique ISO only.'],
         ];
     }
 }
