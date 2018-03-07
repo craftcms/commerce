@@ -88,13 +88,13 @@ class Install extends Migration
     {
         $this->createTable('{{%commerce_addresses}}', [
             'id' => $this->primaryKey(),
+            'countryId' => $this->integer(),
+            'stateId' => $this->integer(),
             'storeLocation' => $this->boolean()->notNull()->defaultValue(false),
             'attention' => $this->string(),
             'title' => $this->string(),
             'firstName' => $this->string()->notNull(),
             'lastName' => $this->string()->notNull(),
-            'countryId' => $this->integer(),
-            'stateId' => $this->integer(),
             'address1' => $this->string(),
             'address2' => $this->string(),
             'city' => $this->string(),
@@ -242,6 +242,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'purchasableId' => $this->integer(),
+            'taxCategoryId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->notNull(),
             'options' => $this->text(),
             'optionsSignature' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull()->unsigned(),
@@ -256,8 +258,6 @@ class Install extends Migration
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
             'snapshot' => $this->text()->notNull(),
-            'taxCategoryId' => $this->integer()->notNull(),
-            'shippingCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -265,14 +265,14 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_orderadjustments}}', [
             'id' => $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'lineItemId' => $this->integer(),
             'type' => $this->string()->notNull(),
             'name' => $this->string(),
             'description' => $this->string(),
             'amount' => $this->decimal(14, 4)->notNull(),
             'included' => $this->boolean(),
-            'lineItemId' => $this->integer(),
             'sourceSnapshot' => $this->text()->notNull(),
-            'orderId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -280,10 +280,10 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_orderhistories}}', [
             'id' => $this->primaryKey(),
-            'prevStatusId' => $this->integer(),
-            'newStatusId' => $this->integer(),
             'orderId' => $this->integer()->notNull(),
             'customerId' => $this->integer()->notNull(),
+            'prevStatusId' => $this->integer(),
+            'newStatusId' => $this->integer(),
             'message' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -291,12 +291,12 @@ class Install extends Migration
         ]);
 
         $this->createTable('{{%commerce_orders}}', [
+            'id' => $this->integer()->notNull(),
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(),
-            'id' => $this->integer()->notNull(),
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
             'couponCode' => $this->string(),
@@ -378,12 +378,12 @@ class Install extends Migration
         $this->createTable('{{%commerce_plans}}', [
             'id' => $this->primaryKey(),
             'gatewayId' => $this->integer(),
+            'planInformationId' => $this->integer()->null(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'reference' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull(),
             'planData' => $this->text(),
-            'planInformationId' => $this->integer()->null(),
             'isArchived' => $this->boolean()->notNull(),
             'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -396,11 +396,11 @@ class Install extends Migration
             'typeId' => $this->integer(),
             'taxCategoryId' => $this->integer()->notNull(),
             'shippingCategoryId' => $this->integer()->notNull(),
+            'defaultVariantId' => $this->integer(),
             'postDate' => $this->dateTime(),
             'expiryDate' => $this->dateTime(),
             'promotable' => $this->boolean(),
             'freeShipping' => $this->boolean(),
-            'defaultVariantId' => $this->integer(),
             'defaultSku' => $this->string(),
             'defaultPrice' => $this->decimal(14, 4),
             'defaultHeight' => $this->decimal(14, 4),
@@ -555,9 +555,9 @@ class Install extends Migration
         $this->createTable('{{%commerce_shippingrules}}', [
             'id' => $this->primaryKey(),
             'shippingZoneId' => $this->integer(),
+            'methodId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'methodId' => $this->integer()->notNull(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean(),
             'minQty' => $this->integer()->notNull()->defaultValue(0),
@@ -607,9 +607,9 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_states}}', [
             'id' => $this->primaryKey(),
+            'countryId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'abbreviation' => $this->string(),
-            'countryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -690,6 +690,7 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_transactions}}', [
             'id' => $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
             'parentId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'userId' => $this->integer(),
@@ -705,15 +706,14 @@ class Install extends Migration
             'code' => $this->string(),
             'message' => $this->text(),
             'response' => $this->text(),
-            'orderId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_variants}}', [
-            'productId' => $this->integer(),
             'id' => $this->integer()->notNull(),
+            'productId' => $this->integer(),
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
             'price' => $this->decimal(14, 4)->notNull(),
