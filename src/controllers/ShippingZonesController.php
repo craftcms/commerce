@@ -112,7 +112,7 @@ class ShippingZonesController extends BaseAdminController
         $shippingZone->setStates($states);
 
         // Save it
-        if (Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone, $shippingZone->getCountryIds(), $shippingZone->getStateIds())) {
+        if (Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,

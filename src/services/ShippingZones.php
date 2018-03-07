@@ -94,14 +94,12 @@ class ShippingZones extends Component
      * Save a shipping zone.
      *
      * @param ShippingZone $model
-     * @param array $countryIds
-     * @param array $stateIds
      * @param bool $runValidation should we validate this rule before saving.
      * @return bool
      * @throws \Exception
      * @throws Exception
      */
-    public function saveShippingZone(ShippingZone $model, $countryIds, $stateIds, bool $runValidation = true): bool
+    public function saveShippingZone(ShippingZone $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = ShippingZoneRecord::findOne($model->id);
@@ -124,6 +122,9 @@ class ShippingZones extends Component
         $record->description = $model->description;
         $record->countryBased = $model->countryBased;
 
+        $countryIds = $model->getCountryIds();
+        $stateIds = $model->getStateIds();
+        
         //validating given ids
         if ($record->countryBased) {
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
