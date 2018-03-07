@@ -9,7 +9,9 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Order status model.
@@ -72,7 +74,8 @@ class OrderStatus extends Model
     public function rules()
     {
         return [
-            [['name', 'handle'], 'required']
+            [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class]
         ];
     }
 
@@ -97,7 +100,7 @@ class OrderStatus extends Model
      */
     public function getEmails(): array
     {
-        return Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id);
+        return $this->id ? Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id) : [];
     }
 
     /**
