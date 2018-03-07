@@ -124,7 +124,7 @@ class ShippingZones extends Component
 
         $countryIds = $model->getCountryIds();
         $stateIds = $model->getStateIds();
-        
+
         //validating given ids
         if ($record->countryBased) {
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
