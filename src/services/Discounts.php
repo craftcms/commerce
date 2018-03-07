@@ -569,6 +569,8 @@ class Discounts extends Component
                 'discounts.enabled',
                 'discounts.stopProcessing',
                 'discounts.sortOrder',
+                'discounts.dateCreated',
+                'discounts.dateUpdated',
             ])
             ->from(['discounts' => '{{%commerce_discounts}}'])
             ->orderBy(['sortOrder' => SORT_ASC]);

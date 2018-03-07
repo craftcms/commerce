@@ -152,6 +152,16 @@ class Discount extends Model
     public $sortOrder;
 
     /**
+     * @var \DateTime|null
+     */
+    public $dateCreated;
+
+    /**
+     * @var \DateTime|null
+     */
+    public $dateUpdated;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
