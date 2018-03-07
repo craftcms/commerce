@@ -148,7 +148,6 @@ class SubscriptionsController extends BaseController
             }
 
             $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
-
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }

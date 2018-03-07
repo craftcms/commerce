@@ -105,7 +105,6 @@ class OrderHistory extends Model
         return [
             [['orderId', 'customerId'], 'required'],
         ];
-
     }
 }
 

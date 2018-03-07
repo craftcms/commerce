@@ -174,7 +174,7 @@ class PaymentCurrency extends Model
     {
         return [
             [['iso'], 'required'],
-            [['iso'],  UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
         ];
     }
 }

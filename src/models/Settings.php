@@ -167,7 +167,7 @@ class Settings extends Model
     public function rules()
     {
         return [
-            [['weightUnits', 'dimensionUnits', 'orderPdfPath','orderPdfFilenameFormat'], 'required']
+            [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat'], 'required']
         ];
     }
 }

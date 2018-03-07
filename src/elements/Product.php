@@ -421,7 +421,7 @@ class Product extends Element
             $variant->sortOrder = $count + 1;
             $variant->setProduct($this);
 
-            if (null === $this->_defaultVariant || $variant->isDefault ) {
+            if (null === $this->_defaultVariant || $variant->isDefault) {
                 $variant->isDefault = true;
                 $this->_defaultVariant = $variant;
             }

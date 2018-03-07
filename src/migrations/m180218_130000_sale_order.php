@@ -29,8 +29,7 @@ class m180218_130000_sale_order extends Migration
 
         $count = 1;
 
-        foreach ($sales as $sale)
-        {
+        foreach ($sales as $sale) {
             $count++;
             $this->update('{{%commerce_sales}}', ['sortOrder' => $count], ['id' => $sale]);
         }

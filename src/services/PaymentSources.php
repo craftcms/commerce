@@ -16,9 +16,7 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
-use craft\web\User;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -94,8 +92,7 @@ class PaymentSources extends Component
      */
     public function getAllPaymentSourcesByUserId(int $userId = null): array
     {
-        if (null === $userId)
-        {
+        if (null === $userId) {
             return [];
         }
 
@@ -121,8 +118,7 @@ class PaymentSources extends Component
      */
     public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $userId = null): array
     {
-        if (null === $gatewayId || null === $userId)
-        {
+        if (null === $gatewayId || null === $userId) {
             return [];
         }
 

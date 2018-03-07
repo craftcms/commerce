@@ -73,9 +73,11 @@ class Email extends Model
             [['name'], 'required'],
             [['subject'], 'required'],
             [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
-            [['to'], 'required', 'when' => function ($model) {
+            [
+                ['to'], 'required', 'when' => function($model) {
                 return $model->recipientType == EmailRecord::TYPE_CUSTOM;
-            }],
+            }
+            ],
             [['templatePath'], 'required']
         ];
     }

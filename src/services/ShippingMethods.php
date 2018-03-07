@@ -143,7 +143,7 @@ class ShippingMethods extends Component
      */
     public function getOrderedAvailableShippingMethods(Order $cart): array
     {
-        Craft::$app->getDeprecator()->log('ShippingMethods::getOrderedAvailableShippingMethods','ShippingMethods::getOrderedAvailableShippingMethods us has been deprecated. Use ShippingMethods::getAvailableShippingMethods instead. Shipping Methods are now always returned in price order.');
+        Craft::$app->getDeprecator()->log('ShippingMethods::getOrderedAvailableShippingMethods', 'ShippingMethods::getOrderedAvailableShippingMethods us has been deprecated. Use ShippingMethods::getAvailableShippingMethods instead. Shipping Methods are now always returned in price order.');
 
         return $this->getAvailableShippingMethods($cart);
     }

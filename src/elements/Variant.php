@@ -142,10 +142,12 @@ class Variant extends Purchasable
 
         $rules[] = [['sku'], 'string'];
         $rules[] = [['sku', 'price'], 'required'];
-        $rules[] = [['stock'], 'required', 'when' => function ($model) {
-            /** @var Variant $model */
-            return !$model->hasUnlimitedStock;
-        }];
+        $rules[] = [
+            ['stock'], 'required', 'when' => function($model) {
+                /** @var Variant $model */
+                return !$model->hasUnlimitedStock;
+            }
+        ];
 
         return $rules;
     }

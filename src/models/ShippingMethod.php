@@ -74,7 +74,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getName(): string
     {
-        return (string) $this->name;
+        return (string)$this->name;
     }
 
     /**
@@ -82,7 +82,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getHandle(): string
     {
-        return (string) $this->handle;
+        return (string)$this->handle;
     }
 
     /**
@@ -98,7 +98,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getIsEnabled(): bool
     {
-        return (bool) $this->enabled;
+        return (bool)$this->enabled;
     }
 
     /**

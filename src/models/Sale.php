@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
-use craft\commerce\records\Sale as SaleRecord;
 
 /**
  * Sale model.

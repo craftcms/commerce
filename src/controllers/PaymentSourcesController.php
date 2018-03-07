@@ -88,7 +88,6 @@ class PaymentSourcesController extends BaseFrontEndController
 
             $session->setError($error);
             Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
-
         } else {
             if ($request->getAcceptsJson()) {
                 return $this->asJson([

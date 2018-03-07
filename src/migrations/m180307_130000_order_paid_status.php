@@ -19,7 +19,7 @@ class m180307_130000_order_paid_status extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus',['paid','partial','unpaid']));
+        $this->addColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus', ['paid', 'partial', 'unpaid']));
 
         return true;
     }

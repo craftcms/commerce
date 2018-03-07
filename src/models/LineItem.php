@@ -14,9 +14,9 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
+use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
@@ -201,7 +201,7 @@ class LineItem extends Model
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                array_push($rules,...$purchasableRules);
+                array_push($rules, ...$purchasableRules);
             }
         }
 

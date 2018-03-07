@@ -293,7 +293,7 @@ class Subscriptions extends Component
      */
     public function doesUserHaveAnySubscriptions(int $userId): bool
     {
-        return (bool) SubscriptionRecord::find()->where(['userId' => $userId])->count();
+        return (bool)SubscriptionRecord::find()->where(['userId' => $userId])->count();
     }
 
     /**

@@ -192,13 +192,17 @@ class ShippingZone extends Model
     {
         return [
             [['name'], 'required'],
-            [['name'],  UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
-            [['states'], 'required', 'when' => function ($model) {
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'], 'required', 'when' => function($model) {
                 return !$model->countryBased;
-            }],
-            [['countries'], 'required', 'when' => function ($model) {
+            }
+            ],
+            [
+                ['countries'], 'required', 'when' => function($model) {
                 return $model->countryBased;
-            }],
+            }
+            ],
         ];
     }
 }

@@ -80,7 +80,7 @@ interface GatewayInterface extends SavableComponentInterface
      *
      * @return BasePaymentForm
      */
-     public function getPaymentFormModel(): BasePaymentForm;
+    public function getPaymentFormModel(): BasePaymentForm;
 
     /**
      * Makes a purchase request.

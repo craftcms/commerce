@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 
 /**
  * Class BaseFrontEndController

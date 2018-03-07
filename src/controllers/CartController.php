@@ -191,7 +191,7 @@ class CartController extends BaseFrontEndController
             $purchasableId = $request->getRequiredParam('purchasableId');
             $note = $request->getParam('note', '');
             $options = $request->getParam('options', []);
-            $qty = (int) $request->getParam('qty', 1);
+            $qty = (int)$request->getParam('qty', 1);
             $error = '';
 
             $lineItem = $plugin->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options, $qty, $note);
@@ -205,7 +205,6 @@ class CartController extends BaseFrontEndController
             } else {
                 $cartSaved = true;
             }
-
         }
 
         // Set Addresses
@@ -328,7 +327,7 @@ class CartController extends BaseFrontEndController
         if (null !== $request->getParam('paymentSourceId')) {
             $paymentSourceId = $request->getParam('paymentSourceId');
             try {
-                $cartSaved = $cartsService->setPaymentSource($this->_cart, (int) $paymentSourceId);
+                $cartSaved = $cartsService->setPaymentSource($this->_cart, (int)$paymentSourceId);
             } catch (PaymentSourceException $exception) {
                 $updateErrors['gatewayId'] = $exception->getMessage();
             }

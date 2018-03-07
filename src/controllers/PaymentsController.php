@@ -128,7 +128,7 @@ class PaymentsController extends BaseFrontEndController
         $gatewayId = $request->getParam('gatewayId');
 
         if ($gatewayId && $order->gatewayId != $gatewayId) {
-            try{
+            try {
                 $plugin->getCarts()->setGateway($order, (int)$gatewayId);
             } catch (GatewayException $exception) {
                 if ($request->getAcceptsJson()) {

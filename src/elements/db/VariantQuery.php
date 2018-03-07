@@ -7,11 +7,8 @@
 
 namespace craft\commerce\elements\db;
 
-use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
-use craft\db\Query;
 use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
