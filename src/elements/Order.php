@@ -1006,9 +1006,9 @@ class Order extends Element
      */
     public function getTotalShippingCost(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") ');
+        Craft::$app->getDeprecator()->log('Order::getTotalShippingCost()', 'Order::getTotalShippingCost() has been deprecated. Use Order::getAdjustmentsTotalByType("shipping") instead.');
 
-        return $this->getAdjustmentsTotalByType('discount');
+        return $this->getAdjustmentsTotalByType('shipping');
     }
 
     /**
