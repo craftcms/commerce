@@ -39,6 +39,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $orderLocale
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId
+ * @property string $paidStatus
  * @property string $paymentCurrency
  * @property int $paymentSourceId
  * @property string $returnUrl
@@ -53,6 +54,13 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
+    // Constants
+    // =========================================================================
+
+    const PAID_STATUS_PAID = 'customer';
+    const PAID_STATUS_PARTIAL = 'partial';
+    const PAID_STATUS_UNPAID = 'unpaid';
+
     // Public Methods
     // =========================================================================
 

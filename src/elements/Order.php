@@ -59,6 +59,7 @@ use yii\base\Exception;
  * @property array $orderAdjustments
  * @property OrderStatus $orderStatus
  * @property string $pdfUrl the URL to the order’s PDF invoice
+ * @property string $paidStatus the order’s paid status
  * @property Address $shippingAddress
  * @property ShippingMethodInterface $shippingMethod
  * @property ShippingMethodInterface $shippingMethodId
@@ -483,9 +484,8 @@ class Order extends Element
         Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
-        foreach ($this->getLineItems() as $lineItem)
-        {
-            if ($lineItem->getPurchasable()){
+        foreach ($this->getLineItems() as $lineItem) {
+            if ($lineItem->getPurchasable()) {
                 $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
             }
         }
@@ -495,6 +495,7 @@ class Order extends Element
             $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
         }
     }
+
     /**
      * Removes a specific line item from the order.
      *
@@ -636,6 +637,7 @@ class Order extends Element
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
+        $orderRecord->paidStatus = $this->getPaidStatus();
 
         $orderRecord->save(false);
 
@@ -794,6 +796,49 @@ class Order extends Element
     public function isPaid(): bool
     {
         return $this->outstandingBalance() <= 0;
+    }
+
+    /**
+     * What is the status of the orders payment
+     *
+     * @return string
+     */
+    public function getPaidStatus()
+    {
+        if ($this->isPaid()) {
+            return OrderRecord::PAID_STATUS_PAID;
+        }
+        if ($this->totalPaid > 0) {
+            return OrderRecord::PAID_STATUS_PARTIAL;
+        }
+        if ($this->isUnpaid()) {
+            return OrderRecord::PAID_STATUS_UNPAID;
+        }
+    }
+
+    /**
+     * Paid status represented as HTML
+     *
+     * @return string
+     */
+    public function getPaidStatusHtml(): string
+    {
+        switch ($this->getPaidStatus()) {
+            case OrderRecord::PAID_STATUS_PAID:
+                {
+                    return '<span class="commerceStatusLabel"><span class="status green"></span> '.Craft::t('commerce', 'Paid').'</span>';
+                }
+            case OrderRecord::PAID_STATUS_PARTIAL:
+                {
+                    return '<span class="commerceStatusLabel"><span class="status orange"></span> '.Craft::t('commerce', 'Partial').'</span>';
+                }
+            case OrderRecord::PAID_STATUS_UNPAID:
+                {
+                    return '<span class="commerceStatusLabel"><span class="status red"></span> '.Craft::t('commerce', 'Unpaid').'</span>';
+                }
+        }
+
+        return '';
     }
 
     /**
@@ -1286,6 +1331,10 @@ class Order extends Element
 
                     return '';
                 }
+            case 'paidStatus':
+                {
+                    return $this->getPaidStatusHtml();
+                }
             case 'totalPaid':
             case 'totalPrice':
             case 'totalShippingCost':
@@ -1451,7 +1500,8 @@ class Order extends Element
             'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
-            'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')]
+            'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')]
         ];
     }
 

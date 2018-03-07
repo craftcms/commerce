@@ -7,6 +7,7 @@
 - Added `craft\commerce\services\Plans` service.
 - Added `craft\commerce\services\Subscriptions` service.
 - Added additional ways for sales to affect the price of matching products.
+- Added `paidStatus` attribute to orders
 
 ### Changed
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
