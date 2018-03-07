@@ -9,7 +9,9 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Shipping zone model.
@@ -81,6 +83,7 @@ class ShippingZone extends Model
     public function getCountryIds(): array
     {
         $countries = [];
+
         foreach ($this->getCountries() as $country) {
             $countries[] = $country->id;
         }
@@ -118,6 +121,7 @@ class ShippingZone extends Model
     public function getStateIds(): array
     {
         $states = [];
+
         foreach ($this->getStates() as $state) {
             $states[] = $state->id;
         }
@@ -157,6 +161,7 @@ class ShippingZone extends Model
     public function getCountriesNames(): array
     {
         $countries = [];
+
         foreach ($this->getCountries() as $country) {
             $countries[] = $country->name;
         }
@@ -172,6 +177,7 @@ class ShippingZone extends Model
     public function getStatesNames(): array
     {
         $states = [];
+
         foreach ($this->getStates() as $state) {
             $states[] = $state->formatName();
         }
@@ -185,7 +191,14 @@ class ShippingZone extends Model
     public function rules()
     {
         return [
-            [['name'], 'unique']
+            [['name'], 'required'],
+            [['name'],  UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+            [['states'], 'required', 'when' => function ($model) {
+                return !$model->countryBased;
+            }],
+            [['countries'], 'required', 'when' => function ($model) {
+                return $model->countryBased;
+            }],
         ];
     }
 }
