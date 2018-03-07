@@ -24,11 +24,12 @@
 
 {% block content %}
     <div id="shipping-method-tab">
-        <input type="hidden" name="action"
-               value="commerce/shipping-methods/save">
+        <input type="hidden" name="action" value="commerce/shipping-methods/save">
         {{ redirectInput('commerce/settings/shippingmethods/{id}#rules') }}
-        {% if shippingMethod.id %}<input type="hidden" name="shippingMethodId"
-                                         value="{{ shippingMethod.id }}">{% endif %}
+
+        {% if shippingMethod.id %}
+            <input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">
+        {% endif %}
 
         {{ forms.textField({
             first: true,
