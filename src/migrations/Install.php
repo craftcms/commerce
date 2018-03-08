@@ -214,7 +214,7 @@ class Install extends Migration
             'recipientType' => $this->enum('recipientType', ['customer', 'custom'])->defaultValue('custom'),
             'to' => $this->string(),
             'bcc' => $this->string(),
-            'isEnabled' => $this->boolean(),
+            'enabled' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

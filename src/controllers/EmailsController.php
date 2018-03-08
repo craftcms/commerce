@@ -84,7 +84,7 @@ class EmailsController extends BaseAdminController
         $email->recipientType = Craft::$app->getRequest()->getParam('recipientType');
         $email->to = Craft::$app->getRequest()->getParam('to');
         $email->bcc = Craft::$app->getRequest()->getParam('bcc');
-        $email->enabled = Craft::$app->getRequest()->getParam('isEnabled');
+        $email->enabled = Craft::$app->getRequest()->getParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getParam('templatePath');
 
         // Save it
