@@ -4,7 +4,7 @@
             { label: "ID", type:'code', value: transaction.id },
             { label: "Hash", type:'code', value: transaction.hash },
             { label: "Reference", type:'code', value: transaction.reference },
-            { label: "Message", type:'text', value: transaction.message|title },
+            { label: "Message", type:'text', value: transaction.message },
             { label: "Code", type:'code', value: transaction.code },
             { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
             { label: "Response", type:'json', value: transaction.response|raw },
