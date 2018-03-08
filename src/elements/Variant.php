@@ -641,13 +641,13 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         $product = $this->getProduct();
         $productType = $product->getType();
 
         // Use the product type's titleFormat if the title field is not shown
-        if (!$productType->hasVariantTitleField && $productType->hasVariants) {
+        if (!$productType->hasVariantTitleField && $productType->hasVariants && $productType->titleFormat) {
             try {
                 $this->title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $this);
             } catch (\Exception $e) {
@@ -662,7 +662,7 @@ class Variant extends Purchasable
         }
 
         // If we have a blank SKU, generate from product type's skuFormat
-        if (!$this->sku) {
+        if (!$this->sku && $productType->skuFormat) {
             try {
                 $this->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $this);
             } catch (\Exception $e) {
