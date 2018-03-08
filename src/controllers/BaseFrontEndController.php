@@ -59,7 +59,7 @@ class BaseFrontEndController extends BaseController
         $data['isPaid'] = $cart->getIsPaid();
         $data['totalQty'] = $cart->totalQty;
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
-        $data['isEmpty'] = $cart->isEmpty();
+        $data['isEmpty'] = $cart->getIsEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->getTotalWeight();
         $data['totalTax'] = $cart->getAdjustmentsTotalByType('Tax');

@@ -70,7 +70,7 @@ class PaymentsController extends BaseFrontEndController
         // Are we paying anonymously?
         $user = Craft::$app->getUser();
 
-        if (!$order->isActiveCart() && !$user->checkPermission('commerce-manageOrders') && $plugin->getSettings()->requireEmailForAnonymousPayments) {
+        if (!$order->getIsActiveCart() && !$user->checkPermission('commerce-manageOrders') && $plugin->getSettings()->requireEmailForAnonymousPayments) {
             if ($order->email !== $request->getParam('email')) {
                 throw new HttpException(401, Craft::t('commerce', 'Not authorized to make payments on this order.'));
             }
@@ -203,7 +203,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Allowed to update order's custom fields?
-        if ($order->isActiveCart() || $user->checkPermission('commerce-manageOrders')) {
+        if ($order->getIsActiveCart() || $user->checkPermission('commerce-manageOrders')) {
             $order->setFieldValuesFromRequest('fields');
         }
 

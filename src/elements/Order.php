@@ -51,6 +51,7 @@ use yii\base\Exception;
  * @property Address $billingAddress
  * @property Address $shippingAddress
  * @property-read ShippingMethod[] $availableShippingMethods
+ * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
  * @property-read Gateway $gateway
  * @property-read OrderStatus $orderStatus
@@ -848,7 +849,7 @@ class Order extends Element
      *
      * @return bool
      */
-    public function isActiveCart(): bool
+    public function getIsActiveCart(): bool
     {
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
@@ -860,7 +861,7 @@ class Order extends Element
      *
      * @return bool
      */
-    public function isEmpty(): bool
+    public function getIsEmpty(): bool
     {
         return $this->getTotalQty() == 0;
     }
