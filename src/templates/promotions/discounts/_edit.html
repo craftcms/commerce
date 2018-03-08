@@ -175,9 +175,9 @@
         {% for purchasableType in purchasableTypes %}
             {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
             {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|replace('\\','-'),
+                id: 'purchasables-'~purchasableType.elementType|id,
                 label: purchasableType.name,
-                name: 'purchasables'~purchasableType.elementType|replace('\\','-'),
+                name: 'purchasables['~purchasableType.elementType~']',
                 elements: purchasables[purchasableType.elementType] ?? null,
                 elementType: purchasableType.elementType,
                 limit: null,

@@ -203,10 +203,14 @@ class DiscountsController extends BaseCpController
             $discount->percentDiscount = (float)$percentDiscountAmount * -1;
         }
 
-        $purchasables = $request->getParam('purchasables', []);
-        if (!$purchasables) {
-            $purchasables = [];
+        $purchasables = [];
+        $purchasableGroups = $request->getParam('purchasables') ?: [];
+        foreach ($purchasableGroups as $group) {
+            if (is_array($group)) {
+                array_push($purchasables, ...$group);
+            }
         }
+        $purchasables = array_unique($purchasables);
 
         $categories = $request->getParam('categories', []);
         if (!$categories) {
