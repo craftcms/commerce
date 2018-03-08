@@ -260,8 +260,9 @@ class Customers extends Component
     {
         // Remove the customer from session.
         $this->forgetCustomer();
-        $username = $event->identity->username;
-        $this->consolidateOrdersToUser($username);
+        /** @var User $user */
+        $user = $event->identity;
+        $this->consolidateOrdersToUser($user);
     }
 
     /**
@@ -278,24 +279,17 @@ class Customers extends Component
     }
 
     /**
-     * Grabs all orders for a user by its username and sets the customer ID on them.
+     * Grabs all orders associated with a user's email, and assigns them to the user.
      *
-     * @param string $username the username that should have it's orders consolidated.
+     * @param User $user
      * @return bool
      */
-    public function consolidateOrdersToUser($username): bool
+    public function consolidateOrdersToUser(User $user): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-            /** @var User $user */
-            $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($username);
-
-            if (!$user) {
-                return false;
-            }
-
             $toCustomer = $this->getCustomerByUserId($user->id);
 
             // The user has no previous customer record, create one.
@@ -327,14 +321,13 @@ class Customers extends Component
             }
 
             $transaction->commit();
-
-            return true;
         } catch (\Exception $e) {
-            Craft::error('Could not consolidate orders to username: '.$username.'. Reason: '.$e->getMessage(), __METHOD__);
+            Craft::error('Could not consolidate orders to user '.$user->username.': '.$e->getMessage(), __METHOD__);
             $transaction->rollBack();
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
