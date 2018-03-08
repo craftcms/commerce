@@ -153,16 +153,15 @@ class SettingsController extends BaseAdminController
 
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
             return $this->redirectToPostedUrl();
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
-                    'errors' => $address->errors
-                ]);
-            }
-
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
         }
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'error' => Craft::t('commerce', 'Couldn’t save address.'),
+                'errors' => $address->errors
+            ]);
+        }
+
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
