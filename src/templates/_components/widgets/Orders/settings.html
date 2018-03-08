@@ -23,7 +23,7 @@
 
                     {% for status in orderStatuses %}
                         <li>
-                            <a data-id="{{ status.id }}">{{ status.htmlLabel()|raw }}</a>
+                            <a data-id="{{ status.id }}">{{ status.labelHtml|raw }}</a>
                         </li>
                     {% endfor %}
                 </ul>

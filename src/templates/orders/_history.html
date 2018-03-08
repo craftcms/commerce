@@ -19,12 +19,12 @@
                     <tr data-id="{{ orderHistory.id }}">
                         <td>
                             {% if orderHistory.newStatus %}
-                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.htmlLabel()|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
+                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.labelHtml|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
                             {% endif %}
                         </td>
                         <td>
                             {% if orderHistory.prevStatus %}
-                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.htmlLabel()|raw }}</a>
+                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.labelHtml|raw }}</a>
                             {% endif %}
                         </td>
                         <td>
