@@ -38,7 +38,7 @@ class Address extends Model
     /**
      * @var bool True, if this address is the stock location.
      */
-    public $storeLocation = false;
+    public $isStoreLocation = false;
 
     /**
      * @var string Attention
@@ -171,7 +171,7 @@ class Address extends Model
     {
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
-        if ($country && $country->stateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
+        if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
             $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
     }

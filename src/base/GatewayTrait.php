@@ -41,7 +41,7 @@ trait GatewayTrait
     /**
      * @var bool Enabled on the frontend
      */
-    public $frontendEnabled = true;
+    public $isFrontendEnabled = true;
 
     /**
      * @var bool Archived

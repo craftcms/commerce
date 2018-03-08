@@ -16,7 +16,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property string $iso
  * @property string $name
- * @property bool $stateRequired
+ * @property bool $isStateRequired
  * @property State[] $states
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

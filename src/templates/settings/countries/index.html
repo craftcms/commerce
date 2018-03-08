@@ -25,7 +25,7 @@
                                 href="{{ url('commerce/settings/countries/'~country.id) }}">{{ country.name }}</a>
                     </th>
                     <td data-title="{{ 'ISO'|t('commerce') }}">{{ country.iso }}</td>
-                    <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.stateRequired %}
+                    <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.isStateRequired %}
                         <span data-icon="check"
                               title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                     </td>

@@ -101,7 +101,7 @@ class Gateways extends Component
     {
         $rows = $this->_createGatewayQuery()
             ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->andWhere(['frontendEnabled' => true])
+            ->andWhere(['isFrontendEnabled' => true])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->all();
 
@@ -231,7 +231,7 @@ class Gateways extends Component
         $record->handle = $gateway->handle;
         $record->paymentType = $gateway->paymentType;
         $record->type = get_class($gateway);
-        $record->frontendEnabled = $gateway->frontendEnabled;
+        $record->isFrontendEnabled = $gateway->isFrontendEnabled;
         $record->sendCartInfo = $gateway->sendCartInfo;
         $record->isArchived = $gateway->isArchived;
         $record->dateArchived = $gateway->dateArchived;
@@ -354,7 +354,7 @@ class Gateways extends Component
                 'name',
                 'handle',
                 'paymentType',
-                'frontendEnabled',
+                'isFrontendEnabled',
                 'sendCartInfo',
                 'isArchived',
                 'dateArchived',

@@ -20,7 +20,7 @@ use craft\validators\UniqueValidator;
  *
  * @property string $cpEditUrl
  * @property bool $dateArchived
- * @property bool $frontendEnabled
+ * @property bool $isFrontendEnabled
  * @property bool $isArchived
  * @property string $name
  * @property null|BasePaymentForm $paymentFormModel

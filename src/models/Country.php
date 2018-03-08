@@ -40,7 +40,7 @@ class Country extends Model
     /**
      * @var bool State Required
      */
-    public $stateRequired;
+    public $isStateRequired;
 
     // Public Methods
     // =========================================================================

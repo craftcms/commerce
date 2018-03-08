@@ -30,7 +30,7 @@ use yii\db\ActiveQueryInterface;
  * @property State $state
  * @property int $stateId
  * @property string $stateName
- * @property bool $storeLocation
+ * @property bool $isStoreLocation
  * @property string $title
  * @property string $zipCode
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

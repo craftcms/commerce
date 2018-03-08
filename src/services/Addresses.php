@@ -129,7 +129,7 @@ class Addresses extends Component
     public function getStoreLocationAddress(): Address
     {
         $result = $this->_createAddressQuery()
-            ->where(['storeLocation' => true])
+            ->where(['isStoreLocation' => true])
             ->one();
 
         if (!$result) {
@@ -206,10 +206,10 @@ class Addresses extends Component
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
-        $addressRecord->storeLocation = $addressModel->storeLocation;
+        $addressRecord->isStoreLocation = $addressModel->isStoreLocation;
 
-        if ($addressRecord->storeLocation && $addressRecord->id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['storeLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+        if ($addressRecord->isStoreLocation && $addressRecord->id) {
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
         $addressRecord->save(false);

@@ -40,10 +40,10 @@
 
     {{ forms.checkboxField({
         label: "Require a state to be selected when this country is chosen"|t('commerce'),
-        id: 'stateRequired',
-        name: 'stateRequired',
+        id: 'isStateRequired',
+        name: 'isStateRequired',
         value: 1,
-        checked: country.stateRequired,
-        errors: country.getErrors('stateRequired')
+        checked: country.isStateRequired,
+        errors: country.getErrors('isStateRequired')
     }) }}
 {% endblock %}

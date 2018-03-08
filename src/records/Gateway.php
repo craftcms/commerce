@@ -13,7 +13,7 @@ use craft\db\ActiveRecord;
  * Gateway record.
  *
  * @property \DateTime $dateArchived
- * @property bool $frontendEnabled
+ * @property bool $isFrontendEnabled
  * @property string $handle
  * @property int $id
  * @property bool $isArchived

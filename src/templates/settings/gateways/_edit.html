@@ -95,9 +95,9 @@
 
     {{ forms.lightswitchField({
         label: "Enabled for customers to select during checkout?"|t('commerce'),
-        name: 'frontendEnabled',
-        on: gateway.frontendEnabled,
-        errors: gateway.getErrors('frontendEnabled'),
+        name: 'isFrontendEnabled',
+        on: gateway.isFrontendEnabled,
+        errors: gateway.getErrors('isFrontendEnabled'),
     }) }}
 
 {% endblock %}

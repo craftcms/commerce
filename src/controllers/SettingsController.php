@@ -143,7 +143,7 @@ class SettingsController extends BaseAdminController
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
         }
 
-        $address->storeLocation = true;
+        $address->isStoreLocation = true;
 
         // Save it
         if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {

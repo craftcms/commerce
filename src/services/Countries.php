@@ -215,7 +215,7 @@ class Countries extends Component
 
         $record->name = $country->name;
         $record->iso = strtoupper($country->iso);
-        $record->stateRequired = $country->stateRequired;
+        $record->isStateRequired = $country->isStateRequired;
 
 
         // Save it!
@@ -259,7 +259,7 @@ class Countries extends Component
                 'countries.id',
                 'countries.name',
                 'countries.iso',
-                'countries.stateRequired'
+                'countries.isStateRequired'
             ])
             ->from(['{{%commerce_countries}} countries'])
             ->orderBy(['name' => SORT_ASC]);
