@@ -7,8 +7,10 @@
 
 namespace craft\commerce\migrations;
 
+use craft\commerce\elements\Order;
 use craft\db\Migration;
 use craft\db\Query;
+use yii\db\Expression;
 
 /**
  * m180308_130000_update_order_paid_status migration.
@@ -20,29 +22,30 @@ class m180308_130000_update_order_paid_status extends Migration
      */
     public function safeUp()
     {
-        $orders = (new Query())->select('*')->from('{{%commerce_orders}}')->limit(null)->all();
+        $this->update('{{%commerce_orders}}', [
+            'paidStatus' => Order::PAID_STATUS_PAID,
+        ], [
+            'and',
+            ['isCompleted' => true],
+            ['>', 'totalPaid', 0],
+            new Expression('[[totalPaid]] >= [[totalPrice]]'),
+        ], [], false);
 
-        foreach ($orders as $order) {
-            $totalPrice = $order['totalPrice'];
-            $totalPaid = $order['totalPaid'];
-            $isCompleted = $order['isCompleted'];
+        $this->update('{{%commerce_orders}}', [
+            'paidStatus' => Order::PAID_STATUS_PARTIAL,
+        ], [
+            'and',
+            ['isCompleted' => true],
+            ['>', 'totalPaid', 0],
+            new Expression('[[totalPaid]] < [[totalPrice]]'),
+        ], [], false);
 
-            if ($isCompleted) {
-                $status = 'unpaid';
-
-                if ($totalPaid != 0 && $totalPaid >= $totalPrice) {
-                    $status = 'paid';
-                }
-                if ($totalPaid != 0 && $totalPaid < $totalPrice) {
-                    $status = 'partial';
-                }
-                $data = [
-                    'paidStatus' => $status
-                ];
-                $this->update('{{%commerce_orders}}', $data, ['id' => $order['id']]);
-            }
-        }
-        return true;
+        $this->update('{{%commerce_orders}}', [
+            'paidStatus' => Order::PAID_STATUS_UNPAID,
+        ], [
+            'isCompleted' => true,
+            'paidStatus' => null,
+        ], [], false);
     }
 
     /**
