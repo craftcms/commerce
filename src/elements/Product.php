@@ -8,7 +8,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\commerce\base\Element;
+use craft\base\Element;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;

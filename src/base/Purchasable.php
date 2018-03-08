@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
@@ -21,6 +22,7 @@ use craft\commerce\records\Purchasable as PurchasableRecord;
  * @property bool $isAvailable whether the purchasable is currently available for purchase
  * @property bool $isPromotable whether this purchasable can be subject to discounts or sales
  * @property int $purchasableId the ID of the Purchasable element that will be be added to the line item
+ * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the base price the item will be added to the line item with
  * @property-read float $salePrice the base price the item will be added to the line item with
  * @property-read Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
