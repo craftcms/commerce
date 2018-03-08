@@ -19,7 +19,7 @@
                     {% if showStatuses %}
                         <td>
                             {% if order.orderStatus %}
-                                {{ order.orderStatus.htmlLabel|raw }}
+                                {{ order.orderStatus.labelHtml|raw }}
                             {% endif %}
                         </td>
                     {% endif %}

@@ -23,7 +23,7 @@
             <tr data-id="{{ orderStatus.id }}"
                 data-name="{{ orderStatus.handle }}">
                 <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                            href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.htmlLabel|raw }}</a>
+                            href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.labelHtml|raw }}</a>
                 </th>
                 <td data-title="{{ 'Handle'|t('commerce') }}"
                     class="code">{{ orderStatus.handle }}</td>
