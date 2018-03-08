@@ -8,7 +8,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\commerce\base\Element;
+use craft\base\Element;
 use craft\commerce\base\Plan;
 use craft\commerce\base\PlanInterface;
 use craft\commerce\base\SubscriptionGatewayInterface;

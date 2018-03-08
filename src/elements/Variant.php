@@ -8,7 +8,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\commerce\base\Element;
+use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Currency;

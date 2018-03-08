@@ -8,7 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\commerce\base\Element;
+use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
