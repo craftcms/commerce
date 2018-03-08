@@ -178,8 +178,9 @@ class ShippingZone extends Model
     {
         $states = [];
 
+        /** @var State $state */
         foreach ($this->getStates() as $state) {
-            $states[] = $state->formatName();
+            $states[] = $state->getLabel();
         }
 
         return $states;

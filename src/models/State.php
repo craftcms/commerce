@@ -90,7 +90,7 @@ class State extends Model
     /**
      * @return string
      */
-    public function formatName(): string
+    public function getLabel(): string
     {
         return $this->name.' ('.$this->getCountry()->name.')';
     }

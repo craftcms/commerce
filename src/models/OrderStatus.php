@@ -106,7 +106,7 @@ class OrderStatus extends Model
     /**
      * @return string
      */
-    public function htmlLabel(): string
+    public function getLabelHtml(): string
     {
         return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span> %s</span>', $this->color, $this->name);
     }

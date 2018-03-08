@@ -197,7 +197,7 @@ class Transaction extends Model
     /**
      * @return float
      */
-    public function refundableAmount(): float
+    public function getRefundableAmount(): float
     {
         return Plugin::getInstance()->getTransactions()->refundableAmountForTransaction($this);
     }

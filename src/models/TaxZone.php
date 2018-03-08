@@ -194,8 +194,9 @@ class TaxZone extends Model
     public function getStatesNames(): array
     {
         $stateNames = [];
+        /** @var State $state */
         foreach ($this->getStates() as $state) {
-            $stateNames[] = $state->formatName();
+            $stateNames[] = $state->getLabel();
         }
 
         return $stateNames;

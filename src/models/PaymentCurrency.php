@@ -17,6 +17,7 @@ use craft\validators\UniqueValidator;
  *
  * @property string $alphabeticCode
  * @property string $cpEditUrl
+ * @property Currency $currency
  * @property string $entity
  * @property int $minorUnit
  * @property null|string $name

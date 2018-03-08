@@ -1277,7 +1277,7 @@ class Order extends Element
             case 'orderStatus':
                 {
                     if ($this->orderStatus) {
-                        return $this->orderStatus->htmlLabel();
+                        return $this->orderStatus->getLabelHtml();
                     }
 
                     return '<span class="status"></span>';
