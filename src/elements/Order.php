@@ -1358,14 +1358,15 @@ class Order extends Element
     protected static function defineSearchableAttributes(): array
     {
         return [
-            'number',
-            'email',
-            'shortNumber',
             'billingFirstName',
             'billingLastName',
+            'email',
+            'number',
             'shippingFirstName',
             'shippingLastName',
-            'transactionReference'
+            'shortNumber',
+            'transactionReference',
+            'username'
         ];
     }
 
@@ -1385,6 +1386,8 @@ class Order extends Element
                 return $this->shippingAddress->lastName ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
+            case 'username':
+                return $this->getUser()->username ?? '';
             default:
                 return parent::getSearchKeywords($attribute);
         }
