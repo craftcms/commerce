@@ -7,15 +7,18 @@
 
 namespace craft\commerce\gateways;
 
+use Craft;
 use craft\commerce\base\DummyRequestResponse;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\DummyPaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
+use craft\web\View;
 
 /**
  * Dummy represents a dummy gateway.
@@ -33,7 +36,19 @@ class Dummy extends Gateway
      */
     public function getPaymentFormHtml(array $params)
     {
-        return '';
+        $defaults = [
+            'paymentForm' => $this->getPaymentFormModel()
+        ];
+
+        $params = array_merge($defaults, $params);
+
+        $view = Craft::$app->getView();
+        $previousMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_CP);
+        $html = Craft::$app->getView()->renderTemplate('commerce/_components/gateways/_creditCardFields', $params);
+        $view->setTemplateMode($previousMode);
+
+        return $html;
     }
 
     /**
@@ -49,7 +64,7 @@ class Dummy extends Gateway
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        return new DummyRequestResponse($form);
     }
 
     /**
@@ -100,7 +115,7 @@ class Dummy extends Gateway
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        return new DummyRequestResponse($form);
     }
 
     /**

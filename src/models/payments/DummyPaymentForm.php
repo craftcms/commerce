@@ -15,7 +15,7 @@ use craft\commerce\models\PaymentSource;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DummyPaymentForm extends BasePaymentForm
+class DummyPaymentForm extends CreditCardPaymentForm
 {
     /**
      * @param PaymentSource $paymentSource

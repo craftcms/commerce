@@ -7,6 +7,9 @@
 
 namespace craft\commerce\base;
 
+use Craft;
+use craft\commerce\models\payments\CreditCardPaymentForm;
+
 /**
  * This is a dummy gateway request response.
  *
@@ -15,15 +18,24 @@ namespace craft\commerce\base;
  */
 class DummyRequestResponse implements RequestResponseInterface
 {
+    private $_success = true;
+
     // Public Methods
     // =========================================================================
+
+    public function __construct(CreditCardPaymentForm $form = null)
+    {
+        if ($form !== null && (substr($form->number, -1) % 2 === 1)) {
+            $this->_success = false;
+        }
+    }
 
     /**
      * @inheritdoc
      */
     public function isSuccessful(): bool
     {
-        return true;
+        return $this->_success;
     }
 
     /**
@@ -71,7 +83,7 @@ class DummyRequestResponse implements RequestResponseInterface
      */
     public function getCode(): string
     {
-        return '';
+        return $this->_success ? '' : 'payment.failed';
     }
 
     /**
@@ -79,7 +91,7 @@ class DummyRequestResponse implements RequestResponseInterface
      */
     public function getMessage(): string
     {
-        return '';
+        return $this->_success ? '' : Craft::t('commerce', 'Payment failed.');
     }
 
     /**
@@ -103,6 +115,6 @@ class DummyRequestResponse implements RequestResponseInterface
      */
     public function isProcessing(): bool
     {
-        return true;
+        return false;
     }
 }
