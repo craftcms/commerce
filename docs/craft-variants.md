@@ -8,9 +8,10 @@ You can access your site’s variants from your templates via `craft.variants`
 It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
 
 ```twig
-{% set variants = craft.variants.id(8376).one() %}
-
+{% set variant = craft.variants.id(8376).one() %}
+{% if variant %}
 {{ variant.sku }} - {{ variant.salePrice }}
+{% endif %}
 ```
 
 ## Parameters
@@ -40,3 +41,16 @@ Accepts: integer
 Whether the variant has unlimited stock or stock greater than zero.
 
 Accepts: boolean (`true` or `false`)
+
+### hasSales
+Returns variants that have at least one sale available to the current user.
+
+Accepts: `true` or `false`
+
+For example:
+
+```twig
+{% set products = craft.products({
+  hasSales: true
+}) %}
+```

@@ -66,43 +66,20 @@ Fetch products based on the default variant's width
 Fetch products based on the default variant's sku
 
 ### hasVariant
-Only return products where the `hasVariant` params match the product's variants.
+Only return products where the `hasVariant` params would return one or more of the product's variants.
 
-For example:
+A variant query object can be passed or an array of query params. To see the available query params for variants, see [craft.variants](craft-variants.md).
+
+For example, if you only wanted to return products where at least one variant's color field is red:
 
 ```twig
 {% set products = craft.products.type('tshirt').hasVariant({ color: 'red' }) %}
 ```
 
-## Variant Parameters
-
-There is no way to query all variants directly, but within the `hasVariant` product criteria parameters you have access to all basic element criteria parameters in addition to the following special criteria that apply to variants:
-
-### hasStock
-Returns products that have at least one variant in stock.
-
-Accepts: `true` or `false`
-
-
-For example:
+You could alternatively do:
 
 ```twig
-{% set products = craft.products({
-  hasVariant: {
-    hasStock: true
-  },
-}) %}
+{% variantQuery = craft.variant.color('red') %}
+{% set products = craft.products.type('tshirt').hasVariant(variantQuery) %}
 ```
 
-### hasSales
-Returns products that have at least one sale available to the current user.
-
-Accepts: `true` or `false`
-
-For example:
-
-```twig
-{% set products = craft.products({
-  hasSales: true
-}) %}
-```

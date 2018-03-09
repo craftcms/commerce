@@ -1,6 +1,6 @@
 # Available Variables
 
-The following twig template variables are available:
+The following are common methods you will want to call in your front end templates:
 
 ## craft.commerce.settings
 
@@ -22,6 +22,18 @@ See [craft.orders](craft-orders.md)
 
 See [craft.commerce.carts.cart](craft-commerce-carts-cart.md)
 
+## craft.commerce.countries.allCountries
+
+Returns an array of [Country Models](country-model.md).
+
+```twig
+<select>
+{% for country in craft.commerce.countries %}
+	<option value="{{ country.id }}">{{ country.name }}</option>
+{% endfor %}
+</select>
+```
+
 ## craft.commerce.countries.countriesAsList
 
 Returns a list usable for a dropdown select box.
@@ -35,41 +47,10 @@ Data returned as `[32:'Australia', 72:'USA']`
 {% endfor %}
 </select>
 ```
-## craft.commerce.countries.allCountries
-
-Returns an array of [Country Models](country-model.md).
-
-
-```twig
-<select>
-{% for country in craft.commerce.countries %}
-	<option value="{{ country.id }}">{{ country.name }}</option>
-{% endfor %}
-</select>
-```
-
-## craft.commerce.statesArray
-
-Returns an array indexed by country IDs, usable for a dropdown select box.
-
-Data returned as `[72:[3:'California', 4:'Washington'],32:[7:'New South Wales']]`
-
-```twig
-<select>
-{% for countryId, states in craft.commerce.statesArray %}
-	<optgroup label="{{ craft.commerce.countriesList[countryId] }}">
-	{% for stateId, stateName in craft.commerce.statesArray[countryId] %}
-		<option value="{{ stateId }}">{{ stateName }}</option>
-	{% endfor %}
-  </optgroup>
-{% endfor %}
-</select>
-```
 
 ## craft.commerce.states
 
 Returns an array of [State Modles](state-model.md).
-
 
 ```twig
 <select>
@@ -79,12 +60,30 @@ Returns an array of [State Modles](state-model.md).
 </select>
 ```
 
-## craft.commerce.availableShippingMethods
+## craft.commerce.states.allStatesAsList
+
+Returns an array indexed by country IDs, usable for a dropdown select box.
+
+Data returned as `[72:[3:'California', 4:'Washington'],32:[7:'New South Wales']]`
+
+```twig
+<select>
+{% for countryId, states in craft.commerce.states.allStatesAsList %}
+	<optgroup label="{{ craft.commerce.countries.countriesAsList[countryId] }}">
+	{% for stateId, stateName in craft.commerce.states.allStatesAsList[countryId] %}
+		<option value="{{ stateId }}">{{ stateName }}</option>
+	{% endfor %}
+  </optgroup>
+{% endfor %}
+</select>
+```
+
+## cart.availableShippingMethods
 
 Returns the shipping methods available to applied to the current cart. Will not include some shipping methods if none of the shipping method's rules can match the cart.
 
 ```twig
-{% for handle, method in craft.commerce.availableShippingMethods %}
+{% for handle, method in cart.availableShippingMethods %}
     <label>
         <input type="radio" name="shippingMethod" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
@@ -93,16 +92,16 @@ Returns the shipping methods available to applied to the current cart. Will not 
 {% endfor %}
 ```
 
-## craft.commerce.paymentMethods
+## craft.commerce.gateways.allFrontEndGateways
 
-Returns all payment methods available to the customer.
+Returns all payment gateway available to the customer.
 
 ```twig
-{% if not craft.commerce.paymentMethods|length %}
+{% if not craft.commerce.gateways.allFrontEndGateways|length %}
     <p>No payment methods available.</p>
 {% endif %}
 
-{% if craft.commerce.paymentMethods|length %}
+{% if craft.commerce.gateways.allFrontEndGateways|length %}
 <form method="POST" id="paymentMethod" class="form-inline">
 
     <input type="hidden" name="action" value="commerce/cart/updateCart">
@@ -110,8 +109,8 @@ Returns all payment methods available to the customer.
     {{ getCsrfInput() }}
 
     <label for="">Payment Method</label>
-    <select id="paymentMethodId" name="paymentMethodId" class="form-control" >
-        {% for id,name in craft.commerce.paymentMethods %}
+    <select id="gatewayId" name="gatewayId" class="form-control" >
+        {% for id,name in craft.commerce.gateways.allFrontEndGateways %}
             <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
         {% endfor %}
     </select>
@@ -120,73 +119,72 @@ Returns all payment methods available to the customer.
 {% endif %}
 ```
 
-## craft.commerce.orderStatuses
+## craft.commerce.orderStatuses.allOrderStatuses
 
 Returns an array of all custom order statuses [Order Status Model](order-status-model.md) set up in the system.
 
 ```twig
-{% set statuses = craft.commerce.orderStatuses %}
+{% set statuses = craft.commerce.orderStatuses.allOrderStatuses %}
 ```
-## craft.commerce.taxCategories
+
+## craft.commerce.taxCategories.allTaxCategories
 
 Returns an array of all tax categories set up in the system.
 
 ```twig
-{% for taxCategory in craft.commerce.taxCategories %}
+{% for taxCategory in craft.commerce.taxCategories.allTaxCategories %}
 {{ taxCategory.id }} - {{ taxCategory.name }}
 {% endfor %}
 ```
 
-See [Order Status Model](order-status-model.md)
-
-## craft.commerce.productTypes
+## craft.commerce.productTypes.allProductTypes
 
 Returns an array of all product types set up in the system.
 
 ```twig
-{% for type in craft.commerce.productTypes %}
+{% for type in craft.commerce.productTypes.allProductTypes %}
 {{ type.handle }} - {{ type.name }}
 {% endfor %}
 ```
 
-## craft.commerce.orderStatuses
+## craft.commerce.orderStatuses.allOrderStatuses
 
 Returns an array of all order statuses [Order Status Model](order-status-model.md) set up in the system.
 
 ```twig
-{% for status in craft.commerce.orderStatuses %}
+{% for status in craft.commerce.orderStatuses.allOrderStatuses %}
 {{ status.handle }} - {{ status.name }}
 {% endfor %}
 ```
 
-## craft.commerce.discounts
+## craft.commerce.discounts.allDiscounts
 
 Returns an array of all discounts set up in the system.
 
 ```twig
-{% for discount in craft.commerce.discounts %}
+{% for discount in craft.commerce.discounts.allDiscounts %}
 {{ discount.name }} - {{ discount.description }}
 {% endfor %}
 ```
 
-## craft.commerce.getDiscountByCode(code)
+## craft.commerce.discounts.getDiscountByCode(code)
 
 Returns a discount that matches the code supplied.
 
 ```twig
-{% set discount = craft.commerce.getDiscountByCode('HALFOFF')
+{% set discount = craft.commerce.discount.getDiscountByCode('HALFOFF')
  %}
 {% if discount %}
 {{ discount.name }} - {{ discount.description }}
 {% endif %}
 ```
 
-## craft.commerce.sales
+## craft.commerce.sales.allSales
 
 Returns an array of all sales set up in the system.
 
 ```twig
-{% for sale in craft.commerce.sales %}
+{% for sale in craft.commerce.allSales %}
 {{ sale.name }} - {{ sale.description }}
 {% endfor %}
 ```
