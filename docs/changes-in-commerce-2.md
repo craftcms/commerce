@@ -13,8 +13,8 @@ Use the chart below to update your twig templates.
 | craft.commerce.products                 | Breaking Change | craft.products                                                |
 | craft.commerce.variants                 | Breaking Change | craft.variants                                                |
 | craft.commerce.orders                   | Breaking Change | craft.orders                                                  |
-| craft.commerce.availableShippingMethods | Deprecated      | craft.commerce.shippingMethods.availableShippingMethods(cart) |
 | craft.commerce.cart                     | Deprecated      | craft.commerce.carts.cart                                     |
+| craft.commerce.availableShippingMethods | Deprecated      | craft.commerce.carts.cart.availableShippingMethods            |
 | craft.commerce.countries                | Breaking Change | craft.commerce.countries.allCountries                         |
 | craft.commerce.countriesList            | Deprecated      | craft.commerce.countries.allCountriesAsList                   |
 | craft.commerce.currencies               | Breaking Change | craft.commerce.currencies.allCurrencies                       |
@@ -33,5 +33,5 @@ Use the chart below to update your twig templates.
 | craft.commerce.shippingZones            | Breaking Change | craft.commerce.shippingZones.allShippingZones                 |
 | craft.commerce.states                   | Breaking Change | craft.commerce.states.allStates                               |
 | craft.commerce.statesArray              | Deprecated      | craft.commerce.states.statesAsList                            |
-| craft.commerce.taxRates                 | Breaking Change | craft.commerce.taxesRates.allTaxRate                          |
-| craft.commerce.taxZones                 | Breaking Change | craft.commerce.taxesZones.allTaxZone                          |
+| craft.commerce.taxRates                 | Breaking Change | craft.commerce.taxRates.allTaxRates                           |
+| craft.commerce.taxZones                 | Breaking Change | craft.commerce.taxZones.allTaxZones                           |
