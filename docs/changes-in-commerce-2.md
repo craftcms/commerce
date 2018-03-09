@@ -34,30 +34,30 @@ Use the table below to update your twig templates.
 D - Deprecated  
 BC - Breaking Change  
 
-| Commerce 1                                | Commerce 2                                                | Change |
-|-------------------------------------------|-----------------------------------------------------------|--------|
-| `craft.commerce.products`                 | `craft.products`                                          | BC     |
-| `craft.commerce.variants`                 | `craft.variants`                                          | BC     |
-| `craft.commerce.orders`                   | `craft.orders`                                            | BC     |
-| `craft.commerce.cart`                     | `craft.commerce.carts.cart`                               | D      |
-| `craft.commerce.availableShippingMethods` | `craft.commerce.carts.cart.availableShippingMethods`      | D      |
-| `craft.commerce.countries`                | `craft.commerce.countries.allCountries`                   | BC     |
-| `craft.commerce.countriesList`            | `craft.commerce.countries.allCountriesAsList`             | D      |
-| `craft.commerce.currencies`               | `craft.commerce.currencies.allCurrencies`                 | BC     |
-| `craft.commerce.customer`                 | `craft.commerce.customers.customer`                       | D      |
-| `craft.commerce.discountByCode`           | `craft.commerce.discounts.discountByCode`                 | D      |
-| `craft.commerce.discounts`                | `craft.commerce.discounts.allDiscounts`                   | BC     |
-| `craft.commerce.paymentMethods`           | `craft.commerce.gateways.allCustomerEnabledGateways`      | BC     |
-| `craft.commerce.orderStatuses`            | `craft.commerce.orderStatuses.allOrderStatuses`           | BC     |
-| `craft.commerce.paymentCurrencies`        | `craft.commerce.paymentCurrencies.allPaymentCurrencies`   | BC     |
-| `craft.commerce.primaryPaymentCurrency`   | `craft.commerce.paymentCurrencies.primaryPaymentCurrency` | D      |
-| `craft.commerce.productTypes`             | `craft.commerce.productTypes.allProductTypes`             | BC     |
-| `craft.commerce.sales`                    | `craft.commerce.sales.allSales`                           | BC     |
-| `craft.commerce.shippingCategories`       | `craft.commerce.shippingCategories.allShippingCategories` | BC     |
-| `craft.commerce.taxCategories`            | `craft.commerce.taxCategories.allTaxCategories`           | BC     |
-| `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC     |
-| `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC     |
-| `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     |
-| `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      |
-| `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     |
-| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC     |
+| Commerce 1                                | Commerce 2                                                | Change 
+|-------------------------------------------|-----------------------------------------------------------|--------
+| `craft.commerce.products`                 | `craft.products`                                          | BC     
+| `craft.commerce.variants`                 | `craft.variants`                                          | BC     
+| `craft.commerce.orders`                   | `craft.orders`                                            | BC     
+| `craft.commerce.cart`                     | `craft.commerce.carts.cart`                               | D      
+| `craft.commerce.availableShippingMethods` | `craft.commerce.carts.cart.availableShippingMethods`      | D      
+| `craft.commerce.countries`                | `craft.commerce.countries.allCountries`                   | BC     
+| `craft.commerce.countriesList`            | `craft.commerce.countries.allCountriesAsList`             | D      
+| `craft.commerce.currencies`               | `craft.commerce.currencies.allCurrencies`                 | BC     
+| `craft.commerce.customer`                 | `craft.commerce.customers.customer`                       | D      
+| `craft.commerce.discountByCode`           | `craft.commerce.discounts.discountByCode`                 | D      
+| `craft.commerce.discounts`                | `craft.commerce.discounts.allDiscounts`                   | BC     
+| `craft.commerce.paymentMethods`           | `craft.commerce.gateways.allCustomerEnabledGateways`      | BC     
+| `craft.commerce.orderStatuses`            | `craft.commerce.orderStatuses.allOrderStatuses`           | BC     
+| `craft.commerce.paymentCurrencies`        | `craft.commerce.paymentCurrencies.allPaymentCurrencies`   | BC     
+| `craft.commerce.primaryPaymentCurrency`   | `craft.commerce.paymentCurrencies.primaryPaymentCurrency` | D      
+| `craft.commerce.productTypes`             | `craft.commerce.productTypes.allProductTypes`             | BC     
+| `craft.commerce.sales`                    | `craft.commerce.sales.allSales`                           | BC     
+| `craft.commerce.shippingCategories`       | `craft.commerce.shippingCategories.allShippingCategories` | BC     
+| `craft.commerce.taxCategories`            | `craft.commerce.taxCategories.allTaxCategories`           | BC     
+| `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC     
+| `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC     
+| `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     
+| `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      
+| `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     
+| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC     
