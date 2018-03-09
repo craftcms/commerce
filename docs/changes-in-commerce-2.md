@@ -34,7 +34,7 @@ Use the table below to update your twig templates.
 D - Deprecated  
 BC - Breaking Change  
 
-| Commerce 1                                | Commerce 2                                                | Change 
+| Old                                       | New                                                       | Change 
 |-------------------------------------------|-----------------------------------------------------------|--------
 | `craft.commerce.products`                 | `craft.products`                                          | BC     
 | `craft.commerce.variants`                 | `craft.variants`                                          | BC     
