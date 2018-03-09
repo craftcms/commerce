@@ -6,7 +6,7 @@
 
 The commerce variable class is now gone, and not loaded into the `craft.commerce` variable anymore. Instead `craft.commerce` now returns the Commerce plugin instance.
 
-All Commerce service methods can now be accessed through the plugin instance  in your templates through `craft.commerce`.
+All Commerce service methods can now be accessed through the plugin instance.
 
 Example:
 
