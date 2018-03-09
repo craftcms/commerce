@@ -1,37 +1,63 @@
 # Changes in Commerce 2
 
-## Twig templates
+## Twig template changes
 
-The element queries now exist of the root craft variable.
+### Services available in Twig
 
-We have deprecated as much as possible, but there are still breaking changes due to naming collisions between the service name and the previous variable name.
+The commerce variable class is now gone, and not loaded into the `craft.commerce` variable anymore. Instead `craft.commerce` now returns the Commerce plugin instance.
 
-Use the chart below to update your twig templates.
+All Commerce service methods can now be accessed through the plugin instance  in your templates through `craft.commerce`.
 
-| Commerce 1                              | Status          | Commerce 2                                                    |
-|-----------------------------------------|-----------------|---------------------------------------------------------------|
-| craft.commerce.products                 | Breaking Change | craft.products                                                |
-| craft.commerce.variants                 | Breaking Change | craft.variants                                                |
-| craft.commerce.orders                   | Breaking Change | craft.orders                                                  |
-| craft.commerce.cart                     | Deprecated      | craft.commerce.carts.cart                                     |
-| craft.commerce.availableShippingMethods | Deprecated      | craft.commerce.carts.cart.availableShippingMethods            |
-| craft.commerce.countries                | Breaking Change | craft.commerce.countries.allCountries                         |
-| craft.commerce.countriesList            | Deprecated      | craft.commerce.countries.allCountriesAsList                   |
-| craft.commerce.currencies               | Breaking Change | craft.commerce.currencies.allCurrencies                       |
-| craft.commerce.customer                 | Deprecated      | craft.commerce.customers.customer                             |
-| craft.commerce.discountByCode           | Deprecated      | craft.commerce.discounts.discountByCode                       |
-| craft.commerce.discounts                | Breaking Change | craft.commerce.discounts.allDiscounts                         |
-| craft.commerce.paymentMethods           | Breaking Change | craft.commerce.gateways.allCustomerEnabledGateways            |
-| craft.commerce.orderStatuses            | Breaking Change | craft.commerce.orderStatuses.allOrderStatuses                 |
-| craft.commerce.paymentCurrencies        | Breaking Change | craft.commerce.paymentCurrencies.allPaymentCurrencies         |
-| craft.commerce.primaryPaymentCurrency   | Deprecated      | craft.commerce.paymentCurrencies.primaryPaymentCurrency       |
-| craft.commerce.productTypes             | Breaking Change | craft.commerce.productTypes.allProductTypes                   |
-| craft.commerce.sales                    | Breaking Change | craft.commerce.sales.allSales                                 |
-| craft.commerce.shippingCategories       | Breaking Change | craft.commerce.shippingCategories.allShippingCategories       |
-| craft.commerce.taxCategories            | Breaking Change | craft.commerce.taxCategories.allTaxCategories                 |
-| craft.commerce.shippingMethods          | Breaking Change | craft.commerce.shippingMethods.allShippingMethods             |
-| craft.commerce.shippingZones            | Breaking Change | craft.commerce.shippingZones.allShippingZones                 |
-| craft.commerce.states                   | Breaking Change | craft.commerce.states.allStates                               |
-| craft.commerce.statesArray              | Deprecated      | craft.commerce.states.statesAsList                            |
-| craft.commerce.taxRates                 | Breaking Change | craft.commerce.taxRates.allTaxRates                           |
-| craft.commerce.taxZones                 | Breaking Change | craft.commerce.taxZones.allTaxZones                           |
+Example:
+
+`craft.commerce.paymentCurrencies` will return the PaymentCurrencies service class.  
+`craft.commerce.paymentCurrencies.getAllPaymentCurrencies()` will call the method on the class to return all payment currency models.
+ 
+ ### Element queries 
+
+The element queries now exist on the root craft variable.
+
+Example:
+
+To get all produces in Commerce 1.2.x:  
+`craft.commerce.products.find()`  
+
+To do the same in Commerce 2:  
+`craft.products.all()`
+
+
+### Changes
+
+Deprecation of variables was preferred, but breaking changes could not be avoided due to naming collisions between the service names and the previous variable name.
+
+Use the table below to update your twig templates.  
+D - Deprecated  
+BC - Breaking Change  
+
+| Commerce 1                                | Commerce 2                                                | Change |
+|-------------------------------------------|-----------------------------------------------------------|--------|
+| `craft.commerce.products`                 | `craft.products`                                          | BC     |
+| `craft.commerce.variants`                 | `craft.variants`                                          | BC     |
+| `craft.commerce.orders`                   | `craft.orders`                                            | BC     |
+| `craft.commerce.cart`                     | `craft.commerce.carts.cart`                               | D      |
+| `craft.commerce.availableShippingMethods` | `craft.commerce.carts.cart.availableShippingMethods`      | D      |
+| `craft.commerce.countries`                | `craft.commerce.countries.allCountries`                   | BC     |
+| `craft.commerce.countriesList`            | `craft.commerce.countries.allCountriesAsList`             | D      |
+| `craft.commerce.currencies`               | `craft.commerce.currencies.allCurrencies`                 | BC     |
+| `craft.commerce.customer`                 | `craft.commerce.customers.customer`                       | D      |
+| `craft.commerce.discountByCode`           | `craft.commerce.discounts.discountByCode`                 | D      |
+| `craft.commerce.discounts`                | `craft.commerce.discounts.allDiscounts`                   | BC     |
+| `craft.commerce.paymentMethods`           | `craft.commerce.gateways.allCustomerEnabledGateways`      | BC     |
+| `craft.commerce.orderStatuses`            | `craft.commerce.orderStatuses.allOrderStatuses`           | BC     |
+| `craft.commerce.paymentCurrencies`        | `craft.commerce.paymentCurrencies.allPaymentCurrencies`   | BC     |
+| `craft.commerce.primaryPaymentCurrency`   | `craft.commerce.paymentCurrencies.primaryPaymentCurrency` | D      |
+| `craft.commerce.productTypes`             | `craft.commerce.productTypes.allProductTypes`             | BC     |
+| `craft.commerce.sales`                    | `craft.commerce.sales.allSales`                           | BC     |
+| `craft.commerce.shippingCategories`       | `craft.commerce.shippingCategories.allShippingCategories` | BC     |
+| `craft.commerce.taxCategories`            | `craft.commerce.taxCategories.allTaxCategories`           | BC     |
+| `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC     |
+| `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC     |
+| `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     |
+| `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      |
+| `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     |
+| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC     |
