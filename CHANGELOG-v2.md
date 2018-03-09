@@ -14,6 +14,7 @@
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
 - `sendCartInfoToGateways` is now called `sendCartInfo` and is a per-gateway setting.
+- `requireEmailForAnonymousPayments` config setting removed as completed order now always require the correct email address to make anonymous payments on orders.
 - `Variant::setSalesApplied()` and `Variant::getSalesApplied()` is now called `Variant::setSales()` and `Variant::getSales()` respectively.
 - `OrderAdjustment::optionsJson` is now called `OrderAdjustment::sourceSnapshot`.
 - Removed the purchasable interface `PurchasableInterface::validateLineItem()`. Your purchasables should now use `PurchasableInterface::getLineItemRules()` to add validation rules to line items. 

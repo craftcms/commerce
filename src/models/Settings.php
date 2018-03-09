@@ -100,11 +100,6 @@ class Settings extends Model
     /**
      * @var bool
      */
-    public $requireEmailForAnonymousPayments = false;
-
-    /**
-     * @var bool
-     */
     public $useBillingAddressForTax = false;
 
     /**
