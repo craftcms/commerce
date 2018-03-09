@@ -75,76 +75,7 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        if ($variables['discount']->id) {
-            $variables['title'] = $variables['discount']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a Discount');
-        }
-
-        //getting user groups map
-        if (Craft::$app->getEdition() == Craft::Pro) {
-            $groups = Craft::$app->getUserGroups()->getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
-        } else {
-            $variables['groups'] = [];
-        }
-
-        $variables['categoryElementType'] = Category::class;
-        $variables['categories'] = null;
-        $categories = $categoryIds = [];
-
-        if (empty($variables['id'])) {
-            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
-        } else {
-            $categoryIds = $variables['discount']->getCategoryIds();
-        }
-
-        foreach ($categoryIds as $categoryId) {
-            $id = (int)$categoryId;
-            $categories[] = Craft::$app->getElements()->getElementById($id);
-        }
-
-        $variables['categories'] = $categories;
-
-        $variables['purchasables'] = null;
-        $purchasables = $purchasableIds = [];
-
-        if (empty($variables['id'])) {
-            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
-            $purchasableIds = [];
-            foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
-                    $purchasableIds[] = $purchasable->defaultVariantId;
-                } else {
-                    $purchasableIds[] = $purchasableId;
-                }
-            }
-        } else {
-            $purchasableIds = $variables['discount']->getPurchasableIds();
-        }
-
-        foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-            if ($purchasable && $purchasable instanceof PurchasableInterface) {
-                $class = \get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
-                $purchasables[$class][] = $purchasable;
-            }
-        }
-
-        $variables['purchasableTypes'] = [];
-        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
-
-        /** @var Purchasable $purchasableType */
-        foreach ($purchasableTypes as $purchasableType) {
-            $variables['purchasableTypes'][] = [
-                'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
-            ];
-        }
-
-        $variables['purchasables'] = $purchasables;
+        $this->_populateVariables($variables);
 
         return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
@@ -211,19 +142,22 @@ class DiscountsController extends BaseCpController
             }
         }
         $purchasables = array_unique($purchasables);
+        $discount->setPurchasableIds($purchasables);
 
         $categories = $request->getParam('categories', []);
         if (!$categories) {
             $categories = [];
         }
+        $discount->setCategoryIds($categories);
 
         $groups = $request->getParam('groups', []);
         if (!$groups) {
             $groups = [];
         }
+        $discount->setUserGroupIds($groups);
 
         // Save it
-        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount, $groups, $categories, $purchasables)
+        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
         ) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discount saved.'));
             $this->redirectToPostedUrl($discount);
@@ -232,7 +166,12 @@ class DiscountsController extends BaseCpController
         }
 
         // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['discount' => $discount]);
+        $variables = [
+            'discount' => $discount
+        ];
+        $this->_populateVariables($variables);
+
+        Craft::$app->getUrlManager()->setRouteParams($variables);
     }
 
     /**
@@ -279,5 +218,85 @@ class DiscountsController extends BaseCpController
         Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
 
         $this->asJson(['success' => true]);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
+     * @param array $variables
+     */
+    private function _populateVariables(&$variables)
+    {
+        if ($variables['discount']->id) {
+            $variables['title'] = $variables['discount']->name;
+        } else {
+            $variables['title'] = Craft::t('commerce', 'Create a Discount');
+        }
+
+        //getting user groups map
+        if (Craft::$app->getEdition() == Craft::Pro) {
+            $groups = Craft::$app->getUserGroups()->getAllGroups();
+            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
+        } else {
+            $variables['groups'] = [];
+        }
+
+        $variables['categoryElementType'] = Category::class;
+        $variables['categories'] = null;
+        $categories = $categoryIds = [];
+
+        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
+            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+        } else {
+            $categoryIds = $variables['discount']->getCategoryIds();
+        }
+
+        foreach ($categoryIds as $categoryId) {
+            $id = (int)$categoryId;
+            $categories[] = Craft::$app->getElements()->getElementById($id);
+        }
+
+        $variables['categories'] = $categories;
+
+        $variables['purchasables'] = null;
+
+
+        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
+            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIds = [];
+            foreach ($purchasableIdsFromUrl as $purchasableId) {
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                if ($purchasable && $purchasable instanceof Product) {
+                    $purchasableIds[] = $purchasable->defaultVariantId;
+                } else {
+                    $purchasableIds[] = $purchasableId;
+                }
+            }
+        } else {
+            $purchasableIds = $variables['discount']->getPurchasableIds();
+        }
+
+        $purchasables = [];
+        foreach ($variables['discount']->getPurchasableIds() as $purchasableId) {
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+            if ($purchasable && $purchasable instanceof PurchasableInterface) {
+                $class = \get_class($purchasable);
+                $purchasables[$class] = $purchasables[$class] ?? [];
+                $purchasables[$class][] = $purchasable;
+            }
+        }
+        $variables['purchasables'] = $purchasables;
+
+        $variables['purchasableTypes'] = [];
+        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+
+        /** @var Purchasable $purchasableType */
+        foreach ($purchasableTypes as $purchasableType) {
+            $variables['purchasableTypes'][] = [
+                'name' => $purchasableType::displayName(),
+                'elementType' => $purchasableType
+            ];
+        }
     }
 }

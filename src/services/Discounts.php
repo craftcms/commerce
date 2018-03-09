@@ -347,14 +347,11 @@ class Discounts extends Component
      * Save a discount.
      *
      * @param Discount $model the discount being saved
-     * @param array $groups ids of user groups this discount applies to
-     * @param array $categories ids of categories this discount applies to
-     * @param array $purchasables ids of purchasables this discount applies to
      * @param bool $runValidation should we validate this discount before saving.
      * @return bool
      * @throws \Exception
      */
-    public function saveDiscount(Discount $model, array $groups, array $categories, array $purchasables, bool $runValidation = true): bool
+    public function saveDiscount(Discount $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
@@ -394,9 +391,9 @@ class Discounts extends Component
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
-        $record->allGroups = $model->allGroups = empty($groups);
-        $record->allCategories = $model->allCategories = empty($categories);
-        $record->allPurchasables = $model->allPurchasables = empty($purchasables);
+        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
+        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
+        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -409,21 +406,21 @@ class Discounts extends Component
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
-            foreach ($groups as $groupId) {
+            foreach ($model->getUserGroupIds() as $groupId) {
                 $relation = new DiscountUserGroupRecord;
                 $relation->userGroupId = $groupId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
             }
 
-            foreach ($categories as $categoryId) {
+            foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
             }
 
-            foreach ($purchasables as $purchasableId) {
+            foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;

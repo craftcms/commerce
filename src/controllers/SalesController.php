@@ -76,79 +76,7 @@ class SalesController extends BaseCpController
             }
         }
 
-        if ($variables['sale']->id) {
-            $variables['title'] = $variables['sale']->name;
-        } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new sale');
-        }
-
-        //getting user groups map
-        if (Craft::$app->getEdition() == Craft::Pro) {
-            $groups = Craft::$app->getUserGroups()->getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
-        } else {
-            $variables['groups'] = [];
-        }
-
-        $variables['categoryElementType'] = Category::class;
-        $variables['categories'] = null;
-        $categories = $categoryIds = [];
-
-        if (empty($variables['id'])) {
-            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
-        } else {
-            $categoryIds = $variables['sale']->getCategoryIds();
-        }
-
-        foreach ($categoryIds as $categoryId) {
-            $id = (int)$categoryId;
-            $categories[] = Craft::$app->getElements()->getElementById($id);
-        }
-
-        $variables['categories'] = $categories;
-
-
-        $variables['purchasables'] = null;
-        $purchasables = $purchasableIds = [];
-
-        if (empty($variables['id'])) {
-            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
-            $purchasableIds = [];
-            foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
-                    foreach ($purchasable->getVariants() as $variant) {
-                        $purchasableIds[] = $variant->getPurchasableId();
-                    }
-                } else {
-                    $purchasableIds[] = $purchasableId;
-                }
-            }
-        } else {
-            $purchasableIds = $variables['sale']->getPurchasableIds();
-        }
-
-        foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-            if ($purchasable && $purchasable instanceof PurchasableInterface) {
-                $class = \get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
-                $purchasables[$class][] = $purchasable;
-            }
-        }
-
-        $variables['purchasableTypes'] = [];
-        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
-
-        /** @var Purchasable $purchasableType */
-        foreach ($purchasableTypes as $purchasableType) {
-            $variables['purchasableTypes'][] = [
-                'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
-            ];
-        }
-
-        $variables['purchasables'] = $purchasables;
+        $this->_populateVariables($variables);
 
         return $this->renderTemplate('commerce/promotions/sales/_edit', $variables);
     }
@@ -216,7 +144,7 @@ class SalesController extends BaseCpController
                 array_push($purchasables, ...$group);
             }
         }
-        $purchasables = array_unique($purchasables);
+        $sale->setPurchasableIds(array_unique($purchasables));
 
         $categories = $request->getParam('categories', []);
 
@@ -224,7 +152,7 @@ class SalesController extends BaseCpController
             $categories = [];
         }
 
-        $categories = array_unique($categories);
+        $sale->setCategoryIds(array_unique($categories));
 
         $groups = $request->getParam('groups', []);
 
@@ -232,18 +160,22 @@ class SalesController extends BaseCpController
             $groups = [];
         }
 
-        $groups = array_unique($groups);
+        $sale->setUserGroupIds(array_unique($groups));
 
         // Save it
-        if (Plugin::getInstance()->getSales()->saveSale($sale, $groups, $categories, $purchasables)) {
+        if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['sale' => $sale]);
+        $variables = [
+            'sale' => $sale
+        ];
+        $this->_populateVariables($variables);
+
+        Craft::$app->getUrlManager()->setRouteParams($variables);
     }
 
     /**
@@ -278,5 +210,88 @@ class SalesController extends BaseCpController
 
         Plugin::getInstance()->getSales()->deleteSaleById($id);
         return $this->asJson(['success' => true]);
+    }
+
+    // Public Methods
+    // =========================================================================
+
+    /**
+     * @param $variables
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _populateVariables(&$variables)
+    {
+        if ($variables['sale']->id) {
+            $variables['title'] = $variables['sale']->name;
+        } else {
+            $variables['title'] = Craft::t('commerce', 'Create a new sale');
+        }
+
+        //getting user groups map
+        if (Craft::$app->getEdition() == Craft::Pro) {
+            $groups = Craft::$app->getUserGroups()->getAllGroups();
+            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
+        } else {
+            $variables['groups'] = [];
+        }
+
+        $variables['categoryElementType'] = Category::class;
+        $variables['categories'] = null;
+        $categories = $categoryIds = [];
+
+        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
+            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+        } else {
+            $categoryIds = $variables['sale']->getCategoryIds();
+        }
+
+        foreach ($categoryIds as $categoryId) {
+            $id = (int)$categoryId;
+            $categories[] = Craft::$app->getElements()->getElementById($id);
+        }
+
+        $variables['categories'] = $categories;
+
+
+        $variables['purchasables'] = null;
+        $purchasables = $purchasableIds = [];
+
+        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
+            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIds = [];
+            foreach ($purchasableIdsFromUrl as $purchasableId) {
+                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+                if ($purchasable && $purchasable instanceof Product) {
+                    foreach ($purchasable->getVariants() as $variant) {
+                        $purchasableIds[] = $variant->getPurchasableId();
+                    }
+                } else {
+                    $purchasableIds[] = $purchasableId;
+                }
+            }
+        } else {
+            $purchasableIds = $variables['sale']->getPurchasableIds();
+        }
+
+        foreach ($purchasableIds as $purchasableId) {
+            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
+            if ($purchasable && $purchasable instanceof PurchasableInterface) {
+                $class = \get_class($purchasable);
+                $purchasables[$class] = $purchasables[$class] ?? [];
+                $purchasables[$class][] = $purchasable;
+            }
+        }
+        $variables['purchasables'] = $purchasables;
+
+        $variables['purchasableTypes'] = [];
+        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
+
+        /** @var Purchasable $purchasableType */
+        foreach ($purchasableTypes as $purchasableType) {
+            $variables['purchasableTypes'][] = [
+                'name' => $purchasableType::displayName(),
+                'elementType' => $purchasableType
+            ];
+        }
     }
 }

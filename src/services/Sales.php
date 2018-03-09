@@ -408,15 +408,12 @@ class Sales extends Component
      * Save a Sale.
      *
      * @param Sale $model
-     * @param array $groups ids
-     * @param array $categories ids
-     * @param array $purchasables ids
      * @param bool $runValidation should we validate this before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveSale(Sale $model, array $groups, array $categories, array $purchasables, bool $runValidation = true): bool
+    public function saveSale(Sale $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = SaleRecord::findOne($model->id);
@@ -450,9 +447,9 @@ class Sales extends Component
             $record->$field = $model->$field;
         }
 
-        $record->allGroups = $model->allGroups = empty($groups);
-        $record->allCategories = $model->allCategories = empty($categories);
-        $record->allPurchasables = $model->allPurchasables = empty($purchasables);
+        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
+        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
+        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
 
         $db = Craft::$app->getDb();
@@ -466,21 +463,21 @@ class Sales extends Component
             SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
             SaleCategoryRecord::deleteAll(['saleId' => $model->id]);
 
-            foreach ($groups as $groupId) {
+            foreach ($model->getUserGroupIds() as $groupId) {
                 $relation = new SaleUserGroupRecord();
                 $relation->userGroupId = $groupId;
                 $relation->saleId = $model->id;
                 $relation->save();
             }
 
-            foreach ($categories as $categoryId) {
+            foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new SaleCategoryRecord;
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();
             }
 
-            foreach ($purchasables as $purchasableId) {
+            foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new SalePurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
