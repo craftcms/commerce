@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
@@ -67,6 +68,11 @@ class VariantQuery extends ElementQuery
      * @var
      */
     public $hasStock;
+
+    /**
+     * @var
+     */
+    public $hasSales;
 
     // Public Methods
     // =========================================================================
@@ -186,15 +192,6 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
-//        if ($this->typeId) {
-//            $productsQuery = Product::find();
-//            $productsQuery->limit = null;
-//            $productsQuery->typeId = $this->typeId;
-//            $productIds = $productsQuery->ids();
-//
-//            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $productIds));
-//        }
-
         if ($this->product) {
             if ($this->product instanceof Product) {
                 $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product->id));
@@ -229,38 +226,32 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere($hasStockCondition);
         }
 
-        $this->_applyEditableParam();
+        if (null !== $this->hasSales) {
+            $query = Variant::find();
+            $query->hasSales = null;
+            $query->limit = null;
+            $variants = $query->all();
+
+            $ids = [];
+            foreach ($variants as $variant) {
+                $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
+
+                if ($this->hasSales === true && count($sales) > 0) {
+                    $ids[] = $variant->id;
+                }
+
+                if ($this->hasSales === false && count($sales) == 0) {
+                    $ids[] = $variant->id;
+                }
+            }
+
+            $this->subQuery->andWhere(['in', 'commerce_variants.id', $ids]);
+        }
 
         if (!$this->orderBy) {
             $this->orderBy = ['commerce_variants.sortOrder' => SORT_DESC];
         }
 
         return parent::beforePrepare();
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
-     * Applies the 'editable' param to the query being prepared.
-     *
-     * @throws QueryAbortedException
-     */
-    private function _applyEditableParam()
-    {
-//        if (!$this->editable) {
-//            return;
-//        }
-//
-//        $user = Craft::$app->getUser()->getIdentity();
-//
-//        if (!$user) {
-//            throw new QueryAbortedException('Could not execute query for variant when no user found');
-//        }
-//
-//        // Limit the query to only the sections the user has permission to edit
-//        $this->subQuery->andWhere([
-//            'commerce_variants.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
-//        ]);
     }
 }

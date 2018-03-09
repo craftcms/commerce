@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -215,6 +216,20 @@ class ProductQuery extends ElementQuery
     }
 
     /**
+     * Sets the [[hasVariant]] property.
+     *
+     * @param VariantQuery|array $value The property value
+     * @return static self reference
+     */
+    public function hasVariant($value)
+    {
+        $this->hasVariant = $value;
+
+        return $this;
+    }
+
+
+    /**
      * Sets the [[postDate]] property.
      *
      * @param mixed $value The property value
@@ -309,9 +324,9 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
         }
 
+        $this->_applyHasVariantParam();
         $this->_applyEditableParam();
         $this->_applyRefParam();
-        $this->_applyHasSalesParam();
 
         if (!$this->orderBy) {
             $this->orderBy = ['postDate' => SORT_DESC];
@@ -393,6 +408,30 @@ class ProductQuery extends ElementQuery
     }
 
     /**
+     * Applies the hasVariant query condition
+     */
+    private function _applyHasVariantParam()
+    {
+        if ($this->hasVariant) {
+            if ($this->hasVariant instanceof VariantQuery) {
+                $variantQuery = $this->hasVariant;
+            } else {
+                $query = Variant::find();
+                $variantQuery = Craft::configure($query, $this->hasVariant);
+            }
+
+            $variantQuery->limit = null;
+            $variantQuery->select('commerce_variants.productId');
+            $productIds = $variantQuery->column();
+
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
+
+            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
+        }
+    }
+
+    /**
      * Applies the 'ref' param to the query being prepared.
      */
     private function _applyRefParam()
@@ -426,37 +465,6 @@ class ProductQuery extends ElementQuery
 
         if ($joinSections) {
             $this->subQuery->innerJoin('{{%commerce_producttypes}} commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
-        }
-    }
-
-    private function _applyHasSalesParam()
-    {
-        if (null !== $this->hasSales) {
-            $productsQuery = Product::find();
-            $productsQuery->hasSales = null;
-            $productsQuery->limit = null;
-            /** @var Product[] $products */
-            $products = $productsQuery->all();
-
-            $productIds = [];
-            foreach ($products as $product) {
-                foreach ($product->variants as $variant) {
-                    $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
-
-                    if ($this->hasSales === true && count($sales) > 0) {
-                        $productIds[] = $product->id;
-                    }
-
-                    if ($this->hasSales === false && count($sales) == 0) {
-                        $productIds[] = $product->id;
-                    }
-                }
-            }
-
-            // Remove any blank product IDs (if any)
-            $productIds = array_filter($productIds);
-
-            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
         }
     }
 }
