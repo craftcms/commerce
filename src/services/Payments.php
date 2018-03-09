@@ -387,6 +387,10 @@ class Payments extends Component
             Craft::$app->end();
         }
 
+        if (!$success) {
+            $customError = $response->getMessage();
+        }
+
         return $success;
     }
 
