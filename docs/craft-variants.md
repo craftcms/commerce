@@ -40,3 +40,16 @@ Accepts: integer
 Whether the variant has unlimited stock or stock greater than zero.
 
 Accepts: boolean (`true` or `false`)
+
+### hasSales
+Returns variants that have at least one sale available to the current user.
+
+Accepts: `true` or `false`
+
+For example:
+
+```twig
+{% set products = craft.products({
+  hasSales: true
+}) %}
+```
