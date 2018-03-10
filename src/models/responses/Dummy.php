@@ -5,9 +5,10 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\base;
+namespace craft\commerce\models\responses;
 
 use Craft;
+use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\models\payments\CreditCardPaymentForm;
 
 /**
@@ -16,7 +17,7 @@ use craft\commerce\models\payments\CreditCardPaymentForm;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DummyRequestResponse implements RequestResponseInterface
+class Dummy implements RequestResponseInterface
 {
     private $_success = true;
 
