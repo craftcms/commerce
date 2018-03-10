@@ -23,7 +23,29 @@ The following is a table of gateways provided by first-party plugins.
 | `craftcms/commerce-eway`         | eWAY Rapid                              | Supports storing payment information                               | Yes                 |
 | `craftcms/commerce-mollie`       | Mollie                                  | Does not support authorize charges                                 | Yes                 |
 
-# Adding additional gateways
+## Dummy Gateway
+
+After installing Commerce, the plugin will install some demo products and a basic config. It will also install a Dummy payment gateway
+that can be used for testing.
+
+This is a dummy gateway driver intended for testing purposes. If you provide a valid card number ending in an even number, the gateway will return a success response. If it ends in an odd number, the driver will return a generic failure response. For example:
+
+- `4242424242424242` - Success
+- `4444333322221111` - Failure
+
+## Manual Gateway
+
+The manual payment gateway is a special gateway that does not communicate with any 3rd party.
+
+When you need to accept cheque or bank deposit payments, you should use the manual payment gateway.
+
+The gateway simply authorizes all payments, allowing the order to proceed. You may then manually mark the payment as "captured" in the control panel when payment is received.
+
+## Other gateway specifics
+
+Before using gateways provided by plugins, make sure to consult the plugin's readme for specifics pertaining to the gateway.
+
+## Adding additional gateways
 
 Additional payment gateways can be added to Commerce with relatively little work. All the gateways mentioned above with the exception of Stripe, use the Omnipay payment lib and can be used as point of reference.
 
@@ -47,26 +69,6 @@ Craft CMS [supports CSRF protection](https://craftcms.com/support/csrf-protectio
 
 To learn how to disable CSRF on a per controller action basis, see this [Stack Overflow answer](http://craftcms.stackexchange.com/a/4554/91). 
 
-# Dummy Gateway
-
-After installing Commerce, the plugin will install some demo products and a basic config. It will also install a Dummy payment gateway
-that can be used for testing.
-
-This is a dummy gateway driver intended for testing purposes. If you provide a valid card number ending in an even number, the gateway will return a success response. If it ends in an odd number, the driver will return a generic failure response. For example:
-
-- `4242424242424242` - Success
-- `4444333322221111` - Failure
-
-# Other gateways
-
-Before using other gateways provided by plugins, make sure to consult the plugin's readme for specifics pertaining to the gateway.
-
-## Important
-
-If you're going to use the PayPal Express payment gateway you are required to change the default value of ```tokenParam``` in your
-[Craft config](https://docs.craftcms.com/api/v3/craft-config-generalconfig.html#$tokenParam-detail)
-
-Choose any different token name other than ```token```, for example you could put ```craftToken```. Otherwise redirects from PayPal will fail.
 
 # Updating from Commerce 1.x
 
@@ -76,3 +78,7 @@ When you update to Commerce 2, your gateways will still show up in the admin pan
 
 3D Secure payments add another authentication step for payments. If a payment has been completed using 3D Secure authentication, the liability for fraudulent charges is shifted from the merchant to the card issuer.
 Support for this feature depends on the gateway used and it's settings.
+
+# Partial refunds
+
+All first-party provided gateways support partial refunds as of Commerce 2.0.
