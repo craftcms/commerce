@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
@@ -70,7 +71,8 @@ class Gateways extends Component
     public function getAllGatewayTypes(): array
     {
         $gatewayTypes = [
-            Dummy::class
+            Dummy::class,
+            Manual::class
         ];
 
         $event = new RegisterComponentTypesEvent([
