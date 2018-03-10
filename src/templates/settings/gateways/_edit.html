@@ -32,17 +32,6 @@
         errors: gateway.getErrors('handle'),
     }) }}
 
-    {{ forms.selectField({
-        label: "Credit Card Payment Type"|t('commerce'),
-        instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t('commerce'),
-        id: 'paymentType',
-        name: 'paymentType',
-        value: gateway.paymentType,
-        options: gateway.getPaymentTypeOptions(),
-        errors: gateway.getErrors('paymentType'),
-        required: true,
-    }) }}
-
     {{ forms.lightswitchField({
         label: "Should gateway send cart information to gateway when making transactions."|t('commerce'),
         instructions: "If turned off, gateway will never know the contents of the order. Some gateways might require this to be on."|t('commerce'),
@@ -81,6 +70,20 @@
         {% set isCurrent = (gatewayType == className(gateway)) %}
 
         <div id="{{ gatewayType|id }}"{% if not isCurrent %} class="hidden"{% endif %}>
+
+            {% namespace 'paymentTypes['~gatewayType~']' %}
+                {{ forms.selectField({
+                    label: "Credit Card Payment Type"|t('commerce'),
+                    instructions: "If set to Authorize Only, you will need to manually capture payments before the funds will be transferred to your account. The Gateway needs to support the selected option."|t('commerce'),
+                    id: 'paymentType',
+                    name: 'paymentType',
+                    value: gateway.paymentType,
+                    options: gatewayInstances[gatewayType].getPaymentTypeOptions(),
+                    errors: gateway.getErrors('paymentType'),
+                    required: true,
+                }) }}
+            {% endnamespace %}
+
             {% namespace 'types['~gatewayType~']' %}
                 {% if isCurrent %}
                     {{ gateway.getSettingsHtml()|raw }}
@@ -104,12 +107,12 @@
 
 {% js %}
     $(function() {
-    $('#type').change(function() {
-    $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
-    if($(this).val()) {
-    $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
-    }
-    }).change();
+        $('#type').change(function() {
+            $('.gateway-settings').hide().find('select, input, textarea').prop('disabled', true);
+            if($(this).val()) {
+                $('#gateway-' + $(this).val()).show().find('select, input, textarea').prop('disabled', false);
+            }
+        }).change();
     });
 {% endjs %}
 

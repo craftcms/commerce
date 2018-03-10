@@ -118,7 +118,7 @@ class GatewaysController extends BaseAdminController
             'type' => $type,
             'name' => $request->getBodyParam('name'),
             'handle' => $request->getBodyParam('handle'),
-            'paymentType' => $request->getRequiredParam('paymentType'),
+            'paymentType' => $request->getBodyParam('paymentTypes.'.$type.'.paymentType'),
             'isFrontendEnabled' => (bool)$request->getParam('isFrontendEnabled'),
             'sendCartInfo' => (bool)$request->getParam('sendCartInfo'),
             'settings' => $request->getBodyParam('types.'.$type),
