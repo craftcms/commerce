@@ -47,7 +47,7 @@ Before using gateways provided by plugins, make sure to consult the plugin's rea
 
 ## Adding additional gateways
 
-Additional payment gateways can be added to Commerce with relatively little work. All the gateways mentioned above with the exception of Stripe, use the Omnipay payment lib and can be used as point of reference.
+Additional payment gateways can be added to Commerce with relatively little work. All the gateways mentioned above with the exception of Stripe, use the Omnipay payment library and can be used as point of reference when creating your own.
 
 # Storing config outside of the database
 
