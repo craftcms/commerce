@@ -63,6 +63,16 @@ return [
 ];
 ```
 
+# Payment sources
+
+Commerce 2 supports storing payment sources for select gateways. Storing a payment source allows for a more streamlined shopping experience for your customers.
+
+The following first-party provided gateways support payment sources:
+
+- Stripe
+- PayPal REST
+- eWAY Rapid
+
 # CSRF Protection issues
 
 Craft CMS [supports CSRF protection](https://craftcms.com/support/csrf-protection) when turned on. Some gateways attempt to POST data back to Craft Commerce which they can't do without a valid token. If you wish to have CSRF protection enabled on your site and your gateway uses a POST request when communicating with Craft Commerce, you will need to disable CSRF protection for that request.
