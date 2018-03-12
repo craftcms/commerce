@@ -125,12 +125,6 @@ Inactive carts older than this interval from their last update will be purged (d
 
 > {tip} The interval check for purging of inactive carts is only run when visiting the Order Index screen in the control panel.
 
-## `requireEmailForAnonymousPayments`
-
-Determines whether payment requests made to the `commerce/payments/pay` controller action require the email address of the order to be submitted with an `email` POST param that matches the order the user is trying to make payment on. 
-
-Can be set to `true` or `false` (default is `false`).
-
 ## `requireBillingAddressAtCheckout`
 
 Determines whether the billing address needs to exist on the cart in order to submit successfully to the `commerce/payment/pay` action.
@@ -148,16 +142,6 @@ Can be set to `true` or `false` (default is `false`).
 Determines whether payment requests made to the `commerce/payments/pay` controller action requires a shipping method selection to be present on an order before attempting payment.
 
 Can be set to `true` or `false` (default is `false`).
-
-## `sendCartInfoToGateways`
-
-Defines whether Commerce should include information about the cart’s line items and adjustments when sending payment requests to gateways. This is not required for most gateways as they only care about the payment amount, but some will complain if they can't see a list of line items and their qty.
-
-Can be set to `true` or `false` (default is `true`).
-
-```php
-'sendCartInfoToGateways' => false,
-```
 
 ## `useBillingAddressForTax`
 
