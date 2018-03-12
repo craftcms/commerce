@@ -25,7 +25,7 @@
                         { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
                         { label: "Quantity", value: lineItem.qty },
                         { label: "Sub-total", value: lineItem.subtotal|currency(order.currency) },
-                        { label: "Total", value: lineItem.subtotal|currency(order.currency) },
+                        { label: "Total (with adjustments)", value: lineItem.total|currency(order.currency) },
                     ] %}
 
                     <tr class="infoRow" data-id="{{ lineItem.id }}"
@@ -61,7 +61,9 @@
                         <td>
                             {{ lineItem.salePrice|currency(order.currency) }}
                         </td>
-                        <td>{{ lineItem.qty }}</td>
+                        <td>
+                            {{ lineItem.qty }}
+                        </td>
                         <td></td>
                         <td>
                             <span class="right">{{ lineItem.subtotal|currency(order.currency) }}</span>

@@ -1,13 +1,13 @@
 <div id="transactionsTab" class="pane hidden">
     {% macro transactionRow(transaction, level) %}
         {% set info = [
-            { label: "ID", type:'code', value: transaction.id },
-            { label: "Hash", type:'code', value: transaction.hash },
-            { label: "Reference", type:'code', value: transaction.reference },
-            { label: "Message", type:'text', value: transaction.message },
-            { label: "Code", type:'code', value: transaction.code },
+            { label: "Transaction ID", type:'code', value: transaction.id },
+            { label: "Transaction Hash", type:'code', value: transaction.hash },
+            { label: "Gateway Reference", type:'code', value: transaction.reference },
+            { label: "Gateway Message", type:'text', value: transaction.message },
+            { label: "Gateway Code", type:'code', value: transaction.code },
             { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-            { label: "Response", type:'json', value: transaction.response|raw },
+            { label: "Gateway Response", type:'json', value: transaction.response|raw },
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
