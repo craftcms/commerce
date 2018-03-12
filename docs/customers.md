@@ -5,5 +5,5 @@ A customer will always be created during checkout if they are a guest, or if the
 
 Logged in users can only be a single Customer in the system. A person may checkout as a guest customer with the same email multiple times, and a new guest customer will be created each time.
 
-When a user is registered and verified, all orders for the email address belonging to that user are transferred to them.
+After a user is registered and verified, whenever they log in, all guest orders that used the email address belonging to that user are transferred to the logged in user. This means, even if a registered user makes an anonymous/guest order, the next time they log in, the order will appear in their order history, as long as they used the same email address.
 
