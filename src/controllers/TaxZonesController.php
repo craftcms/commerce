@@ -8,7 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\TaxZone;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use yii\web\HttpException;
@@ -36,11 +36,11 @@ class TaxZonesController extends BaseAdminController
 
     /**
      * @param int|null $id
-     * @param TaxZone|null $taxZone
+     * @param TaxAddressZone|null $taxZone
      * @return Response
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, TaxZone $taxZone = null): Response
+    public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
     {
         $variables = [
             'id' => $id,
@@ -55,7 +55,7 @@ class TaxZonesController extends BaseAdminController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxZone'] = new TaxZone();
+                $variables['taxZone'] = new TaxAddressZone();
             }
         }
 
@@ -81,13 +81,13 @@ class TaxZonesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $taxZone = new TaxZone();
+        $taxZone = new TaxAddressZone();
 
         // Shared attributes
         $taxZone->id = Craft::$app->getRequest()->getParam('taxZoneId');
         $taxZone->name = Craft::$app->getRequest()->getParam('name');
         $taxZone->description = Craft::$app->getRequest()->getParam('description');
-        $taxZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
+        $taxZone->isCountryBased = Craft::$app->getRequest()->getParam('isCountryBased');
         $taxZone->default = Craft::$app->getRequest()->getParam('default');
         $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
@@ -110,8 +110,7 @@ class TaxZonesController extends BaseAdminController
         }
         $taxZone->setStates($states);
 
-        // TODO: refactor to remove ids params which are not needed.
-        if (Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone, $taxZone->getCountryIds(), $taxZone->getStateIds())) {
+        if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'success' => true,

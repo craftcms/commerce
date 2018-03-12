@@ -216,6 +216,14 @@ class Address extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getAbbreviationText(): string
+    {
+        return $this->stateId ? $this->getState()->abbreviation : '';
+    }
+
+    /**
      * @return State|null
      */
     public function getState()

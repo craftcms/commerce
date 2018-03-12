@@ -222,34 +222,10 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        /** @var ShippingZone $shippingZone */
+        /** @var ShippingAddressZone $shippingZone */
         if ($shippingZone) {
-            if ($shippingZone->countryBased) {
-                $countryIds = $shippingZone->getCountryIds();
-
-                if (!in_array($shippingAddress->countryId, $countryIds, false)) {
-                    return false;
-                }
-            } else {
-                $states = [];
-                $countries = [];
-                $stateNames = [];
-                $stateAbbr = [];
-                /** @var State $state */
-                foreach ($shippingZone->getStates() as $state) {
-                    $states[] = $state->id;
-                    $countries[] = $state->countryId;
-                    $stateNames[] = $state->name;
-                    $stateAbbr[] = $state->abbreviation;
-                }
-
-                $countryAndStateMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array($shippingAddress->stateId, $states, false));
-                $countryAndStateNameMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateNames), false));
-                $countryAndStateAbbrMatch = (in_array($shippingAddress->countryId, $countries, false) && in_array(strtolower($shippingAddress->getStateText()), array_map('strtolower', $stateAbbr), false));
-
-                if (!($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch)) {
-                    return false;
-                }
+            if (!Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
+                return false;
             }
         }
 

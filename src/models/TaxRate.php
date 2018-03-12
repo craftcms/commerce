@@ -18,7 +18,7 @@ use craft\i18n\Locale;
  *
  * @property string $cpEditUrl
  * @property string $rateAsPercent
- * @property TaxZone|null $taxZone
+ * @property TaxAddressZone|null $taxZone
  * @property TaxCategory|null $taxCategory
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -74,7 +74,7 @@ class TaxRate extends Model
     private $_taxCategory;
 
     /**
-     * @var TaxZone
+     * @var TaxAddressZone
      */
     private $_taxZone;
 
@@ -110,7 +110,7 @@ class TaxRate extends Model
     }
 
     /**
-     * @return TaxZone|null
+     * @return TaxAddressZone|null
      */
     public function getTaxZone()
     {

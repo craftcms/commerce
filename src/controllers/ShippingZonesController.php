@@ -8,7 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\ShippingZone;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use yii\web\HttpException;
@@ -38,11 +38,11 @@ class ShippingZonesController extends BaseAdminController
 
     /**
      * @param int|null $id
-     * @param ShippingZone $shippingZone
+     * @param ShippingAddressZone $shippingZone
      * @return Response
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, ShippingZone $shippingZone = null): Response
+    public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
     {
         $variables = [
             'id' => $id,
@@ -57,7 +57,7 @@ class ShippingZonesController extends BaseAdminController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingZone'] = new ShippingZone();
+                $variables['shippingZone'] = new ShippingAddressZone();
             }
         }
 
@@ -83,13 +83,13 @@ class ShippingZonesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $shippingZone = new ShippingZone();
+        $shippingZone = new ShippingAddressZone();
 
         // Shared attributes
         $shippingZone->id = Craft::$app->getRequest()->getParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getParam('description');
-        $shippingZone->countryBased = Craft::$app->getRequest()->getParam('countryBased');
+        $shippingZone->isCountryBased = Craft::$app->getRequest()->getParam('isCountryBased');
         $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
 
@@ -112,7 +112,7 @@ class ShippingZonesController extends BaseAdminController
         $shippingZone->setStates($states);
 
         // Save it
-        if (Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+        if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $this->asJson([
                     'success' => true,

@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\helpers\UrlHelper;
@@ -20,13 +21,14 @@ use craft\validators\UniqueValidator;
  * @property array $countryIds all states in this Shipping Zone
  * @property array $countriesNames the names of all countries in this Shipping Zone
  * @property string $cpEditUrl
+ * @property bool $isCountryBased
  * @property State[] $states all states in this Shipping Zone
  * @property array $stateIds
  * @property array $statesNames the names of all states in this Shipping Zone
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingZone extends Model
+class ShippingAddressZone extends Model implements AddressZoneInterface
 {
     // Properties
     // =========================================================================
@@ -47,14 +49,14 @@ class ShippingZone extends Model
     public $description;
 
     /**
-     * @var bool Country based
-     */
-    public $countryBased = true;
-
-    /**
      * @var bool Default
      */
     public $default = false;
+
+    /**
+     * @var bool Country based
+     */
+    private $_isCountryBased = true;
 
     /**
      * @var Country[]
@@ -75,6 +77,24 @@ class ShippingZone extends Model
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/shippingzones/'.$this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsCountryBased(): bool
+    {
+        return $this->_isCountryBased;
+    }
+
+    /**
+     * @param bool $value
+     *
+     * @return bool
+     */
+    public function setIsCountryBased(bool $value): bool
+    {
+        return $this->_isCountryBased = $value;
     }
 
     /**
@@ -196,12 +216,12 @@ class ShippingZone extends Model
             [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
             [
                 ['states'], 'required', 'when' => function($model) {
-                return !$model->countryBased;
+                return !$model->isCountryBased;
             }
             ],
             [
                 ['countries'], 'required', 'when' => function($model) {
-                return $model->countryBased;
+                return $model->isCountryBased;
             }
             ],
         ];

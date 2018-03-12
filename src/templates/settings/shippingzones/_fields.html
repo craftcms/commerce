@@ -24,11 +24,11 @@
 
 {{ forms.radioGroupField({
     label: 'Type'|t('commerce'),
-    id: 'countryBased',
-    name: 'countryBased',
+    id: 'isCountryBased',
+    name: 'isCountryBased',
     options: {1 : 'Country-based'|t('commerce'), 0 : 'State-based'|t},
-    value: shippingZone is defined ? shippingZone.countryBased,
-    errors: shippingZone is defined ? shippingZone.getErrors('countryBased'),
+    value: shippingZone is defined ? shippingZone.isCountryBased,
+    errors: shippingZone is defined ? shippingZone.getErrors('isCountryBased'),
     required: true,
 }) }}
 
@@ -58,7 +58,7 @@
 
 {% set countriesId = 'countries'|namespaceInputId|e('js') %}
 {% set statesId = 'states'|namespaceInputId|e('js') %}
-{% set countryBasedName = 'countryBased'|namespaceInputName|e('js') %}
+{% set isCountryBasedName = 'isCountryBased'|namespaceInputName|e('js') %}
 
 {% js %}
     $('#{{ countriesId }}, #{{ statesId }}').selectize({
@@ -66,7 +66,7 @@
     dropdownParent: 'body'
     });
 
-    $('[name="{{ countryBasedName }}"]').change(function () {
+    $('[name="{{ isCountryBasedName }}"]').change(function () {
     if (!$(this).is(':checked')) {
     return;
     }
@@ -83,5 +83,5 @@
     }
     });
 
-    $('[name="{{ countryBasedName }}"]:checked').trigger('change');
+    $('[name="{{ isCountryBasedName }}"]:checked').trigger('change');
 {% endjs %}

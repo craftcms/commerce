@@ -8,8 +8,11 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\Plugin;
+use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Tax zone model.
@@ -18,6 +21,7 @@ use craft\helpers\UrlHelper;
  * @property array $countryIds
  * @property array $countriesNames the names of all countries in this Tax Zone
  * @property string $cpEditUrl
+ * @property bool $isCountryBased
  * @property State[] $states all states in this Tax Zone
  * @property array $stateIds
  * @property array $statesNames the names of all states in this Tax Zone
@@ -25,7 +29,7 @@ use craft\helpers\UrlHelper;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxZone extends Model
+class TaxAddressZone extends Model implements AddressZoneInterface
 {
     // Properties
     // =========================================================================
@@ -46,14 +50,14 @@ class TaxZone extends Model
     public $description;
 
     /**
-     * @var bool Country based
-     */
-    public $countryBased = true;
-
-    /**
      * @var bool Default
      */
     public $default = false;
+
+    /**
+     * @var bool Country based
+     */
+    private $_isCountryBased = true;
 
     /**
      * @var Country[] $_countries
@@ -74,6 +78,27 @@ class TaxZone extends Model
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/taxzones/'.$this->id);
+    }
+
+    /**
+     * If this zone is based on countries only.
+     *
+     * @return bool
+     */
+    public function getIsCountryBased(): bool
+    {
+        return $this->_isCountryBased;
+    }
+
+    /**
+     * Set if this zone is based on countries only.
+     *
+     * @param bool $value is the zone country based
+     * @return void
+     */
+    public function setIsCountryBased(bool $value)
+    {
+        $this->_isCountryBased = $value;
     }
 
     /**
@@ -209,6 +234,17 @@ class TaxZone extends Model
     {
         return [
             [['name'], 'required'],
+            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'], 'required', 'when' => function($model) {
+                return !$model->isCountryBased;
+            }
+            ],
+            [
+                ['countries'], 'required', 'when' => function($model) {
+                return $model->isCountryBased;
+            }
+            ],
         ];
     }
 }

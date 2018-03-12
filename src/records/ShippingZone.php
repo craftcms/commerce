@@ -14,7 +14,7 @@ use yii\db\ActiveQueryInterface;
  * Shipping zone record.
  *
  * @property Country[] $countries
- * @property bool $countryBased
+ * @property bool $isCountryBased
  * @property string $description
  * @property int $id
  * @property string $name

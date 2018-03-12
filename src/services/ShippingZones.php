@@ -8,7 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\models\ShippingZone;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
@@ -21,7 +21,7 @@ use yii\base\Exception;
 /**
  * Shipping zone service.
  *
- * @property ShippingZone[]|array $allShippingZones
+ * @property ShippingAddressZone[]|array $allShippingZones
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -36,7 +36,7 @@ class ShippingZones extends Component
     private $_fetchedAllShippingZones = false;
 
     /**
-     * @var ShippingZone[]
+     * @var ShippingAddressZone[]
      */
     private $_allShippingZones = [];
 
@@ -46,7 +46,7 @@ class ShippingZones extends Component
     /**
      * Get all shipping zones.
      *
-     * @return ShippingZone[]
+     * @return ShippingAddressZone[]
      */
     public function getAllShippingZones(): array
     {
@@ -54,7 +54,7 @@ class ShippingZones extends Component
             $rows = $this->_createShippingZonesQuery()->all();
 
             foreach ($rows as $row) {
-                $this->_allShippingZones[$row['id']] = new ShippingZone($row);
+                $this->_allShippingZones[$row['id']] = new ShippingAddressZone($row);
             }
 
             $this->_fetchedAllShippingZones = true;
@@ -67,7 +67,7 @@ class ShippingZones extends Component
      * Get a shipping zoneby its ID.
      *
      * @param int $id
-     * @return ShippingZone|null
+     * @return ShippingAddressZone|null
      */
     public function getShippingZoneById($id)
     {
@@ -87,19 +87,19 @@ class ShippingZones extends Component
             return null;
         }
 
-        return $this->_allShippingZones[$id] = new ShippingZone($result);
+        return $this->_allShippingZones[$id] = new ShippingAddressZone($result);
     }
 
     /**
      * Save a shipping zone.
      *
-     * @param ShippingZone $model
+     * @param ShippingAddressZone $model
      * @param bool $runValidation should we validate this rule before saving.
      * @return bool
      * @throws \Exception
      * @throws Exception
      */
-    public function saveShippingZone(ShippingZone $model, bool $runValidation = true): bool
+    public function saveShippingZone(ShippingAddressZone $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = ShippingZoneRecord::findOne($model->id);
@@ -120,13 +120,13 @@ class ShippingZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->countryBased = $model->countryBased;
+        $record->isCountryBased = $model->isCountryBased;
 
         $countryIds = $model->getCountryIds();
         $stateIds = $model->getStateIds();
 
         //validating given ids
-        if ($record->countryBased) {
+        if ($record->isCountryBased) {
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
@@ -155,7 +155,7 @@ class ShippingZones extends Component
             ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
 
             //saving new links
-            if ($model->countryBased) {
+            if ($model->isCountryBased) {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $countryIds);
@@ -210,7 +210,7 @@ class ShippingZones extends Component
                 'id',
                 'name',
                 'description',
-                'countryBased',
+                'isCountryBased',
             ])
             ->orderBy('name')
             ->from(['{{%commerce_shippingzones}}']);

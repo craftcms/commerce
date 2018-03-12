@@ -14,7 +14,7 @@ use yii\db\ActiveQueryInterface;
  * Tax zone record.
  *
  * @property Country[] $countries
- * @property bool $countryBased
+ * @property bool $isCountryBased
  * @property bool $default
  * @property string $description
  * @property int $id

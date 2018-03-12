@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
@@ -245,6 +246,44 @@ class Addresses extends Component
         }
 
         return (bool)$address->delete();
+    }
+
+    /**
+     * @param $address
+     * @param $zone
+     * @return bool
+     */
+    public function addressWithinZone($address, AddressZoneInterface $zone)
+    {
+        if ($zone->getIsCountryBased()) {
+            $countryIds = $zone->getCountryIds();
+
+            if (in_array($address->countryId, $countryIds, false)) {
+                return true;
+            }
+        } else {
+            $states = [];
+            $countries = [];
+            $stateNames = [];
+            $stateAbbr = [];
+            /** @var State $state */
+            foreach ($zone->getStates() as $state) {
+                $states[] = $state->id;
+                $countries[] = $state->countryId;
+                $stateNames[] = $state->name;
+                $stateAbbr[] = $state->abbreviation;
+            }
+
+            $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
+            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
+            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
+
+            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Private Methods

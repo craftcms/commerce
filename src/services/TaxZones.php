@@ -8,10 +8,12 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\models\TaxZone;
+use craft\commerce\models\Address;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
+use craft\commerce\records\TaxZone;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
@@ -21,7 +23,7 @@ use yii\base\Exception;
 /**
  * Tax zone service.
  *
- * @property TaxZone[]|array $allTaxZones
+ * @property TaxAddressZone[]|array $allTaxZones
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -36,7 +38,7 @@ class TaxZones extends Component
     private $_fetchedAllTaxZones = false;
 
     /**
-     * @var TaxZone[]
+     * @var TaxAddressZone[]
      */
     private $_allTaxZones;
 
@@ -46,7 +48,7 @@ class TaxZones extends Component
     /**
      * Get all tax zones.
      *
-     * @return TaxZone[]
+     * @return TaxAddressZone[]
      */
     public function getAllTaxZones(): array
     {
@@ -55,7 +57,7 @@ class TaxZones extends Component
             $rows = $this->_createTaxZonesQuery()->all();
 
             foreach ($rows as $row) {
-                $this->_allTaxZones[$row['id']] = new TaxZone($row);
+                $this->_allTaxZones[$row['id']] = new TaxAddressZone($row);
             }
 
             $this->_fetchedAllTaxZones = true;
@@ -68,7 +70,7 @@ class TaxZones extends Component
      * Get a tax zone by its ID.
      *
      * @param int $id
-     * @return TaxZone|null
+     * @return TaxAddressZone|null
      */
     public function getTaxZoneById($id)
     {
@@ -88,21 +90,19 @@ class TaxZones extends Component
             return null;
         }
 
-        return $this->_allTaxZones[$id] = new TaxZone($result);
+        return $this->_allTaxZones[$id] = new TaxAddressZone($result);
     }
 
     /**
      * Save a tax zone.
      *
-     * @param TaxZone $model
-     * @param array $countryIds
-     * @param array $stateIds
+     * @param TaxAddressZone $model
      * @param bool $runValidation should we validate this zone before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveTaxZone(TaxZone $model, $countryIds, $stateIds, bool $runValidation = true): bool
+    public function saveTaxZone(TaxAddressZone $model, bool $runValidation = true): bool
     {
         if ($model->id) {
             $record = TaxZoneRecord::findOne($model->id);
@@ -121,14 +121,17 @@ class TaxZones extends Component
             return false;
         }
 
+        $countryIds = $model->getCountryIds();
+        $stateIds = $model->getStateIds();
+
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
-        $record->countryBased = $model->countryBased;
+        $record->isCountryBased = $model->isCountryBased;
         $record->default = $model->default;
 
         //validating given ids
-        if ($record->countryBased) {
+        if ($record->isCountryBased) {
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
@@ -142,7 +145,7 @@ class TaxZones extends Component
             }
         }
 
-        if ($model->hasErrors()) {
+        if (!$model->validate()) {
             return false;
         }
 
@@ -162,7 +165,7 @@ class TaxZones extends Component
             TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
 
             //saving new links
-            if ($model->countryBased) {
+            if ($model->isCountryBased) {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $countryIds);
@@ -222,7 +225,7 @@ class TaxZones extends Component
                 'id',
                 'name',
                 'description',
-                'countryBased',
+                'isCountryBased',
                 'default',
             ])
             ->orderBy('name')

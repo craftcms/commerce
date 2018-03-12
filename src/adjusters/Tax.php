@@ -14,7 +14,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxRate;
-use craft\commerce\models\TaxZone;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use DvK\Vat\Validator;
@@ -234,40 +234,17 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @param TaxZone $zone
+     * @param TaxAddressZone $zone
      * @return bool
      */
-    private function matchAddress(TaxZone $zone): bool
+    private function matchAddress(TaxAddressZone $zone): bool
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
-            return $zone->default;
+            return (bool)$zone->default;
         }
 
-        if ($zone->countryBased) {
-            $countryIds = $zone->getCountryIds();
-
-            if (in_array($this->_address->countryId, $countryIds, false)) {
-                return true;
-            }
-        } else {
-            $states = [];
-            $countries = [];
-            foreach ($zone->states as $state) {
-                $states[] = $state->id;
-                $countries[] = $state->countryId;
-            }
-
-            $countryAndStateMatch = (in_array($this->_address->countryId, $countries, false) && in_array($this->_address->stateId, $states, false));
-            $countryAndStateNameMatch = (in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->name ?? '', $this->_address->getStateText()) == 0);
-            $countryAndStateAbbrMatch = (in_array($this->_address->countryId, $countries, false) && strcasecmp($this->_address->state->abbreviation ?? '', $this->_address->getStateText()) == 0);
-
-            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
-                return true;
-            }
-        }
-
-        return false;
+        return Plugin::getInstance()->getAddresses()->addressWithinZone($this->_address, $zone);
     }
 
     /**

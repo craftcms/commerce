@@ -30,9 +30,9 @@
                                 href="{{ url('commerce/settings/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a>
                     </td>
                     <td data-title="{{ 'Description'|t('commerce') }}">{{ taxZone.description }}</td>
-                    <td data-title="{{ 'Type'|t('commerce') }}">{{ taxZone.countryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce') }}</td>
+                    <td data-title="{{ 'Type'|t('commerce') }}">{{ taxZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce') }}</td>
                     <td data-title="{{ 'Countries/States'|t('commerce') }}">
-                        {% if taxZone.countryBased %}
+                        {% if taxZone.isCountryBased %}
                             {{ indexInlineList(taxZone.getCountriesNames()) }}
                         {% else %}
                             {{ indexInlineList(taxZone.getStatesNames()) }}
