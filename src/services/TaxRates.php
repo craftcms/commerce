@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
@@ -58,6 +59,28 @@ class TaxRates extends Component
         }
 
         return $this->_allTaxRates;
+    }
+
+    /**
+     * Returns an array of all of the rates belonging to the zone
+     *
+     * @param TaxAddressZone $zone
+     *
+     * @return TaxRate[]
+     */
+    public function getTaxRatesForZone(TaxAddressZone $zone): array
+    {
+        $allTaxRates = $this->getAllTaxRates();
+        $taxRates = [];
+
+        /** @var \craft\commerce\models\TaxRate $rate */
+        foreach ($allTaxRates as $rate) {
+            if ($zone->id === $rate->taxZoneId) {
+                $taxRates[] = $rate;
+            }
+        }
+
+        return $taxRates;
     }
 
     /**
