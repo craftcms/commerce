@@ -7,6 +7,7 @@
 
 namespace craft\commerce\adjusters;
 
+use Craft;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -216,8 +217,17 @@ class Discount implements AdjusterInterface
             }
         }
 
-        if ($this->_discount->freeShipping) {
-            // TODO create shipping adjustment to reduce shipping to zero.
+        foreach ($this->_order->getLineItems() as $item) {
+            if (in_array($item->id, $matchingLineIds, false) && $discount->freeShipping) {
+                $adjustment = $this->_createOrderAdjustment($this->_discount);
+                $shippingCost = $item->getAdjustmentsTotalByType('shipping');
+                if ($shippingCost > 0) {
+                    $adjustment->lineItemId = $item->id;
+                    $adjustment->amount = $shippingCost * -1;
+                    $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
+                    $adjustments[] = $adjustment;
+                }
+            }
         }
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
