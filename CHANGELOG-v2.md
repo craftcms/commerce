@@ -2,14 +2,20 @@
 ### Added
 - Added 'Copy' Reference tag to Product actions.
 - Added the possibility for users to save payment sources.
-- Added subscriptions for gateways that support them.
+- Added subscriptions features for gateways that support them.
 - Added `craft\commerce\services\PaymentSources` service.
 - Added `craft\commerce\services\Plans` service.
 - Added `craft\commerce\services\Subscriptions` service.
 - Added additional ways for sales to affect the price of matching products.
-- Added `paidStatus` attribute to orders
+- Added `paidStatus` attribute to the Order element.
+- Added `craft.variants` twig variable which returns the new VariantQuery class.
+- Added `craft.subscriptions` twig variable which returns the new SubscriptionQuery class.
+- Added the ability for any purchasable to have sales.
+- Added ability to have sales applied based on a Craft category related to a purchasable.
 
 ### Changed
+- Removed `baseShipping`, `baseDiscount`, `baseTax`, `baseTaxIncluded` attributes from the order model. Order's now have order level adjustments.
+- Removed `shipping`, `discount`, `tax`, `taxIncluded` attributes from the line item model. Line item's now have line item level adjustments.
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
 - `paymentMethodSettings` setting is now called `gatewaySettings` and it now uses handles to reference gateways instead of IDs.
 - `Payment Methods` are now called `Gateways` and this is reflected across the entire plugin and it's API.
