@@ -8,7 +8,7 @@ You can access your site’s subscriptions from your templates via `craft.subscr
 It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
 
 ```twig
-{% set subscription = craft.subscriptions.id(8376).one() %}
+{% set subscription = craft.subscriptions.reference('sub_CTnhYZOTr4zkwW').one() %}
 {% if subscription %}
 {{ subscription.plan.name }} - {{ subscription.status }} - {{ subscription.nextPaymentDate|date }}
 {% endif %}
