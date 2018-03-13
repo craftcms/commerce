@@ -45,7 +45,7 @@ class RegistrationController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        Craft::$app->getEt()->ping();
+        Craft::$app->getApi()->getLicenseInfo();
 
         return $this->_sendSuccessResponse();
     }
