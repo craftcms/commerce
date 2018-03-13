@@ -20,7 +20,7 @@ It is assumed that the payment gateway is set on the cart and that the `cart` va
 
 If you require custom markup and just applying CSS to a default markup won't do, here's what a simple credit card payment form markup might look like.
 
-This example assumes the availability of the `paymentForm` variable, as discussed in [Payment Form Models](en/payment-form-models.md).
+This example assumes the availability of the `paymentForm` variable, as discussed in [Payment Form Models](/en/payment-form-models.md).
 
 ```twig
 

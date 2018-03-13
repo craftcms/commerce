@@ -2,7 +2,7 @@
 
 ## Subscription form models
 
-As with [payment form models](en/payment-form-models.md), subscription form models are used to validate different subscription parameters and to pass them to the gateway.
+As with [payment form models](/en/payment-form-models.md), subscription form models are used to validate different subscription parameters and to pass them to the gateway.
 
 Since there are more actions available for subscriptions, there are also more of them, however, due to the differing nature of how gateways handle subscriptions, they are also bound to have more differences between gateways.
 

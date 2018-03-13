@@ -1,6 +1,6 @@
 # Subscription templates
 
-Once you've familiarized yourself with [Subscriptions](en/subscriptions.md) and set up some subscription plans, you're ready to write some subscription templates.
+Once you've familiarized yourself with [Subscriptions](/en/subscriptions.md) and set up some subscription plans, you're ready to write some subscription templates.
 
 When creating templates for subscription actions, if you don't want to use the default template provided to you by the gateway, you'll have to reference to the plugin documentation that is providing the gateway to see, what parameters are available to you.
 
