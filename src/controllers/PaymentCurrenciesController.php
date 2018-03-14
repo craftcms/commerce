@@ -115,10 +115,10 @@ class PaymentCurrenciesController extends BaseAdminController
 
         if ($currency && !$currency->primary) {
             Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         }
 
         $message = Craft::t('commerce', 'You can not delete that currency.');
-        $this->asErrorJson($message);
+        return $this->asErrorJson($message);
     }
 }
