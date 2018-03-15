@@ -6,7 +6,8 @@
 .order-details .paidLogo {
     font-weight: bold;
     position: absolute;
-    left: 30%;
+    top: 40px;
+    right: 200px;
     font-family: 'Helvetica', serif;
     color: rgba(211, 65, 50, 0.5);
     font-size: 48px;
