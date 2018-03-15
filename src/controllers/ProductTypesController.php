@@ -90,7 +90,6 @@ class ProductTypesController extends BaseAdminController
             'variantFields' => [
                 'label' => Craft::t('commerce', 'Variant Fields'),
                 'url' => '#variant-fields',
-                'class' => !$variables['productType']->hasVariants ? 'hidden' : ''
             ]
         ];
 
