@@ -10,9 +10,11 @@ namespace craft\commerce\base;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\records\Plan as PlanRecord;
 use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\Json;
+use craft\validators\UniqueValidator;
 use yii\base\InvalidConfigException;
 
 /**
@@ -147,7 +149,12 @@ abstract class Plan extends Model implements PlanInterface
     public function rules()
     {
         return [
-            [['handle'], 'unique'],
+            [
+                ['handle'],
+                UniqueValidator::class,
+                'targetClass' => PlanRecord::class,
+                'targetAttribute' => ['handle']
+            ],
             [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
         ];
     }
