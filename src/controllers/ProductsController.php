@@ -505,8 +505,12 @@ class ProductsController extends BaseCpController
 
         $product->typeId = $request->getBodyParam('typeId');
         $product->enabled = $request->getBodyParam('enabled');
-        $product->postDate = (($date = $request->getParam('postDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : new \DateTime());
-        $product->expiryDate = (($date = $request->getParam('expiryDate')) !== false ? (DateTimeHelper::toDateTime($date) ?: null) : null);
+        if (($postDate = Craft::$app->getRequest()->getBodyParam('postDate')) !== null) {
+            $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
+        }
+        if (($expiryDate = Craft::$app->getRequest()->getBodyParam('expiryDate')) !== null) {
+            $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
+        }
         $product->promotable = $request->getBodyParam('promotable');
         $product->freeShipping = $request->getBodyParam('freeShipping');
         $product->taxCategoryId = $request->getBodyParam('taxCategoryId');

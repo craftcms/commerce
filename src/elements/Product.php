@@ -668,6 +668,11 @@ class Product extends Element
         /** @var Variant $variant */
         foreach ($this->getVariants() as $variant) {
 
+            if ($isNew)
+            {
+                $variant->productId = $this->id;
+            }
+
             // We already have set the default to the correct variant in beforeSave()
             if ($variant->isDefault) {
                 $this->defaultVariantId = $variant->id;
@@ -773,6 +778,11 @@ class Product extends Element
 
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
+
+        if ($this->enabled && !$this->postDate) {
+            // Default the post date to the current date/time
+            $this->postDate = DateTimeHelper::currentUTCDateTime();
+        }
 
         return parent::beforeSave($isNew);
     }

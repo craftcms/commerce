@@ -182,7 +182,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.maxQty'
         ]);
 
-        $this->subQuery->leftJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+//        $this->subQuery->leftJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
@@ -194,14 +194,10 @@ class VariantQuery extends ElementQuery
 
         if ($this->product) {
             if ($this->product instanceof Product) {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product->id));
+                $this->productId = $this->product->id;
             } else {
                 $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product));
             }
-        }
-
-        if ($this->productId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
         }
 
         if ($this->productId) {
