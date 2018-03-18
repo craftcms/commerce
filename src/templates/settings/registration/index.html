@@ -43,7 +43,7 @@
              width="70"
              height="70">
         <h2>{{ "Your license key is being used on another Craft site."|t('commerce') }}</h2>
-        <p class="light">{{ "Please enter a new license key below, or transfer your license to this Craft install."|t('commerce') }}</p>
+        <p class="light">{{ "Please enter a new license key below, or manage your license from {url}."|t('commerce', {url: '<a target="_blank" href="https://id.craftcms.com">id.craftcms.com</a>'})|raw }}</p>
     </div>
 
     {# Unknown license header #}
@@ -65,15 +65,6 @@
                 <div id="license-key-label" class="value code"></div>
             </div>
         </div>
-
-        <form id="unregister-license-form" class="indented">
-            <div class="buttons">
-                <input type="submit" class="btn"
-                       value="{{ 'Unregister from this Craft install'|t('commerce') }}">
-                <div id="unregister-license-spinner"
-                     class="spinner hidden"></div>
-            </div>
-        </form>
     </div>
 
     {# Invalid/Unknown/Mismatched license view #}
@@ -104,14 +95,6 @@
             </div>
             <p id="license-key-error" class="error indented hidden"></p>
         </div>
-
-        <form id="transfer-license-form" class="indented hidden">
-            <div class="buttons">
-                <input type="submit" class="btn"
-                       value="{{ 'Transfer to this Craft install'|t('commerce') }}">
-                <div id="transfer-license-spinner" class="spinner hidden"></div>
-            </div>
-        </form>
     </div>
 {% endblock %}
 

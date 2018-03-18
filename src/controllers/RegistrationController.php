@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\enums\LicenseKeyStatus;
+use GuzzleHttp\Exception\RequestException;
 use yii\web\Response;
 
 /**
@@ -45,21 +46,14 @@ class RegistrationController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        Craft::$app->getApi()->getLicenseInfo();
+        try {
+            Craft::$app->getApi()->getLicenseInfo();
+        } catch (RequestException $e) {
+            // if there was an issue with the Commerce license,
+            // we'll be able to get it from getPluginLicenseKeyStatus()
+        }
 
         return $this->_sendSuccessResponse();
-    }
-
-    /**
-     * @return bool|string|Response
-     */
-    public function actionUnregister(): Response
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $etResponse = Craft::$app->getEt()->unregisterPlugin('Commerce');
-        return $this->_handleEtResponse($etResponse);
     }
 
     /**
@@ -81,9 +75,14 @@ class RegistrationController extends BaseAdminController
                 $this->asErrorJson(Craft::t('commerce', 'That license key is invalid.'));
             }
 
-            // Register it with Elliott
-            $etResponse = Craft::$app->getEt()->registerPlugin('Commerce');
-            return $this->_handleEtResponse($etResponse);
+            try {
+                Craft::$app->getApi()->getLicenseInfo();
+            } catch (RequestException $e) {
+                // if there was an issue with the Commerce license,
+                // we'll be able to get it from getPluginLicenseKeyStatus()
+            }
+
+            return $this->_sendSuccessResponse();
         }
 
         // Just clear our record of the license key
@@ -93,25 +92,15 @@ class RegistrationController extends BaseAdminController
         return $this->_sendSuccessResponse();
     }
 
-    /**
-     * @return bool|string|Response
-     */
-    public function actionTransfer(): Response
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $etResponse = Craft::$app->getEt()->transferPlugin('Commerce');
-        return $this->_handleEtResponse($etResponse);
-    }
-
     // Private Methods
     // =========================================================================
 
     /**
      * Returns a successful license update response.
+     *
+     * @return Response
      */
-    private function _sendSuccessResponse()
+    private function _sendSuccessResponse(): Response
     {
         return $this->asJson([
             'success' => true,
