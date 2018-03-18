@@ -13,6 +13,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
@@ -26,6 +27,7 @@ use craft\enums\LicenseKeyStatus;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterCpAlertsEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fixfks\controllers\RestoreController;
 use craft\helpers\Cp as CpHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -92,6 +94,7 @@ class Plugin extends BasePlugin
         $this->_registerCpAlerts();
         $this->_registerWidgets();
         $this->_registerVariables();
+        $this->_registerForeignKeysRestore();
     }
 
     /**
@@ -332,6 +335,18 @@ class Plugin extends BasePlugin
             /** @var CraftVariable $variable */
             $variable = $event->sender;
             $variable->attachBehavior('commerce', CraftVariableBehavior::class);
+        });
+    }
+
+    private function _registerForeignKeysRestore()
+    {
+        if (!class_exists(\craft\fixfks\controllers\RestoreController::class)) {
+            return;
+        }
+
+        Event::on(\craft\fixfks\controllers\RestoreController::class, \craft\fixfks\controllers\RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
+            // Add default FKs
+            (new Install())->addForeignKeys();
         });
     }
 }

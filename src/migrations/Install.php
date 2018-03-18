@@ -84,7 +84,7 @@ class Install extends Migration
     /**
      * Creates the tables for Craft Commerce
      */
-    protected function createTables()
+    public function createTables()
     {
         $this->createTable('{{%commerce_addresses}}', [
             'id' => $this->primaryKey(),
@@ -736,7 +736,7 @@ class Install extends Migration
     /**
      * Drop the tables
      */
-    protected function dropTables()
+    public function dropTables()
     {
         $this->dropTable('{{%commerce_addresses}}');
         $this->dropTable('{{%commerce_countries}}');
@@ -792,7 +792,7 @@ class Install extends Migration
     /**
      * Creates the indexes.
      */
-    protected function createIndexes()
+    public function createIndexes()
     {
         $this->createIndex(null, '{{%commerce_addresses}}', 'countryId', false);
         $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
@@ -904,7 +904,7 @@ class Install extends Migration
     /**
      * Adds the foreign keys.
      */
-    protected function addForeignKeys()
+    public function addForeignKeys()
     {
         $this->addForeignKey(null, '{{%commerce_addresses}}', ['countryId'], '{{%commerce_countries}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_addresses}}', ['stateId'], '{{%commerce_states}}', ['id'], 'SET NULL');
@@ -991,7 +991,7 @@ class Install extends Migration
     /**
      * Adds the foreign keys.
      */
-    protected function dropForeignKeys()
+    public function dropForeignKeys()
     {
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_addresses}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customer_discountuses}}', $this);
@@ -1033,7 +1033,7 @@ class Install extends Migration
     /**
      * Insert the default data.
      */
-    protected function insertDefaultData()
+    public function insertDefaultData()
     {
         $this->_defaultCountries();
         $this->_defaultStates();
