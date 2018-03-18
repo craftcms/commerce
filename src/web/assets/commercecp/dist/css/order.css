@@ -16,6 +16,9 @@
     transform: rotate(-20deg);
 }
 
+.order-details .sku{
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
+}
 #paymentmodal.loading {
     min-width: 300px;
     min-height: 300px;

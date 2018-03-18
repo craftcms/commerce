@@ -575,7 +575,7 @@ class Order extends Element
         $total = 0;
 
         foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getSubtotal();
+            $total += $lineItem->getTotal();
         }
 
         return $total;
@@ -811,7 +811,7 @@ class Order extends Element
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemTotal() + $this->getAdjustmentsTotal());
+        return Currency::round($this->getItemSubTotal() + $this->getAdjustmentsTotal());
     }
 
     /**
