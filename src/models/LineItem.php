@@ -350,14 +350,14 @@ class LineItem extends Model
             'price' => $purchasable->getPrice(),
             'sku' => $purchasable->getSku(),
             'description' => $purchasable->getDescription(),
-            'purchasableId' => $purchasable->getPurchasableId(),
+            'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->options,
             'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
-        $this->snapshot = array_merge($purchasable->getSnapshot(), $snapshot);
+        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
 
         $purchasable->populateLineItem($this);
 

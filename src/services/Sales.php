@@ -233,7 +233,7 @@ class Sales extends Component
         if ($purchasable->id) {
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
-                $id = $purchasable->getPurchasableId();
+                $id = $purchasable->getId();
                 if (\in_array($id, $purchasableIds, false)) {
                     $sales[] = $sale;
                 }
@@ -323,7 +323,7 @@ class Sales extends Component
         }
 
         // Purchsable ID match
-        if (!$sale->allPurchasables && !\in_array($purchasable->getPurchasableId(), $sale->getPurchasableIds(), false)) {
+        if (!$sale->allPurchasables && !\in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
             return false;
         }
 

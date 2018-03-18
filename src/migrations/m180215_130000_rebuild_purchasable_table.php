@@ -39,7 +39,7 @@ class m180215_130000_rebuild_purchasable_table extends Migration
                 foreach ($rows as $row) {
                     $newRow = [];
                     /** @var PurchasableInterface $row */
-                    $newRow[] = $row->getPurchasableId();
+                    $newRow[] = $row->getId();
                     $newRow[] = $row->getPrice();
                     $newRow[] = $row->getSku();
 
