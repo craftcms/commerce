@@ -60,4 +60,13 @@ BC - Breaking Change
 | `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     
 | `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      
 | `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     
-| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC     
+| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC   
+
+
+### Model Changes
+
+## Purchasables (like variants).
+
+| Old                                       | New                                                       | Change 
+|-------------------------------------------|-----------------------------------------------------------|--------
+| `purchasable.purchasableId`               | `purchasable.id`                                          | BC   
