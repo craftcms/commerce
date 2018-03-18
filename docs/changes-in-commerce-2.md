@@ -65,7 +65,7 @@ BC - Breaking Change
 
 ### Model Changes
 
-## Purchasables (like variants).
+#### Purchasables (like variants).
 
 | Old                                       | New                                                       | Change 
 |-------------------------------------------|-----------------------------------------------------------|--------
