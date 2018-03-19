@@ -97,9 +97,9 @@ class Pdf extends Component
 
         // Set the config options
         $pathService = Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath().'commerce_dompdf';
-        $dompdfFontCache = $pathService->getCachePath().'commerce_dompdf';
-        $dompdfLogFile = $pathService->getLogPath().'commerce_dompdf.htm';
+        $dompdfTempDir = $pathService->getTempPath().DIRECTORY_SEPARATOR.'commerce_dompdf';
+        $dompdfFontCache = $pathService->getCachePath().DIRECTORY_SEPARATOR.'commerce_dompdf';
+        $dompdfLogFile = $pathService->getLogPath().DIRECTORY_SEPARATOR.'commerce_dompdf.htm';
         FileHelper::isWritable($dompdfTempDir);
         FileHelper::isWritable($dompdfFontCache);
 
