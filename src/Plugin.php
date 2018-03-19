@@ -43,7 +43,9 @@ use yii\web\User;
 
 /**
  * @property array $cpNavItem the control panel navigation menu
+ * @property Settings $settings
  * @property mixed $settingsResponse the settings page response
+ * @method Settings getSettings()
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
