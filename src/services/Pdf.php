@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\PdfEvent;
 use craft\commerce\Plugin;
 use craft\helpers\FileHelper;
 use craft\web\View;
@@ -25,6 +26,23 @@ use yii\base\Exception;
  */
 class Pdf extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event PdfEvent The event that is triggered before a PDF is rendered
+     * Event handlers can override Commerce's PDF generation by setting [[PdfEvent::pdf]] to a custom-rendered PDF.
+     */
+    const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
+
+    /**
+     * @event PdfEvent The event that is triggered after a PDF is rendered
+     */
+    const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns a rendered PDF object for the order.
      *
@@ -36,6 +54,18 @@ class Pdf extends Component
     public function renderPdfForOrder(Order $order, $option = ''): string
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;
+
+        // Trigger a 'beforeRenderPdf' event
+        $event = new PdfEvent([
+            'order' => $order,
+            'option' => $option,
+            'template' => $template,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
+
+        if ($event->pdf !== null) {
+            return $event->pdf;
+        }
 
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
@@ -95,6 +125,15 @@ class Pdf extends Component
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
-        return $dompdf->output();
+        // Trigger an 'afterRenderPdf' event
+        $event = new PdfEvent([
+            'order' => $order,
+            'option' => $option,
+            'template' => $template,
+            'pdf' => $dompdf->output(),
+        ]);
+        $this->trigger(self::EVENT_AFTER_RENDER_PDF, $event);
+
+        return $event->pdf;
     }
 }
