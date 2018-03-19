@@ -497,7 +497,7 @@ class LineItem extends Model
      */
     public function getTax(): float
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getTax()', 'VariantModel::getTax() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type) ');
+        Craft::$app->getDeprecator()->log('LineItem::getTax()', 'craft\commerce\models\LineItem::getTax() has been deprecated. Use getAdjustmentsTotalByType(\'tax\') instead.');
 
         return $this->getAdjustmentsTotalByType('tax');
     }
@@ -507,7 +507,7 @@ class LineItem extends Model
      */
     public function getTaxIncluded(): float
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getTaxIncluded()', 'VariantModel::getTaxIncluded() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
+        Craft::$app->getDeprecator()->log('LineItem::getTaxIncluded()', 'craft\commerce\models\LineItem::getTaxIncluded() has been deprecated. Use getAdjustmentsTotalByType(\'taxIncluded\', true) instead.');
 
         return $this->getAdjustmentsTotalByType('taxIncluded', true);
     }
@@ -518,7 +518,7 @@ class LineItem extends Model
      */
     public function getShippingCost(): float
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getShippingCost()', 'VariantModel::getShippingCost() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
+        Craft::$app->getDeprecator()->log('LineItem::getShippingCost()', 'craft\commerce\models\LineItem::getShippingCost() has been deprecated. Use getAdjustmentsTotalByType(\'shipping\') instead.');
 
         return $this->getAdjustmentsTotalByType('shipping');
     }
@@ -529,7 +529,7 @@ class LineItem extends Model
      */
     public function getDiscount(): float
     {
-        Craft::$app->getDeprecator()->log('VariantModel::getDiscount()', 'VariantModel::getDiscount() has been deprecated. Use LineItem::getAdjustmentsTotalByType($type)');
+        Craft::$app->getDeprecator()->log('LineItem::getDiscount()', 'craft\commerce\models\LineItem::getDiscount() has been deprecated. Use getAdjustmentsTotalByType(\'discount\') instead.');
 
         return $this->getAdjustmentsTotalByType('discount');
     }
