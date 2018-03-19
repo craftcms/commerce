@@ -54,7 +54,7 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->render($template, compact('order', 'option'));
+            $html = $view->renderTemplate($template, compact('order', 'option'));
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '.$e->getMessage());
