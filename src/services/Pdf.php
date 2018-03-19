@@ -30,10 +30,10 @@ class Pdf extends Component
      *
      * @param Order $order
      * @param string $option
-     * @return Dompdf
+     * @return string
      * @throws Exception if no template or order found.
      */
-    public function renderPdfForOrder(Order $order, $option = ''): Dompdf
+    public function renderPdfForOrder(Order $order, $option = ''): string
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;
 
@@ -95,6 +95,6 @@ class Pdf extends Component
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
-        return $dompdf;
+        return $dompdf->output();
     }
 }
