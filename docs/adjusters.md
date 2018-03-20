@@ -1,12 +1,10 @@
 # Adjusters
 
-Adjusters are classes that return adjustment models to the cart. Ajustment models contain an amount which modifies the price of the order. Adjustment models can belong to 
+Adjusters are classes that return adjustment models to the cart. Adjustment models contain an amount which modifies the price of the order. Adjustment models always belong to the order, but can optionally belong to a line item.
 
 An Adjuster class implements the Adjuster Interface found at `vendor/craftcms/commerce/src/base/AdjusterInterface.php`.
 
-A plugin will registers the adjusters it wants to be run on the order by providing an array of adjusters objects from your main Plugin file.
-
-## Register an Adjuster
+## Register a new Adjuster
 
 Simply append your adjuster class to the types array in the `OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS` event model.
 
@@ -22,7 +20,7 @@ You could have a project level event listener, that could reorder these adjuster
 
 ## Adjusting
 
-Each order adjustment model should contain all information about the modifications made to the cart.
+Each order adjustment model should contain all information about how the adjuster came to it's adjustment. For example, the shipping adjuster includes the information about the matching shipping rules used to calculate the shipping cost, and stores the rule information in the `sourceSnapshot` attribute of the adjustment model.
 
 The `amount` value on the Order Adjustment Model is used when totalling the cart. Use negative amounts to reduce the price of the order.
 
