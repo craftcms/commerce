@@ -8,7 +8,7 @@ An Adjuster class implements the Adjuster Interface found at `vendor/craftcms/co
 
 Simply append your adjuster class to the types array in the `OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS` event model.
 
-```
+```php
 Event::on(OrderAdjustments::class, OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS, function(RegisterComponentTypesEvent $event) {
   $event->types[] = MyAdjuster::class;
 });
