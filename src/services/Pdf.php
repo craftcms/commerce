@@ -88,6 +88,8 @@ class Pdf extends Component
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
+        // Restore the original template mode
+        $view->setTemplateMode($oldTemplateMode);
 
         $dompdf = new Dompdf();
 
@@ -117,9 +119,6 @@ class Pdf extends Component
 
         $dompdf->loadHtml($html);
         $dompdf->render();
-
-        // Restore the original template mode
-        $view->setTemplateMode($oldTemplateMode);
 
         // Trigger an 'afterRenderPdf' event
         $event = new PdfEvent([
