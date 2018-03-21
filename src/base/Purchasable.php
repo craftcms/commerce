@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -48,6 +49,16 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @deprecated as of 2.0
+     */
+    public function getPurchasableId()
+    {
+        Craft::$app->getDeprecator()->log('Purchasable::getPurchasableId()', 'The Purchasable::getPurchasableId() function has been deprecated. Use Purchasable::getId() instead.');
+
+        return $this->getId();
+    }
 
     /**
      * @inheritdoc
