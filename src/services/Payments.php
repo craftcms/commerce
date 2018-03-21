@@ -167,7 +167,7 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
-     * @throws \Exception
+     * @throws \Throwable if reasons
      */
     public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
     {
