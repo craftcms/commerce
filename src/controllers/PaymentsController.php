@@ -279,7 +279,8 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
-                $success = $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
+                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
+                $success = true;
             } catch (PaymentException $exception) {
                 $customError = $exception->getMessage();
                 $success = false;

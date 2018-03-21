@@ -167,10 +167,9 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
-     * @return bool
      * @throws \Exception
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction): bool
+    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent([
@@ -196,7 +195,7 @@ class Payments extends Component
                 $order->markAsComplete();
             }
 
-            return true;
+            return;
         }
 
         /** @var Gateway $gateway */
@@ -244,7 +243,8 @@ class Payments extends Component
 
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
-                return $this->_handleRedirect($response, $redirect);
+                $this->_handleRedirect($response, $redirect);
+                return;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -253,7 +253,6 @@ class Payments extends Component
 
             // Success!
             $order->updateOrderPaidTotal();
-            $success = true;
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
@@ -266,8 +265,6 @@ class Payments extends Component
             Craft::error($e->getMessage());
             throw new PaymentException($transaction->message);
         }
-
-        return $success;
     }
 
     /**
@@ -492,8 +489,6 @@ class Payments extends Component
             // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
-
-        return true;
     }
 
     /**
