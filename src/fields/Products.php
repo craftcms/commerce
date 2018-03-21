@@ -22,6 +22,13 @@ class Products extends BaseRelationField
     // Public Methods
     // =========================================================================
 
+    public function __construct(array $config = [])
+    {
+        // Never needed and allows us to instantiate the field while ignoring old setting until the Product field migration has run.
+        unset($config['targetLocale']);
+        parent::__construct($config);
+    }
+
     /**
      * @inheritdoc
      */
