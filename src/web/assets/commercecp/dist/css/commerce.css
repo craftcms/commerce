@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+input.sku{
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
+}
+
 .lazy-create-modal {
     min-width: 200px;
     overflow: auto;
