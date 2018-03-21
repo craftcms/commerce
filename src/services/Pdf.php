@@ -79,10 +79,6 @@ class Pdf extends Component
             throw new Exception('Template file does not exist.');
         }
 
-        if (!$order) {
-            throw new Exception('No Order Found');
-        }
-
         try {
             $html = $view->renderTemplate($template, compact('order', 'option'));
         } catch (\Exception $e) {
