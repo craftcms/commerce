@@ -6,19 +6,16 @@
                 <td><strong>{{ "Reference"|t('commerce') }}</strong>
                 </td>
                 <td>
-                    <span id="order-number-short">{{ order.shortNumber }}</span><span id="order-number" class="hidden">{{ order.number }}</span>
-                    {% js %}
-                        $('#order-number-short').click(function($event){
-                            $event.preventDefault();
-                            $('#order-number-short').toggleClass('hidden');
-                            $('#order-number').toggleClass('hidden');
-                        });
-                        $('#order-number').click(function($event){
-                            $event.preventDefault();
-                            $('#order-number-short').toggleClass('hidden');
-                            $('#order-number').toggleClass('hidden');
-                        });
-                    {% endjs %}
+                    <span id="order-number-short">{{ order.shortNumber }}</span>
+                    <span class="info">
+                        <h2>Order Identification</h2>
+                        <table class="data">
+                            <tr><td><strong>{{ 'ID'|t('commerce') }}</strong></td><td>{{ order.id }}</td></tr>
+                            <tr><td><strong>{{ 'Short'|t('commerce') }}</strong></td><td>{{ order.shortNumber }}</td></tr>
+                            <tr><td><strong>{{ 'Full'|t('commerce') }}</strong></td><td>{{ order.number }}</td></tr>
+                        </table>
+                        </div>
+                    </span>
                 </td>
             </tr>
             <tr>

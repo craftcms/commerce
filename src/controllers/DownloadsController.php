@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\Plugin;
 use yii\web\HttpException;
+use yii\web\Response;
 
 /**
  * Class Downloads Controller
@@ -45,6 +46,8 @@ class DownloadsController extends BaseFrontEndController
             $fileName = 'Order-'.$order->number;
         }
 
-        $pdf->stream($fileName.'.pdf');
+        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName.'.pdf', [
+            'mimeType' => 'application/pdf'
+        ]);
     }
 }

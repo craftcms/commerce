@@ -6,7 +6,8 @@
 .order-details .paidLogo {
     font-weight: bold;
     position: absolute;
-    left: 30%;
+    top: 40px;
+    right: 200px;
     font-family: 'Helvetica', serif;
     color: rgba(211, 65, 50, 0.5);
     font-size: 48px;
@@ -15,6 +16,9 @@
     transform: rotate(-20deg);
 }
 
+.order-details .sku{
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace;
+}
 #paymentmodal.loading {
     min-width: 300px;
     min-height: 300px;

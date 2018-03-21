@@ -14,6 +14,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
+use craft\validators\UniqueValidator;
 
 /**
  * Base Purchasable
@@ -91,14 +92,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getPurchasableId(): int
-    {
-        return $this->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getSnapshot(): array
     {
         return [];
@@ -145,15 +138,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getIsAvailable(): bool
-    {
-        // remove the item from the cart if the product is not enabled
-        return $this->getStatus() === Element::STATUS_ENABLED;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getDescription(): string
     {
         return (string)$this;
@@ -171,7 +155,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getLineItemRules(LineItem $lineItem): array
     {
-        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
+
+        $rules[] = [['sku'], UniqueValidator::class, 'targetClass' => PurchasableRecord::class, 'targetAttribute' => ['sku']];
+
+        return $rules;
     }
 
     /**
@@ -255,7 +250,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             $this->_sales = [];
             $this->_salePrice = Currency::round($this->getPrice());
 
-            if ($this->getPurchasableId() && $this->getIsPromotable()) {
+            if ($this->getId() && $this->getId()) {
                 $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
                 $this->_salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this);
             }

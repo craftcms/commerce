@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\PdfEvent;
 use craft\commerce\Plugin;
 use craft\helpers\FileHelper;
 use craft\web\View;
@@ -25,17 +26,46 @@ use yii\base\Exception;
  */
 class Pdf extends Component
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event PdfEvent The event that is triggered before a PDF is rendered
+     * Event handlers can override Commerce's PDF generation by setting [[PdfEvent::pdf]] to a custom-rendered PDF.
+     */
+    const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
+
+    /**
+     * @event PdfEvent The event that is triggered after a PDF is rendered
+     */
+    const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+
+    // Public Methods
+    // =========================================================================
+
     /**
      * Returns a rendered PDF object for the order.
      *
      * @param Order $order
      * @param string $option
-     * @return Dompdf
+     * @return string
      * @throws Exception if no template or order found.
      */
-    public function renderPdfForOrder(Order $order, $option = ''): Dompdf
+    public function renderPdfForOrder(Order $order, $option = ''): string
     {
         $template = Plugin::getInstance()->getSettings()->orderPdfPath;
+
+        // Trigger a 'beforeRenderPdf' event
+        $event = new PdfEvent([
+            'order' => $order,
+            'option' => $option,
+            'template' => $template,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
+
+        if ($event->pdf !== null) {
+            return $event->pdf;
+        }
 
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
@@ -54,11 +84,12 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->render($template, compact('order', 'option'));
+            $html = $view->renderTemplate($template, compact('order', 'option'));
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '.$e->getMessage());
-            $html = Craft::t('commerce', 'Order PDF temple render error occurred. Order '.$order->getShortNumber());
+            Craft::$app->getErrorHandler()->logException($e);
+            $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
 
@@ -66,9 +97,9 @@ class Pdf extends Component
 
         // Set the config options
         $pathService = Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath().'commerce_dompdf';
-        $dompdfFontCache = $pathService->getCachePath().'commerce_dompdf';
-        $dompdfLogFile = $pathService->getLogPath().'commerce_dompdf.htm';
+        $dompdfTempDir = $pathService->getTempPath().DIRECTORY_SEPARATOR.'commerce_dompdf';
+        $dompdfFontCache = $pathService->getCachePath().DIRECTORY_SEPARATOR.'commerce_dompdf';
+        $dompdfLogFile = $pathService->getLogPath().DIRECTORY_SEPARATOR.'commerce_dompdf.htm';
         FileHelper::isWritable($dompdfTempDir);
         FileHelper::isWritable($dompdfFontCache);
 
@@ -94,6 +125,15 @@ class Pdf extends Component
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
-        return $dompdf;
+        // Trigger an 'afterRenderPdf' event
+        $event = new PdfEvent([
+            'order' => $order,
+            'option' => $option,
+            'template' => $template,
+            'pdf' => $dompdf->output(),
+        ]);
+        $this->trigger(self::EVENT_AFTER_RENDER_PDF, $event);
+
+        return $event->pdf;
     }
 }

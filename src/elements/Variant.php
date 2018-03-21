@@ -571,7 +571,7 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        if (!parent::getIsAvailable()) {
+        if ($this->getStatus() !== Element::STATUS_ENABLED) {
             return false;
         }
 

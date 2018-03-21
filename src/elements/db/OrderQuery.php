@@ -550,7 +550,7 @@ class OrderQuery extends ElementQuery
 
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
-                    $purchasableIds[] = $purchasable->getPurchasableId();
+                    $purchasableIds[] = $purchasable->getId();
                 }
 
                 if (is_numeric($purchasable)) {

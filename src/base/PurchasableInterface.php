@@ -22,12 +22,11 @@ interface PurchasableInterface
     // =========================================================================
 
     /**
-     * Returns the ID of the Purchasable element that will be be added to the line item.
-     * This element should meet the Purchasable Interface.
+     * Returns the element’s ID.
      *
-     * @return int
+     * @return int|null
      */
-    public function getPurchasableId(): int;
+    public function getId();
 
     /**
      * Returns the base price the item will be added to the line item with.
@@ -83,7 +82,7 @@ interface PurchasableInterface
      * Populates the line item when this purchasable is found on it. Called when
      * Purchasable is added to the cart and when the cart recalculates.
      * This is your chance to modify the weight, height, width, length, price
-     * and saleAmount. This is called before any onPopulateLineItem event listener.
+     * and saleAmount. This is called before any LineItems::EVENT_POPULATE_LINE_ITEM event listeners.
      *
      * @param LineItem $lineItem
      */
@@ -106,7 +105,7 @@ interface PurchasableInterface
     public function getLineItemRules(LineItem $lineItem): array;
 
     /**
-     * Runs any logic needed for this purchasable after it was on an order that was just completed.
+     * Runs any logic needed for this purchasable after it was on an order that was just completed (not when an order was paid, although paying an order will complete it).
      *
      * This is called for each line item the purchasable was contained within.
      *

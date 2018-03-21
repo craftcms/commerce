@@ -250,12 +250,12 @@
         new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_category' });
     {% endfor %}
 
+    if (!document.getElementById('hasVariants').checked){
+        $('#tab-variantFields').parent().addClass('hidden');
+    }
+
     $('#hasVariants').on('change', function() {
-        if ($(this).prop('checked')) {
-            $('#tab-variantFields').removeClass('hidden');
-        } else {
-            $('#tab-variantFields').addClass('hidden');
-        }
+        $('#tab-variantFields').parent().toggleClass('hidden');
     });
 
     window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');

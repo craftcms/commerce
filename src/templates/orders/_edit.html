@@ -12,23 +12,12 @@
 
 {% hook "cp.commerce.order.edit" %}
 
-{% block header %}
-    {{ block('pageTitle') }}
-    <div class="flex-grow"></div>
-    {{ block('contextMenu') }}
-    {{ block('actionButton') }}
-{% endblock %}
-
-{% block contextMenu %}
-    {% if pdfUrl %}
-        <div class="btngroup">
-            <a class="btn" href="{{ order.pdfUrl }}"
-               target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
-        </div>
-    {% endif %}
-{% endblock %}
-
 {% block actionButton %}
+    {% if pdfUrl %}
+        <a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
+        <div class="flex-grow"></div>
+    {% endif %}
+
     <input type="hidden" name="action" value="commerce/orders/save-order">
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders') }}

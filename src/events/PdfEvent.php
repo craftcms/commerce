@@ -8,26 +8,37 @@
 namespace craft\commerce\events;
 
 use craft\commerce\elements\Order;
+use craft\commerce\models\Address;
 use yii\base\Event;
 
 /**
- * Class OrderEvent
+ * Class AddressEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class OrderEvent extends Event
+class PdfEvent extends Event
 {
     // Properties
     // =========================================================================
 
     /**
-     * @var Order The order
+     * @var Order
      */
     public $order;
 
     /**
-     * @var bool If this is a new order
+     * @var string
      */
-    public $isNew;
+    public $option;
+
+    /**
+     * @var string
+     */
+    public $template;
+
+    /**
+     * @var string|null The rendered PDF
+     */
+    public $pdf;
 }

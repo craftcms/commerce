@@ -478,7 +478,7 @@ class Payments extends Component
                 $oldTemplateMode = $templatesService->getTemplateMode();
                 $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
 
-                $template = $templatesService->render($gatewayPostRedirectTemplate, $variables);
+                $template = $templatesService->renderPageTemplate($gatewayPostRedirectTemplate, $variables);
 
                 // Restore the original template mode
                 $templatesService->setTemplateMode($oldTemplateMode);

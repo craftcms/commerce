@@ -19,7 +19,7 @@
                         {%- for purchasable in product.getVariants() -%}
                             <option {% if purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false %}disabled {% endif %}
                                     data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
-                                    value="{{ purchasable.purchasableId }}">
+                                    value="{{ purchasable.id }}">
                                     {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
                             </option>
                         {%- endfor -%}

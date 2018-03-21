@@ -96,7 +96,7 @@ class Discount implements AdjusterInterface
         //preparing model
         $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->name = 'Discount';
+        $adjustment->name = $discount->name;
         $adjustment->orderId = $this->_order->id;
         $adjustment->description = $discount->description;
         $adjustment->sourceSnapshot = $discount->attributes;

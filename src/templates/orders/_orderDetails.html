@@ -20,6 +20,7 @@
                     {% set info = [
                         { label: "Description", value: lineItem.description },
                         { label: "Tax Category", value: lineItem.taxCategory.name },
+                        { label: "Shipping Category", value: lineItem.shippingCategory.name },
                         { label: "Price", value: lineItem.price|currency(order.currency) },
                         { label: "Sale Amount", value: lineItem.saleAmount|currency(order.currency) },
                         { label: "Sale Price", value: lineItem.salePrice|currency(order.currency) },
@@ -41,7 +42,7 @@
                             {% else %}
                                 <span class="description">{{ lineItem.description }}</span>
                             {% endif %}
-                            <br><span clas="sku">{{ lineItem.sku }}</span>
+                            <br><span class="sku">{{ lineItem.sku }}</span>
                             {% if lineItem.options|length %}
                                 <a class="fieldtoggle first last"
                                    data-target="info-{{ lineItem.id }}">{{ "Options"|t('commerce') }}</a>
@@ -90,18 +91,12 @@
                         </tr>
                     {% endfor %}
                 {% endfor %}
-
                 <tr>
                     <td></td>
                     <td></td>
-                    <td>
-                        {% if order.isPaid and order.totalPrice > 0 %}
-                            <div class="paidLogo">
-                                <span>{{ 'PAID'|t('commerce') }}</div>
-                        {% endif %}
-                    </td>
                     <td></td>
-                    <td><strong>{{ "Items Total" }}</strong></td>
+                    <td></td>
+                    <td><strong>{{ "Items Total (with adjustments)" }}</strong></td>
                     <td>
                         <span class="right">{{ order.itemTotal|currency(order.currency) }}</span>
                     </td>
@@ -126,7 +121,12 @@
                 {% endfor %}
                 <tr>
                     <td></td>
-                    <td></td>
+                    <td>
+                        {% if order.isPaid and order.totalPrice > 0 %}
+                            <div class="paidLogo">
+                                <span>{{ 'PAID'|t('commerce') }}</div>
+                        {% endif %}
+                    </td>
                     <td></td>
                     <td></td>
                     <td><h2>{{ "Total Price"|t('commerce') }}</h2></td>

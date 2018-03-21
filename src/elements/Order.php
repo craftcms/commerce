@@ -14,7 +14,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
-use craft\commerce\events\OrderEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -93,34 +92,36 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
-     * @event OrderEvent This event is raised when an order is completed
+     * @event \yii\base\Event This event is raised when an order is completed
      *
      * Plugins can get notified before an order is completed
      *
      * ```php
-     * use craft\commerce\events\OrderEvent;
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_BEFORE_COMPLETE_ORDER, function(OrderEvent $e) {
-     *     // Do something - perhaps let the accounting system know about the order.
+     * Event::on(Order::class, Order::EVENT_BEFORE_COMPLETE_ORDER, function(Event $e) {
+     *     // @var Order $order
+     *     $order = $e->sender;
+     *     // ...
      * });
      * ```
      */
     const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
 
     /**
-     * @event OrderEvent This event is raised after an order is completed
+     * @event \yii\base\Event This event is raised after an order is completed
      *
      * Plugins can get notified before an address is being saved
      *
      * ```php
-     * use craft\commerce\events\OrderEvent;
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_COMPLETE_ORDER, function(OrderEvent $e) {
-     *     // Do something - maybe signal the custom warehouse solution to reserve stock.
+     * Event::on(Order::class, Order::EVENT_AFTER_COMPLETE_ORDER, function(Event $e) {
+     *     // @var Order $order
+     *     $order = $e->sender;
+     *     // ...
      * });
      * ```
      */
@@ -447,7 +448,7 @@ class Order extends Element
 
         // Raising the 'beforeCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_COMPLETE_ORDER)) {
-            $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
+            $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
         if (Craft::$app->getElements()->saveElement($this)) {
@@ -480,7 +481,7 @@ class Order extends Element
 
         // Raising the 'afterCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
-            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER, new OrderEvent(['order' => $this]));
+            $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER);
         }
     }
 
@@ -574,7 +575,7 @@ class Order extends Element
         $total = 0;
 
         foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getSubtotal();
+            $total += $lineItem->getTotal();
         }
 
         return $total;
@@ -810,7 +811,7 @@ class Order extends Element
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemTotal() + $this->getAdjustmentsTotal());
+        return Currency::round($this->getItemSubTotal() + $this->getAdjustmentsTotal());
     }
 
     /**
