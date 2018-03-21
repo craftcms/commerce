@@ -79,10 +79,6 @@ class Pdf extends Component
             throw new Exception('Template file does not exist.');
         }
 
-        if (!$order) {
-            throw new Exception('No Order Found');
-        }
-
         try {
             $html = $view->renderTemplate($template, compact('order', 'option'));
         } catch (\Exception $e) {
@@ -92,6 +88,8 @@ class Pdf extends Component
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
+        // Restore the original template mode
+        $view->setTemplateMode($oldTemplateMode);
 
         $dompdf = new Dompdf();
 
@@ -121,9 +119,6 @@ class Pdf extends Component
 
         $dompdf->loadHtml($html);
         $dompdf->render();
-
-        // Restore the original template mode
-        $view->setTemplateMode($oldTemplateMode);
 
         // Trigger an 'afterRenderPdf' event
         $event = new PdfEvent([
