@@ -218,13 +218,9 @@ class LineItem extends Model
 
         $names[] = 'adjustments';
         $names[] = 'description';
-        $names[] = 'discount';
         $names[] = 'onSale';
-        $names[] = 'shippingCost';
         $names[] = 'sku';
-        $names[] = 'tax';
         $names[] = 'total';
-        $names[] = 'taxIncluded';
 
         return $names;
     }
@@ -493,6 +489,7 @@ class LineItem extends Model
     }
 
     /**
+     * @deprecated since 2.0
      * @return float
      */
     public function getTax(): float
@@ -503,6 +500,7 @@ class LineItem extends Model
     }
 
     /**
+     * @deprecated since 2.0
      * @return float
      */
     public function getTaxIncluded(): float
