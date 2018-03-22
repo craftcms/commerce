@@ -33,8 +33,7 @@ class ProductTypesController extends BaseAdminController
     public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        return $this->renderTemplate('commerce/settings/producttypes/index',
-            compact('productTypes'));
+        return $this->renderTemplate('commerce/settings/producttypes/index', compact('productTypes'));
     }
 
     /**
