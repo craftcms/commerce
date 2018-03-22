@@ -50,12 +50,6 @@ class ProductTypesController extends BaseAdminController
             'productType' => $productType,
         ];
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
-
         $variables['brandNewProductType'] = false;
 
         if (empty($variables['productType'])) {
