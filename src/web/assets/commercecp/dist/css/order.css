@@ -16,9 +16,6 @@
     transform: rotate(-20deg);
 }
 
-.order-details .sku{
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-}
 #paymentmodal.loading {
     min-width: 300px;
     min-height: 300px;

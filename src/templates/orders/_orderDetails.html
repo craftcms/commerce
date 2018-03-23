@@ -42,7 +42,7 @@
                             {% else %}
                                 <span class="description">{{ lineItem.description }}</span>
                             {% endif %}
-                            <br><span class="sku">{{ lineItem.sku }}</span>
+                            <br><span class="code">{{ lineItem.sku }}</span>
                             {% if lineItem.options|length %}
                                 <a class="fieldtoggle first last"
                                    data-target="info-{{ lineItem.id }}">{{ "Options"|t('commerce') }}</a>
