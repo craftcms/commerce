@@ -179,7 +179,7 @@ class Addresses extends Component
 
         // Normalize state name values
         if (!empty($addressModel->stateValue)) {
-            if ($plugin->getStates()->getStateById($addressModel->stateValue)) {
+            if ($plugin->getStates()->getStateById((int)$addressModel->stateValue)) {
                 $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
                 $addressRecord->stateName = null;
                 $addressModel->stateName = null;
