@@ -91,7 +91,7 @@ class VariantMatrix
             'variant' => $variant
         ]);
 
-        $footHtml = $templatesService->clearJsBuffer();
+        $footHtml = $templatesService->clearJsBuffer(false);
 
         // Reset $_isFresh's
         foreach ($variantFields as $field) {
