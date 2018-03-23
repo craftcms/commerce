@@ -297,7 +297,7 @@ class OrdersController extends BaseCpController
         return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
     }
 
-    public function actionUpdateOrderAddress(): Response
+    public function actionUpdateOrderAddress()
     {
         $this->requireAcceptsJson();
 
@@ -317,22 +317,22 @@ class OrdersController extends BaseCpController
 
         // Return early if the address is already set.
         if ($order->{$type.'Id'} == $addressId) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         }
 
         // Validate Address Id
         $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
         if (!$address) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
+            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
         }
 
         $order->{$type.'Id'} = $address->id;
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            $this->asJson(['success' => true]);
+            return $this->asJson(['success' => true]);
         }
 
-        $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
+        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
     }
 
     /**

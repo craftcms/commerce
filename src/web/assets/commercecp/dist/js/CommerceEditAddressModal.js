@@ -43,11 +43,10 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
 
             // Footer and buttons
             var $footer = $('<div class="footer"/>').appendTo(this.$form);
-            var $btnGroup = $('<div class="btngroup"/>').appendTo($footer);
-            var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
-            this.$updateBtn = $('<input type="button" class="btn submit" value="' + this.submitLabel + '"/>').appendTo($mainBtnGroup);
+            var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
+            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit"  value="' + this.submitLabel + '"/>').appendTo($mainBtnGroup);
             this.$footerSpinner = $('<div class="spinner right hidden"/>').appendTo($footer);
-            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($btnGroup);
 
             this.addListener(this.$cancelBtn, 'click', 'hide');
             this.addListener(this.$updateBtn, 'click', function(ev) {
