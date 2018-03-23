@@ -755,12 +755,7 @@ class Order extends Element
      */
     public function getIsPaid(): bool
     {
-        // don't return true if no money has been paid, even if the outstanding balance is 0
-        if (($totalPaid = Currency::round($this->totalPaid)) === 0) {
-            return false;
-        }
-        $totalPrice = Currency::round($this->totalPrice);
-        return $totalPaid >= $totalPrice;
+        return $this->getOutstandingBalance() <= 0 && $this->isCompleted;
     }
 
     /**
