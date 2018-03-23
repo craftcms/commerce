@@ -50,7 +50,7 @@ class OrderAdjustment extends Model
     /**
      * @var bool Included
      */
-    public $included = false;
+    public $included;
 
     /**
      * @var mixed Adjuster options
