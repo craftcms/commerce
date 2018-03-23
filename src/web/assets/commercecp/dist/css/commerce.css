@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+input.sku{
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
 .lazy-create-modal {
     min-width: 200px;
     overflow: auto;

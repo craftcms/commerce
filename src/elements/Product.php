@@ -289,19 +289,13 @@ class Product extends Element
      */
     public function getUriFormat()
     {
-        $productType = $this->getType();
+        $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
-        $siteId = $this->siteId ?: Craft::$app->getSites()->currentSite->id;
-
-        if (isset($productType->siteSettings[$siteId]) && $productType->siteSettings[$siteId]->hasUrls) {
-            $productTypeSites = $productType->getSiteSettings();
-
-            if (isset($productTypeSites[$this->siteId])) {
-                return $productTypeSites[$this->siteId]->uriFormat;
-            }
+        if (!isset($productTypeSiteSettings[$this->siteId])) {
+            throw new InvalidConfigException('Category’s group ('.$this->groupId.') is not enabled for site '.$this->siteId);
         }
 
-        return null;
+        return $productTypeSiteSettings[$this->siteId]->uriFormat;
     }
 
     /**
@@ -668,8 +662,7 @@ class Product extends Element
         /** @var Variant $variant */
         foreach ($this->getVariants() as $variant) {
 
-            if ($isNew)
-            {
+            if ($isNew) {
                 $variant->productId = $this->id;
             }
 

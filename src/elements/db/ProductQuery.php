@@ -94,6 +94,11 @@ class ProductQuery extends ElementQuery
      */
     public $hasSales;
 
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
+
     // Public Methods
     // =========================================================================
 
@@ -327,10 +332,6 @@ class ProductQuery extends ElementQuery
         $this->_applyHasVariantParam();
         $this->_applyEditableParam();
         $this->_applyRefParam();
-
-        if (!$this->orderBy) {
-            $this->orderBy = ['postDate' => SORT_DESC];
-        }
 
         return parent::beforePrepare();
     }

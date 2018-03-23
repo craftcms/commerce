@@ -491,7 +491,7 @@ class ProductsController extends BaseCpController
     {
         $request = Craft::$app->getRequest();
         $productId = $request->getParam('productId');
-        $siteId = $request->getParam('site');
+        $siteId = $request->getParam('siteId');
 
         if ($productId) {
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
@@ -504,6 +504,7 @@ class ProductsController extends BaseCpController
         }
 
         $product->typeId = $request->getBodyParam('typeId');
+        $product->siteId = $siteId;
         $product->enabled = $request->getBodyParam('enabled');
         if (($postDate = Craft::$app->getRequest()->getBodyParam('postDate')) !== null) {
             $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;

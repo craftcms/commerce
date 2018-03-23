@@ -30,7 +30,8 @@
                       href="#"></span></td>
             <td>
                 {% if transaction.canCapture() %}
-                    <form>
+                    <form method="post">
+                        {{ csrfInput() }}
                         <a class="small btn submit formsubmit"
                            data-action="commerce/orders/transaction-capture"
                            data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
@@ -40,7 +41,8 @@
                     </form>
                 {% endif %}
                 {% if transaction.canRefund() %}
-                    <form>
+                    <form method="post">
+                        {{ csrfInput() }}
                         {% import "_includes/forms" as forms %}
                         {{ forms.text({
                             id: 'amount',

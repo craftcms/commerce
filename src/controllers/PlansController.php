@@ -29,16 +29,6 @@ class PlansController extends BaseAdminController
     // =========================================================================
 
     /**
-     * @throws \yii\web\ForbiddenHttpException if forbidden.
-     */
-    public function init()
-    {
-        $this->requirePermission('manageCommerce');
-
-        parent::init();
-    }
-
-    /**
      * @return Response
      */
     public function actionPlanIndex(): Response

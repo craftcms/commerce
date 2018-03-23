@@ -18,6 +18,7 @@ use craft\db\Query;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -334,7 +335,7 @@ class LineItems extends Component
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
             $lineItem->populateFromPurchasable($purchasable);
         } else {
-            throw new InvalidConfigException(Craft::t('commerce', 'Not a purchasable ID'));
+            throw new InvalidArgumentException('Invalid purchasable ID');
         }
 
         // Raise a 'createLineItem' event

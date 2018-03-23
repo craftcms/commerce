@@ -22,7 +22,7 @@
         <div class="footer">
             <div class="buttons right">
                 <input type="submit" class="btn submit"
-                       value="Pay {{ order.totalPrice|commerceCurrency(order.currency,convert=true) }} Now">
+                       value="Pay {{ order.outstandingBalance|commerceCurrency(order.currency,convert=true) }} Now">
             </div>
         </div>
 

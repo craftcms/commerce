@@ -33,8 +33,7 @@ class ProductTypesController extends BaseAdminController
     public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-        return $this->renderTemplate('commerce/settings/producttypes/index',
-            compact('productTypes'));
+        return $this->renderTemplate('commerce/settings/producttypes/index', compact('productTypes'));
     }
 
     /**
@@ -49,12 +48,6 @@ class ProductTypesController extends BaseAdminController
             'productTypeId' => $productTypeId,
             'productType' => $productType,
         ];
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
-        }
 
         $variables['brandNewProductType'] = false;
 

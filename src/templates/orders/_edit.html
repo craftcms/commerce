@@ -71,19 +71,18 @@
     window.states = JSON.parse('{{ craft.commerce.states.allStates|json_encode|raw }}');
 
     $(document).ready(function () {
-
     {% if paymentForm is defined and paymentForm %}
         new Craft.Commerce.OrderEdit({
-        orderId: {{ orderId|e('js') }},
-        paymentForm: {
-        errors: {{ paymentForm.errors|json_encode|raw }},
-        attributes: {{ paymentForm.attributes|json_encode|raw }}
-        }
+            orderId: {{ orderId|e('js') }},
+            paymentForm: {
+                errors: {{ paymentForm.errors|json_encode|raw }},
+                attributes: {{ paymentForm.attributes|json_encode|raw }}
+            }
         });
     {% endif %}
 
-    $.each($('.tableRowInfo'), function () {
-    new Craft.Commerce.TableRowAdditionalInfoIcon(this);
-    });
+        $.each($('.tableRowInfo'), function () {
+            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
     });
 {% endjs %}
