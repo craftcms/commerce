@@ -7,14 +7,17 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\models\Site;
 use yii\base\InvalidConfigException;
 
 /**
  * Product type locale model class.
  *
  * @property ProductType $productType the Product Type
+ * @property Site $site the Site
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -59,6 +62,11 @@ class ProductTypeSite extends Model
     private $_productType;
 
     /**
+     * @var Site
+     */
+    private $_site;
+
+    /**
      * @var bool
      */
     public $uriFormatIsRequired = true;
@@ -70,7 +78,7 @@ class ProductTypeSite extends Model
      * Returns the Product Type.
      *
      * @return ProductType
-     * @throws InvalidConfigException if [[groupId]] is missing or invalid
+     * @throws InvalidConfigException if [[productTypeId]] is missing or invalid
      */
     public function getProductType(): ProductType
     {
@@ -79,11 +87,11 @@ class ProductTypeSite extends Model
         }
 
         if (!$this->productTypeId) {
-            throw new InvalidConfigException('Category is missing its group ID');
+            throw new InvalidConfigException('Product type site is missing its product type ID');
         }
 
         if (($this->_productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->productTypeId)) === null) {
-            throw new InvalidConfigException('Invalid group ID: '.$this->productTypeId);
+            throw new InvalidConfigException('Invalid product type ID: '.$this->productTypeId);
         }
 
         return $this->_productType;
@@ -97,6 +105,27 @@ class ProductTypeSite extends Model
     public function setProductType(ProductType $productType)
     {
         $this->_productType = $productType;
+    }
+
+    /**
+     * @return Site
+     * @throws InvalidConfigException if [[siteId]] is missing or invalid
+     */
+    public function getSite(): Site
+    {
+        if ($this->_site !== null) {
+            return $this->_site;
+        }
+
+        if (!$this->siteId) {
+            throw new InvalidConfigException('Product type site is missing its site ID');
+        }
+
+        if (($this->_site = Craft::$app->getSites()->getSiteById($this->siteId)) === null) {
+            throw new InvalidConfigException('Invalid site ID: '.$this->siteId);
+        }
+
+        return $this->_site;
     }
 
     /**

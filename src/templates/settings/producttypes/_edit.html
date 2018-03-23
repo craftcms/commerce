@@ -245,10 +245,12 @@
 {% js %}
     {% if not productType.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
+    {% if brandNewProductType %}
     {% for site in craft.app.sites.getAllSites() %}
         new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[uriFormat]"]', { suffix: '/{slug}' });
-        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_category' });
+        new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_product' });
     {% endfor %}
+    {% endif %}
 
     if (!document.getElementById('hasVariants').checked){
         $('#tab-variantFields').parent().addClass('hidden');

@@ -108,12 +108,14 @@
     <input type="hidden" name="typeId" value="{{ productType.id }}">
     {% if product.id %}<input type="hidden" name="productId"
                               value="{{ product.id }}">{% endif %}
+    {% if craft.app.getIsMultiSite() %}<input type="hidden" name="siteId"
+                                              value="{{ product.siteId }}">{% endif %}
     {{ redirectInput('commerce/products') }}
     {{ csrfInput() }}
 
     <div id="fields">
         {{ productFields.titleField(product) }}
-
+        {{ product.url ?? 'none' }}
         <div>
             {% set tabs = productType.getProductFieldLayout().getTabs() %}
             {% for tab in tabs %}
@@ -144,56 +146,58 @@
 
 
 {% block details %}
-    <div class="meta">
-        {{ productFields.generalMetaFields(product) }}
+<div class="meta">
+    {{ productFields.generalMetaFields(product) }}
 
+    {{ forms.lightswitchField({
+        label: "Enabled"|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        on: product.enabled
+    }) }}
+
+    {% if craft.app.getIsMultiSite() %}
         {{ forms.lightswitchField({
-            label: "Enabled"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            on: product.enabled
+            label: "Enabled for site"|t('commerce'),
+            id: 'enabledForSite',
+            name: 'enabledForSite',
+            on: product.enabledForSite
         }) }}
-
-        {% if craft.app.getIsMultiSite() %}
-            {{ forms.lightswitchField({
-                label: "Enabled for site"|t('commerce'),
-                id: 'enabledForSite',
-                name: 'enabledForSite',
-                on: product.enabledForSite
-            }) }}
-        {% endif %}
-    </div>
-
-    <hr>
-
-    <div class="meta">
-        {{ productFields.behavioralMetaFields(product) }}
-    </div>
-
-    {% if not productType.hasVariants %}
-        <hr>
-        {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
-            <div class="meta">
-                {{ productFields.generalVariantFields(product.defaultVariant) }}
-            </div>
-            {% if productType.hasDimensions %}
-                <hr>
-                <div class="meta">
-                    {{ productFields.dimensionVariantFields(product.defaultVariant) }}
-                </div>
-            {% endif %}
-        {% endnamespace %}
     {% endif %}
+</div>
+
+<hr>
+
+<div class="meta">
+    {{ productFields.behavioralMetaFields(product) }}
+</div>
+
+{% if not productType.hasVariants %}
+    <hr>
+    {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
+        <div class="meta">
+            {{ productFields.generalVariantFields(product.defaultVariant) }}
+        </div>
+        {% if productType.hasDimensions %}
+            <hr>
+            <div class="meta">
+                {{ productFields.dimensionVariantFields(product.defaultVariant) }}
+            </div>
+        {% endif %}
+    {% endnamespace %}
+{% endif %}
 
     {% if product.id %}
-        <hr>
-        <div class="meta read-only">
-        <div class="data">
-            <h5 class="heading">{{ "Related Sales"|t('commerce') }}</h5>
-            <div class="value">
-                {% if not sales|length %}
-                    <a class="btn small add icon" href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add Sale</a>
-                {% else %}
+<hr>
+<div class="meta read-only">
+    <div class="data">
+        <h5 class="heading">{{ "Related Sales"|t('commerce') }}</h5>
+        <div class="value">
+            {% if not sales|length %}
+                <a class="btn small add icon"
+                   href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add
+                    Sale</a>
+            {% else %}
                 <ul class="commerce-sales">
                     {% for sale in sales %}
                         <li>
@@ -201,34 +205,36 @@
                         </li>
                     {% endfor %}
                 </ul>
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
-        {% if sales|length %}
+    </div>
+    {% if sales|length %}
         <div class="data">
             <h5 class="heading"></h5>
             <div class="value">
-                <a class="btn small add icon" href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add Sale</a>
+                <a class="btn small add icon"
+                   href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add
+                    Sale</a>
             </div>
         </div>
-        {% endif %}
-        <div class="data">
-            <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
-            <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
-        </div>
-        <div class="data">
-            <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
-            <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
-        </div>
+    {% endif %}
+    <div class="data">
+        <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
+        <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
+    </div>
+    <div class="data">
+        <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
+        <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
+    </div>
 
     {% endif %}
 
     {% hook "cp.commerce.product.edit.details" %}
-{% endblock %}
+    {% endblock %}
 
 
-{% if not product.slug %}
-    {% js %}
-        window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
-    {% endjs %}
-{% endif %}
+    {% if not product.slug %}
+        {% js %}
+            window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
+        {% endjs %}
+    {% endif %}

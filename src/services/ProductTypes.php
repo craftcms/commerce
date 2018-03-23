@@ -20,6 +20,7 @@ use craft\db\Query;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\SiteEvent;
 use craft\helpers\App;
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -257,8 +258,6 @@ class ProductTypes extends Component
      */
     public function saveProductType(ProductType $productType, bool $runValidation = true): bool
     {
-        $titleFormatChanged = false;
-
         $isNewProductType = !$productType->id;
 
         // Fire a 'beforeSaveProductType' event
@@ -342,57 +341,6 @@ class ProductTypes extends Component
 
             // Might as well update our cache of the product type while we have it.
             $this->_productTypesById[$productType->id] = $productType;
-
-            if (!$isNewProductType && !$productType->hasVariantTitleField) {
-                if ($productTypeRecord->titleFormat != $oldProductType->titleFormat) {
-                    $titleFormatChanged = true;
-                }
-            }
-
-            //Refresh all titles for variants of same product type if titleFormat changed.
-            if ($productType->hasVariants && !$productType->hasVariantTitleField && $titleFormatChanged) {
-                $criteria = Product::find();
-                $criteria->typeId = $productType->id;
-                $products = $criteria->all();
-                foreach ($products as $product) {
-                    foreach ($product->getVariants() as $variant) {
-                        $title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $variant);
-                        // updates to the same title in all sites
-                        Craft::$app->getDb()->createCommand()->update('{{%content}}',
-                            ['title' => $title],
-                            ['elementId' => $variant->id]
-                        );
-                    }
-                }
-            }
-
-            if (!$isNewProductType && $oldProductType->hasVariants && !$productType->hasVariants) {
-                $criteria = Product::find();
-                $criteria->typeId = $productType->id;
-                $products = $criteria->all();
-                /** @var Product $product */
-                foreach ($products as $key => $product) {
-                    if ($product && $product->contentId) {
-                        $defaultVariant = null;
-                        // find out default variant
-                        foreach ($product->getVariants() as $variant) {
-                            if ($defaultVariant === null || $variant->isDefault) {
-                                $defaultVariant = $variant;
-                            }
-                        }
-                        // delete all non-default variants
-                        foreach ($product->getVariants() as $variant) {
-                            if ($defaultVariant !== $variant) {
-                                Plugin::getInstance()->getVariants()->deleteVariantById($variant->id);
-                            } else {
-                                // The default variant must always be enabled.
-                                $variant->enabled = true;
-                                Craft::$app->getElements()->saveElement($variant);
-                            }
-                        }
-                    }
-                }
-            }
 
             // Have any of the product type categories changed?
             if (!$isNewProductType) {
@@ -511,49 +459,22 @@ class ProductTypes extends Component
                 }
             }
 
-            // Finally, deal with the existing products...
-            // -----------------------------------------------------------------
-
+            // Finally, deal with the existing products, updating their urls
             if (!$isNewProductType) {
-                // Get all of the product IDs in this group
-                $productTypeIds = Product::find()
-                    ->typeId($productType->id)
-                    ->status(null)
-                    ->limit(null)
-                    ->ids();
-
-                // Are there any sites left?
-                if (!empty($allSiteSettings)) {
-                    // Drop the old product URIs for any site settings that don't have URLs
-                    if (!empty($sitesNowWithoutUrls)) {
-                        $db->createCommand()
-                            ->update(
-                                '{{%elements_sites}}',
-                                ['uri' => null],
-                                [
-                                    'elementId' => $productTypeIds,
-                                    'siteId' => $sitesNowWithoutUrls,
-                                ])
-                            ->execute();
-                    } else if (!empty($sitesWithNewUriFormats)) {
-                        foreach ($productTypeIds as $productTypeId) {
-                            App::maxPowerCaptain();
-
-                            // Loop through each of the changed sites and update all of the products’ slugs and
-                            // URIs
-                            foreach ($sitesWithNewUriFormats as $siteId) {
-                                $product = Product::find()
-                                    ->id($productTypeId)
-                                    ->siteId($siteId)
-                                    ->status(null)
-                                    ->one();
-
-                                if ($product) {
-                                    Craft::$app->getElements()->updateElementSlugAndUri($product, false, false);
-                                }
-                            }
-                        }
-                    }
+                foreach ($allSiteSettings as $siteId => $siteSettings) {
+                    Craft::$app->getQueue()->push(new ResaveElements([
+                        'description' => Craft::t('app', 'Resaving {type} products ({site})', [
+                            'type' => $productType->name,
+                            'site' => $siteSettings->getSite()->name,
+                        ]),
+                        'elementType' => Product::class,
+                        'criteria' => [
+                            'siteId' => $siteId,
+                            'typeId' => $productType->id,
+                            'status' => null,
+                            'enabledForSite' => false,
+                        ]
+                    ]));
                 }
             }
 
