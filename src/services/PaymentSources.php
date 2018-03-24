@@ -152,6 +152,23 @@ class PaymentSources extends Component
     }
 
     /**
+     * Returns a payment source by its ID and user ID.
+     *
+     * @param int $sourceId the source ID
+     * @param int $userId the source's user ID
+     * @return PaymentSource|null
+     */
+    public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId)
+    {
+        $result = $this->_createPaymentSourcesQuery()
+            ->where(['id' => $sourceId])
+            ->andWhere(['userId' => $userId])
+            ->one();
+
+        return $result ? new PaymentSource($result) : null;
+    }
+
+    /**
      * Creates a payment source for a user in the gateway based on a payment form.
      *
      * @param int $userId the user's ID
