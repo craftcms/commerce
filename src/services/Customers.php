@@ -375,6 +375,7 @@ class Customers extends Component
     public function logoutHandler(UserEvent $event)
     {
         // Reset the sessions customer.
+        Plugin::getInstance()->getCarts()->forgetCart();
         $this->forgetCustomer();
     }
 
