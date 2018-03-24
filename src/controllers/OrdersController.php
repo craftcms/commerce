@@ -349,7 +349,7 @@ class OrdersController extends BaseCpController
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
         if (!$order || !$orderStatus) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad Order or Status'));
+            return $this->asErrorJson(Craft::t('commerce', 'Bad Order or Status'));
         }
 
         $order->orderStatusId = $orderStatus->id;
