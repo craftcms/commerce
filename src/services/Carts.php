@@ -111,7 +111,7 @@ class Carts extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cartName = 'commerce_cookie';
+    protected $cartName = 'commerce_cart';
 
     /**
      * @var Order
