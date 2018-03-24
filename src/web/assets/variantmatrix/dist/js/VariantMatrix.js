@@ -35,8 +35,8 @@
                 this.inputIdPrefix = Craft.formatInputId(this.inputNamePrefix);
 
                 this.$container = $('#' + this.id);
-                this.$variantContainer = this.$container.find('.blocks');
-                this.$addVariantBtn = this.$container.find('.btn');
+                this.$variantContainer = this.$container.children('.blocks');
+                this.$addVariantBtn = this.$container.children('.btn');
 
                 var $variants = this.$variantContainer.children(),
                     collapsedVariants = Craft.Commerce.VariantMatrix.getCollapsedVariantIds();
