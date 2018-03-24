@@ -73,7 +73,7 @@ class VariantMatrix
      */
     private static function _getVariantFieldHtml($product, $name): array
     {
-        // Create a fake Variant model so the field types have a way to get at the owner element, if there is one
+
         $variant = new Variant();
         $variant->setProduct($product);
 

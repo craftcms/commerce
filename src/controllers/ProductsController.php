@@ -120,7 +120,7 @@ class ProductsController extends BaseCpController
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
             $this->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
-                    'extraFields' => '#meta-pane, #variants',
+                    'extraFields' => '#meta-pane, #variants-container',
                     'previewUrl' => $variables['product']->getUrl(),
                     'previewAction' => 'commerce/products/previewProduct',
                     'previewParams' => [
