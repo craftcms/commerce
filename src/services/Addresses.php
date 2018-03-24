@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -157,8 +158,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new InvalidConfigException(Craft::t('commerce', 'No address exists with the ID “{id}”',
-                    ['id' => $addressModel->id]));
+                throw new InvalidArgumentException('No address exists with the ID “{id}”', ['id' => $addressModel->id]);
             }
         } else {
             $addressRecord = new AddressRecord();
