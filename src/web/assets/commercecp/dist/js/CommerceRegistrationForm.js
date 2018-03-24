@@ -22,9 +22,7 @@
         $validLicenseView: null,
         $updateLicenseView: null,
 
-        $unregisterLicenseForm: null,
         $updateLicenseForm: null,
-        $transferLicenseForm: null,
 
         $unregisterLicenseSpinner: null,
         $updateLicenseSpinner: null,
@@ -48,9 +46,7 @@
             this.$validLicenseView = $('#valid-license-view');
             this.$updateLicenseView = $('#update-license-view');
 
-            this.$unregisterLicenseForm = $('#unregister-license-form');
             this.$updateLicenseForm = $('#update-license-form');
-            this.$transferLicenseForm = $('#transfer-license-form');
 
             this.$unregisterLicenseSpinner = $('#unregister-license-spinner');
             this.$updateLicenseSpinner = $('#update-license-spinner');
@@ -62,9 +58,7 @@
             this.$clearBtn = $('#clear-license-btn');
             this.$licenseKeyError = $('#license-key-error');
 
-            this.addListener(this.$unregisterLicenseForm, 'submit', 'handleUnregisterLicenseFormSubmit');
             this.addListener(this.$updateLicenseForm, 'submit', 'handleUpdateLicenseFormSubmit');
-            this.addListener(this.$transferLicenseForm, 'submit', 'handleTransferLicenseFormSubmit');
 
             this.addListener(this.$licenseKeyInput, 'focus', 'handleLicenseKeyFocus');
             this.addListener(this.$licenseKeyInput, 'textchange', 'handleLicenseKeyTextChange');
@@ -126,12 +120,6 @@
                 } else {
                     this.$licenseKeyInput.removeClass('error');
                 }
-
-                if (this.licenseKeyStatus === 'mismatched') {
-                    this.$transferLicenseForm.removeClass('hidden');
-                } else {
-                    this.$transferLicenseForm.addClass('hidden');
-                }
             }
         },
 
@@ -153,22 +141,6 @@
 
         validateLicenseKey: function(licenseKey) {
             return (licenseKey.length === 24);
-        },
-
-        handleUnregisterLicenseFormSubmit: function(ev) {
-            ev.preventDefault();
-            this.$unregisterLicenseSpinner.removeClass('hidden');
-            Craft.postActionRequest('commerce/registration/unregister', $.proxy(function(response, textStatus) {
-                this.$unregisterLicenseSpinner.addClass('hidden');
-                if (textStatus === 'success') {
-                    if (response.success) {
-                        this.setLicenseKey(response.licenseKey);
-                        this.setLicenseKeyStatus(response.licenseKeyStatus);
-                    } else {
-                        Craft.cp.displayError(response.error);
-                    }
-                }
-            }, this));
         },
 
         handleUpdateLicenseFormSubmit: function(ev) {
@@ -193,22 +165,6 @@
                         this.setLicenseKeyStatus(response.licenseKeyStatus);
                     } else {
                         this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('commerce', 'An unknown error occurred.'));
-                    }
-                }
-            }, this));
-        },
-
-        handleTransferLicenseFormSubmit: function(ev) {
-            ev.preventDefault();
-            this.$transferLicenseSpinner.removeClass('hidden');
-            Craft.postActionRequest('commerce/registration/transfer', $.proxy(function(response, textStatus) {
-                this.$transferLicenseSpinner.addClass('hidden');
-                if (textStatus === 'success') {
-                    if (response.success) {
-                        this.setLicenseKey(response.licenseKey);
-                        this.setLicenseKeyStatus(response.licenseKeyStatus);
-                    } else {
-                        Craft.cp.displayError(response.error);
                     }
                 }
             }, this));
