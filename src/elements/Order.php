@@ -401,7 +401,7 @@ class Order extends Element
         $itemTotal = $this->getItemSubtotal();
 
         $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
+        $taxAdjustments = $this->getAdjustmentsTotalByType('tax');
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - $taxAdjustments;
     }
