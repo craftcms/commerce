@@ -20,6 +20,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\Expression;
 
 /**
@@ -187,16 +188,23 @@ class Variant extends Purchasable
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
+     * @throws InvalidConfigException if the product ID is missing from the variant
      */
     public function getProduct()
     {
-        if ($this->_product === null) {
-            if ($this->productId) {
-                $this->_product = Plugin::getInstance()->getProducts()->getProductById($this->productId);
-            }
+        if ($this->_product !== null) {
+            return $this->_product;
         }
 
-        return $this->_product;
+        if ($this->productId === null) {
+            throw new InvalidConfigException('Variant is missing its product');
+        }
+
+        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId)) === null) {
+            throw new InvalidConfigException('Invalid product ID: '.$this->productId);
+        }
+
+        return $this->_product = $product;
     }
 
     /**
