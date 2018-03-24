@@ -42,6 +42,7 @@ class Product
             $variantModel = new Variant();
         }
 
+        $variantModel->setProduct($product);
         $variantModel->enabled = $variant['enabled'] ?? 1;
         $variantModel->isDefault = $variant['isDefault'] ?? 0;
         $variantModel->sku = $variant['sku'] ?? '';
@@ -56,7 +57,7 @@ class Product
         $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
 
         if (isset($variant['fields'])) {
-            $variantModel->setFieldValuesFromRequest('fields');
+            $variantModel->setFieldValuesFromRequest("variants.{$key}.fields");
         }
 
         if (isset($variant['title'])) {
