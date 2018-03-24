@@ -232,6 +232,7 @@ class ProductTypes extends Component
                     'productTypeId',
                     'siteId',
                     'uriFormat',
+                    'hasUrls',
                     'template'
                 ])
                 ->from('{{%commerce_producttypes_sites}}')
