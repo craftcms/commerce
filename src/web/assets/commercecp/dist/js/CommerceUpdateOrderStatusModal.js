@@ -68,7 +68,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             var $footer = $('<div class="footer"/>').appendTo($form);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
-            this.$updateBtn = $('<input type="button" class="btn submit disabled" value="' + Craft.t('commerce', 'Update') + '"/>').appendTo($mainBtnGroup);
+            this.$updateBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Update') + '"/>').appendTo($mainBtnGroup);
 
             this.$updateBtn.addClass('disabled');
 
