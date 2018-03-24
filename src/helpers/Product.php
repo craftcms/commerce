@@ -60,8 +60,8 @@ class Product
             $variantModel->setFieldValuesFromRequest("variants.{$key}.fields");
         }
 
-        if (isset($variant['title'])) {
-            $variantModel->title = $variant['title'] ?: $variant->title;
+        if (!empty($variant['title'])) {
+            $variantModel->title = $variant['title'];
         }
 
         return $variantModel;
