@@ -13,7 +13,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -139,9 +138,9 @@ class ProductsController extends BaseCpController
                 if ($variables['product']->getStatus() == Product::STATUS_LIVE) {
                     $variables['shareUrl'] = $variables['product']->getUrl();
                 } else {
-                    $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/shareProduct', [
+                    $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/share-product', [
                         'productId' => $variables['product']->id,
-                        'site' => $variables['product']->site
+                        'siteId' => $variables['product']->siteId
                     ]);
                 }
             }
@@ -173,13 +172,14 @@ class ProductsController extends BaseCpController
      * Redirects the client to a URL for viewing a disabled product on the front end.
      *
      * @param mixed $productId
+     * @param mixed $siteId
      * @param mixed $site
      * @return Response
      * @throws HttpException
      */
-    public function actionShareProduct($productId, $site = null): Response
+    public function actionShareProduct($productId, $siteId): Response
     {
-        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
+        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
         if (!$product) {
             throw new HttpException(404);
@@ -194,8 +194,7 @@ class ProductsController extends BaseCpController
 
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'action' => 'commerce/products/viewSharedProduct',
-            'params' => ['productId' => $productId, 'site' => $product->site]
+            'commerce/products/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId]
         ]);
 
         $url = UrlHelper::urlWithToken($product->getUrl(), $token);
