@@ -401,9 +401,10 @@ class Order extends Element
         $itemTotal = $this->getItemSubtotal();
 
         $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
+        $taxAdjustments = $this->getAdjustmentsTotalByType('tax');
+        $includedTaxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
 
-        return $itemTotal + $allNonIncludedAdjustmentsTotal - $taxAdjustments;
+        return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
     }
 
     /**
@@ -899,20 +900,20 @@ class Order extends Element
     }
 
     /**
-     * @param string|array $type
-     * @param bool $includedOnly
+     * @param string|array $types
+     * @param bool $included
      * @return float|int
      */
-    public function getAdjustmentsTotalByType($type, $includedOnly = false)
+    public function getAdjustmentsTotalByType($types, $included = false)
     {
         $amount = 0;
 
-        if (is_string($type)) {
-            $type = StringHelper::split($type);
+        if (is_string($types)) {
+            $types = StringHelper::split($types);
         }
 
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included == $includedOnly && in_array($adjustment->type, $type)) {
+            if ($adjustment->included == $included && in_array($adjustment->type, $types, false)) {
                 $amount += $adjustment->amount;
             }
         }

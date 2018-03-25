@@ -232,6 +232,7 @@ class ProductTypes extends Component
                     'productTypeId',
                     'siteId',
                     'uriFormat',
+                    'hasUrls',
                     'template'
                 ])
                 ->from('{{%commerce_producttypes_sites}}')
@@ -575,21 +576,25 @@ class ProductTypes extends Component
      * Returns whether a product type’s products have URLs, and if the template path is valid.
      *
      * @param ProductType $productType The product for which to validate the template.
+     * @param int $siteId The site for which to valid for
      * @return bool Whether the template is valid.
+     * @throws Exception
      */
-    public function isProductTypeTemplateValid(ProductType $productType): bool
+    public function isProductTypeTemplateValid(ProductType $productType, int $siteId): bool
     {
-        if ($productType->hasUrls) {
+        $productTypeSiteSettings = $productType->getSiteSettings();
+
+        if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls) {
             // Set Craft to the site template mode
-            $templatesService = Craft::$app->getView();
-            $oldTemplateMode = $templatesService->getTemplateMode();
-            $templatesService->setTemplateMode($templatesService::TEMPLATE_MODE_SITE);
+            $view = Craft::$app->getView();
+            $oldTemplateMode = $view->getTemplateMode();
+            $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 
             // Does the template exist?
-            $templateExists = $templatesService->doesTemplateExist($productType->template);
+            $templateExists = Craft::$app->getView()->doesTemplateExist((string)$productTypeSiteSettings[$siteId]->template);
 
             // Restore the original template mode
-            $templatesService->setTemplateMode($oldTemplateMode);
+            $view->setTemplateMode($oldTemplateMode);
 
             if ($templateExists) {
                 return true;

@@ -117,16 +117,16 @@ class ProductsController extends BaseCpController
         }
 
         // Enable Live Preview?
-        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
+        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants-container',
                     'previewUrl' => $variables['product']->getUrl(),
-                    'previewAction' => 'commerce/products/previewProduct',
+                    'previewAction' => 'commerce/products/preview-product',
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
                         'productId' => $variables['product']->id,
-                        'site' => $variables['product']->site,
+                        'siteId' => $variables['product']->siteId,
                     ]
                 ]).');');
 
@@ -138,9 +138,9 @@ class ProductsController extends BaseCpController
                 if ($variables['product']->getStatus() == Product::STATUS_LIVE) {
                     $variables['shareUrl'] = $variables['product']->getUrl();
                 } else {
-                    $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/shareProduct', [
+                    $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products/share-product', [
                         'productId' => $variables['product']->id,
-                        'site' => $variables['product']->site
+                        'siteId' => $variables['product']->siteId
                     ]);
                 }
             }
@@ -165,20 +165,21 @@ class ProductsController extends BaseCpController
 
         $this->enforceProductPermissions($product);
 
-        $this->_showProduct($product);
+        return $this->_showProduct($product);
     }
 
     /**
      * Redirects the client to a URL for viewing a disabled product on the front end.
      *
      * @param mixed $productId
+     * @param mixed $siteId
      * @param mixed $site
      * @return Response
      * @throws HttpException
      */
-    public function actionShareProduct($productId, $site = null): Response
+    public function actionShareProduct($productId, $siteId): Response
     {
-        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $site);
+        $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
         if (!$product) {
             throw new HttpException(404);
@@ -187,14 +188,13 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         // Make sure the product actually can be viewed
-        if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType())) {
+        if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
             throw new HttpException(404);
         }
 
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'action' => 'commerce/products/viewSharedProduct',
-            'params' => ['productId' => $productId, 'site' => $product->site]
+            'commerce/products/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId]
         ]);
 
         $url = UrlHelper::urlWithToken($product->getUrl(), $token);

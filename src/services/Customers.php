@@ -279,12 +279,13 @@ class Customers extends Component
     }
 
     /**
-     * Grabs all orders associated with a user's email, and assigns them to the user.
+     * Assigns guest orders to a user.
      *
      * @param User $user
+     * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
      */
-    public function consolidateOrdersToUser(User $user): bool
+    public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -301,13 +302,15 @@ class Customers extends Component
                 }
             }
 
-            // Shouldn't really happen as all users should have an email.
-            if (!$toCustomer->email) {
-                return false;
-            }
+            if ($orders === null) {
+                // Shouldn't really happen as all users should have an email.
+                if (!$toCustomer->email) {
+                    return false;
+                }
 
-            // Grab all the orders for the customer.
-            $orders = Plugin::getInstance()->getOrders()->getOrdersByEmail($toCustomer->email);
+                // Grab all the orders for the customer.
+                $orders = Plugin::getInstance()->getOrders()->getOrdersByEmail($toCustomer->email);
+            }
 
             // Assign each completed order to the users' customer and update the email.
             foreach ($orders as $order) {
