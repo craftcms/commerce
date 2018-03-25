@@ -13,6 +13,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -117,16 +118,16 @@ class ProductsController extends BaseCpController
         }
 
         // Enable Live Preview?
-        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'])) {
+        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants-container',
                     'previewUrl' => $variables['product']->getUrl(),
-                    'previewAction' => 'commerce/products/previewProduct',
+                    'previewAction' => 'commerce/products/preview-product',
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
                         'productId' => $variables['product']->id,
-                        'site' => $variables['product']->site,
+                        'siteId' => $variables['product']->siteId,
                     ]
                 ]).');');
 
@@ -165,7 +166,7 @@ class ProductsController extends BaseCpController
 
         $this->enforceProductPermissions($product);
 
-        $this->_showProduct($product);
+        return $this->_showProduct($product);
     }
 
     /**
@@ -187,7 +188,7 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         // Make sure the product actually can be viewed
-        if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType())) {
+        if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
             throw new HttpException(404);
         }
 
