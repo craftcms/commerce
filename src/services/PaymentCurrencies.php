@@ -88,7 +88,7 @@ class PaymentCurrencies extends Component
 
                 // TODO: Fix this with money/money package
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
-                    throw new CurrencyException(Craft::t('commerce', 'No currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
+                    throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }
 
                 $paymentCurrency->setCurrency($currency);
