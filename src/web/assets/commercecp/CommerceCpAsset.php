@@ -48,7 +48,6 @@ class CommerceCpAsset extends AssetBundle
         $this->js[] = 'js/CommerceOrderIndex.js';
         $this->js[] = 'js/CommerceOrderTableView.js';
         $this->js[] = 'js/CommercePaymentModal.js';
-        $this->js[] = 'js/CommerceProductIndex.js';
         $this->js[] = 'js/CommerceRegistrationForm.js';
         $this->js[] = 'js/CommerceShippingItemRatesValuesInput.js';
         $this->js[] = 'js/CommerceSubscriptionIndex.js';

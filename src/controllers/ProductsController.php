@@ -14,6 +14,7 @@ use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
+use craft\commerce\web\assets\productindex\ProductIndexAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
@@ -55,9 +56,11 @@ class ProductsController extends BaseCpController
 
     /**
      * @return Response
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionProductIndex(): Response
     {
+        $this->getView()->registerAssetBundle(ProductIndexAsset::class);
         return $this->renderTemplate('commerce/products/_index');
     }
 

@@ -1,15 +1,24 @@
-if (typeof Craft.Commerce === typeof undefined) {
-    Craft.Commerce = {};
-}
-Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
+/** global: Craft */
+/** global: Garnish */
+/**
+ * Product index class
+ */
+Craft.Commerce.ProductIndex = Craft.BaseElementIndex.extend(
     {
         editableProductTypes: null,
-        $newProductsBtnGroup: null,
-        $newProductsBtn: null,
+        $newProductBtnProductType: null,
+        $newProductBtn: null,
+
+        init: function(elementType, $container, settings) {
+            this.on('selectSource', $.proxy(this, 'updateButton'));
+            this.on('selectSite', $.proxy(this, 'updateButton'));
+            this.base(elementType, $container, settings);
+        },
 
         afterInit: function() {
             // Find which of the visible productTypes the user has permission to create new products in
             this.editableProductTypes = [];
+
             for (var i = 0; i < Craft.Commerce.editableProductTypes.length; i++) {
                 var productType = Craft.Commerce.editableProductTypes[i];
 
@@ -36,55 +45,59 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
             return this.base();
         },
 
-        onSelectSource: function() {
+        updateButton: function() {
+            if (!this.$source) {
+                return;
+            }
+
             // Get the handle of the selected source
             var selectedSourceHandle = this.$source.data('handle');
 
             var i, href, label;
 
-            // Update the New Products button
+            // Update the New Product button
             // ---------------------------------------------------------------------
 
             if (this.editableProductTypes.length) {
                 // Remove the old button, if there is one
-                if (this.$newProductsBtnGroup) {
-                    this.$newProductsBtnGroup.remove();
+                if (this.$newProductBtnProductType) {
+                    this.$newProductBtnProductType.remove();
                 }
 
                 // Determine if they are viewing a productType that they have permission to create products in
-                var selectedGroup;
+                var selectedProductType;
 
                 if (selectedSourceHandle) {
                     for (i = 0; i < this.editableProductTypes.length; i++) {
                         if (this.editableProductTypes[i].handle === selectedSourceHandle) {
-                            selectedGroup = this.editableProductTypes[i];
+                            selectedProductType = this.editableProductTypes[i];
                             break;
                         }
                     }
                 }
 
-                this.$newProductsBtnGroup = $('<div class="btngroup submit"/>');
+                this.$newProductBtnProductType = $('<div class="btngroup submit"/>');
                 var $menuBtn;
 
                 // If they are, show a primary "New product" button, and a dropdown of the other productTypes (if any).
                 // Otherwise only show a menu button
-                if (selectedGroup) {
-                    href = this._getGroupTriggerHref(selectedGroup);
-                    label = (this.settings.context === 'index' ? Craft.t('app', 'New product') : Craft.t('app', 'New {productType} product', {productType: selectedGroup.name}));
-                    this.$newProductsBtn = $('<a class="btn submit add icon" ' + href + '>' + Craft.escapeHtml(label) + '</a>').appendTo(this.$newProductsBtnGroup);
+                if (selectedProductType) {
+                    href = this._getProductTypeTriggerHref(selectedProductType);
+                    label = (this.settings.context === 'index' ? Craft.t('app', 'New product') : Craft.t('app', 'New {productType} product', {productType: selectedProductType.name}));
+                    this.$newProductBtn = $('<a class="btn submit add icon" ' + href + '>' + Craft.escapeHtml(label) + '</a>').appendTo(this.$newProductBtnProductType);
 
                     if (this.settings.context !== 'index') {
-                        this.addListener(this.$newProductsBtn, 'click', function(ev) {
-                            this._openCreateProductsModal(ev.currentTarget.getAttribute('data-id'));
+                        this.addListener(this.$newProductBtn, 'click', function(ev) {
+                            this._openCreateProductModal(ev.currentTarget.getAttribute('data-id'));
                         });
                     }
 
                     if (this.editableProductTypes.length > 1) {
-                        $menuBtn = $('<div class="btn submit menubtn"></div>').appendTo(this.$newProductsBtnGroup);
+                        $menuBtn = $('<div class="btn submit menubtn"></div>').appendTo(this.$newProductBtnProductType);
                     }
                 }
                 else {
-                    this.$newProductsBtn = $menuBtn = $('<div class="btn submit add icon menubtn">' + Craft.t('app', 'New product') + '</div>').appendTo(this.$newProductsBtnGroup);
+                    this.$newProductBtn = $menuBtn = $('<div class="btn submit add icon menubtn">' + Craft.t('app', 'New product') + '</div>').appendTo(this.$newProductBtnProductType);
                 }
 
                 if ($menuBtn) {
@@ -93,8 +106,8 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
                     for (i = 0; i < this.editableProductTypes.length; i++) {
                         var productType = this.editableProductTypes[i];
 
-                        if (this.settings.context === 'index' || productType !== selectedGroup) {
-                            href = this._getGroupTriggerHref(productType);
+                        if (this.settings.context === 'index' || productType !== selectedProductType) {
+                            href = this._getProductTypeTriggerHref(productType);
                             label = (this.settings.context === 'index' ? productType.name : Craft.t('app', 'New {productType} product', {productType: productType.name}));
                             menuHtml += '<li><a ' + href + '">' + Craft.escapeHtml(label) + '</a></li>';
                         }
@@ -102,17 +115,17 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
 
                     menuHtml += '</ul></div>';
 
-                    $(menuHtml).appendTo(this.$newProductsBtnGroup);
+                    $(menuHtml).appendTo(this.$newProductBtnProductType);
                     var menuBtn = new Garnish.MenuBtn($menuBtn);
 
                     if (this.settings.context !== 'index') {
                         menuBtn.on('optionSelect', $.proxy(function(ev) {
-                            this._openCreateProductsModal(ev.option.getAttribute('data-id'));
+                            this._openCreateProductModal(ev.option.getAttribute('data-id'));
                         }, this));
                     }
                 }
 
-                this.addButton(this.$newProductsBtnGroup);
+                this.addButton(this.$newProductBtnProductType);
             }
 
             // Update the URL if we're on the Categories index
@@ -127,21 +140,27 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
 
                 history.replaceState({}, '', Craft.getUrl(uri));
             }
-
-            this.base();
         },
 
-        _getGroupTriggerHref: function(productType) {
+        _getProductTypeTriggerHref: function(productType) {
             if (this.settings.context === 'index') {
-                return 'href="' + Craft.getUrl('commerce/products/' + productType.handle + '/new') + '"';
+                var uri = 'commerce/products/' + productType.handle + '/new';
+                if (this.siteId && this.siteId != Craft.primarySiteId) {
+                    for (var i = 0; i < Craft.sites.length; i++) {
+                        if (Craft.sites[i].id == this.siteId) {
+                            uri += '/'+Craft.sites[i].handle;
+                        }
+                    }
+                }
+                return 'href="' + Craft.getUrl(uri) + '"';
             }
             else {
                 return 'data-id="' + productType.id + '"';
             }
         },
 
-        _openCreateProductsModal: function(productTypeId) {
-            if (this.$newProductsBtn.hasClass('loading')) {
+        _openCreateProductModal: function(productTypeId) {
+            if (this.$newProductBtn.hasClass('loading')) {
                 return;
             }
 
@@ -149,7 +168,7 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
             var productType;
 
             for (var i = 0; i < this.editableProductTypes.length; i++) {
-                if (this.editableProductTypes[i].id === productTypeId) {
+                if (this.editableProductTypes[i].id == productTypeId) {
                     productType = this.editableProductTypes[i];
                     break;
                 }
@@ -159,25 +178,25 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
                 return;
             }
 
-            this.$newProductsBtn.addClass('inactive');
-            var newProductsBtnText = this.$newProductsBtn.text();
-            this.$newProductsBtn.text(Craft.t('app', 'New {productType} product', {productType: productType.name}));
+            this.$newProductBtn.addClass('inactive');
+            var newProductBtnText = this.$newProductBtn.text();
+            this.$newProductBtn.text(Craft.t('app', 'New {productType} product', {productType: productType.name}));
 
             Craft.createElementEditor(this.elementType, {
-                hudTrigger: this.$newProductsBtnGroup,
-                elementType: 'craft\\elements\\Products',
+                hudTrigger: this.$newProductBtnProductType,
+                elementType: 'craft\\elements\\Product',
                 siteId: this.siteId,
                 attributes: {
-                    typeId: productTypeId
+                    productTypeId: productTypeId
                 },
                 onBeginLoading: $.proxy(function() {
-                    this.$newProductsBtn.addClass('loading');
+                    this.$newProductBtn.addClass('loading');
                 }, this),
                 onEndLoading: $.proxy(function() {
-                    this.$newProductsBtn.removeClass('loading');
+                    this.$newProductBtn.removeClass('loading');
                 }, this),
                 onHideHud: $.proxy(function() {
-                    this.$newProductsBtn.removeClass('inactive').text(newProductsBtnText);
+                    this.$newProductBtn.removeClass('inactive').text(newProductBtnText);
                 }, this),
                 onSaveElement: $.proxy(function(response) {
                     // Make sure the right productType is selected
@@ -194,4 +213,5 @@ Craft.Commerce.ProductsIndex = Craft.BaseElementIndex.extend(
         }
     });
 
-Craft.registerElementIndexClass('craft\\commerce\\elements\\Product', Craft.Commerce.ProductsIndex);
+// Register it!
+Craft.registerElementIndexClass('craft\\commerce\\elements\\Product', Craft.Commerce.ProductIndex);
