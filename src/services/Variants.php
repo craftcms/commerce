@@ -41,18 +41,6 @@ class Variants extends Component
     }
 
     /**
-     * Returns the first variant, per its product's ID.
-     *
-     * @param int $productId the product's ID
-     * @param int|null $siteId Site ID for which to return the variant. Defaults to `null` which is current site.
-     * @return Variant
-     */
-    public function getDefaultVariantByProductId(int $productId, int $siteId = null): Variant
-    {
-        return $this->getAllVariantsByProductId($productId, $siteId)[0];
-    }
-
-    /**
      * Returns a variant by its ID.
      *
      * @param int $variantId The variant’s ID.
