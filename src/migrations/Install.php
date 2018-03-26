@@ -713,7 +713,7 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_variants}}', [
             'id' => $this->integer()->notNull(),
-            'productId' => $this->integer(),
+            'productId' => $this->integer()->notNull(),
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
             'price' => $this->decimal(14, 4)->notNull(),
@@ -985,7 +985,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_transactions}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_transactions}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_variants}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'SET NULL', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'CASCADE', 'CASCADE');
     }
 
     /**

@@ -780,20 +780,6 @@ class Product extends Element
         return parent::beforeSave($isNew);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function afterDelete()
-    {
-        $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id);
-
-        foreach ($variants as $variant) {
-            Craft::$app->getElements()->deleteElementById($variant->id);
-        }
-
-        parent::afterDelete();
-    }
-
     // Protected Methods
     // =========================================================================
 
