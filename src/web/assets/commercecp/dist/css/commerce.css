@@ -15,6 +15,10 @@
     width: 100%;
 }
 
+.variant-matrixblock .text{
+    background: rgb(250, 250, 250);
+}
+
 body.ltr .variant-matrixblock > .titlebar {
     padding-right: 140px;
 }
