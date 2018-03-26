@@ -696,7 +696,7 @@ class Variant extends Purchasable
      */
     protected static function defineSources(string $context = null): array
     {
-        return Product::defineSources($context);
+        return Product::sources($context);
     }
 
     /**
