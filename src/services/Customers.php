@@ -36,7 +36,7 @@ class Customers extends Component
     // Constants
     // =========================================================================
 
-    const SESSION_CUSTOMER = 'commerce_customer_cookie';
+    const SESSION_CUSTOMER = 'commerce_customer';
 
     // Properties
     // =========================================================================
