@@ -53,8 +53,8 @@ class VariantMatrix
         $viewService->registerAssetBundle(VariantMatrixAsset::class);
         $viewService->registerJs('new Craft.Commerce.VariantMatrix('.
             '"'.$namespacedId.'", '.
-            Json::encode($fieldBodyHtml).', '.
-            Json::encode($fieldFootHtml).', '.
+            Json::encode($fieldBodyHtml, JSON_UNESCAPED_UNICODE).', '.
+            Json::encode($fieldFootHtml, JSON_UNESCAPED_UNICODE).', '.
             '"'.$namespacedName.'"'.
             ');');
 
@@ -91,7 +91,7 @@ class VariantMatrix
             'variant' => $variant
         ]);
 
-        $footHtml = $templatesService->clearJsBuffer(false);
+        $footHtml = $templatesService->clearJsBuffer();
 
         // Reset $_isFresh's
         foreach ($variantFields as $field) {
