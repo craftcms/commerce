@@ -55,9 +55,7 @@ trait Routes
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
 
-            $event->rules['commerce/settings/registration'] = 'commerce/registration/edit';
             $event->rules['commerce/settings/location'] = 'commerce/settings/edit-location';
-
 
             $event->rules['commerce/settings/taxcategories'] = 'commerce/tax-categories/index';
             $event->rules['commerce/settings/taxcategories/new'] = 'commerce/tax-categories/edit';

@@ -93,7 +93,6 @@ class Plugin extends BasePlugin
         $this->_registerPermissions();
         $this->_registerCraftEventListeners();
         $this->_registerSessionEventListeners();
-        $this->_registerCpAlerts();
         $this->_registerWidgets();
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
@@ -258,41 +257,6 @@ class Plugin extends BasePlugin
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
         }
-    }
-
-    /**
-     * Register Commerce’s CP alerts
-     */
-    private function _registerCpAlerts()
-    {
-        Event::on(CpHelper::class, CpHelper::EVENT_REGISTER_ALERTS, function(RegisterCpAlertsEvent $event) {
-            if (Craft::$app->getRequest()->getPathInfo() != 'commerce/settings/registration') {
-                $message = null;
-                $licenseKeyStatus = Craft::$app->getPlugins()->getPluginLicenseKeyStatus('Commerce');
-
-                if ($licenseKeyStatus == LicenseKeyStatus::Unknown) {
-                    if (!Craft::$app->canTestEditions) {
-                        $message = Craft::t('commerce', 'You haven’t entered your Commerce license key yet.');
-                    }
-                } else if ($licenseKeyStatus == LicenseKeyStatus::Invalid) {
-                    $message = Craft::t('commerce', 'Your Commerce license key is invalid.');
-                } else if ($licenseKeyStatus == LicenseKeyStatus::Mismatched) {
-                    $message = Craft::t('commerce', 'Your Commerce license key is being used on another Craft install.');
-                }
-
-                if ($message !== null) {
-                    $message .= ' ';
-
-                    if (Craft::$app->getUser()->getIsAdmin()) {
-                        $message .= '<a class="go" href="'.UrlHelper::cpUrl('commerce/settings/registration').'">'.Craft::t('commerce', 'Resolve').'</a>';
-                    } else {
-                        $message .= Craft::t('commerce', 'Please notify one of your site’s admins.');
-                    }
-
-                    $event->alerts[] = $message;
-                }
-            }
-        });
     }
 
     /**
