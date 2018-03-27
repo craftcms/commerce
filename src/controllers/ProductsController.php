@@ -515,8 +515,8 @@ class ProductsController extends BaseCpController
         if (($expiryDate = Craft::$app->getRequest()->getBodyParam('expiryDate')) !== null) {
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
-        $product->promotable = $request->getBodyParam('promotable');
-        $product->freeShipping = $request->getBodyParam('freeShipping');
+        $product->promotable = (bool)$request->getBodyParam('promotable');
+        $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
         $product->taxCategoryId = $request->getBodyParam('taxCategoryId');
         $product->shippingCategoryId = $request->getBodyParam('shippingCategoryId');
         $product->slug = $request->getBodyParam('slug');
