@@ -207,7 +207,7 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
-        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId)) === null) {
+        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
             throw new InvalidConfigException('Invalid product ID: '.$this->productId);
         }
 
@@ -217,19 +217,19 @@ class Variant extends Purchasable
     /**
      * Sets the product associated with this variant.
      *
-     * @param $product The product associated with this variant
+     * @param Product $product The product associated with this variant
      */
-    public function setProduct($product)
+    public function setProduct(Product $product)
     {
-        $this->_product = $product;
-
-        if ($product !== null) {
+        if ($product->siteId) {
             $this->siteId = $product->siteId;
-
-            if ($product->id) {
-                $this->productId = $product->id;
-            }
         }
+
+        if ($product->id) {
+            $this->productId = $product->id;
+        }
+
+        $this->_product = $product;
     }
 
     /**
