@@ -378,7 +378,7 @@ class ProductsController extends BaseCpController
 
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', 'Variants'),
-                'url' => '#variants',
+                'url' => '#variants-container',
                 'class' => $hasErrors ? 'error' : null
             ];
         }
