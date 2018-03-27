@@ -42,7 +42,9 @@ class Product
             $variantModel = new Variant();
         }
 
+        // Need to set the product now so that the variant custom fields
         $variantModel->setProduct($product);
+
         $variantModel->enabled = $variant['enabled'] ?? 1;
         $variantModel->isDefault = $variant['isDefault'] ?? 0;
         $variantModel->sku = $variant['sku'] ?? '';
