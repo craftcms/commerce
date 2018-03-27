@@ -652,33 +652,38 @@ class Product extends Element
 
         $this->id = $record->id;
 
-        $keepVariantIds = [];
-        $oldVariantIds = (new Query())
-            ->select('id')
-            ->from('{{%commerce_variants}}')
-            ->where(['productId' => $this->id])
-            ->column();
+        // Only save variants once (since they will propagate themselves the first time.
+        if (!$this->propagating) {
 
-        /** @var Variant $variant */
-        foreach ($this->getVariants() as $variant) {
+            $keepVariantIds = [];
+            $oldVariantIds = (new Query())
+                ->select('id')
+                ->from('{{%commerce_variants}}')
+                ->where(['productId' => $this->id])
+                ->column();
 
-            if ($isNew) {
-                $variant->productId = $this->id;
+            /** @var Variant $variant */
+            foreach ($this->getVariants() as $variant) {
+
+                if ($isNew) {
+                    $variant->productId = $this->id;
+                    $variant->siteId = $this->siteId;
+                }
+
+                // We already have set the default to the correct variant in beforeSave()
+                if ($variant->isDefault) {
+                    $this->defaultVariantId = $variant->id;
+                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();;
+                }
+
+                $keepVariantIds[] = $variant->id;
+
+                Craft::$app->getElements()->saveElement($variant, false);
             }
 
-            // We already have set the default to the correct variant in beforeSave()
-            if ($variant->isDefault) {
-                $this->defaultVariantId = $variant->id;
-                Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();;
+            foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
+                Craft::$app->getElements()->deleteElementById($deleteId);
             }
-
-            $keepVariantIds[] = $variant->id;
-
-            Craft::$app->getElements()->saveElement($variant, false);
-        }
-
-        foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
-            Craft::$app->getElements()->deleteElementById($deleteId);
         }
 
         return parent::afterSave($isNew);
