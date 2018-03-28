@@ -509,7 +509,7 @@ class ProductsController extends BaseCpController
         }
 
         $product->typeId = $request->getBodyParam('typeId');
-        $product->siteId = $siteId;
+        $product->siteId = $siteId ?? $product->siteId;
         $product->enabled = (bool)$request->getBodyParam('enabled');
         if (($postDate = Craft::$app->getRequest()->getBodyParam('postDate')) !== null) {
             $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
