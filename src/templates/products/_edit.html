@@ -108,8 +108,9 @@
     <input type="hidden" name="typeId" value="{{ productType.id }}">
     {% if product.id %}<input type="hidden" name="productId"
                               value="{{ product.id }}">{% endif %}
-    {% if craft.app.getIsMultiSite() %}<input type="hidden" name="siteId"
-                                              value="{{ product.siteId }}">{% endif %}
+    {% if craft.app.getIsMultiSite() %}
+        <input type="hidden" name="siteId" value="{{ product.siteId }}">
+    {% endif %}
     {{ redirectInput('commerce/products') }}
     {{ csrfInput() }}
 

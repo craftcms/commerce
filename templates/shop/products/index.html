@@ -1,7 +1,9 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% for product in craft.products.limit(5).all() %}
+{% set products = craft.products.limit(5).all() %}
+
+{% for product in products %}
     <div class="row product">
         <div class="two columns">
             {% include "shop/_images/product" with { class: 'u-max-full-width', number: '3' } %}
@@ -60,6 +62,20 @@
         </div>
     </div>
 {% endfor %}
+
+<form method="POST">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
+{% for product in products %}
+    <input type="hidden" name="purchasables[{{ loop.index }}][id]" value="{{ product.defaultVariant.id }}">
+    <input type="hidden" name="purchasables[{{ loop.index }}][qty]" value="1">
+    <input type="hidden" name="purchasables[{{ loop.index }}][note]" value="">
+    <input type="hidden" name="purchasables[{{ loop.index }}][options]" value="">
+{% endfor %}
+    <input type="submit" value="Add all products to cart" />
+</form>
+
 {% js %}
     $( ".purchasableId" ).change(function(e) {
         $(".purchasableInfo").hide();

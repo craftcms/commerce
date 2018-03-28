@@ -163,15 +163,6 @@ class LineItem extends Model
     }
 
     /**
-     * @param Order $order
-     */
-    public function setOrder(Order $order)
-    {
-        $this->orderId = $order->id;
-        $this->_order = $order;
-    }
-
-    /**
      * @return array
      */
     public function rules()
@@ -333,6 +324,7 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
+     *
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {

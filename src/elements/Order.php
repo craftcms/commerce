@@ -11,6 +11,8 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\base\OrderDeprecatedTrait;
+use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
@@ -39,6 +41,8 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Order or Cart model.
@@ -49,13 +53,13 @@ use yii\base\Exception;
  * @property LineItem[] $lineItems
  * @property Address $billingAddress
  * @property Address $shippingAddress
+ * @property PaymentSource|null $paymentSource
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
  * @property-read Gateway $gateway
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
- * @property-read PaymentSource $paymentSource the order’s current payment source
  * @property-read ShippingMethodInterface $shippingMethod
  * @property-read ShippingMethodInterface $shippingMethodId
  * @property-read User|null $user
@@ -68,6 +72,8 @@ use yii\base\Exception;
  * @property-read bool $isUnpaid if the order is not paid
  * @property-read float $itemTotal
  * @property-read int $itemSubtotal the total of all line item subtotals
+ * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
+ * @property-read bool $isEmpty the order has no line items with any qty
  * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
  * @property-read string $paidStatus the order’s paid status
  * @property-read string $paidStatusHtml the order’s paid status as HTML
@@ -84,6 +90,9 @@ use yii\base\Exception;
  */
 class Order extends Element
 {
+    use OrderValidatorsTrait;
+    use OrderDeprecatedTrait;
+
     // Constants
     // =========================================================================
 
@@ -148,7 +157,7 @@ class Order extends Element
     /**
      * @var bool Is completed
      */
-    public $isCompleted = 0;
+    public $isCompleted = false;
 
     /**
      * @var \DateTime Date ordered
@@ -175,10 +184,6 @@ class Order extends Element
      */
     public $gatewayId;
 
-    /**
-     * @var int|null Payment source ID
-     */
-    public $paymentSourceId;
 
     /**
      * @var string Last IP
@@ -251,6 +256,11 @@ class Order extends Element
     private $_orderAdjustments;
 
     /**
+     * @var int|null Payment source ID
+     */
+    public $paymentSourceId;
+
+    /**
      * @var string Email
      */
     private $_email;
@@ -262,6 +272,45 @@ class Order extends Element
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        if (!$this->isCompleted) {
+
+            // Values to always update while the order is a cart
+            $this->lastIp = Craft::$app->getRequest()->userIP;
+            $this->orderLocale = Craft::$app->language;
+            $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+            // Payment currency is always set to the  primary currency unless it is set to an allowed currency.
+            $paymentCurrency = Plugin::getInstance()->getSettings()->getPaymentCurrency();
+            if ($this->paymentCurrency === null && $paymentCurrency) {
+                $this->paymentCurrency = $paymentCurrency;
+            } else {
+                $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+            }
+
+            // Set default addresses on the order
+            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+                if (!$this->shippingAddressId && $this->customer && $this->customer->lastUsedShippingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->customer->lastUsedShippingAddressId)) !== null) {
+                        $this->setShippingAddress($address);
+                    }
+                }
+
+                if (!$this->billingAddressId && $this->customer && $this->customer->lastUsedBillingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->customer->lastUsedBillingAddressId)) !== null) {
+                        $this->setBillingAddress($address);
+                    }
+                }
+            }
+        }
+
+        return parent::init();
+    }
 
     /**
      * @return null|string
@@ -362,6 +411,31 @@ class Order extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
+
+        // Address models are valid?
+        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddress']; // from OrderValidatorTrait
+
+        // Line items are valid?
+        $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
+
+        $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
+        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrdesrValidatorsTrait
+        $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
+        $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
+
+        $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
+        $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
+        $rules[] = [['email'], 'email'];
+
+        return $rules;
+    }
+
+    /**
      * Updates the paid amounts on the order, and marks as complete if the order is paid.
      */
     public function updateOrderPaidTotal()
@@ -394,6 +468,8 @@ class Order extends Element
     }
 
     /**
+     * Returns the total price of the order, minus any tax adjustments.
+     *
      * @return float
      */
     public function getTotalTaxablePrice(): float
@@ -424,6 +500,8 @@ class Order extends Element
     }
 
     /**
+     * Marks the order as complete and sets the default order status, then saves the order.
+     *
      * @return bool
      * @throws OrderStatusException
      * @throws Exception
@@ -452,7 +530,7 @@ class Order extends Element
             $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
-        if (Craft::$app->getElements()->saveElement($this)) {
+        if (Craft::$app->getElements()->saveElement($this,false)) {
 
             $this->afterOrderComplete();
 
@@ -489,13 +567,13 @@ class Order extends Element
     /**
      * Removes a specific line item from the order.
      *
-     * @param $lineItem
+     * @param LineItem $lineItem
      */
-    public function removeLineItem($lineItem)
+    public function removeLineItem(LineItem $lineItem)
     {
         $lineItems = $this->getLineItems();
         foreach ($lineItems as $key => $item) {
-            if ($lineItem->id == $item->id) {
+            if ($lineItem->id == $item->id || $lineItem === $item) {
                 unset($lineItems[$key]);
                 $this->setLineItems($lineItems);
             }
@@ -503,14 +581,26 @@ class Order extends Element
     }
 
     /**
-     * Adds a line item to the order.
+     * Adds a line item to the order. Updates the line item if the ID of that line item is already in the cart.
      *
      * @param $lineItem
      */
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $this->setLineItems(array_merge($lineItems, [$lineItem]));
+        $replaced = false;
+        foreach ($lineItems as $key => $item) {
+            if ($lineItem->id && $item->id == $lineItem->id) {
+                $lineItems[$key] = $lineItem;
+                $replaced = true;
+            }
+        }
+
+        if (!$replaced) {
+            $lineItems[] = $lineItem;
+        }
+
+        $this->setLineItems($lineItems);
     }
 
     /**
@@ -610,11 +700,9 @@ class Order extends Element
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
         $orderRecord->datePaid = $this->datePaid ?: null;
-        $orderRecord->billingAddressId = $this->billingAddressId;
-        $orderRecord->shippingAddressId = $this->shippingAddressId;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
-        $orderRecord->paymentSourceId = $this->paymentSourceId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
         $orderRecord->totalPrice = $this->getTotalPrice();
@@ -628,6 +716,18 @@ class Order extends Element
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
+
+        // Save shipping address, it has already been validated.
+        if ($shippingAddress = $this->getShippingAddress()) {
+            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
+            $orderRecord->shippingAddressId = $shippingAddress->id;
+        }
+
+        // Save billing address, it has already been validated.
+        if ($billingAddress = $this->getBillingAddress()) {
+            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
+            $orderRecord->billingAddressId = $billingAddress->id;
+        }
 
         $orderRecord->save(false);
 
@@ -922,50 +1022,6 @@ class Order extends Element
     }
 
     /**
-     * @deprecated
-     * @return float
-     */
-    public function getTotalTax(): float
-    {
-        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
-
-        return $this->getAdjustmentsTotalByType('tax');
-    }
-
-    /**
-     * @deprecated
-     * @return float
-     */
-    public function getTotalTaxIncluded(): float
-    {
-        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
-
-        return $this->getAdjustmentsTotalByType('tax', true);
-    }
-
-    /**
-     * @deprecated
-     * @return float
-     */
-    public function getTotalDiscount(): float
-    {
-        Craft::$app->getDeprecator()->log('Order::getTotalDiscount()', 'Order::getTotalDiscount() has been deprecated. Use Order::getAdjustmentsTotalByType("discount") instead.');
-
-        return $this->getAdjustmentsTotalByType('discount');
-    }
-
-    /**
-     * @deprecated
-     * @return float
-     */
-    public function getTotalShippingCost(): float
-    {
-        Craft::$app->getDeprecator()->log('Order::getTotalShippingCost()', 'Order::getTotalShippingCost() has been deprecated. Use Order::getAdjustmentsTotalByType("shipping") instead.');
-
-        return $this->getAdjustmentsTotalByType('shipping');
-    }
-
-    /**
      * @return float
      */
     public function getTotalWeight(): float
@@ -1140,36 +1196,58 @@ class Order extends Element
 
     /**
      * @return GatewayInterface|null
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      */
     public function getGateway()
     {
-        if ($this->paymentSourceId) {
-            $paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
-
-            if ($paymentSource) {
-                return Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
-            }
+        if ($this->gatewayId === null) {
+            return null;
         }
 
-        if ($this->gatewayId) {
-            return Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        if (($gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId)) === null) {
+            throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
-        return null;
+        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
+            throw new InvalidConfigException('Gateway not allowed.');
+        }
+
+        return $gateway;
     }
 
     /**
      * Returns the order's selected payment source if any.
      *
-     * @return PaymentSource
+     * @return PaymentSource|null
+     * @throws InvalidConfigException if the order is set to an invalid payment source
      */
     public function getPaymentSource()
     {
-        if ($this->paymentSourceId) {
-            return Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId);
+        if ($this->paymentSourceId === null) {
+            return null;
         }
 
-        return null;
+        if (($user = $this->getUser()) === null) {
+            throw new InvalidConfigException('Guest customers can not set a payment source.');
+        }
+
+        if (($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceByIdAndUserId($this->paymentSourceId, $user->id)) === null) {
+            throw new InvalidArgumentException("Invalid payment source ID: {$this->paymentSourceId}");
+        }
+
+        return $paymentSource;
+    }
+
+    /**
+     * Sets the order's selected payment source
+     *
+     * @param PaymentSource|null $paymentSource
+     */
+    public function setPaymentSource(PaymentSource $paymentSource = null)
+    {
+        $this->paymentSourceId = $paymentSource->id;
+        $this->gatewayId = null;
     }
 
     /**

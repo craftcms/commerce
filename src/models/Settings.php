@@ -9,11 +9,16 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
+use craft\helpers\ConfigHelper;
+use yii\base\InvalidConfigException;
 
 /**
  * Settings model.
  *
  * @property array $weightUnitsOptions
+ * @property-read string $paymentCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -76,6 +81,11 @@ class Settings extends Model
      * @var string
      */
     public $cartCookieDuration = 'P3M';
+
+    /**
+     * @var array
+     */
+    public $paymentCurrency;
 
     /**
      * @var array
@@ -154,6 +164,25 @@ class Settings extends Model
             'ft' => Craft::t('commerce', 'Feet (ft)'),
             'in' => Craft::t('commerce', 'Inches (in)'),
         ];
+    }
+
+    /**
+     * @param string|null $siteHandle
+     * @return string|null
+     * @throws InvalidConfigException if the currency in the config file is not set up
+     * @throws \craft\commerce\errors\CurrencyException
+     */
+    public function getPaymentCurrency(string $siteHandle = null)
+    {
+        $paymentCurrency = ConfigHelper::localizedValue($this->paymentCurrency, $siteHandle);
+        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+        $paymentCurrencies = ArrayHelper::getColumn($allPaymentCurrencies, 'iso');
+
+        if ($paymentCurrency && !in_array($paymentCurrency, $paymentCurrencies, false)) {
+            throw new InvalidConfigException("Invalid payment currency: {$paymentCurrency}");
+        }
+
+        return $paymentCurrency;
     }
 
     /**

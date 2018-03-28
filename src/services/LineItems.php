@@ -114,26 +114,25 @@ class LineItems extends Component
     }
 
     /**
-     * Takes an Order, a purchasable id, options, and resolves it to a line item.
+     * Takes an order ID, a purchasable ID, options, and resolves it to a line item.
      *
-     * If a line item is found for that order with those exact options, that line item is
-     * return with its quantity increased. Otherwise, a new line item is returned.
+     * If a line item is found for that order ID with those exact options, that line item is
+     * returned. Otherwise, a new line item is returned.
      *
-     * @param Order $order
+     * @param int $orderId
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
      * @param int $qty
      * @param string $note
      * @return LineItem
-     * @throws InvalidConfigException if invalid purchasable id supplied
      */
-    public function resolveLineItem(Order $order, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
+    public function resolveLineItem(int $orderId, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
     {
         ksort($options);
         $signature = md5(json_encode($options));
         $result = $this->_createLineItemQuery()
             ->where([
-                'orderId' => $order->id,
+                'orderId' => $orderId,
                 'purchasableId' => $purchasableId,
                 'optionsSignature' => $signature
             ])
@@ -141,20 +140,10 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-
-            foreach ($order->getLineItems() as $item) {
-                if ($item->id == $lineItem->id) {
-                    $lineItem = $item;
-                }
-            }
-
+            $lineItem->note = $note;
             $lineItem->qty += $qty;
         } else {
-            $lineItem = $this->createLineItem($purchasableId, $order, $options, $qty);
-        }
-
-        if ($note) {
-            $lineItem->note = $note;
+            $lineItem = $this->createLineItem($orderId, $purchasableId, $options, $qty, $note);
         }
 
         return $lineItem;
@@ -313,21 +302,25 @@ class LineItems extends Component
      * Create a line item.
      *
      * @param int $purchasableId The ID of the purchasable the line item represents
-     * @param Order $order The order the line item is associated with
+     * @param int $orderId The order ID the line item is associated with
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
+     * @param string $note The note on the line item
      * @return LineItem
-     * @throws InvalidConfigException if purchasable is not found.
+     *
+     * @throws InvalidArgumentException if the purchasable ID is not valid
      */
-    public function createLineItem(int $purchasableId, Order $order, array $options, int $qty): LineItem
+    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
     {
+        ksort($options);
+
         $lineItem = new LineItem();
         $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
-        ksort($options);
         $lineItem->options = $options;
         $lineItem->optionsSignature = md5(json_encode($options));
-        $lineItem->setOrder($order);
+        $lineItem->orderId = $orderId;
+        $lineItem->note = $note;
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
@@ -346,6 +339,8 @@ class LineItems extends Component
                 'isNew' => true,
             ]));
         }
+
+        $lineItem->refreshFromPurchasable();
 
         return $lineItem;
     }
