@@ -471,6 +471,8 @@ class ProductsController extends BaseCpController
                 $variables['product']->typeId = $variables['productType']->id;
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
+                $variables['product']->promotable = true;
+                $variables['product']->freeShipping = false;
             }
         }
 
@@ -508,7 +510,7 @@ class ProductsController extends BaseCpController
 
         $product->typeId = $request->getBodyParam('typeId');
         $product->siteId = $siteId;
-        $product->enabled = $request->getBodyParam('enabled');
+        $product->enabled = (bool)$request->getBodyParam('enabled');
         if (($postDate = Craft::$app->getRequest()->getBodyParam('postDate')) !== null) {
             $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
         }
