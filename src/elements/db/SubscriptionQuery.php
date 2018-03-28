@@ -94,6 +94,11 @@ class SubscriptionQuery extends ElementQuery
      */
     public $dateExpired;
 
+    /**
+     * @var array
+     */
+    protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
+
     // Public Methods
     // =========================================================================
 
@@ -452,10 +457,6 @@ class SubscriptionQuery extends ElementQuery
             $this->subQuery->andWhere($this->_getTrialCondition(true));
         } else if ($this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
-        }
-
-        if (!$this->orderBy) {
-            $this->orderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
         }
 
         return parent::beforePrepare();
