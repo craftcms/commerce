@@ -1,8 +1,4 @@
 .DS_Store
-sami.phar
-codecept.phar
-classdocs/build/
-classdocs/cache/
 *.idea/*
 *.log
 *.bak
@@ -10,6 +6,5 @@ classdocs/cache/
 *.sass-cache/*
 *Thumbs.db
 *aspnet_client/*
-commerce/vendor/
 /composer.lock
 /node_modules
