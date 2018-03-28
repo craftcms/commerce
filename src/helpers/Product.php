@@ -45,8 +45,8 @@ class Product
         // Need to set the product now so that the variant custom fields
         $variantModel->setProduct($product);
 
-        $variantModel->enabled = $variant['enabled'] ?? 1;
-        $variantModel->isDefault = $variant['isDefault'] ?? 0;
+        $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
+        $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
         $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
         $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
