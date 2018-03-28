@@ -317,16 +317,16 @@ class Variant extends Purchasable
      */
     public function getSnapshot(): array
     {
-        $data = [
-            'onSale' => $this->getOnSale(),
-            'cpEditUrl' => $this->getProduct() ? $this->getProduct()->getCpEditUrl() : ''
-        ];
+        $data = [];
+        $data['onSale'] = $this->getOnSale();
+
+        $data['cpEditUrl'] = $this->getProduct() ? $this->getProduct()->getCpEditUrl() : [];
 
         // Product Attributes
-        $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : '';
+        $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
         // Variant Custom Field values
-        $data['productFields'] = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues();
+        $data['productFields'] = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues() : [];
 
         // Variant Custom Field values
         $data['fields'] = $this->getSerializedFieldValues();
