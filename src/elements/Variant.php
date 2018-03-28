@@ -311,9 +311,9 @@ class Variant extends Purchasable
     }
 
     /**
-     * We need to be explicit to meet interface
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getSnapshot(): array
     {
@@ -322,7 +322,14 @@ class Variant extends Purchasable
             'cpEditUrl' => $this->getProduct() ? $this->getProduct()->getCpEditUrl() : ''
         ];
 
+        // Product Attributes
         $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : '';
+
+        // Variant Custom Field values
+        $data['productFields'] = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues();
+
+        // Variant Custom Field values
+        $data['fields'] = $this->getSerializedFieldValues();
 
         return array_merge($this->getAttributes(), $data);
     }
