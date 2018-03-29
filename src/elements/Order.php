@@ -471,6 +471,7 @@ class Order extends Element
 
     /**
      * Returns the total price of the order, minus any tax adjustmemnts.
+     *
      * @return float
      */
     public function getTotalTaxablePrice(): float
@@ -531,7 +532,7 @@ class Order extends Element
             $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
-        if (Craft::$app->getElements()->saveElement($this,false)) {
+        if (Craft::$app->getElements()->saveElement($this, false)) {
 
             $this->afterOrderComplete();
 
@@ -720,13 +721,25 @@ class Order extends Element
 
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, false);
+            $customer = $this->getCustomer();
+            if ($customer) {
+                Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
+            } else {
+                Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
+            }
+
             $orderRecord->shippingAddressId = $shippingAddress->id;
         }
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, false);
+            $customer = $this->getCustomer();
+            if ($customer) {
+                Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
+            } else {
+                Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
+            }
+
             $orderRecord->billingAddressId = $billingAddress->id;
         }
 
@@ -1152,8 +1165,7 @@ class Order extends Element
      */
     public function setShippingAddress($address)
     {
-        if (!$address instanceof Address)
-        {
+        if (!$address instanceof Address) {
             $address = new Address($address);
         }
 
@@ -1178,9 +1190,8 @@ class Order extends Element
      */
     public function setBillingAddress($address)
     {
-        if (!$address instanceof Address)
-        {
-           $address = new Address($address);
+        if (!$address instanceof Address) {
+            $address = new Address($address);
         }
 
         $this->billingAddressId = $address->id;

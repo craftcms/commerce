@@ -145,14 +145,19 @@ class Customers extends Component
      * Associates an address with the saved customer, and saves the address.
      *
      * @param Address $address
+     * @param Customer|null $customer Defaults to the current customer in session if none is passing in.
+     * @param bool $runValidation should we validate this address before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveAddress(Address $address): bool
+    public function saveAddress(Address $address, Customer $customer = null, bool $runValidation = true): bool
     {
-        $customer = $this->_getSavedCustomer();
+        // default to customer in session.
+        if (null === $customer) {
+            $customer = $this->_getSavedCustomer();
+        }
 
-        if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
+        if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
                 'addressId' => $address->id
