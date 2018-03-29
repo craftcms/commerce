@@ -101,9 +101,14 @@ class CustomerAddressesController extends BaseFrontEndController
     /**
      * Remove Address
      *
+     * @return Response
+     * @throws Exception
      * @throws HttpException
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\web\BadRequestHttpException
      */
-    public function actionDelete(): Response
+    public function actionDelete()
     {
         $this->requirePostRequest();
 
@@ -111,7 +116,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $id = Craft::$app->getRequest()->getParam('id', 0);
+        $id = Craft::$app->getRequest()->getParam('id');
 
         if (!$id) {
             throw new HttpException(400);
@@ -135,7 +140,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 }
 
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
-                $this->redirectToPostedUrl();
+                return $this->redirectToPostedUrl();
             } else {
                 $error = Craft::t('commerce', 'Could not delete address.');
             }

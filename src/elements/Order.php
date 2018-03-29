@@ -307,6 +307,8 @@ class Order extends Element
                     }
                 }
             }
+
+            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
         }
 
         return parent::init();
@@ -468,8 +470,7 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustments.
-     *
+     * Returns the total price of the order, minus any tax adjustmemnts.
      * @return float
      */
     public function getTotalTaxablePrice(): float
@@ -719,13 +720,13 @@ class Order extends Element
 
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
+            Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
         }
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
+            Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, false);
             $orderRecord->billingAddressId = $billingAddress->id;
         }
 
@@ -1147,10 +1148,16 @@ class Order extends Element
     }
 
     /**
-     * @param Address $address
+     * @param Address|array $address
      */
-    public function setShippingAddress(Address $address)
+    public function setShippingAddress($address)
     {
+        if (!$address instanceof Address)
+        {
+            $address = new Address($address);
+        }
+
+        $this->shippingAddressId = $address->id;
         $this->_shippingAddress = $address;
     }
 
@@ -1167,10 +1174,16 @@ class Order extends Element
     }
 
     /**
-     * @param Address $address
+     * @param Address|array $address
      */
-    public function setBillingAddress(Address $address)
+    public function setBillingAddress($address)
     {
+        if (!$address instanceof Address)
+        {
+           $address = new Address($address);
+        }
+
+        $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
     }
 

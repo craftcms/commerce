@@ -29,10 +29,14 @@
                     name: 'shippingAddress'
                 } %}
 
-                <input type="hidden" name="sameAddress" value="0">
+                <input type="hidden" name="billingAddressSameAsShipping" value="0">
+                {#<input type="hidden" name="shippingAddressSameAsBilling" value="0">#}
 
-                <label for="sameAddress"><input id="sameAddress" name="sameAddress" type="checkbox" checked="checked"/><span class="label-body">Use same address for
+                <label for="billingAddressSameAsShipping"><input id="billingAddressSameAsShipping" name="billingAddressSameAsShipping" type="checkbox" checked="checked"/><span class="label-body">Use same address for
                 billing</span></label>
+
+                {#<label for="shippingAddressSameAsBilling"><input id="shippingAddressSameAsBilling" name="shippingAddressSameAsBilling" type="checkbox" checked="checked"/><span class="label-body">Use same address for#}
+                {#billing</span></label>#}
 
                 <br>
 
@@ -75,12 +79,12 @@
 
     });
 
-    $("#sameAddress").change(function (e) {
+    $("#billingAddressSameAsShipping").change(function (e) {
         $('.address-fieldset.BillingAddress').toggleClass('hidden');
     });
 
     {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
-        $("#sameAddress").click();
+        $("#billingAddressSameAsShipping").click();
     {% endif %}
     {% endjs %}
 

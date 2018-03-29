@@ -135,9 +135,9 @@ class Customer extends Model
      * @param int|null $id the ID of the address to return, if known
      * @return Address|null
      */
-    public function getAddress($id = null)
+    public function getAddressById(int $id = null)
     {
-        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        $addresses = $this->getAddresses();
         foreach ($addresses as $address) {
             if ($id === $address->id) {
                 return $address;

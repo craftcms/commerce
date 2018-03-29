@@ -3,6 +3,8 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\models\Address;
+use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -45,8 +47,18 @@ trait OrderValidatorsTrait
      */
     public function validateAddress($attribute)
     {
+        /** @var Address $address */
         $address = $this->$attribute;
+        $customer = $this->getCustomer();
+
         if (!$address->validate()) {
+            $this->addModelErrors($address, $attribute);
+        }
+
+        $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
+        if ($address->id && !in_array($address->id, $addressesIds,false))
+        {
+            $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
             $this->addModelErrors($address, $attribute);
         }
     }

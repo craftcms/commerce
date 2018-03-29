@@ -19,6 +19,7 @@ use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use craft\web\Response;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -128,13 +129,14 @@ class CartController extends BaseFrontEndController
         // Set the custom fields submitted
         $this->_cart->setFieldValuesFromRequest('fields');
 
-        // Old way of adding to the cart
+        // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
             $note = $request->getParam('note', '');
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
-            $this->_cart->addPurchasableToCart($purchasableId, $options, $qty, $note);
+            $lineItem  = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+            $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
@@ -145,16 +147,67 @@ class CartController extends BaseFrontEndController
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
-                $this->_cart->addPurchasableToCart($purchasableId, $options, $qty, $note);
+                $lineItem  = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+                $this->_cart->addLineItem($lineItem);
             }
         };
 
-        if ($shippingAddress = $request->getParam('shippingAddress')) {
-            $this->_cart->setShippingAddress($shippingAddress);
+        $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
+        $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
+
+        if ($shippingIsBilling && $billingIsShipping)
+        {
+            throw new InvalidArgumentException('Can only set one address type to the other');
         }
 
-        if ($billingAddress = $request->getParam('billingAddress')) {
+        $shippingAddress = $request->getParam('shippingAddress');
+        $billingAddress = $request->getParam('billingAddress');
+
+        // Override billing address with a particular ID
+        $shippingAddressId = $request->getParam('shippingAddressId');
+        $billingAddressId = $request->getParam('billingAddressId');
+
+        if (!$shippingAddressId && $shippingAddress && !$shippingIsBilling) {
+            $this->_cart->setShippingAddress($shippingAddress);
+
+            if ($billingIsShipping)
+            {
+                $this->_cart->setBillingAddress($shippingAddress);
+            }
+        }
+
+        if ($shippingAddressId)
+        {
+            $this->_cart->shippingAddressId = $shippingAddressId;
+        }
+
+        if (!$billingAddressId & $billingAddress && !$billingIsShipping) {
             $this->_cart->setBillingAddress($billingAddress);
+
+            if ($shippingIsBilling)
+            {
+                $this->_cart->setShippingAddress($billingAddress);
+            }
+        }
+
+        if ($billingAddressId && !$billingIsShipping)
+        {
+            $this->_cart->billingAddressId = $billingAddressId;
+
+            if ($shippingIsBilling)
+            {
+                $this->_cart->shippingAddressId = $billingAddressId;
+            }
+        }
+
+        if ($shippingAddressId && !$shippingIsBilling)
+        {
+            $this->_cart->shippingAddressId = $shippingAddressId;
+
+            if ($billingIsShipping)
+            {
+                $this->_cart->billingAddressId = $shippingAddressId;
+            }
         }
 
         // Set guest email address onto guest customer and order.

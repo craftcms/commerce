@@ -20,8 +20,8 @@
                 {% include 'shop/_includes/addresses/address' with {'address': address} %}
                 <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
                 <form method="POST">
+                    <input type="hidden" name="action" value="commerce/customer-addresses/delete">
                     {{ csrfInput() }}
-                    <input type="hidden" name="action" value="commerce/customerAddresses/delete">
                     <input type="hidden" name="id" value="{{ address.id }}"/>
                     <input type="submit" value="delete"/>
                 </form>

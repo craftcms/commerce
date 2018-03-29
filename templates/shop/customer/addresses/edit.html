@@ -6,7 +6,7 @@
     {% set redirect = craft.app.request.param('redirect') %}
 
     {% if not address is defined and addressId %}
-        {% set address = craft.commerce.customers.customer.address(addressId) %}
+        {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
     {% endif %}
 
     <form method="post">
