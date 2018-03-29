@@ -227,7 +227,7 @@ class Discounts extends Component
 
         if ($customerId) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-            if ($discount->perUserLimit > 0 && !Craft::$app->getUser()->isLoggedIn()) {
+            if ($discount->perUserLimit > 0 && Craft::$app->getUser()->getIsGuest()) {
                 $explanation = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
 
                 return false;
