@@ -271,7 +271,10 @@ class Discount extends Model
     public function getPercentDiscountAsPercent(): string
     {
         if ($this->percentDiscount !== 0) {
-            return Craft::$app->formatter->asPercent(-$this->percentDiscount);
+            $string = (string)$this->percentDiscount;
+            $number = rtrim($string, '0');
+            $diff = strlen($string) - strlen($number);
+            return Craft::$app->formatter->asPercent(-$this->percentDiscount, 2 - $diff);
         }
 
         return Craft::$app->formatter->asPercent(0);

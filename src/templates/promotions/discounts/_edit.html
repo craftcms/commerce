@@ -289,7 +289,7 @@
 
         {{ forms.field({
             label: "Percent Discount"|t,
-            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off"|t,
+            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places."|t,
             id: 'percentDiscount',
             errors: discount.getErrors('percentDiscount'),
         }, pctDiscountInput) }}
