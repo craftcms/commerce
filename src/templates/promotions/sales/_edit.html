@@ -158,7 +158,7 @@
         {% endspaceless %}{% endset %}
         {{ forms.textField({
             label: "Amount"|t('commerce'),
-            instructions: "A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off)."|t('commerce'),
+            instructions: "A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off). Percentages are rounded to 2 decimal places."|t('commerce'),
             id: 'applyAmount',
             name: 'applyAmount',
             required: true,
