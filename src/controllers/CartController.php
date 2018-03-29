@@ -86,6 +86,8 @@ class CartController extends BaseFrontEndController
         }
 
         $this->_cart->addLineItem($lineItem);
+
+        return $this->_returnCart();
     }
 
     /**
@@ -108,6 +110,8 @@ class CartController extends BaseFrontEndController
         }
 
         $this->_cart->removeLineItem($lineItem);
+
+        return $this->_returnCart();
     }
 
     /**
@@ -151,6 +155,8 @@ class CartController extends BaseFrontEndController
                 $this->_cart->addLineItem($lineItem);
             }
         };
+
+        // Address updating
 
         $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
         $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
@@ -239,16 +245,8 @@ class CartController extends BaseFrontEndController
         if ($shippingMethodHandle = $request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
         }
-    }
 
-    /**
-     * Returns the cart
-     */
-    public function afterAction($action, $result)
-    {
-        $this->_returnCart();
-
-        return parent::afterAction($action, $result);
+        return $this->_returnCart();
     }
 
     // Private Methods
@@ -284,7 +282,7 @@ class CartController extends BaseFrontEndController
         Craft::$app->getElements()->saveElement($this->_cart, false);
 
         if ($request->getAcceptsJson()) {
-            $this->asJson(['cart' => $this->cartArray($this->_cart)]);
+            return $this->asJson(['cart' => $this->cartArray($this->_cart)]);
         } else {
             Craft::$app->getUrlManager()->setRouteParams([
                 'cart' => $this->_cart
