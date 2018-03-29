@@ -9,7 +9,7 @@
         <div class="ten columns">
             <h5>{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h5>
             {% if product.getVariants()|length %}
-                <form method="POST">
+                <form method="POST" class="add-to-cart-form">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/cart') }}
                     <input type="hidden" name="qty" value="1">
@@ -59,11 +59,41 @@
             {% endif %}
         </div>
     </div>
+
 {% endfor %}
-{% js %}
+    {# Enable for ajax testing #}
+    {#<script src="https://code.jquery.com/jquery-3.3.1.js"#}
+            {#integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="#}
+            {#crossorigin="anonymous"></script>#}
+
+    {% js %}
     $( ".purchasableId" ).change(function(e) {
         $(".purchasableInfo").hide();
         $("#"+($(this).find(":selected").data('info'))).toggle();
     });
+
+    {# Enable for ajax testing #}
+    {#
+    $('form.add-to-cart-form').submit(function(e){
+        e.preventDefault();
+        var purchasable = $(this).find('.purchasableId').val();
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            headers: {
+                "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+            },
+            url: '',
+            data: {
+                'action' : 'commerce/cart/update-cart',
+                'purchasableId': purchasable,
+                'note' : 'from ajax'
+            },
+            success: function(data){
+                console.log(data);
+            }
+        });
+    });
+    #}
 {% endjs %}
 {% endblock %}

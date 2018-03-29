@@ -354,7 +354,7 @@ class CartController extends BaseFrontEndController
         if (empty($updateErrors)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
             if ($request->getAcceptsJson()) {
-                $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+                return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
             $this->redirectToPostedUrl();
         } else {
@@ -362,7 +362,7 @@ class CartController extends BaseFrontEndController
             $this->_cart->addErrors($updateErrors);
 
             if ($request->getAcceptsJson()) {
-                $this->asJson(['error' => $error, 'cart' => $this->cartArray($this->_cart)]);
+                return $this->asJson(['error' => $error, 'cart' => $this->cartArray($this->_cart)]);
             } else {
                 Craft::$app->getSession()->setError($error);
             }
