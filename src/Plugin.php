@@ -36,6 +36,7 @@ use craft\services\Dashboard;
 use craft\services\Fields;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\web\Request;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
@@ -96,6 +97,7 @@ class Plugin extends BasePlugin
         $this->_registerWidgets();
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
+        $this->_registerPoweredByHeader();
     }
 
     /**
@@ -304,6 +306,9 @@ class Plugin extends BasePlugin
         });
     }
 
+    /**
+     * Register for FK restore plugin
+     */
     private function _registerForeignKeysRestore()
     {
         if (!class_exists(\craft\fixfks\controllers\RestoreController::class)) {
@@ -314,5 +319,22 @@ class Plugin extends BasePlugin
             // Add default FKs
             (new Install())->addForeignKeys();
         });
+    }
+
+    /**
+     * Register the powered-by header
+     */
+    private function _registerPoweredByHeader()
+    {
+        $headers = Craft::$app->getResponse()->getHeaders();
+
+        // Send the X-Powered-By header?
+        if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
+            $original = $headers->get('X-Powered-By');
+            $headers->set('X-Powered-By', $original.($original ? ',' : '').'Craft Commerce');
+        } else {
+            // In case PHP is already setting one
+            header_remove('X-Powered-By');
+        }
     }
 }
