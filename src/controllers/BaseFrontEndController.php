@@ -38,10 +38,10 @@ class BaseFrontEndController extends BaseController
         $data['id'] = $cart->id;
         $data['number'] = $cart->number;
         $data['couponCode'] = $cart->couponCode;
-        $data['itemTotal'] = $cart->itemTotal;
-        $data['totalPrice'] = $cart->totalPrice;
-        $data['totalPaid'] = $cart->totalPaid;
-        $data['email'] = $cart->email;
+        $data['itemTotal'] = $cart->getItemTotal();
+        $data['itemSubtotal'] = $cart->getItemSubtotal();
+        $data['totalPaid'] = $cart->getTotalPaid();
+        $data['email'] = $cart->getEmail();
         $data['isCompleted'] = $cart->isCompleted;
         $data['dateOrdered'] = $cart->dateOrdered;
         $data['datePaid'] = $cart->datePaid;
@@ -57,15 +57,12 @@ class BaseFrontEndController extends BaseController
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
-        $data['totalQty'] = $cart->totalQty;
+        $data['totalQty'] = $cart->getTotalQty();
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
         $data['isEmpty'] = $cart->getIsEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->getTotalWeight();
-        $data['totalTax'] = $cart->getAdjustmentsTotalByType('Tax');
-        $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('Tax', true);
-        $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('Shipping');
-        $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('Discount');
+        $data['totalPrice'] = $cart->getTotalPrice();
 
         $data['availableShippingMethods'] = $cart->getAvailableShippingMethods();
 
@@ -91,11 +88,6 @@ class BaseFrontEndController extends BaseController
             $lineItemData['saleAmount'] = $lineItem->saleAmount;
             $lineItemData['salePrice'] = $lineItem->salePrice;
             $lineItemData['qty'] = $lineItem->qty;
-            $lineItemData['subtotal'] = $lineItem->getSubtotal();
-            $lineItemData['tax'] = $lineItem->tax;
-            $lineItemData['shippingCost'] = $lineItem->shippingCost;
-            $lineItemData['discount'] = $lineItem->discount;
-            $lineItemData['total'] = $lineItem->total;
             $lineItemData['weight'] = $lineItem->weight;
             $lineItemData['length'] = $lineItem->length;
             $lineItemData['height'] = $lineItem->height;
@@ -111,6 +103,8 @@ class BaseFrontEndController extends BaseController
             $lineItemData['onSale'] = $lineItem->getOnSale();
             $lineItemData['options'] = $lineItem->options;
             $lineItemData['optionsSignature'] = $lineItem->optionsSignature;
+            $lineItemData['subtotal'] = $lineItem->getSubtotal();
+            $lineItemData['total'] = $lineItem->getTotal();
             $lineItems[$lineItem->id] = $lineItemData;
         }
         $data['lineItems'] = $lineItems;
