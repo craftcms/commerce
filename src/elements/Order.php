@@ -425,6 +425,9 @@ class Order extends Element
         // Line items are valid?
         $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
 
+        // Coupon Code valid?
+        $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
+
         $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
         $rules[] = [['gatewayId'], 'validateGatewayId']; // OrdesrValidatorsTrait
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
@@ -613,7 +616,7 @@ class Order extends Element
     public function recalculate()
     {
         // Don't recalculate the totals of completed orders.
-        if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments()) {
+        if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
             return;
         }
 

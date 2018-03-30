@@ -23,7 +23,9 @@
 <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
 
-{% set cart = craft.commerce.carts.cart %}
+{% if cart is not defined %}
+    {% set cart = craft.commerce.carts.cart %}
+{% endif %}
 
 {% block header %}
     <div id="header" class="container">
@@ -37,14 +39,16 @@
                 <div class="flash">{{ craft.app.session.getFlash('error') }}</div>
 
                 <div class="row">
-                    <div class="twelve columns">
-                        {% for error in cart.errors %}
-                            <div class="flash">{{ error|join(' ') }}</div>
-                        {% endfor  %}
+                    <div class="twelve columns flash">
+                        {% for attribute, errors in cart.errors %}
+                            {% if loop.first %}<ul>{% endif %}
+                            {% for key, error in errors %}
+                                <li>{{ attribute }}: {{ error }}</li>
+                            {% endfor %}
+                            {% if loop.last %}</ul>{% endif %}
+                        {% endfor %}
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>

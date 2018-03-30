@@ -133,6 +133,11 @@ class Settings extends Model
     public $pdfAllowRemoteImages = false;
 
     /**
+     * @var string
+     */
+    public $cartVariable = 'cart';
+
+    /**
      * @var array
      */
     public $gatewaySettings = [];

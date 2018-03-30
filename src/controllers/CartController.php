@@ -39,6 +39,11 @@ class CartController extends BaseFrontEndController
      */
     private $_cart;
 
+    /**
+     * @var Order The cart element
+     */
+    private $_cartVariable;
+
     // Public Methods
     // =========================================================================
 
@@ -46,6 +51,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
+        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
         // Get the cart from the request or from the session.
         $this->_cart = $this->_getCart();
 
@@ -263,31 +269,30 @@ class CartController extends BaseFrontEndController
     {
         $request = Craft::$app->getRequest();
 
-        if (!$this->_cart->validate()) {
+        if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
 
             $error = Craft::t('commerce', 'Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
-                $this->asJson(['error' => $error, 'cart' => $this->cartArray($this->_cart)]);
-            } else {
-                Craft::$app->getUrlManager()->setRouteParams([
-                    'cart' => $this->_cart
-                ]);
-
-                Craft::$app->getSession()->setError($error);
+                return $this->asJson(['error' => $error, $this->_cartVariable => $this->cartArray($this->_cart)]);
             }
-        }
 
-        // Already validated.
-        Craft::$app->getElements()->saveElement($this->_cart, false);
+            Craft::$app->getUrlManager()->setRouteParams([
+                $this->_cartVariable => $this->_cart
+            ]);
+
+            Craft::$app->getSession()->setError($error);
+
+            return null;
+        }
 
         if ($request->getAcceptsJson()) {
-            return $this->asJson(['cart' => $this->cartArray($this->_cart)]);
-        } else {
-            Craft::$app->getUrlManager()->setRouteParams([
-                'cart' => $this->_cart
-            ]);
+            return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
         }
+
+        Craft::$app->getUrlManager()->setRouteParams([
+            $this->_cartVariable => $this->_cart
+        ]);
 
         return $this->redirectToPostedUrl();
     }
