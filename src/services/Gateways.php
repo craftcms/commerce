@@ -234,7 +234,6 @@ class Gateways extends Component
         $record->paymentType = $gateway->paymentType;
         $record->type = get_class($gateway);
         $record->isFrontendEnabled = $gateway->isFrontendEnabled;
-        $record->sendCartInfo = $gateway->sendCartInfo;
         $record->isArchived = $gateway->isArchived;
         $record->dateArchived = $gateway->dateArchived;
 
@@ -357,7 +356,6 @@ class Gateways extends Component
                 'handle',
                 'paymentType',
                 'isFrontendEnabled',
-                'sendCartInfo',
                 'isArchived',
                 'dateArchived',
                 'settings',

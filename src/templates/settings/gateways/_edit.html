@@ -32,15 +32,6 @@
         errors: gateway.getErrors('handle'),
     }) }}
 
-    {{ forms.lightswitchField({
-        label: "Should commerce send cart information to gateway when making transactions."|t('commerce'),
-        instructions: "If turned off, gateway will never know the contents of the order. Some gateways might require this to be on."|t('commerce'),
-        id: 'sendCartInfo',
-        name: 'sendCartInfo',
-        on: gateway.sendCartInfo,
-        errors: gateway.getErrors('sendCartInfo'),
-    }) }}
-
     {% if gateway.supportsWebhooks() %}
         {{ forms.textField({
             label: "Webhook URL",
