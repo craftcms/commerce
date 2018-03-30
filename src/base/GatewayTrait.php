@@ -34,11 +34,6 @@ trait GatewayTrait
     public $paymentType = 'purchase';
 
     /**
-     * @var bool Whether the gateway can send cart info to payment processor
-     */
-    public $sendCartInfo = false;
-
-    /**
      * @var bool Enabled on the frontend
      */
     public $isFrontendEnabled = true;

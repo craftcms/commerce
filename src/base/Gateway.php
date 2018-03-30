@@ -26,7 +26,6 @@ use craft\validators\UniqueValidator;
  * @property null|BasePaymentForm $paymentFormModel
  * @property string $paymentType
  * @property array $paymentTypeOptions
- * @property bool $sendCartInfo
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -61,6 +60,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $params = array_merge(['gateway' => $this->id], $params);
 
         $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', $params);
+        $url = str_replace('http://rc.craft.local/', 'http://umbushka.eu.ngrok.io/', $url);
 
         return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger.'/', '');
     }

@@ -19,7 +19,6 @@ use craft\db\ActiveRecord;
  * @property bool $isArchived
  * @property string $name
  * @property string $paymentType
- * @property bool $sendCartInfo
  * @property array $settings
  * @property int $sortOrder
  * @property string $type
