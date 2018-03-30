@@ -28,20 +28,27 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
                     var $label = $('<td><strong>' + Craft.t('commerce', info[i].label) + '</strong></td><td>').appendTo($tr);
 
                     var value = info[i].value;
+                    var $value;
+
                     switch (info[i].type) {
                         case 'code':
-                            value = '<code>'+value+'</code>';
+                            $value = $('<td><code>'+value+'</code></td>');
                             break;
-                        case 'json':
+                        case 'response':
                             // Make sure we have proper spaces in it
                             try {
-                                value = '<pre>'+syntaxHighlight(JSON.stringify(JSON.parse(value), undefined, 4))+'</pre>';
+                                value = '<code class="language-json">'+JSON.stringify(JSON.parse(value), undefined, 4)+'</code>';
                             } catch (e) {
+                                value = '<code class="language-xml">'+$('<div/>').text(value).html()+'</code>';
                             }
-                            value = '<div class="gateway-response">'+value+'</div>';
+
+                            $value = $('<td class="highlight"><pre>'+value+'</pre></td>');
+                            Prism.highlightElement($value.find('code').get(0));
+
                             break;
                     }
-                    var $value = $('<td>' + value + '</td>').appendTo($tr);
+
+                    $value.appendTo($tr);
                 }
 
                 this.hud = new Garnish.HUD(this.$icon, $hudBody, {

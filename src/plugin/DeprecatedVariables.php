@@ -27,7 +27,7 @@ trait DeprecatedVariables
      */
     public function getAvailableShippingMethods(): array
     {
-        Craft::$app->getDeprecator()->log('craft.commerce.availableShippingMethods', 'craft.commerce.availableShippingMethods has been deprecated. Use craft.commmerce.shippingMethods.availableShippingMethods(cart) instead');
+        Craft::$app->getDeprecator()->log('craft.commerce.availableShippingMethods', 'craft.commerce.availableShippingMethods has been deprecated. Use craft.commerce.shippingMethods.availableShippingMethods(cart) instead');
 
         $cart = $this->getCarts()->getCart();
 
@@ -42,7 +42,7 @@ trait DeprecatedVariables
      */
     public function getCart(): Order
     {
-        Craft::$app->getDeprecator()->log('craft.commerce.cart', 'craft.commerce.cart has been deprecated. Use craft.commmerce.carts.cart instead');
+        Craft::$app->getDeprecator()->log('craft.commerce.cart', 'craft.commerce.cart has been deprecated. Use craft.commerce.carts.cart instead');
 
         return $this->getCarts()->getCart();
     }
@@ -55,7 +55,7 @@ trait DeprecatedVariables
      */
     public function getCountriesList(): array
     {
-        Craft::$app->getDeprecator()->log('craft.commerce.countriesList', 'craft.commerce.countriesList has been deprecated. Use craft.commmerce.countries.countriesAsList instead');
+        Craft::$app->getDeprecator()->log('craft.commerce.countriesList', 'craft.commerce.countriesList has been deprecated. Use craft.commerce.countries.countriesAsList instead');
 
         return $this->getCountries()->getCountriesAsList();
     }
