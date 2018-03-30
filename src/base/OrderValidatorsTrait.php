@@ -77,4 +77,14 @@ trait OrderValidatorsTrait
             }
         }
     }
+
+    /**
+     * @param $attribute
+     */
+    public function validateCouponCode($attribute)
+    {
+        if (!$this->isCompleted && $this->$attribute && !Plugin::getInstance()->getDiscounts()->matchCode($this->$attribute, $this->customerId, $explanation)) {
+            $this->addError($attribute, $explanation);
+        }
+    }
 }
