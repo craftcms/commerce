@@ -25,7 +25,7 @@ class m180217_130000_sale_migration extends Migration
         $this->renameColumn('{{%commerce_sales}}', 'discountType', 'apply');
         $this->renameColumn('{{%commerce_sales}}', 'discountAmount', 'applyAmount');
 
-        $this->alterColumn('{{%commerce_sales}}', 'apply', $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat']));
+        $this->alterColumn('{{%commerce_sales}}', 'apply', $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull());
 
         return true;
     }
