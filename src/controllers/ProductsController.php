@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
@@ -281,6 +282,11 @@ class ProductsController extends BaseCpController
         $product = $this->_setProductFromPost();
 
         $this->enforceProductPermissions($product);
+
+        // Save the entry (finally!)
+        if ($product->enabled && $product->enabledForSite) {
+            $product->setScenario(Element::SCENARIO_LIVE);
+        }
 
         if (!Craft::$app->getElements()->saveElement($product)) {
             if ($request->getAcceptsJson()) {
