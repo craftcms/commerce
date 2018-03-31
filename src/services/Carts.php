@@ -60,7 +60,7 @@ class Carts extends Component
                 if ($this->_cart->isCompleted) {
                     $this->forgetCart();
                     Plugin::getInstance()->getCustomers()->forgetCustomer();
-                    $this->getCart();
+                    return $this->getCart();
                 }
             } else {
                 $this->_cart = new Order();
