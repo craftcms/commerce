@@ -280,36 +280,20 @@ class Order extends Element
     public function init()
     {
         if (!$this->isCompleted) {
-
-            // Values to always update while the order is a cart
-            $this->lastIp = Craft::$app->getRequest()->userIP;
-            $this->orderLocale = Craft::$app->language;
-            $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-            // Payment currency is always set to the  primary currency unless it is set to an allowed currency.
-            $paymentCurrency = Plugin::getInstance()->getSettings()->getPaymentCurrency();
-            if ($this->paymentCurrency === null && $paymentCurrency) {
-                $this->paymentCurrency = $paymentCurrency;
-            } else {
-                $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-            }
-
             // Set default addresses on the order
             if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                if (!$this->shippingAddressId && $this->customer && $this->customer->lastUsedShippingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->customer->lastUsedShippingAddressId)) !== null) {
+                if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->lastUsedShippingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->lastUsedShippingAddressId)) !== null) {
                         $this->setShippingAddress($address);
                     }
                 }
 
-                if (!$this->billingAddressId && $this->customer && $this->customer->lastUsedBillingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->customer->lastUsedBillingAddressId)) !== null) {
+                if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->lastUsedBillingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->lastUsedBillingAddressId)) !== null) {
                         $this->setBillingAddress($address);
                     }
                 }
             }
-
-            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
         }
 
         return parent::init();

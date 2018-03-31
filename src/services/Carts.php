@@ -65,9 +65,38 @@ class Carts extends Component
             } else {
                 $this->_cart = new Order();
                 $this->_cart->number = $number;
-                Craft::$app->getElements()->saveElement($this->_cart, false);
             }
         }
+
+        // These values should always be kept up to date when a cart is retrieved from session.
+        $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
+        $this->_cart->orderLocale = Craft::$app->language;
+        $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        $previousCustomerId = $this->_cart->customerId;
+        $this->_cart->customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
+
+        // Has the customer in session changed?
+        if ($this->_cart->customerId != $previousCustomerId) {
+
+            if ($this->_cart->billingAddressId) {
+                // Don't lose the data from the address, just drop the ID
+                if ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
+                    $address->id = null;
+                    $this->_cart->setBillingAddress($address);
+                }
+            }
+
+            if ($this->_cart->shippingAddressId) {
+                // Don't lose the data from the address, just drop the ID
+                if ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
+                    $address->id = null;
+                    $this->_cart->setShippingAddress($address);
+                }
+            }
+        }
+
+        Craft::$app->getElements()->saveElement($this->_cart, false);
 
         return $this->_cart;
     }
