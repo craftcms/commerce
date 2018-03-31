@@ -68,7 +68,7 @@ class CartController extends BaseFrontEndController
         // Fail silently if its not their line item or it doesn't exist.
         if (!$lineItem || !$lineItem->id || ($this->_cart->id != $lineItem->orderId)) {
             if ($request->getAcceptsJson()) {
-                $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+                return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
             return $this->redirectToPostedUrl();
         }
@@ -128,14 +128,14 @@ class CartController extends BaseFrontEndController
 
         if (Plugin::getInstance()->getCarts()->removeFromCart($this->_cart, $lineItemId)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+                return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line item removed.'));
-            $this->redirectToPostedUrl();
+            return $this->redirectToPostedUrl();
         } else {
             $message = Craft::t('commerce', 'Could not remove from line item.');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asErrorJson($message);
+                return $this->asErrorJson($message);
             }
             Craft::$app->getSession()->setError($message);
         }
@@ -154,10 +154,10 @@ class CartController extends BaseFrontEndController
 
         Plugin::getInstance()->getCarts()->clearCart($this->_cart);
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
+            return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
         }
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Line items removed.'));
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
@@ -356,7 +356,7 @@ class CartController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson(['success' => true, 'cart' => $this->cartArray($this->_cart)]);
             }
-            $this->redirectToPostedUrl();
+            return $this->redirectToPostedUrl();
         } else {
             $error = Craft::t('commerce', 'Cart not completely updated.');
             $this->_cart->addErrors($updateErrors);
