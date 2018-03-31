@@ -321,7 +321,12 @@ class Plugin extends BasePlugin
      */
     private function _registerPoweredByHeader()
     {
-        $headers = Craft::$app->getResponse()->getHeaders();
+        $response =  Craft::$app->getResponse();
+        if (!method_exists($response, 'getHeaders')) {
+            return;
+        }
+        $headers = $response->getHeaders();
+       
 
         // Send the X-Powered-By header?
         if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
