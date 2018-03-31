@@ -54,6 +54,7 @@ use yii\base\InvalidConfigException;
  * @property Address $billingAddress
  * @property Address $shippingAddress
  * @property PaymentSource|null $paymentSource
+ * @property string $paymentCurrency the payment currency for this order
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -175,11 +176,6 @@ class Order extends Element
     public $currency;
 
     /**
-     * @var string Payment Currency
-     */
-    public $paymentCurrency;
-
-    /**
      * @var int|null Gateway ID
      */
     public $gatewayId;
@@ -254,6 +250,11 @@ class Order extends Element
      * @var OrderAdjustment[]
      */
     private $_orderAdjustments;
+
+    /**
+     * @var string
+     */
+    private $_paymentCurrency;
 
     /**
      * @var int|null Payment source ID
@@ -1241,6 +1242,28 @@ class Order extends Element
         }
 
         return $gateway;
+    }
+
+    /**
+     * Returns the current payment currency, and defaults to the primary currency if not set.
+     *
+     * @return string
+     */
+    public function getPaymentCurrency()
+    {
+        if ($this->_paymentCurrency === null) {
+            $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        return $this->_paymentCurrency;
+    }
+
+    /**
+     * @param string $value the payment currency code
+     */
+    public function setPaymentCurrency($value)
+    {
+        $this->_paymentCurrency = $value;
     }
 
     /**
