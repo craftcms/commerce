@@ -70,3 +70,30 @@ BC - Breaking Change
 | Old                                       | New                                                       | Change 
 |-------------------------------------------|-----------------------------------------------------------|--------
 | `purchasable.purchasableId`               | `purchasable.id`                                          | BC   
+
+### Updating the cart
+
+In Commerce 2, there has been a change to how the update cart controller action responds, it now returns a `cart` variable from all cart controller actions for both success and failure.
+
+Previously you needed to retrieve the cart with:
+
+```
+{% set cart = craft.commerce.cart %}
+```
+
+This cart would have any errors applied, but there was no easy way to access the original cart before the errors.
+
+If any part of the update params fails, no changes will be made to the cart, and the cart in it's errored state will be returned to the template.
+
+Thus for Commerce 2 we recommend doing something like this:
+
+
+```
+{% if cart is not defined %}
+{% set cart = craft.commerce.getCarts().getCart() %} // Gets the clean (no errors) cart from the session/db
+{% endif %}
+```
+
+This allows you to use the cart returned from the update cart actions (with its errors), or a known good cart.
+
+Previously when updating 2 different things on the cart, one could fail and the other one succeed. Now the update cart action will only fully succeed or fail. There are no partially updated cart.
