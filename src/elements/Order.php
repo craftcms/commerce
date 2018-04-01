@@ -573,11 +573,12 @@ class Order extends Element
     /**
      * Adds a line item to the order. Updates the line item if the ID of that line item is already in the cart.
      *
-     * @param $lineItem
+     * @param LineItem $lineItem
      */
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
+
         $replaced = false;
         foreach ($lineItems as $key => $item) {
             if ($lineItem->id && $item->id == $lineItem->id) {
@@ -987,6 +988,9 @@ class Order extends Element
     {
         if (null === $this->_lineItems) {
             $lineItems = $this->id ? Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id) : [];
+            foreach ($lineItems as $lineItem) {
+                $lineItem->setOrder($this);
+            }
             $this->_lineItems = $lineItems;
         }
 
@@ -998,6 +1002,12 @@ class Order extends Element
      */
     public function setLineItems(array $lineItems)
     {
+        $this->_lineItems = [];
+
+        foreach ($lineItems as $lineItem) {
+            $lineItem->setOrder($this);
+        }
+
         $this->_lineItems = $lineItems;
     }
 

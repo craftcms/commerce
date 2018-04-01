@@ -116,7 +116,7 @@
             }) }}
         </div>
 
-        {% set states = craft.commerce.getStatesArray() %}
+        {% set states = craft.commerce.getStates().getAllStatesAsList() %}
 
         {% for countryId, list in states %}
             <div data-country="{{ countryId }}"
