@@ -191,7 +191,10 @@ class Discounts extends Component
      */
     public function matchCode(string $code, int $customerId = null, string &$explanation = null): bool
     {
+        $plugin = Plugin::getInstance();
         $discount = $this->getDiscountByCode($code);
+        $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
+        $user = $customer ? $customer->getUser() : null;
 
         if (!$discount) {
             $explanation = Craft::t('commerce', 'Coupon not valid');
@@ -212,11 +215,7 @@ class Discounts extends Component
             return false;
         }
 
-        $plugin = Plugin::getInstance();
-
         if (!$discount->allGroups) {
-            $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
-            $user = $customer ? $customer->getUser() : null;
             $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
                 $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
@@ -225,22 +224,22 @@ class Discounts extends Component
             }
         }
 
-        if ($customerId) {
+        if ($discount->perUserLimit > 0 && !$user) {
+            $explanation = Craft::t('commerce', 'Discount is limited to use by registered users only.');
+
+            return false;
+        }
+
+        if ($discount->perUserLimit > 0 && $user) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-            if ($discount->perUserLimit > 0 && Craft::$app->getUser()->getIsGuest()) {
-                $explanation = Craft::t('commerce', 'Discount is limited to use by logged in users only.');
-
-                return false;
-            }
-
-            $allUsedUp = (new Query())
-                ->select('id')
+            $usage = (new Query())
+                ->select('uses')
                 ->from('{{%commerce_customer_discountuses}}')
-                ->where(['>=', 'uses', $discount->perUserLimit])
-                ->one();
+                ->where(['customerId' => $customerId, 'discountId' => $discount->id])
+                ->scalar();
 
-            if ($allUsedUp) {
-                $explanation = Craft::t('commerce', 'You can not use this discount anymore');
+            if ($usage && $usage > $discount->perUserLimit) {
+                $explanation = Craft::t('commerce', 'You can not use this discount anymore.');
 
                 return false;
             }
