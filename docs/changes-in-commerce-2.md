@@ -73,9 +73,9 @@ BC - Breaking Change
 
 ### Updating the cart
 
-In Commerce 2, there has been a change to how the update cart controller action responds, it now returns a `cart` variable from all cart controller actions for both success and failure.
+In Commerce 2, there has been a change to how the update cart controller action works. All cart actions now return a `cart` variable from all cart controller actions for both success and failure.
 
-Now, if any part of the update fails, no changes will be saved to the cart, and the returned cart will have errors applied. Previously when updating 2 different things on the cart, one could fail and the other one could succeed. Now the update cart action will only fully succeed or fail. There are no partially applied updates.
+Now, if any part of the update fails, no changes will be saved to the cart, and the returned cart will have errors applied. Previously when updating 2 different things on the cart, one could fail and the other one could succeed. Now the update cart action will only fully succeed or fail. There are no partially applied updates to the cart.
 
 Previously you needed to retrieve the cart with:
 
@@ -83,26 +83,25 @@ Previously you needed to retrieve the cart with:
 {% set cart = craft.commerce.cart %}
 ```
 
-This cart would have any errors applied, but there was no easy way to access the original cart before the errors.
+This cart would have any errors applied to its attributes, but there was no easy way to access the original cart before the errors. We were also limited to a single flash message with the first error.
 
 Commerce 2 we recommend doing something like this:
 
-
 ```
 {% if cart is not defined %}
-{% set cart = craft.commerce.getCarts().getCart() %} // Gets the clean (no errors) cart from the session/db
+  {% set cart = craft.commerce.getCarts().getCart() %} // Gets the clean (no errors) cart from the session/db
 {% endif %}
 ```
 
-This allows you to use the cart returned from the update cart actions (with its errors), or the last known good cart.
+This allows you to use the cart returned from the update cart actions (with its errors applied), or the last known good cart.
 
-The changes means a faster cart that reduces the number of database updates.
+The changes mean a faster cart that reduces the number of database updates.
 
 ### Cart Validation
 
-The cart (order) now places all errors on the fields that have the error, and also on the order model itself with a error key to the location of the error.
+The cart (order) now places all errors on the fields that have the error, and also on the order/cart model with a error key to the location of the error.
 
-For example, if an error is on the second line item, you can access the errors on the line item like this:
+For example, if an error is on the *second* line item, you can access the errors on the line item like this:
 
 ```
 lineItem.getErrors()
