@@ -453,9 +453,9 @@
     </div>
 {% endblock %}
 
-{% includejs "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
-{% includejs "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
-{% includejs "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
+{% js "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
+{% js "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
+{% js "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
 
 {% js %}
     window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
