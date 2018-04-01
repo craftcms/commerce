@@ -187,12 +187,13 @@ class Discount implements AdjusterInterface
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
                 $adjustment->lineItemId = $item->id;
 
-                $existingLineItemPrice = ($item->getSubtotal() + $item->getAdjustmentsTotalByType('discount'));
-
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
 
                 //Default is percentage off already discounted price
+                $existingLineItemDiscount = $item->getAdjustmentsTotalByType('discount');
+                $existingLineItemPrice = ($item->getSubtotal() + $existingLineItemDiscount);
                 $amountPercentage = Currency::round($this->_discount->percentDiscount * $existingLineItemPrice);
+
                 if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
                     $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
