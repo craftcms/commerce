@@ -163,6 +163,14 @@ class LineItem extends Model
     }
 
     /**
+     * @param Order $order
+     */
+    public function setOrder(Order $order)
+    {
+        $this->_order = $order;
+    }
+
+    /**
      * @return array
      */
     public function rules()
