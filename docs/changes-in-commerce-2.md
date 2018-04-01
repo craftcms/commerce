@@ -98,7 +98,7 @@ This allows you to use the cart returned from the update cart actions (with its 
 
 The changes means a faster cart that reduces the number of database updates.
 
-## Cart Validation
+### Cart Validation
 
 The cart (order) now places all errors on the fields that have the error, and also on the order model itself with a error key to the location of the error.
 
