@@ -20,6 +20,14 @@
         {% endif %}
             <div class="address-card one-third column">
                 {% include 'shop/_includes/addresses/address' with {'address': address} %}
+                {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == address.id %}
+                {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == address.id %}
+
+                <p>
+                    {% if isPrimaryBilling %}<div>This is the primary billing address</div>{% endif %}
+                    {% if isPrimaryShipping %}<div>This is the primary shipping address</div>{% endif %}
+                </p>
+
                 <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/customer-addresses/delete">

@@ -23,6 +23,10 @@
         {% endif %}
 
         {% include 'shop/_includes/addresses/form' %}
+        {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
+        {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
+        <label for="makePrimaryShippingAddress"><input id="makePrimaryShippingAddress" name="makePrimaryShippingAddress" type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span class="label-body">Make this the primary shipping address</span></label>
+        <label for="makePrimaryBillingAddress"><input id="makePrimaryBillingAddress" name="makePrimaryBillingAddress" type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span class="label-body">Make this the primary billing address</span></label>
 
         <input type="submit" value="Save Address">
     </form>

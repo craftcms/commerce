@@ -141,19 +141,6 @@
 			<input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 or (model and model.stateId) %}hidden{% endif %} u-full-width" {% if model and model.stateName %}name="{{ modelName }}[stateValue]" value="{{ model.stateName}}"{% endif %}>
 		</div>
 
-		{% set isPrimaryBilling = model and cart.customer and cart.customer.primaryBillingAddressId == model.id %}
-		{% set isPrimaryShipping = model and cart.customer and cart.customer.primaryShippingAddressId == model.id %}
-
-		<div class="twelve columns">
-			<label for="{{ modelName }}-billing-primary">
-				<input type="checkbox" id="{{ modelName }}-billing-primary" name="setPrimaryBillingAddress" value="1" {{ isPrimaryBilling ? 'checked' : ' '}}/>
-				Make primary billing address
-			</label>
-			<label for="{{ modelName }}-shipping-primary">
-				<input type="checkbox" id="{{ modelName }}-shipping-primary" name="setPrimaryShippingAddress" value="1" {{ isPrimaryShipping ? 'checked' : ' '}}/>
-				Make primary shipping address
-			</label>
-		</div>
 	</div>
 
 </div>

@@ -35,16 +35,19 @@
                 <label for="billingAddressSameAsShipping"><input id="billingAddressSameAsShipping" name="billingAddressSameAsShipping" type="checkbox" checked="checked"/><span class="label-body">Use same address for
                 billing</span></label>
 
-                {#<label for="shippingAddressSameAsBilling"><input id="shippingAddressSameAsBilling" name="shippingAddressSameAsBilling" type="checkbox" checked="checked"/><span class="label-body">Use same address for#}
-                {#billing</span></label>#}
+                <label for="makePrimaryShippingAddress"><input id="makePrimaryShippingAddress" name="makePrimaryShippingAddress" type="checkbox"/><span class="label-body">Make this the primary shipping address</span></label>
 
-                <br>
+                {#<label for="shippingAddressSameAsBilling"><input id="shippingAddressSameAsBilling" name="shippingAddressSameAsBilling" type="checkbox" checked="checked"/><span class="label-body">Use same address for#}
+                {#shipping</span></label>#}
 
                 {% include 'shop/_includes/addresses/fieldset' with {
                     title: "Billing Address"|t,
                     class: 'BillingAddress hidden',
                     name: 'billingAddress'
                 } %}
+
+                <label for="makePrimaryBillingAddress"><input id="makePrimaryBillingAddress" name="makePrimaryBillingAddress" type="checkbox"/><span class="label-body">Make this the primary billing address</span></label>
+
 
                 <input type="submit" class="button button-primary" value="Confirm addresses">
 
