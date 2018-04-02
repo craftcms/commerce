@@ -264,7 +264,7 @@ class Payments extends Component
             }
 
             Craft::error($e->getMessage());
-            throw new PaymentException($e->getMessage(), $e->getCode(), $e->getPrevious());
+            throw new PaymentException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
