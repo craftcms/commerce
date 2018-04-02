@@ -32,7 +32,7 @@ class CartController extends BaseFrontEndController
     private $_cart;
 
     /**
-     * @var Order The cart element
+     * @var string the name of the cart variable
      */
     private $_cartVariable;
 
@@ -306,7 +306,7 @@ class CartController extends BaseFrontEndController
     {
         $request = Craft::$app->getRequest();
 
-        if ($orderNumber = $request->getParam('orderNumber')) {
+        if ($orderNumber = $request->getBodyParam('orderNumber')) {
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
         } else {

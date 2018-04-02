@@ -46,7 +46,7 @@ class PaymentsController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
 
-        if (($number = $request->getParam('orderNumber')) !== null) {
+        if (($number = $request->getBodyParam('orderNumber')) !== null) {
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
             if (!$order) {

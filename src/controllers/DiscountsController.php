@@ -90,42 +90,42 @@ class DiscountsController extends BaseCpController
         $discount = new Discount();
         $request = Craft::$app->getRequest();
 
-        $discount->id = $request->getParam('id');
-        $discount->name = $request->getParam('name');
-        $discount->description = $request->getParam('description');
-        $discount->enabled = (bool)$request->getParam('enabled');
-        $discount->stopProcessing = (bool)$request->getParam('stopProcessing');
-        $discount->purchaseTotal = $request->getParam('purchaseTotal');
-        $discount->purchaseQty = $request->getParam('purchaseQty');
-        $discount->maxPurchaseQty = $request->getParam('maxPurchaseQty');
-        $discount->baseDiscount = $request->getParam('baseDiscount');
-        $discount->perItemDiscount = $request->getParam('perItemDiscount');
-        $discount->percentDiscount = $request->getParam('percentDiscount');
-        $discount->percentageOffSubject = $request->getParam('percentageOffSubject');
-        $discount->freeShipping = (bool)$request->getParam('freeShipping');
-        $discount->excludeOnSale = (bool)$request->getParam('excludeOnSale');
-        $discount->code = $request->getParam('code') ?: null;
-        $discount->perUserLimit = $request->getParam('perUserLimit');
-        $discount->perEmailLimit = $request->getParam('perEmailLimit');
-        $discount->totalUseLimit = $request->getParam('totalUseLimit');
+        $discount->id = $request->getBodyParam('id');
+        $discount->name = $request->getBodyParam('name');
+        $discount->description = $request->getBodyParam('description');
+        $discount->enabled = (bool)$request->getBodyParam('enabled');
+        $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
+        $discount->purchaseTotal = $request->getBodyParam('purchaseTotal');
+        $discount->purchaseQty = $request->getBodyParam('purchaseQty');
+        $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
+        $discount->baseDiscount = $request->getBodyParam('baseDiscount');
+        $discount->perItemDiscount = $request->getBodyParam('perItemDiscount');
+        $discount->percentDiscount = $request->getBodyParam('percentDiscount');
+        $discount->percentageOffSubject = $request->getBodyParam('percentageOffSubject');
+        $discount->freeShipping = (bool)$request->getBodyParam('freeShipping');
+        $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
+        $discount->code = $request->getBodyParam('code') ?: null;
+        $discount->perUserLimit = $request->getBodyParam('perUserLimit');
+        $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
+        $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
 
-        $discount->baseDiscount = (float)$request->getParam('baseDiscount') * -1;
-        $discount->perItemDiscount = (float)$request->getParam('perItemDiscount') * -1;
+        $discount->baseDiscount = (float)$request->getBodyParam('baseDiscount') * -1;
+        $discount->perItemDiscount = (float)$request->getBodyParam('perItemDiscount') * -1;
 
-        $date = $request->getParam('dateFrom');
+        $date = $request->getBodyParam('dateFrom');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateFrom = $dateTime;
         }
 
-        $date = $request->getParam('dateTo');
+        $date = $request->getBodyParam('dateTo');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateTo = $dateTime;
         }
 
         // Format into a %
-        $percentDiscountAmount = $request->getParam('percentDiscount');
+        $percentDiscountAmount = $request->getBodyParam('percentDiscount');
         $localeData = Craft::$app->getLocale();
         $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
         if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
@@ -135,7 +135,7 @@ class DiscountsController extends BaseCpController
         }
 
         $purchasables = [];
-        $purchasableGroups = $request->getParam('purchasables') ?: [];
+        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
         foreach ($purchasableGroups as $group) {
             if (is_array($group)) {
                 array_push($purchasables, ...$group);
@@ -144,13 +144,13 @@ class DiscountsController extends BaseCpController
         $purchasables = array_unique($purchasables);
         $discount->setPurchasableIds($purchasables);
 
-        $categories = $request->getParam('categories', []);
+        $categories = $request->getBodyParam('categories', []);
         if (!$categories) {
             $categories = [];
         }
         $discount->setCategoryIds($categories);
 
-        $groups = $request->getParam('groups', []);
+        $groups = $request->getBodyParam('groups', []);
         if (!$groups) {
             $groups = [];
         }
@@ -182,7 +182,7 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
             return $this->asJson(['success' => $success]);
         }
@@ -198,7 +198,7 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
 
@@ -213,7 +213,7 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
 

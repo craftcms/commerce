@@ -67,7 +67,7 @@ class SettingsController extends BaseAdminController
     public function actionSaveSettings()
     {
         $this->requirePostRequest();
-        $postData = Craft::$app->getRequest()->getParam('settings');
+        $postData = Craft::$app->getRequest()->getBodyParam('settings');
         $settings = new SettingsModel($postData);
 
 
@@ -113,7 +113,7 @@ class SettingsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = (int)Craft::$app->getRequest()->getParam('id');
+        $id = (int)Craft::$app->getRequest()->getBodyParam('id');
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 

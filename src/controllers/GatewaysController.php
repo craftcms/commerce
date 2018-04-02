@@ -157,7 +157,7 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getGateways()->archiveGatewayById($id)) {
             return $this->asJson(['success' => true]);
@@ -174,7 +174,7 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
             return $this->asJson(['success' => $success]);
         }

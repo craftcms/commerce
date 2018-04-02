@@ -85,10 +85,10 @@ class PaymentCurrenciesController extends BaseAdminController
         $currency = new PaymentCurrency();
 
         // Shared attributes
-        $currency->id = Craft::$app->getRequest()->getParam('currencyId');
-        $currency->iso = Craft::$app->getRequest()->getParam('iso');
-        $currency->rate = Craft::$app->getRequest()->getParam('rate');
-        $currency->primary = (bool)Craft::$app->getRequest()->getParam('primary');
+        $currency->id = Craft::$app->getRequest()->getBodyParam('currencyId');
+        $currency->iso = Craft::$app->getRequest()->getBodyParam('iso');
+        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate');
+        $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
@@ -110,7 +110,7 @@ class PaymentCurrenciesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
 
         if ($currency && !$currency->primary) {

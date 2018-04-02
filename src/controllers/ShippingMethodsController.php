@@ -82,10 +82,10 @@ class ShippingMethodsController extends BaseAdminController
         $shippingMethod = new ShippingMethod();
 
         // Shared attributes
-        $shippingMethod->id = Craft::$app->getRequest()->getParam('shippingMethodId');
-        $shippingMethod->name = Craft::$app->getRequest()->getParam('name');
-        $shippingMethod->handle = Craft::$app->getRequest()->getParam('handle');
-        $shippingMethod->enabled = Craft::$app->getRequest()->getParam('enabled');
+        $shippingMethod->id = Craft::$app->getRequest()->getBodyParam('shippingMethodId');
+        $shippingMethod->name = Craft::$app->getRequest()->getBodyParam('name');
+        $shippingMethod->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $shippingMethod->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
@@ -107,7 +107,7 @@ class ShippingMethodsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
             return $this->asJson(['success' => true]);

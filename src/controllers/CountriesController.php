@@ -79,10 +79,10 @@ class CountriesController extends BaseAdminController
         $country = new Country();
 
         // Shared attributes
-        $country->id = Craft::$app->getRequest()->getParam('countryId');
-        $country->name = Craft::$app->getRequest()->getParam('name');
-        $country->iso = Craft::$app->getRequest()->getParam('iso');
-        $country->isStateRequired = (bool)Craft::$app->getRequest()->getParam('isStateRequired');
+        $country->id = Craft::$app->getRequest()->getBodyParam('countryId');
+        $country->name = Craft::$app->getRequest()->getBodyParam('name');
+        $country->iso = Craft::$app->getRequest()->getBodyParam('iso');
+        $country->isStateRequired = (bool)Craft::$app->getRequest()->getBodyParam('isStateRequired');
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {
@@ -104,7 +104,7 @@ class CountriesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);

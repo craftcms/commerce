@@ -120,7 +120,7 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $request = Craft::$app->getRequest();
 
-        $id = Craft::$app->getRequest()->getParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         $paymentSources = Commerce::getInstance()->getPaymentSources();
         $paymentSource = $paymentSources->getPaymentSourceById($id);

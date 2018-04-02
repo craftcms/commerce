@@ -123,11 +123,11 @@ class ShippingRulesController extends BaseAdminController
             'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'
         ];
         foreach ($fields as $field) {
-            $shippingRule->$field = Craft::$app->getRequest()->getParam($field);
+            $shippingRule->$field = Craft::$app->getRequest()->getBodyParam($field);
         }
 
         $ruleCategories = [];
-        $allRulesCategories = Craft::$app->getRequest()->getParam('ruleCategories');
+        $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);
             $ruleCategories[$key]->shippingCategoryId = $key;
@@ -156,7 +156,7 @@ class ShippingRulesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
         return $this->asJson(['success' => $success]);
@@ -170,7 +170,7 @@ class ShippingRulesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
             return $this->asJson(['success' => true]);

@@ -44,7 +44,7 @@ class OrderSettingsController extends BaseAdminController
         $orderSettings = new OrderSettingsModel();
 
         // Shared attributes
-        $orderSettings->id = Craft::$app->getRequest()->getParam('orderSettingsId');
+        $orderSettings->id = Craft::$app->getRequest()->getBodyParam('orderSettingsId');
         $orderSettings->name = 'Order';
         $orderSettings->handle = 'order';
 

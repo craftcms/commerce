@@ -135,17 +135,17 @@ class TaxRatesController extends BaseAdminController
         $taxRate = new TaxRate();
 
         // Shared attributes
-        $taxRate->id = Craft::$app->getRequest()->getParam('taxRateId');
-        $taxRate->name = Craft::$app->getRequest()->getParam('name');
-        $taxRate->include = Craft::$app->getRequest()->getParam('include');
-        $taxRate->isVat = Craft::$app->getRequest()->getParam('isVat');
-        $taxRate->taxable = Craft::$app->getRequest()->getParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getParam('taxCategoryId');
-        $taxRate->taxZoneId = Craft::$app->getRequest()->getParam('taxZoneId');
+        $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
+        $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
+        $taxRate->include = Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->isVat = Craft::$app->getRequest()->getBodyParam('isVat');
+        $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
+        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
+        $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
 
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-        $rate = Craft::$app->getRequest()->getParam('rate');
+        $rate = Craft::$app->getRequest()->getBodyParam('rate');
         if (strpos($rate, $percentSign) || $rate >= 1) {
             $taxRate->rate = (float)$rate / 100;
         } else {
@@ -174,7 +174,7 @@ class TaxRatesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
         return $this->asJson(['success' => true]);

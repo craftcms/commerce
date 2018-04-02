@@ -99,8 +99,8 @@ class PlansController extends BaseAdminController
         $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
-        $gatewayId = $request->getParam('gatewayId');
-        $reference = $request->getParam('gateway.'.$gatewayId.'.reference', '');
+        $gatewayId = $request->getBodyParam('gatewayId');
+        $reference = $request->getBodyParam("gateway.{$gatewayId}.reference", '');
 
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
@@ -148,7 +148,7 @@ class PlansController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $planId = Craft::$app->getRequest()->getRequiredParam('id');
+        $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         try {
             Plugin::getInstance()->getPlans()->archivePlanById($planId);

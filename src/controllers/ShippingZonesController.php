@@ -86,12 +86,12 @@ class ShippingZonesController extends BaseAdminController
         $shippingZone = new ShippingAddressZone();
 
         // Shared attributes
-        $shippingZone->id = Craft::$app->getRequest()->getParam('shippingZoneId');
-        $shippingZone->name = Craft::$app->getRequest()->getParam('name');
-        $shippingZone->description = Craft::$app->getRequest()->getParam('description');
-        $shippingZone->isCountryBased = Craft::$app->getRequest()->getParam('isCountryBased');
-        $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
+        $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
+        $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
+        $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
+        $shippingZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
+        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
+        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
 
         $countries = [];
         foreach ($countryIds as $id) {
@@ -145,7 +145,7 @@ class ShippingZonesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
             return $this->asJson(['success' => true]);

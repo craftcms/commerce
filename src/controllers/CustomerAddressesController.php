@@ -59,7 +59,7 @@ class CustomerAddressesController extends BaseFrontEndController
             'stateValue'
         ];
         foreach ($attrs as $attr) {
-            $address->$attr = Craft::$app->getRequest()->getParam('address.'.$attr);
+            $address->$attr = Craft::$app->getRequest()->getBodyParam("address.{$attr}");
         }
 
         $customerService = Plugin::getInstance()->getCustomers();
@@ -143,7 +143,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $id = Craft::$app->getRequest()->getParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (!$id) {
             throw new HttpException(400);

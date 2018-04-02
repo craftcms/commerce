@@ -78,14 +78,14 @@ class EmailsController extends BaseAdminController
         $email = new Email();
 
         // Shared attributes
-        $email->id = Craft::$app->getRequest()->getParam('emailId');
-        $email->name = Craft::$app->getRequest()->getParam('name');
-        $email->subject = Craft::$app->getRequest()->getParam('subject');
-        $email->recipientType = Craft::$app->getRequest()->getParam('recipientType');
-        $email->to = Craft::$app->getRequest()->getParam('to');
-        $email->bcc = Craft::$app->getRequest()->getParam('bcc');
-        $email->enabled = Craft::$app->getRequest()->getParam('enabled');
-        $email->templatePath = Craft::$app->getRequest()->getParam('templatePath');
+        $email->id = Craft::$app->getRequest()->getBodyParam('emailId');
+        $email->name = Craft::$app->getRequest()->getBodyParam('name');
+        $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
+        $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
+        $email->to = Craft::$app->getRequest()->getBodyParam('to');
+        $email->bcc = Craft::$app->getRequest()->getBodyParam('bcc');
+        $email->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
+        $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
 
         // Save it
         if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
@@ -107,7 +107,7 @@ class EmailsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
         return $this->asJson(['success' => true]);

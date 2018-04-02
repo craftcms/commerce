@@ -103,7 +103,7 @@ class SalesController extends BaseCpController
         $request = Craft::$app->getRequest();
 
         foreach ($fields as $field) {
-            $sale->$field = $request->getParam($field);
+            $sale->$field = $request->getBodyParam($field);
         }
 
         $dateFields = [
@@ -111,17 +111,17 @@ class SalesController extends BaseCpController
             'dateTo'
         ];
         foreach ($dateFields as $field) {
-            if (($date = $request->getParam($field)) !== false) {
+            if (($date = $request->getBodyParam($field)) !== false) {
                 $sale->$field = DateTimeHelper::toDateTime($date) ?: null;
             } else {
                 $sale->$field = $sale->$date;
             }
         }
 
-        $applyAmount = $request->getParam('applyAmount');
-        $sale->sortOrder = $request->getParam('sortOrder');
-        $sale->ignorePrevious = $request->getParam('ignorePrevious');
-        $sale->stopProcessing = $request->getParam('stopProcessing');
+        $applyAmount = $request->getBodyParam('applyAmount');
+        $sale->sortOrder = $request->getBodyParam('sortOrder');
+        $sale->ignorePrevious = $request->getBodyParam('ignorePrevious');
+        $sale->stopProcessing = $request->getBodyParam('stopProcessing');
 
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
@@ -138,7 +138,7 @@ class SalesController extends BaseCpController
 
 
         $purchasables = [];
-        $purchasableGroups = $request->getParam('purchasables') ?: [];
+        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
         foreach ($purchasableGroups as $group) {
             if (is_array($group)) {
                 array_push($purchasables, ...$group);
@@ -146,7 +146,7 @@ class SalesController extends BaseCpController
         }
         $sale->setPurchasableIds(array_unique($purchasables));
 
-        $categories = $request->getParam('categories', []);
+        $categories = $request->getBodyParam('categories', []);
 
         if (!$categories) {
             $categories = [];
@@ -154,7 +154,7 @@ class SalesController extends BaseCpController
 
         $sale->setCategoryIds(array_unique($categories));
 
-        $groups = $request->getParam('groups', []);
+        $groups = $request->getBodyParam('groups', []);
 
         if (!$groups) {
             $groups = [];
@@ -186,7 +186,7 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
             return $this->asJson(['success' => $success]);
         }
@@ -206,7 +206,7 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getSales()->deleteSaleById($id);
         return $this->asJson(['success' => true]);

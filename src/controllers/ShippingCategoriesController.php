@@ -77,11 +77,11 @@ class ShippingCategoriesController extends BaseAdminController
         $shippingCategory = new ShippingCategory();
 
         // Shared attributes
-        $shippingCategory->id = Craft::$app->getRequest()->getParam('shippingCategoryId');
-        $shippingCategory->name = Craft::$app->getRequest()->getParam('name');
-        $shippingCategory->handle = Craft::$app->getRequest()->getParam('handle');
-        $shippingCategory->description = Craft::$app->getRequest()->getParam('description');
-        $shippingCategory->default = Craft::$app->getRequest()->getParam('default');
+        $shippingCategory->id = Craft::$app->getRequest()->getBodyParam('shippingCategoryId');
+        $shippingCategory->name = Craft::$app->getRequest()->getBodyParam('name');
+        $shippingCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $shippingCategory->description = Craft::$app->getRequest()->getBodyParam('description');
+        $shippingCategory->default = Craft::$app->getRequest()->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
@@ -119,7 +119,7 @@ class ShippingCategoriesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
             return $this->asJson(['success' => true]);

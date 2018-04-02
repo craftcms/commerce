@@ -501,8 +501,8 @@ class ProductsController extends BaseCpController
     private function _setProductFromPost(): Product
     {
         $request = Craft::$app->getRequest();
-        $productId = $request->getParam('productId');
-        $siteId = $request->getParam('siteId');
+        $productId = $request->getBodyParam('productId');
+        $siteId = $request->getBodyParam('siteId');
 
         if ($productId) {
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
@@ -529,8 +529,8 @@ class ProductsController extends BaseCpController
         $product->shippingCategoryId = $request->getBodyParam('shippingCategoryId');
         $product->slug = $request->getBodyParam('slug');
 
-        $product->enabledForSite = (bool)$request->getParam('enabledForSite', $product->enabledForSite);
-        $product->title = $request->getParam('title', $product->title);
+        $product->enabledForSite = (bool)$request->getBodyParam('enabledForSite', $product->enabledForSite);
+        $product->title = $request->getBodyParam('title', $product->title);
 
         $product->setFieldValuesFromRequest('fields');
 

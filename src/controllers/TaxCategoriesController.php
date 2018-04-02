@@ -78,11 +78,11 @@ class TaxCategoriesController extends BaseAdminController
         $taxCategory = new TaxCategory();
 
         // Shared attributes
-        $taxCategory->id = Craft::$app->getRequest()->getParam('taxCategoryId');
-        $taxCategory->name = Craft::$app->getRequest()->getParam('name');
-        $taxCategory->handle = Craft::$app->getRequest()->getParam('handle');
-        $taxCategory->description = Craft::$app->getRequest()->getParam('description');
-        $taxCategory->default = Craft::$app->getRequest()->getParam('default');
+        $taxCategory->id = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
+        $taxCategory->name = Craft::$app->getRequest()->getBodyParam('name');
+        $taxCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $taxCategory->description = Craft::$app->getRequest()->getBodyParam('description');
+        $taxCategory->default = Craft::$app->getRequest()->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
@@ -122,7 +122,7 @@ class TaxCategoriesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         if (Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
             return $this->asJson(['success' => true]);

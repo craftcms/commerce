@@ -83,10 +83,10 @@ class StatesController extends BaseAdminController
         $state = new State();
 
         // Shared attributes
-        $state->id = Craft::$app->getRequest()->getParam('stateId');
-        $state->name = Craft::$app->getRequest()->getParam('name');
-        $state->abbreviation = Craft::$app->getRequest()->getParam('abbreviation');
-        $state->countryId = Craft::$app->getRequest()->getParam('countryId');
+        $state->id = Craft::$app->getRequest()->getBodyParam('stateId');
+        $state->name = Craft::$app->getRequest()->getBodyParam('name');
+        $state->abbreviation = Craft::$app->getRequest()->getBodyParam('abbreviation');
+        $state->countryId = Craft::$app->getRequest()->getBodyParam('countryId');
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
@@ -110,7 +110,7 @@ class StatesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getStates()->deleteStateById($id);
         return $this->asJson(['success' => true]);

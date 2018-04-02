@@ -71,7 +71,7 @@ class AddressesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = (int)Craft::$app->getRequest()->getRequiredParam('id');
+        $id = (int)Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 
@@ -132,7 +132,7 @@ class AddressesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getAddresses()->deleteAddressById($id);
         return $this->asJson(['success' => true]);

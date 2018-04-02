@@ -84,13 +84,13 @@ class TaxZonesController extends BaseAdminController
         $taxZone = new TaxAddressZone();
 
         // Shared attributes
-        $taxZone->id = Craft::$app->getRequest()->getParam('taxZoneId');
-        $taxZone->name = Craft::$app->getRequest()->getParam('name');
-        $taxZone->description = Craft::$app->getRequest()->getParam('description');
-        $taxZone->isCountryBased = Craft::$app->getRequest()->getParam('isCountryBased');
-        $taxZone->default = Craft::$app->getRequest()->getParam('default');
-        $countryIds = Craft::$app->getRequest()->getParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getParam('states') ?: [];
+        $taxZone->id = Craft::$app->getRequest()->getBodyParam('taxZoneId');
+        $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
+        $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
+        $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
+        $taxZone->default = Craft::$app->getRequest()->getBodyParam('default');
+        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
+        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
 
         $countries = [];
         foreach ($countryIds as $id) {
@@ -145,7 +145,7 @@ class TaxZonesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asJson(['success' => true]);

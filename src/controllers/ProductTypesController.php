@@ -111,15 +111,15 @@ class ProductTypesController extends BaseAdminController
         $productType = new ProductType();
 
         // Shared attributes
-        $productType->id = Craft::$app->getRequest()->getParam('productTypeId');
-        $productType->name = Craft::$app->getRequest()->getParam('name');
-        $productType->handle = Craft::$app->getRequest()->getParam('handle');
-        $productType->hasDimensions = (bool)Craft::$app->getRequest()->getParam('hasDimensions');
-        $productType->hasVariants = (bool)Craft::$app->getRequest()->getParam('hasVariants');
-        $productType->hasVariantTitleField = (bool)$productType->hasVariants ? (bool)Craft::$app->getRequest()->getParam('hasVariantTitleField') : false;
-        $productType->titleFormat = Craft::$app->getRequest()->getParam('titleFormat');
-        $productType->skuFormat = Craft::$app->getRequest()->getParam('skuFormat');
-        $productType->descriptionFormat = Craft::$app->getRequest()->getParam('descriptionFormat');
+        $productType->id = Craft::$app->getRequest()->getBodyParam('productTypeId');
+        $productType->name = Craft::$app->getRequest()->getBodyParam('name');
+        $productType->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $productType->hasDimensions = (bool)Craft::$app->getRequest()->getBodyParam('hasDimensions');
+        $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
+        $productType->hasVariantTitleField = (bool)$productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
+        $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
+        $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
+        $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');
 
         // Site-specific settings
         $allSiteSettings = [];
@@ -144,8 +144,8 @@ class ProductTypesController extends BaseAdminController
 
         $productType->setSiteSettings($allSiteSettings);
 
-        $productType->setTaxCategories(Craft::$app->getRequest()->getParam('taxCategories'));
-        $productType->setShippingCategories(Craft::$app->getRequest()->getParam('shippingCategories'));
+        $productType->setTaxCategories(Craft::$app->getRequest()->getBodyParam('taxCategories'));
+        $productType->setShippingCategories(Craft::$app->getRequest()->getBodyParam('shippingCategories'));
 
         // Set the product type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
@@ -181,7 +181,7 @@ class ProductTypesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $productTypeId = Craft::$app->getRequest()->getRequiredParam('id');
+        $productTypeId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
         return $this->asJson(['success' => true]);

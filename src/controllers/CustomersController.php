@@ -66,7 +66,7 @@ class CustomersController extends BaseCpController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getRequiredParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($id);
 
         if (!$customer) {

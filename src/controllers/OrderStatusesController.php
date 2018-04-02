@@ -77,18 +77,18 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();
         }
 
-        $orderStatus->name = Craft::$app->getRequest()->getParam('name');
-        $orderStatus->handle = Craft::$app->getRequest()->getParam('handle');
-        $orderStatus->color = Craft::$app->getRequest()->getParam('color');
-        $orderStatus->default = Craft::$app->getRequest()->getParam('default');
-        $emailIds = Craft::$app->getRequest()->getParam('emails', []);
+        $orderStatus->name = Craft::$app->getRequest()->getBodyParam('name');
+        $orderStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $orderStatus->color = Craft::$app->getRequest()->getBodyParam('color');
+        $orderStatus->default = Craft::$app->getRequest()->getBodyParam('default');
+        $emailIds = Craft::$app->getRequest()->getBodyParam('emails', []);
 
         if (!$emailIds) {
             $emailIds = [];
@@ -113,7 +113,7 @@ class OrderStatusesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredParam('ids'));
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
             return $this->asJson(['success' => $success]);
         }

@@ -192,7 +192,7 @@ class OrdersController extends BaseCpController
     public function actionTransactionCapture(): Response
     {
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         if ($transaction->canCapture()) {
@@ -225,7 +225,7 @@ class OrdersController extends BaseCpController
     {
 
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getParam('id');
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = Craft::$app->getRequest()->getParam('amount');
@@ -392,7 +392,7 @@ class OrdersController extends BaseCpController
     {
         $this->requirePostRequest();
 
-        $orderId = Craft::$app->getRequest()->getRequiredParam('orderId');
+        $orderId = Craft::$app->getRequest()->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
@@ -486,7 +486,7 @@ class OrdersController extends BaseCpController
      */
     private function _setOrderFromPost(): Order
     {
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $orderId = Craft::$app->getRequest()->getBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
