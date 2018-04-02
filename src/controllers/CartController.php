@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -158,12 +159,6 @@ class CartController extends BaseFrontEndController
 
         $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
         $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
-
-        if ($shippingIsBilling && $billingIsShipping)
-        {
-            throw new InvalidArgumentException('Can only set one address type to the other');
-        }
-
         $shippingAddress = $request->getParam('shippingAddress');
         $billingAddress = $request->getParam('billingAddress');
 
@@ -171,55 +166,45 @@ class CartController extends BaseFrontEndController
         $shippingAddressId = $request->getParam('shippingAddressId');
         $billingAddressId = $request->getParam('billingAddressId');
 
-        if (!$shippingAddressId && $shippingAddress && !$shippingIsBilling) {
-            $this->_cart->setShippingAddress($shippingAddress);
-
-            if ($billingIsShipping)
-            {
-                $this->_cart->setBillingAddress($shippingAddress);
-            }
-        }
-
-        if ($shippingAddressId)
-        {
+        // Shipping address
+        if ($shippingAddressId && !$shippingIsBilling) {
             $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
-            if (!$address) {
-                throw new InvalidArgumentException('Illegal address id');
-            }
+
             $this->_cart->setShippingAddress($address);
+        } else if ($shippingAddress && !$shippingIsBilling) {
+            $this->_cart->setShippingAddress($shippingAddress);
         }
 
-        if (!$billingAddressId & $billingAddress && !$billingIsShipping) {
-            $this->_cart->setBillingAddress($billingAddress);
-
-            if ($shippingIsBilling)
-            {
-                $this->_cart->setShippingAddress($billingAddress);
-            }
-        }
-
-        if ($billingAddressId && !$billingIsShipping)
-        {
+        // Billing address
+        if ($billingAddressId && !$billingIsShipping) {
             $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
-            if (!$address) {
-                throw new InvalidArgumentException('Illegal address id');
-            }
-            $this->_cart->setBillingAddress($address);
 
-            if ($shippingIsBilling)
-            {
-                $this->_cart->setShippingAddress($address);
-            }
+            $this->_cart->setBillingAddress($address);
+        } else if ($billingAddress && !$billingIsShipping) {
+            $this->_cart->setBillingAddress($shippingAddress);
         }
 
-        if ($shippingAddressId && !$shippingIsBilling)
-        {
-            $this->_cart->shippingAddressId = $shippingAddressId;
+        // Billing address
+        if (!$billingAddressId && $billingAddress) {
+            $this->_cart->setShippingAddress($billingAddress);
+        }
 
-            if ($billingIsShipping)
-            {
-                $this->_cart->billingAddressId = $shippingAddressId;
-            }
+        $this->_cart->billingSameAsShipping = $billingIsShipping;
+        $this->_cart->shippingSameAsBilling = $shippingIsBilling;
+
+        // Set primary addresses
+        if ($request->getBodyParam('makePrimaryShippingAddress')) {
+            $this->_cart->makePrimaryShippingAddress = true;
+        }
+
+        if ($request->getBodyParam('makePrimaryBillingAddress')) {
+            $this->_cart->makePrimaryBillingAddress = true;
+        }
+
+        // Ship
+        if ($shippingAddressId && !$shippingIsBilling && $billingIsShipping)
+        {
+            $this->_cart->billingAddressId = $shippingAddressId;
         }
 
         // Set guest email address onto guest customer and order.

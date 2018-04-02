@@ -180,7 +180,6 @@ class Order extends Element
      */
     public $gatewayId;
 
-
     /**
      * @var string Last IP
      */
@@ -220,6 +219,26 @@ class Order extends Element
      * @var int Shipping address ID
      */
     public $shippingAddressId;
+
+    /**
+     * @var bool Whether shipping address should be made primary
+     */
+    public $makePrimaryShippingAddress;
+
+    /**
+     * @var bool Whether billing address should be made primary
+     */
+    public $makePrimaryBillingAddress;
+
+    /**
+     * @var bool Whether shipping address should be set to the same address as billing
+     */
+    public $shippingSameAsBilling;
+
+    /**
+     * @var bool Whether billing address should be set to the same address as shipping
+     */
+    public $billingSameAsShipping;
 
     /**
      * @var string Shipping Method Handle
@@ -406,6 +425,7 @@ class Order extends Element
 
         // Address models are valid?
         $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddress']; // from OrderValidatorTrait
+        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddressReuse']; // from OrderValidatorTrait
 
         // Line items are valid?
         $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
@@ -708,9 +728,19 @@ class Order extends Element
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
 
+        $customer = $this->getCustomer();
+        $existingAddresses = $customer ? $customer->getAddresses() : [];
+
+        if ($this->shippingSameAsBilling) {
+            $this->setShippingAddress($this->getBillingAddress());
+        }
+
+        if ($this->billingSameAsShipping) {
+            $this->setBillingAddress($this->getShippingAddress());
+        }
+
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            $customer = $this->getCustomer();
             if ($customer) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
@@ -722,7 +752,6 @@ class Order extends Element
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            $customer = $this->getCustomer();
             if ($customer) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
@@ -732,7 +761,26 @@ class Order extends Element
             $orderRecord->billingAddressId = $billingAddress->id;
         }
 
+
         $orderRecord->save(false);
+
+        $updateCustomer = false;
+
+        if ($customer) {
+            if ($this->makePrimaryBillingAddress || empty($existingAddresses) || !$customer->primaryBillingAddressId) {
+                $customer->primaryBillingAddressId = $orderRecord->billingAddressId;
+                $updateCustomer = true;
+            }
+
+            if ($this->makePrimaryShippingAddress || empty($existingAddresses) || !$customer->primaryShippingAddressId) {
+                $customer->primaryShippingAddressId = $orderRecord->shippingAddressId;
+                $updateCustomer = true;
+            }
+
+            if ($updateCustomer) {
+                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+            }
+        }
 
         $this->_updateAdjustments();
         $this->_updateLineItems();
