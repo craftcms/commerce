@@ -72,11 +72,6 @@ class Addresses extends Component
      */
     private $_addressesById = [];
 
-    /**
-     * @var Address[][]
-     */
-    private $_addressesByCustomerId = [];
-
     // Public Methods
     // =========================================================================
 
@@ -107,20 +102,16 @@ class Addresses extends Component
      */
     public function getAddressesByCustomerId(int $customerId): array
     {
-        if (!isset($this->_addressesByCustomerId[$customerId])) {
-            $rows = $this->_createAddressQuery()
-                ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
-                ->where(['customerAddresses.customerId' => $customerId])
-                ->all();
+        $rows = $this->_createAddressQuery()
+            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->where(['customerAddresses.customerId' => $customerId])
+            ->all();
 
-            $this->_addressesByCustomerId[$customerId] = [];
+        $addresses = [];
 
-            foreach ($rows as $row) {
-                $this->_addressesByCustomerId[$customerId][] = new Address($row);
-            }
+        foreach ($rows as $row) {
+            $addresses[] = new Address($row);
         }
-
-        return $this->_addressesByCustomerId[$customerId];
     }
 
     /**
