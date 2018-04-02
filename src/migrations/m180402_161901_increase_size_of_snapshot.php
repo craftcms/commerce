@@ -28,8 +28,10 @@ class m180402_161901_increase_size_of_snapshot extends Migration
     public function safeUp()
     {
         // Make fields larger to store more data
-        $this->alterColumn('{{%commerce_lineitems}}', 'snapshot', $this->longText()->notNull());
-        $this->alterColumn('{{%commerce_orderadjustments}}', 'sourceSnapshot', $this->longText()->notNull());
+
+        $this->alterColumn('{{%commerce_lineitems}}', 'snapshot', $this->longText());
+        $this->alterColumn('{{%commerce_orderadjustments}}', 'sourceSnapshot', $this->longText());
+
         return true;
     }
 
