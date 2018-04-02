@@ -1,6 +1,9 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
+    {% set customer = craft.commerce.customers.customer %}
+    {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
+    {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
 
     <div class="row">
     <div class="one-half column">
@@ -11,8 +14,7 @@
     </div>
 
     </div>
-    {% for address in craft.commerce.customers.customer.addresses %}
-
+    {% for address in customer.addresses %}
         {% if loop.index0 is divisible by(3) %}
         <div class="row">
         {% endif %}
@@ -25,11 +27,11 @@
                     <input type="hidden" name="id" value="{{ address.id }}"/>
                     <input type="submit" value="delete"/>
                 </form>
+                <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}Primary Billing{% endif %}</strong><br>
+                <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}Primary Shipping{% endif %}</strong>
             </div>
         {% if loop.index is divisible by(3) %}
         </div>
         {% endif %}
-
-
     {% endfor %}
 {% endblock %}
