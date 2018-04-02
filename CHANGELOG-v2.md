@@ -12,6 +12,10 @@
 - Added `craft.subscriptions` twig variable which returns the new SubscriptionQuery class.
 - Added the ability for any purchasable to have sales.
 - Added ability to have sales applied based on a Craft category related to a purchasable.
+- Added `craft\commerce\models\Customer::getPrimaryBillingAddress()`
+- Added `craft\commerce\models\Customer::getPrimaryShippingAddress()`
+- Added `craft\commerce\services\Address::getAddressByIdAndCustomerId()`
+- Added `craft\commerce\services\Customers::setLastUsedAddresses()`
 
 ### Changed
 - Removed `baseShipping`, `baseDiscount`, `baseTax`, `baseTaxIncluded` attributes from the order model. Order's now have order level adjustments.
@@ -31,6 +35,7 @@
 - `craft\commerce\services\Carts::addToCart()` now requires a `craft\commerce\models\LineItem` object as the second parameter.
 - `craft\commerce\services\LineItems::getLineItemByOrderPurchasableOptions()` is now `craft\commerce\services\LineItems::resolveLineItem()`
 - `craft\commerce\services\Pdf::pdfForOrder()` is now `craft\commerce\services\Pdf::renderPdfForOrder()`
+- Last addresses used by customers are no longer stored. Instead, customers have primary shipping and billing addresses.
 
 ### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
@@ -58,4 +63,6 @@
 ### Removed
 - Removed `craft\commerce\services\Countries::getCountryByAttributes()`
 - Removed `craft\commerce\services\States::getStatesByAttributes()`
+- Removed `craft\commerce\models\Customer::getLastUsedBillingAddress()`
+- Removed `craft\commerce\models\Customer::getLatUsedShippingAddress()`
 - Removed the `commerce_modifyGatewayRequestData`, `commerce_modifyGatewayRequestData` and `commerce_modifyItemBag` hooks.

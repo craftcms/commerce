@@ -124,6 +124,23 @@ class Addresses extends Component
     }
 
     /**
+     * Returns an address by an address id and customer id.
+     *
+     * @param int $addressId the address id
+     * @param int $customerId the customer's ID
+     * @return Address|null the matched address or null if not found
+     */
+    public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
+    {
+        $result = $this->_createAddressQuery()
+            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->where(['customerAddresses.customerId' => $customerId])
+            ->andWhere(['addresses.id' => $addressId])
+            ->one();
+
+        return $this->_addressesById[$addressId] = $result ? new Address($result) : null;
+    }
+    /**
      * Returns the stock location or a blank address if it's not defined.
      *
      * @return Address

@@ -206,8 +206,8 @@ class Customers extends Component
         }
 
         $customerRecord->userId = $customer->userId;
-        $customerRecord->lastUsedBillingAddressId = $customer->lastUsedBillingAddressId;
-        $customerRecord->lastUsedShippingAddressId = $customer->lastUsedShippingAddressId;
+        $customerRecord->primaryBillingAddressId = $customer->primaryBillingAddressId;
+        $customerRecord->primaryShippingAddressId = $customer->primaryShippingAddressId;
 
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
@@ -396,13 +396,6 @@ class Customers extends Component
      */
     public function orderCompleteHandler($order)
     {
-        // set the last used addresses before duplicating the addresses on the order
-        if (!Craft::$app->request->isConsoleRequest) {
-            if ($order->customerId == $this->getCustomerId()) {
-                $this->setLastUsedAddresses($order->billingAddressId, $order->shippingAddressId);
-            }
-        }
-
         // Now duplicate the addresses on the order
         $addressesService = Plugin::getInstance()->getAddresses();
         if ($order->billingAddress) {
@@ -482,29 +475,6 @@ class Customers extends Component
     }
 
     /**
-     * Set the last used billing and shipping addresses for the current customer.
-     *
-     * @param int $billingId ID of billing address.
-     * @param int $shippingId ID of shipping address.
-     * @return bool
-     * @throws Exception if failed to save addresses on customer.
-     */
-    public function setLastUsedAddresses($billingId, $shippingId): bool
-    {
-        $customer = $this->_getSavedCustomer();
-
-        if ($billingId) {
-            $customer->lastUsedBillingAddressId = $billingId;
-        }
-
-        if ($shippingId) {
-            $customer->lastUsedShippingAddressId = $shippingId;
-        }
-
-        return $this->saveCustomer($customer);
-    }
-
-    /**
      * Handle a saved user.
      *
      * @param Event $event
@@ -562,8 +532,8 @@ class Customers extends Component
             ->select([
                 'id',
                 'userId',
-                'lastUsedBillingAddressId',
-                'lastUsedShippingAddressId'
+                'primaryBillingAddressId',
+                'primaryShippingAddressId'
             ])
             ->from(['{{%commerce_customers}}']);
     }

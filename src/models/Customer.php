@@ -19,8 +19,8 @@ use yii\base\InvalidConfigException;
  *
  * @property Address[] $addresses the address for the customer
  * @property string $email the customer's email address if it is related to a user
- * @property null|Address $lastUsedBillingAddress the last used Billing Address used by the customer if it exists
- * @property null|Address $lastUsedShippingAddress the last used Shipping Address used by the customer if it exists
+ * @property null|Address $primaryBillingAddress the primary Billing Address used by the customer if it exists
+ * @property null|Address $primaryShippingAddress the primary Shipping Address used by the customer if it exists
  * @property Order[] $orders the order elements associated with this customer
  * @property User $user the user element associated with this customer
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -42,14 +42,14 @@ class Customer extends Model
     public $userId;
 
     /**
-     * @var int The last used billing address
+     * @var int The primary billing address id
      */
-    public $lastUsedBillingAddressId;
+    public $primaryBillingAddressId;
 
     /**
-     * @var int The last used shipping address
+     * @var int The primary shipping address id
      */
-    public $lastUsedShippingAddressId;
+    public $primaryShippingAddressId;
 
     /**
      * @var User $_user
@@ -158,14 +158,14 @@ class Customer extends Model
     }
 
     /**
-     * Returns the last used Billing Address used by the customer if it exists.
+     * Returns the  customer's primary billing address if it exists.
      *
      * @return Address|null
      */
-    public function getLastUsedBillingAddress()
+    public function getPrimaryBillingAddress()
     {
-        if ($this->lastUsedBillingAddressId) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->lastUsedBillingAddressId);
+        if ($this->primaryBillingAddressId) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->primaryBillingAddressId);
             if ($address) {
                 return $address;
             }
@@ -175,14 +175,14 @@ class Customer extends Model
     }
 
     /**
-     * Returns the last used Shipping Address used by the customer if it exists.
+     * Returns the customer's primary shipping address if it exists.
      *
      * @return Address|null
      */
-    public function getLastUsedShippingAddress()
+    public function getPrimaryShippingAddress()
     {
-        if ($this->lastUsedShippingAddressId) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->lastUsedShippingAddressId);
+        if ($this->primaryShippingAddressId) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($this->primaryShippingAddressId);
             if ($address) {
                 return $address;
             }

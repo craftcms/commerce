@@ -9,15 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\CurrencyException;
-use craft\commerce\errors\EmailException;
-use craft\commerce\errors\GatewayException;
-use craft\commerce\errors\LineItemException;
-use craft\commerce\errors\PaymentSourceException;
-use craft\commerce\errors\ShippingMethodException;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\web\Response;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
@@ -190,7 +182,11 @@ class CartController extends BaseFrontEndController
 
         if ($shippingAddressId)
         {
-            $this->_cart->shippingAddressId = $shippingAddressId;
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
+            if (!$address) {
+                throw new InvalidArgumentException('Illegal address id');
+            }
+            $this->_cart->setShippingAddress($address);
         }
 
         if (!$billingAddressId & $billingAddress && !$billingIsShipping) {
@@ -204,11 +200,15 @@ class CartController extends BaseFrontEndController
 
         if ($billingAddressId && !$billingIsShipping)
         {
-            $this->_cart->billingAddressId = $billingAddressId;
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
+            if (!$address) {
+                throw new InvalidArgumentException('Illegal address id');
+            }
+            $this->_cart->setBillingAddress($address);
 
             if ($shippingIsBilling)
             {
-                $this->_cart->shippingAddressId = $billingAddressId;
+                $this->_cart->setShippingAddress($address);
             }
         }
 

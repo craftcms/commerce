@@ -282,14 +282,14 @@ class Order extends Element
         if (!$this->isCompleted) {
             // Set default addresses on the order
             if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->lastUsedShippingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->lastUsedShippingAddressId)) !== null) {
+                if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
                         $this->setShippingAddress($address);
                     }
                 }
 
-                if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->lastUsedBillingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->lastUsedBillingAddressId)) !== null) {
+                if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
+                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
                         $this->setBillingAddress($address);
                     }
                 }

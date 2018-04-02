@@ -16,8 +16,8 @@ use yii\db\ActiveQueryInterface;
  * @property Address[] $addresses
  * @property CustomerAddress[] $customerAddresses
  * @property int $id
- * @property int $lastUsedBillingAddressId
- * @property int $lastUsedShippingAddressId
+ * @property int $primaryBillingAddressId
+ * @property int $primaryShippingAddressId
  * @property Order[] $orders
  * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

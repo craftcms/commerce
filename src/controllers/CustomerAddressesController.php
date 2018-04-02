@@ -62,8 +62,9 @@ class CustomerAddressesController extends BaseFrontEndController
             $address->$attr = Craft::$app->getRequest()->getParam('address.'.$attr);
         }
 
-        $customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
-        $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
+        $customerService = Plugin::getInstance()->getCustomers();
+        $customer = $customerService->getCustomer();
+        $addressIds = $customerService->getAddressIds($customer->id);
 
         // if this is an existing address
         if ($address->id && !in_array($address->id, $addressIds, false)) {
@@ -76,7 +77,33 @@ class CustomerAddressesController extends BaseFrontEndController
             return;
         }
 
-        if (Plugin::getInstance()->getCustomers()->saveAddress($address)) {
+        if ($customerService->saveAddress($address)) {
+
+            $request = Craft::$app->getRequest();
+            $updatedCustomer = false;
+
+            if ($request->getBodyParam('setPrimaryBillingAddress') || !$customer->primaryBillingAddressId) {
+                $customer->primaryBillingAddressId = $address->id;
+                $updatedCustomer = true;
+            }
+
+            if ($request->getBodyParam('setPrimaryShippingAddress') || !$customer->primaryShippingAddressId) {
+                $customer->primaryShippingAddressId = $address->id;
+                $updatedCustomer = true;
+            }
+
+            if ($updatedCustomer) {
+                if (!$customerService->saveCustomer($customer)) {
+                    $error = Craft::t('commerce', 'Unable to update primary address.');
+                    if (Craft::$app->getRequest()->getAcceptsJson()) {
+                        return $this->asJson(['error' => $error]);
+                    }
+                    Craft::$app->getUser()->setFlash('error', $error);
+
+                    return;
+                }
+            }
+
             // Refresh the cart, if this address was being used.
             $cart = Plugin::getInstance()->getCarts()->getCart();
             if ($cart->shippingAddressId == $address->id) {
