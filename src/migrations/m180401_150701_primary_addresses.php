@@ -7,15 +7,7 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\eway\gateways\gateway as EwayGateway;
-use craft\commerce\multisafepay\gateways\gateway as MultiSafepayGateway;
-use craft\commerce\paypal\gateways\PayPalExpress;
-use craft\commerce\paypal\gateways\PayPalRest;
-use craft\commerce\sagepay\gateways\Direct;
-use craft\commerce\sagepay\gateways\Server;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\Json;
 
 /**
  * m180401_150701_primary_addresses migration.
