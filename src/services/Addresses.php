@@ -112,6 +112,8 @@ class Addresses extends Component
         foreach ($rows as $row) {
             $addresses[] = new Address($row);
         }
+
+        return $addresses;
     }
 
     /**
