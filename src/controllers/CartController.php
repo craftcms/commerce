@@ -232,9 +232,9 @@ class CartController extends BaseFrontEndController
             $this->_cart->paymentCurrency = $currency;
         }
 
-        // Set Coupon on Cart.
-        if ($couponCode = $request->getParam('couponCode')) {
-            $this->_cart->couponCode = $couponCode;
+        // Set Coupon on Cart. Allow blank string to remove coupon
+        if (($couponCode = $request->getParam('couponCode')) !== null) {
+            $this->_cart->couponCode = $couponCode ?: null;
         }
 
         // Set Coupon on Cart.
