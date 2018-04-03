@@ -139,7 +139,7 @@ class Customer extends Model
     {
         $addresses = $this->getAddresses();
         foreach ($addresses as $address) {
-            if ($id === $address->id) {
+            if ($id == $address->id) {
                 return $address;
             }
         }

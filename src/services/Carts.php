@@ -80,7 +80,7 @@ class Carts extends Component
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
         $this->_cart->orderLocale = Craft::$app->language;
         $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $this->_cart->customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
+        $this->_cart->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
 
 
         // Has the customer in session changed?
