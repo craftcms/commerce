@@ -114,25 +114,6 @@ class Discount implements AdjusterInterface
 
         $this->_discount = $discount;
 
-        // If coupon matches, check the per email usage limit.
-        if (strcasecmp($this->_order->couponCode, $discount->code) == 0) {
-            if ($this->_order->email && $this->_discount->perEmailLimit) {
-                $previousOrders = Plugin::getInstance()->getOrders()->getOrdersByEmail($this->_order->email);
-
-                $usedCount = 0;
-
-                foreach ($previousOrders as $previousOrder) {
-                    if (strcasecmp($previousOrder->couponCode, $this->_discount->code) == 0) {
-                        ++$usedCount;
-                    }
-                }
-
-                if ($usedCount >= $this->_discount->perEmailLimit) {
-                    return false;
-                }
-            }
-        }
-
         $now = new \DateTime();
         $from = $this->_discount->dateFrom;
         $to = $this->_discount->dateTo;
