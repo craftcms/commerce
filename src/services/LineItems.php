@@ -102,7 +102,6 @@ class LineItems extends Component
             $lineItems = [];
 
             foreach ($results as $result) {
-                $result['options'] = Json::decodeIfJson($result['options']);
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
                 $lineItems[] = new LineItem($result);
             }
@@ -130,6 +129,7 @@ class LineItems extends Component
     {
         ksort($options);
         $signature = md5(json_encode($options));
+
         $result = $this->_createLineItemQuery()
             ->where([
                 'orderId' => $orderId,
@@ -230,8 +230,8 @@ class LineItems extends Component
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
         $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
 
-        $lineItemRecord->options = $lineItem->options;
-        $lineItemRecord->optionsSignature = $lineItem->optionsSignature;
+        $lineItemRecord->options = $lineItem->getOptions();
+        $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();
 
         $lineItemRecord->qty = $lineItem->qty;
         $lineItemRecord->price = $lineItem->price;
@@ -312,13 +312,10 @@ class LineItems extends Component
      */
     public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
     {
-        ksort($options);
-
         $lineItem = new LineItem();
         $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
-        $lineItem->options = $options;
-        $lineItem->optionsSignature = md5(json_encode($options));
+        $lineItem->setOptions($options);
         $lineItem->orderId = $orderId;
         $lineItem->note = $note;
 
@@ -370,7 +367,6 @@ class LineItems extends Component
             ->select([
                 'id',
                 'options',
-                'optionsSignature',
                 'price',
                 'saleAmount',
                 'salePrice',

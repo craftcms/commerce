@@ -21,7 +21,9 @@ use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -40,6 +42,7 @@ use yii\base\InvalidConfigException;
  * @property float $total the subTotal plus any adjustments belonging to this line item
  * @property TaxCategory $taxCategory
  * @property int $taxIncluded
+ * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -53,16 +56,6 @@ class LineItem extends Model
      * @var int ID
      */
     public $id;
-
-    /**
-     * @var mixed Options
-     */
-    public $options;
-
-    /**
-     * @var string Options Signature Hash
-     */
-    public $optionsSignature;
 
     /**
      * @var float Price
@@ -144,6 +137,11 @@ class LineItem extends Model
      */
     private $_order;
 
+    /**
+     * @var
+     */
+    private $_options = [];
+
     // Public Methods
     // =========================================================================
 
@@ -169,6 +167,43 @@ class LineItem extends Model
     {
         $this->_order = $order;
     }
+
+    /**
+     * Gets the options for the line item.
+     */
+    public function getOptions(): array
+    {
+        return $this->_options;
+    }
+
+    /**
+     * Set the options array on the line item.
+     *
+     * @param array|string $options
+     */
+    public function setOptions($options)
+    {
+        if (is_string($options)) {
+            $options = Json::decode($options);
+        }
+
+        if (!is_array($options)) {
+            throw new InvalidArgumentException('Options must be an array.');
+        }
+
+        ksort($options);
+
+        $this->_options = $options;
+    }
+
+    /**
+     * Returns a unique hash of the line item options
+     */
+    public function getOptionsSignature()
+    {
+        return md5(Json::encode($this->_options));
+    }
+
 
     /**
      * @return array
@@ -217,6 +252,7 @@ class LineItem extends Model
 
         $names[] = 'adjustments';
         $names[] = 'description';
+        $names[] = 'options';
         $names[] = 'onSale';
         $names[] = 'sku';
         $names[] = 'total';
@@ -348,7 +384,7 @@ class LineItem extends Model
             'description' => $purchasable->getDescription(),
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
-            'options' => $this->options,
+            'options' => $this->getOptions(),
             'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 

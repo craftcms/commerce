@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
+use craft\helpers\Json;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
@@ -79,9 +80,7 @@ class CartController extends BaseFrontEndController
         }
 
         if ($options = $request->getParam('options')) {
-            ksort($options);
-            $lineItem->options = $options;
-            $lineItem->optionsSignature = md5(json_encode($options));
+            $lineItem->setOptions($options);
         }
 
         $this->_cart->addLineItem($lineItem);

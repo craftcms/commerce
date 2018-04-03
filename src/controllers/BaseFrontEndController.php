@@ -102,7 +102,7 @@ class BaseFrontEndController extends BaseController
             $lineItemData['shippingCategoryId'] = $lineItem->shippingCategoryId;
             $lineItemData['onSale'] = $lineItem->getOnSale();
             $lineItemData['options'] = $lineItem->options;
-            $lineItemData['optionsSignature'] = $lineItem->optionsSignature;
+            $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
             $lineItems[$lineItem->id] = $lineItemData;
