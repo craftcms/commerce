@@ -130,6 +130,16 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable('{{%commerce_email_discountuses}}', [
+            'id' => $this->primaryKey(),
+            'discountId' => $this->integer()->notNull(),
+            'email' => $this->string()->notNull(),
+            'uses' => $this->integer()->notNull()->unsigned(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable('{{%commerce_customers}}', [
             'id' => $this->primaryKey(),
             'userId' => $this->integer(),

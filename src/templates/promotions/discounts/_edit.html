@@ -335,14 +335,23 @@
 
                 if (r == true) {
                     $('#clear-coupon-history-spinner').toggleClass('hidden');
-                    $.post('', {
-                        action: 'commerce/discounts/clearCouponUsageHistory',
-                        id: '{% if discount.id %}{{ discount.id }}{% endif %}'
-                    }, function(result) {
-                        $('#clear-coupon-history-spinner').toggleClass('hidden');
-                        $('#total-coupon-use-counter').val(0);
-                        alert(Craft.t('commerce', 'All coupon usage counters have been cleared'));
-                        $('#clear-coupon-history').hide();
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'json',
+                        headers: {
+                            "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+                        },
+                        url: '',
+                        data: {
+                            'action' : 'commerce/discounts/clear-coupon-usage-history',
+                            'id': '{{ discount.id ?? '' }}'
+                        },
+                        success: function(data){
+                            $('#clear-coupon-history-spinner').toggleClass('hidden');
+                            $('#total-coupon-use-counter').val(0);
+                            alert(Craft.t('commerce', 'All coupon usage counters have been cleared'));
+                            $('#clear-coupon-history').hide();
+                        }
                     });
                 }
 

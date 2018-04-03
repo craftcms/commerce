@@ -182,7 +182,7 @@ class Discounts extends Component
     }
 
     /**
-     * Fetches a discount by its code and tries to apply it to the current cart.
+     * Is discount available to the order
      *
      * @param string $code
      * @param int|null $customerId

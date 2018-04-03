@@ -208,7 +208,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionClearCouponUsageHistory(): Response
+    public function actionClearCouponUsageHistory()
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -217,7 +217,7 @@ class DiscountsController extends BaseCpController
 
         Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
 
-        $this->asJson(['success' => true]);
+        return $this->asJson(['success' => true]);
     }
 
     // Private Methods
