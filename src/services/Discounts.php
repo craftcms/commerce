@@ -206,9 +206,10 @@ class Discounts extends Component
             return false;
         }
 
+        $now = $order->dateUpdated ?? new DateTime();
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
-        if (($from && $from > $order->dateUpdated) || ($to && $to < $order->dateUpdated)) {
+        if (($from && $from > $now) || ($to && $to < $now)) {
             $explanation = Craft::t('commerce', 'Discount is out of date');
 
             return false;
