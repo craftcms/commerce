@@ -61,6 +61,8 @@ BC - Breaking Change
 | `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      
 | `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     
 | `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC   
+| `customer.lastUsedBillingAddress`         | `customer.primaryBillingAddress`                          | BC  
+| `customer.lastUsedShippingAddress`        | `customer.primaryShippingAddress`                         | BC  
 
 
 ### Model Changes
