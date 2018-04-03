@@ -43,8 +43,8 @@ class m180402_161903_primary_customer_addresses_relations extends Migration
             $this->update('{{%commerce_customers}}', ['primaryShippingAddressId' => null], ['primaryShippingAddressId' => $id]);
         }
 
-        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
     }
 
     /**
