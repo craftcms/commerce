@@ -138,7 +138,7 @@ class CartController extends BaseFrontEndController
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
-            $lineItem  = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
             $this->_cart->addLineItem($lineItem);
         }
 
@@ -150,62 +150,13 @@ class CartController extends BaseFrontEndController
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
-                $lineItem  = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
                 $this->_cart->addLineItem($lineItem);
             }
         };
 
-        // Address updating
+        $this->_setAddresses();
 
-        $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
-        $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
-        $shippingAddress = $request->getParam('shippingAddress');
-        $billingAddress = $request->getParam('billingAddress');
-
-        // Override billing address with a particular ID
-        $shippingAddressId = $request->getParam('shippingAddressId');
-        $billingAddressId = $request->getParam('billingAddressId');
-
-        // Shipping address
-        if ($shippingAddressId && !$shippingIsBilling) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
-
-            $this->_cart->setShippingAddress($address);
-        } else if ($shippingAddress && !$shippingIsBilling) {
-            $this->_cart->setShippingAddress($shippingAddress);
-        }
-
-        // Billing address
-        if ($billingAddressId && !$billingIsShipping) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
-
-            $this->_cart->setBillingAddress($address);
-        } else if ($billingAddress && !$billingIsShipping) {
-            $this->_cart->setBillingAddress($shippingAddress);
-        }
-
-        // Billing address
-        if (!$billingAddressId && $billingAddress) {
-            $this->_cart->setShippingAddress($billingAddress);
-        }
-
-        $this->_cart->billingSameAsShipping = $billingIsShipping;
-        $this->_cart->shippingSameAsBilling = $shippingIsBilling;
-
-        // Set primary addresses
-        if ($request->getBodyParam('makePrimaryShippingAddress')) {
-            $this->_cart->makePrimaryShippingAddress = true;
-        }
-
-        if ($request->getBodyParam('makePrimaryBillingAddress')) {
-            $this->_cart->makePrimaryBillingAddress = true;
-        }
-
-        // Ship
-        if ($shippingAddressId && !$shippingIsBilling && $billingIsShipping)
-        {
-            $this->_cart->billingAddressId = $shippingAddressId;
-        }
 
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest && $email = $request->getParam('email')) {
@@ -304,5 +255,60 @@ class CartController extends BaseFrontEndController
         }
 
         return clone $cart;
+    }
+
+    private function _setAddresses(): void
+    {
+        // Address updating
+        $request = Craft::$app->getRequest();
+
+        $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
+        $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
+        $shippingAddress = $request->getParam('shippingAddress');
+        $billingAddress = $request->getParam('billingAddress');
+
+        // Override billing address with a particular ID
+        $shippingAddressId = $request->getParam('shippingAddressId');
+        $billingAddressId = $request->getParam('billingAddressId');
+
+        // Shipping address
+        if ($shippingAddressId && !$shippingIsBilling) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
+
+            $this->_cart->setShippingAddress($address);
+        } else if ($shippingAddress && !$shippingIsBilling) {
+            $this->_cart->setShippingAddress($shippingAddress);
+        }
+
+        // Billing address
+        if ($billingAddressId && !$billingIsShipping) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
+
+            $this->_cart->setBillingAddress($address);
+        } else if ($billingAddress && !$billingIsShipping) {
+            $this->_cart->setBillingAddress($billingAddress);
+        }
+
+        $this->_cart->billingSameAsShipping = $billingIsShipping;
+        $this->_cart->shippingSameAsBilling = $shippingIsBilling;
+
+        // Set primary addresses
+        if ($request->getBodyParam('makePrimaryShippingAddress')) {
+            $this->_cart->makePrimaryShippingAddress = true;
+        }
+
+        if ($request->getBodyParam('makePrimaryBillingAddress')) {
+            $this->_cart->makePrimaryBillingAddress = true;
+        }
+
+        // Shipping
+        if ($shippingAddressId && !$shippingIsBilling && $billingIsShipping) {
+            $this->_cart->billingAddressId = $shippingAddressId;
+        }
+
+        // Billing
+        if ($billingAddressId && !$billingIsShipping && $shippingIsBilling) {
+            $this->_cart->shippingAddressId = $billingAddressId;
+        }
     }
 }

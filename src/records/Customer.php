@@ -55,6 +55,22 @@ class Customer extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
+    public function getPrimaryBillingAddress(): ActiveQueryInterface
+    {
+        return $this->hasOne(Address::class, ['id' => 'primaryBillingAddressId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getPrimaryShippingAddress(): ActiveQueryInterface
+    {
+        return $this->hasOne(Address::class, ['id' => 'primaryShippingAddressId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getOrders(): ActiveQueryInterface
     {
         return $this->hasMany(Order::class, ['id' => 'customerId']);

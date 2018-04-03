@@ -813,9 +813,9 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', 'discountId', false);
         $this->createIndex(null, '{{%commerce_customers}}', 'userId', false);
+        $this->createIndex(null, '{{%commerce_customers}}', 'primaryBillingAddressId', false);
+        $this->createIndex(null, '{{%commerce_customers}}', 'primaryShippingAddressId', false);
         $this->createIndex(null, '{{%commerce_customers_addresses}}', ['customerId', 'addressId'], true);
-        $this->createIndex(null, '{{%commerce_customers_addresses}}', 'customerId', false);
-        $this->createIndex(null, '{{%commerce_customers_addresses}}', 'addressId', false);
         $this->createIndex(null, '{{%commerce_discount_purchasables}}', ['discountId', 'purchasableId'], true);
         $this->createIndex(null, '{{%commerce_discount_purchasables}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_discount_categories}}', ['discountId', 'categoryId'], true);
@@ -924,6 +924,8 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_email_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['addressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_purchasables}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
