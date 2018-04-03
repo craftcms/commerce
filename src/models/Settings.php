@@ -78,11 +78,6 @@ class Settings extends Model
     public $emailSenderNamePlaceholder;
 
     /**
-     * @var string
-     */
-    public $cartCookieDuration = 'P3M';
-
-    /**
      * @var array
      */
     public $paymentCurrency;

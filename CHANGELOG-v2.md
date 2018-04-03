@@ -18,6 +18,7 @@
 - Added `craft\commerce\services\Customers::setLastUsedAddresses()`
 
 ### Changed
+- Removed the `cartCookieDuration` config item. All carts are now related to php session. 
 - Replaced`customer.lastUsedShippingAddress` and `customer.lastUsedBillingAddress` with `customer.primaryBillingAddress` and `customer.primaryShippingAddress`
 - Removed `baseShipping`, `baseDiscount`, `baseTax`, `baseTaxIncluded` attributes from the order model. Order's now have order level adjustments.
 - Removed `shipping`, `discount`, `tax`, `taxIncluded` attributes from the line item model. Line item's now have line item level adjustments.
