@@ -253,6 +253,7 @@ class LineItem extends Model
         $names[] = 'adjustments';
         $names[] = 'description';
         $names[] = 'options';
+        $names[] = 'optionsSignature';
         $names[] = 'onSale';
         $names[] = 'sku';
         $names[] = 'total';
