@@ -65,7 +65,7 @@ trait OrderValidatorsTrait
 
     /**
      * Validates that shipping address isn't being set to be the same as billing adress, when billing address is set to be shipping address
-     * 
+     *
      * @param string $attribute the attribute being validated
      */
     public function validateAddressReuse($attribute) {
@@ -94,7 +94,7 @@ trait OrderValidatorsTrait
      */
     public function validateCouponCode($attribute)
     {
-        if (!$this->isCompleted && $this->$attribute && !Plugin::getInstance()->getDiscounts()->matchCode($this->$attribute, $this->customerId, $explanation)) {
+        if (!$this->isCompleted && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
             $this->addError($attribute, $explanation);
         }
     }

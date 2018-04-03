@@ -18,6 +18,7 @@ use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
+use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use DateTime;
@@ -182,34 +183,32 @@ class Discounts extends Component
     }
 
     /**
-     * Is discount available to the order
+     * Is discount coupon available to the order
      *
-     * @param string $code
-     * @param int|null $customerId
+     * @param Order $order
      * @param string|null $explanation
      * @return bool
      */
-    public function matchCode(string $code, int $customerId = null, string &$explanation = null): bool
+    public function orderCouponAvailable(Order $order, string &$explanation = null): bool
     {
-        $plugin = Plugin::getInstance();
-        $discount = $this->getDiscountByCode($code);
-        $customer = $customerId ? $plugin->getCustomers()->getCustomerById($customerId) : null;
-        $user = $customer ? $customer->getUser() : null;
+        $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
             $explanation = Craft::t('commerce', 'Coupon not valid');
             return false;
         }
 
+        $customer = $order->getCustomer();
+        $user = $customer ? $customer->getUser() : null;
+
         if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
             $explanation = Craft::t('commerce', 'Discount use has reached its limit');
             return false;
         }
 
-        $now = new DateTime();
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
-        if (($from && $from > $now) || ($to && $to < $now)) {
+        if (($from && $from > $order->dateUpdated) || ($to && $to < $order->dateUpdated)) {
             $explanation = Craft::t('commerce', 'Discount is out of date');
 
             return false;
@@ -235,37 +234,37 @@ class Discounts extends Component
             $usage = (new Query())
                 ->select('uses')
                 ->from('{{%commerce_customer_discountuses}}')
-                ->where(['customerId' => $customerId, 'discountId' => $discount->id])
+                ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
-            if ($usage && $usage > $discount->perUserLimit) {
-                $explanation = Craft::t('commerce', 'You can not use this discount anymore.');
+            if ($usage && $usage >= $discount->perUserLimit) {
+                $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
+                    'limit' => $discount->perUserLimit,
+                ]);
 
                 return false;
             }
         }
 
+        if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
+            $explanation = Craft::t('commerce', 'Discount is limited in use to those who have supplied their email address.');
+
+            return false;
+        }
+
         if ($discount->perEmailLimit > 0) {
-            $cart = $plugin->getCarts()->getCart();
-            $email = $cart->email;
+            $usage = (new Query())
+                ->select('uses')
+                ->from('{{%commerce_email_discountuses}}')
+                ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
+                ->scalar();
 
-            if ($email) {
-                $previousOrders = $plugin->getOrders()->getOrdersByEmail($email);
+            if ($usage && $usage >= $discount->perEmailLimit) {
+                $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
+                    'limit' => $discount->perEmailLimit,
+                ]);
 
-                $usedCount = 0;
-                foreach ($previousOrders as $order) {
-                    if (strcasecmp($order->couponCode, $code) == 0) {
-                        $usedCount++;
-                    }
-                }
-
-                if ($usedCount >= $discount->perEmailLimit) {
-                    $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
-                        'limit' => $discount->perEmailLimit,
-                    ]);
-
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -466,6 +465,10 @@ class Discounts extends Component
             ->execute();
 
         $db->createCommand()
+            ->delete('{{%commerce_email_discountuses}}', ['discountId' => $id])
+            ->execute();
+
+        $db->createCommand()
             ->update('{{%commerce_discounts}}', ['totalUses' => 0], ['id' => $id])
             ->execute();
     }
@@ -498,13 +501,13 @@ class Discounts extends Component
             return;
         }
 
-        /** @var DiscountRecord $record */
-        $record = DiscountRecord::find()->where(['code' => $order->couponCode])->one();
-        if (!$record || !$record->id) {
+        /** @var DiscountRecord $discount */
+        $discount = DiscountRecord::find()->where(['code' => $order->couponCode])->one();
+        if (!$discount || !$discount->id) {
             return;
         }
 
-        if ($record->totalUseLimit) {
+        if ($discount->totalUseLimit) {
             // Increment total uses.
             Craft::$app->getDb()->createCommand()
                 ->update('{{%commerce_discounts}}', [
@@ -515,13 +518,13 @@ class Discounts extends Component
                 ->execute();
         }
 
-        if ($record->perUserLimit && $order->customerId) {
-            $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $record->id])->one();
+        if ($discount->perUserLimit && $order->customerId) {
+            $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount->id])->one();
 
             if (!$customerDiscountUseRecord) {
                 $customerDiscountUseRecord = new CustomerDiscountUseRecord();
                 $customerDiscountUseRecord->customerId = $order->customerId;
-                $customerDiscountUseRecord->discountId = $record->id;
+                $customerDiscountUseRecord->discountId = $discount->id;
                 $customerDiscountUseRecord->uses = 1;
                 $customerDiscountUseRecord->save();
             } else {
@@ -530,7 +533,28 @@ class Discounts extends Component
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'customerId' => $order->customerId,
-                        'discountId' => $record->id
+                        'discountId' => $discount->id
+                    ])
+                    ->execute();
+            }
+        }
+
+        if ($discount->perEmailLimit && $order->customerId) {
+            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount->id])->one();
+
+            if (!$customerDiscountUseRecord) {
+                $customerDiscountUseRecord = new EmailDiscountUseRecord();
+                $customerDiscountUseRecord->email = $order->getEmail();
+                $customerDiscountUseRecord->discountId = $discount->id;
+                $customerDiscountUseRecord->uses = 1;
+                $customerDiscountUseRecord->save();
+            } else {
+                Craft::$app->getDb()->createCommand()
+                    ->update('{{%commerce_email_discountuse}}', [
+                        'uses' => new Expression('[[uses]] + 1')
+                    ], [
+                        'email' => $order->getEmail(),
+                        'discountId' => $discount->id
                     ])
                     ->execute();
             }

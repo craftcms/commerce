@@ -751,6 +751,7 @@ class Install extends Migration
         $this->dropTable('{{%commerce_addresses}}');
         $this->dropTable('{{%commerce_countries}}');
         $this->dropTable('{{%commerce_customer_discountuses}}');
+        $this->dropTable('{{%commerce_email_discountuses}}');
         $this->dropTable('{{%commerce_customers}}');
         $this->dropTable('{{%commerce_customers_addresses}}');
         $this->dropTable('{{%commerce_discount_purchasables}}');
@@ -808,6 +809,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
         $this->createIndex(null, '{{%commerce_countries}}', 'name', true);
         $this->createIndex(null, '{{%commerce_countries}}', 'iso', true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', 'discountId', false);
         $this->createIndex(null, '{{%commerce_customers}}', 'userId', false);
@@ -920,6 +922,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_addresses}}', ['stateId'], '{{%commerce_states}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_email_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['addressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
@@ -1005,6 +1008,7 @@ class Install extends Migration
     {
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_addresses}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customer_discountuses}}', $this);
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_email_discountuses}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers_addresses}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_purchasables}}', $this);

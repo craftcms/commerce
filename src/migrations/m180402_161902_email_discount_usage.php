@@ -29,7 +29,27 @@ class m180402_161902_email_discount_usage extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $couponUseByEmail = (new \craft\db\Query())
+            ->select('count("*") uses, orders.email email, discounts.id discountId')
+            ->limit(null)
+            ->from('{{%commerce_orders}} orders')
+            ->where(['not', ['couponCode' => null]])
+            ->leftJoin('{{%commerce_discounts}} discounts', 'code = couponCode')
+            ->groupBy('orders.email, orders.couponCode')->all();
 
+        $rows = [];
+        foreach ($couponUseByEmail as $usage)
+        {
+            $rows[] = array_values($usage);
+        }
+
+        $columns = [
+            'uses',
+            'email',
+            'discountId'
+        ];
+
+        $this->batchInsert('{{%commerce_email_discountuses}}', $columns, $rows);
 
         return true;
     }
