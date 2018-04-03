@@ -30,17 +30,18 @@ class m180402_161902_email_discount_usage extends Migration
         ]);
 
         $couponUseByEmail = (new \craft\db\Query())
-            ->select(['count(*) as uses', '[[orders.email]] as email','[[discounts.id]] as discountId'])
+            ->select(['count(*) as uses', '[[orders.email]] as email', '[[discounts.id]] as discountId'])
             ->limit(null)
             ->from('{{%commerce_orders}} orders')
             ->where(['not', ['couponCode' => null]])
             ->leftJoin('{{%commerce_discounts}} discounts', '[[code]] = [[couponCode]]')
-            ->groupBy(['[[orders.email]]', '[[orders.couponCode]]','[[discounts.id]]'])->all();
+            ->groupBy(['email', 'couponCode', 'discountId'])->getRawSql();
 
         $rows = [];
-        foreach ($couponUseByEmail as $usage)
-        {
-            $rows[] = array_values($usage);
+        foreach ($couponUseByEmail as $usage) {
+            if ($usage['discountId'] != null) {
+                $rows[] = array_values($usage);
+            }
         }
 
         $columns = [
