@@ -18,6 +18,7 @@
 - Added `craft\commerce\services\Customers::setLastUsedAddresses()`
 
 ### Changed
+- Replaced`customer.lastUsedShippingAddress` and `customer.lastUsedBillingAddress` with `customer.primaryBillingAddress` and `customer.primaryShippingAddress`
 - Removed `baseShipping`, `baseDiscount`, `baseTax`, `baseTaxIncluded` attributes from the order model. Order's now have order level adjustments.
 - Removed `shipping`, `discount`, `tax`, `taxIncluded` attributes from the line item model. Line item's now have line item level adjustments.
 - The Shipping Rule interface now expects a shipping category ID passed to each rate method.
