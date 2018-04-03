@@ -58,7 +58,7 @@ BC - Breaking Change
 | `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC     
 | `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC     
 | `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     
-| `craft.commerce.statesArray`              | `craft.commerce.states.statesAsList`                      | D      
+| `craft.commerce.statesArray`              | `craft.commerce.states.allStatesAsList`                   | D      
 | `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     
 | `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC   
 | `customer.lastUsedBillingAddress`         | `customer.primaryBillingAddress`                          | BC  
