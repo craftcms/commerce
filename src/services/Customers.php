@@ -84,16 +84,6 @@ class Customers extends Component
     }
 
     /**
-     * Return true, if the current customer is saved to the database.
-     *
-     * @return bool
-     */
-    public function isCustomerSaved(): bool
-    {
-        return (bool)$this->getCustomer()->id;
-    }
-
-    /**
      * Get the current customer.
      *
      * @return Customer
