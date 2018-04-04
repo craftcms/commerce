@@ -20,22 +20,22 @@ class m170616_154500_productTypeSites_upgrade extends Migration
      */
     public function safeUp(): bool
     {
-        $this->addColumn('{{%commerce_productTypes_i18n}}', 'template', $this->string(500));
-        $this->addColumn('{{%commerce_productTypes_i18n}}', 'hasUrls', $this->boolean());
+        $this->addColumn('{{%commerce_producttypes_i18n}}', 'template', $this->string(500));
+        $this->addColumn('{{%commerce_producttypes_i18n}}', 'hasUrls', $this->boolean());
 
         // Migrate hasUrls to be site specific
-        $productTypes = (new Query())->select('id, hasUrls, template')->from('{{%commerce_productTypes}}')->all();
+        $productTypes = (new Query())->select('id, hasUrls, template')->from('{{%commerce_producttypes}}')->all();
         foreach ($productTypes as $productType) {
-            $productTypeSites = (new Query())->select('*')->from('{{%commerce_productTypes_i18n}}')->all();
+            $productTypeSites = (new Query())->select('*')->from('{{%commerce_producttypes_i18n}}')->all();
             foreach ($productTypeSites as $productTypeSite) {
                 $productTypeSite['template'] = $productType['template'];
                 $productTypeSite['hasUrls'] = $productType['hasUrls'];
-                $this->update('{{%commerce_productTypes_i18n}}', $productTypeSite, ['id' => $productTypeSite['id']]);
+                $this->update('{{%commerce_producttypes_i18n}}', $productTypeSite, ['id' => $productTypeSite['id']]);
             }
         }
 
-        $this->dropColumn('{{%commerce_productTypes}}', 'template');
-        $this->dropColumn('{{%commerce_productTypes}}', 'hasUrls');
+        $this->dropColumn('{{%commerce_producttypes}}', 'template');
+        $this->dropColumn('{{%commerce_producttypes}}', 'hasUrls');
 
         return true;
     }

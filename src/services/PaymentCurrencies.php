@@ -97,7 +97,7 @@ class PaymentCurrencies extends Component
             }
         }
 
-        return $this->_allCurrenciesById;
+        return $this->_allCurrenciesByIso;
     }
 
     /**

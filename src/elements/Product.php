@@ -166,7 +166,7 @@ class Product extends Element
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Product Variant');
+        return Craft::t('commerce', 'Product');
     }
 
 

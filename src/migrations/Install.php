@@ -143,8 +143,8 @@ class Install extends Migration
         $this->createTable('{{%commerce_customers}}', [
             'id' => $this->primaryKey(),
             'userId' => $this->integer(),
-            'lastUsedBillingAddressId' => $this->integer(),
-            'lastUsedShippingAddressId' => $this->integer(),
+            'primaryBillingAddressId' => $this->integer(),
+            'primaryShippingAddressId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
