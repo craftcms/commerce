@@ -11,41 +11,17 @@ Example:
 ```php
 <?php
 return [
-    '*' => [
-    ],
-    // Development
-    'dev.whatever.net' => [
-        'yourEwayHandle' => [
-            'testMode' => true,
-            'apiKey' => 'whatever',
-            'password' => 'whatever',
-            'CSEKey' => 'whatever',
-
-        ],
-        // 4 - Paypal Express
-        'yourPaypalHandle' => [
-            'testMode' => true,
-            'password' => 'whatever',
-            'username' => 'whatever',
-            'signature' => 'whatever'
-        ],
-    ],
-    // Production
-    'whatever.net' => [
-        'yourEwayHandle' => [
-            'testMode' => true,
-            'apiKey' => 'whatever',
-            'password' => 'whatever',
-            'CSEKey' => 'whatever',
-
-        ],
-        // 4 - Paypal Express
-        'yourPaypalHandle' => [
-            'testMode' => true,
-            'password' => 'whatever',
-            'username' => 'whatever',
-            'signature' => 'whatever'
-        ],
+    'stripeGatewayHandle' => [
+        'testMode' => getenv('EWAY_TEST_MODE'),
+        'apiKey' => getenv('EWAY_API_KEY'),
+        'password' => getenv('EWAY_PASSWORD'),
+        'CSEKey' => getenv('CSE_KEY'),
+    ],       
+    'paypalProGateway' => [
+        'testMode' => getenv('PAYPAL_PRO_TEST_MODE'),
+        'password' => getenv('PAYPAL_PRO_PASSWORD'),
+        'username' => getenv('PAYPAL_PRO_USERNAME'),
+        'signature' => getenv('PAYPAL_PRO_SIGNATURE'),
     ],
 ];
 ```
