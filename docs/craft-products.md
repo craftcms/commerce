@@ -79,7 +79,7 @@ For example, if you only wanted to return products where at least one variant's 
 You could alternatively do:
 
 ```twig
-{% variantQuery = craft.variant.color('red') %}
+{% set variantQuery = craft.variant.color('red') %}
 {% set products = craft.products.type('tshirt').hasVariant(variantQuery) %}
 ```
 

@@ -63,7 +63,7 @@ The date this product will no longer be available for sale.
 
 The total stock of all variants. Will show zero if all variants are set to unlimited quantity.
 
-### unlimitedStock
+### hasUnlimitedStock
 
 Does one or more variant have unlimited stock.
 

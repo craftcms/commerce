@@ -8,11 +8,6 @@ Determines whether the customer's last used shipping and billing addresses shoul
 
 Can be set to `true` or `false` (default is `true`).
 
-## `cartCookieDuration`
-
-A php [Date Interval](http://php.net/manual/en/class.dateinterval.php)  
-Default: 3 months. (`P3M`).
-
 How long the cookie storing the cart should last. The cart exists independently of the Craft users' session.
 
 ## `gatewayPostRedirectTemplate`
@@ -41,62 +36,6 @@ The template path that this item points to must contain a form that submits itse
 ```
 
 Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it loads fast with minimal images and inlined styles to reduce http requests.
-
-## `paymentMethodSettings`
-
-Allows for the overriding of [Payment Method]({entry:122:url}) settings. You still need to configure the Payment Method in the control panel so you can reference the ID as the key to the Payment Method's settings. Example:
-
-```php
-<?php
-return [
-    
-    // he * must be present to enable multi-environment configs, even if empty
-    '*' => array(
-    ),
-
-    // DEV Details - i.e. your Paypal sandbox details for example
-    'dev.whatever.net' => array(
- 
-        'paymentMethodSettings' => [
-            //eWay Sandbox
-            '1' => [
-                'testMode' => true,
-                'apiKey' => 'whatever',
-                'password' => 'whatever',
-                'CSEKey' => 'whatever',
-
-            ],           
-            // 4 - Paypal Express
-            '4' => [
-                'testMode' => true,
-                'password' => 'whatever',
-                'username' => 'whatever',
-                'signature' => 'whatever'
-            ],
-        ],
-    ),
-
-    // PRODUCTION Details - live payment stuff here
-    'whatever.com' => array(             
-        'paymentMethodSettings' => [
-            //eWay LIVE
-            '1' => [
-                'testMode' => false,
-                'apiKey' => 'whatever',
-                'password' => 'whatever',
-                'CSEKey' => 'whatever',
-            ],
-            // 4 - Paypal Express
-            '4' => [
-                'testMode' => false,
-                'password' => 'whatever',
-                'username' => 'whatever',
-                'signature' => 'whatever'
-            ],            
-        ],        
-    ),    
-];
-```
 
 ## `pdfPaperSize`
 

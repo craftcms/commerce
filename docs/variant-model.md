@@ -42,7 +42,7 @@ Returns `true` or `false` if this variant is the default variant of a product.
 
 Returns `true` or `false` if the variant has unlimited stock or a stock count greater than zero.
 
-### unlimitedStock
+### hasUnlimitedStock
 
 Returns `true` or `false` if this variant has unlimited stock
 

@@ -22,7 +22,7 @@ Usually you will be working with an order model in your template in 2 situations
 
 2. When working with completed orders.
 ```
-{% set pastOrders = craft.orders.customer(craft.commerce.customer).all() %}`
+{% set pastOrders = craft.orders.customer(craft.commerce.customer).isCompleted(true).all() %}`
 {% for order in pastOrders %}
 	Order Number: {{ order.shortNumber }}<br>
 	Order Total: {{ order.totalPrice }}<br><br>
@@ -60,39 +60,44 @@ Total weight of all items on the order summed.
 
 ### itemSubtotal
 
-Sum of all the item’s `subtotal. (Item subtotal does not any adjustments made to the line items)
+Sum of all the item’s `subtotal`. (Item subtotal does not any adjustments made to the line items)
 
 ### itemTotal
 
 Sum of all the items totals. (Includes all adjustments made to line items)
 
-### totalTax
+### adjustmentsTotal
 
-Total of all tax adjustments to line items and the order's `baseTax`
+Total of all adjustments made to line items and the order. (Does not included adjustments marked as 'included')
 
-### totalTaxIncluded
+### adjustmentsTotal
 
-Total of all included tax adjustments to line items.
+Total of all adjustments made to line items and the order. (Does not included adjustments marked as 'included')
 
-### totalDiscount
+### getAdjustmentsTotalByType(type, included)
 
-Total of all discounts adjustments to line items including the base discount.
+Gets the total of all adjustments of that type made to the line items and order.
 
-### totalShippingCost
+Included types are `tax`, `shipping`, `discount`.
 
-Total of all shipping cost adjustments to line items including the base shipping cost.
+The included param is optional and defaults to false.
 
-### baseDiscount
+Included adjustments don't affect the price of the order, and are there for information only.
 
-The total base discount that applies to the whole order.
+Examples:
 
-### baseShippingCost
+```
+{{ order.getAdjustmentsTotalByType('discount') }} // returns the total of all discounts
 
-The total amount of base shipping value applied to whole order.
+{{ order.getAdjustmentsTotalByType('tax', true) // returns the total of taxes included in the price
 
-### baseTax
+{{ order.getAdjustmentsTotalByType('tax') // returns the total of taxes added to the price of the order
 
-The total base tax that applies to the whole order.
+{{ order.getAdjustmentsTotalByType('shipping') // returns the total of shipping adjustments
+
+{{ order.getAdjustmentsTotalByType('customAdjuster') // returns the total of a adjustment created by a custom adjuster 
+
+```
 
 ### totalPrice
 
@@ -157,7 +162,7 @@ The line item models as an array on this order.
 
 ### adjustments
 
-The order adjustments on this order.
+The order adjustments models on this order.
 
 ### transactions
 
