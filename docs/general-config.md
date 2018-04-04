@@ -39,13 +39,13 @@ Since this template is simply used for redirecting, it only appears for a few se
 
 ## `pdfPaperSize`
 
-Default: letter
+Default: `letter`
 
 The size of the paper to use for generated order PDF files (letter, legal, A4, etc.).  A full list of paper size values can be found [here](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
 
 ## `pdfPaperOrientation`
 
-Default: portrait
+Default: `portrait`
 
 The orientation of the paper to use for generated order PDF files. Valid values are `portrait` or `landscape`.
 
