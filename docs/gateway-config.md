@@ -15,7 +15,7 @@ return [
         'testMode' => getenv('EWAY_TEST_MODE'),
         'apiKey' => getenv('EWAY_API_KEY'),
         'password' => getenv('EWAY_PASSWORD'),
-        'CSEKey' => getenv('CSE_KEY'),
+        'CSEKey' => getenv('EWAY_CSE_KEY'),
     ],       
     'paypalProGateway' => [
         'testMode' => getenv('PAYPAL_PRO_TEST_MODE'),
