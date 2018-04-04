@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.1.1 - 2018-04-04
 
 ### Fixed
 - Fixed a bug where visiting the payment currencies settings page could result in fatal error on new installs.
