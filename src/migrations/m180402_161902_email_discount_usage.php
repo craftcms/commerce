@@ -39,7 +39,7 @@ class m180402_161902_email_discount_usage extends Migration
 
         $rows = [];
         foreach ($couponUseByEmail as $usage) {
-            if ($usage['discountId'] != null) {
+            if ($usage['discountId'] != null && $usage['email'] != null && $usage['uses'] != null) {
                 $rows[] = array_values($usage);
             }
         }
