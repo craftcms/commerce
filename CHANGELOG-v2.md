@@ -1,9 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unrealeseed
+## Unreleased
 
 ### Fixed
 - Fixed a bug where visiting the payment currencies settings page could result in fatal error on new installs.
+- Fixed a SQL error that occurred when installing Commerce.
+- Fixed a SQL error that occurred when updating from Commerce 1.x.
 
 ## 2.0.0-beta.1 - 2018-04-04
 
