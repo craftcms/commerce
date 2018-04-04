@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## Changed
+- Updating from Commerce 1.x now requires that Commerce 1.2.1360 or greater is installed.
+
 ### Fixed
 - Fixed an SQL error that occurred when updating from Commerce 1.x that had existing discounts. ([#299](https://github.com/craftcms/commerce/issues/299))
 

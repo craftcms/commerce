@@ -65,6 +65,11 @@ class Plugin extends BasePlugin
      */
     public $hasCpSection = true;
 
+    /**
+     * @inheritdoc
+     */
+    public $minVersionRequired = '1.2.1360';
+
     // Traits
     // =========================================================================
 
