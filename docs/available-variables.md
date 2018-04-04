@@ -50,7 +50,7 @@ Data returned as `[32:'Australia', 72:'USA']`
 
 ## craft.commerce.states
 
-Returns an array of [State Modles](state-model.md).
+Returns an array of [State Models](state-model.md).
 
 ```twig
 <select>
