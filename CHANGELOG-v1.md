@@ -1,10 +1,8 @@
-Commerce Changelog
-==================
+# Release Notes for Craft Commerce 1.x
 
 ## Unreleased
 
 ### Added
-
 - Added a new template hook (`cp.commerce.product.edit.right-pane`) for the right pane of the edit product screen.
 - Added the `pdfAllowRemoteImages` config setting, which can be set to `true` to allow external images to be loaded in PDF templates.
 

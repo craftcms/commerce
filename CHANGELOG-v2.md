@@ -1,3 +1,6 @@
+# Release Notes for Craft Commerce 2.x
+
+## 2.0.0-beta.1 - 2018-04-04
 
 ### Added
 - Added 'Copy' Reference tag to Product actions.
