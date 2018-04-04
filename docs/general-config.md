@@ -51,7 +51,7 @@ The orientation of the paper to use for generated order PDF files. Valid values 
 
 ## `purgeInactiveCarts`
 
-Default: True
+Default: `true`
 
 Should Commerce purge old inactive carts from the database. See the [`purgeInactiveCartsDuration`](#purgeInactiveCartsDuration) setting to control how old the cart needs to be.
 
