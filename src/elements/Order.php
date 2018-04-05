@@ -895,9 +895,9 @@ class Order extends Element
     /**
      * Sets the orders email address. Will have no affect if the order's customer is a registered user.
      *
-     * @param string $value
+     * @param string|null $value
      */
-    public function setEmail(string $value)
+    public function setEmail($value)
     {
         $this->_email = $value;
     }
