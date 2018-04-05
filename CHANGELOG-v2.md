@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.1.3 - 2018-04-05
+
+### Fixed
+- Fixed a PHP error that occurred when purging abandoned carts without an email.
+
 ## 2.0.0-beta.1.2 - 2018-04-05
 
 ### Changed
