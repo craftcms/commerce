@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.1.2 - 2018-04-05
+
+### Changed
+- Updating from Commerce 1.x now requires that Commerce 1.2.1360 or greater is installed.
+
+### Fixed
+- Fixed an SQL error that occurred when updating from Commerce 1.x that had existing discounts. ([#299](https://github.com/craftcms/commerce/issues/299))
+
 ## 2.0.0-beta.1.1 - 2018-04-04
 
 ### Fixed
