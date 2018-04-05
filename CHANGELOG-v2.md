@@ -1,8 +1,8 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.1.2 - 2018-04-05
 
-## Changed
+### Changed
 - Updating from Commerce 1.x now requires that Commerce 1.2.1360 or greater is installed.
 
 ### Fixed
