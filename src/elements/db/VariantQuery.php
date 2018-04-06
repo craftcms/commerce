@@ -161,6 +161,17 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function hasSales($value)
+    {
+        $this->hasSales = $value;
+
+        return $this;
+    }
+
     // Protected Methods
     // =========================================================================
 

@@ -6,6 +6,9 @@
 - Fixed a bug where PHP 7.1 was required to update the addresses on the cart ([#305](https://github.com/craftcms/commerce/issues/305))
 - Fixed a PHP error that would occur when using `count()` in variant queries. 
 
+### Added
+- Added the `VariantQuery::hasSales()` method.
+
 ## 2.0.0-beta.1.3 - 2018-04-05
 
 ### Fixed
