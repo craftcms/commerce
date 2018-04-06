@@ -256,7 +256,10 @@ class CartController extends BaseFrontEndController
         return clone $cart;
     }
 
-    private function _setAddresses(): void
+    /**
+     * Set addresses on the cart.
+     */
+    private function _setAddresses()
     {
         // Address updating
         $request = Craft::$app->getRequest();

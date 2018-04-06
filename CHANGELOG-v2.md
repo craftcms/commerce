@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where PHP 7.1 was required to update the addresses on the cart ([#305](https://github.com/craftcms/commerce/issues/305))
+
 ## 2.0.0-beta.1.3 - 2018-04-05
 
 ### Fixed
