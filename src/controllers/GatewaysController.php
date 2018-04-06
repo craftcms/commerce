@@ -78,7 +78,7 @@ class GatewaysController extends BaseAdminController
         $gatewayOptions = [];
 
         foreach ($allGatewayTypes as $class) {
-            if ($class === get_class($gateway) || $class::isSelectable()) {
+            if (($gateway && $class === get_class($gateway)) || $class::isSelectable()) {
                 $gatewayInstances[$class] = $gatewayService->createGateway($class);
 
                 $gatewayOptions[] = [

@@ -9,6 +9,9 @@
 ### Added
 - Added the `VariantQuery::hasSales()` method.
 
+### Improved
+- Improved PHP 7.2 compatibility ([#308](https://github.com/craftcms/commerce/issues/308))
+
 ## 2.0.0-beta.1.3 - 2018-04-05
 
 ### Fixed
