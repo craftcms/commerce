@@ -90,11 +90,6 @@ class ProductQuery extends ElementQuery
     public $hasVariant;
 
     /**
-     * @var bool The sale status the resulting products should have.
-     */
-    public $hasSales;
-
-    /**
      * @inheritdoc
      */
     protected $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
