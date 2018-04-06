@@ -99,6 +99,68 @@ This allows you to use the cart returned from the update cart actions (with its 
 
 The changes mean a faster cart that reduces the number of database updates.
 
+#### Setting addresses in update cart
+
+Previously in the update cart controller action you would need to submit the string "new" or a non ID in the place of an address ID, to add an address to the customers address book. The updating of the addresses on the cart has now been simplified with it's removal.
+
+To set an existing address on a cart submit the `shippingAddressId` or `billingAddressId` param to the update cart action.
+Submitting these params does not allow any updating of the address contents, it just chooses the address you want to set on the cart.
+If either of these is submitted, the corresponding `shippingAddress` and `billingAddress` post params with any of their contents will not be used to update the cart.
+
+Example:
+
+```html
+<form method="POST">
+ <input type="hidden" name="action" value="commerce/cart/update-cart">
+ {{ redirectInput('shop/shipping') }}
+ {{ csrfInput() }}
+ <input type="hidden" name"shippingAddressId" value="5"/>
+ <input type="text" name="shippingAddress[firstName]" value=""/>
+ <input type="text" name="shippingAddress[lastName]" value=""/>
+ //..
+</form>
+```
+In the above example, since we are submitting a `shippignAddressId`, the `shippAddress` data will be ignored.
+
+
+To submit a new address, or update an existing address while submitting to the cart submit the `shippingAddress` and/or `billingAddress` params.
+
+Example 1:
+
+```html
+<form method="POST">
+ <input type="hidden" name="action" value="commerce/cart/update-cart">
+ {{ redirectInput('shop/shipping') }}
+ {{ csrfInput() }}
+ <input type="text" name="shippingAddress[firstName]" value=""/>
+ <input type="text" name="shippingAddress[lastName]" value=""/>
+ //..
+</form>
+```
+
+The above would submit a new address to the cart and save it to the customers address book.
+
+
+```html
+<form method="POST">
+ <input type="hidden" name="action" value="commerce/cart/update-cart">
+ {{ redirectInput('shop/shipping') }}
+ {{ csrfInput() }}
+ <input type="text" name="shippingAddress[id]" value="5"/>
+ <input type="text" name="shippingAddress[firstName]" value=""/>
+ <input type="text" name="shippingAddress[lastName]" value=""/>
+ //..
+</form>
+```
+
+The above would update the shipping address with ID of 5 (that already belongs to the customer) and sets it on the cart.
+
+We have also deprecate the `sameAddress` param when setting addresses on the cart, and introduced 2 new params:
+
+`billingAddressSameAsShipping` and `shippingAddressSameAsBilling`
+
+Both params are a boolean, and only *one* can be set per request or a validation error will be thrown on the order. Both work with either the `billingAddressId` method or the `billingAddress` data method of updating carts.
+
 ### Cart Validation
 
 The cart (order) now places all errors on the fields that have the error, and also on the order/cart model with a error key to the location of the error.
