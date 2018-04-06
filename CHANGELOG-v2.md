@@ -17,6 +17,7 @@
 
 ### Fixed
 - Fixed an SQL error that occurred when updating from Commerce 1.x that had existing discounts. ([#299](https://github.com/craftcms/commerce/issues/299))
+- Fixed currency editing template where it was calling deprecated methods ([#303](https://github.com/craftcms/commerce/issues/303))
 
 ## 2.0.0-beta.1.1 - 2018-04-04
 
