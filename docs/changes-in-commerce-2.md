@@ -120,8 +120,7 @@ Example:
  //..
 </form>
 ```
-In the above example, since we are submitting a `shippignAddressId`, the `shippAddress` data will be ignored.
-
+In the above example, since we are submitting a `shippingAddressId`, the `shippingAddress` data will be ignored.
 
 To submit a new address, or update an existing address while submitting to the cart submit the `shippingAddress` and/or `billingAddress` params.
 
@@ -138,7 +137,7 @@ Example 1:
 </form>
 ```
 
-The above would submit a new address to the cart and save it to the customers address book.
+The above would submit a new address to the cart and save it to the customer's address book.
 
 
 ```html
@@ -155,7 +154,7 @@ The above would submit a new address to the cart and save it to the customers ad
 
 The above would update the shipping address with ID of 5 (that already belongs to the customer) and sets it on the cart.
 
-We have also deprecate the `sameAddress` param when setting addresses on the cart, and introduced 2 new params:
+We have also deprecated the `sameAddress` param when setting addresses on the cart, and introduced two new params:
 
 `billingAddressSameAsShipping` and `shippingAddressSameAsBilling`
 
