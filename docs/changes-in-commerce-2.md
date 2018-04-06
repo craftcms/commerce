@@ -136,9 +136,9 @@ Example 1:
  //..
 </form>
 ```
-
 The above would submit a new address to the cart and save it to the customer's address book.
 
+Example 2:
 
 ```html
 <form method="POST">
@@ -151,7 +151,6 @@ The above would submit a new address to the cart and save it to the customer's a
  //..
 </form>
 ```
-
 The above would update the shipping address with ID of 5 (that already belongs to the customer) and sets it on the cart.
 
 We have also deprecated the `sameAddress` param when setting addresses on the cart, and introduced two new params:
