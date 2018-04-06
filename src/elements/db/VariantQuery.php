@@ -74,6 +74,12 @@ class VariantQuery extends ElementQuery
      */
     public $hasSales;
 
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_DESC];
+
+
     // Public Methods
     // =========================================================================
 
@@ -242,10 +248,6 @@ class VariantQuery extends ElementQuery
             }
 
             $this->subQuery->andWhere(['in', 'commerce_variants.id', $ids]);
-        }
-
-        if (!$this->orderBy) {
-            $this->orderBy = ['commerce_variants.sortOrder' => SORT_DESC];
         }
 
         return parent::beforePrepare();
