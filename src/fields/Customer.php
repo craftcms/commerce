@@ -11,6 +11,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\elements\User;
 
 /**
@@ -48,6 +49,8 @@ class Customer extends Field
         if (!($element instanceof User)) {
             return '<span style="color: #da5a47">'.Craft::t('commerce', 'Commerce Customer Info field is for user profiles only.').'</span>';
         }
+
+        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         return Craft::$app->getView()->renderTemplate('commerce/_fieldtypes/customer/_input', [
             'customer' => Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id)
