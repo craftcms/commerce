@@ -45,8 +45,7 @@ Accepts the id of an Order Status.
 
 ### customer
 A customer Model can be passed to get orders for that customer only. e.g `{% set orders = craft.orders.customer(craft.commerce.customer).all() %}`
-Do not use this to get a cart, as the default response does not include orders that are still 
-carts (use `{% set cart = craft.commerce.getCart %}` to get the current user's cart).
+If you wish to only inlcude orders that are carts, add `.isCompleted(true).all()` to the query, otherwise all incomplete carts will be added to the response.
 
 ### user
 A customer Model can be passed to get orders for that user only. e.g `{% set orders = craft.orders.user(currentUser).all() %}`
