@@ -17,7 +17,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for order in craft.orders.customer(craft.commerce.customers.customer).all() %}
+                    {# Get completed orders for the current customer.#}
+                    {% for order in craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
                         <tr>
                             <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order #{{ order.id }}</a></td>
                             <td>{{ order.dateOrdered|date }}</td>
