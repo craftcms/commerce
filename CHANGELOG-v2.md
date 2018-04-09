@@ -6,6 +6,7 @@
 - Fixed a bug where PHP 7.1 was required to update the addresses on the cart ([#305](https://github.com/craftcms/commerce/issues/305))
 - Fixed a PHP error that would occur when using `count()` in variant queries. 
 - Fixed a PHP error that would occur when submitting a payment source at checkout. ([#313](https://github.com/craftcms/commerce/issues/313))
+- Fixed a PHP error that would occur when submitting a gateway choice at checkout. ([#312](https://github.com/craftcms/commerce/issues/312))
 
 ### Added
 - Added the `VariantQuery::hasSales()` method.
