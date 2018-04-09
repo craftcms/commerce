@@ -154,7 +154,7 @@ class Customer extends Model
      */
     public function getOrders(): array
     {
-        return Plugin::getInstance()->getOrders()->getOrdersByCustomer($this);
+        return Order::find()->customer($this)->isCompleted(true)->all();
     }
 
     /**

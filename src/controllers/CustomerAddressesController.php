@@ -65,6 +65,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $customerService = Plugin::getInstance()->getCustomers();
         $customerId = $customerService->getCustomerId();
         $addressIds = $customerService->getAddressIds($customerId);
+        $customer = $customerService->getCustomerById($customerId);
 
         // if this is an existing address
         if ($address->id && !in_array($address->id, $addressIds, false)) {
