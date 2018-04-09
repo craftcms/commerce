@@ -65,6 +65,30 @@ BC - Breaking Change
 | `customer.lastUsedShippingAddress`        | `customer.primaryShippingAddress`                         | BC  
 
 
+### Query Changes
+
+#### Order Queries
+
+Order element queries now returns all orders and carts, regardless of whether they are completed or not.
+
+Previously `craft.commerce.orders` would only return completed orders, now you need to append `.isCompleted(true)` to retrieve orders that finished. Otherwise you will get both completed and incomplete orders (carts).
+
+### Product Queries
+
+Product element queries previously had a `hasSales` param to only return product with active sales applied to one or more of it's varianta. The param has now moved to the variant query, and you can acheive the same thing with the `hasVariants` param:
+
+You can now do:
+
+Twig
+```twig
+{% set products = craft.products.hasVariant({hasSales: true}).all() %}
+```
+
+PHP
+```php
+$products = Product::find()->hasVariant(['hasSales' => true)->all();
+```
+
 ### Model Changes
 
 #### Purchasables (like variants).
