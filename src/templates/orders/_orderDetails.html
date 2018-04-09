@@ -29,9 +29,8 @@
                         { label: "Total (with adjustments)", value: lineItem.total|currency(order.currency) },
                     ] %}
 
-                    <tr class="infoRow" data-id="{{ lineItem.id }}"
-                        data-info="{{ info|json_encode }}">
-                        <td>
+                    <tr class="infoRow" data-id="{{ lineItem.id }}" data-info="{{ info|json_encode }}">
+                        <td data-title="{{ 'Item'|t('commerce') }}">
                             {% if lineItem.purchasable %}
                                 {% if lineItem.purchasable.cpEditUrl %}
                                     <a class="purchasable-link"
@@ -56,17 +55,17 @@
                                     </span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td data-title="{{ 'Note'|t('commerce') }}">
                             {% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
                         </td>
-                        <td>
+                        <td data-title="{{ 'Price'|t('commerce') }}">
                             {{ lineItem.salePrice|currency(order.currency) }}
                         </td>
-                        <td>
+                        <td data-title="{{ 'Qty'|t('commerce') }}">
                             {{ lineItem.qty }}
                         </td>
                         <td></td>
-                        <td>
+                        <td data-title="{{ 'Sub-total'|t('commerce') }}">
                             <span class="right">{{ lineItem.subtotal|currency(order.currency) }}</span>
                         </td>
                         <td>

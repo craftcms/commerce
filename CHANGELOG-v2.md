@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug on the order edit screen where the additional line item information modal would not appear when clicked. ([#297](https://github.com/craftcms/commerce/issues/297))
 - Fixed a bug where PHP 7.1 was required to update the addresses on the cart. ([#305](https://github.com/craftcms/commerce/issues/305))
 - Fixed a bug where customer addresses were not editable in the user profile page. ([#315](https://github.com/craftcms/commerce/issues/315))
 - Fixed a PHP error that would occur when using `count()` in variant queries. 
