@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.2 - 2018-04-10
 
 ### Added
 - Added `craft\commerce\elements\db\VariantQuery::hasSales()`.
