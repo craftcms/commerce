@@ -131,7 +131,7 @@
     </div>
 
     {% if productType.hasVariants %}
-        <div id="variants-container" class="hidden">
+        <div id="variants-container" {% if productType.getProductFieldLayout().getTabs()|length >= 1 %}class="hidden"{% endif %}>
             <div class="field">
                 <div class="heading">
                     <label>{{ 'Variants'|t('commerce') }}</label>
