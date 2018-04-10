@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where variant fields did not appear on the product edit page if no product fields existed.
+
 ## 2.0.0-beta.2 - 2018-04-10
 
 ### Added
