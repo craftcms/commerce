@@ -1592,16 +1592,16 @@ class Install extends Migration
         }
 
         $products = [
-            'A New Toga',
-            'Parka with Stripes on Back',
-            'Romper for a Red Eye',
-            'The Fleece Awakens',
-            'The Last Knee-high'
+            ['title' => 'A New Toga', 'sku' => 'ANT-001'],
+            ['title' => 'Parka with Stripes on Back', 'sku' => 'PSB-001'],
+            ['title' => 'Romper for a Red Eye', 'sku' => 'RRE-001'],
+            ['title' => 'The Fleece Awakens', 'sku' => 'TFA-001'],
+            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001']
         ];
 
         $count = 1;
 
-        foreach ($products as $productName) {
+        foreach ($products as $product) {
             // Create an element for product
             $productElementData = [
                 'type' => Product::class,
@@ -1631,7 +1631,7 @@ class Install extends Migration
                 $productI18nData = [
                     'elementId' => $productId,
                     'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($productName),
+                    'slug' => ElementHelper::createSlug($product['sku']),
                     'uri' => null,
                     'enabled' => true
                 ];
@@ -1640,7 +1640,7 @@ class Install extends Migration
                 $contentData = [
                     'elementId' => $productId,
                     'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($productName)
+                    'title' => StringHelper::toTitleCase($product['title'])
                 ];
                 $this->insert('{{%content}}', $contentData);
 
@@ -1648,7 +1648,7 @@ class Install extends Migration
                 $variantI18nData = [
                     'elementId' => $variantId,
                     'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($productName),
+                    'slug' => ElementHelper::createSlug($product['sku']),
                     'uri' => null,
                     'enabled' => true
                 ];
@@ -1657,7 +1657,7 @@ class Install extends Migration
                 $contentData = [
                     'elementId' => $variantId,
                     'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($productName)
+                    'title' => StringHelper::toTitleCase($product['title'])
                 ];
                 $this->insert('{{%content}}', $contentData);
             }
@@ -1668,7 +1668,7 @@ class Install extends Migration
             $variantData = [
                 'productId' => $productId,
                 'id' => $variantId,
-                'sku' => $productName,
+                'sku' => $product['sku'],
                 'price' => 10 * $count,
                 'hasUnlimitedStock' => true,
                 'isDefault' => true
@@ -1681,7 +1681,7 @@ class Install extends Migration
                 'expiryDate' => null,
                 'promotable' => true,
                 'defaultPrice' => 10 * $count,
-                'defaultSku' => $productName,
+                'defaultSku' => $product['sku'],
                 'taxCategoryId' => $taxCategoryId,
                 'shippingCategoryId' => $shippingCategoryId,
             ];

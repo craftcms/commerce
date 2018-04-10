@@ -30,8 +30,7 @@ class EditOrderAsset extends AssetBundle
         $this->sourcePath = __DIR__.'/dist';
 
         $this->depends = [
-            CommerceCpAsset::class,
-            VueAsset::class
+            CommerceCpAsset::class
         ];
 
         $this->css = [

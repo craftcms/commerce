@@ -46,6 +46,8 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
                             Prism.highlightElement($value.find('code').get(0));
 
                             break;
+                        default:
+                            $value = $('<td>'+value+'</td>');
                     }
 
                     $value.appendTo($tr);

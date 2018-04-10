@@ -1,5 +1,19 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.2 - 2018-04-10
+
+### Added
+- Added `craft\commerce\elements\db\VariantQuery::hasSales()`.
+
+### Fixed
+- Fixed a bug on the Edit Order page where the info buttons on line items were unresponsive. ([#297](https://github.com/craftcms/commerce/issues/297))
+- Fixed a bug where customer addresses were not editable from the Edit User page. ([#315](https://github.com/craftcms/commerce/issues/315))
+- Fixed a PHP error that occurred when submitting a payment source at checkout. ([#313](https://github.com/craftcms/commerce/issues/313))
+- Fixed a PHP error that occurred when submitting a gateway choice at checkout. ([#312](https://github.com/craftcms/commerce/issues/312))
+- Fixed a PHP error that occurred when calling `count()` on a variant query. 
+- Fixed a PHP 7.0 compatibility issue. ([#305](https://github.com/craftcms/commerce/issues/305))
+- Fixed a PHP 7.2 compatibility issue. ([#308](https://github.com/craftcms/commerce/issues/308))
+
 ## 2.0.0-beta.1.3 - 2018-04-05
 
 ### Fixed
@@ -12,6 +26,7 @@
 
 ### Fixed
 - Fixed an SQL error that occurred when updating from Commerce 1.x that had existing discounts. ([#299](https://github.com/craftcms/commerce/issues/299))
+- Fixed currency editing template where it was calling deprecated methods ([#303](https://github.com/craftcms/commerce/issues/303))
 
 ## 2.0.0-beta.1.1 - 2018-04-04
 
@@ -61,8 +76,6 @@
 - `craft\commerce\services\LineItems::getLineItemByOrderPurchasableOptions()` is now `craft\commerce\services\LineItems::resolveLineItem()`
 - `craft\commerce\services\Pdf::pdfForOrder()` is now `craft\commerce\services\Pdf::renderPdfForOrder()`
 - Last addresses used by customers are no longer stored. Instead, customers have primary shipping and billing addresses.
-
-### Event changes
 - `craft\commerce\elements\Orders` now fires the following events: `beforeCompleteOrder`, and `afterCompleteOrder`.
 - `craft\commerce\services\Addresses` now fires the following events: `beforeSaveAddress`, and `afterSaveAddress`.
 - `craft\commerce\services\Carts` now fires the following events: `beforeAddToCart`, `afterAddToCart`, `afterRemoveFromCart` and a cancelable `beforeRemoveFromCart` event.
@@ -78,8 +91,6 @@
 - `craft\commerce\services\Subscriptions` fires the `expireSubscription`, `afterCreateSubscription`, `afterReactivateSubscription`, `afterSwitchSubscriptionPlan`, `afterCancelSubscription`, `beforeUpdateSubscription`, `receiveSubscriptionPayment` and cancelable `beforeCreateSubscription`, `beforeReactivateSubscription`, `beforeSwitchSubscriptionPlan` and `beforeCancelSubscription` events.
 - `craft\commerce\services\Transactions` now fires the `afterSaveTransaction` event.
 - `craft\commerce\services\Variants` now fires the `purchaseVariant` event.
-
-### Events that used to be hooks
 - Instead of the `commerce_modifyEmail` hook you should use the cancelable `beforeSendEmail` event fired by `craft\commerce\services\Emails`.
 - Instead of the `commerce_registerOrderAdjusters` hook you should use the `registerOrderAdjusters` event fired by `craft\commerce\services\OrderAdjustments`.
 - To register new gateway types, use the `registerGatewayTypes` event fired by `craft\commerce\services\Gateways`.

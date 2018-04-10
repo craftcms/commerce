@@ -137,7 +137,10 @@ class PaymentsController extends BaseFrontEndController
 
         if ($gatewayId && $order->gatewayId != $gatewayId) {
             try {
-                $plugin->getCarts()->setGateway($order, (int)$gatewayId);
+                if (!($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId)) || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled)) {
+                    throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
+                }
+                $order->gatewayId = (int)$gateway->id;
             } catch (GatewayException $exception) {
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($exception->getMessage());
@@ -172,9 +175,12 @@ class PaymentsController extends BaseFrontEndController
         try {
             if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
-
                 try {
-                    $plugin->getCarts()->setPaymentSource($order, $paymentSource->id);
+                    if ($user->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $user->getId()) {
+                        throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
+                    }
+                    $order->gatewayId = null;
+                    $order->paymentSourceId = $paymentSource->id;
                 } catch (PaymentSourceException $exception) {
                     if ($request->getAcceptsJson()) {
                         return $this->asErrorJson($exception->getMessage());
