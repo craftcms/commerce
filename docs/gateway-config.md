@@ -11,7 +11,7 @@ Example:
 ```php
 <?php
 return [
-    'stripeGatewayHandle' => [
+    'ewayGatewayHandle' => [
         'testMode' => getenv('EWAY_TEST_MODE'),
         'apiKey' => getenv('EWAY_API_KEY'),
         'password' => getenv('EWAY_PASSWORD'),
