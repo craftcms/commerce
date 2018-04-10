@@ -14,11 +14,20 @@ The description of the adjustment. For example, a shipping adjustment might expl
 
 The total amount of costs added or removed from the order. This is not used in order totalling, this number represents the changes made to the line items or order totals.
 
+### included
+
+Whether this adjustment is included in the price of the line item or order.
+
 ### sourceSnapshot
 
 A json encoded array of information the adjustment used to perform its adjustment to the order. For example, all the shipping rules and amounts used to add shipping cost to the cart.
 
 ### orderId
 
-The ID of the order this adjustment applied its adjustments to.
+The ID of the order adjustment belongs to. (required)
+
+
+### lineItemId
+
+The ID of the line item this adjustment belongs to. (optional)
 
