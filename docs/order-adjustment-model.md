@@ -14,7 +14,7 @@ The description of the adjustment. For example, a shipping adjustment might expl
 
 The total amount of costs added or removed from the order. This is not used in order totalling, this number represents the changes made to the line items or order totals.
 
-### optionsJson
+### sourceSnapshot
 
 A json encoded array of information the adjustment used to perform its adjustment to the order. For example, all the shipping rules and amounts used to add shipping cost to the cart.
 
