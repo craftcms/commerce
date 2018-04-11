@@ -9,8 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Order;
-use craft\commerce\errors\LineItemException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
@@ -19,7 +17,6 @@ use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 
 /**
  * Line item service.
