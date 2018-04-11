@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER` event.
+
 ### Fixed
 - Fixed a bug where variant fields did not appear on the product edit page if no product fields existed.
 

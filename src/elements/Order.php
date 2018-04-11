@@ -16,6 +16,7 @@ use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -100,6 +101,24 @@ class Order extends Element
     const PAID_STATUS_PAID = 'paid';
     const PAID_STATUS_PARTIAL = 'partial';
     const PAID_STATUS_UNPAID = 'unpaid';
+
+    /**
+     * @event \yii\base\Event This event is raised when an order is completed
+     *
+     * Plugins can get notified before an order is completed
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, function(Event $e) {
+     *     $lineItem = $e->lineItem;
+     *     $isNew = $e->isNew;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_ADD_LINEITEM_TO_ORDER = 'afterAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event This event is raised when an order is completed
@@ -612,6 +631,14 @@ class Order extends Element
         }
 
         $this->setLineItems($lineItems);
+
+        // Raising the 'afterAddLineItemToOrder' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINEITEM_TO_ORDER)) {
+            $this->trigger(self::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => !$replaced
+            ]));
+        }
     }
 
     /**
