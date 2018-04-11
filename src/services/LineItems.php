@@ -150,46 +150,6 @@ class LineItems extends Component
     }
 
     /**
-     * Update a line item for an order.
-     *
-     * @param Order $order The order that is being updated.
-     * @param LineItem $lineItem The line item that is being updated.
-     * @return bool Whether the update was successful.
-     * @throws LineItemException if item no longer sold
-     */
-    public function updateLineItem(Order $order, LineItem $lineItem): bool
-    {
-        if (!$lineItem->purchasableId) {
-            $this->deleteLineItemById($lineItem->id);
-            Craft::$app->getElements()->saveElement($order);
-            throw new LineItemException(Craft::t('commerce', 'Item no longer for sale. Removed from cart.'));
-        }
-
-        if (!$this->saveLineItem($lineItem)) {
-            return false;
-        }
-
-        return Craft::$app->getElements()->saveElement($order);
-    }
-
-    /**
-     * Deletes a line item by its ID.
-     *
-     * @param int $lineItemId the line item's ID
-     * @return bool Whether the line item was deleted successfully.
-     */
-    public function deleteLineItemById(int $lineItemId): bool
-    {
-        $lineItem = LineItemRecord::findOne($lineItemId);
-
-        if ($lineItem) {
-            return (bool)$lineItem->delete();
-        }
-
-        return false;
-    }
-
-    /**
      * Save a line item.
      *
      * @param LineItem $lineItem The line item to save.
