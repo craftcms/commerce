@@ -28,12 +28,7 @@ class LineItemEvent extends Event
     public $lineItem;
 
     /**
-     * @var Purchasable Purchasable for this line item, if line item was populated from a purchasable
-     */
-    public $purchasable;
-
-    /**
      * @var bool If this is a new line item.
      */
-    public $isNew;
+    public $isNew = false;
 }

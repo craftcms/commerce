@@ -353,6 +353,7 @@ class LineItem extends Model
      */
     public function setPurchasable(Element $purchasable)
     {
+        $this->purchasableId = $purchasable->id;
         $this->_purchasable = $purchasable;
     }
 
@@ -399,7 +400,6 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
-                'purchasable' => $this->purchasable
             ]));
         }
 

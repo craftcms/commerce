@@ -313,7 +313,6 @@ class LineItems extends Component
     public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
     {
         $lineItem = new LineItem();
-        $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
         $lineItem->orderId = $orderId;
@@ -321,6 +320,7 @@ class LineItems extends Component
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        $lineItem->setPurchasable($purchasable);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
             $lineItem->populateFromPurchasable($purchasable);
@@ -332,7 +332,6 @@ class LineItems extends Component
         if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
             $this->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
-                'purchasable' => $purchasable,
                 'isNew' => true,
             ]));
         }
