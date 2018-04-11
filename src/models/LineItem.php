@@ -400,6 +400,7 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
+                'isNew' => !$this->id
             ]));
         }
 
