@@ -149,8 +149,11 @@ class CartController extends BaseFrontEndController
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
-                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
-                $this->_cart->addLineItem($lineItem);
+                // Only add items that have a valid qty, avoids adding blank lines
+                if ($qty > 0) {
+                  $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+                  $this->_cart->addLineItem($lineItem);
+                }
             }
         };
 
