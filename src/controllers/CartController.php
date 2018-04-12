@@ -175,10 +175,12 @@ class CartController extends BaseFrontEndController
         // Set Coupon on Cart.
         if ($gatewayId = $request->getParam('gatewayId')) {
             $this->_cart->gatewayId = $gatewayId;
+            $this->_cart->paymentSourceId = null;
         }
 
         // Set Coupon on Cart.
         if ($paymentSourceId = $request->getParam('paymentSourceId')) {
+            $this->_cart->gatewayId = null;
             $this->_cart->paymentSourceId = $paymentSourceId;
         }
 

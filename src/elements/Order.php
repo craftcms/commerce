@@ -1298,14 +1298,24 @@ class Order extends Element
      */
     public function getGateway()
     {
-        if ($this->gatewayId === null) {
+        if ($this->gatewayId === null && $this->paymentSourceId === null) {
             return null;
         }
 
-        if (($gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId)) === null) {
+        // sources before gateways
+        if ($this->paymentSourceId) {
+            if ($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId)) {
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
+            }
+        } else {
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+        }
+
+        if (empty($gateway)) {
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
+        /** @var Gateway $gateway */
         if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
             throw new InvalidConfigException('Gateway not allowed.');
         }
