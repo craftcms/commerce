@@ -194,14 +194,14 @@ class PaymentCurrencies extends Component
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
         $record->rate = $model->primary ? 1 : $model->rate;
 
-        if ($record->primary) {
-            PaymentCurrencyRecord::updateAll(['primary' => 0]);
-        }
-
         $record->save(false);
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
+
+        if ($record->primary) {
+            PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id'=> $record->id]]);
+        }
 
         return true;
     }

@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where variant fields did not appear on the product edit page if no product fields existed.
+- Fixed a PHP error that occurred when saving the primary payment currency whileusing PostgreSQL
 
 ## 2.0.0-beta.2 - 2018-04-10
 
