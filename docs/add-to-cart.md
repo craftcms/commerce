@@ -97,13 +97,13 @@ You can add multiple purchasables to the cart in an update cart form. You supply
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
-    
+
     {% for variant in product.variants %}
-        <input type="hidden" name="purchasable[{{loop.index}}]][id]" value="{{ variant.purchasableId }}">
-        <input type="hidden" name="purchasable[{{loop.index}}]][qty]" value="1">
-        <input type="hidden" name="purchasable[{{loop.index}}]][note]" value="1">
+        <input type="hidden" name="purchasables[{{loop.index}}]][id]" value="{{ variant.purchasableId }}">
+        <input type="hidden" name="purchasables[{{loop.index}}]][qty]" value="1">
+        <input type="hidden" name="purchasables[{{loop.index}}]][note]" value="1">
     {% endfor %}
-    
+
     <input type="submit" value="Add all variants to cart">
 </form>
 ```
