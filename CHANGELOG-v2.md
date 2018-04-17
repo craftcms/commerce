@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.3 - 2018-04-17
 
 ### Added
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINE_ITEM` event.
