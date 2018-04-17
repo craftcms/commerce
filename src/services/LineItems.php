@@ -9,8 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Order;
-use craft\commerce\errors\LineItemException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
@@ -19,7 +17,6 @@ use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 
 /**
  * Line item service.
@@ -150,46 +147,6 @@ class LineItems extends Component
     }
 
     /**
-     * Update a line item for an order.
-     *
-     * @param Order $order The order that is being updated.
-     * @param LineItem $lineItem The line item that is being updated.
-     * @return bool Whether the update was successful.
-     * @throws LineItemException if item no longer sold
-     */
-    public function updateLineItem(Order $order, LineItem $lineItem): bool
-    {
-        if (!$lineItem->purchasableId) {
-            $this->deleteLineItemById($lineItem->id);
-            Craft::$app->getElements()->saveElement($order);
-            throw new LineItemException(Craft::t('commerce', 'Item no longer for sale. Removed from cart.'));
-        }
-
-        if (!$this->saveLineItem($lineItem)) {
-            return false;
-        }
-
-        return Craft::$app->getElements()->saveElement($order);
-    }
-
-    /**
-     * Deletes a line item by its ID.
-     *
-     * @param int $lineItemId the line item's ID
-     * @return bool Whether the line item was deleted successfully.
-     */
-    public function deleteLineItemById(int $lineItemId): bool
-    {
-        $lineItem = LineItemRecord::findOne($lineItemId);
-
-        if ($lineItem) {
-            return (bool)$lineItem->delete();
-        }
-
-        return false;
-    }
-
-    /**
      * Save a line item.
      *
      * @param LineItem $lineItem The line item to save.
@@ -313,7 +270,6 @@ class LineItems extends Component
     public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
     {
         $lineItem = new LineItem();
-        $lineItem->purchasableId = $purchasableId;
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
         $lineItem->orderId = $orderId;
@@ -321,6 +277,7 @@ class LineItems extends Component
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        $lineItem->setPurchasable($purchasable);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
             $lineItem->populateFromPurchasable($purchasable);
@@ -332,7 +289,6 @@ class LineItems extends Component
         if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
             $this->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
-                'purchasable' => $purchasable,
                 'isNew' => true,
             ]));
         }

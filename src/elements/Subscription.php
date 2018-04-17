@@ -195,7 +195,7 @@ class Subscription extends Element
      */
     public function getIsOnTrial()
     {
-        return $this->trialDays > 0 && time() > $this->getTrialExpires()->getTimestamp();
+        return $this->trialDays > 0 && time() <= $this->getTrialExpires()->getTimestamp();
     }
 
     /**

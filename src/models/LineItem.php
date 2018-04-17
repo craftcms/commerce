@@ -229,6 +229,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['optionsSignature'], UniqueValidator::class, 'targetClass' => LineItemRecord::class, 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature'], 'message' => 'Not Unique'],
+            [['qty'], 'integer', 'min' => 1],
         ];
 
         if ($this->purchasableId) {
@@ -353,6 +354,7 @@ class LineItem extends Model
      */
     public function setPurchasable(Element $purchasable)
     {
+        $this->purchasableId = $purchasable->id;
         $this->_purchasable = $purchasable;
     }
 
@@ -399,7 +401,7 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
-                'purchasable' => $this->purchasable
+                'isNew' => !$this->id
             ]));
         }
 

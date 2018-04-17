@@ -143,7 +143,7 @@
             {% for payment in payments %}
                 {% set info = [
                     { label: "Reference", type: 'code', value: payment.paymentReference },
-                    { label: "Response", type: 'json', value: payment.response|raw },
+                    { label: "Gateway response", type: 'response', value: payment.response|raw },
                 ] %}
                 <tr class="infoRow" data-info="{{ info|json_encode }}">
                     <td>{{ payment.paymentDate|datetime }}</td>
@@ -233,3 +233,5 @@
     });
 
 {% endjs %}
+
+{% do view.registerAssetBundle("craft\\web\\assets\\prismjs\\PrismJsAsset") %}

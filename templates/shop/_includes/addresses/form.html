@@ -132,13 +132,16 @@
 		<div class="six columns">
 			<label for="{{ modelName }}-state">State</label>
 			{% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
-			<select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}" class="address-stateId u-full-width {% if options|length == 0 or (model and model.stateName) %}hidden{% endif %}" name="{{ modelName }}[stateValue]">
+			<select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}" class="address-stateId u-full-width {% if options|length == 0 %}hidden{% endif %}" name="{{ modelName }}[stateValue]">
 				{% for key, option in options %}
 					{% set optionValue = (model ? model.stateId : '') %}
 					<option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
 				{% endfor %}
 			</select>
-			<input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 or (model and model.stateId) %}hidden{% endif %} u-full-width" {% if model and model.stateName %}name="{{ modelName }}[stateValue]" value="{{ model.stateName}}"{% endif %}>
+			<input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} u-full-width" {% if model and model.stateName %}name="{{ modelName }}[stateValue]" value="{{ model.stateName}}"{% endif %}>
+            {% if model and model.getErrors('stateValue') %}
+				<span class="flash">{{ model.getErrors('stateValue')|join }}</span>
+            {% endif %}
 		</div>
 
 	</div>
