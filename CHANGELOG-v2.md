@@ -8,7 +8,7 @@
 ### Fixed
 - Fixed a bug where variant fields did not appear on the product edit page if no product fields existed. ([#317](https://github.com/craftcms/commerce/issues/317))
 - Fixed a bug where subscription payment details were not being syntax-highlighted.
-- Fixed a PHP error that occurred when saving the primary payment currency whileusing PostgreSQL
+- Fixed a PHP error that occurred when saving the primary payment currency while using PostgreSQL
 - Fixed a bug where trial status was being incorrectly reported by subscriptions.
 - Fixed a bug where it was impossible to pay with a stored payment source.
 
