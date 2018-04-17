@@ -118,7 +118,7 @@ class Order extends Element
      * });
      * ```
      */
-    const EVENT_AFTER_ADD_LINEITEM_TO_ORDER = 'afterAddLineItemToOrder';
+    const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event This event is raised when an order is completed
@@ -633,8 +633,8 @@ class Order extends Element
         $this->setLineItems($lineItems);
 
         // Raising the 'afterAddLineItemToOrder' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINEITEM_TO_ORDER)) {
-            $this->trigger(self::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, new LineItemEvent([
+        if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
+            $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
                 'isNew' => !$replaced
             ]));
