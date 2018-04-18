@@ -263,7 +263,7 @@
     });
 
     window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
-    window.shippingCategories = JSON.parse('{{ craft.commerce.shippingCategories.allShippingCategories|values|json_encode|raw }}');
+    window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|values|json_encode|raw }};
 
     $.each(window.shippingCategories, function(key, shippingCategory) {
         if (shippingCategory.default == 1) {
@@ -289,7 +289,7 @@
     });
 
     window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
-    window.taxCategories = JSON.parse('{{ craft.commerce.taxCategories.allTaxCategories|values|json_encode|raw }}');
+    window.taxCategories = {{ craft.commerce.taxCategories.allTaxCategories|values|json_encode|raw }};
 
     $.each(window.taxCategories, function(key, taxCategory) {
         if (taxCategory.default == 1) {

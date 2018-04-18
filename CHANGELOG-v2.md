@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a javascript error on the Edit Product Type screen.
+
 ## 2.0.0-beta.3 - 2018-04-17
 
 ### Added
