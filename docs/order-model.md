@@ -68,11 +68,8 @@ Sum of all the items totals. (Includes all adjustments made to line items)
 
 ### adjustmentsTotal
 
-Total of all adjustments made to line items and the order. (Does not included adjustments marked as 'included')
+Total of all adjustments made to line items and the order. (Does not include adjustments marked as 'included')
 
-### adjustmentsTotal
-
-Total of all adjustments made to line items and the order. (Does not included adjustments marked as 'included')
 
 ### getAdjustmentsTotalByType(type, included)
 
