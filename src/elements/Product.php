@@ -158,6 +158,11 @@ class Product extends Element
      */
     private $_defaultVariant;
 
+    /**
+     * @var array The variant IDs to delete
+     */
+    private $_variantIdsToDelete = [];
+
     // Public Methods
     // =========================================================================
 
@@ -687,6 +692,29 @@ class Product extends Element
         }
 
         return parent::afterSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        $this->_variantIdsToDelete = Variant::find()->product($this)->ids();
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete(): bool
+    {
+        foreach ($this->_variantIdsToDelete as $id)
+        {
+            Craft::$app->getElements()->deleteElementById($id, Variant::class);
+        }
+
+        return true;
     }
 
     /**
