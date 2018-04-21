@@ -5,9 +5,10 @@
             { label: "Transaction Hash", type:'code', value: transaction.hash },
             { label: "Gateway Reference", type:'code', value: transaction.reference },
             { label: "Gateway Message", type:'text', value: transaction.message },
+            { label: "Note", type:'text', value: transaction.note ?? '' },
             { label: "Gateway Code", type:'code', value: transaction.code },
             { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-            { label: "Gateway Response", type:'response', value: transaction.response|raw },
+            { label: "Gateway Response", type:'response', value: transaction.response|raw }
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
@@ -49,6 +50,13 @@
                             size: 10,
                             name: 'amount',
                             placeholder: transaction.paymentCurrency~' '~transaction.refundableAmount
+                        }) }}
+                        {{ forms.text({
+                            id: 'note',
+                            size: 20,
+                            name: 'note',
+                            value: transaction.note,
+                            placeholder: 'Refund Note'
                         }) }}
                         <a class="small btn submit formsubmit"
                            data-action="commerce/orders/transaction-refund"

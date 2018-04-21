@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the ability to place a note on a refund transaction.
+
 ### Fixed
 - Fixed a javascript error on the Edit Product Type screen.
 

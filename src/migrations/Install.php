@@ -715,6 +715,7 @@ class Install extends Migration
             'reference' => $this->string(),
             'code' => $this->string(),
             'message' => $this->text(),
+            'note' => $this->mediumText(),
             'response' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
