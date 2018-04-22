@@ -53,6 +53,14 @@ class m180417_161904_fix_purchasables extends Migration
 
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}');
 
+        if ($this->db->getIsPgsql()) {
+            // Manually construct the SQL for Postgres
+            // (see https://github.com/yiisoft/yii2/issues/12077)
+            $this->execute('alter table {{%commerce_variants}} alter column [[productId]] DROP NOT NULL');
+        } else {
+            $this->alterColumn('{{%commerce_variants}}', 'productId', $this->string()->null());
+        }
+
         $this->addForeignKey(null, '{{%commerce_variants}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'SET NULL');
 
