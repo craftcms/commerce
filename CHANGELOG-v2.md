@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a javascript error on the Edit Product Type screen.
+- Fixed a bug where states were not saving on the Store Location page.
 
 ## 2.0.0-beta.3 - 2018-04-17
 
