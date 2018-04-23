@@ -107,7 +107,7 @@ class SettingsController extends BaseAdminController
     }
 
     /**
-     *
+     * Saves the store location setting
      */
     public function actionSaveStoreLocation()
     {
