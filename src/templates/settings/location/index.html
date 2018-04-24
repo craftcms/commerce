@@ -127,15 +127,6 @@
             class: 'selectize fullwidth'
         }) }}
 
-            {#{{ forms.selectField({#}
-                {#label: "State"|t('commerce'),#}
-                {#id: 'stateValue',#}
-                {#name: 'stateValue',#}
-                {#value: storeLocation.stateValue,#}
-                {#errors: storeLocation.getErrors('stateValue')#}
-            {#}) }}#}
-
-
         <input type="submit" class="btn submit"
                value="{{ "Save"|t('commerce') }}">
     </form>
