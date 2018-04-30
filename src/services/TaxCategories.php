@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -127,6 +128,18 @@ class TaxCategories extends Component
         $this->_memoizeTaxCategory($taxCategory);
 
         return $this->_taxCategoriesByHandle[$taxCategoryHandle];
+    }
+
+    /**
+     * Returns all Tax categories, indexed by ID.
+     *
+     * @return array
+     */
+    public function getAllTaxCategoriesAsList(): array
+    {
+        $categories = $this->getAllTaxCategories();
+
+        return ArrayHelper::map($categories, 'id', 'name');
     }
 
     /**
