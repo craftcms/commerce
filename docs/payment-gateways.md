@@ -2,6 +2,8 @@
 
 In Commerce 2 gateways are now provided via plugins, as opposed to Commerce 1, where all supported gateways were bundled within Commerce itself.
 
+> {tip} Stripe and Paypal are free plugins, but all others are now $49 and $19/year for updates.
+
 To set up a payment gateway you must install the appropriate plugin, then go to "Commerce → Settings → Gateways" and set up the appropriate gateway. For more detailed instructions, see each plugin's `README.md` file.
 
 Payment gateways generally fit in one of two categories:
