@@ -410,7 +410,7 @@ class Product extends Element
     public function setVariants(array $variants)
     {
         $this->_variants = [];
-        $count = 0;
+        $count = 1;
         $this->_defaultVariant = null;
 
         foreach ($variants as $key => $variant) {
