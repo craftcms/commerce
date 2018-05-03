@@ -149,8 +149,11 @@ class CartController extends BaseFrontEndController
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
-                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
-                $this->_cart->addLineItem($lineItem);
+                // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
+                if ($qty > 0) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+                    $this->_cart->addLineItem($lineItem);
+                }
             }
         };
 
