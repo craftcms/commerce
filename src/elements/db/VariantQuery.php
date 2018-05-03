@@ -77,7 +77,7 @@ class VariantQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_DESC];
+    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_ASC];
 
 
     // Public Methods

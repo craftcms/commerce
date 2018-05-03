@@ -417,7 +417,7 @@ class Product extends Element
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
             }
-            $variant->sortOrder = $count + 1;
+            $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
             if (null === $this->_defaultVariant || $variant->isDefault) {
