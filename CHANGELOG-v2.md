@@ -11,6 +11,7 @@
 - Fixed a bug where states were not saving on the Store Location page.
 - Fixed a bug where a quantity of zero was not ignored when adding multiple items to the cart. ([#330](https://github.com/craftcms/commerce/issues/330))
 - Fixed a bug where variants were not saved in the order selected on the Product edit page. ([#337](https://github.com/craftcms/commerce/issues/337))
+- Fixed an issue where zero value shipping adjustments were added to line items when only a base rate existed.
 
 ## 2.0.0-beta.3 - 2018-04-17
 

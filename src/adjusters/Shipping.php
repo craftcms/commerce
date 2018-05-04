@@ -83,7 +83,9 @@ class Shipping implements AdjusterInterface
 
                     $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
                     $adjustment->lineItemId = $item->id;
-                    $adjustments[] = $adjustment;
+                    if ($adjustment->amount) {
+                        $adjustments[] = $adjustment;
+                    }
                     $itemTotalAmount += $adjustment->amount;
                 }
             }
