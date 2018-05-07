@@ -20,5 +20,11 @@ Ensure you have composer [installed correctly](https://github.com/craftcms/docs/
 Run the following composer command from within your Craft 3 project:
 
 ```bash
-composer install craftcms/commerce 
+composer require craftcms/commerce 
+``` 
+
+then
+
+```bash
+composer update
 ``` 
