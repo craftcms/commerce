@@ -4,15 +4,15 @@
 
 ### Added
 - Added the ability to place a note on a refund transaction.
-- Added the `craft\commerce\services\TaxCategories::getAllTaxCategoriesAsList()` method.
+- Added `craft\commerce\services\TaxCategories::getAllTaxCategoriesAsList()`.
 
 ### Fixed
-- Fixed a javascript error on the Edit Product Type screen.
-- Fixed a bug where states were not saving on the Store Location page.
-- Fixed a bug where a quantity of zero was not ignored when adding multiple items to the cart. ([#330](https://github.com/craftcms/commerce/issues/330))
-- Fixed a bug where variants were not saved in the order selected on the Product edit page. ([#337](https://github.com/craftcms/commerce/issues/337))
-- Fixed an issue where zero value shipping adjustments were added to line items when only a base rate existed.
-- Fixed an bug where `product.defaultVariant` would not return the default variant.
+- Fixed a JavaScript error on the Edit Product Type page.
+- Fixed a bug where the state was not saving correctly on the Store Location settings page.
+- Fixed a bug where line items with zero quartity were not ignored when adding multiple items to the cart. ([#330](https://github.com/craftcms/commerce/issues/330))
+- Fixed a bug where variants weren't getting saved in the user-defined order on the Edit Product page. ([#337](https://github.com/craftcms/commerce/issues/337))
+- Fixed a bug where zero-value shipping adjustments were getting added to line items when only a base rate existed.
+- Fixed a bug where `craft\commerce\elements::getDefaultVariant()` was not returning the default variant.
 
 ## 2.0.0-beta.3 - 2018-04-17
 
