@@ -6,9 +6,9 @@
 
 {% block content %}
 
-    <h2>{{ "Store location"|t('commerce') }}</h2>
+    <h2>{{ "Store Location"|t('commerce') }}</h2>
 
-    <p>{{ 'The store location address may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
+    <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
 
     <form action="" method="post" accept-charset="UTF-8">
         <input type="hidden" name="action"
@@ -40,7 +40,7 @@
 
 
         {{ forms.textField({
-            label: 'First name'|t('commerce'),
+            label: 'First Name'|t('commerce'),
             id: 'firstName',
             name: 'firstName',
             placeholder: storeLocation.firstName,
@@ -49,7 +49,7 @@
         }) }}
 
         {{ forms.textField({
-            label: 'Last name'|t('commerce'),
+            label: 'Last Name'|t('commerce'),
             id: 'lastName',
             name: 'lastName',
             placeholder: storeLocation.lastName,
@@ -97,7 +97,7 @@
         }) }}
 
         {{ forms.textField({
-            label: 'Zip code'|t('commerce'),
+            label: 'Zip Code'|t('commerce'),
             id: 'zipCode',
             name: 'zipCode',
             placeholder: storeLocation.zipCode,
