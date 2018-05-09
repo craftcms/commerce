@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.3 - 2018-05-09
 
 ### Added
 - Added the ability to place a note on a refund transaction.
