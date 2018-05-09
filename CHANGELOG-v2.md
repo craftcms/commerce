@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.4.1 - 2018-05-09
+
+### Fixed
+
+- Fixed changelog version typo
+
 ## 2.0.0-beta.4 - 2018-05-09
 
 ### Added
