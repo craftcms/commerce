@@ -117,7 +117,7 @@ class TaxCategoriesController extends BaseAdminController
     /**
      * @throws HttpException
      */
-    public function actionDelete(): Response
+    public function actionDelete()
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

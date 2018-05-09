@@ -110,6 +110,11 @@ class Transaction extends Model
     public $message;
 
     /**
+     * @var string Note
+     */
+    public $note = '';
+
+    /**
      * @var Mixed Response
      */
     public $response;

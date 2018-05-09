@@ -715,6 +715,7 @@ class Install extends Migration
             'reference' => $this->string(),
             'code' => $this->string(),
             'message' => $this->text(),
+            'note' => $this->mediumText(),
             'response' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -723,7 +724,7 @@ class Install extends Migration
 
         $this->createTable('{{%commerce_variants}}', [
             'id' => $this->integer()->notNull(),
-            'productId' => $this->integer()->notNull(),
+            'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
             'price' => $this->decimal(14, 4)->notNull(),
@@ -1000,7 +1001,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_transactions}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_transactions}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_variants}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }
 
     /**

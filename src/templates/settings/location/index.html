@@ -6,12 +6,13 @@
 
 {% block content %}
 
-    <h2>{{ "Store location"|t('commerce') }}</h2>
+    <h2>{{ "Store Location"|t('commerce') }}</h2>
 
-    <p>{{ 'The store location address may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
+    <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action" value="commerce/settings/save-store-location">
+        <input type="hidden" name="action"
+               value="commerce/settings/save-store-location">
         {{ redirectInput('commerce/settings/location') }}
         {{ csrfInput() }}
 
@@ -39,7 +40,7 @@
 
 
         {{ forms.textField({
-            label: 'First name'|t('commerce'),
+            label: 'First Name'|t('commerce'),
             id: 'firstName',
             name: 'firstName',
             placeholder: storeLocation.firstName,
@@ -48,7 +49,7 @@
         }) }}
 
         {{ forms.textField({
-            label: 'Last name'|t('commerce'),
+            label: 'Last Name'|t('commerce'),
             id: 'lastName',
             name: 'lastName',
             placeholder: storeLocation.lastName,
@@ -96,7 +97,7 @@
         }) }}
 
         {{ forms.textField({
-            label: 'Zip code'|t('commerce'),
+            label: 'Zip Code'|t('commerce'),
             id: 'zipCode',
             name: 'zipCode',
             placeholder: storeLocation.zipCode,
@@ -113,42 +114,39 @@
                 options: craft.commerce.countries.allCountriesAsList,
                 errors: storeLocation.getErrors('countryId'),
                 required: true,
+                class: 'fullwidth'
             }) }}
         </div>
 
-        {% set states = craft.commerce.getStates().getAllStatesAsList() %}
-
-        {% for countryId, list in states %}
-            <div data-country="{{ countryId }}"
-                 class="stateSelector field hidden">
-                {{ forms.selectField({
-                    label: "State"|t('commerce'),
-                    id: 'stateId',
-                    name: 'stateId',
-                    value: storeLocation.stateId,
-                    options: list,
-                    errors: storeLocation.getErrors('stateId'),
-                    required: true
-                }) }}
-            </div>
-        {% endfor %}
-
+        {{ forms.selectField({
+            label: 'State'|t('commerce'),
+            id: 'stateValue',
+            name: 'stateValue',
+            value: storeLocation.stateValue,
+            errors: storeLocation.getErrors('stateValue'),
+            class: 'selectize fullwidth'
+        }) }}
 
         <input type="submit" class="btn submit"
                value="{{ "Save"|t('commerce') }}">
     </form>
 
     {% js %}
-        function displayStates(id) {
-          $('.stateSelector').addClass('hidden').find('select').prop('disabled', true);
-          $('.stateSelector[data-country=' + id + ']').removeClass('hidden').find('select').prop('disabled', false);
-        }
+        window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
 
-        $('.countrySelector select').on('change', function (ev) {
-          var id = $(ev.currentTarget).val();
-          displayStates(id);
+        // add any custom state value that could not be in the standard list of states.
+        window.states.push({'name': '{{ storeLocation.stateValue }}', 'id': '{{ storeLocation.stateValue }}'});
+
+        $('#stateValue-field').find('select').selectize({
+            valueField: 'id',
+            create: true,
+            items: ['{{ storeLocation.stateValue }}'],
+            options: window.states,
+            labelField: 'name',
+            searchField: ['name'],
+            dropdownParent: 'body',
+            inputClass: 'selectize-input text',
+            allowEmptyOption: false
         });
-
-        displayStates($('.countrySelector select').val());
     {% endjs %}
 {% endblock %}

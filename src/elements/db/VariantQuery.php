@@ -77,7 +77,7 @@ class VariantQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_DESC];
+    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_ASC];
 
 
     // Public Methods
@@ -199,7 +199,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.maxQty'
         ]);
 
-        $this->subQuery->innerJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+        $this->subQuery->leftJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));

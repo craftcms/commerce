@@ -158,6 +158,11 @@ class Product extends Element
      */
     private $_defaultVariant;
 
+    /**
+     * @var array The variant IDs to delete
+     */
+    private $_variantIdsToDelete = [];
+
     // Public Methods
     // =========================================================================
 
@@ -354,10 +359,8 @@ class Product extends Element
             return $this->_defaultVariant;
         }
 
-        $defaultVariant = null;
-
         foreach ($this->getVariants() as $variant) {
-            if (null === $defaultVariant || $variant->isDefault) {
+            if (null === $this->_defaultVariant || $variant->isDefault) {
                 $this->_defaultVariant = $variant;
             }
         }
@@ -405,14 +408,14 @@ class Product extends Element
     public function setVariants(array $variants)
     {
         $this->_variants = [];
-        $count = 0;
+        $count = 1;
         $this->_defaultVariant = null;
 
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
             }
-            $variant->sortOrder = $count + 1;
+            $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
             if (null === $this->_defaultVariant || $variant->isDefault) {
@@ -687,6 +690,29 @@ class Product extends Element
         }
 
         return parent::afterSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        $this->_variantIdsToDelete = Variant::find()->product($this)->ids();
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete(): bool
+    {
+        foreach ($this->_variantIdsToDelete as $id)
+        {
+            Craft::$app->getElements()->deleteElementById($id, Variant::class);
+        }
+
+        return true;
     }
 
     /**

@@ -301,10 +301,11 @@ class Payments extends Component
      *
      * @param Transaction $transaction the transaction to refund.
      * @param float|null $amount the amount to refund or null for full amount.
+     * @param string $note the administrators note on the refund
      * @return Transaction
      * @throws RefundException if something went wrong during the refund.
      */
-    public function refundTransaction(Transaction $transaction, $amount = null): Transaction
+    public function refundTransaction(Transaction $transaction, $amount = null, $note = ''): Transaction
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
@@ -314,7 +315,7 @@ class Payments extends Component
             ]));
         }
 
-        $refundTransaction = $this->_refund($transaction, $amount);
+        $refundTransaction = $this->_refund($transaction, $amount, $note);
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
@@ -525,10 +526,11 @@ class Payments extends Component
      *
      * @param Transaction $parent
      * @param float|null $amount
+     * @param string $note the administrators note on the refund
      * @return Transaction
      * @throws RefundException if anything goes wrong during a refund
      */
-    private function _refund(Transaction $parent, float $amount = null): Transaction
+    private function _refund(Transaction $parent, float $amount = null, $note = ''): Transaction
     {
         try {
             $gateway = $parent->getGateway();
@@ -546,6 +548,7 @@ class Payments extends Component
             $amount = ($amount ?: $parent->amount);
             $child->paymentAmount = $amount;
             $child->amount = $amount / $parent->paymentRate;
+            $child->note = $note;
 
             $gateway = $parent->getGateway();
 

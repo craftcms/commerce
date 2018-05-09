@@ -33,15 +33,8 @@ class DeleteProduct extends Delete
             return false;
         }
 
-        try {
-            /** @var Product $product */
-            foreach ($query->all() as $product) {
-                Craft::$app->getElements()->deleteElement($product);
-            }
-        } catch (Exception $exception) {
-            $this->setMessage($exception->getMessage());
-
-            return false;
+        foreach ($query->all() as $product) {
+            Craft::$app->getElements()->deleteElement($product);
         }
 
         $this->setMessage(Craft::t('commerce', 'Products deleted.'));

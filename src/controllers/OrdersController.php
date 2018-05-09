@@ -226,9 +226,11 @@ class OrdersController extends BaseCpController
 
         $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = Craft::$app->getRequest()->getParam('amount');
+        $note = Craft::$app->getRequest()->getRequiredBodyParam('note');
 
         if (!$transaction) {
             $error = Craft::t('commerce', 'Can not find the transaction to refund');
@@ -259,7 +261,7 @@ class OrdersController extends BaseCpController
         if ($transaction->canRefund()) {
             try {
                 // refund transaction and display result
-                $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount);
+                $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount, $note);
 
                 $message = $child->message ? ' ('.$child->message.')' : '';
 
