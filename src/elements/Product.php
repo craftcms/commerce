@@ -359,10 +359,8 @@ class Product extends Element
             return $this->_defaultVariant;
         }
 
-        $defaultVariant = null;
-
         foreach ($this->getVariants() as $variant) {
-            if (null === $defaultVariant || $variant->isDefault) {
+            if (null === $this->_defaultVariant || $variant->isDefault) {
                 $this->_defaultVariant = $variant;
             }
         }
