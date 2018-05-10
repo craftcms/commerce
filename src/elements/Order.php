@@ -669,10 +669,12 @@ class Order extends Element
             return;
         }
 
-        // collect new adjustments
-        foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this);
-            $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
+        if (Plugin::getInstance()->getEdition() >= Plugin::Standard) {
+            // collect new adjustments
+            foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+                $adjustments = (new $adjuster)->adjust($this);
+                $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
+            }
         }
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
