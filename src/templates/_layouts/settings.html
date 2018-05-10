@@ -2,30 +2,33 @@
 
 {% set title = "Commerce Settings"|t('commerce') %}
 
+{% set editionLite = constant('Lite', craft.commerce) %}
+{% set editionStandard = constant('Standard', craft.commerce) %}
+
 {% set navItems = {
-    'general': { title: "General Settings"|t('commerce') },
-    'ordersettings': { title: "Order Fields"|t('commerce') },
-    'orderstatuses': { title: "Order Statuses"|t('commerce') },
-    'emails': { title: "Emails"|t('commerce') },
-    'gateways': { title: "Gateways"|t('commerce') },
-    'paymentcurrencies': { title: "Payment Currencies"|t('commerce') },
-    'location': { title: "Store Location"|t('commerce') },
-    'products-heading': { heading: "Products"|t('commerce') },
-    'producttypes': { title: "Product Types"|t('commerce') },
-    'subscriptions-heading': { heading: "Subscriptions"|t('commerce') },
-    'subscriptions/plans': { title: "Subscription Plans"|t('commerce') },
-    'subscriptions/fields': { title: "Subscription Fields"|t('commerce') },
-    'regions-heading': { heading: "Regions"|t('commerce') },
-    'countries': { title: "Countries"|t('commerce') },
-    'states': { title: "States"|t('commerce') },
-    'taxes-heading': { heading: "Taxes"|t('commerce') },
-    'taxcategories': { title: "Tax Categories"|t('commerce') },
-    'taxzones': { title: "Tax Zones"|t('commerce') },
-    'taxrates': { title: "Tax Rates"|t('commerce') },
-    'shipping-heading': { heading: "Shipping"|t },
-    'shippingcategories': { title: "Shipping Categories"|t },
-    'shippingzones': { title: "Shipping Zones"|t },
-    'shippingmethods': { title: "Shipping Methods"|t }
+    'general': { title: "General Settings"|t('commerce'), minEdition: editionLite },
+    'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: editionLite },
+    'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: editionLite },
+    'emails': { title: "Emails"|t('commerce'), minEdition: editionLite },
+    'gateways': { title: "Gateways"|t('commerce'), minEdition: editionLite },
+    'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: editionLite },
+    'location': { title: "Store Location"|t('commerce'), minEdition: editionLite },
+    'products-heading': { heading: "Products"|t('commerce'), minEdition: editionLite },
+    'producttypes': { title: "Product Types"|t('commerce'), minEdition: editionLite },
+    'subscriptions-heading': { heading: "Subscriptions"|t('commerce'), minEdition: editionLite },
+    'subscriptions/plans': { title: "Subscription Plans"|t('commerce'), minEdition: editionLite },
+    'subscriptions/fields': { title: "Subscription Fields"|t('commerce'), minEdition: editionLite },
+    'regions-heading': { heading: "Regions"|t('commerce'), minEdition: editionLite },
+    'countries': { title: "Countries"|t('commerce'), minEdition: editionLite },
+    'states': { title: "States"|t('commerce'), minEdition: editionLite },
+    'taxes-heading': { heading: "Taxes"|t('commerce'), minEdition: editionStandard },
+    'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: editionStandard },
+    'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: editionStandard },
+    'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: editionStandard },
+    'shipping-heading': { heading: "Shipping"|t('commerce'), minEdition: editionStandard },
+    'shippingcategories': { title: "Shipping Categories"|t('commerce'), minEdition: editionStandard },
+    'shippingzones': { title: "Shipping Zones"|t('commerce'), minEdition: editionStandard },
+    'shippingmethods': { title: "Shipping Methods"|t('commerce'), minEdition: editionStandard },
 } %}
 
 {% if selectedItem is not defined %}
@@ -34,11 +37,10 @@
 
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
 
-
 {% block sidebar %}
     <nav>
         <ul>
-            {% for id, item in navItems %}
+            {% for id, item in navItems if craft.commerce.edition >= item.minEdition %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}
