@@ -66,6 +66,6 @@ class Address extends ActiveRecord
      */
     public function getCountry(): ActiveQueryInterface
     {
-        return $this->hasOne(Country::class, ['id' => 'stateId']);
+        return $this->hasOne(Country::class, ['id' => 'countryId']);
     }
 }
