@@ -47,6 +47,13 @@ use yii\web\User;
  */
 class Plugin extends BasePlugin
 {
+    // Constants
+    // =========================================================================
+
+    // Edition constants
+    const Lite = 0;
+    const Standard = 1;
+
     // Public Properties
     // =========================================================================
 
@@ -98,6 +105,17 @@ class Plugin extends BasePlugin
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
+    }
+
+    /**
+     * Returns the Commerce edition.
+     *
+     * @return int
+     */
+    public function getEdition(): int
+    {
+        return static::Lite;
+//        return static::Standard;
     }
 
     /**
