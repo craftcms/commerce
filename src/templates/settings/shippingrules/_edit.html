@@ -458,7 +458,7 @@
 {% js "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
 
 {% js %}
-    window.shippingCategories = $.map(JSON.parse('{{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }}'), function(value, index) { return [value] });
+    window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }};
 
     $("select[name^='ruleCategories']").change(function() {
     var id = $(this).closest('tr').data('id');
