@@ -51,8 +51,8 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     // Edition constants
-    const Lite = 0;
-    const Standard = 1;
+    const Edition_Lite = 0;
+    const Edition_Standard = 1;
 
     // Public Properties
     // =========================================================================
@@ -114,8 +114,8 @@ class Plugin extends BasePlugin
      */
     public function getEdition(): int
     {
-        return static::Lite;
-//        return static::Standard;
+        return static::Edition_Lite;
+//        return static::Edition_Standard;
     }
 
     /**
@@ -355,5 +355,10 @@ class Plugin extends BasePlugin
                 header_remove('X-Powered-By');
             }
         }
+    }
+
+    public static final function edition()
+    {
+        return [''];
     }
 }
