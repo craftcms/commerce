@@ -118,6 +118,8 @@ class CartController extends BaseFrontEndController
     public function actionRemoveAllLineItems()
     {
         $this->_cart->setLineItems([]);
+        
+        return $this->_returnCart();
     }
 
     /**
