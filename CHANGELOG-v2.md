@@ -1,9 +1,13 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Changed
+- Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification.
+
 ## 2.0.0-beta.4.1 - 2018-05-09
 
 ### Fixed
-
 - Fixed changelog version typo
 
 ## 2.0.0-beta.4 - 2018-05-09

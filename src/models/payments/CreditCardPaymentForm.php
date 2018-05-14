@@ -8,7 +8,6 @@
 namespace craft\commerce\models\payments;
 
 use Craft;
-use Omnipay\Common\Helper as OmnipayHelper;
 
 /**
  * Credit Card Payment form model.
@@ -114,7 +113,12 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public function creditCardLuhn($attribute, $params)
     {
-        if (!OmnipayHelper::validateLuhn($this->$attribute)) {
+        $str = '';
+        foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {
+            $str .= ($i % 2) ? $c * 2 : $c;
+        }
+
+        if (array_sum(str_split($str)) % 10 !== 0) {
             $this->addError($attribute, Craft::t('commerce', 'Not a valid Credit Card Number'));
         }
     }
