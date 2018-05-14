@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\events\RegisterAddressRulesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
@@ -21,12 +22,32 @@ use craft\helpers\UrlHelper;
  * @property string $fullName
  * @property State $state
  * @property string $stateText
+ * @property string $abbreviationText
  * @property int|string $stateValue
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Address extends Model
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event RegisterAddressRulesEvent The event that is raised after initial rules were set.
+     *
+     * Plugins can add additional address validation rules.
+     *
+     * ```php
+     * use craft\commerce\events\RegisterAddressRulesEvent;
+     * use craft\commerce\models\Address;
+     *
+     * Event::on(Address::class, Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES, function(RegisterAddressRulesEvent $event) {
+     *      $event->rules[] = [['attention'], 'required'];
+     * });
+     * ```
+     */
+    const EVENT_REGISTER_ADDRESS_VALIDATION_RULES = 'registerAddressValidationRules';
+
     // Properties
     // =========================================================================
 
@@ -159,7 +180,16 @@ class Address extends Model
         $rules[] = [['lastName'], 'required'];
         $rules[] = ['stateId', 'validateState', 'skipOnEmpty' => false];
 
-        return $rules;
+        $event = new RegisterAddressRulesEvent([
+            'rules' => $rules
+        ]);
+
+        //Raise the RegisterAddressRules event
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_ADDRESS_VALIDATION_RULES)) {
+            $this->trigger(self::EVENT_REGISTER_ADDRESS_VALIDATION_RULES, $event);
+        }
+
+        return $event->rules;
     }
 
     /**
