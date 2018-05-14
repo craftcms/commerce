@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
@@ -32,10 +33,9 @@ class ShippingMethods extends Component
     // =========================================================================
 
     /**
-     * @event RegisterComponentTypesEvent The event that is triggered when registering additional shipping methods.
-     * TODO Not in use yet
+     * @event RegisterShippingMethods The event that is triggered when registering additional shipping methods for the cart.
      */
-    const EVENT_REGISTER_SHIPPING_METHODS = 'registerShippingMethods';
+    const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
     // Properties
     // =========================================================================
@@ -160,7 +160,16 @@ class ShippingMethods extends Component
 
         $methods = $this->getAllShippingMethods();
 
-        foreach ($methods as $method) {
+        $event = new RegisterAvailableShippingMethodsEvent([
+            'shippingMethods' => $methods,
+            'order' => $cart
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
+            $this->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
+        }
+
+        foreach ($event->shippingMethods as $method) {
             /**
              * @var ShippingRule $rule
              */

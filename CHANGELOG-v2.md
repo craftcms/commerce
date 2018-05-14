@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+
+- Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
+
 ## 2.0.0-beta.4.1 - 2018-05-09
 
 ### Fixed
