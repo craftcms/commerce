@@ -488,7 +488,6 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
-            // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
     }

@@ -6,10 +6,13 @@
 
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
 
+### Changed
+
+- Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification.
+
 ## 2.0.0-beta.4.1 - 2018-05-09
 
 ### Fixed
-
 - Fixed changelog version typo
 
 ## 2.0.0-beta.4 - 2018-05-09
