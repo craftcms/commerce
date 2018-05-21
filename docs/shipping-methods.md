@@ -1,19 +1,15 @@
 # Shipping Methods
 
-In Craft Commerce it is possible to define your own Shipping Methods within a plugin.
+If you need to add shipping costs to the cart, you have the following options:
 
-The plugin would provide Shipping Methods the customer can choose from. In addition, each Shipping method would need one or more shipping rule which allows the Shipping Method to 'match' the order and be available for the current order, as well as provide the associated shipping costs.
+1) Use the built in shipping method and shipping rules engine to define your rules and prices based on a few product and cart attributes, including per item rates, base order rates, weight rates, and percentage of cost rates.
+This engine is fairly powerful and can meet the needs of most small businesses with simple to medium complex shipping needs.
 
-You can provide one or more shipping methods with the following method in their main plugin class:
+2) Write a plugin or module that provides your own shipping method. This allows you to present more than one option to the customer, and writing your own shipping method allows you to use the option (1) above at the same time. Your shipping rules could use any external API to look up prices, or you could just build the pricing logic out in PHP.
 
-```
-    public function commerce_registerShippingMethods()
-    {
-        return [new CustomShipper_CourierDeliveryMethod()];
-    }
-``` 
+3) Write an order adjuster class. Going this route mean you likely have shipping costs you can't codify in the native shipping engine UI AND you never need to offer a shipping method choice to your customers between the native shipping engine methods your custom logic pricing. Use this when you will automatically add dynamically calculated shipping costs to the cart.
 
-The plugin can provide one or more shipping method classes with the following interface:
+Below is a guide on writing a plugin or module supplied shipping method (2), and also an example of a custom adjuster (3) to add shipping costs.
 
 
 # Shipping Method Interface
@@ -21,8 +17,8 @@ The plugin can provide one or more shipping method classes with the following in
 The shipping method interface requires a class with the following methods:
 
 ### getType()
-Returns the type of Shipping Method. This might be the name of the plugin or provider.
-The core shipping methods have type: `Custom`. This is shown in the control panel only.
+Returns the type of Shipping Method. This would likely be the handle of your plugin.
+
 
 ### getId()
 This must return null.
@@ -33,7 +29,7 @@ Returns the name of this Shipping Method as displayed to the customer and in the
 
 ### getHandle()
 
-This is the handle added to the order for the chosen shipping method. 
+This is the handle added to the order when a customer selects this shipping method. 
 
 ### getCpEditUrl()
 
@@ -51,10 +47,9 @@ Is this shipping method available to the customer to select.
 
 # Shipping Rules Interface
 
-A shipping method returns an array of rules objects. The shipping engine goes through each rule and calls `matchOrder()`. It expects a `true` or `false` returned if this shipping method can be applied to the order/cart. The matched rule also returns the costs to the cart if the rule matches. 
+A shipping method returns an array of rules objects. The shipping engine goes through each rule one by one and calls `matchOrder()`. It expects a `true` or `false` returned if this shipping method can be applied to the order/cart. The first matched rule returns the costs to the cart. 
 
 These are the methods required for the shipping rule objects:
-
 
 ### getHandle();
 
@@ -108,3 +103,10 @@ Zero will not make any changes.
 ### getDescription()
 
 Returns a readable description of the rates applied by this rule.
+
+
+# Shipping Adjuster
+
+If you decide not to make a shipping method, you could just make a custom adjuster to add shipping costs to the cart. 
+
+To learn how to create an adjuster see [Adjusters](adjusters.md), and simply set the `type` of the adjuster to `shipping`.
