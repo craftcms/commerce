@@ -105,6 +105,18 @@ Zero will not make any changes.
 Returns a readable description of the rates applied by this rule.
 
 
+# Registering your Shipping Method and Rules
+
+Once you have created your shipping method class and its associated shipping rules classes, you need to register your shipping method class instance by using the `EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event in your module or plugin's `init()` method.
+
+Here is an example of doing so:
+
+```php
+Event::on(ShippingMethods::class, ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, function(RegisterAvailableShippingMethodsEvent $event) {
+    $event->shippingMethods[] = new MyShippingMethod();
+});
+```
+
 # Shipping Adjuster
 
 If you decide not to make a shipping method, you could just make a custom adjuster to add shipping costs to the cart. 
