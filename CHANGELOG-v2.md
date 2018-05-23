@@ -7,6 +7,7 @@
 
 ### Changed
 - Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification.
+- `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
 ### Fixed
 - Fixed a PHP error that caused by a bad migration when custom purchasables were present.
