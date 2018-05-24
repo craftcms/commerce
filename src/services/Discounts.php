@@ -551,7 +551,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_email_discountuse}}', [
+                    ->update('{{%commerce_email_discountuses}}', [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'email' => $order->getEmail(),
