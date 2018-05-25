@@ -46,7 +46,7 @@ class ShippingRuleCategories extends Component
 
             $this->_shippingRuleCategoriesByRuleId[$ruleId] = [];
             foreach ($rows as $row) {
-                $this->_shippingRuleCategoriesByRuleId[$ruleId][] = new ShippingRuleCategory($row);
+                $this->_shippingRuleCategoriesByRuleId[$ruleId][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
             }
         }
 

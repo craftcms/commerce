@@ -14,6 +14,7 @@
 - Fixed an issue where commerce element types were not being registered with craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
 - Fixed a bug where the first variant on the product edit page could not be saved as disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
 - Fixed a bug where stock checking rules in the cart did not take into account new line items. ([#343](https://github.com/craftcms/commerce/issues/343))
+- Fixed a bug per category shipping rule prices where being saved in the incorrect category assigned ([#323](https://github.com/craftcms/commerce/issues/323))
 
 ## 2.0.0-beta.4.1 - 2018-05-09
 
