@@ -274,6 +274,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.id',
             'commerce_products.typeId',
             'commerce_products.promotable',
+            'commerce_products.availableForPurchase',
             'commerce_products.freeShipping',
             'commerce_products.postDate',
             'commerce_products.expiryDate',

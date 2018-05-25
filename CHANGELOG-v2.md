@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
+- Products now have a `availableForPurchase` checkbox which allows the publishing of the product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
 
 ### Changed
 - Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))

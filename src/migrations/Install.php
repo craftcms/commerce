@@ -410,6 +410,7 @@ class Install extends Migration
             'postDate' => $this->dateTime(),
             'expiryDate' => $this->dateTime(),
             'promotable' => $this->boolean(),
+            'availableForPurchase' => $this->boolean(),
             'freeShipping' => $this->boolean(),
             'defaultSku' => $this->string(),
             'defaultPrice' => $this->decimal(14, 4),
