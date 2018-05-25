@@ -6,11 +6,13 @@
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
 
 ### Changed
-- Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification.
+- Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))
 - `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
 ### Fixed
 - Fixed a PHP error that caused by a bad migration when custom purchasables were present.
+- Fixed an issue where commerce element types were not being registered with craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
+- Fixed a bug where the first variant on the product edit page could not be saved as disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
 
 ## 2.0.0-beta.4.1 - 2018-05-09
 
