@@ -1682,6 +1682,7 @@ class Install extends Migration
                 'postDate' => DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s'),
                 'expiryDate' => null,
                 'promotable' => true,
+                'availableForPurchase' => true,
                 'defaultPrice' => 10 * $count,
                 'defaultSku' => $product['sku'],
                 'taxCategoryId' => $taxCategoryId,
