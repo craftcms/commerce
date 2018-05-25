@@ -400,13 +400,14 @@ class Variant extends Purchasable
             // count new line items
             if ($lineItem->id === null) {
                 $qty[$item->purchasableId] = $lineItem->qty;
-            }
-
-            if ($item->id == $lineItem->id) {
-                $qty[$item->purchasableId] += $lineItem->qty;
             } else {
-                // count other line items with same purchasableId
-                $qty[$item->purchasableId] += $item->qty;
+
+                if ($item->id == $lineItem->id) {
+                    $qty[$item->purchasableId] += $lineItem->qty;
+                } else {
+                    // count other line items with same purchasableId
+                    $qty[$item->purchasableId] += $item->qty;
+                }
             }
         }
 
