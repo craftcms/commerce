@@ -296,7 +296,7 @@ class CartController extends BaseFrontEndController
             throw new NotFoundHttpException('Cart not found');
         }
 
-        return clone $cart;
+        return $cart;
     }
 
     /**

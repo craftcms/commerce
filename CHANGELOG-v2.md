@@ -31,6 +31,7 @@
 - Added `craft\commerce\services\TaxCategories::getAllTaxCategoriesAsList()`.
 
 ### Fixed
+- Fixed a bug where updating a cart on the front end without custom field parameters would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
 - Fixed a JavaScript error on the Edit Product Type page.
 - Fixed a bug where the state was not saving correctly on the Store Location settings page.
 - Fixed a bug where line items with zero quantity were not ignored when adding multiple items to the cart. ([#330](https://github.com/craftcms/commerce/issues/330))
