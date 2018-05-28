@@ -26,6 +26,7 @@
 ## 2.0.0-beta.4 - 2018-05-09
 
 ### Added
+- Added support for updating multiple line items at in one update cart request. ([#357](https://github.com/craftcms/commerce/issues/357))
 - Added the ability to place a note on a refund transaction.
 - Added `craft\commerce\services\TaxCategories::getAllTaxCategoriesAsList()`.
 

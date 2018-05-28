@@ -19,7 +19,7 @@
 
                     <select name="purchasableId" class="purchasableId">
                         {%- for purchasable in product.getVariants() -%}
-                            <option {% if purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false %}disabled {% endif %}
+                            <option {% if (purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false) or not purchasable.isAvailable %}disabled {% endif %}
                                     data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
                                     value="{{ purchasable.id }}">
                                     {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
@@ -67,7 +67,7 @@
     <input type="hidden" name="action" value="commerce/cart/update-cart">
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
-{% for product in products %}
+{% for product in products if product.defaultVariant.isAvailable %}
     <input type="hidden" name="purchasables[{{ loop.index }}][id]" value="{{ product.defaultVariant.id }}">
     <input type="hidden" name="purchasables[{{ loop.index }}][qty]" value="1">
     <input type="hidden" name="purchasables[{{ loop.index }}][note]" value="">

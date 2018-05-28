@@ -157,7 +157,43 @@ class CartController extends BaseFrontEndController
                     $this->_cart->addLineItem($lineItem);
                 }
             }
-        };
+        }
+
+        // update multiple line items in the cart
+        if ($lineItems = $request->getParam('lineItems')) {
+            foreach ($lineItems as $key => $lineItem) {
+                $lineItemId = $key;
+                $note = $request->getParam("lineItems.{$key}.note");
+                $options = $request->getParam("lineItems.{$key}.options");
+                $qty = $request->getParam("lineItems.{$key}.qty");
+                $removeLine = $request->getParam("lineItems.{$key}.remove");
+
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+
+                // Line item not found, or does not belong to their order
+                if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
+                    throw new NotFoundHttpException('Line item not found');
+                }
+
+                if ($qty) {
+                    $lineItem->qty = $qty;
+                }
+
+                if ($note) {
+                    $lineItem->note = $note;
+                }
+
+                if ($options) {
+                    $lineItem->setOptions($options);
+                }
+
+                if ($removeLine) {
+                    $this->_cart->removeLineItem($lineItem);
+                } else {
+                    $this->_cart->addLineItem($lineItem);
+                }
+            }
+        }
 
         $this->_setAddresses();
 
