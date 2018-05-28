@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added support for updating multiple line items at in one update cart request. ([#357](https://github.com/craftcms/commerce/issues/357))
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
 - Products now have a `availableForPurchase` checkbox which allows the publishing of the product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
 
@@ -11,6 +12,7 @@
 - `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
 ### Fixed
+- Fixed a bug where updating a cart on the front end without custom field parameters would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
 - Fixed a PHP error that caused by a bad migration when custom purchasables were present.
 - Fixed an issue where commerce element types were not being registered with craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
 - Fixed a bug where the first variant on the product edit page could not be saved as disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
@@ -26,12 +28,10 @@
 ## 2.0.0-beta.4 - 2018-05-09
 
 ### Added
-- Added support for updating multiple line items at in one update cart request. ([#357](https://github.com/craftcms/commerce/issues/357))
 - Added the ability to place a note on a refund transaction.
 - Added `craft\commerce\services\TaxCategories::getAllTaxCategoriesAsList()`.
 
 ### Fixed
-- Fixed a bug where updating a cart on the front end without custom field parameters would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
 - Fixed a JavaScript error on the Edit Product Type page.
 - Fixed a bug where the state was not saving correctly on the Store Location settings page.
 - Fixed a bug where line items with zero quantity were not ignored when adding multiple items to the cart. ([#330](https://github.com/craftcms/commerce/issues/330))
