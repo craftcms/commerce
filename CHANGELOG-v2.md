@@ -8,6 +8,7 @@
 - Products now have a `availableForPurchase` checkbox which allows the publishing of the product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
 
 ### Changed
+- Deprecated the following three front end controller actions: `commerce/cart/update-line-item`, `commerce/cart/remove-line-item`, `commerce/cart/remove-all-line-items`. All actions can now be performed with `commerce/cart/update-cart`.
 - Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))
 - `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
