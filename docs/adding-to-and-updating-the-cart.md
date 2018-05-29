@@ -27,7 +27,8 @@ The above is a simple example, if your product's type has multiple variants you 
 
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
-    <input type="hidden" name="redirect" value="commerce/cart">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
     <input type="hidden" name="qty" value="1">
     <select name="purchasableId">
         {% for variant in product.variants %}
@@ -50,7 +51,8 @@ Here is an example of an add to cart form with both a `notes` and `options` para
 {% set variant = product.defaultVariant %}
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
-    <input type="hidden" name="redirect" value="commerce/cart">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
     <input type="hidden" name="qty" value="1">
 
     <input type="text" name="note" value="">
@@ -96,7 +98,8 @@ You can add multiple purchasables to the cart in an update cart form. You supply
 {% set product = craft.products.one() %}
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
-    <input type="hidden" name="redirect" value="commerce/cart">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
 
     {% for variant in product.variants %}
         <input type="hidden" name="purchasables[{{loop.index}}]][id]" value="{{ variant.purchasableId }}">
@@ -109,3 +112,40 @@ You can add multiple purchasables to the cart in an update cart form. You supply
 ```
 
 While using multi-add the same rules apply for updating a quantity vs adding to cart, based on the uniquessness of the options signature and purchasableId.
+
+As shown in the example above,  a unique index key is required to group the purchasable ID to its related `notes` and `options` and `qty` param. Using `{{loop.index}}` is an easy way to do this.
+
+# Updating line items
+
+Once the purchasable has been added to the cart, your customer may want to update the `qty` or `note`, they can do this by updating a line item.
+
+Line items can have their `qty`, `note`, and `options`updated. They can also be removed.
+
+To update a lin item, submit a form array param with the name of `lineItems`, with the ID of the array key being the line item ID.
+
+Example:
+
+
+```twig
+<form method="POST">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
+    <input type="text" placeholder="My Note" name="lineItems[LINE_ITEM_ID][note]" value="{{ item.note }}">
+
+    <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
+    <input type="number" name="lineItems[LINE_ITEM_ID][qty]" min="1" value="{{ item.qty }}">
+    <input type="submit" value="Update Line Item">
+</form>
+```
+
+In the example above we are allowing for the editing of one line item. You would replace `LINE_ITEM_ID` with the ID of the line item you wanted to edit. Usually you would just loop over all line items and insert `{{ item.id }}` there, allowing your customers to update multiple line items at once.
+
+To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in the request. You could do this by adding a checkboxto the form above that looks like this:
+
+
+```twig
+ <input type="checkbox" name="lineItems[LINE_ITEM_ID][remove]" value="1"> Remove item<br>
+```
+
+The example templates contain all of the above examples of adding and updating the cart within a full checkout flow. Study them for further understanding.
