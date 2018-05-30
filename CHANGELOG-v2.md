@@ -3,23 +3,27 @@
 ## Unreleased
 
 ### Added
-- Added support for [updating multiple line items](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items) within `craft\commerce\controllers\CartController::actionUpdateCart()`. ([#357](https://github.com/craftcms/commerce/issues/357))
+- Products now have an “Available for purchase” checkbox, making it possible to have a live product that isn’t available for purchase yet. ([#345](https://github.com/craftcms/commerce/issues/345))
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
-- Products now have an "Available for purchase" checkbox which allows for the publishing of a product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
 
 ### Changed
-- Deprecated the following three front end controller actions: `craft\commerce\controllers\CartController::actionUpdateLineItem()`, `craft\commerce\controllers\CartController::actionRemoveLineItem()`, `craft\commerce\controllers\CartController::actionRemoveAllLineItems()`. All actions can now be performed with `craft\commerce\controllers\CartController::actionUpdateCart()`.
+- `commerce/cart/update-cart` can now update [multiple line items](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items) at once. ([#357](https://github.com/craftcms/commerce/issues/357))
 - Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))
 - `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
+### Deprecated
+- Deprecated the `commerce/cart/update-line-item` action. (`commerce/cart/update-cart` can be used instead.)
+- Deprecated the `commerce/cart/remove-line-item` action. (`commerce/cart/update-cart` can be used instead.)
+- Deprecated the `commerce/cart/remove-all-line-items` action. (`commerce/cart/update-cart` can be used instead.)
+
 ### Fixed
-- Fixed a bug where updating a cart on the front end without including custom field data would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
-- Fixed a PHP error that occurred during an upgrade migration when custom Purchasables were in use.
-- Fixed an issue where commerce element types were not being registered with Craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
-- Fixed a bug where the first variant on the product edit page could not be saved as disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
-- Fixed a bug where stock checking rules in the cart did not take into account new line items. ([#343](https://github.com/craftcms/commerce/issues/343))
-- Fixed a bug where category shipping rule prices where being saved in the incorrect category assigned ([#323](https://github.com/craftcms/commerce/issues/323))
-- Fixed a PHP error when completing an order with a coupon code that used a per user usage limit. ([#354](https://github.com/craftcms/commerce/issues/354))
+- Fixed a bug where `commerce/cart/update-cart` requests could clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
+- Fixed a PHP error that occurred during an upgrade migration when custom purchasable types were in use.
+- Fixed an issue where Commerce’s element types weren’t getting registered with Craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
+- Fixed a bug where the first variant on Edit Product pages couldn’t be set to disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
+- Fixed a bug where stock-checking rules weren’t taking new line items into account. ([#343](https://github.com/craftcms/commerce/issues/343))
+- Fixed a bug where category shipping rule prices were getting saved with the incorrect category. ([#323](https://github.com/craftcms/commerce/issues/323))
+- Fixed a PHP error that occurred when completing an order with a coupon code that had a per-user usage limit. ([#354](https://github.com/craftcms/commerce/issues/354))
 
 ## 2.0.0-beta.4.1 - 2018-05-09
 
