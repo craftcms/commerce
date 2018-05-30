@@ -121,7 +121,7 @@ Once the purchasable has been added to the cart, your customer may want to updat
 
 Line items can have their `qty`, `note`, and `options`updated. They can also be removed.
 
-To update a lin item, submit a form array param with the name of `lineItems`, with the ID of the array key being the line item ID.
+To update a line item, submit a form array param with the name of `lineItems`, with the ID of the array key being the line item ID.
 
 Example:
 
