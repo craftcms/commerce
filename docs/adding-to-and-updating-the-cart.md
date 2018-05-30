@@ -139,11 +139,11 @@ Example:
 
 In the example above we are allowing for the editing of one line item. You would replace `LINE_ITEM_ID` with the ID of the line item you wanted to edit. Usually you would just loop over all line items and insert `{{ item.id }}` there, allowing your customers to update multiple line items at once.
 
-To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in the request. You could do this by adding a checkboxto the form above that looks like this:
+To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in the request. You could do this by adding a checkbox to the form above that looks like this:
 
 
 ```twig
  <input type="checkbox" name="lineItems[LINE_ITEM_ID][remove]" value="1"> Remove item<br>
 ```
 
-The example templates contain all of the above examples of adding and updating the cart within a full checkout flow. Study them for further understanding.
+The example templates contain all of the above examples of adding and updating the cart within a full checkout flow.
