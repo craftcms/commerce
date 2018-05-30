@@ -132,8 +132,6 @@ Example:
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
     <input type="text" placeholder="My Note" name="lineItems[LINE_ITEM_ID][note]" value="{{ item.note }}">
-
-    <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
     <input type="number" name="lineItems[LINE_ITEM_ID][qty]" min="1" value="{{ item.qty }}">
     <input type="submit" value="Update Line Item">
 </form>
