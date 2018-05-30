@@ -3,23 +3,23 @@
 ## Unreleased
 
 ### Added
-- Added support for updating multiple line items at in one update cart request. ([#357](https://github.com/craftcms/commerce/issues/357))
+- Added support for [updating multiple line items](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items) within `craft\commerce\controllers\CartController::actionUpdateCart()`. ([#357](https://github.com/craftcms/commerce/issues/357))
 - Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
-- Products now have a `availableForPurchase` checkbox which allows the publishing of the product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
+- Products now have an "Available for purchase" checkbox which allows for the publishing of a product without allowing it to be purchased. ([#345](https://github.com/craftcms/commerce/issues/345))
 
 ### Changed
-- Deprecated the following three front end controller actions: `commerce/cart/update-line-item`, `commerce/cart/remove-line-item`, `commerce/cart/remove-all-line-items`. All actions can now be performed with `commerce/cart/update-cart`.
+- Deprecated the following three front end controller actions: `craft\commerce\controllers\CartController::actionUpdateLineItem()`, `craft\commerce\controllers\CartController::actionRemoveLineItem()`, `craft\commerce\controllers\CartController::actionRemoveAllLineItems()`. All actions can now be performed with `craft\commerce\controllers\CartController::actionUpdateCart()`.
 - Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))
 - `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
 
 ### Fixed
-- Fixed a bug where updating a cart on the front end without custom field parameters would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
-- Fixed a PHP error that caused by a bad migration when custom purchasables were present.
-- Fixed an issue where commerce element types were not being registered with craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
+- Fixed a bug where updating a cart on the front end without including custom field data would clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
+- Fixed a PHP error that occurred during an upgrade migration when custom Purchasables were in use.
+- Fixed an issue where commerce element types were not being registered with Craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
 - Fixed a bug where the first variant on the product edit page could not be saved as disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
 - Fixed a bug where stock checking rules in the cart did not take into account new line items. ([#343](https://github.com/craftcms/commerce/issues/343))
-- Fixed a bug per category shipping rule prices where being saved in the incorrect category assigned ([#323](https://github.com/craftcms/commerce/issues/323))
-- Fixed a PHP error when completing an order with a coupon code. ([#354](https://github.com/craftcms/commerce/issues/354))
+- Fixed a bug where category shipping rule prices where being saved in the incorrect category assigned ([#323](https://github.com/craftcms/commerce/issues/323))
+- Fixed a PHP error when completing an order with a coupon code that used a per user usage limit. ([#354](https://github.com/craftcms/commerce/issues/354))
 
 ## 2.0.0-beta.4.1 - 2018-05-09
 
