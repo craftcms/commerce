@@ -46,7 +46,7 @@ class ShippingRuleCategories extends Component
 
             $this->_shippingRuleCategoriesByRuleId[$ruleId] = [];
             foreach ($rows as $row) {
-                $this->_shippingRuleCategoriesByRuleId[$ruleId][] = new ShippingRuleCategory($row);
+                $this->_shippingRuleCategoriesByRuleId[$ruleId][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
             }
         }
 
@@ -63,7 +63,7 @@ class ShippingRuleCategories extends Component
     public function createShippingRuleCategory(ShippingRuleCategory $model, bool $runValidation = true): bool
     {
         if ($runValidation && !$model->validate()) {
-            Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
+            \Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
 
             return false;
         }

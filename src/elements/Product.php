@@ -104,6 +104,11 @@ class Product extends Element
     public $enabled;
 
     /**
+     * @var bool Is this product available to be purchased
+     */
+    public $availableForPurchase = true;
+
+    /**
      * @var int defaultVariantId
      */
     public $defaultVariantId;
@@ -418,12 +423,16 @@ class Product extends Element
             $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
-            if (null === $this->_defaultVariant || $variant->isDefault) {
-                $variant->isDefault = true;
+            if ($variant->isDefault) {
                 $this->_defaultVariant = $variant;
             }
 
             $this->_variants[] = $variant;
+        }
+
+        if( $this->_defaultVariant === null)
+        {
+            $this->_variants[0]->isDefault = true;
         }
     }
 
@@ -640,6 +649,7 @@ class Product extends Element
         $record->expiryDate = $this->expiryDate;
         $record->typeId = $this->typeId;
         $record->promotable = $this->promotable;
+        $record->availableForPurchase = $this->availableForPurchase;
         $record->freeShipping = $this->freeShipping;
         $record->taxCategoryId = $this->taxCategoryId;
         $record->shippingCategoryId = $this->shippingCategoryId;
@@ -940,6 +950,7 @@ class Product extends Element
             'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
             'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
             'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
+            'availableForPurchase' => ['label' => Craft::t('commerce', 'Available for purchase?')],
             'stock' => ['label' => Craft::t('commerce', 'Stock')],
             'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
@@ -1080,6 +1091,7 @@ class Product extends Element
 
                     return '';
                 }
+            case 'availableForPurchase':
             case 'promotable':
             case 'freeShipping':
                 {

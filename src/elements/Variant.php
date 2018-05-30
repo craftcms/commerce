@@ -400,13 +400,14 @@ class Variant extends Purchasable
             // count new line items
             if ($lineItem->id === null) {
                 $qty[$item->purchasableId] = $lineItem->qty;
-            }
-
-            if ($item->id == $lineItem->id) {
-                $qty[$item->purchasableId] += $lineItem->qty;
             } else {
-                // count other line items with same purchasableId
-                $qty[$item->purchasableId] += $item->qty;
+
+                if ($item->id == $lineItem->id) {
+                    $qty[$item->purchasableId] += $lineItem->qty;
+                } else {
+                    // count other line items with same purchasableId
+                    $qty[$item->purchasableId] += $item->qty;
+                }
             }
         }
 
@@ -593,6 +594,11 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
+        if ($this->getProduct() && !$this->getProduct()->availableForPurchase)
+        {
+            return false;
+        }
+
         if ($this->getStatus() !== Element::STATUS_ENABLED) {
             return false;
         }

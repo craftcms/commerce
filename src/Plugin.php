@@ -9,7 +9,9 @@ namespace craft\commerce;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
@@ -29,6 +31,7 @@ use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
+use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -53,7 +56,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.43';
+    public $schemaVersion = '2.0.45';
 
     /**
      * @inheritdoc
@@ -98,6 +101,7 @@ class Plugin extends BasePlugin
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
+        $this->_registerElementTypes();
     }
 
     /**
@@ -337,5 +341,17 @@ class Plugin extends BasePlugin
                 header_remove('X-Powered-By');
             }
         }
+    }
+
+    /**
+     * Register the element types supplied by Craft Commerce
+     */
+    private function _registerElementTypes()
+    {
+         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
+             $e->types[] = Variant::class;
+             $e->types[] = Product::class;
+             $e->types[] = Order::class;
+         });
     }
 }

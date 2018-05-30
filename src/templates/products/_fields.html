@@ -92,6 +92,13 @@
     {% endif %}
 
     {{ forms.checkboxField({
+        id: 'available-for-purchase',
+        fieldLabel: 'Available for purchase'|t('commerce'),
+        name: 'availableForPurchase',
+        checked: product.availableForPurchase,
+    }) }}
+
+    {{ forms.checkboxField({
         id: 'free-shipping',
         fieldLabel: 'Free Shipping'|t('commerce'),
         name: 'freeShipping',

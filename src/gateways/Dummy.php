@@ -93,7 +93,7 @@ class Dummy extends Gateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
     {
         $paymentSource = new PaymentSource();
         $paymentSource->gatewayId = $this->id;

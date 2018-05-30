@@ -478,6 +478,7 @@ class ProductsController extends BaseCpController
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;
+                $variables['product']->availableForPurchase = true;
                 $variables['product']->freeShipping = false;
             }
         }
@@ -524,6 +525,7 @@ class ProductsController extends BaseCpController
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
         $product->promotable = (bool)$request->getBodyParam('promotable');
+        $product->availableForPurchase = (bool)$request->getBodyParam('availableForPurchase');
         $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
         $product->taxCategoryId = $request->getBodyParam('taxCategoryId');
         $product->shippingCategoryId = $request->getBodyParam('shippingCategoryId');

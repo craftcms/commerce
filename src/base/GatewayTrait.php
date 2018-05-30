@@ -41,7 +41,7 @@ trait GatewayTrait
     /**
      * @var bool Archived
      */
-    public $isArchived;
+    public $isArchived = false;
 
     /**
      * @var \DateTime Archived Date

@@ -88,11 +88,6 @@
 
                     // Init the unlimited stock checkbox
                     Craft.Commerce.initUnlimitedStockCheckbox($variant);
-
-                    // If this is the first one, set it as the default in case no others are claiming to be
-                    if (i === 0 && !this.defaultVariant) {
-                        this.setDefaultVariant(variant);
-                    }
                 }
 
                 this.addListener(this.$addVariantBtn, 'click', function() {

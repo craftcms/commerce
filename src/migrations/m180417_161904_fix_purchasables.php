@@ -77,22 +77,29 @@ class m180417_161904_fix_purchasables extends Migration
         $reflectionClassesByType = [];
         foreach ($elementsRows as $elementsRow) {
             $type = $elementsRow['type'];
+
             if (!isset($reflectionClassesByType[$type])) {
-                $reflectionClassesByType[$type] = new ReflectionClass($type);
+                try {
+                    $reflectionClassesByType[$type] = new \ReflectionClass($type);
+                } catch (\ReflectionException $e) {
+                    Craft::warning('Class: '.$type.' does not exist. Can not re-create purchasable records for elements of that type.');
+                }
             }
         }
 
         // Create the purchasable records.
         foreach ($elementsRows as $elementsRow) {
-            $class = $reflectionClassesByType[$elementsRow['type']];
-            if ($class->implementsInterface(PurchasableInterface::class)) {
-                /** @var PurchasableInterface $element */
-                if ($element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
-                    $row = [];
-                    $row['id'] = $element->getId();
-                    $row['price'] = $element->getPrice();
-                    $row['sku'] = $element->getSku();
-                    $this->insert('{{%commerce_purchasables}}', $row);
+            if (isset($reflectionClassesByType[$elementsRow['type']])) {
+                $class = $reflectionClassesByType[$elementsRow['type']];
+                if ($class && $class->implementsInterface(PurchasableInterface::class)) {
+                    /** @var PurchasableInterface $element */
+                    if ($element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
+                        $row = [];
+                        $row['id'] = $element->getId();
+                        $row['price'] = $element->getPrice();
+                        $row['sku'] = $element->getSku();
+                        $this->insert('{{%commerce_purchasables}}', $row);
+                    }
                 }
             }
         }
