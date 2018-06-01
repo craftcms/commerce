@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+
+- Added missing variant query param `price`.
+
 ## 2.0.0-beta.5 - 2018-05-30
 
 ### Added
