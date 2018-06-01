@@ -138,7 +138,7 @@ The handle of the currently applied shipping method. You can get the set shippin
 
 ### gatewayId
 
-The id of the linked payment method. You can get the set payment method's model with the `paymentMethod` attribute.
+The ID of the linked gateway. You can get the set gateway's model with the `gateway` attribute.
 
 ### currency
 
