@@ -207,7 +207,7 @@ class Order extends Element
     /**
      * @var string Order locale
      */
-    public $orderLocale;
+    public $orderLanguage;
 
     /**
      * @var string Message
@@ -747,7 +747,7 @@ class Order extends Element
         $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
-        $orderRecord->orderLocale = $this->orderLocale;
+        $orderRecord->orderLanguage = $this->orderLanguage;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
         $orderRecord->returnUrl = $this->returnUrl;
