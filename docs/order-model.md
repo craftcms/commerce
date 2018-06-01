@@ -136,7 +136,7 @@ This returns the address model from the database for the current `shippingAddres
 
 The handle of the currently applied shipping method. You can get the set shipping method's model with the `shippingMethod` attribute.
 
-### paymentMethodId
+### gatewayId
 
 The id of the linked payment method. You can get the set payment method's model with the `paymentMethod` attribute.
 
