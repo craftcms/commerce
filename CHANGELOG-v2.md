@@ -5,6 +5,7 @@
 ### Fixed
 
 - Added missing variant query param `price`.
+- Fixed a PHP error caused by missing default line item rules in `\craft\commerce\base\Purchasable`  
 
 ## 2.0.0-beta.5 - 2018-05-30
 

@@ -166,6 +166,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getLineItemRules(LineItem $lineItem): array
     {
+        return [];
     }
 
     /**
