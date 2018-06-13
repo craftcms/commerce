@@ -123,12 +123,14 @@ class Variant extends Purchasable
      */
     public function __toString(): string
     {
-        if ($this->product) {
-            return "{$this->product} {$this->title}";
-        } else if ($this->title) {
-            return (string)$this->title;
+        $product = $this->getProduct();
+
+        // Use a combined Product and Variant title, if the variant is
+        // belongs to a product with other variants.
+        if ($product && $product->getType()->hasVariants) {
+            return "{$this->product}: {$this->title}";
         } else {
-            return (string)$this->id ?: static::class;
+            return parent::__toString();
         }
     }
 
