@@ -121,6 +121,20 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public function __toString(): string
+    {
+        if ($this->product) {
+            return "{$this->product} {$this->title}";
+        } else if ($this->title) {
+            return (string)$this->title;
+        } else {
+            return (string)$this->id ?: static::class;
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');
