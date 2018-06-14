@@ -6,7 +6,8 @@
 
 - Added missing variant query param `price`.
 - Fixed a PHP error caused by missing default line item rules in `\craft\commerce\base\Purchasable`
-- Fixed a fatal error that would prevent some Commerce 1 installs from being able to update to Commerce 2. 
+- Fixed a fatal error that would prevent some Commerce 1 installs from being able to update to Commerce 2.
+- Fixed a bug where you would get a PHP error when saving a product that did not have  “Unlimited Stock” selected in some environments.
 
 ## 2.0.0-beta.5 - 2018-05-30
 
