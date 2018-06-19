@@ -431,10 +431,10 @@ class LineItem extends Model
     public function getDescription(): string
     {
         $purchasable = $this->getPurchasable();
-        $snapShotDescription = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
+        $snapshotDescription = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
         $liveDescription = $purchasable ? $purchasable->getDescription() : '';
 
-        return $snapShotDescription ?: $liveDescription;
+        return $snapshotDescription ?: $liveDescription;
     }
 
     /**
@@ -443,10 +443,10 @@ class LineItem extends Model
     public function getSku(): string
     {
         $purchasable = $this->getPurchasable();
-        $snapShotSku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
+        $snapshotSku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
         $liveSku = $purchasable ? $purchasable->getSku() : '';
 
-        return $snapShotSku ?: $liveSku;
+        return $snapshotSku ?: $liveSku;
     }
 
     /**

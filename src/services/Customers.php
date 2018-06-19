@@ -389,7 +389,7 @@ class Customers extends Component
         // Now duplicate the addresses on the order
         $addressesService = Plugin::getInstance()->getAddresses();
         if ($order->billingAddress) {
-            $snapShotBillingAddress = new Address($order->billingAddress->toArray([
+            $snapshotBillingAddress = new Address($order->billingAddress->toArray([
                     'id',
                     'attention',
                     'title',
@@ -409,10 +409,10 @@ class Customers extends Component
                     'stateName'
                 ]
             ));
-            $originalBillingAddressId = $snapShotBillingAddress->id;
-            $snapShotBillingAddress->id = null;
-            if ($addressesService->saveAddress($snapShotBillingAddress, false)) {
-                $order->billingAddressId = $snapShotBillingAddress->id;
+            $originalBillingAddressId = $snapshotBillingAddress->id;
+            $snapshotBillingAddress->id = null;
+            if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
+                $order->billingAddressId = $snapshotBillingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -420,7 +420,7 @@ class Customers extends Component
         }
 
         if ($order->shippingAddress) {
-            $snapShotShippingAddress = new Address($order->shippingAddress->toArray([
+            $snapshotShippingAddress = new Address($order->shippingAddress->toArray([
                     'id',
                     'attention',
                     'title',
@@ -440,10 +440,10 @@ class Customers extends Component
                     'stateName'
                 ]
             ));
-            $originalShippingAddressId = $snapShotShippingAddress->id;
-            $snapShotShippingAddress->id = null;
-            if ($addressesService->saveAddress($snapShotShippingAddress, false)) {
-                $order->shippingAddressId = $snapShotShippingAddress->id;
+            $originalShippingAddressId = $snapshotShippingAddress->id;
+            $snapshotShippingAddress->id = null;
+            if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
+                $order->shippingAddressId = $snapshotShippingAddress->id;
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
