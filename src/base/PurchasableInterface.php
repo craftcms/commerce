@@ -94,7 +94,7 @@ interface PurchasableInterface
      *
      * @return array
      */
-    public function getSnapShot(): array;
+    public function getSnapshot(): array;
 
     /**
      * Returns any validation rules this purchasable required the line item to have.

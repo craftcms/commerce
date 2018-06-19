@@ -392,7 +392,7 @@ class LineItem extends Model
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
-        $this->snapshot = array_merge($purchasable->getSnapShot(), $snapshot);
+        $this->snapshot = array_merge($purchasable->getSnapshot(), $snapshot);
 
         $purchasable->populateLineItem($this);
 

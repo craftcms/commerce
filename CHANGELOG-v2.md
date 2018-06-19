@@ -8,6 +8,7 @@
 - Fixed a fatal error that would prevent some Commerce 1 installs from being able to update to Commerce 2.
 - Fixed a bug where you would get a PHP error when saving a product that did not have  “Unlimited Stock” selected in some environments.
 - Fixed a bug where clicking on the “Date Created” column header on order and subscription indexes wouldn’t update the sort order.
+- Fixed a bug where `commerce\base\PurchasableInterface::getSnapshot()` had the wrong casing.
 
 ## 2.0.0-beta.5 - 2018-05-30
 
