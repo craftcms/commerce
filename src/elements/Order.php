@@ -1745,7 +1745,11 @@ class Order extends Element
             'totalPrice' => Craft::t('commerce', 'Total Payable'),
             'totalPaid' => Craft::t('commerce', 'Total Paid'),
             'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
-            'commerce_orders.dateUpdated' => Craft::t('commerce', 'Date Updated'),
+            [
+                'label' => Craft::t('commerce', 'Date Updated'),
+                'orderBy' => 'commerce_orders.dateUpdated',
+                'attribute' => 'dateUpdated'
+            ],
             'datePaid' => Craft::t('commerce', 'Date Paid')
         ];
     }

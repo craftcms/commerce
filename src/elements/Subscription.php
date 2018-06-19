@@ -628,7 +628,11 @@ class Subscription extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'commerce_subscriptions.dateCreated' => Craft::t('commerce', 'Subscription date'),
+            [
+                'label' => Craft::t('commerce', 'Subscription date'),
+                'orderBy' => 'commerce_subscriptions.dateCreated',
+                'attribute' => 'dateCreated'
+            ],
         ];
     }
 
