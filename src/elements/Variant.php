@@ -125,8 +125,7 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        // Use a combined Product and Variant title, if the variant is
-        // belongs to a product with other variants.
+        // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
         if ($product && $product->getType()->hasVariants) {
             return "{$this->product}: {$this->title}";
         } else {
