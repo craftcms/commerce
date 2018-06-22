@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Variant element indexes now contain the a 'Product' column.
+- Variant element titles now prepend the related product title if the product has multiple variants.
+
 ### Fixed
 - Added missing variant query param `price`.
 - Fixed a PHP error caused by missing default line item rules in `\craft\commerce\base\Purchasable`
@@ -9,7 +13,10 @@
 - Fixed a bug where you would get a PHP error when saving a product that did not have  “Unlimited Stock” selected in some environments.
 - Fixed a bug where clicking on the “Date Created” column header on order and subscription indexes wouldn’t update the sort order.
 - Fixed a bug where `commerce\base\PurchasableInterface::getSnapshot()` had the wrong casing.
-- Fixed a PHP error when deleting an address that is currently the primary billing or shipping address.
+- Fixed a PHP error when deleting an address that is currently the primary billing or shipping address
+- Fixed a PHP error that occurred during updating from Commerce 1.x ([#282](https://github.com/craftcms/commerce/issues/282))
+- Fixed a bug where shipping costs using shipping categories would not be applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
+
 
 ## 2.0.0-beta.5 - 2018-05-30
 
