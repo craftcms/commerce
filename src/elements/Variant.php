@@ -121,6 +121,21 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public function __toString(): string
+    {
+        $product = $this->getProduct();
+
+        // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
+        if ($product && $product->getType()->hasVariants) {
+            return "{$this->product}: {$this->title}";
+        } else {
+            return parent::__toString();
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');
@@ -726,6 +741,7 @@ class Variant extends Purchasable
     {
         return [
             'title' => Craft::t('commerce', 'Title'),
+            'product' => Craft::t('commerce', 'Product'),
             'sku' => Craft::t('commerce', 'SKU'),
             'price' => Craft::t('commerce', 'Price'),
             'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
@@ -745,6 +761,7 @@ class Variant extends Purchasable
         $attributes = [];
 
         $attributes[] = 'title';
+        $attributes[] = 'product';
         $attributes[] = 'sku';
         $attributes[] = 'price';
 
@@ -781,6 +798,10 @@ class Variant extends Purchasable
             case 'sku':
                 {
                     return $this->sku;
+                }
+            case 'product':
+                {
+                    return $this->product->title;
                 }
             case 'price':
                 {
