@@ -363,7 +363,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+            if ( (int) $shippingCategoryId === (int) $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
                 return $ruleCategory->$attribute;
             }
         }
