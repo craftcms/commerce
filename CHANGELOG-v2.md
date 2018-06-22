@@ -16,7 +16,7 @@
 - Fixed a PHP error when deleting an address that is currently the primary billing or shipping address
 - Fixed a PHP error that occurred during updating from Commerce 1.x ([#282](https://github.com/craftcms/commerce/issues/282))
 - Fixed a bug where shipping costs using shipping categories would not be applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
-
+- Fixed a PHP error when saving a new order status.
 
 ## 2.0.0-beta.5 - 2018-05-30
 
