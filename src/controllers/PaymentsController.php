@@ -327,13 +327,10 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($order->returnUrl) {
-            $this->redirect($order->returnUrl);
+            return $this->redirect($order->returnUrl);
         } else {
-            $this->redirectToPostedUrl($order);
+            return $this->redirectToPostedUrl($order);
         }
-
-        // should have been handled by now
-        return null;
     }
 
     /**
