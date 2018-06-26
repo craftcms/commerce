@@ -93,7 +93,7 @@ class ProductsController extends BaseCpController
             $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);
 
             if (!$variables['site']) {
-                throw new NotFoundHttpException('Invalid site handle: '.$siteHandle);
+                throw new NotFoundHttpException('Invalid site handle: ' . $siteHandle);
             }
         }
 
@@ -106,11 +106,11 @@ class ProductsController extends BaseCpController
         }
 
         // Can't just use the entry's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/products/'.$variables['productTypeHandle'].'/{id}-{slug}';
+        $variables['baseCpEditUrl'] = 'commerce/products/' . $variables['productTypeHandle'] . '/{id}-{slug}';
 
         // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'].
-            (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id !== $variables['site']->id ? '/'.$variables['site']->handle : '');
+        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'] .
+            (Craft::$app->getIsMultiSite() && Craft::$app->getSites()->currentSite->id !== $variables['site']->id ? '/' . $variables['site']->handle : '');
 
         $this->_prepVariables($variables);
 
@@ -122,7 +122,7 @@ class ProductsController extends BaseCpController
 
         // Enable Live Preview?
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
-            $this->getView()->registerJs('Craft.LivePreview.init('.Json::encode([
+            $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants-container',
                     'previewUrl' => $variables['product']->getUrl(),
@@ -132,7 +132,7 @@ class ProductsController extends BaseCpController
                         'productId' => $variables['product']->id,
                         'siteId' => $variables['product']->siteId,
                     ]
-                ]).');');
+                ]) . ');');
 
             $variables['showPreviewBtn'] = true;
 
@@ -336,7 +336,7 @@ class ProductsController extends BaseCpController
             throw new HttpException(404);
         }
 
-        $this->requirePermission('commerce-manageProductType:'.$product->getType()->id);
+        $this->requirePermission('commerce-manageProductType:' . $product->getType()->id);
     }
 
     // Private Methods
@@ -369,7 +369,7 @@ class ProductsController extends BaseCpController
 
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab'.($index + 1),
+                'url' => '#tab' . ($index + 1),
                 'class' => $hasErrors ? 'error' : null
             ];
         }
@@ -559,13 +559,13 @@ class ProductsController extends BaseCpController
         $siteSettings = $productType->getSiteSettings();
 
         if (!isset($siteSettings[$product->siteId]) || !$siteSettings[$product->siteId]->hasUrls) {
-            throw new ServerErrorHttpException('The product '.$product->id.' doesn\'t have a URL for the site '.$product->siteId.'.');
+            throw new ServerErrorHttpException('The product ' . $product->id . ' doesn\'t have a URL for the site ' . $product->siteId . '.');
         }
 
         $site = Craft::$app->getSites()->getSiteById($product->siteId);
 
         if (!$site) {
-            throw new ServerErrorHttpException('Invalid site ID: '.$product->siteId);
+            throw new ServerErrorHttpException('Invalid site ID: ' . $product->siteId);
         }
 
         Craft::$app->language = $site->language;

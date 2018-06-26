@@ -75,7 +75,7 @@ class Orders extends Widget
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
-                return Craft::t('commerce', 'Recent Orders').' – '.Craft::t('commerce', $orderStatus->name);
+                return Craft::t('commerce', 'Recent Orders') . ' – ' . Craft::t('commerce', $orderStatus->name);
             }
         }
 
@@ -104,10 +104,10 @@ class Orders extends Widget
 
         Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
 
-        $id = 'analytics-settings-'.StringHelper::randomString();
+        $id = 'analytics-settings-' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('".$namespaceId."');");
+        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('" . $namespaceId . "');");
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
             'id' => $id,

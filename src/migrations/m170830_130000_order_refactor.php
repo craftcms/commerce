@@ -71,7 +71,7 @@ class m170830_130000_order_refactor extends Migration
 
                 // Log custom adjuster types that could not be archived into sourceSnapshot. (amounts will still be transitioned to adjustments).
                 if ($customAdjusterTypes) {
-                    Craft::info('Commerce could not migrate history about custom adjuster types: '.Json::encode($customAdjusterTypes).' Affected amounts are still migrated.');
+                    Craft::info('Commerce could not migrate history about custom adjuster types: ' . Json::encode($customAdjusterTypes) . ' Affected amounts are still migrated.');
                 }
 
                 // remove all the old adjustments, good riddance

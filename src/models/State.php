@@ -63,7 +63,7 @@ class State extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/states/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/states/' . $this->id);
     }
 
     /**
@@ -92,6 +92,6 @@ class State extends Model
      */
     public function getLabel(): string
     {
-        return $this->name.' ('.$this->getCountry()->name.')';
+        return $this->name . ' (' . $this->getCountry()->name . ')';
     }
 }

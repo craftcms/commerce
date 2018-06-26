@@ -83,7 +83,7 @@ class Pdf extends Component
             $html = $view->renderTemplate($template, compact('order', 'option'));
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
-            Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '.$e->getMessage());
+            Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
@@ -95,9 +95,9 @@ class Pdf extends Component
 
         // Set the config options
         $pathService = Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath().DIRECTORY_SEPARATOR.'commerce_dompdf';
-        $dompdfFontCache = $pathService->getCachePath().DIRECTORY_SEPARATOR.'commerce_dompdf';
-        $dompdfLogFile = $pathService->getLogPath().DIRECTORY_SEPARATOR.'commerce_dompdf.htm';
+        $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
         FileHelper::isWritable($dompdfTempDir);
         FileHelper::isWritable($dompdfFontCache);
 

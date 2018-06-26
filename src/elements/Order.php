@@ -723,7 +723,7 @@ class Order extends Element
             $orderRecord = OrderRecord::findOne($this->id);
 
             if (!$orderRecord) {
-                throw new Exception('Invalid order ID: '.$this->id);
+                throw new Exception('Invalid order ID: ' . $this->id);
             }
         } else {
             $orderRecord = new OrderRecord();
@@ -851,7 +851,7 @@ class Order extends Element
      */
     public function getLink(): string
     {
-        return Template::raw("<a href='".$this->getCpEditUrl()."'>".substr($this->number, 0, 7).'</a>');
+        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . substr($this->number, 0, 7) . '</a>');
     }
 
     /**
@@ -859,7 +859,7 @@ class Order extends Element
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/orders/'.$this->id);
+        return UrlHelper::cpUrl('commerce/orders/' . $this->id);
     }
 
     /**
@@ -875,7 +875,7 @@ class Order extends Element
         try {
             $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
-                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : null));
+                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : null));
             }
         } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
@@ -965,15 +965,15 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_PAID:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status green"></span> '.Craft::t('commerce', 'Paid').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
                 }
             case self::PAID_STATUS_PARTIAL:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status orange"></span> '.Craft::t('commerce', 'Partial').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
                 }
             case self::PAID_STATUS_UNPAID:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status red"></span> '.Craft::t('commerce', 'Unpaid').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
                 }
         }
 
@@ -1617,7 +1617,7 @@ class Order extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
-            $key = 'orderStatus:'.$orderStatus->handle;
+            $key = 'orderStatus:' . $orderStatus->handle;
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,

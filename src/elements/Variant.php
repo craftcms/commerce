@@ -223,7 +223,7 @@ class Variant extends Purchasable
         }
 
         if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
-            throw new InvalidConfigException('Invalid product ID: '.$this->productId);
+            throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 
         return $this->_product = $product;
@@ -312,7 +312,7 @@ class Variant extends Purchasable
      */
     public function getUrl(): string
     {
-        return $this->product->url.'?variant='.$this->id;
+        return $this->product->url . '?variant=' . $this->id;
     }
 
     /**
@@ -407,8 +407,7 @@ class Variant extends Purchasable
         $order = $lineItem->getOrder();
 
         // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
-        if ($order && $order->isCompleted)
-        {
+        if ($order && $order->isCompleted) {
             return [];
         }
 
@@ -555,7 +554,7 @@ class Variant extends Purchasable
             $record = VariantRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid variant ID: '.$this->id);
+                throw new Exception('Invalid variant ID: ' . $this->id);
             }
         } else {
             $record = new VariantRecord();
@@ -615,8 +614,7 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        if ($this->getProduct() && !$this->getProduct()->availableForPurchase)
-        {
+        if ($this->getProduct() && !$this->getProduct()->availableForPurchase) {
             return false;
         }
 
@@ -715,7 +713,7 @@ class Variant extends Purchasable
             try {
                 $this->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $this);
             } catch (\Exception $e) {
-                Craft::error('Craft Commerce could not generate the supplied SKU format: '.$e->getMessage(), __METHOD__);
+                Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                 $this->sku = '';
             }
         }
@@ -818,7 +816,7 @@ class Variant extends Purchasable
             case 'weight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -828,7 +826,7 @@ class Variant extends Purchasable
             case 'height':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';

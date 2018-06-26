@@ -154,7 +154,7 @@ class Sale extends Model
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::cpUrl('commerce/promotions/sales/'.$this->id);
+        return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
 
     /**

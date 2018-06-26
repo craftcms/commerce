@@ -91,7 +91,7 @@ class ProductTypeSite extends Model
         }
 
         if (($this->_productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->productTypeId)) === null) {
-            throw new InvalidConfigException('Invalid product type ID: '.$this->productTypeId);
+            throw new InvalidConfigException('Invalid product type ID: ' . $this->productTypeId);
         }
 
         return $this->_productType;
@@ -122,7 +122,7 @@ class ProductTypeSite extends Model
         }
 
         if (($this->_site = Craft::$app->getSites()->getSiteById($this->siteId)) === null) {
-            throw new InvalidConfigException('Invalid site ID: '.$this->siteId);
+            throw new InvalidConfigException('Invalid site ID: ' . $this->siteId);
         }
 
         return $this->_site;

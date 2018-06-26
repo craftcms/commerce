@@ -118,9 +118,9 @@ class GatewaysController extends BaseAdminController
             'type' => $type,
             'name' => $request->getBodyParam('name'),
             'handle' => $request->getBodyParam('handle'),
-            'paymentType' => $request->getBodyParam('paymentTypes.'.$type.'.paymentType'),
+            'paymentType' => $request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
             'isFrontendEnabled' => (bool)$request->getParam('isFrontendEnabled'),
-            'settings' => $request->getBodyParam('types.'.$type),
+            'settings' => $request->getBodyParam('types.' . $type),
         ];
 
         // For new gateway avoid NULL value.

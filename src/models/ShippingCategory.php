@@ -65,7 +65,7 @@ class ShippingCategory extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/shippingcategories/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/shippingcategories/' . $this->id);
     }
 
     /**

@@ -320,7 +320,7 @@ class Customers extends Component
 
             $transaction->commit();
         } catch (\Exception $e) {
-            Craft::error('Could not consolidate orders to user '.$user->username.': '.$e->getMessage(), __METHOD__);
+            Craft::error('Could not consolidate orders to user ' . $user->username . ': ' . $e->getMessage(), __METHOD__);
             $transaction->rollBack();
             return false;
         }
@@ -504,7 +504,7 @@ class Customers extends Component
                 Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
             } else {
                 $errors = implode(', ', $customer->errors);
-                throw new Exception('Error saving customer: '.$errors);
+                throw new Exception('Error saving customer: ' . $errors);
             }
         }
 
