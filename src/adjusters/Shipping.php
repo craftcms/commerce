@@ -116,11 +116,6 @@ class Shipping implements AdjusterInterface
             }
         }
 
-        // If the selected shippingMethod has no rules matched on this order, remove the method from the order and reset shipping costs.
-        if (empty($adjustments)) {
-            $this->_order->shippingMethodHandle = null;
-        }
-
         return $adjustments;
     }
 

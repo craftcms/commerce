@@ -17,6 +17,7 @@
 - Fixed a PHP error that occurred during updating from Commerce 1.x ([#282](https://github.com/craftcms/commerce/issues/282))
 - Fixed a bug where shipping costs using shipping categories would not be applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
 - Fixed a PHP error when saving a new order status.
+- Fixed a bug where free shipping methods removed the selected shipping choice from the cart. ([#387](https://github.com/craftcms/commerce/issues/387))
 
 ## 2.0.0-beta.5 - 2018-05-30
 
