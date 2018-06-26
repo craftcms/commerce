@@ -21,7 +21,7 @@ See the [Address Model](address-model.md) to learn about the fields available on
 
 ```twig
 <form method="post">
-  <input type="hidden" name="action" value="commerce/customerAddresses/save">
+  <input type="hidden" name="action" value="commerce/customer-addresses/save">
   <input type="hidden" name="redirect" value="commerce/customer/addresses">
   <input type="text" name="address[firstName]" value="{{ address ? address[firstName] : '' }}">
   <input type="text" name="address[lastName]" value="{{ address ? address[lastName] : '' }}">
@@ -36,7 +36,7 @@ Including an `address[id]` param with a valid address ID that belongs to the cur
 
 ```twig
 <form method="POST">
-  <input type="hidden" name="action" value="commerce/customerAddresses/delete">
+  <input type="hidden" name="action" value="commerce/customer-addresses/delete">
   <input type="hidden" name="redirect" value="commerce/customer/addresses">
   <input type="hidden" name="id" value="{{ address.id }}"/>
   <input type="submit" value="delete"/>
