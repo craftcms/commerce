@@ -406,6 +406,12 @@ class Variant extends Purchasable
     {
         $order = $lineItem->getOrder();
 
+        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
+        if ($order && $order->isCompleted)
+        {
+            return [];
+        }
+
         $qty = [];
         foreach ($order->getLineItems() as $item) {
             if (!isset($qty[$item->purchasableId])) {

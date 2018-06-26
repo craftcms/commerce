@@ -18,7 +18,8 @@
 - Fixed a bug where shipping costs using shipping categories would not be applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
 - Fixed a PHP error when saving a new order status.
 - Fixed a bug where free shipping methods removed the selected shipping choice from the cart. ([#387](https://github.com/craftcms/commerce/issues/387))
-
+- Fixed an incorrect validation of stock when saving a completed order.  ([#390](https://github.com/craftcms/commerce/issues/390))
+ 
 ## 2.0.0-beta.5 - 2018-05-30
 
 ### Added
