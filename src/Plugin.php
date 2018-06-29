@@ -198,7 +198,7 @@ class Plugin extends BasePlugin
      */
     private function _addTwigExtensions()
     {
-        Craft::$app->view->twig->addExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension);
     }
 
     /**
