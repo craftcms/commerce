@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.6 - 2018-06-29
 
 ### Changed
 - Variant indexes can now have a “Product” column.
