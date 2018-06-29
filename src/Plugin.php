@@ -249,8 +249,8 @@ class Plugin extends BasePlugin
 
             $productTypePermissions = [];
             foreach ($productTypes as $id => $productType) {
-                $suffix = ':'.$id;
-                $productTypePermissions['commerce-manageProductType'.$suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
+                $suffix = ':' . $id;
+                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
@@ -344,7 +344,7 @@ class Plugin extends BasePlugin
             // Send the X-Powered-By header?
             if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
                 $original = $headers->get('X-Powered-By');
-                $headers->set('X-Powered-By', $original.($original ? ',' : '').'Craft Commerce');
+                $headers->set('X-Powered-By', $original . ($original ? ',' : '') . 'Craft Commerce');
             } else {
                 // In case PHP is already setting one
                 header_remove('X-Powered-By');
@@ -357,10 +357,10 @@ class Plugin extends BasePlugin
      */
     private function _registerElementTypes()
     {
-         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
-             $e->types[] = Variant::class;
-             $e->types[] = Product::class;
-             $e->types[] = Order::class;
-         });
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
+            $e->types[] = Variant::class;
+            $e->types[] = Product::class;
+            $e->types[] = Order::class;
+        });
     }
 }

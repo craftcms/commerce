@@ -200,7 +200,7 @@ class PaymentCurrencies extends Component
         $model->id = $record->id;
 
         if ($record->primary) {
-            PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id'=> $record->id]]);
+            PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
         }
 
         return true;

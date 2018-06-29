@@ -257,7 +257,7 @@ class OrderQuery extends ElementQuery
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>='.$value;
+        $this->dateUpdated[] = '>=' . $value;
 
         return $this;
     }
@@ -275,7 +275,7 @@ class OrderQuery extends ElementQuery
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<'.$value;
+        $this->dateUpdated[] = '<' . $value;
 
         return $this;
     }

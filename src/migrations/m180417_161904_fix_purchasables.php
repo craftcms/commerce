@@ -81,7 +81,7 @@ class m180417_161904_fix_purchasables extends Migration
                 try {
                     $reflectionClassesByType[$type] = new ReflectionClass($type);
                 } catch (\ReflectionException $e) {
-                    Craft::warning('Class: '.$type.' does not exist. Can not re-create purchasable records for elements of that type.');
+                    Craft::warning('Class: ' . $type . ' does not exist. Can not re-create purchasable records for elements of that type.');
                 }
             }
         }

@@ -314,7 +314,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $group = new CategoryGroup();
 
         $group->name = 'Promotions';
-        $group->handle = 'promotions'.random_int(1, 10);
+        $group->handle = 'promotions' . random_int(1, 10);
         $group->maxLevels = 0;
 
         // Site-specific settings
@@ -358,7 +358,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $group->name = 'Commerce Promotion Categories';
         $fieldsService->saveGroup($group);
 
-        $settings = ['source' => 'group:'.$categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
+        $settings = ['source' => 'group:' . $categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
 
         $field = $fieldsService->createField([
             'type' => Categories::class,

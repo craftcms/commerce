@@ -77,7 +77,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = 'Order '.substr($variables['order']->number, 0, 7);
+            $variables['title'] = 'Order ' . substr($variables['order']->number, 0, 7);
         } else {
             throw new HttpException(404);
         }
@@ -199,7 +199,7 @@ class OrdersController extends BaseCpController
             // capture transaction and display result
             $child = Plugin::getInstance()->getPayments()->captureTransaction($transaction);
 
-            $message = $child->message ? ' ('.$child->message.')' : '';
+            $message = $child->message ? ' (' . $child->message . ')' : '';
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                 $child->order->updateOrderPaidTotal();
@@ -243,8 +243,7 @@ class OrdersController extends BaseCpController
             }
         }
 
-        if(!$amount)
-        {
+        if (!$amount) {
             $amount = $transaction->refundableAmount;
         }
 
@@ -263,7 +262,7 @@ class OrdersController extends BaseCpController
                 // refund transaction and display result
                 $child = Plugin::getInstance()->getPayments()->refundTransaction($transaction, $amount, $note);
 
-                $message = $child->message ? ' ('.$child->message.')' : '';
+                $message = $child->message ? ' (' . $child->message . ')' : '';
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                     Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
@@ -318,7 +317,7 @@ class OrdersController extends BaseCpController
         }
 
         // Return early if the address is already set.
-        if ($order->{$type.'Id'} == $addressId) {
+        if ($order->{$type . 'Id'} == $addressId) {
             return $this->asJson(['success' => true]);
         }
 
@@ -328,7 +327,7 @@ class OrdersController extends BaseCpController
             return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
         }
 
-        $order->{$type.'Id'} = $address->id;
+        $order->{$type . 'Id'} = $address->id;
 
         if (Craft::$app->getElements()->saveElement($order)) {
             return $this->asJson(['success' => true]);
@@ -432,7 +431,7 @@ class OrdersController extends BaseCpController
     private function _prepVariables(&$variables)
     {
         // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/orders/'.$variables['order']->number;
+        $variables['baseCpEditUrl'] = 'commerce/orders/' . $variables['order']->number;
         // Set the "Continue Editing" URL
         $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 
@@ -461,7 +460,7 @@ class OrdersController extends BaseCpController
 
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab'.($index + 1),
+                'url' => '#tab' . ($index + 1),
                 'class' => $hasErrors ? 'error' : null
             ];
         }

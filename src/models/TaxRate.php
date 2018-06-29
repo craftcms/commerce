@@ -96,7 +96,7 @@ class TaxRate extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/taxrates/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/taxrates/' . $this->id);
     }
 
     /**
@@ -106,7 +106,7 @@ class TaxRate extends Model
     {
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
-        return $this->rate * 100 .''.$percentSign;
+        return $this->rate * 100 . '' . $percentSign;
     }
 
     /**

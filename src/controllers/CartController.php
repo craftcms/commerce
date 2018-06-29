@@ -122,6 +122,7 @@ class CartController extends BaseFrontEndController
 
     /**
      * Remove all line items
+     *
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveAllLineItems()

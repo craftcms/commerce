@@ -197,7 +197,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '<'.$value;
+        $this->dateCreated[] = '<' . $value;
 
         return $this;
     }
@@ -215,7 +215,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '>='.$value;
+        $this->dateCreated[] = '>=' . $value;
 
         return $this;
     }

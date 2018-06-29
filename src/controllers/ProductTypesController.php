@@ -125,7 +125,7 @@ class ProductTypesController extends BaseAdminController
         $allSiteSettings = [];
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $postedSettings = $request->getBodyParam('sites.'.$site->handle);
+            $postedSettings = $request->getBodyParam('sites.' . $site->handle);
 
             $siteSettings = new ProductTypeSite();
             $siteSettings->siteId = $site->id;

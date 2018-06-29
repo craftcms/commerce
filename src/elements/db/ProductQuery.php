@@ -166,7 +166,7 @@ class ProductQuery extends ElementQuery
         }
 
         $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '<'.$value;
+        $this->postDate[] = '<' . $value;
 
         return $this;
     }
@@ -184,7 +184,7 @@ class ProductQuery extends ElementQuery
         }
 
         $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '>='.$value;
+        $this->postDate[] = '>=' . $value;
 
         return $this;
     }

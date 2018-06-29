@@ -57,7 +57,7 @@ trait OrderValidatorsTrait
 
         $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
 
-        if ($address->id && !in_array($address->id, $addressesIds,false)) {
+        if ($address->id && !in_array($address->id, $addressesIds, false)) {
             $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
             $this->addModelErrors($address, $attribute);
         }
@@ -68,7 +68,8 @@ trait OrderValidatorsTrait
      *
      * @param string $attribute the attribute being validated
      */
-    public function validateAddressReuse($attribute) {
+    public function validateAddressReuse($attribute)
+    {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
             $this->addError($attribute, Craft::t('commerce', 'You can\'t set shipping address to be the same as billing when you\'re setting billing address to be same as shipping'));
         }
@@ -81,8 +82,7 @@ trait OrderValidatorsTrait
      */
     public function validateLineItems($attribute)
     {
-        foreach ($this->getLineItems() as $key => $lineItem)
-        {
+        foreach ($this->getLineItems() as $key => $lineItem) {
             if (!$lineItem->validate()) {
                 $this->addModelErrors($lineItem, "lineItems.{$key}");
             }
