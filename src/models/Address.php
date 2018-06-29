@@ -154,7 +154,7 @@ class Address extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/addresses/'.$this->id);
+        return UrlHelper::cpUrl('commerce/addresses/' . $this->id);
     }
 
     /**
@@ -214,7 +214,7 @@ class Address extends Model
         $firstName = trim($this->firstName);
         $lastName = trim($this->lastName);
 
-        return $firstName.($firstName && $lastName ? ' ' : '').$lastName;
+        return $firstName . ($firstName && $lastName ? ' ' : '') . $lastName;
     }
 
     /**

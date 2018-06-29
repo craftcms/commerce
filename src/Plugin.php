@@ -56,7 +56,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.45';
+    public $schemaVersion = '2.0.47';
 
     /**
      * @inheritdoc
@@ -198,7 +198,7 @@ class Plugin extends BasePlugin
      */
     private function _addTwigExtensions()
     {
-        Craft::$app->view->twig->addExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension);
     }
 
     /**
@@ -214,8 +214,9 @@ class Plugin extends BasePlugin
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
+            $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
-                if ($productType->hasUrls) {
+                if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
                     $productSources[] = 'productType:'.$productType->id;
                 }
             }
@@ -224,6 +225,14 @@ class Plugin extends BasePlugin
                 $event->linkOptions[] = [
                     'optionTitle' => Craft::t('commerce', 'Link to a product'),
                     'elementType' => Product::class,
+                    'refHandle' => Product::refHandle(),
+                    'sources' => $productSources
+                ];
+
+                $event->linkOptions[] = [
+                    'optionTitle' => Craft::t('commerce', 'Link to a variant'),
+                    'elementType' => Variant::class,
+                    'refHandle' => Variant::refHandle(),
                     'sources' => $productSources
                 ];
             }
@@ -240,8 +249,8 @@ class Plugin extends BasePlugin
 
             $productTypePermissions = [];
             foreach ($productTypes as $id => $productType) {
-                $suffix = ':'.$id;
-                $productTypePermissions['commerce-manageProductType'.$suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
+                $suffix = ':' . $id;
+                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
@@ -335,7 +344,7 @@ class Plugin extends BasePlugin
             // Send the X-Powered-By header?
             if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
                 $original = $headers->get('X-Powered-By');
-                $headers->set('X-Powered-By', $original.($original ? ',' : '').'Craft Commerce');
+                $headers->set('X-Powered-By', $original . ($original ? ',' : '') . 'Craft Commerce');
             } else {
                 // In case PHP is already setting one
                 header_remove('X-Powered-By');
@@ -348,10 +357,10 @@ class Plugin extends BasePlugin
      */
     private function _registerElementTypes()
     {
-         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
-             $e->types[] = Variant::class;
-             $e->types[] = Product::class;
-             $e->types[] = Order::class;
-         });
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
+            $e->types[] = Variant::class;
+            $e->types[] = Product::class;
+            $e->types[] = Order::class;
+        });
     }
 }

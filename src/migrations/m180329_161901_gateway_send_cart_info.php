@@ -30,18 +30,20 @@ class m180329_161901_gateway_send_cart_info extends Migration
         $gateways = (new Query())
             ->select(['id', 'settings', 'type', 'sendCartInfo'])
             ->from(['{{%commerce_gateways}}'])
-            ->where(['type' => [
-                PayPalExpress::class,
-                'craft\\commerce\\gateways\\PayPal_Express',
-                PayPalRest::class,
-                Direct::class,
-                'craft\\commerce\\gateways\\SagePay_Direct',
-                Server::class,
-                'craft\\commerce\\gateways\\SagePay_Server',
-                EwayGateway::class,
-                'craft\\commerce\\gateways\\Eway_RapidDirect',
-                MultiSafepayGateway::class,
-                'craft\\commerce\\gateways\\MultiSafepay_Rest']
+            ->where([
+                'type' => [
+                    PayPalExpress::class,
+                    'craft\\commerce\\gateways\\PayPal_Express',
+                    PayPalRest::class,
+                    Direct::class,
+                    'craft\\commerce\\gateways\\SagePay_Direct',
+                    Server::class,
+                    'craft\\commerce\\gateways\\SagePay_Server',
+                    EwayGateway::class,
+                    'craft\\commerce\\gateways\\Eway_RapidDirect',
+                    MultiSafepayGateway::class,
+                    'craft\\commerce\\gateways\\MultiSafepay_Rest'
+                ]
             ])
             ->all($this->db);
 
@@ -50,7 +52,7 @@ class m180329_161901_gateway_send_cart_info extends Migration
             $settings = Json::decodeIfJson($gateway['settings']);
 
             if (!is_array($settings)) {
-                echo 'Gateway '.$gateway['id'].' ('.$gateway['type'].') settings were invalid JSON: '.$gateway['settings']."\n";
+                echo 'Gateway ' . $gateway['id'] . ' (' . $gateway['type'] . ') settings were invalid JSON: ' . $gateway['settings'] . "\n";
                 $settings = [];
             }
 

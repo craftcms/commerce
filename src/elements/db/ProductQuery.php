@@ -166,7 +166,7 @@ class ProductQuery extends ElementQuery
         }
 
         $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '<'.$value;
+        $this->postDate[] = '<' . $value;
 
         return $this;
     }
@@ -184,7 +184,7 @@ class ProductQuery extends ElementQuery
         }
 
         $this->postDate = ArrayHelper::toArray($this->postDate);
-        $this->postDate[] = '>='.$value;
+        $this->postDate[] = '>=' . $value;
 
         return $this;
     }
@@ -274,8 +274,9 @@ class ProductQuery extends ElementQuery
             'commerce_products.id',
             'commerce_products.typeId',
             'commerce_products.promotable',
-            'commerce_products.availableForPurchase',
             'commerce_products.freeShipping',
+            // TODO: uncomment after next breakpoint
+            //'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -288,6 +289,12 @@ class ProductQuery extends ElementQuery
             'commerce_products.taxCategoryId',
             'commerce_products.shippingCategoryId'
         ]);
+
+        // TODO: remove after next breakpoint
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '2.0.0-beta.5', '>=')) {
+            $this->query->addSelect(['commerce_products.availableForPurchase']);
+        }
 
         if ($this->postDate) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));

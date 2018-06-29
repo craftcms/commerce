@@ -122,6 +122,7 @@ class CartController extends BaseFrontEndController
 
     /**
      * Remove all line items
+     *
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveAllLineItems()
@@ -302,7 +303,7 @@ class CartController extends BaseFrontEndController
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
         } else {
             // Get the cart from the current users session, or return a new cart attached to the session
-            $cart = Plugin::getInstance()->getCarts()->getCart();
+            $cart = Plugin::getInstance()->getCarts()->getCart(true);
         }
 
         if (!$cart) {

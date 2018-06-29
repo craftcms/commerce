@@ -64,7 +64,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Get the cart if no order number was passed.
         if (!$order) {
-            $order = $plugin->getCarts()->getCart();
+            $order = $plugin->getCarts()->getCart(true);
         }
 
         // Are we paying anonymously?
@@ -327,13 +327,10 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($order->returnUrl) {
-            $this->redirect($order->returnUrl);
+            return $this->redirect($order->returnUrl);
         } else {
-            $this->redirectToPostedUrl($order);
+            return $this->redirectToPostedUrl($order);
         }
-
-        // should have been handled by now
-        return null;
     }
 
     /**

@@ -57,7 +57,7 @@ class Currencies extends Component
     {
         if (null === $this->_allCurrencies) {
             $this->_allCurrencies = [];
-            $data = require __DIR__.'/../etc/currencies.php';
+            $data = require __DIR__ . '/../etc/currencies.php';
             foreach ($data as $key => $currency) {
                 $this->_allCurrencies[$key] = new Currency($currency);
             }

@@ -71,7 +71,7 @@ class Revenue extends Widget
         $view = Craft::$app->getView();
         $view->registerAssetBundle(RevenueWidgetAsset::class);
 
-        $js = 'new Craft.Commerce.RevenueWidget('.$this->id.', '.Json::encode($options).');';
+        $js = 'new Craft.Commerce.RevenueWidget(' . $this->id . ', ' . Json::encode($options) . ');';
 
         $view->registerJs($js);
 

@@ -13,4 +13,6 @@ namespace craft\commerce\events;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class RegisterAddressRulesEvent extends RegisterRulesEvent{}
+class RegisterAddressRulesEvent extends RegisterRulesEvent
+{
+}

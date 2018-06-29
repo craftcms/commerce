@@ -27,7 +27,7 @@ class EditOrderAsset extends AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = __DIR__.'/dist';
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->depends = [
             CommerceCpAsset::class
@@ -38,7 +38,7 @@ class EditOrderAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/EditOrder'.$this->dotJs()
+            'js/EditOrder' . $this->dotJs()
         ];
 
         parent::init();

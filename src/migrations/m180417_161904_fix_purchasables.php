@@ -13,7 +13,6 @@ use craft\commerce\elements\Variant;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\MigrationHelper;
-use craft\queue\jobs\ResaveElements;
 use ReflectionClass;
 use Craft;
 
@@ -80,9 +79,9 @@ class m180417_161904_fix_purchasables extends Migration
 
             if (!isset($reflectionClassesByType[$type])) {
                 try {
-                    $reflectionClassesByType[$type] = new \ReflectionClass($type);
+                    $reflectionClassesByType[$type] = new ReflectionClass($type);
                 } catch (\ReflectionException $e) {
-                    Craft::warning('Class: '.$type.' does not exist. Can not re-create purchasable records for elements of that type.');
+                    Craft::warning('Class: ' . $type . ' does not exist. Can not re-create purchasable records for elements of that type.');
                 }
             }
         }

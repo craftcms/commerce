@@ -245,7 +245,7 @@ class Product extends Element
         if ($this->getType()) {
             $id = $this->getType()->id;
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$id);
+            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $id);
         }
 
         return false;
@@ -266,7 +266,7 @@ class Product extends Element
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
         if (null === $productType) {
-            throw new InvalidConfigException('Invalid product type ID: '.$this->typeId);
+            throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
         }
 
         return $productType;
@@ -302,7 +302,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('Category’s group ('.$this->groupId.') is not enabled for site '.$this->siteId);
+            throw new InvalidConfigException('Category’s group (' . $this->groupId . ') is not enabled for site ' . $this->siteId);
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -344,10 +344,10 @@ class Product extends Element
         $productType = $this->getType();
 
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('commerce/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
+        $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
         if (Craft::$app->getIsMultiSite() && $this->siteId != Craft::$app->getSites()->currentSite->id) {
-            $url .= '/'.$this->getSite()->handle;
+            $url .= '/' . $this->getSite()->handle;
         }
 
         return $url;
@@ -430,8 +430,7 @@ class Product extends Element
             $this->_variants[] = $variant;
         }
 
-        if( $this->_defaultVariant === null)
-        {
+        if ($this->_defaultVariant === null) {
             $this->_variants[0]->isDefault = true;
         }
     }
@@ -602,7 +601,7 @@ class Product extends Element
             /** @var Variant $variant */
             $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
+            $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
             $viewService->setNamespace($newNamespace);
             $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
 
@@ -638,7 +637,7 @@ class Product extends Element
             $record = ProductRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid product ID: '.$this->id);
+                throw new Exception('Invalid product ID: ' . $this->id);
             }
         } else {
             $record = new ProductRecord();
@@ -717,8 +716,7 @@ class Product extends Element
      */
     public function afterDelete(): bool
     {
-        foreach ($this->_variantIdsToDelete as $id)
-        {
+        foreach ($this->_variantIdsToDelete as $id) {
             Craft::$app->getElements()->deleteElementById($id, Variant::class);
         }
 
@@ -858,8 +856,8 @@ class Product extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
         foreach ($productTypes as $productType) {
-            $key = 'productType:'.$productType->id;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
+            $key = 'productType:' . $productType->id;
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->id);
 
             $sources[$key] = [
                 'key' => $key,
@@ -911,7 +909,7 @@ class Product extends Element
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
+                $canManage = $userSessionService->checkPermission('commerce-manageProductType:' . $productType->id);
             }
 
             if ($canManage) {
@@ -1071,12 +1069,12 @@ class Product extends Element
                             $hasUnlimited = true;
                         }
                     }
-                    return $hasUnlimited ? '∞'.($stock ? ' & '.$stock : '') : ($stock ?: '');
+                    return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
                 }
             case 'defaultWeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1086,7 +1084,7 @@ class Product extends Element
             case 'defaultHeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';
@@ -1095,7 +1093,7 @@ class Product extends Element
             case 'promotable':
             case 'freeShipping':
                 {
-                    return ($this->$attribute ? '<span data-icon="check" title="'.Craft::t('commerce', 'Yes').'"></span>' : '');
+                    return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
                 }
 
             default:

@@ -153,7 +153,7 @@ class ProductType extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/producttypes/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id);
     }
 
     /**
@@ -161,7 +161,7 @@ class ProductType extends Model
      */
     public function getCpEditVariantUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/producttypes/'.$this->id.'/variant');
+        return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id . '/variant');
     }
 
     /**

@@ -257,7 +257,7 @@ class OrderQuery extends ElementQuery
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>='.$value;
+        $this->dateUpdated[] = '>=' . $value;
 
         return $this;
     }
@@ -275,7 +275,7 @@ class OrderQuery extends ElementQuery
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<'.$value;
+        $this->dateUpdated[] = '<' . $value;
 
         return $this;
     }
@@ -462,7 +462,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.currency',
             'commerce_orders.paymentCurrency',
             'commerce_orders.lastIp',
-            'commerce_orders.orderLocale',
+            'commerce_orders.orderLanguage',
             'commerce_orders.message',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',

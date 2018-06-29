@@ -19,6 +19,8 @@ class m180217_130000_sale_migration extends Migration
      */
     public function safeUp()
     {
+        $this->alterColumn('{{%commerce_sales}}', 'discountType', $this->string());
+
         $this->update('{{%commerce_sales}}', ['discountType' => 'byPercent'], ['discountType' => 'percent']);
         $this->update('{{%commerce_sales}}', ['discountType' => 'byFlat'], ['discountType' => 'flat']);
 

@@ -121,6 +121,21 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public function __toString(): string
+    {
+        $product = $this->getProduct();
+
+        // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
+        if ($product && $product->getType()->hasVariants) {
+            return "{$this->product}: {$this->title}";
+        } else {
+            return parent::__toString();
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         return Craft::t('commerce', 'Product Variant');
@@ -208,7 +223,7 @@ class Variant extends Purchasable
         }
 
         if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
-            throw new InvalidConfigException('Invalid product ID: '.$this->productId);
+            throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 
         return $this->_product = $product;
@@ -297,7 +312,7 @@ class Variant extends Purchasable
      */
     public function getUrl(): string
     {
-        return $this->product->url.'?variant='.$this->id;
+        return $this->product->url . '?variant=' . $this->id;
     }
 
     /**
@@ -390,6 +405,11 @@ class Variant extends Purchasable
     public function getLineItemRules(LineItem $lineItem): array
     {
         $order = $lineItem->getOrder();
+
+        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
+        if ($order && $order->isCompleted) {
+            return [];
+        }
 
         $qty = [];
         foreach ($order->getLineItems() as $item) {
@@ -534,7 +554,7 @@ class Variant extends Purchasable
             $record = VariantRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid variant ID: '.$this->id);
+                throw new Exception('Invalid variant ID: ' . $this->id);
             }
         } else {
             $record = new VariantRecord();
@@ -594,8 +614,7 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        if ($this->getProduct() && !$this->getProduct()->availableForPurchase)
-        {
+        if ($this->getProduct() && !$this->getProduct()->availableForPurchase) {
             return false;
         }
 
@@ -694,7 +713,7 @@ class Variant extends Purchasable
             try {
                 $this->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $this);
             } catch (\Exception $e) {
-                Craft::error('Craft Commerce could not generate the supplied SKU format: '.$e->getMessage(), __METHOD__);
+                Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
                 $this->sku = '';
             }
         }
@@ -726,6 +745,7 @@ class Variant extends Purchasable
     {
         return [
             'title' => Craft::t('commerce', 'Title'),
+            'product' => Craft::t('commerce', 'Product'),
             'sku' => Craft::t('commerce', 'SKU'),
             'price' => Craft::t('commerce', 'Price'),
             'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
@@ -745,6 +765,7 @@ class Variant extends Purchasable
         $attributes = [];
 
         $attributes[] = 'title';
+        $attributes[] = 'product';
         $attributes[] = 'sku';
         $attributes[] = 'price';
 
@@ -782,6 +803,10 @@ class Variant extends Purchasable
                 {
                     return $this->sku;
                 }
+            case 'product':
+                {
+                    return $this->product->title;
+                }
             case 'price':
                 {
                     $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
@@ -791,7 +816,7 @@ class Variant extends Purchasable
             case 'weight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -801,7 +826,7 @@ class Variant extends Purchasable
             case 'height':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';

@@ -51,11 +51,11 @@ class VariantMatrix
         list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
         $viewService->registerAssetBundle(VariantMatrixAsset::class);
-        $viewService->registerJs('new Craft.Commerce.VariantMatrix('.
-            '"'.$namespacedId.'", '.
-            Json::encode($fieldBodyHtml, JSON_UNESCAPED_UNICODE).', '.
-            Json::encode($fieldFootHtml, JSON_UNESCAPED_UNICODE).', '.
-            '"'.$namespacedName.'"'.
+        $viewService->registerJs('new Craft.Commerce.VariantMatrix(' .
+            '"' . $namespacedId . '", ' .
+            Json::encode($fieldBodyHtml, JSON_UNESCAPED_UNICODE) . ', ' .
+            Json::encode($fieldFootHtml, JSON_UNESCAPED_UNICODE) . ', ' .
+            '"' . $namespacedName . '"' .
             ');');
 
         return $html;
@@ -87,7 +87,7 @@ class VariantMatrix
         $templatesService->startJsBuffer();
 
         $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
-            'namespace' => $name.'[__VARIANT__]',
+            'namespace' => $name . '[__VARIANT__]',
             'variant' => $variant
         ]);
 

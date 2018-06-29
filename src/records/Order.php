@@ -36,7 +36,7 @@ use yii\db\ActiveQueryInterface;
  * @property LineItem[] $lineItems
  * @property string $message
  * @property string $number
- * @property string $orderLocale
+ * @property string $orderLanguage
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId
  * @property string $paidStatus

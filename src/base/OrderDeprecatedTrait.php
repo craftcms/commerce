@@ -8,6 +8,17 @@ trait OrderDeprecatedTrait
 {
     /**
      * @deprecated
+     * @return string
+     */
+    public function getOrderLocale(): string
+    {
+        Craft::$app->getDeprecator()->log('Order::getOrderLocale()', 'Order::getOrderLocale() has been deprecated. Use Order::getLanguage instead.');
+
+        return $this->orderLanguage;
+    }
+
+    /**
+     * @deprecated
      * @return float
      */
     public function getTotalTax(): float
