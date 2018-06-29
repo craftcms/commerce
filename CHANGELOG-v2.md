@@ -19,8 +19,9 @@
 - Fixed a bug where carts could forget the selected shipping method. ([#387](https://github.com/craftcms/commerce/issues/387))
 - Fixed a bug where stock was getting validated when saving a completed order. ([#390](https://github.com/craftcms/commerce/issues/390))
 - Fixed a bug where Commerce's Twig extension wasn't getting registered for Commerce emails. ([#397](https://github.com/craftcms/commerce/issues/397))
-- Fixed compatibility with the Redactor reference tag links.([#338](https://github.com/craftcms/commerce/issues/338)) 
- 
+- Fixed compatibility with the Redactor reference tag links. ([#338](https://github.com/craftcms/commerce/issues/338))
+- Fixed a bug where empty new carts were being saved to the database unnecessarily.([#403](https://github.com/craftcms/commerce/issues/403))
+
 ## 2.0.0-beta.5 - 2018-05-30
 
 ### Added

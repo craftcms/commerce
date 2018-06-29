@@ -44,15 +44,14 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
+     * @param bool $forceSave Force the cart to save when requesting it.
      * @return Order
      * @throws Exception
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
      */
-    public function getCart(): Order
+    public function getCart($forceSave = false): Order
     {
-        $newOrder = false;
-
         if (null === $this->_cart) {
             $number = $this->getSessionCartNumber();
 
@@ -67,7 +66,6 @@ class Carts extends Component
             } else {
                 $this->_cart = new Order();
                 $this->_cart->number = $number;
-                $newOrder = true;
             }
         }
 
@@ -108,8 +106,14 @@ class Carts extends Component
         $changedCurrency = $originalCurrency != $this->_cart->currency;
         $changedCustomerId = $originalCustomerId != $this->_cart->customerId;
 
-        if ($changedCurrency || $changedOrderLanguage || $changedIp || $changedCustomerId || $newOrder) {
-            Craft::$app->getElements()->saveElement($this->_cart, false);
+        if ($this->_cart->id) {
+            if ($changedCurrency || $changedOrderLanguage || $changedIp || $changedCustomerId) {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            }
+        } else {
+            if ($forceSave) {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            }
         }
 
         return $this->_cart;

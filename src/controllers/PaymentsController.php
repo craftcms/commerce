@@ -64,7 +64,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Get the cart if no order number was passed.
         if (!$order) {
-            $order = $plugin->getCarts()->getCart();
+            $order = $plugin->getCarts()->getCart(true);
         }
 
         // Are we paying anonymously?
