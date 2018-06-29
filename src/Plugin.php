@@ -214,8 +214,9 @@ class Plugin extends BasePlugin
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
+            $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
-                if ($productType->hasUrls) {
+                if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
                     $productSources[] = 'productType:'.$productType->id;
                 }
             }
@@ -224,6 +225,14 @@ class Plugin extends BasePlugin
                 $event->linkOptions[] = [
                     'optionTitle' => Craft::t('commerce', 'Link to a product'),
                     'elementType' => Product::class,
+                    'refHandle' => Product::refHandle(),
+                    'sources' => $productSources
+                ];
+
+                $event->linkOptions[] = [
+                    'optionTitle' => Craft::t('commerce', 'Link to a variant'),
+                    'elementType' => Variant::class,
+                    'refHandle' => Variant::refHandle(),
                     'sources' => $productSources
                 ];
             }

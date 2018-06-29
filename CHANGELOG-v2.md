@@ -20,6 +20,7 @@
 - Fixed a bug where free shipping methods removed the selected shipping choice from the cart. ([#387](https://github.com/craftcms/commerce/issues/387))
 - Fixed an incorrect validation of stock when saving a completed order.  ([#390](https://github.com/craftcms/commerce/issues/390))
 - Fixed a bug where Commerce's Twig extension wasn't getting registered for Commerce emails. ([#397](https://github.com/craftcms/commerce/issues/397))
+- Fixed compatibility with the Redactor reference tag links.([#338](https://github.com/craftcms/commerce/issues/338)) 
  
 ## 2.0.0-beta.5 - 2018-05-30
 
