@@ -2,23 +2,22 @@
 
 ## Unreleased
 
-### Added
-- Variant element indexes now contain the a 'Product' column.
-- Variant element titles now prepend the related product title if the product has multiple variants.
+### Changed
+- Variant indexes can now have a “Product” column.
+- Variant titles now include their product titles.
+- Variant queries now have a `price` param.
 
 ### Fixed
-- Added missing variant query param `price`.
-- Fixed a PHP error caused by missing default line item rules in `\craft\commerce\base\Purchasable`
-- Fixed a fatal error that would prevent some Commerce 1 installs from being able to update to Commerce 2.
-- Fixed a bug where you would get a PHP error when saving a product that did not have  “Unlimited Stock” selected in some environments.
+- Fixed a PHP error that occurred when validating line items.
+- Fixed a PHP error that could occur when saving a product without unlimited stock.
 - Fixed a bug where clicking on the “Date Created” column header on order and subscription indexes wouldn’t update the sort order.
 - Fixed a bug where `commerce\base\PurchasableInterface::getSnapshot()` had the wrong casing.
-- Fixed a PHP error when deleting an address that is currently the primary billing or shipping address
-- Fixed a PHP error that occurred during updating from Commerce 1.x ([#282](https://github.com/craftcms/commerce/issues/282))
-- Fixed a bug where shipping costs using shipping categories would not be applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
-- Fixed a PHP error when saving a new order status.
-- Fixed a bug where free shipping methods removed the selected shipping choice from the cart. ([#387](https://github.com/craftcms/commerce/issues/387))
-- Fixed an incorrect validation of stock when saving a completed order.  ([#390](https://github.com/craftcms/commerce/issues/390))
+- Fixed a PHP error that occurred when deleting a primary billing or shipping address.
+- Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#282](https://github.com/craftcms/commerce/issues/282))
+- Fixed a bug where shipping costs defined by shipping categories were not getting applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
+- Fixed a PHP error that occurred when saving a new order status.
+- Fixed a bug where carts could forget the selected shipping method. ([#387](https://github.com/craftcms/commerce/issues/387))
+- Fixed a bug where stock was getting validated when saving a completed order. ([#390](https://github.com/craftcms/commerce/issues/390))
  
 ## 2.0.0-beta.5 - 2018-05-30
 
@@ -39,7 +38,7 @@
 ### Fixed
 - Fixed a bug where `commerce/cart/update-cart` requests could clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
 - Fixed a PHP error that occurred during an upgrade migration when custom purchasable types were in use.
-- Fixed an issue where Commerce’s element types weren’t getting registered with Craft.  ([#352](https://github.com/craftcms/commerce/issues/352))
+- Fixed an issue where Commerce’s element types weren’t getting registered with Craft. ([#352](https://github.com/craftcms/commerce/issues/352))
 - Fixed a bug where the first variant on Edit Product pages couldn’t be set to disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
 - Fixed a bug where stock-checking rules weren’t taking new line items into account. ([#343](https://github.com/craftcms/commerce/issues/343))
 - Fixed a bug where category shipping rule prices were getting saved with the incorrect category. ([#323](https://github.com/craftcms/commerce/issues/323))
