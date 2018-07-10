@@ -382,6 +382,11 @@ class ProductsController extends BaseCpController
                 }
             }
 
+            if ($product->getErrors('variants'))
+            {
+                $hasErrors = true;
+            }
+
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', 'Variants'),
                 'url' => '#variants-container',

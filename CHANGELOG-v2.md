@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
 - Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
+- Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
 
 ## 2.0.0-beta.6 - 2018-06-29
 
