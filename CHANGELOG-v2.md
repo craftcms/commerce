@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+### Changed
+- Create promotion buttons are now in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
+
 ### Fixed
 - Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
-- Fixed a PHP error due to missing uniqueness validation check on the product type handle.
+- Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
 
 ## 2.0.0-beta.6 - 2018-06-29
 
