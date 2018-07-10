@@ -116,6 +116,7 @@
 
 {% macro generalVariantFields(variant) %}
     {%- import "_includes/forms" as forms -%}
+    {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
 
     {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
         {{ forms.textField({
@@ -143,7 +144,7 @@
         errors: variant.getErrors('sku')
     }) }}
 
-    {{ forms.textField({
+    {{ commerceForms.numberField({
         id: 'price',
         label: 'Price'|t('commerce'),
         name: 'price',
