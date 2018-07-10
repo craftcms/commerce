@@ -16,6 +16,8 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
+use craft\validators\UniqueValidator;
+use craft\commerce\records\ProductType as ProductTypeRecord;
 
 /**
  * Product type model.
@@ -144,6 +146,7 @@ class ProductType extends Model
             [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
             [['name', 'handle', 'titleFormat'], 'required'],
             [['name', 'handle'], 'string', 'max' => 255],
+            [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
             [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
         ];
     }
