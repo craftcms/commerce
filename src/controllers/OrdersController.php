@@ -374,7 +374,7 @@ class OrdersController extends BaseCpController
         $this->_setContentFromPost($order);
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            $this->redirectToPostedUrl($order);
+            return $this->redirectToPostedUrl($order);
         }
 
         Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
@@ -431,7 +431,7 @@ class OrdersController extends BaseCpController
     private function _prepVariables(&$variables)
     {
         // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/orders/' . $variables['order']->number;
+        $variables['baseCpEditUrl'] = 'commerce/orders/' . $variables['order']->id;
         // Set the "Continue Editing" URL
         $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 

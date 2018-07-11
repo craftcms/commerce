@@ -6,6 +6,7 @@
 - Create promotion buttons are now in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
 
 ### Fixed
+- Fixed a big where using the save order shortcut keys wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
 - Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
 - Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
 - Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
