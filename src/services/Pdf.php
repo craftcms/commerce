@@ -98,8 +98,14 @@ class Pdf extends Component
         $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
         $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
         $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
+
+        // Try and create them first
+        FileHelper::createDirectory($dompdfTempDir);
+        FileHelper::createDirectory($dompdfLogFile);
+
+        // Should throw an error if not writable
         FileHelper::isWritable($dompdfTempDir);
-        FileHelper::isWritable($dompdfFontCache);
+        FileHelper::isWritable($dompdfLogFile);
 
         $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
 
