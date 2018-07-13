@@ -347,7 +347,7 @@ class Product extends Element
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
         $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
-        if (Craft::$app->getIsMultiSite() && $this->siteId != Craft::$app->getSites()->currentSite->id) {
+        if (Craft::$app->getIsMultiSite()) {
             $url .= '/' . $this->getSite()->handle;
         }
 

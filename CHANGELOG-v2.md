@@ -12,6 +12,7 @@
 - Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
 - Fixed a bug where updating the order status on the order index page failed. ([#414](https://github.com/craftcms/commerce/issues/414))
 - Fixed a bug that caused a failure to generate a PDF that referenced remote fonts. ([#393](https://github.com/craftcms/commerce/issues/393))
+- Fixed a bug where products’ `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
 
 ## 2.0.0-beta.6 - 2018-06-29
 
