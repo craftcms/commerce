@@ -49,7 +49,7 @@ Another way of achieving the same thing is is setting both addresses explicitly:
 {% set address = craft.commerce.customer.addresses|first %}
 
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/updateCart">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
     <input type="hidden" name="shippingAddressId" value="{{ address.id }}">
     <input type="hidden" name="billingAddressId" value="{{ address.id }}">
