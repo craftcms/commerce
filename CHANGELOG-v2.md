@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Changed
-- Create promotion buttons are now in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
+- Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
 
 ### Fixed
 - Fixed a big where using the save order shortcut keys wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
@@ -13,6 +13,7 @@
 - Fixed a bug where updating the order status on the order index page failed. ([#414](https://github.com/craftcms/commerce/issues/414))
 - Fixed a bug that caused a failure to generate a PDF that referenced remote fonts. ([#393](https://github.com/craftcms/commerce/issues/393))
 - Fixed a bug where products’ `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
+- Fixed a PHP error when calling the deprecated `craft.commerce.countriesList` variable.
 
 ## 2.0.0-beta.6 - 2018-06-29
 
