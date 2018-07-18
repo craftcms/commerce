@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- A custom PDF can now be attached to any order status email.
+
 ### Changed
 - Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
 
