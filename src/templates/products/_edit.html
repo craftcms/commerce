@@ -232,7 +232,8 @@
     {% endif %}
 
     {% hook "cp.commerce.product.edit.details" %}
-    {% endblock %}
+</div>
+{% endblock %}
 
 
     {% if not product.slug %}
@@ -240,4 +241,3 @@
             window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
         {% endjs %}
     {% endif %}
-</div>
