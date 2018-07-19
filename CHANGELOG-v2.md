@@ -19,6 +19,7 @@
 - Fixed a bug where products’ `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
 - Fixed a PHP error when calling the deprecated `craft.commerce.countriesList` variable.
 - Fixed a MySQL error when saving Discounts while MySQL strict mode was on.([#407](https://github.com/craftcms/commerce/issues/407))
+- Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
 
 ## 2.0.0-beta.6 - 2018-06-29
 

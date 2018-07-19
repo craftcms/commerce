@@ -19,6 +19,11 @@ class m180601_161904_fix_orderLanguage extends Migration
      */
     public function safeUp()
     {
+
+        $lang = \Craft::$app->language;
+        $sql = 'update {{%commerce_orders}} set [[orderLocale]] = "'.$lang.'" where [[orderLocale]] is null';
+        $this->execute($sql);
+
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)
