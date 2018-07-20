@@ -148,7 +148,7 @@
         id: 'price',
         label: 'Price'|t('commerce'),
         name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
+        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number_format(2,'.','') ?: '')),
         placeholder: 'Enter price'|t('commerce'),
         unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
         required: true,
