@@ -21,6 +21,7 @@
 - Fixed a MySQL error when saving Discounts while MySQL strict mode was on.([#407](https://github.com/craftcms/commerce/issues/407))
 - Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
 - Fixed a bug that occurred when a price was entered with decimal places wouldn’t allow you to save a product. 
+- Fixed a bug that stopped variant custom fields from being updated when saving a product from outside the produce edit page.
 
 ## 2.0.0-beta.6 - 2018-06-29
 
