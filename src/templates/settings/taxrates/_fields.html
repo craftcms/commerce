@@ -187,7 +187,7 @@
     ) }}
 
     {{ forms.lightSwitchField({
-        label: "This tax is already included in the taxable subject."|t('commerce'),
+        label: "Is this tax is already included in the taxable subject? If checked, the included tax amount will be removed from price of the order."|t('commerce'),
         name: 'include',
         on: taxRate.include,
         checked: taxRate.include,
