@@ -248,10 +248,10 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @param int $businessVatId
+     * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber(int $businessVatId)
+    private function _validateVatNumber($businessVatId)
     {
         try {
             return $this->getVatValidator()->validate($businessVatId);
