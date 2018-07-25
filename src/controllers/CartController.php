@@ -279,6 +279,8 @@ class CartController extends BaseFrontEndController
             return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
         }
 
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart
         ]);

@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Added
-
 - A custom PDF can now be attached to any order status email.
+- When updating the cart successfully, a flash notice is now set. ([#392](https://github.com/craftcms/commerce/issues/392))
 
 ### Changed
 - Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
