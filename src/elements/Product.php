@@ -451,20 +451,20 @@ class Product extends Element
     {
         $status = parent::getStatus();
 
-        if ($status === Element::STATUS_ENABLED && $this->postDate) {
+        if ($status == self::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $postDate = DateTimeHelper::toDateTime($this->postDate)->getTimestamp();
-            $expiryDate = ($this->expiryDate ? DateTimeHelper::toDateTime($this->expiryDate)->getTimestamp() : null);
+            $postDate = $this->postDate->getTimestamp();
+            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
-                return static::STATUS_LIVE;
+            if ($postDate <= $currentTime && ($expiryDate === null || $expiryDate > $currentTime)) {
+                return self::STATUS_LIVE;
             }
 
             if ($postDate > $currentTime) {
-                return static::STATUS_PENDING;
+                return self::STATUS_PENDING;
             }
 
-            return static::STATUS_EXPIRED;
+            return self::STATUS_EXPIRED;
         }
 
         return $status;
