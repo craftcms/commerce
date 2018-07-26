@@ -51,7 +51,7 @@
                 </form>
             {% endif %}
 
-            {% if cart.gatewayId or cart.paymentSourceId%}
+            {% if cart.gatewayId or cart.paymentSourceId %}
                 <form method="POST" class="form-horizontal" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number) }}
