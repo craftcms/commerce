@@ -43,10 +43,10 @@ class DownloadsController extends BaseFrontEndController
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
 
         if (!$fileName) {
-            $fileName = 'Order-'.$order->number;
+            $fileName = 'Order-' . $order->number;
         }
 
-        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName.'.pdf', [
+        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf'
         ]);
     }

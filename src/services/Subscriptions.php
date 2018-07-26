@@ -534,7 +534,7 @@ class Subscriptions extends Component
                     ]));
                 }
             } catch (\Throwable $exception) {
-                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
+                Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }

@@ -421,6 +421,8 @@ class Discounts extends Component
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
+                $element = Craft::$app->getElements()->getElementById($purchasableId);
+                $relation->purchasableType = get_class($element);
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
@@ -551,7 +553,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_email_discountuse}}', [
+                    ->update('{{%commerce_email_discountuses}}', [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'email' => $order->getEmail(),

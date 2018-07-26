@@ -133,6 +133,7 @@ class Addresses extends Component
 
         return $this->_addressesById[$addressId] = $result ? new Address($result) : null;
     }
+
     /**
      * Returns the stock location or a blank address if it's not defined.
      *

@@ -225,7 +225,9 @@ class Install extends Migration
             'to' => $this->string(),
             'bcc' => $this->string(),
             'enabled' => $this->boolean(),
+            'attachPdf' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),
+            'pdfTemplatePath' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -321,7 +323,7 @@ class Install extends Migration
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
-            'orderLocale' => $this->char(12),
+            'orderLanguage' => $this->string(12)->notNull(),
             'message' => $this->string(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
@@ -410,6 +412,7 @@ class Install extends Migration
             'postDate' => $this->dateTime(),
             'expiryDate' => $this->dateTime(),
             'promotable' => $this->boolean(),
+            'availableForPurchase' => $this->boolean(),
             'freeShipping' => $this->boolean(),
             'defaultSku' => $this->string(),
             'defaultPrice' => $this->decimal(14, 4),
@@ -925,8 +928,8 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_email_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
-        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['addressId'], '{{%commerce_addresses}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customers_addresses}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_purchasables}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
@@ -1681,6 +1684,7 @@ class Install extends Migration
                 'postDate' => DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s'),
                 'expiryDate' => null,
                 'promotable' => true,
+                'availableForPurchase' => true,
                 'defaultPrice' => 10 * $count,
                 'defaultSku' => $product['sku'],
                 'taxCategoryId' => $taxCategoryId,

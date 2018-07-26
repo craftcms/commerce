@@ -48,18 +48,21 @@ class Pdf extends Component
      *
      * @param Order $order
      * @param string $option
+     * @param string $templatePath
      * @return string
      * @throws Exception if no template or order found.
      */
-    public function renderPdfForOrder(Order $order, $option = ''): string
+    public function renderPdfForOrder(Order $order, $option = '', $templatePath = null): string
     {
-        $template = Plugin::getInstance()->getSettings()->orderPdfPath;
+        if (null === $templatePath){
+            $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
+        }
 
         // Trigger a 'beforeRenderPdf' event
         $event = new PdfEvent([
             'order' => $order,
             'option' => $option,
-            'template' => $template,
+            'template' => $templatePath,
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
@@ -72,7 +75,7 @@ class Pdf extends Component
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
-        if (!$template || !$view->doesTemplateExist($template)) {
+        if (!$templatePath || !$view->doesTemplateExist($templatePath)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
 
@@ -80,10 +83,10 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->renderTemplate($template, compact('order', 'option'));
+            $html = $view->renderTemplate($templatePath, compact('order', 'option'));
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
-            Craft::error('Order PDF render error. Order number: '.$order->getShortNumber().'. '.$e->getMessage());
+            Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
@@ -95,11 +98,13 @@ class Pdf extends Component
 
         // Set the config options
         $pathService = Craft::$app->getPath();
-        $dompdfTempDir = $pathService->getTempPath().DIRECTORY_SEPARATOR.'commerce_dompdf';
-        $dompdfFontCache = $pathService->getCachePath().DIRECTORY_SEPARATOR.'commerce_dompdf';
-        $dompdfLogFile = $pathService->getLogPath().DIRECTORY_SEPARATOR.'commerce_dompdf.htm';
+        $dompdfTempDir = $pathService->getTempPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
+        $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
+
+        // Should throw an error if not writable
         FileHelper::isWritable($dompdfTempDir);
-        FileHelper::isWritable($dompdfFontCache);
+        FileHelper::isWritable($dompdfLogFile);
 
         $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
 
@@ -124,7 +129,7 @@ class Pdf extends Component
         $event = new PdfEvent([
             'order' => $order,
             'option' => $option,
-            'template' => $template,
+            'template' => $templatePath,
             'pdf' => $dompdf->output(),
         ]);
         $this->trigger(self::EVENT_AFTER_RENDER_PDF, $event);

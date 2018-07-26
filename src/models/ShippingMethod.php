@@ -106,7 +106,7 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/shippingmethods/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/shippingmethods/' . $this->id);
     }
 
     /**

@@ -464,7 +464,7 @@ class Payments extends Component
 
                 // Gather all post hidden data inputs.
                 foreach ($response->getRedirectData() as $key => $value) {
-                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false))."\n";
+                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false)) . "\n";
                 }
 
                 $variables['inputs'] = $hiddenFields;
@@ -488,7 +488,6 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
-            // If the developer did not provide a gatewayPostRedirectTemplate, use the built in Omnipay Post html form.
             $response->redirect();
         }
     }
@@ -576,7 +575,7 @@ class Payments extends Component
     private function _saveTransaction($child)
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
-            throw new TransactionException('Error saving transaction: '.implode(', ', $child->errors));
+            throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
         }
     }
 

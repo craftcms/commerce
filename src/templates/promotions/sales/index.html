@@ -1,6 +1,12 @@
 {% extends "commerce/_layouts/promotions" %}
 {% set selectedSidebarNavItem = 'sales' %}
 
+{% block actionButton %}
+    <div class="buttons">
+        <a href="{{ url('commerce/promotions/sales/new') }}"
+           class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    </div>
+{% endblock %}
 
 {% block content %}
     <h2>{{ "Sales"|t('commerce') }}</h2>
@@ -69,11 +75,6 @@
             </tbody>
         </table>
     {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/promotions/sales/new') }}"
-           class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 

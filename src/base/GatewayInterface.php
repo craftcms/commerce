@@ -60,12 +60,13 @@ interface GatewayInterface extends SavableComponentInterface
     public function completePurchase(Transaction $transaction): RequestResponseInterface;
 
     /**
-     * Creates a payment source from source data
+     * Creates a payment source from source data and user id.
      *
      * @param BasePaymentForm $sourceData
+     * @param int $userId
      * @return PaymentSource
      */
-    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource;
+    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource;
 
     /**
      * Deletes a payment source on the gateway by its token.

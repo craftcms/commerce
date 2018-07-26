@@ -72,12 +72,17 @@ class VariantQuery extends ElementQuery
     /**
      * @var
      */
+    public $price;
+
+    /**
+     * @var
+     */
     public $hasSales;
 
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy =  ['commerce_variants.sortOrder' => SORT_ASC];
+    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
 
     // Public Methods
@@ -154,6 +159,17 @@ class VariantQuery extends ElementQuery
      * @param $value
      * @return $this
      */
+    public function price($value)
+    {
+        $this->price = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
     public function hasStock($value)
     {
         $this->hasStock = $value;
@@ -219,6 +235,10 @@ class VariantQuery extends ElementQuery
 
         if ($this->productId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
+        }
+
+        if ($this->price) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
         if ($this->isDefault) {

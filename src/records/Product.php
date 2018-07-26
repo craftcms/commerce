@@ -27,6 +27,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property \DateTime $postDate
  * @property bool $promotable
+ * @property bool $availableForPurchase
  * @property ActiveQueryInterface $shippingCategory
  * @property int $shippingCategoryId
  * @property int $taxCategoryId

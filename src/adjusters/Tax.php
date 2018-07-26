@@ -104,7 +104,7 @@ class Tax implements AdjusterInterface
         if ($taxRate->isVat && $vatIdOnAddress && $this->matchAddress($zone)) {
 
             // Do we have a valid VAT ID in our cache?
-            $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:'.$this->_address->businessTaxId);
+            $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
 
             // If we do not have a valid VAT ID in cache, see if we can get one from the API
             if (!$validBusinessTaxId) {
@@ -112,13 +112,13 @@ class Tax implements AdjusterInterface
             }
 
             if ($validBusinessTaxId) {
-                Craft::$app->getCache()->set('commerce:validVatId:'.$this->_address->businessTaxId, '1');
+                Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
                 $removeVat = true;
             }
 
             // Clean up if the API returned false and the item was still in cache
             if (!$validBusinessTaxId) {
-                Craft::$app->getCache()->delete('commerce:validVatId:'.$this->_address->businessTaxId);
+                Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
             }
         }
 
@@ -142,7 +142,7 @@ class Tax implements AdjusterInterface
 
                     $adjustment = $this->_createAdjustment($taxRate);
                     // We need to display the adjustment that removed the included tax
-                    $adjustment->name = $taxRate->name.' '.Craft::t('commerce', 'Removed');
+                    $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
                     $adjustment->amount = $amount;
                     $adjustment->type = 'discount';
 
@@ -158,7 +158,7 @@ class Tax implements AdjusterInterface
 
                         $adjustment = $this->_createAdjustment($taxRate);
                         // We need to display the adjustment that removed the included tax
-                        $adjustment->name = $taxRate->name.' '.Craft::t('commerce', 'Removed');
+                        $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
                         $adjustment->amount = $amount;
                         $adjustment->lineItemId = $item->id;
                         $adjustment->type = 'discount';
@@ -248,15 +248,15 @@ class Tax implements AdjusterInterface
     }
 
     /**
-     * @param int $businessVatId
+     * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber(int $businessVatId)
+    private function _validateVatNumber($businessVatId)
     {
         try {
             return $this->getVatValidator()->validate($businessVatId);
         } catch (\Exception $e) {
-            Craft::error('Communication with VAT API failed: '.$e->getMessage(), __METHOD__);
+            Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;
         }
@@ -283,7 +283,7 @@ class Tax implements AdjusterInterface
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $rate->name;
-        $adjustment->description = $rate->rate * 100 .'%'.($rate->include ? ' inc' : '');
+        $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
         $adjustment->orderId = $this->_order->id;
         $adjustment->sourceSnapshot = $rate->attributes;
 

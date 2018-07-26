@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\base\Model;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
@@ -102,6 +103,11 @@ class Product extends Element
      * @inheritdoc
      */
     public $enabled;
+
+    /**
+     * @var bool Is this product available to be purchased
+     */
+    public $availableForPurchase = true;
 
     /**
      * @var int defaultVariantId
@@ -240,7 +246,7 @@ class Product extends Element
         if ($this->getType()) {
             $id = $this->getType()->id;
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$id);
+            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $id);
         }
 
         return false;
@@ -261,7 +267,7 @@ class Product extends Element
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
         if (null === $productType) {
-            throw new InvalidConfigException('Invalid product type ID: '.$this->typeId);
+            throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
         }
 
         return $productType;
@@ -297,7 +303,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('Category’s group ('.$this->groupId.') is not enabled for site '.$this->siteId);
+            throw new InvalidConfigException('Category’s group (' . $this->groupId . ') is not enabled for site ' . $this->siteId);
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -339,10 +345,10 @@ class Product extends Element
         $productType = $this->getType();
 
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('commerce/products/'.$productType->handle.'/'.$this->id.($this->slug ? '-'.$this->slug : ''));
+        $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
-        if (Craft::$app->getIsMultiSite() && $this->siteId != Craft::$app->getSites()->currentSite->id) {
-            $url .= '/'.$this->getSite()->handle;
+        if (Craft::$app->getIsMultiSite()) {
+            $url .= '/' . $this->getSite()->handle;
         }
 
         return $url;
@@ -418,12 +424,15 @@ class Product extends Element
             $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
-            if (null === $this->_defaultVariant || $variant->isDefault) {
-                $variant->isDefault = true;
+            if ($variant->isDefault) {
                 $this->_defaultVariant = $variant;
             }
 
             $this->_variants[] = $variant;
+        }
+
+        if ($this->_defaultVariant === null) {
+            $this->_variants[0]->isDefault = true;
         }
     }
 
@@ -442,20 +451,20 @@ class Product extends Element
     {
         $status = parent::getStatus();
 
-        if ($status === Element::STATUS_ENABLED && $this->postDate) {
+        if ($status == self::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $postDate = DateTimeHelper::toDateTime($this->postDate)->getTimestamp();
-            $expiryDate = ($this->expiryDate ? DateTimeHelper::toDateTime($this->expiryDate)->getTimestamp() : null);
+            $postDate = $this->postDate->getTimestamp();
+            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
-                return static::STATUS_LIVE;
+            if ($postDate <= $currentTime && ($expiryDate === null || $expiryDate > $currentTime)) {
+                return self::STATUS_LIVE;
             }
 
             if ($postDate > $currentTime) {
-                return static::STATUS_PENDING;
+                return self::STATUS_PENDING;
             }
 
-            return static::STATUS_EXPIRED;
+            return self::STATUS_EXPIRED;
         }
 
         return $status;
@@ -593,7 +602,7 @@ class Product extends Element
             /** @var Variant $variant */
             $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants['.($variant->id ?: 'new1').']';
+            $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
             $viewService->setNamespace($newNamespace);
             $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
 
@@ -629,7 +638,7 @@ class Product extends Element
             $record = ProductRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid product ID: '.$this->id);
+                throw new Exception('Invalid product ID: ' . $this->id);
             }
         } else {
             $record = new ProductRecord();
@@ -640,6 +649,7 @@ class Product extends Element
         $record->expiryDate = $this->expiryDate;
         $record->typeId = $this->typeId;
         $record->promotable = $this->promotable;
+        $record->availableForPurchase = $this->availableForPurchase;
         $record->freeShipping = $this->freeShipping;
         $record->taxCategoryId = $this->taxCategoryId;
         $record->shippingCategoryId = $this->shippingCategoryId;
@@ -707,8 +717,7 @@ class Product extends Element
      */
     public function afterDelete(): bool
     {
-        foreach ($this->_variantIdsToDelete as $id)
-        {
+        foreach ($this->_variantIdsToDelete as $id) {
             Craft::$app->getElements()->deleteElementById($id, Variant::class);
         }
 
@@ -724,35 +733,35 @@ class Product extends Element
 
         $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-        $rules[] = [['variants'], 'validateVariants'];
+
+        $rules[] = [
+            ['variants'], function($model) {
+                /** @var Product $model */
+                $skus = [];
+                foreach ($this->getVariants() as $variant)
+                {
+                    $skus[] = $variant->getSku();
+                }
+
+                if (count(array_unique($skus))<count($skus))
+                {
+                    $this->addError('variants', 'Not Unique');
+                }
+            }
+        ];
 
         return $rules;
     }
 
     /**
-     * Validates a product element’s Variants.
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function validateVariants()
+    public function afterValidate()
     {
-        $variantsValidate = true;
-        $count = 0;
-
-        foreach ($this->getVariants() as $variant) {
-            $count++;
-            if (!$variant->validate()) {
-                $variantsValidate = false;
-            }
+        if (!Model::validateMultiple($this->getVariants())) {
+            $this->addError(null); // add an empty error to prevent saving
         }
-
-        if ($count == 0) {
-            $this->addError('variants', Craft::t('commerce', 'Product must have at least one variant'));
-        }
-
-        if (!$variantsValidate) {
-            $this->addError('variants', Craft::t('app', 'Correct the errors listed above.'));
-        }
+        parent::afterValidate();
     }
 
     /**
@@ -848,8 +857,8 @@ class Product extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
         foreach ($productTypes as $productType) {
-            $key = 'productType:'.$productType->id;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->id);
+            $key = 'productType:' . $productType->id;
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->id);
 
             $sources[$key] = [
                 'key' => $key,
@@ -901,7 +910,7 @@ class Product extends Element
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSessionService->checkPermission('commerce-manageProductType:'.$productType->id);
+                $canManage = $userSessionService->checkPermission('commerce-manageProductType:' . $productType->id);
             }
 
             if ($canManage) {
@@ -940,6 +949,7 @@ class Product extends Element
             'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
             'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
             'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
+            'availableForPurchase' => ['label' => Craft::t('commerce', 'Available for purchase?')],
             'stock' => ['label' => Craft::t('commerce', 'Stock')],
             'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
@@ -1060,12 +1070,12 @@ class Product extends Element
                             $hasUnlimited = true;
                         }
                     }
-                    return $hasUnlimited ? '∞'.($stock ? ' & '.$stock : '') : ($stock ?: '');
+                    return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
                 }
             case 'defaultWeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1075,15 +1085,16 @@ class Product extends Element
             case 'defaultHeight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';
                 }
+            case 'availableForPurchase':
             case 'promotable':
             case 'freeShipping':
                 {
-                    return ($this->$attribute ? '<span data-icon="check" title="'.Craft::t('commerce', 'Yes').'"></span>' : '');
+                    return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
                 }
 
             default:

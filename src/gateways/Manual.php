@@ -80,7 +80,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
     {
         throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }

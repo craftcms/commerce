@@ -196,7 +196,7 @@ class Discount extends Model
      */
     public function getCpEditUrl()
     {
-        return UrlHelper::cpUrl('commerce/promotions/discounts/'.$this->id);
+        return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
     }
 
     /**

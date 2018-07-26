@@ -37,7 +37,7 @@
 
 {% block contextMenu %}
     {% if craft.app.getIsMultiSite() %}
-        <div class="btn menubtn"
+        <div class="btn menubtn sitemenubtn"
              data-icon="world">{{ product.site.name|t('site') }}</div>
         <div class="menu">
             <ul class="padded">
@@ -46,12 +46,12 @@
                     {% set status = siteId in enabledSiteIds ? 'enabled' : 'disabled' %}
                     <li>
                         {% if siteId == product.siteId %}
-                            <a class="sel">
+                            <a class="sel" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
                         {% else %}
                             {% set url = url("commerce/products/#{productTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
-                            <a href="{{ url }}">
+                            <a href="{{ url }}" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
                         {% endif %}
@@ -63,7 +63,7 @@
 {% endblock %}
 
 
-{% block saveButton %}
+{% block actionButton %}
     <div class="btngroup">
         <input type="submit" class="btn submit"
                value="{{ 'Save'|t('commerce') }}">
@@ -232,7 +232,8 @@
     {% endif %}
 
     {% hook "cp.commerce.product.edit.details" %}
-    {% endblock %}
+</div>
+{% endblock %}
 
 
     {% if not product.slug %}

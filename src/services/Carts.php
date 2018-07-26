@@ -44,15 +44,14 @@ class Carts extends Component
     /**
      * Get the current cart for this session.
      *
+     * @param bool $forceSave Force the cart to save when requesting it.
      * @return Order
      * @throws Exception
      * @throws \Throwable
      * @throws \craft\errors\ElementNotFoundException
      */
-    public function getCart(): Order
+    public function getCart($forceSave = false): Order
     {
-        $newOrder = false;
-
         if (null === $this->_cart) {
             $number = $this->getSessionCartNumber();
 
@@ -67,18 +66,17 @@ class Carts extends Component
             } else {
                 $this->_cart = new Order();
                 $this->_cart->number = $number;
-                $newOrder = true;
             }
         }
 
         $originalIp = $this->_cart->lastIp;
-        $originalOrderLocale = $this->_cart->orderLocale;
+        $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalCurrency = $this->_cart->currency;
         $originalCustomerId = $this->_cart->customerId;
 
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
-        $this->_cart->orderLocale = Craft::$app->language;
+        $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $this->_cart->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
 
@@ -104,12 +102,18 @@ class Carts extends Component
         }
 
         $changedIp = $originalIp != $this->_cart->lastIp;
-        $changedOrderLocale = $originalOrderLocale != $this->_cart->orderLocale;
+        $changedOrderLanguage = $originalOrderLanguage != $this->_cart->orderLanguage;
         $changedCurrency = $originalCurrency != $this->_cart->currency;
         $changedCustomerId = $originalCustomerId != $this->_cart->customerId;
 
-        if ($changedCurrency || $changedOrderLocale || $changedIp || $changedCustomerId || $newOrder) {
-            Craft::$app->getElements()->saveElement($this->_cart, false);
+        if ($this->_cart->id) {
+            if ($changedCurrency || $changedOrderLanguage || $changedIp || $changedCustomerId) {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            }
+        } else {
+            if ($forceSave) {
+                Craft::$app->getElements()->saveElement($this->_cart, false);
+            }
         }
 
         return $this->_cart;

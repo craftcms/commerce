@@ -233,7 +233,7 @@ class Subscription extends Element
      */
     public function getTrialExpires(): DateTIme
     {
-        return (clone $this->dateCreated)->add(new DateInterval('P'.$this->trialDays.'D'));
+        return (clone $this->dateCreated)->add(new DateInterval('P' . $this->trialDays . 'D'));
     }
 
     /**
@@ -320,7 +320,7 @@ class Subscription extends Element
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/subscriptions/'.$this->id);
+        return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }
 
     /**
@@ -331,7 +331,7 @@ class Subscription extends Element
     public function getOrderEditUrl(): string
     {
         if ($this->orderId) {
-            return UrlHelper::cpUrl('commerce/orders/'.$this->orderId);
+            return UrlHelper::cpUrl('commerce/orders/' . $this->orderId);
         }
 
         return '';
@@ -411,7 +411,7 @@ class Subscription extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
 
         foreach ($plans as $plan) {
-            $key = 'plan:'.$plan->id;
+            $key = 'plan:' . $plan->id;
 
             $sources[$key] = [
                 'key' => $key,
@@ -532,7 +532,7 @@ class Subscription extends Element
             $subscriptionRecord = SubscriptionRecord::findOne($this->id);
 
             if (!$subscriptionRecord) {
-                throw new InvalidConfigException('Invalid subscription id: '.$this->id);
+                throw new InvalidConfigException('Invalid subscription id: ' . $this->id);
             }
         } else {
             $subscriptionRecord = new SubscriptionRecord();
@@ -613,7 +613,7 @@ class Subscription extends Element
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
 
-                return $url ? '<a href="'.$url.'">'.Craft::t('commerce', 'View order').'</a>' : '';
+                return $url ? '<a href="' . $url . '">' . Craft::t('commerce', 'View order') . '</a>' : '';
 
             default:
                 {
@@ -628,7 +628,11 @@ class Subscription extends Element
     protected static function defineSortOptions(): array
     {
         return [
-            'commerce_subscriptions.dateCreated' => Craft::t('commerce', 'Subscription date'),
+            [
+                'label' => Craft::t('commerce', 'Subscription date'),
+                'orderBy' => 'commerce_subscriptions.dateCreated',
+                'attribute' => 'dateCreated'
+            ],
         ];
     }
 

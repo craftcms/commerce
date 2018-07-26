@@ -62,7 +62,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', $params);
         $url = str_replace('http://rc.craft.local/', 'http://umbushka.eu.ngrok.io/', $url);
 
-        return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger.'/', '');
+        return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/gateways/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->id);
     }
 
     /**

@@ -84,7 +84,7 @@ class OrderStatus extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/orderstatuses/'.$this->id);
+        return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->id);
     }
 
     /**

@@ -11,8 +11,7 @@
     <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action"
-               value="commerce/settings/save-store-location">
+        <input type="hidden" name="action" value="commerce/settings/save-store-location">
         {{ redirectInput('commerce/settings/location') }}
         {{ csrfInput() }}
 
@@ -43,6 +42,7 @@
             label: 'First Name'|t('commerce'),
             id: 'firstName',
             name: 'firstName',
+            required: true,
             placeholder: storeLocation.firstName,
             value: storeLocation.firstName,
             errors: storeLocation.getErrors('firstName'),
@@ -52,6 +52,7 @@
             label: 'Last Name'|t('commerce'),
             id: 'lastName',
             name: 'lastName',
+            required: true,
             placeholder: storeLocation.lastName,
             value: storeLocation.lastName,
             errors: storeLocation.getErrors('lastName'),

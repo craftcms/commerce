@@ -53,7 +53,7 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml()
     {
-        $orderStatuses = Json::encode(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses());
+        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
         $type = Json::encode(static::class);
 
         $js = <<<EOT
@@ -64,9 +64,10 @@ class UpdateOrderStatus extends ElementAction
         batch: true,
         activate: function(\$selectedItems)
         {
+            Craft.elementIndex.setIndexBusy();
             var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
             var currentOrderStatus = null;
-            var orderStatuses = $orderStatuses;
+            var orderStatuses = {$orderStatuses};
             for (i = 0; i < orderStatuses.length; i++) {
                 if(orderStatuses[i].handle == currentSourceStatusHandle){
                     currentOrderStatus = orderStatuses[i];
@@ -74,8 +75,9 @@ class UpdateOrderStatus extends ElementAction
             }
             var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
-                   Craft.elementIndex.submitAction('Commerce_UpdateOrderStatus', data);
+                   Craft.elementIndex.submitAction({$type}, data);
                    modal.hide();
+                   return false;
                 }
             });
         }

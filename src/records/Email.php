@@ -19,6 +19,8 @@ use craft\db\ActiveRecord;
  * @property string $recipientType
  * @property string $subject
  * @property string $templatePath
+ * @property bool $attachPdf
+ * @property string $pdfTemplatePath
  * @property string $to
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

@@ -1,9 +1,80 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- A custom PDF can now be attached to any order status email.
+- When updating the cart successfully, a flash notice is now set. ([#392](https://github.com/craftcms/commerce/issues/392))
+
+### Changed
+- Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
+
+### Fixed
+- Fixed a big where using the save order shortcut keys wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
+- Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
+- Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
+- Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
+- Fixed a bug where updating the order status on the order index page failed. ([#414](https://github.com/craftcms/commerce/issues/414))
+- Fixed a bug that caused a failure to generate a PDF that referenced remote fonts. ([#393](https://github.com/craftcms/commerce/issues/393))
+- Fixed a bug where products’ `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
+- Fixed a PHP error when calling the deprecated `craft.commerce.countriesList` variable.
+- Fixed a MySQL error when saving Discounts while MySQL strict mode was on.([#407](https://github.com/craftcms/commerce/issues/407))
+- Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
+- Fixed a bug that occurred when a price was entered with decimal places wouldn’t allow you to save a product. 
+- Fixed a bug that stopped variant custom fields from being updated when saving a product from outside the produce edit page.
+- Fixed a VAT ID validation error that occurred when submitting a VAT ID with non numeric characters. ([#426](https://github.com/craftcms/commerce/issues/426))
+- Fixed a bug where validation errors on the store location page did not show up. ([#370](https://github.com/craftcms/commerce/issues/370))
+
+## 2.0.0-beta.6 - 2018-06-29
+
+### Changed
+- Variant indexes can now have a “Product” column.
+- Variant titles now include their product titles.
+- Variant queries now have a `price` param.
+
+### Fixed
+- Fixed a PHP error that occurred when validating line items.
+- Fixed a PHP error that could occur when saving a product without unlimited stock.
+- Fixed a bug where clicking on the “Date Created” column header on order and subscription indexes wouldn’t update the sort order.
+- Fixed a bug where `commerce\base\PurchasableInterface::getSnapshot()` had the wrong casing.
+- Fixed a PHP error that occurred when deleting a primary billing or shipping address.
+- Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#282](https://github.com/craftcms/commerce/issues/282))
+- Fixed a bug where shipping costs defined by shipping categories were not getting applied to the cart correctly. ([#381](https://github.com/craftcms/commerce/issues/381))
+- Fixed a PHP error that occurred when saving a new order status.
+- Fixed a bug where carts could forget the selected shipping method. ([#387](https://github.com/craftcms/commerce/issues/387))
+- Fixed a bug where stock was getting validated when saving a completed order. ([#390](https://github.com/craftcms/commerce/issues/390))
+- Fixed a bug where Commerce's Twig extension wasn't getting registered for Commerce emails. ([#397](https://github.com/craftcms/commerce/issues/397))
+- Fixed compatibility with the Redactor reference tag links. ([#338](https://github.com/craftcms/commerce/issues/338))
+- Fixed a bug where empty new carts were being saved to the database unnecessarily. ([#403](https://github.com/craftcms/commerce/issues/403))
+
+## 2.0.0-beta.5 - 2018-05-30
+
+### Added
+- Products now have an “Available for purchase” checkbox, making it possible to have a live product that isn’t available for purchase yet. ([#345](https://github.com/craftcms/commerce/issues/345))
+- Added the `craft\commerce\services\ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS` event.
+
+### Changed
+- `commerce/cart/update-cart` can now update [multiple line items](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items) at once. ([#357](https://github.com/craftcms/commerce/issues/357))
+- Commerce no longer uses `Omnipay\Common\Helper` for credit card number verification. ([#344](https://github.com/craftcms/commerce/issues/344))
+- `craft\commerce\base\GatewayInterface::createPaymentSource()` now requires an userId parameter.
+
+### Deprecated
+- Deprecated the `commerce/cart/update-line-item` action. (`commerce/cart/update-cart` can be used instead.)
+- Deprecated the `commerce/cart/remove-line-item` action. (`commerce/cart/update-cart` can be used instead.)
+- Deprecated the `commerce/cart/remove-all-line-items` action. (`commerce/cart/update-cart` can be used instead.)
+
+### Fixed
+- Fixed a bug where `commerce/cart/update-cart` requests could clear all custom field values. ([#347](https://github.com/craftcms/commerce/issues/347))
+- Fixed a PHP error that occurred during an upgrade migration when custom purchasable types were in use.
+- Fixed an issue where Commerce’s element types weren’t getting registered with Craft. ([#352](https://github.com/craftcms/commerce/issues/352))
+- Fixed a bug where the first variant on Edit Product pages couldn’t be set to disabled. ([#343](https://github.com/craftcms/commerce/issues/343))
+- Fixed a bug where stock-checking rules weren’t taking new line items into account. ([#343](https://github.com/craftcms/commerce/issues/343))
+- Fixed a bug where category shipping rule prices were getting saved with the incorrect category. ([#323](https://github.com/craftcms/commerce/issues/323))
+- Fixed a PHP error that occurred when completing an order with a coupon code that had a per-user usage limit. ([#354](https://github.com/craftcms/commerce/issues/354))
+
 ## 2.0.0-beta.4.1 - 2018-05-09
 
 ### Fixed
-
 - Fixed changelog version typo
 
 ## 2.0.0-beta.4 - 2018-05-09

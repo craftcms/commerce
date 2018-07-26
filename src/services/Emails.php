@@ -15,9 +15,11 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
+use craft\helpers\Assets;
 use craft\mail\Message;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\helpers\FileHelper;
 
 /**
  * Email service.
@@ -133,6 +135,8 @@ class Emails extends Component
         $record->bcc = $model->bcc;
         $record->enabled = $model->enabled;
         $record->templatePath = $model->templatePath;
+        $record->attachPdf = $model->attachPdf;
+        $record->pdfTemplatePath = $model->pdfTemplatePath;
 
         $record->save(false);
 
@@ -194,7 +198,7 @@ class Emails extends Component
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
             // use the order's language for template rendering the email fields and body.
-            $orderLanguage = $order->orderLocale ?: $originalLanguage;
+            $orderLanguage = $order->orderLanguage ?: $originalLanguage;
             Craft::$app->language = $orderLanguage;
 
             if ($order->getCustomer()) {
@@ -304,6 +308,56 @@ class Emails extends Component
             return false;
         }
 
+        if ($email->attachPdf) {
+            if ($path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
+                // Email Body
+                if (!$view->doesTemplateExist($path)) {
+                    $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
+                        'templatePath' => $path,
+                        'email' => $email->name,
+                        'order' => $order->getShortNumber()
+                    ]);
+                    Craft::error($error, __METHOD__);
+
+                    Craft::$app->language = $originalLanguage;
+                    $view->setTemplateMode($oldTemplateMode);
+
+                    return false;
+                }
+
+                try {
+                    $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, null, $path);
+
+                    $tempPath = Assets::tempFilePath('pdf');
+
+                    file_put_contents($tempPath, $pdf);
+
+                    // Get a file name
+                    $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
+                    $fileName = $view->renderObjectTemplate($filenameFormat, $order);
+                    if (!$fileName) {
+                        $fileName = 'Order-' . $order->number;
+                    }
+
+                    // Attachment information
+                    $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
+                    $newEmail->attach($tempPath, $options);
+                } catch (\Exception $e) {
+                    $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}”', [
+                        'email' => $email->name,
+                        'order' => $order->getShortNumber(),
+                        'message' => $e->getMessage()
+                    ]);
+                    Craft::error($error, __METHOD__);
+
+                    Craft::$app->language = $originalLanguage;
+                    $view->setTemplateMode($oldTemplateMode);
+
+                    return false;
+                }
+            }
+        }
+
         try {
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
@@ -386,6 +440,11 @@ class Emails extends Component
         Craft::$app->language = $originalLanguage;
         $view->setTemplateMode($oldTemplateMode);
 
+        // Clear out the temp PDF file if it was created.
+        if (!empty($tempPath)) {
+            unlink($tempPath);
+        }
+
         return true;
     }
 
@@ -431,7 +490,9 @@ class Emails extends Component
                 'emails.to',
                 'emails.bcc',
                 'emails.enabled',
-                'emails.templatePath'
+                'emails.templatePath',
+                'emails.attachPdf',
+                'emails.pdfTemplatePath'
             ])
             ->orderBy('name')
             ->from(['{{%commerce_emails}} emails']);

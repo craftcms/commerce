@@ -53,13 +53,17 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Update quantity
+     * Updates a single line item
      *
      * @throws Exception
      * @throws HttpException
+     * @throws \Throwable
+     * @deprecated as of 2.0.0-beta.5
      */
     public function actionUpdateLineItem()
     {
+        Craft::$app->getDeprecator()->log('CartController::actionUpdateLineItem()', 'craft\commerce\controllers\CartController::actionUpdateLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
+
         $request = Craft::$app->getRequest();
 
         $lineItemId = $request->getParam('lineItemId');
@@ -89,13 +93,17 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Remove Line item from the cart
+     * Removes a line item
      *
      * @throws Exception
      * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveLineItem()
     {
+        Craft::$app->getDeprecator()->log('CartController::actionRemoveLineItem()', 'craft\commerce\controllers\CartController::actionRemoveLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
+
         $request = Craft::$app->getRequest();
 
         $lineItemId = $request->getParam('lineItemId');
@@ -113,15 +121,21 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Remove all line items from the cart
+     * Remove all line items
+     *
+     * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveAllLineItems()
     {
+        Craft::$app->getDeprecator()->log('CartController::actionRemoveAllLineItems()', 'craft\commerce\controllers\CartController::actionRemoveAllLineItems() has been deprecated. Use `commerce/cart/update-cart` instead.');
+
         $this->_cart->setLineItems([]);
+
+        return $this->_returnCart();
     }
 
     /**
-     * Updates the cart by adding purchasables to the cart, or various cart attributes.
+     * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */
     public function actionUpdateCart()
     {
@@ -155,10 +169,45 @@ class CartController extends BaseFrontEndController
                     $this->_cart->addLineItem($lineItem);
                 }
             }
-        };
+        }
+
+        // update multiple line items in the cart
+        if ($lineItems = $request->getParam('lineItems')) {
+            foreach ($lineItems as $key => $lineItem) {
+                $lineItemId = $key;
+                $note = $request->getParam("lineItems.{$key}.note");
+                $options = $request->getParam("lineItems.{$key}.options");
+                $qty = $request->getParam("lineItems.{$key}.qty");
+                $removeLine = $request->getParam("lineItems.{$key}.remove");
+
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+
+                // Line item not found, or does not belong to their order
+                if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
+                    throw new NotFoundHttpException('Line item not found');
+                }
+
+                if ($qty) {
+                    $lineItem->qty = $qty;
+                }
+
+                if ($note) {
+                    $lineItem->note = $note;
+                }
+
+                if ($options) {
+                    $lineItem->setOptions($options);
+                }
+
+                if ($removeLine) {
+                    $this->_cart->removeLineItem($lineItem);
+                } else {
+                    $this->_cart->addLineItem($lineItem);
+                }
+            }
+        }
 
         $this->_setAddresses();
-
 
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest && $email = $request->getParam('email')) {
@@ -230,6 +279,8 @@ class CartController extends BaseFrontEndController
             return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
         }
 
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart
         ]);
@@ -240,7 +291,10 @@ class CartController extends BaseFrontEndController
     /**
      * @return Order|null
      *
+     * @throws Exception
      * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
      */
     private function _getCart()
     {
@@ -251,14 +305,14 @@ class CartController extends BaseFrontEndController
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
         } else {
             // Get the cart from the current users session, or return a new cart attached to the session
-            $cart = Plugin::getInstance()->getCarts()->getCart();
+            $cart = Plugin::getInstance()->getCarts()->getCart(true);
         }
 
         if (!$cart) {
             throw new NotFoundHttpException('Cart not found');
         }
 
-        return clone $cart;
+        return $cart;
     }
 
     /**

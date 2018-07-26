@@ -180,7 +180,7 @@ class PaymentSources extends Component
      */
     public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
     {
-        $source = $gateway->createPaymentSource($paymentForm);
+        $source = $gateway->createPaymentSource($paymentForm, $userId);
         $source->userId = $userId;
 
         if (!empty($sourceDescription)) {

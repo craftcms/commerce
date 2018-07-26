@@ -27,9 +27,7 @@ class m180402_161903_primary_customer_addresses_relations extends Migration
             ->andWhere(['not', ['customers.primaryBillingAddressId' => null]])
             ->column();
 
-        foreach ($rougueOnes as $id) {
-            $this->update('{{%commerce_customers}}', ['primaryBillingAddressId' => null], ['primaryBillingAddressId' => $id]);
-        }
+        $this->update('{{%commerce_customers}}', ['primaryBillingAddressId' => null], ['primaryBillingAddressId' => $rougueOnes]);
 
         $rougueTwos = (new \craft\db\Query())
             ->select('customers.primaryShippingAddressId')
@@ -39,9 +37,7 @@ class m180402_161903_primary_customer_addresses_relations extends Migration
             ->andWhere(['not', ['customers.primaryShippingAddressId' => null]])
             ->column();
 
-        foreach ($rougueTwos as $id) {
-            $this->update('{{%commerce_customers}}', ['primaryShippingAddressId' => null], ['primaryShippingAddressId' => $id]);
-        }
+        $this->update('{{%commerce_customers}}', ['primaryShippingAddressId' => null], ['primaryShippingAddressId' => $rougueTwos]);
 
         $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryShippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');

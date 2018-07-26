@@ -37,7 +37,7 @@ class m180319_130001_fieldSettings extends Migration
             $settings = Json::decodeIfJson($field['settings']);
 
             if (!is_array($settings)) {
-                echo 'Field '.$field['id'].' ('.$field['type'].') settings were invalid JSON: '.$field['settings']."\n";
+                echo 'Field ' . $field['id'] . ' (' . $field['type'] . ') settings were invalid JSON: ' . $field['settings'] . "\n";
                 $settings = [];
             }
 
