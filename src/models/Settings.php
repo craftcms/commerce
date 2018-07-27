@@ -137,6 +137,16 @@ class Settings extends Model
      */
     public $gatewaySettings = [];
 
+    /**
+     * @var null|array A list of Product field handles to be captured as part of the snapshot, when a new LineItem is created, or `null` for all fields.
+     */
+    public $variantSnapshotFields = null;
+
+    /**
+     * @var null|array A list of Variant field handles to be captured as part of the snapshot, when a new LineItem is created, or `null` for all fields.
+     */
+    public $productSnapshotFields = null;
+
     // Public Methods
     // =========================================================================
 
