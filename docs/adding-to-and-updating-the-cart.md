@@ -1,10 +1,10 @@
 # Add to Cart
 
-To add something to the cart you need a [Purchasable](purchasables.md) model, and it's `purchasableId`. You then submit a `purchasableId` to  the `commerce/cart/updateCart` form action to add it to the cart.
+To add something to the cart you need a [Purchasable](purchasables.md) model, and it's `id`. You then submit the `id` as the `purchasableId` param to  the `commerce/cart/updateCart` form action to add it to the cart.
 
-The core [Variant Model](variant-model.md) are [Purchasable](purchasables.md) and have a `purchasableId`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information. 
+The core [Variant Model](variant-model.md) are [Purchasable](purchasables.md) and have a `id`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information. 
 
-The following is an example of getting the first product found in your store. We then get the product's default variant and use its purchasableId in the form that will add that item to the cart:
+The following is an example of getting the first product found in your store. We then get the product's default variant and use its id in the form that will add that item to the cart:
 
 ```twig
 {% set product = craft.products.one() %}
@@ -14,7 +14,7 @@ The following is an example of getting the first product found in your store. We
     <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
     <input type="hidden" name="qty" value="1">
-    <input type="hidden" name="purchasableId" value="{{ variant.purchasableId }}">
+    <input type="hidden" name="purchasableId" value="{{ variant.id }}">
     <input type="submit" value="Add to cart">
 </form>
 ```
@@ -32,7 +32,7 @@ The above is a simple example, if your product's type has multiple variants you 
     <input type="hidden" name="qty" value="1">
     <select name="purchasableId">
         {% for variant in product.variants %}
-            <option value="{{ variant.purchasableId }}">{{ variant.sku }}</option>
+            <option value="{{ variant.id }}">{{ variant.sku }}</option>
         {% endfor %}
     </select>
     <input type="submit" value="Add to cart">
@@ -67,7 +67,7 @@ Here is an example of an add to cart form with both a `notes` and `options` para
         <option value="no">No Thanks</option>
     </select>
 
-    <input type="hidden" name="purchasableId" value="{{ variant.purchasableId }}">
+    <input type="hidden" name="purchasableId" value="{{ variant.id }}">
     <input type="submit" value="Add to cart">
 </form>
 ```
@@ -86,7 +86,7 @@ Once the order is complete, the notes and options can be found in the View Order
 
 # Options uniqueness
 
-The options data submitted to the line item are hashed into an `optionsSignature` for uniqueness. If you submit the same purchasableId to the cart with different option data, two line items with be created.
+The options data submitted to the line item are hashed into an `optionsSignature` for uniqueness. If you submit the same purchasable ID to the cart with different option data, two line items with be created.
 
 Another way to think about it is that each line item is unique based on the combination of `purchasableId` and `optionsSignature`.
 
@@ -102,7 +102,7 @@ You can add multiple purchasables to the cart in an update cart form. You supply
     {{ csrfInput() }}
 
     {% for variant in product.variants %}
-        <input type="hidden" name="purchasables[{{loop.index}}]][id]" value="{{ variant.purchasableId }}">
+        <input type="hidden" name="purchasables[{{loop.index}}]][id]" value="{{ variant.id }}">
         <input type="hidden" name="purchasables[{{loop.index}}]][qty]" value="1">
         <input type="hidden" name="purchasables[{{loop.index}}]][note]" value="1">
     {% endfor %}
@@ -111,7 +111,7 @@ You can add multiple purchasables to the cart in an update cart form. You supply
 </form>
 ```
 
-While using multi-add the same rules apply for updating a quantity vs adding to cart, based on the uniquessness of the options signature and purchasableId.
+While using multi-add the same rules apply for updating a quantity vs adding to cart, based on the uniquessness of the options `signature` and `purchasableId`.
 
 As shown in the example above,  a unique index key is required to group the purchasable ID to its related `notes` and `options` and `qty` param. Using `{{loop.index}}` is an easy way to do this.
 
