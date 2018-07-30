@@ -340,7 +340,7 @@ class Variant extends Purchasable
         // Product Attributes
         $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
-        // Variant Custom Field values
+        // Product Custom Field values
         $productFields = Plugin::getInstance()->getSettings()->productSnapshotFields;
         $data['productFields'] = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues($productFields) : [];
 
