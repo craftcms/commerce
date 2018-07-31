@@ -12,7 +12,7 @@ The following is an example of getting the first product found in your store. We
 
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
-    <input type="hidden" name="redirect" value="commerce/cart">
+    {{ redirectInput('shop/cart') }}
     <input type="hidden" name="qty" value="1">
     <input type="hidden" name="purchasableId" value="{{ variant.id }}">
     <input type="submit" value="Add to cart">
