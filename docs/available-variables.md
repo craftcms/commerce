@@ -34,7 +34,7 @@ Returns an array of [Country Models](country-model.md).
 </select>
 ```
 
-## craft.commerce.countries.countriesAsList
+## craft.commerce.countries.allCountriesAsList
 
 Returns a list usable for a dropdown select box.
 
