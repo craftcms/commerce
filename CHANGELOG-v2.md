@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- The cart can now be retrieved as JSON with the `commerce/cart/get-cart` action.
 - A custom PDF can now be attached to any order status email.
 - When updating the cart successfully, a flash notice is now set. ([#392](https://github.com/craftcms/commerce/issues/392))
 
@@ -24,6 +25,7 @@
 - Fixed a bug that stopped variant custom fields from being updated when saving a product from outside the produce edit page.
 - Fixed a VAT ID validation error that occurred when submitting a VAT ID with non numeric characters. ([#426](https://github.com/craftcms/commerce/issues/426))
 - Fixed a bug where validation errors on the store location page did not show up. ([#370](https://github.com/craftcms/commerce/issues/370))
+- Fixed a issue where line items were missing errors in the cart's JSON response. ([#430](https://github.com/craftcms/commerce/issues/430))
 
 ## 2.0.0-beta.6 - 2018-06-29
 

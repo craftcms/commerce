@@ -43,11 +43,7 @@ class CartController extends BaseFrontEndController
 
     public function init()
     {
-        $this->requirePostRequest();
-
         $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
-        // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
 
         parent::init();
     }
@@ -62,6 +58,8 @@ class CartController extends BaseFrontEndController
      */
     public function actionUpdateLineItem()
     {
+        $this->requirePostRequest();
+
         Craft::$app->getDeprecator()->log('CartController::actionUpdateLineItem()', 'craft\commerce\controllers\CartController::actionUpdateLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
 
         $request = Craft::$app->getRequest();
@@ -102,6 +100,11 @@ class CartController extends BaseFrontEndController
      */
     public function actionRemoveLineItem()
     {
+        $this->requirePostRequest();
+
+        // Get the cart from the request or from the session.
+        $this->_cart = $this->_getCart();
+
         Craft::$app->getDeprecator()->log('CartController::actionRemoveLineItem()', 'craft\commerce\controllers\CartController::actionRemoveLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
 
         $request = Craft::$app->getRequest();
@@ -127,6 +130,11 @@ class CartController extends BaseFrontEndController
      */
     public function actionRemoveAllLineItems()
     {
+        $this->requirePostRequest();
+
+        // Get the cart from the request or from the session.
+        $this->_cart = $this->_getCart();
+
         Craft::$app->getDeprecator()->log('CartController::actionRemoveAllLineItems()', 'craft\commerce\controllers\CartController::actionRemoveAllLineItems() has been deprecated. Use `commerce/cart/update-cart` instead.');
 
         $this->_cart->setLineItems([]);
@@ -135,10 +143,26 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * Returns the cart as JSON
+     */
+    public function actionGetCart()
+    {
+        $this->requireAcceptsJson();
+
+        $this->_cart = PLugin::getInstance()->getCarts()->getCart();
+
+        return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
+    }
+    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */
     public function actionUpdateCart()
     {
+        $this->requirePostRequest();
+
+        // Get the cart from the request or from the session.
+        $this->_cart = $this->_getCart();
+
         // Services we will be using.
         $request = Craft::$app->getRequest();
 
