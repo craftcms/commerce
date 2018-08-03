@@ -30,3 +30,7 @@ then
 ```bash
 composer update
 ``` 
+
+### Post-install steps
+
+If you’d like to use Commerce’s sample store templates as a starting point, you can copy them from your `vendor/craftcms/commerce/templates/shop` folder to your `templates/shop` folder. 
