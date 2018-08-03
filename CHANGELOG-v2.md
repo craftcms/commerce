@@ -12,13 +12,13 @@
 - Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
 
 ### Fixed
-- Fixed a big where using the save order shortcut keys wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
+- Fixed a bug where using the save order shortcut key combo wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
 - Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
 - Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
 - Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
-- Fixed a bug where updating the order status on the order index page failed. ([#414](https://github.com/craftcms/commerce/issues/414))
+- Fixed an error that occurred when updating the order status on the order index page. ([#414](https://github.com/craftcms/commerce/issues/414))
 - Fixed a bug that caused a failure to generate a PDF that referenced remote fonts. ([#393](https://github.com/craftcms/commerce/issues/393))
-- Fixed a bug where products’ `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
+- Fixed a bug where a product’s `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
 - Fixed a PHP error when calling the deprecated `craft.commerce.countriesList` variable.
 - Fixed a MySQL error when saving Discounts while MySQL strict mode was on.([#407](https://github.com/craftcms/commerce/issues/407))
 - Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
