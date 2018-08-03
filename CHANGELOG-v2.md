@@ -6,7 +6,7 @@
 - The cart can now be retrieved as JSON with the `commerce/cart/get-cart` action.
 - A custom PDF can now be attached to any order status email.
 - When updating the cart successfully, a flash notice is now set. ([#392](https://github.com/craftcms/commerce/issues/392))
-- Add the `cp.commerce.order.edit.main-pane` template hook.
+- Added the `cp.commerce.order.edit.main-pane` template hook to the order edit page.
 
 ### Changed
 - Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
