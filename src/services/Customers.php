@@ -386,6 +386,7 @@ class Customers extends Component
      */
     public function orderCompleteHandler($order)
     {
+        $addressesExist = false;
         // Now duplicate the addresses on the order
         $addressesService = Plugin::getInstance()->getAddresses();
         if ($order->billingAddress) {
@@ -412,7 +413,8 @@ class Customers extends Component
             $originalBillingAddressId = $snapshotBillingAddress->id;
             $snapshotBillingAddress->id = null;
             if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
-                $order->billingAddressId = $snapshotBillingAddress->id;
+                $addressesExist = true;
+                $order->setBillingAddress($snapshotBillingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -443,14 +445,18 @@ class Customers extends Component
             $originalShippingAddressId = $snapshotShippingAddress->id;
             $snapshotShippingAddress->id = null;
             if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
-                $order->shippingAddressId = $snapshotShippingAddress->id;
+                $addressesExist = true;
+                $order->setShippingAddress($snapshotShippingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
 
-        Craft::$app->getElements()->saveElement($order);
+        if ($addressesExist)
+        {
+            Craft::$app->getElements()->saveElement($order);
+        }
     }
 
     /**
