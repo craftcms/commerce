@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\db\Migration;
 
 /**
@@ -19,10 +20,11 @@ class m180601_161904_fix_orderLanguage extends Migration
      */
     public function safeUp()
     {
-
-        $lang = \Craft::$app->language;
-        $sql = 'update {{%commerce_orders}} set [[orderLocale]] = "'.$lang.'" where [[orderLocale]] is null';
-        $this->execute($sql);
+        $this->update('{{%commerce_orders}}', [
+            'orderLocale' => Craft::$app->language
+        ], [
+            'orderLocale' => null,
+        ], [], false);
 
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
