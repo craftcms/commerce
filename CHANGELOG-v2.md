@@ -1,37 +1,37 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.7 - 2018-08-07
 
 ### Added
 - The cart can now be retrieved as JSON with the `commerce/cart/get-cart` action.
 - A custom PDF can now be attached to any order status email.
-- When updating the cart successfully, a flash notice is now set. ([#392](https://github.com/craftcms/commerce/issues/392))
-- Added the `cp.commerce.order.edit.main-pane` template hook to the order edit page.
+- Added the `cp.commerce.order.edit.main-pane` template hook to the Edit Order page.
 - Added the `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT` event.
 - Added the `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT` event.
 - Added the `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT` event.
 - Added the `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT` event.
 
 ### Changed
-- Product and Variant custom field data is no longer included in the line item snapshot by default. Use the new snapshot events to manually snapshot field data. 
-- Create sale and discount buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
+- A flash notice is now set when the cart is updated successfully. ([#392](https://github.com/craftcms/commerce/issues/392))
+- Product and variant custom field data is no longer included in the line item snapshot by default. Use the new snapshot events to manually snapshot field data.
+- “New sale” and “New discount” buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
 
 ### Fixed
-- Fixed a bug where using the save order shortcut key combo wouldn't redirect to the order edit page. ([#412](https://github.com/craftcms/commerce/issues/412))
-- Fixed a PHP error caused by entering a non-numeric value into a variant price field. ([#404](https://github.com/craftcms/commerce/issues/404))
-- Fixed a PHP error due to missing uniqueness validation check on the product type handle. ([#409](https://github.com/craftcms/commerce/issues/409))
-- Fixed a PHP error due to missing uniqueness validation check on the SKU field on multi-variant products. ([#399](https://github.com/craftcms/commerce/issues/399))
-- Fixed an error that occurred when updating the order status on the order index page. ([#414](https://github.com/craftcms/commerce/issues/414))
-- Fixed a bug that caused a failure to generate a PDF that referenced remote fonts. ([#393](https://github.com/craftcms/commerce/issues/393))
+- Fixed a bug where the Save keyboard shortcut for orders wouldn’t keep the user on the Edit Order page. ([#412](https://github.com/craftcms/commerce/issues/412))
+- Fixed a PHP error that occurred if a product variant was saved with a non-numeric price. ([#404](https://github.com/craftcms/commerce/issues/404))
+- Fixed a SQL error that occurred if a product type was saved with a non-unique handle. ([#409](https://github.com/craftcms/commerce/issues/409))
+- Fixed a SQL error that occurred if a product variant was saved with a non-unique SKU. ([#399](https://github.com/craftcms/commerce/issues/399))
+- Fixed an error that occurred when updating statuses on the Orders index page. ([#414](https://github.com/craftcms/commerce/issues/414))
+- Fixed a bug where PDFs that referenced remote fonts would fail to generate. ([#393](https://github.com/craftcms/commerce/issues/393))
 - Fixed a bug where a product’s `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
-- Fixed a PHP error when calling the deprecated `craft.commerce.countriesList` variable.
-- Fixed a MySQL error when saving Discounts while MySQL strict mode was on.([#407](https://github.com/craftcms/commerce/issues/407))
-- Fixed an error that could occur when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
-- Fixed a bug that occurred when a price was entered with decimal places wouldn’t allow you to save a product. 
-- Fixed a bug that stopped variant custom fields from being updated when saving a product from outside the produce edit page.
-- Fixed a VAT ID validation error that occurred when submitting a VAT ID with non numeric characters. ([#426](https://github.com/craftcms/commerce/issues/426))
-- Fixed a bug where validation errors on the store location page did not show up. ([#370](https://github.com/craftcms/commerce/issues/370))
-- Fixed a issue where line items were missing errors in the cart's JSON response. ([#430](https://github.com/craftcms/commerce/issues/430))
+- Fixed a PHP error that occurred when calling the deprecated `craft.commerce.countriesList` template variable.
+- Fixed a SQL error that occurred when saving discounts if MySQL was running in strict mode.([#407](https://github.com/craftcms/commerce/issues/407))
+- Fixed an error that occurred when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
+- Fixed a bug where it was not possible to save a product with a non-integer price.
+- Fixed a bug where variants’ custom fields weren’t getting updated when a product was saved somewhere besides the Edit Product page.
+- Fixed a VAT ID validation error that occurred when submitting a VAT ID with non-numeric characters. ([#426](https://github.com/craftcms/commerce/issues/426))
+- Fixed a bug where validation errors on the Edit Store Location page were not showing up. ([#370](https://github.com/craftcms/commerce/issues/370))
+- Fixed a bug where `commerce/cart` actions weren’t including line items’ validation errors in JSON responses. ([#430](https://github.com/craftcms/commerce/issues/430))
 
 ## 2.0.0-beta.6 - 2018-06-29
 
