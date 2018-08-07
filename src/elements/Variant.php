@@ -422,7 +422,7 @@ class Variant extends Purchasable
         $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
         // Default Product custom field handles
-        $productFields = null;
+        $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
             'product' => $this->getProduct(),
             'fields' => $productFields
@@ -448,7 +448,7 @@ class Variant extends Purchasable
         $data['productFields'] = $productDataEvent->fieldData;
 
         // Default Variant custom field handles
-        $variantFields = null;
+        $variantFields = [];
         $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent([
             'variant' => $this,
             'fields' => $variantFields
