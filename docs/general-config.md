@@ -2,6 +2,12 @@
 
 In addition to the settings available in the CP `Commerce > Settings` screen, the config items below can be placed into a `commerce.php` file in your `craft/config` directory:
 
+## `pdfAllowRemoteImages`
+
+Determines if a DOMPDF pdf render will allow remote images.
+
+Default `false`
+
 ## `autoSetNewCartAddresses`
 
 Determines whether the customer's last used shipping and billing addresses should automatically be set on new carts.
