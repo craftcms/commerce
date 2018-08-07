@@ -116,6 +116,7 @@
 
 {% macro generalVariantFields(variant) %}
     {%- import "_includes/forms" as forms -%}
+    {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
 
     {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
         {{ forms.textField({
@@ -145,11 +146,10 @@
 
     {{ forms.textField({
         id: 'price',
-        label: 'Price'|t('commerce'),
+        label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
         name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
+        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number_format(craft.commerce.paymentCurrencies.primaryPaymentCurrency.minorUnit) ?: '')),
         placeholder: 'Enter price'|t('commerce'),
-        unit: craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,
         required: true,
         errors: variant.getErrors('price')
     }) }}

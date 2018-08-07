@@ -59,7 +59,7 @@ class Product
         $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
 
         if (isset($variant['fields'])) {
-            $variantModel->setFieldValuesFromRequest("variants.{$key}.fields");
+            $variantModel->setFieldValues($variant['fields']);
         }
 
         if (!empty($variant['title'])) {

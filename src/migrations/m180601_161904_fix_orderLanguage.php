@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\db\Migration;
 
 /**
@@ -19,6 +20,12 @@ class m180601_161904_fix_orderLanguage extends Migration
      */
     public function safeUp()
     {
+        $this->update('{{%commerce_orders}}', [
+            'orderLocale' => Craft::$app->language
+        ], [
+            'orderLocale' => null,
+        ], [], false);
+
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)

@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property ActiveQueryInterface $purchasable
  * @property int $purchasableId
+ * @property int $purchasableType
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

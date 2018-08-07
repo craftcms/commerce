@@ -101,7 +101,7 @@ class Countries extends Component
      */
     public function getAllCountriesListData(): array
     {
-        Craft::$app->getDeprecator()->log('Countries::getAllCountriesListData()', 'Countries::getAllCountriesListData() has been deprecated. Use Countries::getCountriesAsList() instead');
+        Craft::$app->getDeprecator()->log('Countries::getAllCountriesListData()', 'Countries::getAllCountriesListData() has been deprecated. Use Countries::getAllCountriesAsList() instead');
 
         return $this->getAllCountriesAsList();
     }

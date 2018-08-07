@@ -112,7 +112,7 @@ class CustomerAddressesController extends BaseFrontEndController
             }
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => true]);
+                return $this->asJson(['success' => true, 'address' => $address]);
             }
             $this->redirectToPostedUrl();
         } else {

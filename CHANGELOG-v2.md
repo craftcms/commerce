@@ -1,5 +1,38 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.7 - 2018-08-07
+
+### Added
+- The cart can now be retrieved as JSON with the `commerce/cart/get-cart` action.
+- A custom PDF can now be attached to any order status email.
+- Added the `cp.commerce.order.edit.main-pane` template hook to the Edit Order page.
+- Added the `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT` event.
+- Added the `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT` event.
+- Added the `craft\commerce\elements\Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT` event.
+- Added the `craft\commerce\elements\Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT` event.
+
+### Changed
+- A flash notice is now set when the cart is updated successfully. ([#392](https://github.com/craftcms/commerce/issues/392))
+- Product and variant custom field data is no longer included in the line item snapshot by default. Use the new snapshot events to manually snapshot field data.
+- “New sale” and “New discount” buttons now appear in the page header. ([#408](https://github.com/craftcms/commerce/issues/408))
+
+### Fixed
+- Fixed a bug where the Save keyboard shortcut for orders wouldn’t keep the user on the Edit Order page. ([#412](https://github.com/craftcms/commerce/issues/412))
+- Fixed a PHP error that occurred if a product variant was saved with a non-numeric price. ([#404](https://github.com/craftcms/commerce/issues/404))
+- Fixed a SQL error that occurred if a product type was saved with a non-unique handle. ([#409](https://github.com/craftcms/commerce/issues/409))
+- Fixed a SQL error that occurred if a product variant was saved with a non-unique SKU. ([#399](https://github.com/craftcms/commerce/issues/399))
+- Fixed an error that occurred when updating statuses on the Orders index page. ([#414](https://github.com/craftcms/commerce/issues/414))
+- Fixed a bug where PDFs that referenced remote fonts would fail to generate. ([#393](https://github.com/craftcms/commerce/issues/393))
+- Fixed a bug where a product’s `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
+- Fixed a PHP error that occurred when calling the deprecated `craft.commerce.countriesList` template variable.
+- Fixed a SQL error that occurred when saving discounts if MySQL was running in strict mode.([#407](https://github.com/craftcms/commerce/issues/407))
+- Fixed an error that occurred when updating from Commerce 1 to Commerce 2. ([#423](https://github.com/craftcms/commerce/issues/423))
+- Fixed a bug where it was not possible to save a product with a non-integer price.
+- Fixed a bug where variants’ custom fields weren’t getting updated when a product was saved somewhere besides the Edit Product page.
+- Fixed a VAT ID validation error that occurred when submitting a VAT ID with non-numeric characters. ([#426](https://github.com/craftcms/commerce/issues/426))
+- Fixed a bug where validation errors on the Edit Store Location page were not showing up. ([#370](https://github.com/craftcms/commerce/issues/370))
+- Fixed a bug where `commerce/cart` actions weren’t including line items’ validation errors in JSON responses. ([#430](https://github.com/craftcms/commerce/issues/430))
+
 ## 2.0.0-beta.6 - 2018-06-29
 
 ### Changed
@@ -20,7 +53,7 @@
 - Fixed a bug where stock was getting validated when saving a completed order. ([#390](https://github.com/craftcms/commerce/issues/390))
 - Fixed a bug where Commerce's Twig extension wasn't getting registered for Commerce emails. ([#397](https://github.com/craftcms/commerce/issues/397))
 - Fixed compatibility with the Redactor reference tag links. ([#338](https://github.com/craftcms/commerce/issues/338))
-- Fixed a bug where empty new carts were being saved to the database unnecessarily.([#403](https://github.com/craftcms/commerce/issues/403))
+- Fixed a bug where empty new carts were being saved to the database unnecessarily. ([#403](https://github.com/craftcms/commerce/issues/403))
 
 ## 2.0.0-beta.5 - 2018-05-30
 

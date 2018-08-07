@@ -421,6 +421,8 @@ class Discounts extends Component
 
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new DiscountPurchasableRecord();
+                $element = Craft::$app->getElements()->getElementById($purchasableId);
+                $relation->purchasableType = get_class($element);
                 $relation->purchasableId = $purchasableId;
                 $relation->discountId = $model->id;
                 $relation->save(false);

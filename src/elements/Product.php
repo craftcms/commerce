@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\base\Model;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
@@ -346,7 +347,7 @@ class Product extends Element
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
         $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
 
-        if (Craft::$app->getIsMultiSite() && $this->siteId != Craft::$app->getSites()->currentSite->id) {
+        if (Craft::$app->getIsMultiSite()) {
             $url .= '/' . $this->getSite()->handle;
         }
 
@@ -450,20 +451,20 @@ class Product extends Element
     {
         $status = parent::getStatus();
 
-        if ($status === Element::STATUS_ENABLED && $this->postDate) {
+        if ($status == self::STATUS_ENABLED && $this->postDate) {
             $currentTime = DateTimeHelper::currentTimeStamp();
-            $postDate = DateTimeHelper::toDateTime($this->postDate)->getTimestamp();
-            $expiryDate = ($this->expiryDate ? DateTimeHelper::toDateTime($this->expiryDate)->getTimestamp() : null);
+            $postDate = $this->postDate->getTimestamp();
+            $expiryDate = ($this->expiryDate ? $this->expiryDate->getTimestamp() : null);
 
-            if ($postDate <= $currentTime && (!$expiryDate || $expiryDate > $currentTime)) {
-                return static::STATUS_LIVE;
+            if ($postDate <= $currentTime && ($expiryDate === null || $expiryDate > $currentTime)) {
+                return self::STATUS_LIVE;
             }
 
             if ($postDate > $currentTime) {
-                return static::STATUS_PENDING;
+                return self::STATUS_PENDING;
             }
 
-            return static::STATUS_EXPIRED;
+            return self::STATUS_EXPIRED;
         }
 
         return $status;
@@ -732,35 +733,35 @@ class Product extends Element
 
         $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-        $rules[] = [['variants'], 'validateVariants'];
+
+        $rules[] = [
+            ['variants'], function($model) {
+                /** @var Product $model */
+                $skus = [];
+                foreach ($this->getVariants() as $variant)
+                {
+                    $skus[] = $variant->getSku();
+                }
+
+                if (count(array_unique($skus))<count($skus))
+                {
+                    $this->addError('variants', 'Not Unique');
+                }
+            }
+        ];
 
         return $rules;
     }
 
     /**
-     * Validates a product element’s Variants.
-     *
-     * @return void
+     * @inheritdoc
      */
-    public function validateVariants()
+    public function afterValidate()
     {
-        $variantsValidate = true;
-        $count = 0;
-
-        foreach ($this->getVariants() as $variant) {
-            $count++;
-            if (!$variant->validate()) {
-                $variantsValidate = false;
-            }
+        if (!Model::validateMultiple($this->getVariants())) {
+            $this->addError(null); // add an empty error to prevent saving
         }
-
-        if ($count == 0) {
-            $this->addError('variants', Craft::t('commerce', 'Product must have at least one variant'));
-        }
-
-        if (!$variantsValidate) {
-            $this->addError('variants', Craft::t('app', 'Correct the errors listed above.'));
-        }
+        parent::afterValidate();
     }
 
     /**

@@ -106,6 +106,9 @@ class BaseFrontEndController extends BaseController
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
             $lineItems[$lineItem->id] = $lineItemData;
+            if ($lineItem->getErrors()) {
+                $lineItems['errors'] = $lineItem->getErrors();
+            }
         }
         $data['lineItems'] = $lineItems;
         $data['totalLineItems'] = count($lineItems);

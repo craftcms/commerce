@@ -187,8 +187,9 @@
     ) }}
 
     {{ forms.lightSwitchField({
-        label: "This tax is already included in the taxable subject."|t('commerce'),
+        label: "Is this tax is already included in the taxable subject?"|t('commerce'),
         name: 'include',
+        instructions: "If enabled, and this tax rate does not match the order, this included tax rate amount will be removed from the order."|t('commerce'),
         on: taxRate.include,
         checked: taxRate.include,
         errors: taxRate.getErrors('include'),
@@ -203,5 +204,9 @@
     }) }}
 
 <p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-    {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
+    {% if craft.commerce.settings.useBillingAddressForTax %}
+        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the billing address."|t('commerce') }}
+    {% else %}
+        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
+    {% endif %}
 </p>
