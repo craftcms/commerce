@@ -86,7 +86,7 @@ Twig
 
 PHP
 ```php
-$products = Product::find()->hasVariant(['hasSales' => true)->all();
+$products = Product::find()->hasVariant(['hasSales' => true])->all();
 ```
 
 ### Model Changes
@@ -138,7 +138,7 @@ Example:
  <input type="hidden" name="action" value="commerce/cart/update-cart">
  {{ redirectInput('shop/shipping') }}
  {{ csrfInput() }}
- <input type="hidden" name"shippingAddressId" value="5"/>
+ <input type="hidden" name="shippingAddressId" value="5"/>
  <input type="text" name="shippingAddress[firstName]" value=""/>
  <input type="text" name="shippingAddress[lastName]" value=""/>
  //..
