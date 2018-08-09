@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
+
 ## 2.0.0-beta.7 - 2018-08-07
 
 ### Added
