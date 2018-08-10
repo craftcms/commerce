@@ -11,6 +11,10 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
+use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
+use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
+use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
@@ -35,6 +39,83 @@ use yii\db\Expression;
  */
 class Variant extends Purchasable
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised before a variant's snapshot is captured
+     *
+     * Plugins can get notified before we capture a variant's field data, and customize which fields are included.
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+     *
+     * Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, function(CustomizeVariantSnapshotFieldsEvent $e) {
+     *     $variant = $e->variant;
+     *     $fields = $e->fields;
+     *     // Modify fields, or set to `null` to capture all.
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
+
+    /**
+     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised after a variant's snapshot is captured.
+     *
+     * Plugins can get notified after we capture a variant's field data, and customize, extend, or redact the data to be persisted.
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
+     *
+     * Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, function(CustomizeVariantSnapshotFieldsEvent $e) {
+     *     $variant = $e->variant;
+     *     $data = $e->fieldData;
+     *     // Modify or redact captured `$data`...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT = 'afterCaptureVariantSnapshot';
+
+    /**
+     * @event craft\commerce\events\CustomizeProductSnapshotFieldsEvent This event is raised before a product snapshot is captured.
+     *
+     * Plugins can get notified before we capture a product's field data, and
+     * customize which fields are included.
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
+     *
+     * Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
+     *     $product = $e->product;
+     *     $fields = $e->fields;
+     *     // Modify fields, or set to `null` to capture all.
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT = 'beforeCaptureProductSnapshot';
+
+    /**
+     * @event craft\commerce\events\CustomizeProductSnapshotDataEvent This event is raised before a product snapshot is captured
+     *
+     * Plugins can get notified after we capture a product's field data, and customize, extend, or redact the data to be persisted.
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use craft\commerce\events\CustomizeProductSnapshotDataEvent;
+     *
+     * Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
+     *     $product = $e->product;
+     *     $data = $e->fieldData;
+     *     // Modify or redact captured `$data`...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
+
+
     // Properties
     // =========================================================================
 
@@ -340,11 +421,57 @@ class Variant extends Purchasable
         // Product Attributes
         $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
-        // Variant Custom Field values
-        $data['productFields'] = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues() : [];
+        // Default Product custom field handles
+        $productFields = [];
+        $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
+            'product' => $this->getProduct(),
+            'fields' => $productFields
+        ]);
 
-        // Variant Custom Field values
-        $data['fields'] = $this->getSerializedFieldValues();
+        // Allow plugins to modify Product fields to be fetched
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT)) {
+            $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
+        }
+
+        // Capture specified Product field data
+        $productFieldData = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues($productFieldsEvent->fields) : [];
+        $productDataEvent = new CustomizeProductSnapshotDataEvent([
+            'product' => $this->getProduct(),
+            'fieldData' => $productFieldData
+        ]);
+
+        // Allow plugins to modify captured Product data
+        if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
+            $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
+        }
+
+        $data['productFields'] = $productDataEvent->fieldData;
+
+        // Default Variant custom field handles
+        $variantFields = [];
+        $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent([
+            'variant' => $this,
+            'fields' => $variantFields
+        ]);
+
+        // Allow plugins to modify fields to be fetched
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT)) {
+            $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
+        }
+
+        // Capture specified Variant field data
+        $variantFieldData = $this->getSerializedFieldValues($variantFieldsEvent->fields);
+        $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
+            'variant' => $this,
+            'fieldData' => $variantFieldData
+        ]);
+
+        // Allow plugins to modify captured Variant data
+        if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT)) {
+            $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
+        }
+
+        $data['fields'] = $variantDataEvent->fieldData;
 
         return array_merge($this->getAttributes(), $data);
     }

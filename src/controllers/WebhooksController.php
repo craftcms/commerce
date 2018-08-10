@@ -28,6 +28,11 @@ class WebhooksController extends BaseController
      */
     protected $allowAnonymous = ['process-webhook'];
 
+    /**
+     * @inheritdoc
+     */
+    public $enableCsrfValidation = false;
+
     // Public Methods
     // =========================================================================
 

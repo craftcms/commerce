@@ -205,7 +205,7 @@ class Tax implements AdjusterInterface
             return [$adjustment];
         }
 
-        // not an order level tax rate, modify line items.
+        // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                 $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
