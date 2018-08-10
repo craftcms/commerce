@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
+- Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
 
 ## 2.0.0-beta.7 - 2018-08-07
 
