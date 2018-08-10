@@ -210,3 +210,9 @@ will return an error array like this:
 ```
 ['lineItem[1].qty' => 'Maximum quantity allowed is 3']
 ```
+
+### Addresses when user session changes
+
+Previously in Commerce 1.x we would strip the addresses from the order when the user logs in. This no longer occurs.
+
+Previously the addresses would also drop if a user logged out, but with the cart remaining in session. In Commerce 2, the whole cart is forgotten when the user logs out.
