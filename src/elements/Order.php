@@ -648,7 +648,7 @@ class Order extends Element
      */
     public function recalculate()
     {
-        // Don't recalculate the totals of completed orders.
+        // Check if the order needs to recalculated
         if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
             return;
         }
@@ -669,12 +669,15 @@ class Order extends Element
             return;
         }
 
-        if (Plugin::getInstance()->getEdition() >= Plugin::Standard) {
-            // collect new adjustments
-            foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-                $adjustments = (new $adjuster)->adjust($this);
-                $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
-            }
+        if (!Plugin::getInstance()->editionGreaterThanOrEqual(Plugin::Edition_Standard)) {
+            $this->setAdjustments([]);
+            return;
+        }
+
+        // collect new adjustments
+        foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+            $adjustments = (new $adjuster)->adjust($this);
+            $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate

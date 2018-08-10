@@ -2,8 +2,8 @@
 
 {% set title = "Commerce Settings"|t('commerce') %}
 
-{% set editionLite = constant('Lite', craft.commerce) %}
-{% set editionStandard = constant('Standard', craft.commerce) %}
+{% set editionLite = constant('Edition_Lite', craft.commerce) %}
+{% set editionStandard = constant('Edition_Standard', craft.commerce) %}
 
 {% set navItems = {
     'general': { title: "General Settings"|t('commerce'), minEdition: editionLite },
@@ -40,7 +40,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for id, item in navItems if craft.commerce.edition >= item.minEdition %}
+            {% for id, item in navItems if craft.commerce.editionGreaterThanOrEqual(item.minEdition) %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

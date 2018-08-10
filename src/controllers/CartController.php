@@ -153,6 +153,7 @@ class CartController extends BaseFrontEndController
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
+
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */
@@ -176,6 +177,12 @@ class CartController extends BaseFrontEndController
             $qty = (int)$request->getParam('qty', 1);
 
             $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+
+            // Only allow one line item to be added to the cart
+            if (Plugin::getInstance()->editionEqualTo(Plugin::Edition_Lite)) {
+                $this->_cart->setLineItems([]);
+            }
+
             $this->_cart->addLineItem($lineItem);
         }
 
@@ -191,6 +198,14 @@ class CartController extends BaseFrontEndController
                 if ($qty > 0) {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
                     $this->_cart->addLineItem($lineItem);
+                }
+            }
+
+            // Only one line item allowed for lite
+            if (Plugin::getInstance()->editionEqualTo(Plugin::Edition_Lite)) {
+                if ($lineItems = $this->_cart->getLineItems()){
+                    // Only add the first line item to the cart
+                    $this->_cart->setLineItems([reset($lineItems)]);
                 }
             }
         }
