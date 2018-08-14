@@ -75,7 +75,7 @@ Previously `craft.commerce.orders` would only return completed orders, now you n
 
 ### Product Queries
 
-Product element queries previously had a `hasSales` param to only return product with active sales applied to one or more of it's variants. The param has now moved to the variant query, and you can acheive the same thing with the `hasVariants` param:
+Product element queries previously had a `hasSales` param to only return product with active sales applied to one or more of it's variants. The param has now moved to the variant query, and you can achieve the same thing with the `hasVariants` param:
 
 You can now do:
 
