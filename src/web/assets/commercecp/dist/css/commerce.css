@@ -16,7 +16,7 @@
 }
 
 .variant-matrixblock .text{
-    background: rgb(250, 250, 250);
+    background: transparent;
 }
 
 body.ltr .variant-matrixblock > .titlebar {
