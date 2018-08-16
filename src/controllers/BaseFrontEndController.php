@@ -57,6 +57,7 @@ class BaseFrontEndController extends BaseController
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
+        $data['paidStatus'] = $cart->getPaidStatus();
         $data['totalQty'] = $cart->getTotalQty();
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
         $data['isEmpty'] = $cart->getIsEmpty();
