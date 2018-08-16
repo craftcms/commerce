@@ -6,7 +6,8 @@
 - Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
 - Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
 - Fixed a SQL error when saving a discount that occurred for some installs.
- 
+- Fixed a bug where it was possible for someone to download the last order purchase receipt in certain scenarios.
+
 ## 2.0.0-beta.7 - 2018-08-07
 
 ### Added
