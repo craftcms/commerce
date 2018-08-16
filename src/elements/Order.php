@@ -995,8 +995,8 @@ class Order extends Element
      */
     public function getOutstandingBalance(): float
     {
-        $totalPaid = Currency::round($this->totalPaid);
-        $totalPrice = Currency::round($this->totalPrice);
+        $totalPaid = Currency::round($this->getTotalPaid());
+        $totalPrice = Currency::round($this->getTotalPrice());
 
         return $totalPrice - $totalPaid;
     }
