@@ -455,7 +455,7 @@ class Customers extends Component
 
         if ($addressesExist)
         {
-            Craft::$app->getElements()->saveElement($order);
+            Craft::$app->getElements()->saveElement($order, false);
         }
     }
 
