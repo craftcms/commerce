@@ -156,10 +156,11 @@ class Transactions extends Component
      *
      * @param Order $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
      * @param Transaction $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
+     * @param string $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
      * @return Transaction
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
      */
-    public function createTransaction(Order $order = null, Transaction $parentTransaction = null): Transaction
+    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, $typeOverride = null): Transaction
     {
         if (!$order && !$parentTransaction) {
             throw new TransactionException('Tried to create a transaction without order or parent transaction');
@@ -179,6 +180,7 @@ class Transactions extends Component
             $transaction->paymentRate = $parentTransaction->paymentRate;
             $transaction->setOrder($parentTransaction->getOrder());
             $transaction->reference = $parentTransaction->reference;
+            $transaction->type = $parentTransaction->type;
         } else {
             $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
@@ -200,6 +202,11 @@ class Transactions extends Component
 
         if ($user) {
             $transaction->userId = $user->id;
+        }
+
+        if ($typeOverride)
+        {
+            $transaction->type = $typeOverride;
         }
 
         // Raise 'afterCreateTransaction' event

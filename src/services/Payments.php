@@ -217,8 +217,7 @@ class Payments extends Component
         }
 
         //creating order, transaction and request
-        $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order);
-        $transaction->type = $defaultAction;
+        $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order, null, $defaultAction);
 
         try {
             /** @var RequestResponseInterface $response */
@@ -365,7 +364,6 @@ class Payments extends Component
         }
 
         $childTransaction = Plugin::getInstance()->getTransactions()->createTransaction(null, $transaction);
-        $childTransaction->type = $transaction->type;
         $this->_updateTransaction($childTransaction, $response);
 
         // Success can mean 2 things in this context.
@@ -513,8 +511,7 @@ class Payments extends Component
      */
     private function _capture(Transaction $parent): Transaction
     {
-        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-        $child->type = TransactionRecord::TYPE_CAPTURE;
+        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_CAPTURE);
 
         $gateway = $parent->getGateway();
 
@@ -554,8 +551,7 @@ class Payments extends Component
                 throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support partial refunds.'));
             }
 
-            $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-            $child->type = TransactionRecord::TYPE_REFUND;
+            $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
             $amount = ($amount ?: $parent->amount);
             $child->paymentAmount = $amount;
             $child->amount = $amount / $parent->paymentRate;
