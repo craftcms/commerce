@@ -22,16 +22,16 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
     {
         // Need to loop over every order that does not have a date paid
         $orderIds = (new Query())
-            ->select(['orders.id'])
-            ->from(['orders' => '{{%commerce_orders}}'])
+            ->select(['id'])
+            ->from('{{%commerce_orders}}')
             ->where(['datePaid' => null])
-            ->andWhere('totalPaid >= totalPrice')
+            ->andWhere('[[totalPaid]] >= [[totalPrice]]')
             ->column();
 
         foreach ($orderIds as $id) {
 
             $recentSuccessfulTransactionDate = (new Query())
-                ->select('dateUpdated')
+                ->select(['dateUpdated'])
                 ->from(['{{%commerce_transactions}}'])
                 ->where([
                     'orderId' => $id,
@@ -52,11 +52,11 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
 
         // Get all order address IDs for completed orders where the address is still in the customers address book
         $badAddresses = (new Query())
-            ->select(['orders.id AS orderId', 'orders.shippingAddressId', 'customerAddresses.addressId'])
+            ->select(['[[orders.id]] AS orderId', '[[orders.shippingAddressId]]', '[[customerAddresses.addressId]]'])
             ->from('{{%commerce_orders}} orders')
             ->where(['orders.isCompleted' => true])
-            ->andWhere('customerAddresses.addressId IS NOT NULL')
-            ->leftJoin('{{%commerce_customers_addresses}} customerAddresses', 'customerAddresses.addressId = orders.shippingAddressId')
+            ->andWhere('[[customerAddresses.addressId]] IS NOT NULL')
+            ->leftJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[orders.shippingAddressId]]')
             ->all();
 
         foreach ($badAddresses as $badAddress) {
@@ -78,11 +78,11 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
 
         // Get all order address IDs for completed orders where the address is still in the customers address book
         $badAddresses = (new Query())
-            ->select(['orders.id AS orderId', 'orders.billingAddressId', 'customerAddresses.addressId'])
+            ->select(['[[orders.id]] AS orderId', '[[orders.billingAddressId]]', '[[customerAddresses.addressId]]'])
             ->from('{{%commerce_orders}} orders')
             ->where(['orders.isCompleted' => true])
-            ->andWhere('customerAddresses.addressId IS NOT NULL')
-            ->leftJoin('{{%commerce_customers_addresses}} customerAddresses', 'customerAddresses.addressId = orders.billingAddressId')
+            ->andWhere('[[customerAddresses.addressId]] IS NOT NULL')
+            ->leftJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[orders.billingAddressId]]')
             ->all();
 
         foreach ($badAddresses as $badAddress) {
