@@ -28,7 +28,6 @@ class DownloadsController extends BaseFrontEndController
      */
     public function actionPdf(): Response
     {
-
         $number = Craft::$app->getRequest()->getQueryParam('number');
         $option = Craft::$app->getRequest()->getQueryParam('option', '');
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);

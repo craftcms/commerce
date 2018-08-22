@@ -79,7 +79,7 @@ class PlansController extends BaseAdminController
 
         $gateways = Plugin::getInstance()->getGateways()->getAllSubscriptionGateways();
         $variables['supportedGateways'] = $gateways;
-        $variables['gatewayOptions'] = [];
+        $variables['gatewayOptions'] = [['value' => '', 'label' => '-']];
 
         foreach ($gateways as $gateway) {
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];

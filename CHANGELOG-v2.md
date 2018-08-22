@@ -1,5 +1,22 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.8 - 2018-08-22
+
+### Added
+- `commerce/cart` actions’ JSON responses now include any address errors.
+
+### Fixed
+- Fixed a CSRF error that could occur when an external gateway tried to call a webhook URL.
+- Fixed a SQL error that occurred when saving a tax rate, if MySQL was running in strict mode.
+- Fixed a SQL error that could occur when saving a discount.
+- Fixed a bug where completed orders could have inaccurate address validation errors. ([#413](https://github.com/craftcms/commerce/issues/413))
+- Fixed a bug where orders’ `datePaid` attributes weren’t getting set on order completion.
+- Fixed a bug where it wasn’t possible to create a subscription plan when only one gateway was available.
+- Fixed a bug where it wasn’t possible to pay for an order in the Control Panel in some cases.
+
+### Security
+- Order queries’ `number` parameter must be set to a complete order number now.
+
 ## 2.0.0-beta.7 - 2018-08-07
 
 ### Added

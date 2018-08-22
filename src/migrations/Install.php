@@ -163,6 +163,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
             'purchasableId' => $this->integer()->notNull(),
+            'purchasableType' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
