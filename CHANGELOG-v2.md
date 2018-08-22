@@ -10,7 +10,7 @@
 
 ### Fixed
 - Fixed an unnecessary CSRF error when an external gateway calls the web hook url.
-- Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
+- Fixed a SQL error that occurred when saving a tax rate when in MySQL strict mode.
 - Fixed a SQL error when saving a discount that occurred for some installs.
 - Fixed incorrect order address validation errors when saving a completed order ([#413](https://github.com/craftcms/commerce/issues/413))
 - Fixed an issue where an order’s `datePaid` attribute was not being set on order completion.
