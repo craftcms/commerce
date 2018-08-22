@@ -1398,10 +1398,21 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource(PaymentSource $paymentSource = null)
+    public function setPaymentSource(PaymentSource $paymentSource)
     {
         $this->paymentSourceId = $paymentSource->id;
         $this->gatewayId = null;
+    }
+
+    /**
+     * Sets the order's selected gateway id.
+     *
+     * @param int $gatewayId
+     */
+    public function setGatewayId(int $gatewayId)
+    {
+        $this->gatewayId = $gatewayId;
+        $this->paymentSourceId = null;
     }
 
     /**
