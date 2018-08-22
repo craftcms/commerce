@@ -3,19 +3,19 @@
 ## Unreleased
 
 ### Added
-- The cart JSON response now includes address errors.
-
-### Changed
-- The order query param `number` now only supports a string.
+- `commerce/cart` actions’ JSON responses now include any address errors.
 
 ### Fixed
-- Fixed an unnecessary CSRF error when an external gateway calls the web hook url.
-- Fixed a SQL error that occurred when saving a tax rate when in MySQL strict mode.
-- Fixed a SQL error when saving a discount that occurred for some installs.
-- Fixed incorrect order address validation errors when saving a completed order ([#413](https://github.com/craftcms/commerce/issues/413))
-- Fixed an issue where an order’s `datePaid` attribute was not being set on order completion.
-- Fixed a bug where it would be impossible to create a subscription plan when only one gateway was available.
-- Fixed a bug where it would be impossible to pay for an order in some cases.
+- Fixed a CSRF error that could occur when an external gateway tried to call a webhook URL.
+- Fixed a SQL error that occurred when saving a tax rate, if MySQL was running in strict mode.
+- Fixed a SQL error that could occur when saving a discount.
+- Fixed a bug where completed orders could have inaccurate address validation errors. ([#413](https://github.com/craftcms/commerce/issues/413))
+- Fixed a bug where orders’ `datePaid` attributes weren’t getting set on order completion.
+- Fixed a bug where it wasn’t possible to create a subscription plan when only one gateway was available.
+- Fixed a bug where it wasn’t possible to pay for an order in the Control Panel in some cases.
+
+### Security
+- Order queries’ `number` parameter must be set to a complete order number now.
 
 ## 2.0.0-beta.7 - 2018-08-07
 
