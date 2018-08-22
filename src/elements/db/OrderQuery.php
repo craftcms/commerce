@@ -476,7 +476,7 @@ class OrderQuery extends ElementQuery
         ]);
 
         if ($this->number) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
+            $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
         }
 
         if ($this->email) {

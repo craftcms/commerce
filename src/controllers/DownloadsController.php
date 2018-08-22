@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
-use craft\helpers\Db;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -30,7 +29,6 @@ class DownloadsController extends BaseFrontEndController
     public function actionPdf(): Response
     {
         $number = Craft::$app->getRequest()->getQueryParam('number');
-        $number = Db::escapeParam($number);
         $option = Craft::$app->getRequest()->getQueryParam('option', '');
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
