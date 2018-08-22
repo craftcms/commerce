@@ -159,7 +159,7 @@ class OrderQuery extends ElementQuery
      * @param string $value The property value
      * @return static self reference
      */
-    public function number($value)
+    public function number(string $value)
     {
         $this->number = $value;
 
