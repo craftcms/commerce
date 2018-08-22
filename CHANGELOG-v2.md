@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added errors to addresses in JSON cart responses.
+
 ### Fixed
 - Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
 - Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.

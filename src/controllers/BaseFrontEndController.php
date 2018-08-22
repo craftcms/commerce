@@ -70,6 +70,9 @@ class BaseFrontEndController extends BaseController
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
             $data['shippingAddress'] = $cart->shippingAddress->attributes;
+            if ($cart->billingAddress->getErrors()) {
+                $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
+            }
         } else {
             $data['shippingAddress'] = null;
         }
@@ -77,6 +80,9 @@ class BaseFrontEndController extends BaseController
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
             $data['billingAddress'] = $cart->billingAddress->attributes;
+            if ($cart->billingAddress->getErrors()) {
+                $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
+            }
         } else {
             $data['billingAddress'] = null;
         }
