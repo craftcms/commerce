@@ -46,7 +46,7 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
             }
         }
 
-        // Fix shipping and billing addresses that were no cloned correctly on order complete.
+        // Fix shipping and billing addresses that were not cloned correctly on order complete.
 
         // Fix Shipping Address ID
 
