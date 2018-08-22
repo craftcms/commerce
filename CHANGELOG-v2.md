@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.8 - 2018-08-22
 
 ### Added
 - `commerce/cart` actions’ JSON responses now include any address errors.
