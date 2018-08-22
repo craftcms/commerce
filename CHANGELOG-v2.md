@@ -6,7 +6,7 @@
 - The cart JSON response now includes address errors.
 
 ### Changed
-- The order Order query param `number` now only supports a string.
+- The order query param `number` now only supports a string.
 
 ### Fixed
 - Fixed an unnecessary CSRF error when an external gateway calls the web hook url.
