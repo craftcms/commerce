@@ -7,7 +7,8 @@
 - Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
 - Fixed a SQL error when saving a discount that occurred for some installs.
 - Fixed incorrect order address validation errors when saving a completed order ([#413](https://github.com/craftcms/commerce/issues/413))
- 
+- Fixed a bug where it would be impossible to create a subscription plan when only one gateway was available.
+
 ## 2.0.0-beta.7 - 2018-08-07
 
 ### Added
