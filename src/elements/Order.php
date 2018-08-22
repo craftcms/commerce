@@ -442,9 +442,26 @@ class Order extends Element
     {
         $rules = parent::rules();
 
-        // Address models are valid?
-        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddress']; // from OrderValidatorTrait
-        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddressReuse']; // from OrderValidatorTrait
+        // Address models are valid
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddress'
+        ]; // from OrderValidatorTrait
+
+        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddressBelongsToOrdersCustomer', 'when' => function($model) {
+                /** @var Order $model */
+                return !$model->isCompleted;
+            }
+        ]; // from OrderValidatorTrait
+
+        // Are the addresses both being set to each other.
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddressReuse', 'when' => function($model) {
+                /** @var Order $model */
+                return !$model->isCompleted;
+            }
+        ]; // from OrderValidatorTrait
 
         // Line items are valid?
         $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
@@ -465,33 +482,39 @@ class Order extends Element
     }
 
     /**
-     * Updates the paid amounts on the order, and marks as complete if the order is paid.
+     * @deprecated
      */
     public function updateOrderPaidTotal()
     {
-        if ($this->getIsPaid()) {
-            if ($this->datePaid === null) {
-                $this->datePaid = Db::prepareDateForDb(new \DateTime());
-            }
+        Craft::$app->getDeprecator()->log('Order::updateOrderPaidTotal()', 'The Order::updateOrderPaidTotal() function has been deprecated. Use Order::Order::updateOrderPaidInformation() instead');
+
+        return $this->updateOrderPaidInformation();
+    }
+
+    /**
+     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
+     */
+    public function updateOrderPaidInformation()
+    {
+        if ($this->getIsPaid() && $this->datePaid === null) {
+            $this->datePaid = Db::prepareDateForDb(new \DateTime());
         }
 
         // Lock for recalculation
         $originalShouldRecalculate = $this->getShouldRecalculateAdjustments();
         $this->setShouldRecalculateAdjustments(false);
-        Craft::$app->getElements()->saveElement($this);
 
+        // Saving the order will update the datePaid as set above and also update the paidStatus.
+        Craft::$app->getElements()->saveElement($this, false);
+
+        // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
-            if ($this->getIsPaid()) {
+            $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
+            if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
                 $this->markAsComplete();
-            } else {
-                // maybe not paid in full, but authorized enough to complete order.
-                $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
-                if ($totalAuthorized >= $this->getTotalPrice()) {
-                    $this->markAsComplete();
-                }
             }
         }
-
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
@@ -768,7 +791,8 @@ class Order extends Element
 
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            if ($customer) {
+            // We need to only save the address to the customers address book while it is a cart
+            if ($customer && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
@@ -779,7 +803,8 @@ class Order extends Element
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            if ($customer) {
+            // We need to only save the address to the customers address book while it is a cart
+            if ($customer && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);

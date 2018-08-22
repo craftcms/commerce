@@ -49,17 +49,30 @@ trait OrderValidatorsTrait
     {
         /** @var Address $address */
         $address = $this->$attribute;
-        $customer = $this->getCustomer();
 
-        if (!$address->validate()) {
+        if ($address && !$address->validate()) {
             $this->addModelErrors($address, $attribute);
         }
+    }
 
-        $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
+    /**
+     * Validates address belongs to the orders custome.
+     *
+     * @param string $attribute the attribute being validated
+     */
+    public function validateAddressBelongsToOrdersCustomer($attribute)
+    {
+        $customer = $this->getCustomer();
+        /** @var Address $address */
+        $address = $this->$attribute;
 
-        if ($address->id && !in_array($address->id, $addressesIds, false)) {
-            $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
-            $this->addModelErrors($address, $attribute);
+        if($customer && $address) {
+            $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
+
+            if ($address->id && !in_array($address->id, $addressesIds, false)) {
+                $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
+                $this->addModelErrors($address, $attribute);
+            }
         }
     }
 

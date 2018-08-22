@@ -388,7 +388,7 @@ class Transactions extends Component
         $model->id = $record->id;
 
         if ($model->status === TransactionRecord::STATUS_SUCCESS) {
-            $model->order->updateOrderPaidTotal();
+            $model->order->updateOrderPaidInformation();
         }
 
         if ($model->status === TransactionRecord::STATUS_PROCESSING) {

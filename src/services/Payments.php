@@ -253,7 +253,8 @@ class Payments extends Component
             }
 
             // Success!
-            $order->updateOrderPaidTotal();
+            $order->updateOrderPaidInformation();
+
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
@@ -373,7 +374,7 @@ class Payments extends Component
         $success = $response->isSuccessful() || $response->isProcessing();
 
         if ($success && $transaction->status === TransactionRecord::STATUS_SUCCESS) {
-            $transaction->order->updateOrderPaidTotal();
+            $transaction->order->updateOrderPaidInformation();
         }
 
         if ($success && $transaction->status === TransactionRecord::STATUS_PROCESSING) {
@@ -410,7 +411,18 @@ class Payments extends Component
             ])
             ->sum('amount');
 
-        $refunded = (float)(new Query())
+        return $paid - $this->getTotalRefundedForOrder($order);
+    }
+
+    /**
+     * Gets the total transactions amount refunded.
+     *
+     * @param Order $order
+     * @return float
+     */
+    public function getTotalRefundedForOrder(Order $order): float
+    {
+        return (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -418,8 +430,6 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_REFUND]
             ])
             ->sum('amount');
-
-        return $paid - $refunded;
     }
 
     /**
@@ -430,7 +440,7 @@ class Payments extends Component
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        return (float)(new Query())
+        $authorized = (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -438,6 +448,8 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
+
+        return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
     // Private Methods

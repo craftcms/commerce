@@ -202,7 +202,7 @@ class OrdersController extends BaseCpController
             $message = $child->message ? ' (' . $child->message . ')' : '';
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
-                $child->order->updateOrderPaidTotal();
+                $child->order->updateOrderPaidInformation();
                 Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction captured successfully: {message}', [
                     'message' => $message
                 ]));
