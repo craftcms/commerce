@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where shipping address errors would not show up in `commerce/cart` actions’ JSON responses.
+
 ## 2.0.0-beta.8 - 2018-08-22
 
 ### Added
