@@ -70,7 +70,7 @@ class BaseFrontEndController extends BaseController
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
             $data['shippingAddress'] = $cart->shippingAddress->attributes;
-            if ($cart->billingAddress->getErrors()) {
+            if ($cart->shippingAddress->getErrors()) {
                 $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
             }
         } else {
