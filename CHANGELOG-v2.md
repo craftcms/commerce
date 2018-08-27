@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.8.1 - 2018-09-27
+
+### Fixed
+- Fixed a bug where shipping address errors would not show up in `commerce/cart` actions’ JSON responses.
+- Fixed a bug where prices were not being displayed in a localized manor, causing price changes when re-saving variants, for some locales.
+
 ## 2.0.0-beta.8 - 2018-08-22
 
 ### Added

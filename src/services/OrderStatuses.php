@@ -216,10 +216,10 @@ class OrderStatuses extends Component
 
             //Delete old links
             if ($model->id) {
-                $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
+                $orderStatusEmailRecords = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
 
-                foreach ($records as $record) {
-                    $record->delete();
+                foreach ($orderStatusEmailRecords as $orderStatusEmailRecord) {
+                    $orderStatusEmailRecord->delete();
                 }
             }
 
