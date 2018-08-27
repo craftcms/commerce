@@ -183,11 +183,6 @@ class Addresses extends Component
             ]));
         }
 
-        if ($runValidation && !$addressModel->validate()) {
-            Craft::info('Address could not save due to validation error.', __METHOD__);
-            return false;
-        }
-
         // Normalize state name values
         if (!empty($addressModel->stateValue)) {
             if ($plugin->getStates()->getStateById((int)$addressModel->stateValue)) {
@@ -202,6 +197,11 @@ class Addresses extends Component
         } else {
             $addressRecord->stateId = $addressModel->stateId;
             $addressRecord->stateName = $addressModel->stateName;
+        }
+
+        if ($runValidation && !$addressModel->validate()) {
+            Craft::info('Address could not save due to validation error.', __METHOD__);
+            return false;
         }
 
         $addressRecord->attention = $addressModel->attention;
