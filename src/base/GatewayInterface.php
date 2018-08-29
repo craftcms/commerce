@@ -8,6 +8,7 @@
 namespace craft\commerce\base;
 
 use craft\base\SavableComponentInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
@@ -169,4 +170,12 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsWebhooks(): bool;
+
+    /**
+     * Returns true if gateway supports payments for the supplied Order.
+     *
+     * @param $order Order The order this gateway can or can not be available for payment with.
+     * @return bool
+     */
+    public function availableForUseWithOrder(Order $order): bool;
 }

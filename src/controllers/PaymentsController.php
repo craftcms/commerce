@@ -133,25 +133,22 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Allow setting the payment method at time of submitting payment.
-        $gatewayId = $request->getParam('gatewayId');
+        if ($gatewayId = $request->getParam('gatewayId')) {
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-        if ($gatewayId) {
-            try {
-                if (!($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId)) || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled)) {
-                    throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
-                }
-
-                $order->setGatewayId((int)$gateway->id);
-            } catch (GatewayException $exception) {
+            if ($gateway && (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled) && !$gateway->availableForUseWithOrder($order)) {
+                $error = Craft::t('commerce', 'Gateway is not available.');
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($exception->getMessage());
+                    return $this->asErrorJson($error);
                 }
 
-                $order->addError('gatewayId', $exception->getMessage());
-                $session->setError($exception->getMessage());
+                $order->addError('gatewayId', $error);
+                $session->setError($error);
 
                 return null;
             }
+
+            $order->gatewayId = $gatewayId;
         }
 
         $gateway = $order->getGateway();

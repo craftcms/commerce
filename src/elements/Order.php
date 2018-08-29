@@ -470,7 +470,7 @@ class Order extends Element
         $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
 
         $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrdesrValidatorsTrait
+        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
 
@@ -1341,7 +1341,7 @@ class Order extends Element
         }
 
         /** @var Gateway $gateway */
-        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
+        if ((!$this->isCompleted && !$gateway->isFrontendEnabled) || !$gateway->availableForUseWithOrder($this)) {
             throw new InvalidConfigException('Gateway not allowed.');
         }
 

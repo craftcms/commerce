@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
+
 ### Fixed
 - Fixed an incorrect validation error that would show up when saving the store location.
 
