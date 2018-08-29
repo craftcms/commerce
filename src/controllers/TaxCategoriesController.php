@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategoriesController extends BaseAdminController
+class TaxCategoriesController extends BaseTaxSettingsController
 {
     // Public Methods
     // =========================================================================

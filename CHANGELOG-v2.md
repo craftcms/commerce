@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed an incorrect validation error that would show up when saving the store location.
 - Fixed a bug where only admins were allowed to edit addresses on orders.
+- Restored missing shipping and tax management settings permissions.
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 
