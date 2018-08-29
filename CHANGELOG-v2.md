@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed an incorrect validation error that would show up when saving the store location.
+
 ## 2.0.0-beta.8.1 - 2018-09-27
 
 ### Fixed

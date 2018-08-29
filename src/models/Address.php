@@ -278,10 +278,23 @@ class Address extends Model
     }
 
     /**
-     * @param $value
+     * Sets the stateId or stateName based on the stateValue set.
+     *
+     * @param string|int $value A state ID or a state name.
      */
     public function setStateValue($value)
     {
-        $this->_stateValue = $value;
+        if ($value) {
+            if (Plugin::getInstance()->getStates()->getStateById((int)$value)) {
+                $this->stateId = $value;
+            } else {
+                $this->stateId = null;
+                $this->stateName = $value;
+            }
+
+            $this->_stateValue = $value;
+        } else {
+            $this->_stateValue = null;
+        }
     }
 }
