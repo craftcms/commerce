@@ -124,6 +124,40 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
+     * @param Order $order
+     * @return array
+     */
+    private function _getUniqueCategoryIdsInOrder(Order $order): array
+    {
+        $orderShippingCategories = [];
+        foreach ($order->lineItems as $lineItem) {
+            $orderShippingCategories[] = $lineItem->shippingCategoryId;
+        }
+        $orderShippingCategories = array_unique($orderShippingCategories);
+        return $orderShippingCategories;
+    }
+
+    /**
+     * @param $shippingRuleCategories
+     * @return array
+     */
+    private function _getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories): array
+    {
+        $disallowedCategories = [];
+        $requiredCategories = [];
+        foreach ($shippingRuleCategories as $ruleCategory) {
+            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
+                $disallowedCategories[] = $ruleCategory->shippingCategoryId;
+            }
+
+            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
+                $requiredCategories[] = $ruleCategory->shippingCategoryId;
+            }
+        }
+        return [$disallowedCategories, $requiredCategories];
+    }
+
+    /**
      * @var ShippingCategory[]
      */
     private $_shippingRuleCategories;
@@ -179,23 +213,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $shippingRuleCategories = $this->getShippingRuleCategories();
 
-        $orderShippingCategories = [];
-        foreach ($order->lineItems as $lineItem) {
-            $orderShippingCategories[] = $lineItem->shippingCategoryId;
-        }
-        $orderShippingCategories = array_unique($orderShippingCategories);
-
-        $disallowedCategories = [];
-        $requiredCategories = [];
-        foreach ($shippingRuleCategories as $ruleCategory) {
-            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_DISALLOW) {
-                $disallowedCategories[] = $ruleCategory->shippingCategoryId;
-            }
-
-            if ($ruleCategory->condition === ShippingRuleCategoryRecord::CONDITION_REQUIRE) {
-                $requiredCategories[] = $ruleCategory->shippingCategoryId;
-            }
-        }
+        $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
+        list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
         // Does the order have any disallowed categories in the cart?
         $result = array_intersect($orderShippingCategories, $disallowedCategories);

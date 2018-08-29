@@ -57,6 +57,7 @@ class BaseFrontEndController extends BaseController
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
+        $data['paidStatus'] = $cart->getPaidStatus();
         $data['totalQty'] = $cart->getTotalQty();
         $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
         $data['isEmpty'] = $cart->getIsEmpty();
@@ -69,6 +70,9 @@ class BaseFrontEndController extends BaseController
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
             $data['shippingAddress'] = $cart->shippingAddress->attributes;
+            if ($cart->shippingAddress->getErrors()) {
+                $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
+            }
         } else {
             $data['shippingAddress'] = null;
         }
@@ -76,6 +80,9 @@ class BaseFrontEndController extends BaseController
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
             $data['billingAddress'] = $cart->billingAddress->attributes;
+            if ($cart->billingAddress->getErrors()) {
+                $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
+            }
         } else {
             $data['billingAddress'] = null;
         }

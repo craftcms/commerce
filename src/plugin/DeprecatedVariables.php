@@ -55,7 +55,7 @@ trait DeprecatedVariables
      */
     public function getCountriesList(): array
     {
-        Craft::$app->getDeprecator()->log('craft.commerce.countriesList', 'craft.commerce.countriesList has been deprecated. Use craft.commerce.countries.countriesAsList instead');
+        Craft::$app->getDeprecator()->log('craft.commerce.countriesList', 'craft.commerce.countriesList has been deprecated. Use craft.commerce.countries.allCountriesAsList instead');
 
         return $this->getCountries()->getAllCountriesAsList();
     }

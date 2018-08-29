@@ -1,0 +1,8 @@
+{% from "_includes/forms" import lightswitchField %}
+
+{{ lightswitchField({
+label: "Only allow this gateway to be used for zero value orders?"|t('commerce'),
+name: 'onlyAllowForZeroPriceOrders',
+on: gateway.onlyAllowForZeroPriceOrders,
+errors: gateway.getErrors('onlyAllowForZeroPriceOrders'),
+}) }}

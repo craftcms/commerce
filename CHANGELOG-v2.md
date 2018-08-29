@@ -2,9 +2,34 @@
 
 ## Unreleased
 
+### Added
+- Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
+
 ### Fixed
-- Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
-- Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
+- Fixed an incorrect validation error that would show up when saving the store location.
+
+## 2.0.0-beta.8.1 - 2018-08-27
+
+### Fixed
+- Fixed a bug where shipping address errors would not show up in `commerce/cart` actions’ JSON responses.
+- Fixed a bug where prices were not being displayed in a localized manor, causing price changes when re-saving variants, for some locales.
+
+## 2.0.0-beta.8 - 2018-08-22
+
+### Added
+- `commerce/cart` actions’ JSON responses now include any address errors.
+
+### Fixed
+- Fixed a CSRF error that could occur when an external gateway tried to call a webhook URL.
+- Fixed a SQL error that occurred when saving a tax rate, if MySQL was running in strict mode.
+- Fixed a SQL error that could occur when saving a discount.
+- Fixed a bug where completed orders could have inaccurate address validation errors. ([#413](https://github.com/craftcms/commerce/issues/413))
+- Fixed a bug where orders’ `datePaid` attributes weren’t getting set on order completion.
+- Fixed a bug where it wasn’t possible to create a subscription plan when only one gateway was available.
+- Fixed a bug where it wasn’t possible to pay for an order in the Control Panel in some cases.
+
+### Security
+- Order queries’ `number` parameter must be set to a complete order number now.
 
 ## 2.0.0-beta.7 - 2018-08-07
 

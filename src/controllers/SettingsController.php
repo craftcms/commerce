@@ -146,7 +146,6 @@ class SettingsController extends BaseAdminController
 
         $address->isStoreLocation = true;
 
-        // Save it
         if ($address->validate() && Plugin::getInstance()->getAddresses()->saveAddress($address)) {
 
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Store Location saved.'));
