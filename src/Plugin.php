@@ -258,6 +258,8 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageShipping' => array('label' => Craft::t('Manage shipping')),
+                'commerce-manageTaxes' => array('label' => Craft::t('Manage taxes')),
             ];
         });
     }
