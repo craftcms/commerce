@@ -5,6 +5,7 @@
 ### Added
 - Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
 - Submitting a a quantity of zero for a line item in the `commerce/cart/update-cart` action will remove the line item from the cart.
+- Product queries now have a `availableForPurchase` param.
 
 ### Fixed
 - Fixed an incorrect validation error that would show up when saving the store location.
