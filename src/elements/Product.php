@@ -164,6 +164,11 @@ class Product extends Element
      */
     private $_defaultVariant;
 
+	/**
+	 * @var Variant This product's cheapest variant
+	 */
+    private $_cheapestVariant;
+
     /**
      * @var array The variant IDs to delete
      */
@@ -373,6 +378,29 @@ class Product extends Element
 
         return $this->_defaultVariant;
     }
+
+    /**
+     * Return the cheapest variant.
+     *
+     * @return Variant
+     */
+    public function getCheapestVariant(): Variant
+    {
+        if ($this->_cheapestVariant) {
+            return $this->_cheapestVariant;
+        }
+
+        foreach ($this->getVariants() as $variant) {
+            if (
+                !$this->_cheapestVariant
+                || $variant->getSalePrice() < $this->_cheapestVariant->getSalePrice()
+            ) {
+                $this->_cheapestVariant = $variant;
+            }
+        }
+
+        return $this->_cheapestVariant;
+	}
 
     /**
      * Returns an array of the product's variants.
