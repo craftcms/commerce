@@ -743,7 +743,7 @@ class Product extends Element
                 }
 
                 if (count(array_unique($skus)) < count($skus)) {
-                    $this->addError('variants', 'Not Unique');
+                    $this->addError('variants', Craft::t('commerce','One or more SKU’s are not unique.'));
                 }
             }
         ];
