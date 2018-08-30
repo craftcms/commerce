@@ -738,13 +738,11 @@ class Product extends Element
             ['variants'], function($model) {
                 /** @var Product $model */
                 $skus = [];
-                foreach ($this->getVariants() as $variant)
-                {
+                foreach ($this->getVariants() as $variant) {
                     $skus[] = $variant->getSku();
                 }
 
-                if (count(array_unique($skus))<count($skus))
-                {
+                if (count(array_unique($skus)) < count($skus)) {
                     $this->addError('variants', 'Not Unique');
                 }
             }
