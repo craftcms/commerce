@@ -92,7 +92,7 @@ class ProductQuery extends ElementQuery
     /**
      * @var bool Whether the product is available for purchase
      */
-    public $availableForPurchase = true;
+    public $availableForPurchase;
 
     /**
      * @inheritdoc
