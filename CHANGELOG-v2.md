@@ -12,6 +12,7 @@
 - Fixed a bug where only admins were allowed to edit addresses on orders.
 - Restored missing shipping and tax management settings permissions.
 - Fixed a bug where variant errors would not show up on the Edit Product page in some cases.
+- Fixed a bug when saving a default order status, the default attribute was not saved. ([#476](https://github.com/craftcms/commerce/issues/476))
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 
