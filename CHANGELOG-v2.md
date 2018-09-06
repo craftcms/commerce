@@ -6,14 +6,14 @@
 - Added the `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED` event.
 - Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
 - Submitting a a quantity of zero for a line item in the `commerce/cart/update-cart` action will remove the line item from the cart.
-- Product queries now have a `availableForPurchase` param.
+- Product queries now have an `availableForPurchase` param.
 
 ### Fixed
 - Fixed an incorrect validation error that would show up when saving the store location.
-- Fixed a bug where only admins were allowed to edit addresses on orders.
+- Fixed a bug where only admins were allowed to edit addresses on the Edit Order page.
 - Restored missing shipping and tax management settings permissions.
 - Fixed a bug where variant errors would not show up on the Edit Product page in some cases.
-- Fixed a bug when saving a default order status, the default attribute was not saved. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a bug when saving a default order status, the `default` attribute was not saved. ([#476](https://github.com/craftcms/commerce/issues/476))
 - Fixed an incorrect validation error caused by saving more than one variant with a generated SKU. ([#451](https://github.com/craftcms/commerce/issues/451))
 - Fixed an issue where the PDF URL was not accessible by customers in some cases.
 
