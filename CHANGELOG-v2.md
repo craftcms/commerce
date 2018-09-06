@@ -13,6 +13,7 @@
 - Restored missing shipping and tax management settings permissions.
 - Fixed a bug where variant errors would not show up on the Edit Product page in some cases.
 - Fixed a bug when saving a default order status, the default attribute was not saved. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a incorrect validation error caused by saving more than one variant with a generated SKU. ([#451](https://github.com/craftcms/commerce/issues/451))
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 
