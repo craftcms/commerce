@@ -900,7 +900,9 @@ class Order extends Element
         try {
             $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
-                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : null));
+                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
+                $url = UrlHelper::siteUrl($path);
             }
         } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
