@@ -217,7 +217,7 @@ class Plugin extends BasePlugin
             $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:'.$productType->id;
+                    $productSources[] = 'productType:' . $productType->id;
                 }
             }
 

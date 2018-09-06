@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED` event.
 - Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
 - Submitting a a quantity of zero for a line item in the `commerce/cart/update-cart` action will remove the line item from the cart.
 - Product queries now have a `availableForPurchase` param.
