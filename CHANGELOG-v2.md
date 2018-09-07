@@ -3,19 +3,21 @@
 ## Unreleased
 
 ### Added
-- Added the `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED` event.
-- Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
-- Submitting a a quantity of zero for a line item in the `commerce/cart/update-cart` action will remove the line item from the cart.
+- Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
+- Added a new setting to the Manual payment gateway that restricts it to only be used on zero value orders.
 - Product queries now have an `availableForPurchase` param.
 
+### Changed
+- The `commerce/cart/update-cart` action will now remove items from the cart with a quantity of zero.
+
 ### Fixed
-- Fixed an incorrect validation error that would show up when saving the store location.
-- Fixed a bug where only admins were allowed to edit addresses on the Edit Order page.
-- Restored missing shipping and tax management settings permissions.
-- Fixed a bug where variant errors would not show up on the Edit Product page in some cases.
-- Fixed a bug when saving a default order status, the `default` attribute was not saved. ([#476](https://github.com/craftcms/commerce/issues/476))
-- Fixed an incorrect validation error caused by saving more than one variant with a generated SKU. ([#451](https://github.com/craftcms/commerce/issues/451))
-- Fixed an issue where the PDF URL was not accessible by customers in some cases.
+- Fixed a bug where store locations could get incorrect validation errors.
+- Fixed a bug where only admins were allowed to edit addresses on Edit Order pages.
+- Restored missing shipping and tax management permission settings.
+- Fixed a bug where variant errors would not show up on Edit Product pages in some cases.
+- Fixed a bug where order statuses weren’t remembering whether they were the default status. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a bug where variants with generated SKUs could get incorrect validation errors. ([#451](https://github.com/craftcms/commerce/issues/451))
+- Fixed a bug where order PDF URLs weren’t accessible to customers in some cases.
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 
