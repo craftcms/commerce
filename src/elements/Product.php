@@ -926,11 +926,11 @@ class Product extends Element
         ];
 
         if (!empty($productTypes)) {
-            $userSessionService = Craft::$app->getUser();
+            $userSession = Craft::$app->getUser();
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSessionService->checkPermission('commerce-manageProductType:' . $productType->id);
+                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->id);
             }
 
             if ($canManage) {
@@ -944,7 +944,7 @@ class Product extends Element
                 $actions[] = SetStatus::class;
             }
 
-            if ($userSessionService->checkPermission('commerce-managePromotions')) {
+            if ($userSession->checkPermission('commerce-managePromotions')) {
                 $actions[] = CreateSale::class;
                 $actions[] = CreateDiscount::class;
             }
