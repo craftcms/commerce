@@ -169,10 +169,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin()) {
+        if (Craft::$app->getUser()->getIsAdmin() || Craft::$app->getUser()->checkPermission('commerce-manageShipping') || Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
-                'url' => 'commerce/settings/general'
+                'url' => 'commerce/settings'
             ];
         }
 
@@ -217,7 +217,7 @@ class Plugin extends BasePlugin
             $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:'.$productType->id;
+                    $productSources[] = 'productType:' . $productType->id;
                 }
             }
 
@@ -258,6 +258,8 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
             ];
         });
     }

@@ -2,6 +2,9 @@
 
 {% set title = "Commerce Settings"|t('commerce') %}
 
+{% set navItems = {} %}
+
+{% if currentUser.admin %}
 {% set navItems = {
     'general': { title: "General Settings"|t('commerce') },
     'ordersettings': { title: "Order Fields"|t('commerce') },
@@ -17,16 +20,29 @@
     'subscriptions/fields': { title: "Subscription Fields"|t('commerce') },
     'regions-heading': { heading: "Regions"|t('commerce') },
     'countries': { title: "Countries"|t('commerce') },
-    'states': { title: "States"|t('commerce') },
+    'states': { title: "States"|t('commerce') }
+} %}
+{% endif %}
+
+{% if currentUser.admin or currentUser.can('commerce-manageShipping') %}
+{% set navItems = navItems|merge({
+    'shipping-heading': { heading: "Shipping"|t('commerce') },
+    'shippingcategories': { title: "Shipping Categories"|t('commerce') },
+    'shippingzones': { title: "Shipping Zones"|t('commerce') },
+    'shippingmethods': { title: "Shipping Methods"|t('commerce') }
+}) %}
+{% endif %}
+
+{% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}
+{% set navItems = navItems|merge({
     'taxes-heading': { heading: "Taxes"|t('commerce') },
     'taxcategories': { title: "Tax Categories"|t('commerce') },
     'taxzones': { title: "Tax Zones"|t('commerce') },
-    'taxrates': { title: "Tax Rates"|t('commerce') },
-    'shipping-heading': { heading: "Shipping"|t },
-    'shippingcategories': { title: "Shipping Categories"|t },
-    'shippingzones': { title: "Shipping Zones"|t },
-    'shippingmethods': { title: "Shipping Methods"|t }
-} %}
+    'taxrates': { title: "Tax Rates"|t('commerce') }
+}) %}
+{% endif %}
+
+
 
 {% if selectedItem is not defined %}
     {% set selectedItem = craft.app.request.getSegment(3) %}

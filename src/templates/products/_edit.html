@@ -139,6 +139,13 @@
                     <label>{{ 'Variants'|t('commerce') }}</label>
                 </div>
                 <div class="input">
+
+                    {% if product.hasErrors('variants') %}
+                    {% for error in product.getErrors('variants') %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                    {% endif %}
+
                     {{ variantMatrixHtml|raw }}
                 </div>
             </div>

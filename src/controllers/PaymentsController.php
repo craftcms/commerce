@@ -68,9 +68,9 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Are we paying anonymously?
-        $user = Craft::$app->getUser();
+        $userSession = Craft::$app->getUser();
 
-        if (!$order->getIsActiveCart() && !$user->checkPermission('commerce-manageOrders')) {
+        if (!$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders')) {
             if ($order->getEmail() !== $request->getParam('email')) {
                 $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
 
@@ -133,25 +133,22 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Allow setting the payment method at time of submitting payment.
-        $gatewayId = $request->getParam('gatewayId');
+        if ($gatewayId = $request->getParam('gatewayId')) {
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-        if ($gatewayId) {
-            try {
-                if (!($gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId)) || (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled)) {
-                    throw new GatewayException(Craft::t('commerce', 'Payment gateway does not exist or is not allowed.'));
-                }
-
-                $order->setGatewayId((int)$gateway->id);
-            } catch (GatewayException $exception) {
+            if ($gateway && (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled) && !$gateway->availableForUseWithOrder($order)) {
+                $error = Craft::t('commerce', 'Gateway is not available.');
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($exception->getMessage());
+                    return $this->asErrorJson($error);
                 }
 
-                $order->addError('gatewayId', $exception->getMessage());
-                $session->setError($exception->getMessage());
+                $order->addError('gatewayId', $error);
+                $session->setError($error);
 
                 return null;
             }
+
+            $order->gatewayId = $gatewayId;
         }
 
         $gateway = $order->getGateway();
@@ -174,10 +171,10 @@ class PaymentsController extends BaseFrontEndController
         $paymentForm->setAttributes($request->getBodyParams(), false);
 
         try {
-            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
+            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $userSession->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
                 try {
-                    if ($user->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $user->getId()) {
+                    if ($userSession->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $userSession->getId()) {
                         throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
                     }
                     $order->gatewayId = null;
@@ -218,7 +215,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Allowed to update order's custom fields?
-        if ($order->getIsActiveCart() || $user->checkPermission('commerce-manageOrders')) {
+        if ($order->getIsActiveCart() || $userSession->checkPermission('commerce-manageOrders')) {
             $order->setFieldValuesFromRequest('fields');
         }
 

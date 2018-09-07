@@ -58,7 +58,7 @@
                                     <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
                                     <input type="number"
                                            name="lineItems[{{ item.id }}][qty]"
-                                           min="1" value="{{ item.qty }}">
+                                           min="0" value="{{ item.qty }}">
                                 </span>
 
                                 </td>

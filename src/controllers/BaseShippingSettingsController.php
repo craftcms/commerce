@@ -8,12 +8,12 @@
 namespace craft\commerce\controllers;
 
 /**
- * Class Base Admin Controller
+ * Class BaseShippingSettingController
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BaseAdminController extends BaseCpController
+class BaseShippingSettingsController extends BaseCpController
 {
     // Public Methods
     // =========================================================================
@@ -23,7 +23,8 @@ class BaseAdminController extends BaseCpController
      */
     public function init()
     {
-        $this->requireAdmin();
+        // All system setting actions require access to commerce
+        $this->requirePermission('commerce-manageShipping');
 
         parent::init();
     }

@@ -190,11 +190,11 @@ class SubscriptionsController extends BaseController
         try {
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
             $subscription = Subscription::find()->id($subscriptionId)->one();
-            $currentUser = Craft::$app->getUser();
+            $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionId && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -247,11 +247,11 @@ class SubscriptionsController extends BaseController
         try {
             $subscription = Subscription::find()->id($subscriptionId)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanById($planId);
-            $currentUser = Craft::$app->getUser();
+            $userSession = Craft::$app->getUser();
 
             $validData = $planId && $plan && $subscriptionId && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -310,10 +310,10 @@ class SubscriptionsController extends BaseController
             $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
 
             $subscription = Subscription::find()->id($subscriptionId)->one();
-            $currentUser = Craft::$app->getUser();
+            $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionId && $subscription;
-            $canModifySubscription = ($subscription->userId === $currentUser->getId()) || $currentUser->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */

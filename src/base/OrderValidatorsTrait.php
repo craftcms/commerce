@@ -18,10 +18,10 @@ trait OrderValidatorsTrait
     public function validateGatewayId($attribute, $params, Validator $validator)
     {
         try {
-            // this will confirm the gateway is
+            /** @var GatewayInterface $gateway */
             $this->getGateway();
         } catch (InvalidConfigException $e) {
-            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid gateway ID: {value}'));
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid gateway: {value}'));
         }
     }
 

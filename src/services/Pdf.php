@@ -79,7 +79,7 @@ class Pdf extends Component
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
 
-            throw new Exception('Template file does not exist.');
+            throw new Exception('PDF template file does not exist.');
         }
 
         try {

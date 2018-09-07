@@ -705,6 +705,28 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function beforeValidate(): bool
+    {
+        // We need to generate all variant sku formats before validating the product,
+        // since the product validates the uniqueness of all variants in memory.
+        $type = $this->getType();
+        foreach ($this->getVariants() as $variant) {
+            if (!$variant->sku && $type->skuFormat) {
+                try {
+                    $variant->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $variant);
+                } catch (\Exception $e) {
+                    Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
+                    $variant->sku = '';
+                }
+            }
+        }
+
+        return parent::beforeValidate();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function beforeDelete(): bool
     {
         $this->_variantIdsToDelete = Variant::find()->product($this)->ids();
@@ -738,14 +760,12 @@ class Product extends Element
             ['variants'], function($model) {
                 /** @var Product $model */
                 $skus = [];
-                foreach ($this->getVariants() as $variant)
-                {
+                foreach ($this->getVariants() as $variant) {
                     $skus[] = $variant->getSku();
                 }
 
-                if (count(array_unique($skus))<count($skus))
-                {
-                    $this->addError('variants', 'Not Unique');
+                if (count(array_unique($skus)) < count($skus)) {
+                    $this->addError('variants', Craft::t('commerce', 'One or more SKU’s are not unique.'));
                 }
             }
         ];
@@ -906,11 +926,11 @@ class Product extends Element
         ];
 
         if (!empty($productTypes)) {
-            $userSessionService = Craft::$app->getUser();
+            $userSession = Craft::$app->getUser();
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSessionService->checkPermission('commerce-manageProductType:' . $productType->id);
+                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->id);
             }
 
             if ($canManage) {
@@ -924,7 +944,7 @@ class Product extends Element
                 $actions[] = SetStatus::class;
             }
 
-            if ($userSessionService->checkPermission('commerce-managePromotions')) {
+            if ($userSession->checkPermission('commerce-managePromotions')) {
                 $actions[] = CreateSale::class;
                 $actions[] = CreateDiscount::class;
             }

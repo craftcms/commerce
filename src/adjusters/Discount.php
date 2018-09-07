@@ -8,8 +8,10 @@
 namespace craft\commerce\adjusters;
 
 use Craft;
+use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\events\DiscountAdjustmentsEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\OrderAdjustment;
@@ -22,7 +24,7 @@ use craft\commerce\records\Discount as DiscountRecord;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Discount implements AdjusterInterface
+class Discount extends Component implements AdjusterInterface
 {
     // Constants
     // =========================================================================
@@ -31,6 +33,23 @@ class Discount implements AdjusterInterface
      * The discount adjustment type.
      */
     const ADJUSTMENT_TYPE = 'discount';
+
+    /**
+     * @event DiscountAdjustmentsEvent The event that is raised after a discount has matched the order and before it returns it's adjustments.
+     *
+     * Plugins can get notified before a line item is being saved
+     *
+     * ```php
+     * use craft\commerce\adjusters\Discount;
+     * use yii\base\Event;
+     *
+     * Event::on(Discount::class, Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, function(DiscountAdjustmentsEvent $e) {
+     *     // Do something - perhaps use a 3rd party to check order data and cancel all adjustments for this discount or modify the adjustments.
+     * });
+     * ```
+     */
+    const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
+
 
     // Properties
     // =========================================================================
@@ -70,6 +89,8 @@ class Discount implements AdjusterInterface
         }
 
         $adjustments = [];
+
+
         foreach ($availableDiscounts as $discount) {
             $newAdjustments = $this->_getAdjustments($discount);
             if ($newAdjustments) {
@@ -222,11 +243,23 @@ class Discount implements AdjusterInterface
         }
 
         // only display adjustment if an amount was calculated
-
-        if (count($adjustments)) {
-            return $adjustments;
+        if (!count($adjustments)) {
+            return false;
         }
 
-        return false;
+        // Raise the 'beforeMatchLineItem' event
+        $event = new DiscountAdjustmentsEvent([
+            'order' => $this->_order,
+            'discount' => $discount,
+            'adjustments' => $adjustments
+        ]);
+
+        $this->trigger(self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);
+
+        if (!$event->isValid) {
+            return false;
+        }
+
+        return $event->adjustments;
     }
 }

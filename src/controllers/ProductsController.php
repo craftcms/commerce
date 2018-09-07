@@ -361,7 +361,7 @@ class ProductsController extends BaseCpController
             if ($product->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
                     /** @var Field $field */
-                    if ($hasErrors = $product->hasErrors($field->handle)) {
+                    if ($hasErrors = $product->hasErrors($field->handle . '.*')) {
                         break;
                     }
                 }

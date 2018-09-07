@@ -7,6 +7,7 @@
 
 namespace craft\commerce\adjusters;
 
+use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -21,7 +22,7 @@ use craft\commerce\Plugin;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Shipping implements AdjusterInterface
+class Shipping extends Component implements AdjusterInterface
 {
     // Constants
     // =========================================================================
