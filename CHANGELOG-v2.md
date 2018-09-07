@@ -18,6 +18,7 @@
 - Fixed a bug where order statuses weren’t remembering whether they were the default status. ([#476](https://github.com/craftcms/commerce/issues/476))
 - Fixed a bug where variants with generated SKUs could get incorrect validation errors. ([#451](https://github.com/craftcms/commerce/issues/451))
 - Fixed a bug where order PDF URLs weren’t accessible to customers in some cases.
+- Fixed a bug where Edit Product pages weren’t revealing which tab(s) had errors on it, if the errors occurred within a Matrix field.
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 
