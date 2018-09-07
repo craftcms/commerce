@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.0.0-beta.9 - 2018-09-07
+
 ### Added
 - Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
 - Added a new setting to the Manual payment gateway that restricts it to only be used on zero value orders.
