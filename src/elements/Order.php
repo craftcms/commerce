@@ -103,9 +103,9 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
-     * @event \yii\base\Event This event is raised when an order is completed
+     * @event \yii\base\Event This event is raised when a line item is added to the order
      *
-     * Plugins can get notified before an order is completed
+     * Plugins can get notified after a line item has been added to the order
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -141,7 +141,7 @@ class Order extends Element
     /**
      * @event \yii\base\Event This event is raised after an order is completed
      *
-     * Plugins can get notified before an address is being saved
+     * Plugins can get notified after an order is completed
      *
      * ```php
      * use craft\commerce\elements\Order;
