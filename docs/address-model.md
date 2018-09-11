@@ -45,7 +45,7 @@ Returns the state name saved on the address. This will be null if the `stateId` 
 
 ### stateText
 Read only. Alias of `getStateText()`  
-Returns he related state's name based on the `stateId`, or the `stateName` if `stateId` is null.
+Returns the related state's name based on the `stateId`, or the `stateName` if `stateId` is null.
 
 ### countryId
 The record ID of the related country (required).
