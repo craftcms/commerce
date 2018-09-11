@@ -68,6 +68,9 @@ Returns the related Country Model.
 ### getCountryText()
 Returns the related country's name based on the `countryId`.
 
+### setStateValue($value)
+Sets the `stateId` or `stateName`. Accepts either a valid state ID or a free-text state name. 
+
 # States
 
 You can create states in a relationship with countries within the Control Panel.
