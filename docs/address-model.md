@@ -44,14 +44,14 @@ The record ID of the related state, if one was related to the address.
 Returns the state name saved on the address. This will be null if the `stateId` was set.
 
 ### stateText
-Read only. Alias of `getStateText()`
+Read only. Alias of `getStateText()`  
 Returns he related state's name based on the `stateId`, or the `stateName` if `stateId` is null.
 
 ### countryId
 The record ID of the related country (required).
 
 ### countryText
-Read only. Alias of `getCountryText()`
+Read only. Alias of `getCountryText()`  
 Returns the related country's name based on the `countryId`.
 
 # Methods
@@ -69,7 +69,8 @@ Returns the related Country Model.
 Returns the related country's name based on the `countryId`.
 
 ### setStateValue($value)
-Sets the `stateId` or `stateName`. Accepts either a valid state ID or a free-text state name. 
+Sets the `stateId` or `stateName`.  
+Accepts either a valid state ID or a free-text state name. 
 
 # States
 
