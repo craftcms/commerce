@@ -37,31 +37,57 @@ Business Name.
 ### businessTaxId
 Business Tax ID. No automatic validation of this ID occurs.
 
-### stateText
-Alias of `getStateText()`
-Returns the `stateName` if it exists, otherwise the related state's name.
+### stateId
+The record ID of the related state, if one was related to the address. 
 
 ### stateName
+Returns the state name saved on the address. This will be null if the `stateId` was set.
+
+### stateText
+Read only. Alias of `getStateText()`
+Returns he related state's name based on the `stateId`, or the `stateName` if `stateId` is null.
 
 ### countryId
 The record ID of the related country (required).
 
-### stateId
-The record ID of the related state.
-
-### stateText
-Alias of getStateText()
-
 ### countryText
-Alias of getCountryText()
+Read only. Alias of `getCountryText()`
+Returns the related country's name based on the `countryId`.
 
 # Methods
 
+### getState()
+Returns the related State Model is it exists, or null if it does not.
+
 ### getStateText()
-Returns the `stateName` if it exists, otherwise the related state's name.
+Returns the `stateName` value if it exists, otherwise the related state's name.
 
 ## getCountry()
-Returns the related Country Model is it exists, or a blank string if it does not.
+Returns the related Country Model.
 
-## getState()
-Returns the related State Model is it exists, or null if it does not.
+### getCountryText()
+Returns the related country's name based on the `countryId`.
+
+# States
+
+You can create states in a relationship with countries within the Control Panel.
+
+Not all states need to be created in the Control Panel, unless you have enforced a real state to exist when setting up the country. A free-text state name can be submitted and stored in the `stateName` attribute.
+
+The address model allows for free-text state text to be submitted instead of a `stateId`. When submitting the state value from a form there is a special `stateValue` param available for convenience. It accepts either a valid state ID or a free-text state name.
+
+# Validation
+
+By default the `firstName`, `lastName` and `countyId` are required attributes when saving an address.
+
+Using the `Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event, you can modify the rules array.
+
+ ```php
+  use craft\commerce\events\RegisterAddressRulesEvent;
+  use craft\commerce\models\Address;
+  
+  Event::on(Address::class, Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES, function(RegisterAddressRulesEvent $event) {
+    $event->rules[] = [['attention'], 'required'];
+  });
+```
+
