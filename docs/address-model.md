@@ -62,7 +62,7 @@ Returns the related State Model is it exists, or null if it does not.
 ### getStateText()
 Returns the `stateName` value if it exists, otherwise the related state's name.
 
-## getCountry()
+### getCountry()
 Returns the related Country Model.
 
 ### getCountryText()
