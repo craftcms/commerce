@@ -60,7 +60,7 @@ Returns the related country's name based on the `countryId`.
 Returns the related State Model is it exists, or null if it does not.
 
 ### getStateText()
-Returns the `stateName` value if it exists, otherwise the related state's name.
+Returns the related state's name based on the stateId, or the stateName if stateId is null.
 
 ### getCountry()
 Returns the related Country Model.
