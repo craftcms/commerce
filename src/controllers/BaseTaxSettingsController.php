@@ -8,12 +8,12 @@
 namespace craft\commerce\controllers;
 
 /**
- * Class Base Admin Controller
+ * Class BaseTaxSettingsController
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BaseAdminController extends BaseCpController
+class BaseTaxSettingsController extends BaseCpController
 {
     // Public Methods
     // =========================================================================
@@ -23,7 +23,8 @@ class BaseAdminController extends BaseCpController
      */
     public function init()
     {
-        $this->requireAdmin();
+        // All system setting actions require access to commerce
+        $this->requirePermission('commerce-manageTaxes');
 
         parent::init();
     }

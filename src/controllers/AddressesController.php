@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class AddressesController extends BaseAdminController
+class AddressesController extends BaseCpController
 {
     // Public Methods
     // =========================================================================
@@ -30,6 +30,7 @@ class AddressesController extends BaseAdminController
     public function init()
     {
         $this->requirePermission('commerce-manageOrders');
+
         parent::init();
     }
 

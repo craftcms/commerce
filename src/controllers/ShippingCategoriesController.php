@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategoriesController extends BaseAdminController
+class ShippingCategoriesController extends BaseShippingSettingsController
 {
     // Public Methods
     // =========================================================================

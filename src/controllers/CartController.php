@@ -149,7 +149,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requireAcceptsJson();
 
-        $this->_cart = PLugin::getInstance()->getCarts()->getCart();
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
@@ -223,7 +223,7 @@ class CartController extends BaseFrontEndController
                     $lineItem->setOptions($options);
                 }
 
-                if ($removeLine) {
+                if ($removeLine || $qty == 0) {
                     $this->_cart->removeLineItem($lineItem);
                 } else {
                     $this->_cart->addLineItem($lineItem);

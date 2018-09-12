@@ -16,6 +16,7 @@ use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
@@ -35,7 +36,6 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\errors\OrderStatusException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -103,9 +103,9 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
-     * @event \yii\base\Event This event is raised when an order is completed
+     * @event \yii\base\Event This event is raised when a line item is added to the order
      *
-     * Plugins can get notified before an order is completed
+     * Plugins can get notified after a line item has been added to the order
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -141,7 +141,7 @@ class Order extends Element
     /**
      * @event \yii\base\Event This event is raised after an order is completed
      *
-     * Plugins can get notified before an address is being saved
+     * Plugins can get notified after an order is completed
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -470,7 +470,7 @@ class Order extends Element
         $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
 
         $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrdesrValidatorsTrait
+        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
 
@@ -900,7 +900,9 @@ class Order extends Element
         try {
             $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
-                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : null));
+                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
+                $url = UrlHelper::siteUrl($path);
             }
         } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
@@ -1341,7 +1343,7 @@ class Order extends Element
         }
 
         /** @var Gateway $gateway */
-        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
+        if ((!$this->isCompleted && !$gateway->isFrontendEnabled) || !$gateway->availableForUseWithOrder($this)) {
             throw new InvalidConfigException('Gateway not allowed.');
         }
 

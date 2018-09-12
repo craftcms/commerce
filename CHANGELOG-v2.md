@@ -2,8 +2,31 @@
 
 ## Unreleased
 
+## 2.0.0-beta.9 - 2018-09-07
+
+### Added
+- Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
+- Added a new setting to the Manual payment gateway that restricts it to only be used on zero value orders.
+- Product queries now have an `availableForPurchase` param.
+
+### Changed
+- The `commerce/cart/update-cart` action will now remove items from the cart with a quantity of zero.
+
+### Fixed
+- Fixed a bug where store locations could get incorrect validation errors.
+- Fixed a bug where only admins were allowed to edit addresses on Edit Order pages.
+- Restored missing shipping and tax management permission settings.
+- Fixed a bug where variant errors would not show up on Edit Product pages in some cases.
+- Fixed a bug where order statuses weren’t remembering whether they were the default status. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a bug where variants with generated SKUs could get incorrect validation errors. ([#451](https://github.com/craftcms/commerce/issues/451))
+- Fixed a bug where order PDF URLs weren’t accessible to customers in some cases.
+- Fixed a bug where Edit Product pages weren’t revealing which tab(s) had errors on it, if the errors occurred within a Matrix field.
+
+## 2.0.0-beta.8.1 - 2018-08-27
+
 ### Fixed
 - Fixed a bug where shipping address errors would not show up in `commerce/cart` actions’ JSON responses.
+- Fixed a bug where prices were not being displayed in a localized manor, causing price changes when re-saving variants, for some locales.
 
 ## 2.0.0-beta.8 - 2018-08-22
 

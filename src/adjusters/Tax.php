@@ -8,6 +8,7 @@
 namespace craft\commerce\adjusters;
 
 use Craft;
+use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -24,8 +25,10 @@ use DvK\Vat\Validator;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property \DvK\Vat\Validator $vatValidator
  */
-class Tax implements AdjusterInterface
+class Tax extends Component implements AdjusterInterface
 {
     // Constants
     // =========================================================================

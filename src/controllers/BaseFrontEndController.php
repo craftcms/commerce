@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
+use craft\helpers\UrlHelper;
 
 /**
  * Class BaseFrontEndController
@@ -59,7 +60,7 @@ class BaseFrontEndController extends BaseController
         $data['isPaid'] = $cart->getIsPaid();
         $data['paidStatus'] = $cart->getPaidStatus();
         $data['totalQty'] = $cart->getTotalQty();
-        $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
+        $data['pdfUrl'] = UrlHelper::actionUrl("commerce/downloads/pdf?number={$cart->number}&option=ajax");
         $data['isEmpty'] = $cart->getIsEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->getTotalWeight();
