@@ -1,9 +1,9 @@
 # Order Model
-Whenever you’re dealing with an order or cart in your template, you’re actually working with an `Commerce_OrderModel` object.
+Whenever you’re dealing with an order or cart in your template, you’re actually working with an `\craft\commerce\elements\Order` object.
 
 ## Simple Output
 
-Outputting an `Commerce_OrderModel` object in yout template without attaching a property or method will return the order’s [short number](#shortnumber):
+Outputting an `\craft\commerce\elements\Order` object in your template without attaching a property or method will return the order’s [short number](#shortnumber):
 
 ```
 Order Number: {{ order }}
