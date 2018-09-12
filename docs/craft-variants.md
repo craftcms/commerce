@@ -50,7 +50,7 @@ Accepts: `true` or `false`
 For example:
 
 ```twig
-{% set products = craft.products({
+{% set products = craft.products.hasVariant({
   hasSales: true
 }) %}
 ```
