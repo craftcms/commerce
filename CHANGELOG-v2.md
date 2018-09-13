@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Dummy gateway now supports subscriptions.
+
 ## 2.0.0-beta.9 - 2018-09-07
 
 ### Added
