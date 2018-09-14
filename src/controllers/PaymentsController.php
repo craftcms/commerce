@@ -243,8 +243,10 @@ class PaymentsController extends BaseFrontEndController
             $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
         }
 
-        // Do one final save to confirm the price does not change out from under the customer.
+        // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
         // This also confirms the products are available and discounts are current.
+        $order->recalculate();
+        // Save the orders new values.
         if (Craft::$app->getElements()->saveElement($order)) {
             $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
