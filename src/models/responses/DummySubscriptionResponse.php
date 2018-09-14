@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\base\SubscriptionResponseInterface;
 use craft\commerce\models\payments\CreditCardPaymentForm;
+use craft\helpers\StringHelper;
 
 /**
  * This is a dummy gateway request response.
@@ -29,12 +30,12 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
 
     public function getData()
     {
-        return [];
+        return ['reference' => StringHelper::randomString()];
     }
 
     public function getReference(): string
     {
-        return 'dummy.reference';
+        return StringHelper::randomString();
     }
 
     public function getTrialDays(): int
