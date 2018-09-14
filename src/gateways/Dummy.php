@@ -337,6 +337,6 @@ class Dummy extends SubscriptionGateway
      */
     public function supportsPlanSwitch(): bool
     {
-        return false;
+        return true;
     }
 }

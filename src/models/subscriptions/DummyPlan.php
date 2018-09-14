@@ -23,7 +23,7 @@ class DummyPlan extends Plan
      */
     public function canSwitchFrom(PlanInterface $currentPlant): bool
     {
-        return false;
+        return true;
     }
 
 }
