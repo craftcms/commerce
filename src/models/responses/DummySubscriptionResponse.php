@@ -21,38 +21,69 @@ use craft\helpers\StringHelper;
  */
 class DummySubscriptionResponse implements SubscriptionResponseInterface
 {
+    /**
+     * @var bool Whether this subscription is canceled
+     */
     private $_isCanceled = false;
+
+    /**
+     * @var int Amount of trial days
+     */
+    private $_trialDays = 0;
 
     public function setIsCanceled(bool $isCanceled)
     {
         $this->_isCanceled = $isCanceled;
     }
 
-    public function getData()
+    public function setTrialDays(int $trialDays)
     {
-        return ['reference' => StringHelper::randomString()];
+        $this->_trialDays = $trialDays;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getData()
+    {
+        return ['dummyData' => StringHelper::randomString()];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getReference(): string
     {
         return StringHelper::randomString();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getTrialDays(): int
     {
-        return 0;
+        return $this->_trialDays;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getNextPaymentDate(): \DateTime
     {
         return (new \DateTime())->add(new \DateInterval('P1Y'));
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isCanceled(): bool
     {
         return $this->_isCanceled;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isScheduledForCancelation(): bool
     {
         return $this->_isCanceled;

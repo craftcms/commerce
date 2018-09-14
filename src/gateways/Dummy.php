@@ -313,7 +313,10 @@ class Dummy extends SubscriptionGateway
      */
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface
     {
-        return new DummySubscriptionResponse();
+        $subscription =  new DummySubscriptionResponse();
+        $subscription->setTrialDays($parameters->trialDays);
+
+        return $subscription;
     }
 
     /**
