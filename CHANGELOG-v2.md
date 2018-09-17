@@ -10,7 +10,8 @@
 - Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.
 - Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the "Ignore previous matching sales if this sale matches" checkbox was ticked.
 - Fixed a bug that stopped the default products from being deleted  ([#405](https://github.com/craftcms/commerce/issues/405), [#411](https://github.com/craftcms/commerce/issues/411))
-
+- Fixed a bug caused when saving a new site while also setting it to be the default site did not re-save all products in all sites correctly.
+ 
 ## 2.0.0-beta.9 - 2018-09-07
 
 ### Added
