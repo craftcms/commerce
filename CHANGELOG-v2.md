@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
 - Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the "Ignore previous matching sales if this sale matches" checkbox was ticked.
 
 ## 2.0.0-beta.9 - 2018-09-07
 

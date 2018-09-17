@@ -266,7 +266,7 @@ class Sales extends Component
                     // applyAmount is stored as a negative already
                     $takeOffAmount += ($sale->applyAmount * $originalPrice);
                     if ($sale->ignorePrevious) {
-                        $newPrice = $originalPrice - ($sale->applyAmount * $originalPrice);
+                        $newPrice = $originalPrice + ($sale->applyAmount * $originalPrice);
                     }
                     break;
                 case SaleRecord::APPLY_TO_PERCENT:
