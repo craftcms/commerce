@@ -355,19 +355,10 @@ class Sales extends Component
             }
         }
 
-        if (!$order) {
-            if (!$sale->allGroups) {
-                // User groups of the currently logged in user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
-                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                    return false;
-                }
-            }
-        }
-
         // Are we dealing with the current session outside of any cart/order context
         if (!$order) {
             if (!$sale->allGroups) {
+                // User groups of the currently logged in user
                 $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
