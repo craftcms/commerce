@@ -49,12 +49,12 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use yii\base\Event;
      *
-     * Event::on(Subscriptions::class, Subscriptions::EVENT_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
      *     // Do something about it - perhaps make a call to 3rd party service to de-authorize a user.
      * });
      * ```
      */
-    const EVENT_EXPIRE_SUBSCRIPTION = 'expireSubscription';
+    const EVENT_AFTER_EXPIRE_SUBSCRIPTION = 'afterExpireSubscription';
 
     /**
      * @event CreateSubscriptionEvent The event that is triggered before a subscription is created.
@@ -261,17 +261,19 @@ class Subscriptions extends Component
      */
     public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
     {
-        // fire an 'expireSubscription' event
-        if ($this->hasEventHandlers(self::EVENT_EXPIRE_SUBSCRIPTION)) {
-            $this->trigger(self::EVENT_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscriptions' => $subscription
-            ]));
-        }
-
         $subscription->isExpired = true;
         $subscription->dateExpired = $dateTime ?? Db::prepareDateForDb(new \DateTime());
 
-        return Craft::$app->getElements()->saveElement($subscription, false);
+        Craft::$app->getElements()->saveElement($subscription, false);
+
+        // fire an 'expireSubscription' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
+            $this->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
+                'subscription' => $subscription
+            ]));
+        }
+
+        return true;
     }
 
     /**

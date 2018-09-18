@@ -14,6 +14,7 @@
  
 ### Changed
 - Return only active subscriptions by default when using subscription query as opposed to returning even the expired subscriptions.
+- The `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` is now `craft\commerce\services\Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION` and is fired after saving the expired subscription data to the DB.
 
 ## 2.0.0-beta.9 - 2018-09-07
 
