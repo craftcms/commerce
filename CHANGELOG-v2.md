@@ -2,20 +2,18 @@
 
 ## Unreleased
 
-### Added
-- Dummy gateway now supports subscriptions.
+### Changed
+- The Dummy gateway now supports subscriptions.
+- Subscription queries now only return active subscriptions by default.
+- Order status messages can now be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Renamed `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` to `EVENT_AFTER_EXPIRE_SUBSCRIPTION`, and the event is now fired after saving the expired subscription data to the database.
+- Reduced the chance of unnecessary order validation errors on `commerce/payments/pay` requests.
 
 ### Fixed
-- Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
-- Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.
+- Fixed a bug where the `availableForPurchase` product query param was being ignored.
 - Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
-- Fixed a bug that stopped the default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405), [#411](https://github.com/craftcms/commerce/issues/411))
-- Fixed a bug caused when saving a new default site that did not re-save all products in all sites correctly.
- 
-### Changed
-- Return only active subscriptions by default when using subscription query as opposed to returning even the expired subscriptions.
-- The `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` is now `craft\commerce\services\Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION` and is fired after saving the expired subscription data to the DB.
-- Allow the order status update message to be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Fixed a bug that prevented default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405))
+- Fixed a bug where existing products weren’t updated correctly when a new site was added.
 
 ## 2.0.0-beta.9 - 2018-09-07
 
