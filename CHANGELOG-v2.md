@@ -6,7 +6,7 @@
 - Dummy gateway now supports subscriptions.
 
 ### Changed
-- Allow the order status update message to be longer than 255 characters.
+- Allow the order status update message to be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
 
 ### Fixed
 - Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
