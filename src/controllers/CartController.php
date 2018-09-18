@@ -195,7 +195,7 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        // update multiple line items in the cart
+        // Update multiple line items in the cart
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
                 $lineItemId = $key;
@@ -238,7 +238,7 @@ class CartController extends BaseFrontEndController
             $this->_cart->setEmail($email);
         }
 
-        // Set guest email address onto guest customer and order.
+        // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
         }
@@ -248,19 +248,19 @@ class CartController extends BaseFrontEndController
             $this->_cart->couponCode = $couponCode ?: null;
         }
 
-        // Set Coupon on Cart.
+        // Set Payment Gateway on cart
         if ($gatewayId = $request->getParam('gatewayId')) {
             $this->_cart->gatewayId = $gatewayId;
             $this->_cart->paymentSourceId = null;
         }
 
-        // Set Coupon on Cart.
+        // Set Payment Source on cart
         if ($paymentSourceId = $request->getParam('paymentSourceId')) {
             $this->_cart->gatewayId = null;
             $this->_cart->paymentSourceId = $paymentSourceId;
         }
 
-        // Set Coupon on Cart.
+        // Set Shipping method on cart.
         if ($shippingMethodHandle = $request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
         }
