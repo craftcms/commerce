@@ -821,7 +821,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
         $this->createIndex(null, '{{%commerce_countries}}', 'name', true);
         $this->createIndex(null, '{{%commerce_countries}}', 'iso', true);
-        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['email', 'discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], false);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', 'discountId', false);
         $this->createIndex(null, '{{%commerce_customers}}', 'userId', false);
