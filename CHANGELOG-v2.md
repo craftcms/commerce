@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.10 - 2018-09-18
 
 ### Changed
 - The Dummy gateway now supports subscriptions.
