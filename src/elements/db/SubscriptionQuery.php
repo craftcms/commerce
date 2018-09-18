@@ -109,7 +109,7 @@ class SubscriptionQuery extends ElementQuery
     {
         // Default status
         if (!isset($config['status'])) {
-            $config['status'] = Element::STATUS_ENABLED;
+            $config['status'] = Subscription::STATUS_ACTIVE;
         }
 
         parent::__construct($elementType, $config);
@@ -164,7 +164,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Sets the [[planId]] property based on a plan model or handle
      *
-     * @param Product $value
+     * @param Plan $value
      * @return static self reference
      */
     public function plan($value)

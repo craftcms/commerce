@@ -314,7 +314,7 @@ class ProductQuery extends ElementQuery
             $this->query->addSelect(['commerce_products.availableForPurchase']);
 
             if ($this->availableForPurchase) {
-                $this->subQuery->andWhere(Db::parseDateParam('commerce_products.availableForPurchase', $this->availableForPurchase));
+                $this->subQuery->andWhere(Db::parseParam('commerce_products.availableForPurchase', $this->availableForPurchase));
             }
         }
 

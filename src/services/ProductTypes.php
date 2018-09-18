@@ -612,24 +612,22 @@ class ProductTypes extends Component
     public function afterSaveSiteHandler(SiteEvent $event)
     {
         if ($event->isNew) {
-            $allSiteSettings = (new Query())
+            $primarySiteSettings = (new Query())
                 ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])
                 ->from(['{{%commerce_producttypes_sites}}'])
-                ->where(['siteId' => Craft::$app->getSites()->getPrimarySite()->id])
-                ->all();
+                ->where(['siteId' => $event->oldPrimarySiteId])
+                ->one();
 
-            if (!empty($allSiteSettings)) {
+            if ($primarySiteSettings) {
                 $newSiteSettings = [];
 
-                foreach ($allSiteSettings as $siteSettings) {
-                    $newSiteSettings[] = [
-                        $siteSettings['productTypeId'],
-                        $event->site->id,
-                        $siteSettings['uriFormat'],
-                        $siteSettings['template'],
-                        $siteSettings['hasUrls']
-                    ];
-                }
+                $newSiteSettings[] = [
+                    $primarySiteSettings['productTypeId'],
+                    $event->site->id,
+                    $primarySiteSettings['uriFormat'],
+                    $primarySiteSettings['template'],
+                    $primarySiteSettings['hasUrls']
+                ];
 
                 Craft::$app->getDb()->createCommand()
                     ->batchInsert(

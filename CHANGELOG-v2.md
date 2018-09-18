@@ -1,6 +1,19 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.10 - 2018-09-18
+
+### Changed
+- The Dummy gateway now supports subscriptions.
+- Subscription queries now only return active subscriptions by default.
+- Order status messages can now be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Renamed `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` to `EVENT_AFTER_EXPIRE_SUBSCRIPTION`, and the event is now fired after saving the expired subscription data to the database.
+- Reduced the chance of unnecessary order validation errors on `commerce/payments/pay` requests.
+
+### Fixed
+- Fixed a bug where the `availableForPurchase` product query param was being ignored.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
+- Fixed a bug that prevented default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405))
+- Fixed a bug where existing products weren’t updated correctly when a new site was added.
 
 ## 2.0.0-beta.9 - 2018-09-07
 

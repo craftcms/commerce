@@ -48,7 +48,7 @@ class Products extends Component
     public function afterSaveSiteHandler(SiteEvent $event)
     {
         $queue = Craft::$app->getQueue();
-        $siteId = Craft::$app->getSites()->getPrimarySite()->id;
+        $siteId = $event->oldPrimarySiteId;
         $elementTypes = [
             Product::class,
         ];

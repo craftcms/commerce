@@ -49,6 +49,13 @@ use craft\records\Site;
  */
 class Install extends Migration
 {
+
+    // Private properties
+    // =========================================================================
+
+    private $_variantFieldLayoutId;
+    private $_productFieldLayoutId;
+
     // Public Methods
     // =========================================================================
 
@@ -325,7 +332,7 @@ class Install extends Migration
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
-            'message' => $this->string(),
+            'message' => $this->text(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
@@ -814,7 +821,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
         $this->createIndex(null, '{{%commerce_countries}}', 'name', true);
         $this->createIndex(null, '{{%commerce_countries}}', 'iso', true);
-        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['email', 'discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], false);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', 'discountId', false);
         $this->createIndex(null, '{{%commerce_customers}}', 'userId', false);
@@ -1536,9 +1544,9 @@ class Install extends Migration
     private function _defaultProductTypes()
     {
         $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
-        $productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
+        $this->_productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
         $this->insert(FieldLayout::tableName(), ['type' => Variant::class]);
-        $variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
+        $this->_variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
 
         $data = [
             'name' => 'Clothing',
@@ -1547,9 +1555,12 @@ class Install extends Migration
             'hasVariants' => false,
             'hasVariantTitleField' => false,
             'titleFormat' => '{product.title}',
-            'fieldLayoutId' => $productFieldLayoutId,
-            'variantFieldLayoutId' => $variantFieldLayoutId
+            'fieldLayoutId' => $this->_productFieldLayoutId,
+            'skuFormat' => '',
+            'descriptionFormat' => '',
+            'variantFieldLayoutId' => $this->_variantFieldLayoutId
         ];
+
         $this->insert(ProductType::tableName(), $data);
         $productTypeId = $this->db->getLastInsertID(ProductType::tableName());
 
@@ -1611,7 +1622,8 @@ class Install extends Migration
             $productElementData = [
                 'type' => Product::class,
                 'enabled' => 1,
-                'archived' => 0
+                'archived' => 0,
+                'fieldLayoutId' => $this->_productFieldLayoutId
             ];
             $this->insert(Element::tableName(), $productElementData);
             $productId = $this->db->getLastInsertID(Element::tableName());
@@ -1620,7 +1632,8 @@ class Install extends Migration
             $variantElementData = [
                 'type' => Variant::class,
                 'enabled' => 1,
-                'archived' => 0
+                'archived' => 0,
+                'fieldLayoutId' => $this->_variantFieldLayoutId
             ];
             $this->insert(Element::tableName(), $variantElementData);
             $variantId = $this->db->getLastInsertID(Element::tableName());
