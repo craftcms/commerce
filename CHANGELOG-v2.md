@@ -5,19 +5,17 @@
 ### Added
 - Dummy gateway now supports subscriptions.
 
-### Changed
-- Allow the order status update message to be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
-
 ### Fixed
 - Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
 - Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.
-- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the "Ignore previous matching sales if this sale matches" checkbox was ticked.
-- Fixed a bug that stopped the default products from being deleted  ([#405](https://github.com/craftcms/commerce/issues/405), [#411](https://github.com/craftcms/commerce/issues/411))
-- Fixed a bug caused when saving a new site while also setting it to be the default site did not re-save all products in all sites correctly.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
+- Fixed a bug that stopped the default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405), [#411](https://github.com/craftcms/commerce/issues/411))
+- Fixed a bug caused when saving a new default site that did not re-save all products in all sites correctly.
  
 ### Changed
 - Return only active subscriptions by default when using subscription query as opposed to returning even the expired subscriptions.
 - The `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` is now `craft\commerce\services\Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION` and is fired after saving the expired subscription data to the DB.
+- Allow the order status update message to be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
 
 ## 2.0.0-beta.9 - 2018-09-07
 
