@@ -5,6 +5,9 @@
 ### Added
 - Dummy gateway now supports subscriptions.
 
+### Changed
+- Allow the order status update message to be longer than 255 characters.
+
 ### Fixed
 - Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
 - Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.

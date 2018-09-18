@@ -332,7 +332,7 @@ class Install extends Migration
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
-            'message' => $this->string(),
+            'message' => $this->text(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
