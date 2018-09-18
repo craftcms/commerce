@@ -109,7 +109,7 @@ class SubscriptionQuery extends ElementQuery
     {
         // Default status
         if (!isset($config['status'])) {
-            $config['status'] = Element::STATUS_ENABLED;
+            $config['status'] = Subscription::STATUS_ACTIVE;
         }
 
         parent::__construct($elementType, $config);

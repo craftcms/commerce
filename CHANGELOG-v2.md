@@ -12,6 +12,9 @@
 - Fixed a bug that stopped the default products from being deleted  ([#405](https://github.com/craftcms/commerce/issues/405), [#411](https://github.com/craftcms/commerce/issues/411))
 - Fixed a bug caused when saving a new site while also setting it to be the default site did not re-save all products in all sites correctly.
  
+### Changed
+- Return only active subscriptions by default when using subscription query as opposed to returning even the expired subscriptions.
+
 ## 2.0.0-beta.9 - 2018-09-07
 
 ### Added
