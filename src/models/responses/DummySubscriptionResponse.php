@@ -31,11 +31,17 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
      */
     private $_trialDays = 0;
 
+    /**
+     * @inheritdoc
+     */
     public function setIsCanceled(bool $isCanceled)
     {
         $this->_isCanceled = $isCanceled;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function setTrialDays(int $trialDays)
     {
         $this->_trialDays = $trialDays;
