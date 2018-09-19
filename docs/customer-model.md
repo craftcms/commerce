@@ -31,8 +31,8 @@ Returns an array of completed [Order Models](order-model.md)
 ### userId
 Returns the User ID associated with this customer if the customer is a registered user.
 
-### lastUsedShippingAddress
+### primaryShippingAddress
 Returns the last used shipping address. Returns `null` if there is not a last used address.
 
-### lastUsedBillingAddress
+### primarydBillingAddress
 Returns the last used billing address. Returns `null` if there is not a last used address.
