@@ -5,7 +5,7 @@ A customer record is created for both guests and registered users. It is used to
 You can get the current customer model in your templates with:
 
 ```
-{% set customer = craft.commerce.getCustomer() %}
+{% set customer = craft.commerce.customers.getCustomer() %}
 ```
 
 If the current customer is a guest, then the `userId` attribute will be null.
