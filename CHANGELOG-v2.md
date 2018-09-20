@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that incorrectly rejected an add to cart request even when valid line item options were submitted.  ([#493](https://github.com/craftcms/commerce/issues/493)
+
 ## 2.0.0-beta.10 - 2018-09-18
 
 ### Changed

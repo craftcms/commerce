@@ -125,7 +125,7 @@ class LineItems extends Component
     public function resolveLineItem(int $orderId, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
     {
         ksort($options);
-        $signature = md5(json_encode($options));
+        $signature = md5(Json::encode($options));
 
         $result = $this->_createLineItemQuery()
             ->where([
