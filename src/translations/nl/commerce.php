@@ -44,7 +44,7 @@ return [
     'Are you sure you want to refund this transaction?' => 'Weet u zeker dat u deze transactie wilt terugbetalen?',
     'Associated Sales' => 'Geassocieerde verkopen',
     'Associated user account.' => 'Geassocieerd gebruikersaccount.',
-    'Attention' => 'Let op',
+    'Attention' => 'Aanspreking',
     'Authorize Only (Manually Capture)' => 'Alleen autoriseren (Handmatig vastleggen)',
     'Automatic SKU Format' => 'Automatisch Artikelnummer Formaat',
     'Available Shipping Categories' => 'Beschikbare verzendcategorieën',
