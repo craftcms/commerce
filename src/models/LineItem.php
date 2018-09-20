@@ -291,7 +291,7 @@ class LineItem extends Model
      */
     public function getTotal(): float
     {
-        return $this->getSubtotal() + $this->getAdjustmentsTotal();
+        return max($this->getSubtotal() + $this->getAdjustmentsTotal(), 0);
     }
 
     /**
