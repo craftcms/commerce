@@ -485,7 +485,7 @@ class LineItem extends Model
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId == $this->id) {
+            if ($adjustment->lineItemId && $adjustment->lineItemId == $this->id) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
