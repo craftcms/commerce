@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
@@ -363,6 +364,7 @@ class Plugin extends BasePlugin
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
+            $e->types[] = Subscription::class;
         });
     }
 }
