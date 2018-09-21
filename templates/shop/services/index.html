@@ -56,7 +56,6 @@
 
                 {# Since only stripe currently supports subscriptions, we can get away with non-gateway-specific subscription forms #}
                 {{ plan.gateway.subscriptionFormHtml|raw }}
-
                 {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
 
                 {% if not paymentSources|length %}

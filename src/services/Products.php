@@ -39,7 +39,6 @@ class Products extends Component
         return $product;
     }
 
-
     /**
      * Handle a Site being saved.
      *
