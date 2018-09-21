@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug that incorrectly rejected an add to cart request even when valid line item options were submitted.  ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a bug that incorrectly rejected an add to cart request even when valid line item options were submitted. ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a database error when saving a shipping method when the "Enable this shipping method on the front end" option was switched off. ([#500](https://github.com/craftcms/commerce/issues/500)
 
 ## 2.0.0-beta.10 - 2018-09-18
 
