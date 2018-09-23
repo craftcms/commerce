@@ -1,183 +1,176 @@
 {% extends "shop/_layouts/main" %}
 
 {% block main %}
-    <div class="row">
-        <div class="twelve columns">
+    <h1>Here’s what’s in your cart</h1>
 
-            {% if cart.lineItems|length %}
-                <table class="u-full-width">
-                    <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th class="text-right">Price</th>
-                    </tr>
-                    </thead>
-                    <form method="POST">
-                        <input type="hidden" name="action"
-                               value="commerce/cart/update-cart">
-                        {{ redirectInput('shop/cart') }}
-                        {{ csrfInput() }}
-                    <tbody>
-                        {% set lineItemHasErrors = false %}
-                        {% for item in cart.lineItems %}
-                            {% if item.hasErrors() %}
-                                {# if the line item has errors lets record it so we can hide totals later (since they wont make sense) #}
-                                {% set lineItemHasErrors = true %}
+    {% if cart.lineItems|length %}
+        <table class="cart w-full">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th class="text-right">Price</th>
+            </tr>
+            </thead>
+            <form method="POST">
+                <input type="hidden" name="action"
+                       value="commerce/cart/update-cart">
+                {{ redirectInput('shop/cart') }}
+                {{ csrfInput() }}
+            <tbody>
+                {% set lineItemHasErrors = false %}
+                {% for item in cart.lineItems %}
+                    {% if item.hasErrors() %}
+                        {# if the line item has errors lets record it so we can hide totals later (since they wont make sense) #}
+                        {% set lineItemHasErrors = true %}
+                    {% endif %}
+                    <tr class="item" {% if item.hasErrors() %}style="background-color:rgba(255, 0, 0, .1);"{% endif %}>
+                        <td>
+                            <strong>{{ item.description }}</strong><br>
+                            ({{ item.sku }})
+                            <br>
+                            <code>{{ item.options|json_encode }}</code>
+                            <br>
+                            <input type="checkbox"
+                                   name="lineItems[{{ item.id }}][remove]"
+                                   value="1"> Remove Line<br>
+                        </td>
+                        <td>
+                            {% if item.options.giftWrapped is defined %}
+                            <select name="lineItems[{{ item.id }}][options][giftWrapped]">
+                                <option value="no"
+                                        {% if item.options.giftWrapped == 'no' %}selected{% endif %}>
+                                    No gift wrap
+                                </option>
+                                <option value="yes"
+                                        {% if item.options.giftWrapped == 'yes' %}selected{% endif %}>
+                                    Gift wrapped.
+                                </option>
+                            </select>
                             {% endif %}
-                            <tr {% if item.hasErrors() %}style="background-color:rgba(255, 0, 0, .1);"{% endif %}>
-                                <td>
-                                    <strong>{{ item.description }}</strong><br>
-                                    ({{ item.sku }})
-                                    <br>
-                                    <code>{{ item.options|json_encode }}</code>
-                                    <br>
-                                    <input type="checkbox"
-                                           name="lineItems[{{ item.id }}][remove]"
-                                           value="1"> Remove Line<br>
-                                </td>
-                                <td>
-                                    {% if item.options.giftWrapped is defined %}
-                                    <select name="lineItems[{{ item.id }}][options][giftWrapped]">
-                                        <option value="no"
-                                                {% if item.options.giftWrapped == 'no' %}selected{% endif %}>
-                                            No gift wrap
-                                        </option>
-                                        <option value="yes"
-                                                {% if item.options.giftWrapped == 'yes' %}selected{% endif %}>
-                                            Gift wrapped.
-                                        </option>
-                                    </select>
-                                    {% endif %}
 
-                                    <input type="text" placeholder="My Note"
-                                           size="20"
-                                           name="lineItems[{{ item.id }}][note]"
-                                           value="{{ item.note }}">
+                            <input type="text" placeholder="My Note"
+                                   size="20"
+                                   name="lineItems[{{ item.id }}][note]"
+                                   value="{{ item.note }}">
 
-                                    <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
-                                    <input type="number"
-                                           name="lineItems[{{ item.id }}][qty]"
-                                           min="0" value="{{ item.qty }}">
-                                </span>
+                            <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
+                            <input type="number"
+                                   name="lineItems[{{ item.id }}][qty]"
+                                   min="0" value="{{ item.qty }}">
+                        </span>
 
-                                </td>
+                        </td>
 
-                                <td class="text-right">
-                                    {% if not lineItemHasErrors %}
-                                        {% if item.onSale %}
-                                            <s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s>
-                                            <br>
-                                            Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}
-                                            <br>
-                                            Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}
-                                            <br>
-                                            Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
-                                            <br>
-                                        {% else %}
-                                            Price: {{ item.price|commerceCurrency(cart.currency) }}
-                                            <br>
-                                            Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
-                                            <br>
-                                        {% endif %}
-                                    {% endif %}
-
-                                    {% for sale in item.purchasable.sales %}
-                                        {% if loop.first %}
-                                            Sales Applied:
-                                        {% endif %}
-                                        {{ sale.name }}<br>
-                                    {% endfor %}
-                                </td>
-                            </tr>
+                        <td class="text-right">
                             {% if not lineItemHasErrors %}
-                                {% for adjustment in item.adjustments %}
-                                    <tr>
-                                        <td></td>
-                                        <td>
-                                            <strong>{{ adjustment.type }} {{ adjustment.name }}</strong><br>({{ adjustment.description }}
-                                            )
-                                        </td>
-                                        <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
-                                    </tr>
-                                {% endfor %}
+                                {% if item.onSale %}
+                                    <s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s>
+                                    <br>
+                                    Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}
+                                    <br>
+                                    Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}
+                                    <br>
+                                    Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
+                                    <br>
+                                {% else %}
+                                    Price: {{ item.price|commerceCurrency(cart.currency) }}
+                                    <br>
+                                    Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
+                                    <br>
+                                {% endif %}
                             {% endif %}
 
-                        {% endfor %}
-
-                        {% if not lineItemHasErrors %}
-                            {% for adjustment in cart.orderAdjustments %}
-                                <tr>
-                                    <td>{{ adjustment.type }}
-                                    </td>
-                                    <td>
-                                        <strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }}
-                                        )
-                                    </td>
-                                    <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
-                                </tr>
+                            {% for sale in item.purchasable.sales %}
+                                {% if loop.first %}
+                                    Sales Applied:
+                                {% endif %}
+                                {{ sale.name }}<br>
                             {% endfor %}
-                        {% endif %}
-                        <tr>
+                        </td>
+                    </tr>
+                    {% if not lineItemHasErrors %}
+                        {% for adjustment in item.adjustments %}
+                            <tr class="adjustment">
+                                <td></td>
+                                <td>
+                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                                    )
+                                </td>
+                                <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+
+                {% endfor %}
+
+                {% if not lineItemHasErrors %}
+                    {% for adjustment in cart.orderAdjustments %}
+                        <tr class="adjustment">
+                            <td>{{ adjustment.type }}</td>
                             <td>
-
+                                <strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                                )
                             </td>
-                            <td colspan="2" class="text-right">
-                                {% if not lineItemHasErrors %}
-                                    Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}
-                                    <br>
-
-                                    <br>
-                                    <strong>Built in Adjustment Totals</strong>
-                                    <br>
-                                    Total Discount: {{ cart.adjustmentsTotalByType('discount')|commerceCurrency(cart.currency) }}
-                                    <br>
-                                    Total Shipping: {{ cart.adjustmentsTotalByType('shipping')|commerceCurrency(cart.currency) }}
-                                    <br>
-                                    Total Tax: {{ cart.adjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }}
-                                    <br>
-                                    Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}
-                                    <br>
-
-                                    <h4>Total
-                                        Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
-                                {% endif %}
-                            </td>
+                            <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
                         </tr>
-                        <tr>
-                            <td colspan="2">  {# Update Coupon form uses the single update controller action: #}
-                                {% if cart.getFirstError('couponCode') %}
-                                    <span class="flash">{{ cart.getFirstError('couponCode') }}</span>
-                                {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <tr>
+                    <td>
 
-                                <span class="{% if cart.getFirstError('couponCode') %}has-error{% endif %}">
-                            <input type="text" name="couponCode" width="11"
-                                   class="{% if cart.getFirstError('couponCode') %}has-error{% endif %}"
-                                   value="{{ cart.couponCode }}"
-                                   placeholder="{{ "Coupon Code"|t }}">
-							</span></td>
-                            <td><input class="right" type="submit" value="Update Cart"/></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                {% if not lineItemHasErrors %}
-                                    <a class="button button-primary right"
-                                       href="{{ url('shop/checkout') }}">Checkout</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </tbody>
-                    </form>
-                </table>
+                    </td>
+                    <td colspan="2" class="text-right">
+                        {% if not lineItemHasErrors %}
+                            Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}
+                            <br>
 
-            {% endif %}
+                            <br>
+                            <strong>Built in Adjustment Totals</strong>
+                            <br>
+                            Total Discount: {{ cart.adjustmentsTotalByType('discount')|commerceCurrency(cart.currency) }}
+                            <br>
+                            Total Shipping: {{ cart.adjustmentsTotalByType('shipping')|commerceCurrency(cart.currency) }}
+                            <br>
+                            Total Tax: {{ cart.adjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }}
+                            <br>
+                            Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}
+                            <br>
 
-            {% if not cart.lineItems|length %}
-                <p>You have no items in your cart, add some on the <a
-                            href="{{ url('shop/products') }}">products page</a>.
-                </p>
-            {% endif %}
+                            <h4>Total
+                                Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">  {# Update Coupon form uses the single update controller action: #}
+                        {% if cart.getFirstError('couponCode') %}
+                            <span class="flash">{{ cart.getFirstError('couponCode') }}</span>
+                        {% endif %}
 
-        </div>
-    </div>
+                        <span class="{% if cart.getFirstError('couponCode') %}has-error{% endif %}">
+                    <input type="text" name="couponCode" width="11"
+                           class="{% if cart.getFirstError('couponCode') %}has-error{% endif %}"
+                           value="{{ cart.couponCode }}"
+                           placeholder="{{ "Coupon Code"|t }}">
+                    </span></td>
+                    <td class="text-right">
+                        <input class="right" type="submit" value="Update Cart"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-right">
+                        {% if not lineItemHasErrors %}
+                            <a class="button button-primary" href="{{ url('shop/checkout') }}">Checkout</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+            </form>
+        </table>
+    {% endif %}
+
+    {% if not cart.lineItems|length %}
+        <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
+    {% endif %}
 {% endblock %}

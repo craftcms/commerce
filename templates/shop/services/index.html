@@ -5,12 +5,12 @@
 
 {% if currentUser and plans|length%}
     {% for plan in plans %}
-        <div class="row service">
-            <div class="two columns">
-                <h4>{{ plan.name }}</h4>
+        <div class="md:flex service">
+            <div class="md:w-1/4">
+                <h2 class="mt-8">{{ plan.name }}</h2>
                 {% set information = plan.getInformation() %}
             </div>
-            <div class="ten columns">
+            <div class="md:w-3/4 md:mt-8 md:pt-4">
                 {% set subscriptions = plan.getActiveUserSubscriptions(currentUser.id) %}
                 {% if subscriptions|length == 0 %}
                     <p><strong>You have no subscriptions to this plan.</strong></p>
@@ -34,11 +34,11 @@
             <hr />
         {% endif %}
     {% endfor %}
-    <div class="row">
-        <div class="two columns">
-            <h4>Subscribe</h4>
+    <div class="md:flex">
+        <div class="md:w-1/4">
+            <h2>Subscribe</h2>
         </div>
-        <div class="ten columns">
+        <div class="md:w-3/4 md:mt-8 md:pt-4">
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
                 {{ redirectInput('shop/services') }}
@@ -56,6 +56,7 @@
 
                 {# Since only stripe currently supports subscriptions, we can get away with non-gateway-specific subscription forms #}
                 {{ plan.gateway.subscriptionFormHtml|raw }}
+
                 {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
 
                 {% if not paymentSources|length %}

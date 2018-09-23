@@ -12,59 +12,97 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
-    <link rel="stylesheet" type='text/css' href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600'>
     <link rel="stylesheet" type='text/css' href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
     <link rel="stylesheet" type='text/css' href="{{ url('shop/style.css') }}">
-
 </head>
-<body>
-<!--[if lt IE 8]>
-<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-<![endif]-->
+<body class="bg-grey-lightest">
+    <!--[if lt IE 8]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
 
-{% if cart is not defined %}
-    {% set cart = craft.commerce.carts.cart %}
-{% endif %}
+    {% if cart is not defined %}
+        {% set cart = craft.commerce.carts.cart %}
+    {% endif %}
 
-{% block header %}
-    <div id="header" class="container">
-        <div class="row">
-            <div class="twelve columns">
-                <a href="{{ url('shop') }}">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
 
+    {% if showNav is not defined %}
+        {% set showNav = true %}
+    {% endif %}
+
+    <div class="bg-grey-lighter">
+        <div id="header" class="container mx-auto md:flex justify-between items-center p-6 text-center">
+            <a href="{{ url('shop') }}" class="brand mb-6 md:mb-0 block">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
+
+            {% if showNav %}
                 {% include "shop/_includes/nav" %}
+            {% endif %}
 
-                <div class="flash">{{ craft.app.session.getFlash('notice') }}</div>
-                <div class="flash">{{ craft.app.session.getFlash('error') }}</div>
-
-                <div class="row">
-                    <div class="twelve columns flash">
-                        {% for attribute, errors in cart.errors %}
-                            {% if loop.first %}<ul>{% endif %}
-                            {% for key, error in errors %}
-                                <li>{{ attribute }}: {{ error }}</li>
-                            {% endfor %}
-                            {% if loop.last %}</ul>{% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+            {% if extraHeader is defined %}
+                {{ extraHeader }}
+            {% endif %}
         </div>
     </div>
-{% endblock %}
 
-{% block body %}
-    <div id="main" class="container">
-        {% block main %}
-            <div class="row">
-                <div class="twelve columns">
-                    <h4>Default Content</h4>
-                    <p>You should not see this.</p>
-                </div>
+    {% set flashNotice = craft.app.session.getFlash('notice') %}
+
+    {% if flashNotice %}
+        <div class="bg-blue text-white">
+            <div class="container mx-auto px-6 py-4">
+                {{ flashNotice }}
             </div>
-        {% endblock %}
-    </div>
-{% endblock %}
+        </div>
+    {% endif %}
+
+    {% set flashError = craft.app.session.getFlash('error') %}
+
+    {% if flashError %}
+        <div class="bg-red text-white">
+            <div class="container mx-auto px-6 py-4">
+                {{ flashError }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if cart.errors|length %}
+        <div class="bg-red text-white">
+            <div class="container mx-auto px-6 py-4">
+                {% for attribute, errors in cart.errors %}
+                    {% if loop.first %}<ul>{% endif %}
+                    {% for key, error in errors %}
+                        <li>{{ attribute }}: {{ error }}</li>
+                    {% endfor %}
+                    {% if loop.last %}</ul>{% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% block body %}
+        <div class="bg-white">
+            <div id="main" class="container mx-auto p-6">
+                {% block main %}
+                    <h1>Default Content</h1>
+                    <p>You should not see this.</p>
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    <footer>
+        <div class="container mx-auto p-6">
+            <h3>Welcome!</h3>
+            <p>These are the Craft Commerce example templates.</p>
+            <p>Resources:</p>
+            <ul>
+                <li><a href="https://craftcommerce.com/docs">Craft Commerce Documentation</a>.</li>
+                <li><a href="https://craftcms.com/docs/introduction">Craft CMS Documentation</a>.</li>
+                <li><a href="http://craftcms.stackexchange.com">Craft CMS Stack Exchange</a>. Use the <code>plugin-craftcommerce</code> tag.</li>
+                <li><a href="https://craftcms.com/community#slack">Slack Community</a>. Use the <code>#craftcommerce</code> channel.</li>
+            </ul>
+        </div>
+    </footer>
 </body>
 </html>

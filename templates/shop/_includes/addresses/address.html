@@ -1,15 +1,16 @@
 <ul class="address-data">
+
+    {% if address.attention is not empty %}
+        <li><strong>Att: {{ address.attention }}</strong></li>
+    {% endif %}
+
+    {% if address.title is not empty %}
+        <li><strong>{{ address.title }}</strong></li>
+    {% endif %}
+
     {% if address.firstName is not empty or address.lastName is not empty %}
         <li>
             <strong>
-                {% if address.attention is not empty %}
-                    Att: {{ address.attention }}
-                {% endif %}
-				<br>
-                {% if address.title is not empty %}
-                    {{ address.title }}
-                {% endif %}
-
                 {% if address.firstName is not empty %}
                     {{ address.firstName }}
                 {% endif %}
@@ -17,16 +18,16 @@
                 {% if address.lastName is not empty %}
                     {{ address.lastName }}
                 {% endif %}
-                <br><br>
-                {% if address.businessName is not empty %}
-                    {{ address.businessName }}
-                {% endif %}
-
-                {% if address.businessTaxId is not empty %}
-                    - {{ address.businessTaxId }}
-                {% endif %}
             </strong>
         </li>
+    {% endif %}
+
+    {% if address.businessName is not empty %}
+        <li><strong>{{ address.businessName }}</strong></li>
+    {% endif %}
+
+    {% if address.businessTaxId is not empty %}
+        <li class="text-grey-dark"><strong>{{ address.businessTaxId }}</strong></li>
     {% endif %}
 
     {% if address.address1 is not empty %}
@@ -36,7 +37,6 @@
     {% if address.address2 is not empty %}
         <li>{{ address.address2 }}</li>
     {% endif %}
-
 
     {% if address.zipCode is not empty or address.city is not empty %}
         <li>

@@ -1,30 +1,39 @@
 <nav>
+    <ul class="list-reset">
+        {% set page = craft.app.request.getSegment(2) %}
 
-    {% set page = craft.app.request.getSegment(2) %}
-
-    {% if craft.commerce.plans.getAllPlans|length %}
-    <a class="button {% if page == 'services' %}button-primary{% endif %}" href="{{ url('shop/services') }}">
-        {{ "Services"|t }}
-    </a>
-    {% endif %}
-
-    <a class="button {% if page == 'products' %}button-primary{% endif %}" href="{{ url('shop/products') }}">
-        {{ "Products"|t }}
-    </a>
-
-    <a class="button {% if page == 'cart' %}button-primary{% endif %}" href="{{ url('shop/cart') }}">
-        <i class="fa fa-shopping-cart"></i> {{ "Cart"|t }} ({{ cart.lineItems|length }})
-    </a>
-
-    <span class="right">
-        {% if currentUser %}
-          <a href="{{ url('shop/customer') }}">{{ "My Orders"|t }}</a>
-          — <a href="{{ url('shop/customer/addresses') }}">{{ "My Addresses"|t }}</a>
-          — <a href="{{ url('shop/customer/cards') }}">{{ "My Cards"|t }}</a>
-          — <a href="{{ logoutUrl }}">Logout</a>
-        {% else %}
-          {{ "Guest"|t }}
+        {% if craft.commerce.plans.getAllPlans|length %}
+            <li>
+                <a class="{% if page == 'services' %}active{% endif %}" href="{{ url('shop/services') }}">
+                    {{ "Services"|t }}
+                </a>
+            </li>
         {% endif %}
-    </span>
 
+        <li>
+            <a class="{% if page == 'products' %}active{% endif %}" href="{{ url('shop/products') }}">
+                {{ "Products"|t }}
+            </a>
+        </li>
+
+        <li>
+            <a class="{% if page == 'cart' %}active{% endif %}" href="{{ url('shop/cart') }}">
+                <i class="fa fa-shopping-cart"></i> {{ "Cart"|t }} <span class="badge">{{ cart.lineItems|length }}</span>
+            </a>
+        </li>
+
+        {% if currentUser %}
+            <li class="account">
+                <a href="#">Account</a>
+                <ul class="list-reset">
+                    <li><a href="{{ url('shop/customer') }}">{{ "My Orders"|t }}</a></li>
+                    <li><a href="{{ url('shop/customer/addresses') }}">{{ "My Addresses"|t }}</a></li>
+                    <li><a href="{{ url('shop/customer/cards') }}">{{ "My Cards"|t }}</a></li>
+                    <li><a href="{{ logoutUrl }}">Logout</a></li>
+                </ul>
+            </li>
+        {% else %}
+            <li>{{ "Guest"|t }}</li>
+        {% endif %}
+    </ul>
 </nav>

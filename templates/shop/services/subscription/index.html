@@ -9,7 +9,7 @@
         {% redirect 'shop/services' %}
     {% endif %}
 
-    <h2>Manage subscription</h2>
+    <h1>Manage subscription</h1>
 
     <div><strong>Subscribed to {{ subscription.plan.name }}</strong></div>
 
@@ -60,7 +60,8 @@
             </form>
         {% endif %}
     {% endif %}
-    <h5>Payment history</h5>
+
+    <h2>Payment history</h2>
     {% set payments = subscription.getAllPayments() %}
 
     {% for payment in payments %}
