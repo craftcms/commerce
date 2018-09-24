@@ -1436,6 +1436,15 @@ class Order extends Element
     }
 
     /**
+     * @return Transaction|null
+     */
+    public function getLastTransaction()
+    {
+        $transactions = $this->getTransactions();
+        return count($transactions) ? array_pop($transactions) : null;
+    }
+
+    /**
      * Returns an array of transactions for the order that have child transactions set on them.
      *
      * @return Transaction[]
