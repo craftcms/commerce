@@ -31,9 +31,11 @@
                             <br>
                             <code>{{ item.options|json_encode }}</code>
                             <br>
+                            <label>
                             <input type="checkbox"
                                    name="lineItems[{{ item.id }}][remove]"
-                                   value="1"> Remove Line<br>
+                                   value="1"> Remove Line
+                            </label>
                         </td>
                         <td>
                             {% if item.options.giftWrapped is defined %}
