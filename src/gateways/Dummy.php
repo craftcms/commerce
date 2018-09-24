@@ -15,6 +15,7 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionResponseInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\payments\CreditCardPaymentForm;
 use craft\commerce\models\payments\DummyPaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Dummy as DummyRequestResponse;
@@ -105,11 +106,13 @@ class Dummy extends SubscriptionGateway
      */
     public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
     {
+        /** @var CreditCardPaymentForm $sourceData */
+
         $paymentSource = new PaymentSource();
         $paymentSource->gatewayId = $this->id;
         $paymentSource->token = StringHelper::randomString();
         $paymentSource->response = '';
-        $paymentSource->description = 'Dummy payment source';
+        $paymentSource->description = 'Card ending with ' . StringHelper::last($sourceData->number, 4);
 
         return $paymentSource;
     }
