@@ -64,6 +64,16 @@ BC - Breaking Change
 | `customer.lastUsedBillingAddress`         | `customer.primaryBillingAddress`                          | BC  
 | `customer.lastUsedShippingAddress`        | `customer.primaryShippingAddress`                         | BC  
 
+### Form Action Changes
+
+| Old                                       | New                            | Docs                          
+|-------------------------------------------|--------------------------------|-------
+| `commerce/cart/removeLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)  
+| `commerce/cart/updateLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)   
+| `commerce/cart/removeAllLineItems`        | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)   
+| `commerce/cart/updateCart`                | `commerce/cart/update-cart`    | [Adding to Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#add-to-cart)   
+
+
 
 ### Query Changes
 
