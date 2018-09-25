@@ -51,9 +51,9 @@
                     <select name="trialDays" data-plan="{{ plan.id }}">
                         {% for i in [0, 3, 7, 14] %}
                             {% if i == 0 %}
-                                <option>No trial period.</option>
+                                <option value="{{ (plan.uid~':0')|hash}}">No trial period.</option>
                             {% else %}
-                                <option value="{{ (plan.uid~':'~i)|hash  }}">Trial  for {{ i }} days</option>
+                                <option value="{{ (plan.uid~':'~i)|hash  }}">Trial for {{ i }} days</option>
                             {% endif %}
                         {% endfor %}
                     </select>
