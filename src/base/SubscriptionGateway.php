@@ -51,16 +51,6 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     abstract public function getPlanModel(): Plan;
 
     /**
-     * Returns the subscription form html to use when subscribing to a plan.
-     *
-     * @return string
-     */
-    public function getSubscriptionFormHtml(): string
-    {
-        return '';
-    }
-
-    /**
      * Returns the subscription form model
      *
      * @return SubscriptionForm
