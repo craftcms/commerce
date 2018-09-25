@@ -13,6 +13,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\helpers\StringHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -133,10 +134,12 @@ class SubscriptionsController extends BaseController
             foreach ($parameters->attributes() as $attributeName) {
                 $value = $request->getValidatedBodyParam($attributeName);
 
-                list($planUid, $parameterValue) = explode(':', $value);
+                if (!is_bool($value) && StringHelper::countSubstrings($value, ':') > 0) {
+                    list($planUid, $parameterValue) = explode(':', $value);
 
-                if ($plan->uid == $planUid) {
-                    $parameters->{$attributeName} = $parameterValue;
+                    if ($plan->uid == $planUid) {
+                        $parameters->{$attributeName} = $parameterValue;
+                    }
                 }
             }
 
