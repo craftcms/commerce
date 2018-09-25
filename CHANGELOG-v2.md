@@ -9,6 +9,9 @@
 ### Added
 - Added `craft\commerce\elements\Order::getLastTransaction()`.
 
+### Changed
+- Changed how Commerce expects the subscription parameters be hashed.
+
 ## 2.0.0-beta.10 - 2018-09-18
 
 ### Changed

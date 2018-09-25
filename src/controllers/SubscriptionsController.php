@@ -131,7 +131,13 @@ class SubscriptionsController extends BaseController
             $parameters = $gateway->getSubscriptionFormModel();
 
             foreach ($parameters->attributes() as $attributeName) {
-                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                $value = $request->getValidatedBodyParam($attributeName);
+
+                list($planUid, $parameterValue) = explode(':', $value);
+
+                if ($plan->uid == $planUid) {
+                    $parameters->{$attributeName} = $parameterValue;
+                }
             }
 
             try {
