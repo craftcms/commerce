@@ -32,7 +32,7 @@
 
                         <select name="purchasableId" class="purchasableId">
                             {%- for purchasable in product.getVariants() -%}
-                                <option {% if (purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false) or not purchasable.isAvailable %}disabled {% endif %}
+                                <option {% if not purchasable.isAvailable %}disabled {% endif %}
                                         data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
                                         value="{{ purchasable.id }}">
                                         {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
