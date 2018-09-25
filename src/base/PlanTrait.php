@@ -67,4 +67,9 @@ trait PlanTrait
      * @var string gateway response
      */
     public $planData;
+
+    /**
+     * @var string plan uid
+     */
+    public $uid;
 }

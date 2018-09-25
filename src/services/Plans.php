@@ -315,7 +315,8 @@ class Plans extends Component
                 'planData',
                 'enabled',
                 'isArchived',
-                'dateArchived'
+                'dateArchived',
+                'uid'
             ])
             ->where(['isArchived' => false])
             ->from(['{{%commerce_plans}}']);
