@@ -22,9 +22,6 @@ Run the following composer command from within your Craft 3 project:
 ```bash
 composer require craftcms/commerce 
 ``` 
-
-> Please note, while Commerce 2 is Beta, to install Commerce you may need to change your composer.json [`mininum-stability`](https://getcomposer.org/doc/04-schema.md#minimum-stability) to be `dev` or `beta` depending on your requirements. 
-
 then
 
 ```bash
