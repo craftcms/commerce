@@ -2,18 +2,18 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a bug that could reject a `commerce/cart/update-cart` request even when valid line item options were submitted. ([#493](https://github.com/craftcms/commerce/issues/493)
-- Fixed a database error that could occur when saving a shipping method. ([#500](https://github.com/craftcms/commerce/issues/500)
-
 ### Added
 - Added `craft\commerce\elements\Order::getLastTransaction()`.
 
-### Changed
-- Changed how Commerce expects the subscription parameters be hashed.
-
 ### Removed
 - Removed `craft\commerce\base\SubscriptionGateway::getSubscriptionFormHtml().`
+
+### Fixed
+- Fixed a bug where `commerce/cart/update-cart` requests could return an inaccurate validation error. ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a database error that could occur when saving a shipping method. ([#500](https://github.com/craftcms/commerce/issues/500)
+
+### Security
+- `commerce/subscription/subscribe` forms now must include the plan’s UID in the hashed `trialDays` parameter.
 
 ## 2.0.0-beta.10 - 2018-09-18
 
