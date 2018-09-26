@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.11 - 2018-09-26
 
 ### Added
 - Added `craft\commerce\elements\Order::getLastTransaction()`.
