@@ -1,10 +1,10 @@
 # Add to Cart
 
-To add something to the cart you need a [Purchasable](purchasables.md) model, and it's `id`. You then submit the `id` as the `purchasableId` param to  the `commerce/cart/updateCart` form action to add it to the cart.
+To add something to the cart you need a [Purchasable](purchasables.md) model, and its `id`. You then submit the `id` as the `purchasableId` param to  the `commerce/cart/updateCart` form action to add it to the cart.
 
 The core [Variant Model](variant-model.md) are [Purchasable](purchasables.md) and have a `id`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information. 
 
-The following is an example of getting the first product found in your store. We then get the product's default variant and use its id in the form that will add that item to the cart:
+The following is an example of getting the first product found in your store. We then get the product's default variant and use its `id` in the form that will add that item to the cart:
 
 ```twig
 {% set product = craft.products.one() %}
