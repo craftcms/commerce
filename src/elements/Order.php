@@ -1703,7 +1703,7 @@ class Order extends Element
      */
     protected static function defineActions(string $source = null): array
     {
-        $actions = [];
+        $actions = parent::defineActions($source);
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
