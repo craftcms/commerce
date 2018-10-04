@@ -4,13 +4,13 @@ The payment form model is a special model used to both validate payment paramete
 
 When returning after a validation error a `paymentForm` variable will be available to the template and will be set to an instance of `craft/commerce/models/payments/BasePaymentForm`.
 
-Each gateway can use it's own payment form, however it must extend `craft/commerce/models/payments/BasePaymentForm`. There are generic models available for use, specifically for gateways passing around credit card information, but you should refer to the documentation of the pugin providing the gateway to see if it uses a it's own model or not.
+Each gateway can use it's own payment form, however it must extend `craft/commerce/models/payments/BasePaymentForm`. There are generic models available for use, specifically for gateways passing around credit card information, but you should refer to the documentation of the plugin providing the gateway to see if it uses a it's own model or not.
 
 Generally, you shouldn't be concerned with the specific type of the payment form model being used, as that is provided by the gateway and does not need to be configured.
 
 # Model Attributes
 
-The follow attributes make up the default payment form model for gateways handling credit card information
+The following attributes make up the default payment form model for gateways handling credit card information.
 
 ## token
 
