@@ -156,6 +156,24 @@ class Order extends Element
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
+    /**
+     * @event \yii\base\Event This event is raised after an order is paid and completed
+     *
+     * Plugins can get notified after an order is paid and completed
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ORDER_PAID, function(Event $e) {
+     *     // @var Order $order
+     *     $order = $e->sender;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
+
     // Properties
     // =========================================================================
 
@@ -513,6 +531,10 @@ class Order extends Element
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
                 $this->markAsComplete();
+
+                if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+                    $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+                }
             }
         }
         // restore recalculation lock state
