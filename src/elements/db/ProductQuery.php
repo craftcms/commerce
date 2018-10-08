@@ -85,7 +85,7 @@ class ProductQuery extends ElementQuery
     public $defaultSku;
 
     /**
-     * @var VariantQuery only return products that match the resulting variant query.
+     * @var VariantQuery|array only return products that match the resulting variant query.
      */
     public $hasVariant;
 
