@@ -983,7 +983,7 @@ class Order extends Element
      */
     public function getIsPaid(): bool
     {
-        return $this->getOutstandingBalance() <= 0 && $this->isCompleted;
+        return !$this->hasOutstandingBalance() && $this->isCompleted;
     }
 
     /**
@@ -1051,6 +1051,14 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     */
+    public function hasOutstandingBalance()
+    {
+        return $this->getOutstandingBalance() > 0;
+    }
+
+    /**
      * Returns the total `purchase` and `captured` transactions belonging to this order.
      *
      * @return float
@@ -1065,7 +1073,7 @@ class Order extends Element
      */
     public function getIsUnpaid(): bool
     {
-        return $this->getOutstandingBalance() > 0;
+        return $this->hasOutstandingBalance();
     }
 
     /**
