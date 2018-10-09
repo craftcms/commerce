@@ -1017,7 +1017,7 @@ class Install extends Migration
     }
 
     /**
-     * Adds the foreign keys.
+     * Removes the foreign keys.
      */
     public function dropForeignKeys()
     {
