@@ -5,6 +5,9 @@
 ### Added
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
 
+## Fixed
+- The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
+
 ## 2.0.0-beta.11 - 2018-09-26
 
 ### Added
