@@ -1373,7 +1373,7 @@ class Order extends Element
         }
 
         /** @var Gateway $gateway */
-        if ((!$this->isCompleted && !$gateway->isFrontendEnabled) || !$gateway->availableForUseWithOrder($this)) {
+        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
             throw new InvalidConfigException('Gateway not allowed.');
         }
 
