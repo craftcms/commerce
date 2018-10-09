@@ -26,7 +26,7 @@
         {% for key, step in steps %}
 
             {% set class = '' %}
-            {% if craft.app.request.url|slice(1) == step.url %}
+            {% if craft.app.request.pathInfo == step.url %}
                 {% set width = ((key + 1) * 100 / steps|length) - 20 %}
                 {% set class = "sel" %}
                 {% set currentStep = key %}
