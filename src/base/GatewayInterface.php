@@ -105,6 +105,7 @@ interface GatewayInterface extends SavableComponentInterface
      * Processes a webhook and return a response
      *
      * @return WebResponse
+     * @throws \Throwable if something goes wrong
      */
     public function processWebHook(): WebResponse;
 
