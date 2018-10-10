@@ -33,7 +33,7 @@ The example below shows how you can add the first address owned by the customer 
 {% set address = craft.commerce.customer.addresses|first %}
 
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/updateCart">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
     <input type="hidden" name="shippingAddressId" value="{{ address.id }}">
     <input type="hidden" name="billingAddressSameAsShipping" value="1">
@@ -66,7 +66,7 @@ If `shippingAddressId` is an integer then the address form data is ignored and t
 
 ```twig
 <form method="POST">
-    <input type="hidden" name="action" value="commerce/cart/updateCart">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
     <input type="hidden" name="shippingAddressId" value="new">
     <input type="text" name="shippingAddress[firstName]" value="">
