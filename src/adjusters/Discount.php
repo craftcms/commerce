@@ -237,9 +237,7 @@ class Discount extends Component implements AdjusterInterface
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
             $baseDiscountAdjustment->lineItemId = null;
             $baseDiscountAdjustment->amount = $discount->baseDiscount;
-            if ($baseDiscountAdjustment->amount != 0) {
-                $adjustments[] = $baseDiscountAdjustment;
-            }
+            $adjustments[] = $baseDiscountAdjustment;
         }
 
         // only display adjustment if an amount was calculated
