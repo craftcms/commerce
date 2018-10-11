@@ -26,13 +26,11 @@ For starting a subscription, the following example is a good start. A thing to n
         </select>
     </div>
 
-    {% set plan = plans[0] %}
-
-    {{ plan.gateway.subscriptionFormHtml|raw }}
-
     <button type="submit">{{ "Subscribe"|t('commerce') }}</button>
 </form>
 ```
+
+Note that this requires a saved payment source for the user.
 
 ## Canceling the subscription
 
