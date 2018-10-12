@@ -36,7 +36,7 @@ For starting a subscription, the following example is a good start. A thing to n
 There are several things to note:
 
 * Subscribing a user to a plan requires that the user have a stored payment source. If a user does not have one, you can add it by displaying the payment form.
-* If you wish to set subscription parameters, such as amount of trial days, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
+* If you wish to set subscription parameters, such as amount of trial days, it is strongly recommended to make use of the [events](/en/events.md#subscriptionrelatedevents) instead of POST data.
 * When using Stripe, it is not possible to choose which payment source to use, if multiple are saved. Instead, Stripe will use the default payment source associated with that customer.
 
 
@@ -57,7 +57,7 @@ To cancel a subscription you can use the following template that assumes that th
 </form>
 ```
 
-If you wish to set cancellation parameters, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
+If you wish to set cancellation parameters, it is strongly recommended to make use of the [subscription events](/en/events.md#subscriptionrelatedevents) instead of POST data.
 
 ## Switching the subscription plan
 
@@ -79,7 +79,7 @@ To switch a subscription plan you can use the following template that assumes th
 {% endfor %}
 ```
 
-If you wish to set parameters for switching the subscription plan, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
+If you wish to set parameters for switching the subscription plan, it is strongly recommended to make use of the [subscription events](/en/events.md#subscriptionrelatedevents) instead of POST data.
 
 ## Reactivating a canceled subscription
 
