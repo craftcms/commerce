@@ -26,11 +26,19 @@ For starting a subscription, the following example is a good start. A thing to n
         </select>
     </div>
 
+    {# Display only if the user does not have a payment soure saved #}
+    {# {{ plan.getGateway().getPaymentFormHtml()|raw }} #}
+
     <button type="submit">{{ "Subscribe"|t('commerce') }}</button>
 </form>
 ```
 
-Note that this requires a saved payment source for the user.
+There are several things to note:
+
+* Subscribing a user to a plan requires that the user have a stored payment source. If a user does not have one, you can add it by displaying the payment form.
+* If you wish to set subscription parameters, such as amount of trial days, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
+* When using Stripe, it is not possible to choose which payment source to use, if multiple are saved. Instead, Stripe will use the default payment source associated with that customer.
+
 
 ## Canceling the subscription
 
@@ -48,6 +56,8 @@ To cancel a subscription you can use the following template that assumes that th
     <button type="submit">{{ "Unsubscribe"|t('commerce') }}</button>
 </form>
 ```
+
+If you wish to set cancellation parameters, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
 
 ## Switching the subscription plan
 
@@ -68,6 +78,8 @@ To switch a subscription plan you can use the following template that assumes th
     <hr />
 {% endfor %}
 ```
+
+If you wish to set parameters for switching the subscription plan, it is strongly recommended to make use of the [subscription events](/en/events#subscriptions.md) instead of POST data.
 
 ## Reactivating a canceled subscription
 
