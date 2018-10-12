@@ -24,9 +24,11 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     /**
      * Returns the cancel subscription form HTML
      *
+     * @param Subscription $subscription the subscription to cancel
+     *
      * @return CancelSubscriptionHtml
      */
-    abstract public function getCancelSubscriptionFormHtml(): string;
+    abstract public function getCancelSubscriptionFormHtml(Subscription $subscription): string;
 
     /**
      * Returns the cancel subscription form model
