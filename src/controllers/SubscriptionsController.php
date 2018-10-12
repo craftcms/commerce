@@ -134,7 +134,7 @@ class SubscriptionsController extends BaseController
             foreach ($parameters->attributes() as $attributeName) {
                 $value = $request->getValidatedBodyParam($attributeName);
 
-                if (!is_bool($value) && StringHelper::countSubstrings($value, ':') > 0) {
+                if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
                     list($planUid, $parameterValue) = explode(':', $value);
 
                     if ($plan->uid == $planUid) {

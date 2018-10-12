@@ -7,6 +7,7 @@
 
 ## Fixed
 - The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
+- Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
 
 ## 2.0.0-beta.11 - 2018-09-26
 
