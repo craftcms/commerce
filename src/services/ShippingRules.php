@@ -80,7 +80,7 @@ class ShippingRules extends Component
         }
 
         if ($this->_fetchedAllShippingRules) {
-            return null;
+            return [];
         }
 
         $results = $this->_createShippingRulesQuery()
