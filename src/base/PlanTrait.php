@@ -19,7 +19,7 @@ trait PlanTrait
     // =========================================================================
 
     /**
-     * @var int Payment source ID
+     * @var int Plan ID
      */
     public $id;
 

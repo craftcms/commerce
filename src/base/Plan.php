@@ -61,7 +61,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Returns the user element associated with this customer.
+     * Returns the gateway for this subscription plan.
      *
      * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
