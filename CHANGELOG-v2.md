@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added ability to export basic order information from the order listing page as a CSV.
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
 - Added `craft\commerce\services\Plans::getPlanByUid()`.
 
