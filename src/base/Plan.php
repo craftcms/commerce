@@ -129,7 +129,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Returns the subscription count for this plan.
+     * Returns all subscriptions for this plan.
      *
      * @param int $userId the user id
      * @return ElementInterface[]
