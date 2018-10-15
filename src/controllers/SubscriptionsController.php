@@ -65,7 +65,7 @@ class SubscriptionsController extends BaseController
         ];
 
         if (empty($variables['subscription'])) {
-            $variables['subscription'] = Subscription::find()->id($subscriptionId)->one();
+            $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
         }
 
         return $this->renderTemplate('commerce/subscriptions/_edit', $variables);

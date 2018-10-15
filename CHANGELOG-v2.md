@@ -11,6 +11,7 @@
 ## Fixed
 - The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
 - Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
+- Fixed a bug where it was impossible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
 
 ### Security
 - When switching between subscription plans, the target plan and subscription UIDs must now be passed instead of the IDs.
