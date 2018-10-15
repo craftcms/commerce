@@ -4,9 +4,18 @@
 
 ### Added
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
+- Added `craft\commerce\services\Plans::getPlanByUid()`.
 
 ## Fixed
 - The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
+- Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
+
+### Security
+- When switching between subscription plans, the target plan and subscription UIDs must now be passed instead of the IDs.
+- When switching between subscription plans, all form parameters must now also include the target plan's UID in the hashed parameters.
+- When canceling a subscription, all form parameters must now also include the subscription's UID in the hashed parameters.
+- When subscribing, the plan's UID must be passed now instead of the ID.
+- When reactivating a subscription, its UID must be passed now instead of the ID.
 
 ## 2.0.0-beta.11 - 2018-09-26
 

@@ -42,7 +42,7 @@
             {% for plan in plans %}
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
+                    <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
                     {{ redirectInput('shop/services') }}
                     {{ csrfInput() }}
 

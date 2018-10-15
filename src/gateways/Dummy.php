@@ -224,7 +224,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getCancelSubscriptionFormHtml(): string
+    public function getCancelSubscriptionFormHtml(Subscription $subscription): string
     {
         return '';
     }
