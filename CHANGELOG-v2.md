@@ -7,6 +7,7 @@
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
 - Added `craft\commerce\services\Plans::getPlanByUid()`.
 - Added the `craft\commerce\events\SubscriptionSwitchPlansEvent::parameters` property to allow dynamic configuration of parameters.
+- It is now possible to set the content of a subscription custom fields when creating it.
 
 ## Fixed
 - The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
