@@ -19,9 +19,9 @@ For starting a subscription, the following example is a good start. A thing to n
     {{ csrfInput() }}
 
     <div>
-        <select name="planId" id="planSelect">
+        <select name="planUid" id="planSelect">
             {% for plan in plans %}
-                <option value="{{ plan.id|hash }}">{{ plan.name }}</option>
+                <option value="{{ plan.uid|hash }}">{{ plan.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -36,7 +36,7 @@ For starting a subscription, the following example is a good start. A thing to n
 There are several things to note:
 
 * Subscribing a user to a plan requires that the user have a stored payment source. If a user does not have one, you can add it by displaying the payment form.
-* If you wish to set subscription parameters, such as amount of trial days, it is strongly recommended to make use of the [subscription events](/en/events.md#subscription-related-events) instead of POST data.
+* If you wish to set subscription parameters, such as amount of trial days, it is strongly recommended to make use of the [subscription events](/en/events.md#the-beforecreatesubscription-event) instead of POST data.
 * When using Stripe, it is not possible to choose which payment source to use, if multiple are saved. Instead, Stripe will use the default payment source associated with that customer.
 
 
@@ -47,7 +47,7 @@ To cancel a subscription you can use the following template that assumes that th
 ```twig
 <form method="POST">
     <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
+    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
     {{ redirectInput('shop/services') }}
     {{ csrfInput() }}
 
@@ -57,7 +57,7 @@ To cancel a subscription you can use the following template that assumes that th
 </form>
 ```
 
-If you wish to set cancellation parameters, it is strongly recommended to make use of the [subscription events](/en/events.md#subscription-related-events) instead of POST data.
+If you wish to set cancellation parameters, it is strongly recommended to make use of the [subscription events](/en/events.md#the-beforecancelsubscription-event) instead of POST data.
 
 ## Switching the subscription plan
 
@@ -68,8 +68,8 @@ To switch a subscription plan you can use the following template that assumes th
     <div><strong>Switch to {{ plan.name }}</strong></div>
     <form method="POST">
         <input type="hidden" name="action" value="commerce/subscriptions/switch">
-        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-        <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+        <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+        <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
         {{ csrfInput() }}
 
         {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
@@ -79,7 +79,7 @@ To switch a subscription plan you can use the following template that assumes th
 {% endfor %}
 ```
 
-If you wish to set parameters for switching the subscription plan, it is strongly recommended to make use of the [subscription events](/en/events.md#subscription-related-events) instead of POST data.
+If you wish to set parameters for switching the subscription plan, it is strongly recommended to make use of the [subscription events](/en/events.md#the-beforeswitchsubscriptionplan-event) instead of POST data.
 
 ## Reactivating a canceled subscription
 
@@ -91,7 +91,7 @@ Note, that not all canceled subscriptions might be available for reactivation, s
 {% if subscription.canReactivate() %}
     <form method="POST">
         <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-        <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+        <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
         {{ csrfInput() }}
 
         <button type="submit" class="button link">{{ "Reactivate"|t('commerce') }}</button>
