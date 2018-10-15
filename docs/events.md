@@ -544,7 +544,7 @@ use craft\commerce\services\Subscriptions;
 use yii\base\Event;
 
 Event::on(Subscriptions::class, Subscriptions::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, function(SubscriptionSwitchPlansEvent $e) {
-    // Do something - maybe the user is not permitted to switch to that plan due to some business logic.
+    // Do something - maybe mody the switch parameters based on some business logic.
 });
 ```
 
