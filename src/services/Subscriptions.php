@@ -439,7 +439,8 @@ class Subscriptions extends Component
         $event = new SubscriptionSwitchPlansEvent([
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
-            'newPlan' => $plan
+            'newPlan' => $plan,
+            'parameters' => $parameters
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
@@ -469,7 +470,8 @@ class Subscriptions extends Component
             $this->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, new SubscriptionSwitchPlansEvent([
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
-                'newPlan' => $plan
+                'newPlan' => $plan,
+                'parameters' => $parameters
             ]));
         }
 
