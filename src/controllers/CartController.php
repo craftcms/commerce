@@ -179,7 +179,7 @@ class CartController extends BaseFrontEndController
             $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
 
             // Only allow one line item to be added to the cart
-            if (Plugin::getInstance()->editionEqualTo(Plugin::Edition_Lite)) {
+            if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '=')) {
                 $this->_cart->setLineItems([]);
             }
 
@@ -202,7 +202,7 @@ class CartController extends BaseFrontEndController
             }
 
             // Only one line item allowed for lite
-            if (Plugin::getInstance()->editionEqualTo(Plugin::Edition_Lite)) {
+            if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '=')) {
                 if ($lineItems = $this->_cart->getLineItems()){
                     // Only add the first line item to the cart
                     $this->_cart->setLineItems([reset($lineItems)]);

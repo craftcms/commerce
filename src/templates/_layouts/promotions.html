@@ -4,14 +4,14 @@
 {% set selectedSubnavItem = "promotions" %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercepromotions" %}
 
-{% set editionLite = constant('Edition_Lite', craft.commerce) %}
-{% set editionStandard = constant('Edition_Standard', craft.commerce) %}
+{% set editionLite = constant('EDITION_LITE', craft.commerce) %}
+{% set editionStandard = constant('EDITION_STANDARD', craft.commerce) %}
 
 {% set sidebarNavItems = {
    sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') }
 } %}
 
-{% if craft.commerce.editionGreaterThanOrEqual(editionStandard) %}
+{% if craft.commerce.is(editionStandard) %}
   {% set sidebarNavItems = sidebarNavItems|merge({
     discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
   }) %}

@@ -714,7 +714,7 @@ class Order extends Element
             return;
         }
 
-        if (!Plugin::getInstance()->editionGreaterThanOrEqual(Plugin::Edition_Standard)) {
+        if (!Plugin::getInstance()->is(Plugin::EDITION_STANDARD)) {
             $this->setAdjustments([]);
             return;
         }

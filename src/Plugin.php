@@ -55,8 +55,8 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     // Edition constants
-    const Edition_Lite = 'lite';
-    const Edition_Standard = 'standard';
+    const EDITION_LITE = 'lite';
+    const EDITION_STANDARD = 'standard';
 
     // Public Properties
     // =========================================================================
@@ -120,97 +120,9 @@ class Plugin extends BasePlugin
     public function getEditions(): array
     {
         return [
-            1 => static::Edition_Lite,
-            2 => static::Edition_Standard
+            1 => static::EDITION_LITE,
+            2 => static::EDITION_STANDARD
         ];
-    }
-
-    /**
-     * Returns the current Commerce edition.
-     *
-     * @return string
-     */
-    public function getEdition(): string
-    {
-        // Look up currently licenced edition from?
-        $editions = $this->getEditions();
-        return $editions[2]; // standard
-        //return $editions[1]; // lite
-    }
-
-    /**
-     * Is the edition higher than the current edition?
-     *
-     * @param string $edition
-     *
-     * @return bool
-     */
-    public function editionGreaterThan(string $edition): bool
-    {
-        return $this->_editionCompareTo($edition) > 0;
-    }
-
-    /**
-     * Is the edition equal to the current edition?
-     *
-     * @param string $edition
-     *
-     * @return bool
-     */
-    public function editionEqualTo($edition): bool
-    {
-        return $this->_editionCompareTo($edition) === 0;
-    }
-
-    /**
-     * Is the edition less than the current edition?
-     *
-     * @param string $edition
-     *
-     * @return bool
-     */
-    public function editionLessThan($edition): bool
-    {
-        return $this->_editionCompareTo($edition) < 0;
-    }
-
-    /**
-     * Is the edition greater than or equal to the current edition?
-     *
-     * @param string $edition
-     *
-     * @return bool
-     */
-    public function editionGreaterThanOrEqual($edition): bool
-    {
-        return $this->_editionCompareTo($edition) >= 0;
-    }
-
-    /**
-     * Is the edition greater than or equal to the current edition?
-     *
-     * @param string $edition
-     *
-     * @return bool
-     */
-    public function editionLessThanOrEqual($edition): bool
-    {
-        return $this->_editionCompareTo($edition) <= 0;
-    }
-
-    /**
-     * Compares the current edition to the passed $edition.
-     *
-     * Returns 0 if they are equal, 1 if the other object
-     * is less than the current one, or -1 if its more than the current one.
-     *
-     * @param $edition
-     *
-     * @return int
-     */
-    private function _editionCompareTo($edition)
-    {
-        return array_search($this->getEdition(), $this->getEditions(), false) <=> array_search($edition, $this->getEditions(), false);
     }
 
     /**
