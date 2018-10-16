@@ -1865,22 +1865,29 @@ class Order extends Element
      */
     private function _updateLineItems()
     {
+        // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
 
         $newLineItemIds = [];
 
+        // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
             $newLineItemIds[] = $lineItem->id;
         }
 
+        // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $newLineItemIds, false)) {
                 $previousLineItem->delete();
             }
+        }
+
+        // Save the line items.
+        foreach ($this->getLineItems() as $lineItem) {
+            // Don't run validation as validation of the line item should happen before saving the order
+            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
         }
     }
 }
