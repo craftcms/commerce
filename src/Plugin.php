@@ -113,19 +113,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Returns the Commerce editions.
-     *
-     * @return array
-     */
-    public function getEditions(): array
-    {
-        return [
-            1 => static::EDITION_LITE,
-            2 => static::EDITION_STANDARD
-        ];
-    }
-
-    /**
      * @inheritdoc
      */
     public function beforeInstall(): bool
