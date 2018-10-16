@@ -153,6 +153,7 @@ class CartController extends BaseFrontEndController
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
+
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */

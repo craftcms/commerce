@@ -693,7 +693,7 @@ class Order extends Element
      */
     public function recalculate()
     {
-        // Don't recalculate the totals of completed orders.
+        // Check if the order needs to recalculated
         if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
             return;
         }
