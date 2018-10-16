@@ -58,6 +58,17 @@ class Plugin extends BasePlugin
     const EDITION_LITE = 'lite';
     const EDITION_STANDARD = 'standard';
 
+    // Static
+    // =========================================================================
+
+    public static function editions(): array
+    {
+        return [
+            self::EDITION_LITE,
+            self::EDITION_STANDARD,
+        ];
+    }
+
     // Public Properties
     // =========================================================================
 
