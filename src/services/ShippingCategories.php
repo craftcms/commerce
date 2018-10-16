@@ -186,16 +186,16 @@ class ShippingCategories extends Component
         $record->description = $model->description;
         $record->default = $model->default;
 
-        // If this was the default make all others not the default.
-        if ($model->default) {
-            ShippingCategoryRecord::updateAll(['default' => 0]);
-        }
-
         // Save it!
         $record->save(false);
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
+
+        // If this was the default make all others not the default.
+        if ($model->default) {
+            ShippingCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+        }
 
         // Update Service cache
         $this->_memoizeShippingCategory($model);

@@ -57,11 +57,6 @@ class ProductType extends Model
     public $handle;
 
     /**
-     * @var bool Has URLs
-     */
-    public $hasUrls;
-
-    /**
      * @var bool Has dimension
      */
     public $hasDimensions;

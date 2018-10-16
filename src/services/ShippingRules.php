@@ -79,10 +79,6 @@ class ShippingRules extends Component
             return $this->_shippingRulesByMethodId[$id];
         }
 
-        if ($this->_fetchedAllShippingRules) {
-            return null;
-        }
-
         $results = $this->_createShippingRulesQuery()
             ->where(['methodId' => $id])
             ->orderBy('priority')
@@ -111,10 +107,6 @@ class ShippingRules extends Component
     {
         if (isset($this->_allShippingRules[$id])) {
             return $this->_allShippingRules[$id];
-        }
-
-        if ($this->_fetchedAllShippingRules) {
-            return null;
         }
 
         $result = $this->_createShippingRulesQuery()

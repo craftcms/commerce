@@ -49,12 +49,12 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use yii\base\Event;
      *
-     * Event::on(Subscriptions::class, Subscriptions::EVENT_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
+     * Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
      *     // Do something about it - perhaps make a call to 3rd party service to de-authorize a user.
      * });
      * ```
      */
-    const EVENT_EXPIRE_SUBSCRIPTION = 'expireSubscription';
+    const EVENT_AFTER_EXPIRE_SUBSCRIPTION = 'afterExpireSubscription';
 
     /**
      * @event CreateSubscriptionEvent The event that is triggered before a subscription is created.
@@ -261,17 +261,19 @@ class Subscriptions extends Component
      */
     public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
     {
-        // fire an 'expireSubscription' event
-        if ($this->hasEventHandlers(self::EVENT_EXPIRE_SUBSCRIPTION)) {
-            $this->trigger(self::EVENT_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscriptions' => $subscription
-            ]));
-        }
-
         $subscription->isExpired = true;
         $subscription->dateExpired = $dateTime ?? Db::prepareDateForDb(new \DateTime());
 
-        return Craft::$app->getElements()->saveElement($subscription, false);
+        Craft::$app->getElements()->saveElement($subscription, false);
+
+        // fire an 'expireSubscription' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
+            $this->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
+                'subscription' => $subscription
+            ]));
+        }
+
+        return true;
     }
 
     /**
@@ -302,11 +304,12 @@ class Subscriptions extends Component
      * @param User $user the user subscribing to a plan
      * @param Plan $plan the plan the user is being subscribed to
      * @param SubscriptionForm $parameters array of additional parameters to use
+     * @param array $fieldValues array of content field values to set
      * @return Subscription the subscription
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
      */
-    public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters): Subscription
+    public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters, array $fieldValues = []): Subscription
     {
         $gateway = $plan->getGateway();
 
@@ -342,6 +345,7 @@ class Subscriptions extends Component
         $subscription->subscriptionData = $response->getData();
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
+        $subscription->setFieldValues($fieldValues);
 
         Craft::$app->getElements()->saveElement($subscription, false);
 
@@ -437,7 +441,8 @@ class Subscriptions extends Component
         $event = new SubscriptionSwitchPlansEvent([
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
-            'newPlan' => $plan
+            'newPlan' => $plan,
+            'parameters' => $parameters
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
@@ -467,7 +472,8 @@ class Subscriptions extends Component
             $this->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, new SubscriptionSwitchPlansEvent([
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
-                'newPlan' => $plan
+                'newPlan' => $plan,
+                'parameters' => $parameters
             ]));
         }
 

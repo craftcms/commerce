@@ -341,19 +341,55 @@ class Variant extends Purchasable
             return Craft::$app->getView()->renderObjectTemplate($format, $this);
         }
 
-        return $this->getTitle();
+        // If title is not set yet default to blank string
+        return $this->title ?? '';
     }
 
     /**
-     * @return string
+     * Updates the title based on titleFormat, or sets it to the same title as the product.
+     *
+     * @param Product $product
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws \Throwable
      */
-    public function getTitle(): string
+    public function updateTitle(Product $product)
     {
-        if (!$this->getProduct()->getType()->hasVariants) {
-            return $this->getProduct()->title;
+        $type = $product->getType();
+        // Use the product type's titleFormat if the title field is not shown
+        if (!$type->hasVariantTitleField && $type->hasVariants && $type->titleFormat) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+            // Set Craft to the products's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            $this->title = Craft::$app->getView()->renderObjectTemplate($type->titleFormat, $this);
+            Craft::$app->language = $language;
         }
 
-        return $this->title;
+        if (!$type->hasVariants) {
+            $this->title = $product->title;
+        }
+    }
+
+
+    /**
+     * @param Product $product
+     * @throws \Throwable
+     */
+    public function updateSku(Product $product)
+    {
+        $type = $product->getType();
+        // If we have a blank SKU, generate from product type's skuFormat
+        if (!$this->sku && $type->skuFormat) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+            // Set Craft to the products's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
+            Craft::$app->language = $language;
+        }
     }
 
     /**
@@ -818,38 +854,16 @@ class Variant extends Purchasable
     public function beforeValidate(): bool
     {
         $product = $this->getProduct();
-        $productType = $product->getType();
 
-        // Use the product type's titleFormat if the title field is not shown
-        if (!$productType->hasVariantTitleField && $productType->hasVariants && $productType->titleFormat) {
-            try {
-                $this->title = Craft::$app->getView()->renderObjectTemplate($productType->titleFormat, $this);
-            } catch (\Exception $e) {
-                $this->title = '';
-            }
-        }
+        $this->updateTitle($product);
+        $this->updateSku($product);
 
-        if (!$productType->hasVariants) {
-            // Since Variant::getTitle() returns the parent products title when the product has
-            // no variants, lets save the products title as the variant title anyway.
-            $this->title = $product->title;
-        }
-
-        // If we have a blank SKU, generate from product type's skuFormat
-        if (!$this->sku && $productType->skuFormat) {
-            try {
-                $this->sku = Craft::$app->getView()->renderObjectTemplate($productType->skuFormat, $this);
-            } catch (\Exception $e) {
-                Craft::error('Craft Commerce could not generate the supplied SKU format: ' . $e->getMessage(), __METHOD__);
-                $this->sku = '';
-            }
-        }
-
+        // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
             $this->stock = 0;
         }
 
-        $this->fieldLayoutId = $this->getProduct()->getType()->variantFieldLayoutId;
+        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
     }

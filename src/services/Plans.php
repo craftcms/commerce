@@ -176,6 +176,22 @@ class Plans extends Component
     }
 
     /**
+     * Returns a subscription plan by its uid.
+     *
+     * @param string $planUid The plan uid.
+     * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
+     */
+    public function getPlanByUid(string $planUid)
+    {
+        $result = $this->_createPlansQuery()
+            ->where(['uid' => $planUid])
+            ->one();
+
+        return $result ? $this->_populatePlan($result) : null;
+    }
+
+    /**
      * Returns a subscription plan by its handle.
      *
      * @param string $handle the plan handle
@@ -315,7 +331,8 @@ class Plans extends Component
                 'planData',
                 'enabled',
                 'isArchived',
-                'dateArchived'
+                'dateArchived',
+                'uid'
             ])
             ->where(['isArchived' => false])
             ->from(['{{%commerce_plans}}']);

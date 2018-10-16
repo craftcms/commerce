@@ -9,6 +9,7 @@ namespace craft\commerce\events;
 
 use craft\commerce\base\Plan;
 use craft\commerce\elements\Subscription;
+use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\events\CancelableEvent;
 
 /**
@@ -36,4 +37,9 @@ class SubscriptionSwitchPlansEvent extends CancelableEvent
      * @var Plan The plan user is switching to
      */
     public $newPlan;
+
+    /**
+     * @var SwitchPlansForm parameters
+     */
+    public $parameters;
 }

@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethodsController extends BaseAdminController
+class ShippingMethodsController extends BaseShippingSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -85,7 +85,7 @@ class ShippingMethodsController extends BaseAdminController
         $shippingMethod->id = Craft::$app->getRequest()->getBodyParam('shippingMethodId');
         $shippingMethod->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingMethod->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $shippingMethod->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
+        $shippingMethod->enabled = (bool) Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {

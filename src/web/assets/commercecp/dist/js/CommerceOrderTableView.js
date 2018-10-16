@@ -21,6 +21,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
         $chart: null,
         $startDate: null,
         $endDate: null,
+        $exportButton: null,
 
         afterInit: function() {
             this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
@@ -42,6 +43,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
+                $exportButton = $('<input type="button" class="btn export-button" value="' + Craft.t('commerce', 'Export') + '" />').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
@@ -51,6 +53,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
                 $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
 
+            this.$exportButton = $exportButton;
             this.$chartExplorer = $chartExplorer;
             this.$totalValue = $totalValue;
             this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
@@ -75,6 +78,8 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
             this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
 
+            this.addListener($exportButton, 'click', 'handleClickExport');
+
             // Set the start/end dates
             var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
                 endTime = this.getStorage('endTime') || ((new Date()).getTime());
@@ -85,7 +90,14 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // Load the report
             this.loadReport();
         },
+        handleClickExport: function() {
+            var data = {};
+            data.source = this.settings.params.source;
+            data.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
+            data.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
 
+            location.href = Craft.getActionUrl('commerce/downloads/csv', data);
+        },
         handleStartDateChange: function() {
             if (this.setStartDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
                 this.loadReport();
@@ -139,6 +151,12 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
             requestData.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
             requestData.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
+
+            if (requestData.source.includes('carts:')) {
+                this.$exportButton.addClass('hidden');
+            }else{
+                this.$exportButton.removeClass('hidden');
+            }
 
             this.$spinner.removeClass('hidden');
             this.$error.addClass('hidden');

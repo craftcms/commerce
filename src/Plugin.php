@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
@@ -63,7 +64,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.50';
+    public $schemaVersion = '2.0.52';
 
     /**
      * @inheritdoc
@@ -277,10 +278,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin()) {
+        if (Craft::$app->getUser()->getIsAdmin() || Craft::$app->getUser()->checkPermission('commerce-manageShipping') || Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
-                'url' => 'commerce/settings/general'
+                'url' => 'commerce/settings'
             ];
         }
 
@@ -366,8 +367,8 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                'commerce-manageShipping' => array('label' => Craft::t('Manage shipping')),
-                'commerce-manageTaxes' => array('label' => Craft::t('Manage taxes')),
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
             ];
         });
     }
@@ -471,6 +472,7 @@ class Plugin extends BasePlugin
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
+            $e->types[] = Subscription::class;
         });
     }
 }

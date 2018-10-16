@@ -3,10 +3,73 @@
 ## Unreleased
 
 ### Added
-- Added a new setting to the Manual payment gateway to allow it to only be used for zero value orders.
+- Added ability to export basic order information from the order listing page as a CSV.
+- Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
+- Added `craft\commerce\services\Plans::getPlanByUid()`.
+- Added the `craft\commerce\events\SubscriptionSwitchPlansEvent::parameters` property to allow dynamic configuration of parameters.
+- It is now possible to set the content of a subscription custom fields when creating it.
+
+## Fixed
+- The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
+- Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
+- Fixed a bug where it was impossible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
+
+### Security
+- When switching between subscription plans, the target plan and subscription UIDs must now be passed instead of the IDs.
+- When switching between subscription plans, all form parameters must now also include the target plan's UID in the hashed parameters.
+- When canceling a subscription, all form parameters must now also include the subscription's UID in the hashed parameters.
+- When subscribing, the plan's UID must be passed now instead of the ID.
+- When reactivating a subscription, its UID must be passed now instead of the ID.
+
+## 2.0.0-beta.11 - 2018-09-26
+
+### Added
+- Added `craft\commerce\elements\Order::getLastTransaction()`.
+
+### Removed
+- Removed `craft\commerce\base\SubscriptionGateway::getSubscriptionFormHtml().`
 
 ### Fixed
-- Fixed an incorrect validation error that would show up when saving the store location.
+- Fixed a bug where `commerce/cart/update-cart` requests could return an inaccurate validation error. ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a database error that could occur when saving a shipping method. ([#500](https://github.com/craftcms/commerce/issues/500)
+
+### Security
+- `commerce/subscription/subscribe` forms now must include the plan’s UID in the hashed `trialDays` parameter.
+
+## 2.0.0-beta.10 - 2018-09-18
+
+### Changed
+- The Dummy gateway now supports subscriptions.
+- Subscription queries now only return active subscriptions by default.
+- Order status messages can now be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Renamed `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` to `EVENT_AFTER_EXPIRE_SUBSCRIPTION`, and the event is now fired after saving the expired subscription data to the database.
+- Reduced the chance of unnecessary order validation errors on `commerce/payments/pay` requests.
+
+### Fixed
+- Fixed a bug where the `availableForPurchase` product query param was being ignored.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
+- Fixed a bug that prevented default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405))
+- Fixed a bug where existing products weren’t updated correctly when a new site was added.
+
+## 2.0.0-beta.9 - 2018-09-07
+
+### Added
+- Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
+- Added a new setting to the Manual payment gateway that restricts it to only be used on zero value orders.
+- Product queries now have an `availableForPurchase` param.
+
+### Changed
+- The `commerce/cart/update-cart` action will now remove items from the cart with a quantity of zero.
+
+### Fixed
+- Fixed a bug where store locations could get incorrect validation errors.
+- Fixed a bug where only admins were allowed to edit addresses on Edit Order pages.
+- Restored missing shipping and tax management permission settings.
+- Fixed a bug where variant errors would not show up on Edit Product pages in some cases.
+- Fixed a bug where order statuses weren’t remembering whether they were the default status. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a bug where variants with generated SKUs could get incorrect validation errors. ([#451](https://github.com/craftcms/commerce/issues/451))
+- Fixed a bug where order PDF URLs weren’t accessible to customers in some cases.
+- Fixed a bug where Edit Product pages weren’t revealing which tab(s) had errors on it, if the errors occurred within a Matrix field.
 
 ## 2.0.0-beta.8.1 - 2018-08-27
 

@@ -266,7 +266,7 @@ class Sales extends Component
                     // applyAmount is stored as a negative already
                     $takeOffAmount += ($sale->applyAmount * $originalPrice);
                     if ($sale->ignorePrevious) {
-                        $newPrice = $originalPrice - ($sale->applyAmount * $originalPrice);
+                        $newPrice = $originalPrice + ($sale->applyAmount * $originalPrice);
                     }
                     break;
                 case SaleRecord::APPLY_TO_PERCENT:
@@ -355,19 +355,10 @@ class Sales extends Component
             }
         }
 
-        if (!$order) {
-            if (!$sale->allGroups) {
-                // User groups of the currently logged in user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
-                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                    return false;
-                }
-            }
-        }
-
         // Are we dealing with the current session outside of any cart/order context
         if (!$order) {
             if (!$sale->allGroups) {
+                // User groups of the currently logged in user
                 $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;

@@ -210,7 +210,7 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        // update multiple line items in the cart
+        // Update multiple line items in the cart
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
                 $lineItemId = $key;
@@ -238,7 +238,7 @@ class CartController extends BaseFrontEndController
                     $lineItem->setOptions($options);
                 }
 
-                if ($removeLine) {
+                if ($removeLine || $qty == 0) {
                     $this->_cart->removeLineItem($lineItem);
                 } else {
                     $this->_cart->addLineItem($lineItem);
@@ -253,7 +253,7 @@ class CartController extends BaseFrontEndController
             $this->_cart->setEmail($email);
         }
 
-        // Set guest email address onto guest customer and order.
+        // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
         }
@@ -263,19 +263,19 @@ class CartController extends BaseFrontEndController
             $this->_cart->couponCode = $couponCode ?: null;
         }
 
-        // Set Coupon on Cart.
+        // Set Payment Gateway on cart
         if ($gatewayId = $request->getParam('gatewayId')) {
             $this->_cart->gatewayId = $gatewayId;
             $this->_cart->paymentSourceId = null;
         }
 
-        // Set Coupon on Cart.
+        // Set Payment Source on cart
         if ($paymentSourceId = $request->getParam('paymentSourceId')) {
             $this->_cart->gatewayId = null;
             $this->_cart->paymentSourceId = $paymentSourceId;
         }
 
-        // Set Coupon on Cart.
+        // Set Shipping method on cart.
         if ($shippingMethodHandle = $request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
         }
@@ -302,7 +302,10 @@ class CartController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
-                return $this->asJson(['error' => $error, $this->_cartVariable => $this->cartArray($this->_cart)]);
+                return $this->asJson([
+                    'error' => $error,
+                    'success' => !$this->_cart->hasErrors(),
+                    $this->_cartVariable => $this->cartArray($this->_cart)]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
@@ -315,7 +318,10 @@ class CartController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
-            return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
+            return $this->asJson([
+                'success' => !$this->_cart->hasErrors(),
+                $this->_cartVariable => $this->cartArray($this->_cart)
+            ]);
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));

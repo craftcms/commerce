@@ -20,7 +20,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxZonesController extends BaseAdminController
+class TaxZonesController extends BaseTaxSettingsController
 {
     // Public Methods
     // =========================================================================

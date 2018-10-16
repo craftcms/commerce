@@ -23,7 +23,6 @@ class BaseAdminController extends BaseCpController
      */
     public function init()
     {
-        // All system setting actions require an admin
         $this->requireAdmin();
 
         parent::init();

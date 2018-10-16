@@ -68,9 +68,9 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Are we paying anonymously?
-        $user = Craft::$app->getUser();
+        $userSession = Craft::$app->getUser();
 
-        if (!$order->getIsActiveCart() && !$user->checkPermission('commerce-manageOrders')) {
+        if (!$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders')) {
             if ($order->getEmail() !== $request->getParam('email')) {
                 $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
 
@@ -171,10 +171,10 @@ class PaymentsController extends BaseFrontEndController
         $paymentForm->setAttributes($request->getBodyParams(), false);
 
         try {
-            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $user->getId()) {
+            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $userSession->getId()) {
                 $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
                 try {
-                    if ($user->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $user->getId()) {
+                    if ($userSession->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $userSession->getId()) {
                         throw new PaymentSourceException(Craft::t('commerce', 'Cannot select payment source.'));
                     }
                     $order->gatewayId = null;
@@ -215,7 +215,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Allowed to update order's custom fields?
-        if ($order->getIsActiveCart() || $user->checkPermission('commerce-manageOrders')) {
+        if ($order->getIsActiveCart() || $userSession->checkPermission('commerce-manageOrders')) {
             $order->setFieldValuesFromRequest('fields');
         }
 
@@ -243,8 +243,10 @@ class PaymentsController extends BaseFrontEndController
             $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
         }
 
-        // Do one final save to confirm the price does not change out from under the customer.
+        // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
         // This also confirms the products are available and discounts are current.
+        $order->recalculate();
+        // Save the orders new values.
         if (Craft::$app->getElements()->saveElement($order)) {
             $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <style>
     {% include 'shop/style.css' %}
     .paidLogo{
@@ -25,80 +26,78 @@
 <body>
 
 {% set orderTable %}
-    <div class="row">
-        <div class="twelve columns">
-            <table class="u-full-width heading">
+    <div class="container mx-auto">
+        <table class="w-full heading">
+            <tr>
+                <td>
+                    <h5>Details</h5>
+                    <ul>
+                        <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
+                        <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|currency(order.currency) }}</li>
+                        <li><strong>{{ "Paid"|t }}:</strong>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('short') }}</li>
+                        <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('medium') }}</li>
+                    </ul>
+                </td>
+                <td>
+                    <h5>Shipping Address</h5>
+                    {% if order.shippingAddress %}
+                    {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                    {% endif %}
+                </td>
+                <td>
+                    <h5>Billing Address</h5>
+                    {% if order.billingAddress %}
+                    {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        <table class="w-full">
+            <thead>
+            <tr>
+                <th>Item</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th class="text-right">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in order.lineItems %}
                 <tr>
-                    <td>
-                        <h5>Details</h5>
-                        <ul>
-                            <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}</li>
-                            <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|currency(order.currency) }}</li>
-                            <li><strong>{{ "Paid"|t }}:</strong>{{ order.totalPaid|currency(order.currency) }} {{ order.datePaid|date('short') }}</li>
-                            <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('medium') }}</li>
-                        </ul>
+                    <td valign="top">
+                        <strong>{{ item.description }}</strong><br>
+                        SKU: {{ item.sku }}
                     </td>
                     <td>
-                        <h5>Shipping Address</h5>
-                        {% if order.shippingAddress %}
-                        {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                        {% if item.onSale %}
+                            <strike>{{ item.price|currency(order.currency) }}</strike>   {{ item.salePrice|currency(order.currency) }}
+                        {% else %}
+                            {{ item.price|currency(order.currency) }}
                         {% endif %}
                     </td>
-                    <td>
-                        <h5>Billing Address</h5>
-                        {% if order.billingAddress %}
-                        {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
-                        {% endif %}
-                    </td>
+                    <td>{{ item.qty }}</td>
+                    <td class="text-right">{{ item.total|currency(order.currency) }}</td>
                 </tr>
-            </table>
-            <table class="u-full-width">
-                <thead>
+            {% endfor %}
+
+            {% for adjustment in order.adjustments %}
                 <tr>
-                    <th>Item</th>
-                    <th>Unit Price</th>
-                    <th>Quantity</th>
-                    <th class="text-right">Total</th>
+                    <td>{{ adjustment.type }}</td>
+                    <td colspan="2"><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
+                    <td class="text-right">{{ adjustment.amount|currency(order.currency) }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for item in order.lineItems %}
-                    <tr>
-                        <td valign="top">
-                            <strong>{{ item.description }}</strong><br>
-                            SKU: {{ item.sku }}
-                        </td>
-                        <td>
-                            {% if item.onSale %}
-                                <strike>{{ item.price|currency(order.currency) }}</strike>   {{ item.salePrice|currency(order.currency) }}
-                            {% else %}
-                                {{ item.price|currency(order.currency) }}
-                            {% endif %}
-                        </td>
-                        <td>{{ item.qty }}</td>
-                        <td class="text-right">{{ item.total|currency(order.currency) }}</td>
-                    </tr>
-                {% endfor %}
+            {% endfor %}
+            <tr><td colspan="2"><div class="paidLogo"><span>{{ 'PAID'|t }}</div></td><td colspan="2"></td></tr>
+            <tr>
+                <td colspan="4" class="text-right">
+                    Item Total: {{ order.itemTotal|currency(order.currency) }}<br>
+                    <h4>Total: {{ order.totalPrice|currency(order.currency) }}</h4>
+                </td>
+            </tr>
 
-                {% for adjustment in order.adjustments %}
-                    <tr>
-                        <td>{{ adjustment.type }}</td>
-                        <td colspan="2"><strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }})</td>
-                        <td class="text-right">{{ adjustment.amount|currency(order.currency) }}</td>
-                    </tr>
-                {% endfor %}
-                <tr><td colspan="2"><div class="paidLogo"><span>{{ 'PAID'|t }}</div></td><td colspan="2"></td></tr>
-                <tr>
-                    <td colspan="4" class="text-right">
-                        Item Total: {{ order.itemTotal|currency(order.currency) }}<br>
-                        <h4>Total: {{ order.totalPrice|currency(order.currency) }}</h4>
-                    </td>
-                </tr>
+            </tbody>
+        </table>
 
-                </tbody>
-            </table>
-
-        </div>
     </div>
 {% endset %}
 

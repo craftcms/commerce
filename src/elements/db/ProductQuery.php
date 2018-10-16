@@ -85,9 +85,14 @@ class ProductQuery extends ElementQuery
     public $defaultSku;
 
     /**
-     * @var VariantQuery only return products that match the resulting variant query.
+     * @var VariantQuery|array only return products that match the resulting variant query.
      */
     public $hasVariant;
+
+    /**
+     * @var bool Whether the product is available for purchase
+     */
+    public $availableForPurchase;
 
     /**
      * @inheritdoc
@@ -255,6 +260,19 @@ class ProductQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Sets the [[availableForPurchase]] property.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function availableForPurchase($value)
+    {
+        $this->availableForPurchase = $value;
+
+        return $this;
+    }
+
     // Protected Methods
     // =========================================================================
 
@@ -294,6 +312,10 @@ class ProductQuery extends ElementQuery
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
         if ($commerce && version_compare($commerce['version'], '2.0.0-beta.5', '>=')) {
             $this->query->addSelect(['commerce_products.availableForPurchase']);
+
+            if ($this->availableForPurchase) {
+                $this->subQuery->andWhere(Db::parseParam('commerce_products.availableForPurchase', $this->availableForPurchase));
+            }
         }
 
         if ($this->postDate) {

@@ -353,7 +353,7 @@ class Subscription extends Element
      */
     public function getName()
     {
-        return Craft::t('commerce', 'Subscription for {plan}', ['plan' => $this->getPlanName()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
     }
 
     /**

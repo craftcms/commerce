@@ -116,7 +116,7 @@
                 {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
                 {{ csrfInput() }}
 
-                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
+                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
                 <div class="field">
                     <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>

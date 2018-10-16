@@ -187,16 +187,12 @@ class Payments extends Component
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        if ($order->getIsPaid()) {
-            if (!$order->datePaid) {
-                $order->datePaid = Db::prepareDateForDb(new \DateTime());
-            }
+        if (!$order->hasOutstandingBalance() && !$order->datePaid) {
+            $order->updateOrderPaidInformation();
 
-            if (!$order->isCompleted) {
-                $order->markAsComplete();
+            if ($order->isCompleted) {
+                return;
             }
-
-            return;
         }
 
         /** @var Gateway $gateway */
