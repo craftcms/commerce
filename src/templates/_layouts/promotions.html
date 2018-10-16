@@ -8,17 +8,17 @@
 {% set editionStandard = constant('EDITION_STANDARD', craft.commerce) %}
 
 {% set sidebarNavItems = {
-   sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') }
+    sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') }
 } %}
 
 {% if craft.commerce.is(editionStandard) %}
-  {% set sidebarNavItems = sidebarNavItems|merge({
-    discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
-  }) %}
+    {% set sidebarNavItems = sidebarNavItems|merge({
+        discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
+    }) %}
 {% endif %}
 
 {% set docTitle = sidebarNavItems[selectedSidebarNavItem].label~' - '~title~' - '~'Commerce' %}
 
 {% block sidebar %}
-  {% include "_includes/nav" with { items: sidebarNavItems, selectedItem: selectedSidebarNavItem } only %}
+    {% include "_includes/nav" with { items: sidebarNavItems, selectedItem: selectedSidebarNavItem } only %}
 {% endblock %}
