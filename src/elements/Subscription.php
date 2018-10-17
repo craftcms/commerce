@@ -584,7 +584,10 @@ class Subscription extends Element
                 return $this->getPlanName();
 
             case 'subscriber':
-                return $this->getSubscriber();
+                $subscriber = $this->getSubscriber();
+                $url = $subscriber->getCpEditUrl();
+
+                return '<a href="' . $url . '">' . $subscriber . '</a>';
 
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
