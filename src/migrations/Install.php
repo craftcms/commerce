@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -35,6 +36,7 @@ use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
+use craft\queue\jobs\ResaveElements;
 use craft\records\Element;
 use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
@@ -1716,6 +1718,11 @@ class Install extends Migration
             ];
             $this->insert(PurchasableRecord::tableName(), $purchasableData);
         }
+
+        // Generate URIs etc.
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class
+        ]));
     }
 
     /**
