@@ -60,16 +60,6 @@ class Subscription extends Element
      */
     const STATUS_EXPIRED = 'expired';
 
-    /**
-     * @var string
-     */
-    const STATUS_CANCELED = 'canceled';
-
-    /**
-     * @var string
-     */
-    const STATUS_TRIAL = 'trial';
-
     // Properties
     // =========================================================================
 
@@ -369,19 +359,7 @@ class Subscription extends Element
      */
     public function getStatus()
     {
-        if ($this->isExpired) {
-            return self::STATUS_EXPIRED;
-        }
-
-        if ($this->isCanceled) {
-            return self::STATUS_CANCELED;
-        }
-
-        if ($this->isOnTrial) {
-            return self::STATUS_TRIAL;
-        }
-
-        return self::STATUS_ACTIVE;
+        return $this->isExpired ? self::STATUS_EXPIRED : self::STATUS_ACTIVE;
     }
 
 
@@ -497,8 +475,6 @@ class Subscription extends Element
         return [
             self::STATUS_ACTIVE => Craft::t('commerce', 'Active'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_CANCELED => ['label' => Craft::t('commerce', 'Canceled'), 'color' => 'yellow'],
-            self::STATUS_TRIAL => ['label' => Craft::t('commerce', 'Trial'), 'color' => 'blue'],
         ];
     }
 
