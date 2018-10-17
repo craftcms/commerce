@@ -65,6 +65,8 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         $lineItemId = $request->getParam('lineItemId');
+        
+        $this->_cart = $this->_getCart();
 
         $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
