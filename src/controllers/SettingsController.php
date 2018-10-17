@@ -12,6 +12,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
+use craft\helpers\App;
 use yii\web\Response;
 
 /**
@@ -32,7 +33,7 @@ class SettingsController extends BaseAdminController
     {
         $settings = Plugin::getInstance()->getSettings();
 
-        $craftSettings = Craft::$app->getSystemSettings()->getEmailSettings();
+        $craftSettings = App::mailSettings();
         $settings->emailSenderAddressPlaceholder = $craftSettings['fromEmail'] ?? '';
         $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
 

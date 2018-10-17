@@ -7,11 +7,11 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
 use craft\commerce\records\OrderSettings;
@@ -35,10 +35,10 @@ use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
+use craft\queue\jobs\ResaveElements;
 use craft\records\Element;
 use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
-use craft\records\Plugin as PluginRecord;
 use craft\records\Site;
 
 /**
@@ -1074,7 +1074,6 @@ class Install extends Migration
         $this->_defaultProductTypes();
         $this->_defaultProducts();
         $this->_defaultGateways();
-        $this->_defaultSettings();
     }
 
     // Private Methods
@@ -1716,6 +1715,11 @@ class Install extends Migration
             ];
             $this->insert(PurchasableRecord::tableName(), $purchasableData);
         }
+
+        // Generate URIs etc.
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class
+        ]));
     }
 
     /**
@@ -1732,19 +1736,5 @@ class Install extends Migration
             'isArchived' => false,
         ];
         $this->insert(Gateway::tableName(), $data);
-    }
-
-    /**
-     * Set default plugin settings.
-     */
-    private function _defaultSettings()
-    {
-        $data = [
-            'settings' => Json::encode([
-                'orderPdfPath' => 'shop/_pdf/order',
-                'orderPdfFilenameFormat' => 'Order-{number}'
-            ])
-        ];
-        $this->update(PluginRecord::tableName(), $data, ['handle' => Plugin::getInstance()->handle]);
     }
 }

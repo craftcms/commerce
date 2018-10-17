@@ -474,16 +474,8 @@ class SubscriptionQuery extends ElementQuery
                 ];
             case Subscription::STATUS_EXPIRED:
                 return [
-                    'commerce_subscriptions.isCanceled' => '0',
                     'commerce_subscriptions.isExpired' => '1',
                 ];
-            case Subscription::STATUS_CANCELED:
-                return [
-                    'commerce_subscriptions.isCanceled' => '1',
-                    'commerce_subscriptions.isExpired' => '1',
-                ];
-            case Subscription::STATUS_TRIAL:
-                return $this->_getTrialCondition(true);
             default:
                 return parent::statusCondition($status);
         }
