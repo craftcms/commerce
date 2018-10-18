@@ -9,7 +9,6 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\elements\Order;
 use craft\db\Migration;
-use craft\db\Query;
 use yii\db\Expression;
 
 /**

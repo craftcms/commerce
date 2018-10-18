@@ -8,10 +8,8 @@
 namespace craft\commerce\elements\actions;
 
 use Craft;
-use craft\commerce\elements\Product;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
-use yii\base\Exception;
 
 /**
  * Delete Element Action

@@ -7,8 +7,8 @@
 
 namespace craft\commerce\models;
 
-use craft\commerce\base\Model;
 use craft\commerce\base\AddressZoneInterface;
+use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\helpers\UrlHelper;

@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -55,26 +56,35 @@ class DownloadsController extends BaseFrontEndController
     }
 
     /**
+     * Returns the export file in the requested format.
+     *
      * @throws HttpException
      */
-    public function actionCsv(): Response
+    public function actionExportOrder(): Response
     {
         $this->requirePermission('commerce-manageOrders');
 
+        $format = Craft::$app->getRequest()->getRequiredParam('format');
         $startDate = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDate = Craft::$app->getRequest()->getRequiredParam('endDate');
         $source = Craft::$app->getRequest()->getRequiredParam('source');
+
+        // Limited to only the formats we allow.
+        $allowedFormats = ['xls', 'csv', 'xlsx', 'ods',];
+        if (!in_array($format, $allowedFormats, false)) {
+            throw new BadRequestHttpException();
+        }
 
         if (strpos($source, ':') !== false) {
             $sourceHandle = explode(':', $source)[1];
         }
 
+        // null order status is ok, will then find all order statuses
         $orderStatusId = isset($sourceHandle) ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusByHandle($sourceHandle)->id : null;
 
-        $csv = Plugin::getInstance()->getReports()->getOrdersCsv($startDate, $endDate, $orderStatusId);
+        // Get the generated file saved into a temporary location
+        $tempFile = Plugin::getInstance()->getReports()->getOrdersExportFile($format, $startDate, $endDate, $orderStatusId);
 
-        return Craft::$app->getResponse()->sendContentAsFile($csv, 'orders.csv', [
-            'mimeType' => 'text/csv'
-        ]);
+        return Craft::$app->getResponse()->sendFile($tempFile, 'orders.' . $format);
     }
 }

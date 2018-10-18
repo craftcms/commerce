@@ -8,8 +8,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
 
 /**
  * m180918_161908_fix_messageLengthOnOrder migration.

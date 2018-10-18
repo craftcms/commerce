@@ -54,7 +54,7 @@ class Pdf extends Component
      */
     public function renderPdfForOrder(Order $order, $option = '', $templatePath = null): string
     {
-        if (null === $templatePath){
+        if (null === $templatePath) {
             $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
         }
 

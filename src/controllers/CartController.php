@@ -9,11 +9,8 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\helpers\Json;
 use yii\base\Exception;
-use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -291,7 +288,8 @@ class CartController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'success' => !$this->_cart->hasErrors(),
-                    $this->_cartVariable => $this->cartArray($this->_cart)]);
+                    $this->_cartVariable => $this->cartArray($this->_cart)
+                ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([

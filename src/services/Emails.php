@@ -19,7 +19,6 @@ use craft\helpers\Assets;
 use craft\mail\Message;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\helpers\FileHelper;
 
 /**
  * Email service.

@@ -8,13 +8,17 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\db\Query;
-use craft\helpers\DateTimeHelper;
+use craft\db\Query as CraftQuery;
 use craft\helpers\Db;
-use League\Csv\Writer;
+use craft\helpers\FileHelper;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Ods;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Reports service.
@@ -28,17 +32,18 @@ class Reports extends Component
     // =========================================================================
 
     /**
-     * Get a order summary CSV file for date range and an optional status.
+     * Get a order summary CSV or XLS file for date range and an optional status.
      *
+     * @param string $format The format, supports csv, xls
      * @param string $startDate
      * @param string $endDate
      * @param int|null $orderStatusId Status ID, or null for all statuses
-     * @return Writer|string
+     * @return string|null
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\web\HttpException
      * @throws \yii\web\RangeNotSatisfiableHttpException
      */
-    public function getOrdersCsv($startDate, $endDate, $orderStatusId = null)
+    public function getOrdersExportFile($format, $startDate, $endDate, $orderStatusId = null)
     {
         $columns = [
             'id',
@@ -66,11 +71,11 @@ class Reports extends Component
 
         // Dont use `date(dateOrdered)` in sql to force comparison to whole day, instead just remove timestamp and shift end date.
         $startDate = new \DateTime($startDate);
-        $startDate->setTime(0,0);
+        $startDate->setTime(0, 0);
         $endDate = new \DateTime($endDate);
         $endDate->modify('+1 day'); //so that we capture whole day of endDate
 
-        $orderQuery = (new Query())
+        $orderQuery = (new CraftQuery())
             ->select($columns)
             ->from('{{%commerce_orders}}')
             ->andWhere('isCompleted = true')
@@ -83,12 +88,40 @@ class Reports extends Component
         }
 
         $orders = $orderQuery->all();
-        $csv = Writer::createFromString('');
-        $csv->insertOne($columns);
-        $csv->insertAll($orders);
-        $csv = $csv->getContent();
 
-        return $csv;
+        // Populate the spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->setActiveSheetIndex(0);
+        $spreadsheet->getActiveSheet()->fromArray($columns, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($orders, null, 'A2');
+
+        // Could use the writer factory with a $format <-> phpspreadsheet string map, but this is more simple for now.
+        switch ($format) {
+            case 'csv':
+                $writer = new Csv($spreadsheet);
+                break;
+            case 'xls':
+                $writer = new Xls($spreadsheet);
+                break;
+            case 'xlsx':
+                $writer = new Xlsx($spreadsheet);
+                break;
+            case 'ods':
+                $writer = new Ods($spreadsheet);
+                break;
+        }
+
+        // Prepare and write temp file to disk
+        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+        $filename = uniqid('orderexport', true) . '.' . $format;
+        $tempFile = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
+        if (($handle = fopen($tempFile, 'wb')) === false) {
+            throw new Exception('Could not create temp file: ' . $tempFile);
+        }
+        fclose($handle);
+
+        $writer->save($tempFile);
+
+        return $tempFile;
     }
-
 }
