@@ -7,10 +7,10 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\db\QueryAbortedException;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
@@ -78,6 +78,11 @@ class VariantQuery extends ElementQuery
      * @var
      */
     public $hasSales;
+
+    /**
+     * @var ProductQuery|array only return variants that match the resulting product query.
+     */
+    public $hasProduct;
 
     /**
      * @inheritdoc
@@ -188,6 +193,20 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Sets the [[hasProduct]] property.
+     *
+     * @param ProductQuery|array $value The property value
+     * @return static self reference
+     */
+    public function hasProduct($value)
+    {
+        $this->hasProduct = $value;
+
+        return $this;
+    }
+
+
     // Protected Methods
     // =========================================================================
 
@@ -281,6 +300,35 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(['in', 'commerce_variants.id', $ids]);
         }
 
+        $this->_applyHasProductParam();
+
         return parent::beforePrepare();
+    }
+
+    /**
+     * @return
+     */
+    /**
+     * Applies the hasVariant query condition
+     */
+    private function _applyHasProductParam()
+    {
+        if ($this->hasProduct) {
+            if ($this->hasProduct instanceof ProductQuery) {
+                $productQuery = $this->hasProduct;
+            } else {
+                $query = Product::find();
+                $productQuery = Craft::configure($query, $this->hasProduct);
+            }
+
+            $productQuery->limit = null;
+            $productQuery->select('commerce_products.id');
+            $productIds = $productQuery->column();
+
+            // Remove any blank product IDs (if any)
+            $productIds = array_filter($productIds);
+
+            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
+        }
     }
 }

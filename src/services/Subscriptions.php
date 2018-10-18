@@ -304,11 +304,12 @@ class Subscriptions extends Component
      * @param User $user the user subscribing to a plan
      * @param Plan $plan the plan the user is being subscribed to
      * @param SubscriptionForm $parameters array of additional parameters to use
+     * @param array $fieldValues array of content field values to set
      * @return Subscription the subscription
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
      */
-    public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters): Subscription
+    public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters, array $fieldValues = []): Subscription
     {
         $gateway = $plan->getGateway();
 
@@ -344,6 +345,7 @@ class Subscriptions extends Component
         $subscription->subscriptionData = $response->getData();
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
+        $subscription->setFieldValues($fieldValues);
 
         Craft::$app->getElements()->saveElement($subscription, false);
 
@@ -439,7 +441,8 @@ class Subscriptions extends Component
         $event = new SubscriptionSwitchPlansEvent([
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
-            'newPlan' => $plan
+            'newPlan' => $plan,
+            'parameters' => $parameters
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
@@ -469,7 +472,8 @@ class Subscriptions extends Component
             $this->trigger(self::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, new SubscriptionSwitchPlansEvent([
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
-                'newPlan' => $plan
+                'newPlan' => $plan,
+                'parameters' => $parameters
             ]));
         }
 
@@ -520,6 +524,8 @@ class Subscriptions extends Component
 
             if ($response->isCanceled()) {
                 $subscription->isExpired = true;
+                $subscription->isCanceled = true;
+                $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
                 $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
             }
 

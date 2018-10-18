@@ -9,11 +9,8 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\helpers\Json;
 use yii\base\Exception;
-use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -153,6 +150,7 @@ class CartController extends BaseFrontEndController
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
+
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */
@@ -287,7 +285,11 @@ class CartController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
-                return $this->asJson(['error' => $error, $this->_cartVariable => $this->cartArray($this->_cart)]);
+                return $this->asJson([
+                    'error' => $error,
+                    'success' => !$this->_cart->hasErrors(),
+                    $this->_cartVariable => $this->cartArray($this->_cart)
+                ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
@@ -300,7 +302,10 @@ class CartController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
-            return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
+            return $this->asJson([
+                'success' => !$this->_cart->hasErrors(),
+                $this->_cartVariable => $this->cartArray($this->_cart)
+            ]);
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));

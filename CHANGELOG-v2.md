@@ -1,5 +1,33 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.12 - 2018-10-18
+
+### Added
+- It’s now possible to export orders from the Orders index page as a CSV, ODS, XLS, or XLSX file.
+- It’s now possible to set custom field values when creating a new subscription.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`, which is triggered after an order is paid or authorized in full.
+- Added `craft\commerce\events\SubscriptionSwitchPlansEvent::$parameters`, enabling dynamic configuration of plan parameters.
+- Added `craft\commerce\services\Plans::getPlanByUid()`.
+
+### Changed
+- Customer Info fields now display users’ subscription information. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Simplified subscription statuses, keeping only `live` and `expired`. Information on if/when the subscription was canceled is still available on the subscription object.
+- The Subscriptions index now links subscribers to their Edit User page. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Renamed `craft\commerce\base\SubscriptionResponseInterface::isScheduledForCancelation()` to `isScheduledForCancellation()`.
+
+### Fixed
+- Ajax requests to the `commerce/cart/update-cart` action now include a `success` boolean in the JSON response.
+- Fixed a bug where it wasn’t possible to create a subscription without specifying a trial duration. ([#524](https://github.com/craftcms/commerce/issues/524)
+- Fixed a bug where it wasn’t possible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
+- Fixed SQL errors that occurred when saving shipping categories or tax categories if MySQL was running in strict mode.
+
+### Security
+- When switching between subscription plans, the target plan and subscription’s UIDs must now be passed instead of their IDs.
+- When switching between subscription plans, all form parameters must now also include the target plan’s UID in the hashed parameters.
+- When canceling a subscription, all form parameters must now also include the subscription’s UID in the hashed parameters.
+- When subscribing to a plan, its UID must now be passed instead of its ID.
+- When reactivating a subscription, its UID must now be passed instead of its ID.
+
 ## 2.0.0-beta.11 - 2018-09-26
 
 ### Added

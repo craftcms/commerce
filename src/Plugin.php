@@ -26,8 +26,10 @@ use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\elements\User as UserElement;
+use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
@@ -36,6 +38,7 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
@@ -103,6 +106,7 @@ class Plugin extends BasePlugin
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
+        $this->_registerCacheTypes();
     }
 
     /**
@@ -365,6 +369,22 @@ class Plugin extends BasePlugin
             $e->types[] = Product::class;
             $e->types[] = Order::class;
             $e->types[] = Subscription::class;
+        });
+    }
+
+    private function _registerCacheTypes()
+    {
+        // create the directory if it doesn't exist
+        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+
+        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) {
+            $e->options[] = [
+                'key' => 'commerce-order-exports',
+                'label' => Craft::t('commerce', 'Commerce order exports'),
+                'action' => function() {
+                    FileHelper::clearDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+                }
+            ];
         });
     }
 }
