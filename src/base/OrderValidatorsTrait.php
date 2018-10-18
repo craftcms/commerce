@@ -66,7 +66,7 @@ trait OrderValidatorsTrait
         /** @var Address $address */
         $address = $this->$attribute;
 
-        if($customer && $address) {
+        if ($customer && $address) {
             $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
 
             if ($address->id && !in_array($address->id, $addressesIds, false)) {

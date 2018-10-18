@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m180308_130001_has_and_is migration.

@@ -52,8 +52,8 @@ class WebhooksController extends BaseController
                 $response = $gateway->processWebHook();
             }
         } catch (\Throwable $exception) {
-            $message = 'Exception while processing webhook: '.$exception->getMessage() . "\n";
-            $message .= 'Exception thrown in '.$exception->getFile() . ':' . $exception->getLine() . "\n";
+            $message = 'Exception while processing webhook: ' . $exception->getMessage() . "\n";
+            $message .= 'Exception thrown in ' . $exception->getFile() . ':' . $exception->getLine() . "\n";
             $message .= 'Stack trace:' . "\n" . $exception->getTraceAsString();
 
             Craft::error($message, 'commerce');
