@@ -43,7 +43,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-                $exportButton = $('<input type="button" class="btn export-button" value="' + Craft.t('commerce', 'Export') + '" />').appendTo($chartHeader),
+                $exportButton = $('<div class="btn menubtn export-menubtn">'+Craft.t('commerce', 'Export')+'</div><div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
@@ -78,7 +78,9 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
             this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
 
-            this.addListener($exportButton, 'click', 'handleClickExport');
+            new Garnish.MenuBtn(this.$exportButton, {
+                onOptionSelect: $.proxy(this, 'handleClickExport')
+            });
 
             // Set the start/end dates
             var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
@@ -90,13 +92,14 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // Load the report
             this.loadReport();
         },
-        handleClickExport: function() {
+        handleClickExport: function(option) {
             var data = {};
             data.source = this.settings.params.source;
+            data.format = option.dataset.format;
             data.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
             data.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
+            location.href = Craft.getActionUrl('commerce/downloads/export-order', data);
 
-            location.href = Craft.getActionUrl('commerce/downloads/csv', data);
         },
         handleStartDateChange: function() {
             if (this.setStartDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
