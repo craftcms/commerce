@@ -7,10 +7,7 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\fields\Products;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 
 /**

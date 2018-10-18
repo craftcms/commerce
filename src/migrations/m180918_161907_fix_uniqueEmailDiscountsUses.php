@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 use craft\helpers\MigrationHelper;
 
 /**

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models\responses;
 
-use Craft;
 use craft\commerce\base\RequestResponseInterface;
 
 /**

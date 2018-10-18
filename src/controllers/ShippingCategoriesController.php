@@ -81,7 +81,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $shippingCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingCategory->default = (bool) Craft::$app->getRequest()->getBodyParam('default');
+        $shippingCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {

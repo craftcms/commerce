@@ -8,7 +8,6 @@
 namespace craft\commerce\web\assets\editorder;
 
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\vue\Asset as VueAsset;
 use craft\web\AssetBundle;
 
 /**
