@@ -58,5 +58,5 @@ interface SubscriptionResponseInterface
      *
      * @return bool
      */
-    public function isScheduledForCancelation(): bool;
+    public function isScheduledForCancellation(): bool;
 }

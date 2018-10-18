@@ -13,6 +13,7 @@
 - Customer Info fields now display users’ subscription information. ([#503](https://github.com/craftcms/commerce/issues/503))
 - Simplified subscription statuses, keeping only `live` and `expired`. Information on if/when the subscription was canceled is still available on the subscription object.
 - The Subscriptions index now links subscribers to their Edit User page. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Renamed `craft\commerce\base\SubscriptionResponseInterface::isScheduledForCancelation()` to `isScheduledForCancellation()`.
 
 ### Fixed
 - Ajax requests to the `commerce/cart/update-cart` action now include a `success` boolean in the JSON response.
