@@ -1874,6 +1874,7 @@ class Order extends Element
 
         // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
+            // If the ID is null that's ok, it's a new line item and will be saves anyway
             $newLineItemIds[] = $lineItem->id;
         }
 
@@ -1884,7 +1885,7 @@ class Order extends Element
             }
         }
 
-        // Save the line items.
+        // Save the line items last, as we know that any possible duplicates are already removed.
         foreach ($this->getLineItems() as $lineItem) {
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
