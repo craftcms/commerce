@@ -23,7 +23,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\helpers\Db;
 use yii\base\Component;
 
 /**
@@ -249,7 +248,6 @@ class Payments extends Component
 
             // Success!
             $order->updateOrderPaidInformation();
-
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();

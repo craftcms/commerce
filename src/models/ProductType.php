@@ -12,12 +12,12 @@ use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
-use craft\commerce\records\ProductType as ProductTypeRecord;
 
 /**
  * Product type model.

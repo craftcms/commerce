@@ -453,8 +453,7 @@ class Customers extends Component
             }
         }
 
-        if ($addressesExist)
-        {
+        if ($addressesExist) {
             Craft::$app->getElements()->saveElement($order, false);
         }
     }
