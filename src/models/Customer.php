@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use yii\base\InvalidConfigException;
@@ -155,6 +156,22 @@ class Customer extends Model
     public function getOrders(): array
     {
         return Order::find()->customer($this)->isCompleted(true)->all();
+    }
+
+    /**
+     * Returns the subscription elements associated with this customer.
+     *
+     * @return Subscription[]
+     */
+    public function getSubscriptions(): array
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return [];
+        }
+
+        return Subscription::find()->user($user)->anyStatus()->all();
     }
 
     /**

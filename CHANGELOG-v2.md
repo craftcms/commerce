@@ -8,8 +8,13 @@
 - Added `craft\commerce\services\Plans::getPlanByUid()`.
 - Added the `craft\commerce\events\SubscriptionSwitchPlansEvent::parameters` property to allow dynamic configuration of parameters.
 - It is now possible to set the content of a subscription custom fields when creating it.
+- Added subscription information to the customer information field.  ([#503](https://github.com/craftcms/commerce/issues/503))
 
-## Fixed
+### Changed
+- Simplified subscription statuses, keeping only `live` and `expired`. Information on whether and when the subscription was canceled is still available on the subscription element.
+- Subscriber is now clickable in subscription view. ([#503](https://github.com/craftcms/commerce/issues/503))
+
+### Fixed
 - The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
 - Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
 - Fixed a bug where it was impossible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))

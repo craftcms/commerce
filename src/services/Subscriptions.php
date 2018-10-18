@@ -524,6 +524,8 @@ class Subscriptions extends Component
 
             if ($response->isCanceled()) {
                 $subscription->isExpired = true;
+                $subscription->isCanceled = true;
+                $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
                 $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
             }
 
