@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Added ability to export basic order information from the order listing page as a CSV.
+- Added ability to export basic order information from the order listing page as a CSV, ODS, XLS, XLSX or document.
 - Added the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event that is fired after the order is paid or authorized for in full amount.
 - Added `craft\commerce\services\Plans::getPlanByUid()`.
 - Added the `craft\commerce\events\SubscriptionSwitchPlansEvent::parameters` property to allow dynamic configuration of parameters.
@@ -15,7 +15,7 @@
 - Subscriber is now clickable in subscription view. ([#503](https://github.com/craftcms/commerce/issues/503))
 
 ### Fixed
-- The all ajax response for all `commerce/cart/update-cart` requests now includes a `success` boolean .
+- All `commerce/cart/update-cart` ajax requests now include a `success` boolean in the json response.
 - Fixed a bug where it was impossible to create a subscription without specifying a trial day amount. ([#524](https://github.com/craftcms/commerce/issues/524)
 - Fixed a bug where it was impossible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
 
