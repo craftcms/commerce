@@ -82,7 +82,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $taxCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxCategory->default = Craft::$app->getRequest()->getBodyParam('default');
+        $taxCategory->default = (bool) Craft::$app->getRequest()->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
