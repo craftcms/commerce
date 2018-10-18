@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.12 - 2018-10-18
 
 ### Added
 - It’s now possible to export orders from the Orders index page as a CSV, ODS, XLS, or XLSX file.
