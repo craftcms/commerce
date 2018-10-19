@@ -78,7 +78,7 @@ class Reports extends Component
         $orderQuery = (new CraftQuery())
             ->select($columns)
             ->from('{{%commerce_orders}}')
-            ->andWhere('"isCompleted" = true')
+            ->andWhere('[[isCompleted]] = true')
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);
 
