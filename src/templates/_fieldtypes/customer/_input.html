@@ -53,33 +53,32 @@
     {% endif %}
 
     {% set subscriptions = customer.subscriptions %}
-        <div id="no-subscriptions"{% if subscriptions|length %} class="hidden"{% endif %}>
-            <p>{{ "No subscriptions exist for this user yet."|t('commerce') }}</p>
-        </div>
-        <br>
-        <table class="data fullwidth collapsible">
-            <thead>
+    <div id="no-subscriptions"{% if subscriptions|length %} class="hidden"{% endif %}>
+        <p>{{ "No subscriptions exist for this user yet."|t('commerce') }}</p>
+    </div>
+    <br>
+    <table class="data fullwidth collapsible">
+        <thead>
+        <tr>
+            <th scope="col">{{ 'Subscription'|t('commerce') }}</th>
+            <th scope="col">{{ 'Subscription date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Cancellation date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Expiration date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Is subscription active?'|t('commerce') }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for subscription in subscriptions %}
             <tr>
-                <th scope="col">{{ 'Subscription'|t('commerce') }}</th>
-                <th scope="col">{{ 'Subscription date'|t('commerce') }}</th>
-                <th scope="col">{{ 'Cancellation date'|t('commerce') }}</th>
-                <th scope="col">{{ 'Expiration date'|t('commerce') }}</th>
-                <th scope="col">{{ 'Is subscription active?'|t('commerce') }}</th>
+                <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
+                <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
+                <td>{{ subscription.dateCanceled|date('D dS M Y') }}</td>
+                <td>{{ subscription.dateExpired|date('D dS M Y') }}</td>
+                <td>{{ subscription.status == 'live' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
             </tr>
-            </thead>
-            <tbody>
-            {% for subscription in subscriptions %}
-                <tr>
-                    <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
-                    <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
-                    <td>{{ subscription.dateCanceled|date('D dS M Y') }}</td>
-                    <td>{{ subscription.dateExpired|date('D dS M Y') }}</td>
-                    <td>{{ subscription.status == 'live' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
 {% endif %}
 
 {% includecss %}

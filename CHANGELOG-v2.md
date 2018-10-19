@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where it was impossible to edit a Craft user if it had a Customer Info field set on it.
+
 ## 2.0.0-beta.12 - 2018-10-18
 
 ### Added
