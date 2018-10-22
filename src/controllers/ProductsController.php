@@ -382,8 +382,7 @@ class ProductsController extends BaseCpController
                 }
             }
 
-            if ($product->getErrors('variants'))
-            {
+            if ($product->getErrors('variants')) {
                 $hasErrors = true;
             }
 

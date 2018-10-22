@@ -157,7 +157,7 @@ class SubscriptionsController extends BaseController
             }
 
             $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
-            $fieldValues = $request->getBodyParam($fieldsLocation);
+            $fieldValues = $request->getBodyParam($fieldsLocation, []);
 
             $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
         } catch (SubscriptionException $exception) {
