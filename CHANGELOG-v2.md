@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fix a bug where custom fields were required when subscribing.
+- Fix a bug where order data exporting would not work for PostgreSQL.
 
 ## 2.0.0-beta.12.1 - 2018-10-19
 
