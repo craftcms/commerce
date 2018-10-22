@@ -8,7 +8,6 @@
 namespace craft\commerce\elements\db;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Plan;
 use craft\commerce\elements\Subscription;
 use craft\db\Query;

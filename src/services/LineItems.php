@@ -122,7 +122,7 @@ class LineItems extends Component
      * @param string $note
      * @return LineItem
      */
-    public function resolveLineItem(int $orderId, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
+    public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
     {
         ksort($options);
         $signature = md5(Json::encode($options));
@@ -137,10 +137,8 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->note = $note;
-            $lineItem->qty += $qty;
         } else {
-            $lineItem = $this->createLineItem($orderId, $purchasableId, $options, $qty, $note);
+            $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
 
         return $lineItem;

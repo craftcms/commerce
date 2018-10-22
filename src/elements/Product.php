@@ -164,9 +164,9 @@ class Product extends Element
      */
     private $_defaultVariant;
 
-	/**
-	 * @var Variant This product's cheapest variant
-	 */
+    /**
+     * @var Variant This product's cheapest variant
+     */
     private $_cheapestVariant;
 
     /**
@@ -400,7 +400,7 @@ class Product extends Element
         }
 
         return $this->_cheapestVariant;
-	}
+    }
 
     /**
      * Returns an array of the product's variants.

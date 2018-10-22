@@ -9,11 +9,8 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\helpers\Json;
 use yii\base\Exception;
-use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -176,7 +173,16 @@ class CartController extends BaseFrontEndController
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
-            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+
+            // New line items already have a qty of one.
+            if ($lineItem->id) {
+                $lineItem->qty += $qty;
+            } else {
+                $lineItem->qty = $qty;
+            }
+
+            $lineItem->note = $note;
             $this->_cart->addLineItem($lineItem);
         }
 
@@ -190,7 +196,16 @@ class CartController extends BaseFrontEndController
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
                 if ($qty > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options, $qty, $note);
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+
+                    // New line items already have a qty of one.
+                    if ($lineItem->id) {
+                        $lineItem->qty += $qty;
+                    } else {
+                        $lineItem->qty = $qty;
+                    }
+
+                    $lineItem->note = $note;
                     $this->_cart->addLineItem($lineItem);
                 }
             }
@@ -291,7 +306,8 @@ class CartController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'success' => !$this->_cart->hasErrors(),
-                    $this->_cartVariable => $this->cartArray($this->_cart)]);
+                    $this->_cartVariable => $this->cartArray($this->_cart)
+                ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
