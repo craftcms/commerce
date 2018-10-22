@@ -82,7 +82,7 @@ The address model allows for free-text state text to be submitted instead of a `
 
 # Validation
 
-By default the `firstName`, `lastName` and `countyId` are required attributes when saving an address.
+By default the `firstName`, `lastName` and `countryId` are required attributes when saving an address.
 
 Using the `Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event, you can modify the rules array.
 
