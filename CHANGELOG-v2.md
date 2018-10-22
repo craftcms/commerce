@@ -6,6 +6,9 @@
 - Fix a bug where custom fields were required when subscribing.
 - Fix a bug where order data exporting would not work for PostgreSQL.
 
+### Changed
+- The `craft\commerce\services\LineItems::resolveLineItem` method’s signature has changed. Now updating line item quantity should be done after resolving the line item, as this method will no longer add quantity.
+
 ## 2.0.0-beta.12.1 - 2018-10-19
 
 ### Fixed
