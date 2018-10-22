@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fix a bug where custom fields were required when subscribing.
+
 ## 2.0.0-beta.12.1 - 2018-10-19
 
 ### Fixed
