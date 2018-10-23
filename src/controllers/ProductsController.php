@@ -126,7 +126,7 @@ class ProductsController extends BaseCpController
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane, #variants-container',
                     'previewUrl' => $variables['product']->getUrl(),
-                    'previewAction' => 'commerce/products/preview-product',
+                    'previewAction' => Craft::$app->getSecurity()->hashData('commerce/products/preview-product'),
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
                         'productId' => $variables['product']->id,
