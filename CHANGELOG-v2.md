@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added project configuration support for gateways.
+
 ### Fixed
 - Fixed a bug where custom fields were required when subscribing.
 - Fixed a bug where order data exporting would not work for PostgreSQL.
