@@ -226,3 +226,7 @@ will return an error array like this:
 Previously in Commerce 1.x we would strip the addresses from the order when the user logs in. This no longer occurs.
 
 Previously the addresses would also drop if a user logged out, but with the cart remaining in session. In Commerce 2, the whole cart is forgotten when the user logs out.
+
+### Example Templates
+
+If you’d like to use Commerce’s sample store templates as a starting point with all of the above changes included, you can copy them from your vendor/craftcms/commerce/templates/shop folder to your templates/shop folder.
