@@ -28,6 +28,6 @@ then
 composer update
 ``` 
 
-### Post-install steps
+## Post-install
 
 If you’d like to use Commerce’s sample store templates as a starting point, you can copy them from your `vendor/craftcms/commerce/templates/shop` folder to your `templates/shop` folder. 
