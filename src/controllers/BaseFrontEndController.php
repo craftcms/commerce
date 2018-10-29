@@ -113,6 +113,10 @@ class BaseFrontEndController extends BaseController
             $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
+            $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
+            $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
+            $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
+            $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
             $lineItems[$lineItem->id] = $lineItemData;
             if ($lineItem->getErrors()) {
                 $lineItems['errors'] = $lineItem->getErrors();

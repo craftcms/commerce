@@ -192,7 +192,11 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
 
         if (Plugin::getInstance()->getSettings()->emailSenderAddress) {
-            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddress);
+            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddressPlaceholder);
+        }
+
+        if (Plugin::getInstance()->getSettings()->emailSenderAddress && Plugin::getInstance()->getSettings()->emailSenderName) {
+            $newEmail->setFrom([Plugin::getInstance()->getSettings()->emailSenderAddress => Plugin::getInstance()->getSettings()->emailSenderName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
