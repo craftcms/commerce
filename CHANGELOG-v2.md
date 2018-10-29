@@ -6,6 +6,7 @@
 - Fix a bug where custom fields were required when subscribing.
 - Fix a bug where order data exporting would not work for PostgreSQL.
 - Fixed a bug where it was impossible to edit a Craft user address if it had a Customer Info field set on it.
+- Fixed an issue where the "From Name" commerce setting was being ignored when sending emails.
 
 ### Changed
 - The `craft\commerce\services\LineItems::resolveLineItem` method’s signature has changed. Now updating line item quantity should be done after resolving the line item, as this method will no longer add quantity.
