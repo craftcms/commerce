@@ -3,8 +3,9 @@
 ## Unreleased
 
 ### Fixed
-- Fix a bug where custom fields were required when subscribing.
-- Fix a bug where order data exporting would not work for PostgreSQL.
+- Fixed a bug where custom fields were required when subscribing.
+- Fixed a bug where order data exporting would not work for PostgreSQL.
+- Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
 - Fixed a bug where it was impossible to edit a Craft user address if it had a Customer Info field set on it.
 - Fixed an issue where the "From Name" commerce setting was being ignored when sending emails.
 
