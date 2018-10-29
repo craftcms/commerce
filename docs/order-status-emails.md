@@ -86,7 +86,9 @@ You can use the following variables in both the template path & template file bo
 
 This allows you to have full design flexibility.
 
->{Warning} Craft global set variables are not loaded automatically into your email templates. See below for a work-around
+::: warning
+Craft global set variables are not loaded automatically into your email templates. See below for a work-around
+:::
 
 To get access to global set variables you need to manually load them into your templates like so:
 

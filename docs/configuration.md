@@ -68,7 +68,9 @@ Default: 3 months. (`P3M`).
 
 Inactive carts older than this interval from their last update will be purged (deleted).
 
-> {tip} The interval check for purging of inactive carts is only run when visiting the Order Index screen in the control panel.
+::: tip
+The interval check for purging of inactive carts is only run when visiting the Order Index screen in the control panel.
+:::
 
 ## `requireBillingAddressAtCheckout`
 

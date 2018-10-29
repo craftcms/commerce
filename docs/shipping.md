@@ -107,4 +107,6 @@ The amount based on a percentage of items cost.
 
 In addition to the default item level rates, you can override the default values with shipping category specific per item, weight, and percentage rates.
 
->{Warning} If a customer changes their shipping address during checkout, a previously selected shipping method may no longer match and will be immediately removed as the shipping method set on the cart.
+::: warning
+If a customer changes their shipping address during checkout, a previously selected shipping method may no longer match and will be immediately removed as the shipping method set on the cart.
+:::

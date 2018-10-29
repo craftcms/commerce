@@ -23,7 +23,9 @@ The handle is how you will reference the product type in code. For example, in t
 
 What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {product.slug} or {myCustomField}
 
->{Tip} The way you access properties within the SKU format will differ depending on whether or not the product type has variants. If your product type has multiple variants, then the SKU formats default `object` is the variant, otherwise it’s the product.
+::: tip
+The way you access properties within the SKU format will differ depending on whether or not the product type has variants. If your product type has multiple variants, then the SKU formats default `object` is the variant, otherwise it’s the product.
+:::
 
 ### Show the Dimensions and Weight fields
 
@@ -39,4 +41,6 @@ You also have the option to show the title input field or have it default to use
 
 This works the same way the standard Craft [entry sections](https://craftcms.com/docs/sections-and-entries) work.
 
->{Tip}When a site vistor hits the URL of a product, the `product` variable is automatically available to your templates, just like the `entry` variable for standard craft entries.
+::: tip
+When a site visitor hits the URL of a product, the `product` variable is automatically available to your templates, just like the `entry` variable for standard craft entries.
+:::

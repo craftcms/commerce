@@ -12,7 +12,9 @@ Then you could add Australian Dollars (AUD) as an additional accepted payment cu
 
 If a customer chooses to pay with AUD, an order that would have been $10.00 USD becomes $13.00 AUD.
 
->{Tip}Craft Commerce does not keep your store's exchange rates updated automatically. A plugin could be written to update the currency at your preferred interval.
+::: tip
+Craft Commerce does not keep your store's exchange rates updated automatically. A plugin could be written to update the currency at your preferred interval.
+:::
 
 ## Order Currency Fields
 
