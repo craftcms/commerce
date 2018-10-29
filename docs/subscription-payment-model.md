@@ -1,6 +1,6 @@
 # Subscription Payment Model
 
-Subscription payment model represents a single payment made for a susbcription. The payment models can only be acquired by calling the [appropriate method on the subscription model](/en/subscription-model.md#getallpayments), so they don't include a reference to the subscription itself.
+Subscription payment model represents a single payment made for a susbcription. The payment models can only be acquired by calling the [appropriate method on the subscription model](subscription-model.md#getallpayments), so they don't include a reference to the subscription itself.
 
 	
 # Attributes

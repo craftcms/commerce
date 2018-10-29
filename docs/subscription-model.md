@@ -3,7 +3,7 @@ Whenever you’re dealing with a subscription in your template, you’re actuall
 
 ## Simple Output
 
-Outputting a `\craft\commerce\elements\Subscription` object in your template without attaching a property or method will print out the string `Subscription to “{plan}”`, where `plan` is the name of the [subscription plan](/en/plan-model.md).
+Outputting a `\craft\commerce\elements\Subscription` object in your template without attaching a property or method will print out the string `Subscription to “{plan}”`, where `plan` is the name of the [subscription plan](plan-model.md).
 	
 # Attributes and methods
 
@@ -79,11 +79,11 @@ Return the plan for the subscription.
 
 ### getName()
 
-Returns the string `Subscription to “{plan}”`, where `plan` is the name of the [subscription plan](/en/plan-model.md).
+Returns the string `Subscription to “{plan}”`, where `plan` is the name of the [subscription plan](plan-model.md).
 
 ### getAlternativePlans()
 
-Returns an array of alternative [subscription plans](/en/plan-model.md) available for this subscription.
+Returns an array of alternative [subscription plans](plan-model.md) available for this subscription.
 
 ### getPlan()
 
@@ -95,7 +95,7 @@ Return the name for the subscription's plan.
 
 ### getAllPayments()
 
-Return an array of all the [payments](/en/subscription-payment-model.md) made for this subscription.
+Return an array of all the [payments](subscription-payment-model.md) made for this subscription.
 
 ### getSubscriber()
 

@@ -4,8 +4,9 @@
 
 Usually you will only want to retrieve products, giving you access to their variants. Sometimes you might want to query for variants directly.
 
-You can access your site’s variants from your templates via `craft.variants`
-It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
+You can access your site’s variants from your templates via `craft.variants`.
+
+It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/).
 
 ```twig
 {% set variant = craft.variants.id(8376).one() %}

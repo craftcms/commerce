@@ -2,8 +2,9 @@
 
 ## How to get orders
 
-You can access your site’s orders from your templates via `craft.orders`
-It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
+You can access your site’s orders from your templates via `craft.orders`.
+
+It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/).
 
 ```twig
 {% set orders = craft.orders.all() %}

@@ -2,8 +2,9 @@
 
 ## How to get products
 
-You can access your site’s products from your templates via `craft.products`
-It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
+You can access your site’s products from your templates via `craft.products`.
+
+It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/).
 
 ```twig
 {% set products = craft.products.type('normal').all() %}

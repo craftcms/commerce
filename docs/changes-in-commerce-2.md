@@ -68,10 +68,10 @@ BC - Breaking Change
 
 | Old                                       | New                            | Docs                          
 |-------------------------------------------|--------------------------------|-------
-| `commerce/cart/removeLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)  
-| `commerce/cart/updateLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)   
-| `commerce/cart/removeAllLineItems`        | `commerce/cart/update-cart`    | [Updating the Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#updating-line-items)   
-| `commerce/cart/updateCart`                | `commerce/cart/update-cart`    | [Adding to Cart](https://github.com/craftcms/commerce-docs/blob/v2/en/adding-to-and-updating-the-cart.md#add-to-cart)   
+| `commerce/cart/removeLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)  
+| `commerce/cart/updateLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)   
+| `commerce/cart/removeAllLineItems`        | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)   
+| `commerce/cart/updateCart`                | `commerce/cart/update-cart`    | [Adding to Cart](adding-to-and-updating-the-cart.md)
 
 
 

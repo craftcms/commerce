@@ -4,8 +4,9 @@
 
 You can retrieve subscriptions like entries and products as they are also elements within Craft.
 
-You can access your site’s subscriptions from your templates via `craft.subscriptions`
-It returns an [ElementQuery](https://github.com/craftcms/docs/blob/v3/en/element-queries.md) object.
+You can access your site’s subscriptions from your templates via `craft.subscriptions`.
+
+It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/).
 
 ```twig
 {% set subscription = craft.subscriptions.reference('sub_CTnhYZOTr4zkwW').one() %}
