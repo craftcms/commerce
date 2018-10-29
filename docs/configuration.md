@@ -1,6 +1,6 @@
 ## General Configuration
 
-In addition to the settings available in the CP `Commerce > Settings` screen, the config items below can be placed into a `commerce.php` file in your `craft/config` directory:
+In addition to the settings available in the CP Commerce → Settings screen, the config items below can be placed into a `commerce.php` file in your `craft/config/` folder:
 
 ## `pdfAllowRemoteImages`
 

@@ -12,7 +12,7 @@ If the current customer is a guest, then the `userId` attribute will be null.
 
 If you need to access the email address of the customer, do so from the order with `order.email`.
 
-If you add the [Customer Info](customer-info.md) field to the user profile, you can get the user’s related customer model returned for that user.
+If you add the [Customer Info](customer-info-fields.md) field to the user profile, you can get the user’s related customer model returned for that user.
 
 ## Attributes
 
