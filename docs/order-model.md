@@ -1,15 +1,16 @@
 # Order Model
+
 Whenever you’re dealing with an order or cart in your template, you’re actually working with an `\craft\commerce\elements\Order` object.
 
 ## Simple Output
 
-Outputting an `\craft\commerce\elements\Order` object in your template without attaching a property or method will return the order’s [short number](#shortnumber):
+Outputting a `\craft\commerce\elements\Order` object in your template without attaching a property or method will return the order’s [short number](#shortnumber):
 
 ```
 Order Number: {{ order }}
 ```
 
-# Overview
+## Overview
 
 Order models are both carts and orders. They are the same thing. A cart just has it’s `isCompleted` property set to false.
 
@@ -24,22 +25,22 @@ Usually you will be working with an order model in your template in 2 situations
 ```
 {% set pastOrders = craft.orders.customer(craft.commerce.customer).isCompleted(true).all() %}`
 {% for order in pastOrders %}
-	Order Number: {{ order.shortNumber }}<br>
-	Order Total: {{ order.totalPrice }}<br><br>
-{% endfor %}	
+    Order Number: {{ order.shortNumber }}<br>
+    Order Total: {{ order.totalPrice }}<br><br>
+{% endfor %}
 ```
-	
-Order Model's have the following attributes and methods:
+
+Order Model objects have the following attributes and methods:
 
 ## Attributes
 
 ### id
 
-The element id of the order.
+The element ID of the order.
 
 ### number
 
-The unique identifier of the order, the customer will see this, and is the best thing to use in urls.
+The unique identifier of the order, the customer will see this, and is the best thing to use in URLs.
 
 ### shortNumber
 
@@ -68,8 +69,7 @@ Sum of all the items totals. (Includes all adjustments made to line items)
 
 ### adjustmentsTotal
 
-Total of all adjustments made to line items and the order. (Does not include adjustments marked as 'included')
-
+Total of all adjustments made to line items and the order. (Does not include adjustments marked as `included`.)
 
 ### getAdjustmentsTotalByType(type, included)
 
@@ -79,11 +79,11 @@ Included types are `tax`, `shipping`, `discount`.
 
 The included param is optional and defaults to false.
 
-Included adjustments don't affect the price of the order, and are there for information only.
+Included adjustments don’t affect the price of the order, and are there for information only.
 
 Examples:
 
-```
+```twig
 {{ order.getAdjustmentsTotalByType('discount') }} // returns the total of all discounts
 
 {{ order.getAdjustmentsTotalByType('tax', true) // returns the total of taxes included in the price
@@ -92,7 +92,7 @@ Examples:
 
 {{ order.getAdjustmentsTotalByType('shipping') // returns the total of shipping adjustments
 
-{{ order.getAdjustmentsTotalByType('customAdjuster') // returns the total of a adjustment created by a custom adjuster 
+{{ order.getAdjustmentsTotalByType('customAdjuster') // returns the total of a adjustment created by a custom adjuster
 
 ```
 
@@ -118,7 +118,7 @@ The date the order was paid.
 
 ### billingAddressId
 
-The id of the linked billing address. You can get the billing address model with the `billingAddress` attribute.
+The ID of the linked billing address. You can get the billing address model with the `billingAddress` attribute.
 
 ### billingAddress
 
@@ -126,7 +126,7 @@ This returns the address model from the database for the current `billingAddress
 
 ### shippingAddressId
 
-The id of the linked shipping address. You can get the shipping address model with the `shippingAddress` attribute.
+The ID of the linked shipping address. You can get the shipping address model with the `shippingAddress` attribute.
 
 ### shippingAddress
 
@@ -134,11 +134,11 @@ This returns the address model from the database for the current `shippingAddres
 
 ### shippingMethodHandle
 
-The handle of the currently applied shipping method. You can get the set shipping method's model with the `shippingMethod` attribute.
+The handle of the currently-applied shipping method. You can get the set shipping method’s model with the `shippingMethod` attribute.
 
 ### gatewayId
 
-The ID of the linked gateway. You can get the set gateway's model with the `gateway` attribute.
+The ID of the linked gateway. You can get the set gateway’s model with the `gateway` attribute.
 
 ### currency
 
@@ -150,7 +150,7 @@ The last IP address used to update the order on the front end before completedAt
 
 ### customerId
 
-The customer record for this order. You can also use `customer` to get the customer model which can tell you which craft user 
+The customer record for this order. You can also use `customer` to get the customer model which can tell you which craft user
 made the order, as well as access the addresses for this customer.
 
 ### lineItems
@@ -173,11 +173,11 @@ The current message saved when the current order status was set.
 
 ### getPdfUrl($option = '')
 
-Returns the url to the pdf for this order. Requires that your general settings point to a valid html template file.  
-Optionally can pass an 'option' string to this method to identify the type of pdf you want to the template.
+Returns the URL to the PDF for this order. Requires that your general settings point to a valid HTML template file.
+Optionally can pass an `option` string to this method to identify the type of PDF you want to the template.
 The order PDF template is passed an `order` and `option` variable.
 
-### getShippingmethod()
+### getShippingMethod()
 
 Returns a `Commerce_ShippingMethodModel` with the current shipping method for the model, or `null` if none exists.
 

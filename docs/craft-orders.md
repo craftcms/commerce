@@ -1,4 +1,4 @@
-# craft.orders 
+# craft.orders
 
 ## How to get orders
 
@@ -19,44 +19,52 @@ It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/)
 `craft.orders` supports the following parameters:
 
 ### type
+
 Product Type model or handle.
 
 ### typeId
-Product type id.
+
+Product type ID.
 
 ### number
+
 The unique hash of the order.
 
 ### completed
-Accepts `true`.  e.g ```{% set orders = craft.orders.completed(true).all() %}``` would 
-return completed orders since they have `isCompleted` set to true.
+Accepts `true`.  e.g `{% set orders = craft.orders.completed(true).all() %}` would
+return completed orders since they have `isCompleted` set to `true`.
 
 ### isCompleted
-Accepts `1` or `not 1`.  e.g ```{% set orders = craft.orders.isCompleted('not 1').all() %}``` would 
-return incomplete orders (carts) since they have `isCompleted` set to false.
+Accepts `1` or `not 1`.  e.g `{% set orders = craft.orders.isCompleted('not 1').all() %}` would
+return incomplete orders (carts) since they have `isCompleted` set to `false`.
 
 ### dateOrdered
+
 The date the order was completed.
 
 ### orderStatus
+
 accepts an `orderStatus` model.
 
 ### orderStatusId
-Accepts the id of an Order Status.
+
+Accepts the ID of an order status.
 
 ### customer
 A customer Model can be passed to get orders for that customer only. e.g `{% set orders = craft.orders.customer(craft.commerce.customer).all() %}`
-If you wish to only inlcude orders that are carts, add `.isCompleted(true).all()` to the query, otherwise all incomplete carts will be added to the response.
+If you wish to only include orders that are carts, add `.isCompleted(true).all()` to the query, otherwise all incomplete carts will be added to the response.
 
 ### user
 A customer Model can be passed to get orders for that user only. e.g `{% set orders = craft.orders.user(currentUser).all() %}`
-Do not use this to get a cart, as the default response does not include orders that are still 
-carts (use `{% set cart = craft.commerce.getCart %}` to get the current user's cart).
+Do not use this to get a cart, as the default response does not include orders that are still
+carts (use `{% set cart = craft.commerce.getCart %}` to get the current user’s cart).
 
 ### customerId
-Accepts an id of a customer.
+
+Accepts an ID of a customer.
 
 ### updatedAfter
+
 Only fetch orders with an Updated Date that is on or after the given date.
 
 You can specify dates in the following formats:
@@ -96,10 +104,11 @@ Accepts `true`. Limits results to only orders where totalPaid is < totalPrice
 The date the order was paid.
 
 ### hasPurchasables
+
 Returns orders that contains specific purchasables.
 
-Accepts: An array of models meeting the Purchasable interface (like variants) OR an array of Purchasable Element IDs
- 
+Accepts: An array of models that implement the Purchasable interface (like variants), or an array of purchasable element IDs.
+
 For example:
 
 ```twig

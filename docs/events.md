@@ -1,12 +1,12 @@
 # Events
 
-Craft Commerce provides a multitude of events for extending it's functionality. 
+Craft Commerce provides a multitude of events for extending its functionality.
 
 ## Product related events
 
 ### The `beforeCaptureVariantSnapshot` event
 
-Plugins can get notified before we capture a variant's field data, and customize which fields are included.
+Plugins can get notified before we capture a variant’s field data, and customize which fields are included.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -21,7 +21,7 @@ Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, functi
 
 ### The `afterCaptureVariantSnapshot` event
 
-Plugins can get notified after we capture a variant's field data, and customize, extend, or redact the data to be persisted.
+Plugins can get notified after we capture a variant’s field data, and customize, extend, or redact the data to be persisted.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -36,7 +36,7 @@ Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, functio
 
 ### The `beforeCaptureProductSnapshot` event
 
-Plugins can get notified before we capture a product's field data, and customize which fields are included.
+Plugins can get notified before we capture a product’s field data, and customize which fields are included.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -51,7 +51,7 @@ Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, functi
 
 ### The `afterCaptureProductSnapshot` event
 
-Plugins can get notified after we capture a product's field data, and customize, extend, or redact the data to be persisted.
+Plugins can get notified after we capture a product’s field data, and customize, extend, or redact the data to be persisted.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -150,7 +150,7 @@ use craft\commerce\adjusters\Discount;
 use yii\base\Event;
 
 Event::on(Discount::class, Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, function(DiscountAdjustmentsEvent $e) {
-    // Do something - perhaps use a 3rd party to check order data and modify the adjustments.
+    // Do something - perhaps use a third party to check order data and modify the adjustments.
 });
 ```
 
@@ -179,7 +179,7 @@ use craft\commerce\services\LineItems;
 use yii\base\Event;
 
 Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
-    // Do something - perhaps let a 3rd party service know about changes to an order
+    // Do something - perhaps let a third party service know about changes to an order
 });
 ```
 
@@ -221,7 +221,7 @@ use craft\commerce\services\LineItems;
 use yii\base\Event;
 
 Event::on(LineItems::class, LineItems::EVENT_CREATE_LINE_ITEM, function(LineItemEvent $e) {
-    // Do something - perhaps call a 3rd party service according to the line item options
+    // Do something - perhaps call a third party service according to the line item options
 });
 ```
 
@@ -355,7 +355,6 @@ Event::on(Payments::class, Payments::EVENT_AFTER_REFUND_TRANSACTION, function(Re
 });
 ```
 
-
 ### The `beforeProcessPaymentEvent` event
 
 You may set the `isValid` property to `false` on the event to prevent the payment from being processed
@@ -468,7 +467,7 @@ use craft\commerce\services\Subscriptions;
 use yii\base\Event;
 
 Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_EXPIRE_SUBSCRIPTION, function(SubscriptionEvent $e) {
-    // Do something about it - perhaps make a call to 3rd party service to de-authorize a user.
+    // Do something about it - perhaps make a call to third party service to de-authorize a user.
 });
 ```
 
@@ -498,7 +497,7 @@ use craft\commerce\services\Subscriptions;
 use yii\base\Event;
 
 Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_CREATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
-    // Do something about it - perhaps make a call to 3rd party service to authorize a user
+    // Do something about it - perhaps make a call to third party service to authorize a user
 });
 ```
 
@@ -528,7 +527,7 @@ use craft\commerce\services\Subscriptions;
 use yii\base\Event;
 
 Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, function(SubscriptionEvent $e) {
-    // Do something - maybe the user needs to be re-authorized with a 3rd party service.
+    // Do something - maybe the user needs to be re-authorized with a third party service.
 });
 ```
 
@@ -558,7 +557,7 @@ use craft\commerce\services\Subscriptions;
 use yii\base\Event;
 
 Event::on(Subscriptions::class, Subscriptions::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN, function(SubscriptionSwitchPlansEvent $e) {
-    // Do something - maybe the user needs their permissions adjusted on a 3rd party service.
+    // Do something - maybe the user needs their permissions adjusted on a third party service.
 });
 ```
 
@@ -694,8 +693,8 @@ Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, function(MailEvent $e) {
 
 ### The `beforeRenderPdf` event
 
-Event handlers can override Commerce's PDF generation by setting the `pdf` property on the event to a custom-rendered PDF.
-Plugins can get notified before the pdf or an order is being rendered.
+Event handlers can override Commerce’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF.
+Plugins can get notified before the PDF or an order is being rendered.
 
 ```php
 use craft\commerce\events\PdfEvent;
@@ -703,13 +702,13 @@ use craft\commerce\services\Pdf;
 use yii\base\Event;
 
 Event::on(Pdf::class, Pdf::EVENT_BEFORE_RENDER_PDF, function(PdfEvent $e) {
-     // Roll out our own custom pdf
+     // Roll out our own custom PDF
 });
 ```
 
 ### The `afterRenderPdf` event
 
-Plugins can get notified after the pdf or an order has been rendered.
+Plugins can get notified after the PDF or an order has been rendered.
 
 ```php
 use craft\commerce\events\PdfEvent;
@@ -717,7 +716,7 @@ use craft\commerce\services\Pdf;
 use yii\base\Event;
 
 Event::on(Pdf::class, Pdf::EVENT_AFTER_RENDER_PDF, function(PdfEvent $e) {
-     // Add a watermark to the pdf or forward it to the accounting dpt.
+     // Add a watermark to the PDF or forward it to the accounting dpt.
 });
 ```
 
@@ -745,7 +744,7 @@ use craft\commerce\services\ProductTypes;
 use yii\base\Event;
 
 Event::on(ProductTypes::class, ProductTypes::EVENT_AFTER_SAVE_PRODUCTTYPE, function(ProductTypeEvent $e) {
-     // Maybe prepare some 3rd party system for a new product type
+     // Maybe prepare some third party system for a new product type
 });
 ```
 

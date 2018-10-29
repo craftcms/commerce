@@ -1,4 +1,5 @@
 # Customer Address Management
+
 When a customer checks out with a new address, the address is added to their address book.
 
 If the customer is a guest, they have no need to manage an address book.
@@ -15,7 +16,7 @@ Customers can only add and remove addresses from the front-end while they are lo
 {% endfor %}
 ```
 
-See the [Address Model](address-model.md) to learn about the fields available on an address.
+See the [Address model](address-model.md) page to learn about the fields available on an address.
 
 ## Updating or creating a new a customers address
 

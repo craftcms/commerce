@@ -2,19 +2,19 @@
 
 Product Types are a way to distinguish products in your system. They can determine the URL format of a product, and also determine if the products has multiple variants, as well as configure other behaviors of the products.
 
-You can also attach fields, and tab layouts to products and variants at the product type level, like you can with Craft's entry types.
+You can also attach fields, and tab layouts to products and variants at the product type level, like you can with Craft’s entry types.
 
-<img src="assets/product-type-entry-screen.png" width="797" alt="Product Type Entry Screen.">
+<img src="assets/product-type-entry-screen.png" width="797" alt="Edit Product Type page">
 
 ## Product Type Options
 
 ### Name
 
-This is the name of the product type as displayed in the control panel.
+This is the name of the product type as displayed in the Control Panel.
 
 ### Handle
 
-The handle is how you will reference the product type in code. For example, in twig, to get product types with a handle of 'clothes', you would do:
+The handle is how you will reference the product type in code. For example, in twig, to get product types with a handle of `clothes`, you would do:
 
 ```twig
 {% set clothes = craft.products.type('clothes').all() %}
@@ -33,7 +33,7 @@ Allows you to hide the weight and dimensions fields if they are not necessary fo
 
 ### Products of this type have multiple variants
 
-If you enable the product type to have multiple variants, you will see a new tab appear at the top of the screen which allows you to configure the variant field layout.
+If you enable the product type to have multiple variants, you will see a new tab appear at the top of the page which allows you to configure the variant field layout.
 
 You also have the option to show the title input field or have it default to use a Title Format.
 

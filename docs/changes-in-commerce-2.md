@@ -4,75 +4,73 @@
 
 ### Services available in Twig
 
-The commerce variable class is now gone, and not loaded into the `craft.commerce` variable anymore. Instead `craft.commerce` now returns the Commerce plugin instance.
+The `commerce` variable class is now gone, and not loaded into the `craft.commerce` variable anymore. Instead `craft.commerce` now returns the Commerce plugin instance.
 
 All Commerce service methods can now be accessed through the plugin instance.
 
 Example:
 
-`craft.commerce.paymentCurrencies` will return the PaymentCurrencies service class.  
+`craft.commerce.paymentCurrencies` will return the PaymentCurrencies service class.
 `craft.commerce.paymentCurrencies.getAllPaymentCurrencies()` will call the method on the class to return all payment currency models.
- 
- ### Element queries 
+
+ ### Element queries
 
 The element queries now exist on the root craft variable.
 
 Example:
 
-To get all produces in Commerce 1.2.x:  
-`craft.commerce.products.find()`  
+To get all produces in Commerce 1.2.x:
+`craft.commerce.products.find()`
 
-To do the same in Commerce 2:  
+To do the same in Commerce 2:
 `craft.products.all()`
-
 
 ### Changes
 
 Deprecation of variables was preferred, but breaking changes could not be avoided due to naming collisions between the service names and the previous variable name.
 
-Use the table below to update your twig templates.  
-D - Deprecated  
-BC - Breaking Change  
+Use the table below to update your twig templates.
+D - Deprecated
+BC - Breaking Change
 
-| Old                                       | New                                                       | Change 
+| Old                                       | New                                                       | Change
 |-------------------------------------------|-----------------------------------------------------------|--------
-| `craft.commerce.products`                 | `craft.products`                                          | BC     
-| `craft.commerce.variants`                 | `craft.variants`                                          | BC     
-| `craft.commerce.orders`                   | `craft.orders`                                            | BC     
-| `craft.commerce.cart`                     | `craft.commerce.carts.cart`                               | D      
-| `craft.commerce.availableShippingMethods` | `craft.commerce.carts.cart.availableShippingMethods`      | D      
-| `craft.commerce.countries`                | `craft.commerce.countries.allCountries`                   | BC     
-| `craft.commerce.countriesList`            | `craft.commerce.countries.allCountriesAsList`             | D      
-| `craft.commerce.currencies`               | `craft.commerce.currencies.allCurrencies`                 | BC     
-| `craft.commerce.customer`                 | `craft.commerce.customers.customer`                       | D      
-| `craft.commerce.discountByCode`           | `craft.commerce.discounts.discountByCode`                 | D      
-| `craft.commerce.discounts`                | `craft.commerce.discounts.allDiscounts`                   | BC     
-| `craft.commerce.paymentMethods`           | `craft.commerce.gateways.allCustomerEnabledGateways`      | BC     
-| `craft.commerce.orderStatuses`            | `craft.commerce.orderStatuses.allOrderStatuses`           | BC     
-| `craft.commerce.paymentCurrencies`        | `craft.commerce.paymentCurrencies.allPaymentCurrencies`   | BC     
-| `craft.commerce.primaryPaymentCurrency`   | `craft.commerce.paymentCurrencies.primaryPaymentCurrency` | D      
-| `craft.commerce.productTypes`             | `craft.commerce.productTypes.allProductTypes`             | BC     
-| `craft.commerce.sales`                    | `craft.commerce.sales.allSales`                           | BC     
-| `craft.commerce.shippingCategories`       | `craft.commerce.shippingCategories.allShippingCategories` | BC     
-| `craft.commerce.taxCategories`            | `craft.commerce.taxCategories.allTaxCategories`           | BC     
-| `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC     
-| `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC     
-| `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC     
-| `craft.commerce.statesArray`              | `craft.commerce.states.allStatesAsList`                   | D      
-| `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC     
-| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC   
-| `customer.lastUsedBillingAddress`         | `customer.primaryBillingAddress`                          | BC  
-| `customer.lastUsedShippingAddress`        | `customer.primaryShippingAddress`                         | BC  
+| `craft.commerce.products`                 | `craft.products`                                          | BC
+| `craft.commerce.variants`                 | `craft.variants`                                          | BC
+| `craft.commerce.orders`                   | `craft.orders`                                            | BC
+| `craft.commerce.cart`                     | `craft.commerce.carts.cart`                               | D
+| `craft.commerce.availableShippingMethods` | `craft.commerce.carts.cart.availableShippingMethods`      | D
+| `craft.commerce.countries`                | `craft.commerce.countries.allCountries`                   | BC
+| `craft.commerce.countriesList`            | `craft.commerce.countries.allCountriesAsList`             | D
+| `craft.commerce.currencies`               | `craft.commerce.currencies.allCurrencies`                 | BC
+| `craft.commerce.customer`                 | `craft.commerce.customers.customer`                       | D
+| `craft.commerce.discountByCode`           | `craft.commerce.discounts.discountByCode`                 | D
+| `craft.commerce.discounts`                | `craft.commerce.discounts.allDiscounts`                   | BC
+| `craft.commerce.paymentMethods`           | `craft.commerce.gateways.allCustomerEnabledGateways`      | BC
+| `craft.commerce.orderStatuses`            | `craft.commerce.orderStatuses.allOrderStatuses`           | BC
+| `craft.commerce.paymentCurrencies`        | `craft.commerce.paymentCurrencies.allPaymentCurrencies`   | BC
+| `craft.commerce.primaryPaymentCurrency`   | `craft.commerce.paymentCurrencies.primaryPaymentCurrency` | D
+| `craft.commerce.productTypes`             | `craft.commerce.productTypes.allProductTypes`             | BC
+| `craft.commerce.sales`                    | `craft.commerce.sales.allSales`                           | BC
+| `craft.commerce.shippingCategories`       | `craft.commerce.shippingCategories.allShippingCategories` | BC
+| `craft.commerce.taxCategories`            | `craft.commerce.taxCategories.allTaxCategories`           | BC
+| `craft.commerce.shippingMethods`          | `craft.commerce.shippingMethods.allShippingMethods`       | BC
+| `craft.commerce.shippingZones`            | `craft.commerce.shippingZones.allShippingZones`           | BC
+| `craft.commerce.states`                   | `craft.commerce.states.allStates`                         | BC
+| `craft.commerce.statesArray`              | `craft.commerce.states.allStatesAsList`                   | D
+| `craft.commerce.taxRates`                 | `craft.commerce.taxRates.allTaxRates`                     | BC
+| `craft.commerce.taxZones`                 | `craft.commerce.taxZones.allTaxZones`                     | BC
+| `customer.lastUsedBillingAddress`         | `customer.primaryBillingAddress`                          | BC
+| `customer.lastUsedShippingAddress`        | `customer.primaryShippingAddress`                         | BC
 
 ### Form Action Changes
 
-| Old                                       | New                            | Docs                          
+| Old                                       | New                            | Docs
 |-------------------------------------------|--------------------------------|-------
-| `commerce/cart/removeLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)  
-| `commerce/cart/updateLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)   
-| `commerce/cart/removeAllLineItems`        | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)   
+| `commerce/cart/removeLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)
+| `commerce/cart/updateLineItem`            | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)
+| `commerce/cart/removeAllLineItems`        | `commerce/cart/update-cart`    | [Updating the Cart](adding-to-and-updating-the-cart.md#updating-line-items)
 | `commerce/cart/updateCart`                | `commerce/cart/update-cart`    | [Adding to Cart](adding-to-and-updating-the-cart.md)
-
 
 
 ### Query Changes
@@ -85,7 +83,7 @@ Previously `craft.commerce.orders` would only return completed orders, now you n
 
 ### Product Queries
 
-Product element queries previously had a `hasSales` param to only return product with active sales applied to one or more of it's variants. The param has now moved to the variant query, and you can achieve the same thing with the `hasVariants` param:
+Product element queries previously had a `hasSales` param to only return product with active sales applied to one or more of its variants. The param has now moved to the variant query, and you can achieve the same thing with the `hasVariants` param:
 
 You can now do:
 
@@ -103,9 +101,9 @@ $products = Product::find()->hasVariant(['hasSales' => true])->all();
 
 #### Purchasables (like variants).
 
-| Old                                       | New                                                       | Change 
+| Old                                       | New                                                       | Change
 |-------------------------------------------|-----------------------------------------------------------|--------
-| `purchasable.purchasableId`               | `purchasable.id`                                          | BC   
+| `purchasable.purchasableId`               | `purchasable.id`                                          | BC
 
 ### Updating the cart
 
@@ -135,7 +133,7 @@ The changes mean a faster cart that reduces the number of database updates.
 
 #### Setting addresses in update cart
 
-Previously in the update cart controller action you would need to submit the string "new" or a non ID in the place of an address ID, to add an address to the customers address book. The updating of the addresses on the cart has now been simplified with it's removal.
+Previously in the update cart controller action you would need to submit the string `new` or a non ID in the place of an address ID, to add an address to the customers address book. The updating of the addresses on the cart has now been simplified with its removal.
 
 To set an existing address on a cart submit the `shippingAddressId` or `billingAddressId` param to the update cart action.
 Submitting these params does not allow any updating of the address contents, it just chooses the address you want to set on the cart.
@@ -170,7 +168,7 @@ Example 1:
  //..
 </form>
 ```
-The above would submit a new address to the cart and save it to the customer's address book.
+The above would submit a new address to the cart and save it to the customer’s address book.
 
 Example 2:
 
@@ -203,7 +201,7 @@ For example, if an error is on the *second* line item, you can access the errors
 lineItem.getErrors()
 ```
 
-this may return an error array like this: 
+this may return an error array like this:
 
 ```
 ['qty' => 'Maximum quantity allowed is 3']

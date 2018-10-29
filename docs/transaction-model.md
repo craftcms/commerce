@@ -1,9 +1,8 @@
 # Transaction Model
 
-Order Transactions are the payment history of an order.
+Transactions record the payment history of an order.
 
-A transaction can be of a certain type and status, and contain information relevant to the payment and communication to the 3rd party payment gateway.
-
+A transaction can be of a certain type and status, and contain information relevant to the payment and communication to the third party payment gateway.
 
 ### id
 
@@ -25,24 +24,23 @@ The type of transaction. Possible values are:
 
 `refund` This transaction represents a refund of a payment. It is always the child transaction of either a `purchase` or `capture` transaction. You can not refund an authorization.
 
-
 ### amount
 
 The amount of the transaction. This amount is in the primary currency.
 
 ### paymentAmount
 
-The payment amount of the transaction, which is the amount sent and used when communicating with the payment gateway. This amount is in the currency of the order's payment currency.
+The payment amount of the transaction, which is the amount sent and used when communicating with the payment gateway. This amount is in the currency of the order’s payment currency.
 
 ### paymentRate
 
-This stores the currency conversion rate of the order's payment currency at the time payment was attempted. 
+This stores the currency conversion rate of the order’s payment currency at the time payment was attempted.
 
 ### status
 
 The status of the transaction. Possible values are:
 
-`pending` The transaction is pending getting a `redirect`, `success` or `failed` status. 
+`pending` The transaction is pending getting a `redirect`, `success` or `failed` status.
 
 `redirect` The initial transaction was registered successfully with the offsite gateway, and we have been told to redirect to the offsite gateway. This will be the status while the customer is on the gateways offsite page.
 
@@ -60,7 +58,7 @@ The plain text message response from the gateway. Usually a sentence. This messa
 
 ### response
 
-The full response data from the gateway, serialized as json. Useful for debugging. 
+The full response data from the gateway, serialized as JSON. Useful for debugging.
 
 ### code
 
@@ -72,14 +70,13 @@ Some transactions are children of another transaction. For example, capture tran
 
 ### order
 
-The [Order Model](order-model.md) this transaction belongs to.
+The [Order model](order-model.md) this transaction belongs to.
 
 ### orderId
 
-The order ID of the [Order Model](order-model.md) this transaction belongs to.
+The order ID of the [Order model](order-model.md) this transaction belongs to.
 
 ### paymentMethodId
 
-The ID of the payment method used for communicating with the 3rd party gateway.
-
+The ID of the payment method used for communicating with the third party gateway.
 

@@ -2,16 +2,16 @@
 
 Commerce represents taxes for an order by using tax categories and tax rates.
 
-Products within Commerce can be linked to Tax Categories, which are then used to influence the taxation rate for the products when they are purchased.
-One Tax Category can be set to being the default for the entire system,
+Products within Commerce can be linked to tax categories, which are then used to influence the taxation rate for the products when they are purchased.
+One tax category can be set to being the default for the entire system,
 which means that if a product doesn’t have a related tax category,
 then this default tax category would be used.
 
 A tax category can have many tax rates, which indicate the rate at which the products belonging to a specific tax category will be taxed at.
-A tax rate links a tax rate to a particular zone (see Addresses for more information about zones).
+A tax rate links a tax rate to a particular tax zone.
 When an order is placed in a specific zone, any of the products for that order which have a tax zone that matches the order’s tax zone will be taxed.
 
-The standard sales tax policies commonly found in the USA can be modeled as well as Value Added Tax (VAT) which is commonly used in Europe.
+The standard sales tax policies commonly found in the USA can be modeled, as well as European VAT (Value Added Tax).
 These are not the only types of tax rules that you can model in Commerce.
 Once you obtain a sufficient understanding of the basic concepts you should be able to model the tax rules of your country or jurisdiction.
 
@@ -45,7 +45,7 @@ It’s also possible to have more than one applicable tax rate for a single zone
 In order for a tax rate to apply to a particular product, that product must have a tax category that matches
 the tax category of the tax rate.
 
-# Basic Example
+## Basic Example
 
 Let’s say you need to charge 5% tax for all items that ship to New York and 6% on only clothing items that ship to Pennsylvania. This will mean you need to construct two different zones: one zone containing just the state of New York and another zone consisting of the single state of Pennsylvania.
 

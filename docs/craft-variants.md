@@ -20,25 +20,31 @@ It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/)
 `craft.variants` supports the following parameters:
 
 ### ID
-The variant's element ID.
+
+The variant’s element ID.
 
 ### productId
+
 The product ID this variant belongs to.
 
 ### sku
-The variant's SKU
+
+The variant’s SKU
 
 ### default
-Whether the variant is the product's default variant
+
+Whether the variant is the product’s default variant
 
 Accepts: boolean (`true` or `false`)
 
 ### stock
+
 The stock amount
 
 Accepts: integer
 
 ### hasStock
+
 Whether the variant has unlimited stock or stock greater than zero.
 
 Accepts: boolean (`true` or `false`)

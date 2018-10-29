@@ -11,4 +11,5 @@ dannyvankooten/vat.php: ^1.1.2
 ```
 
 ## GD Image Extension
+
 Required for PDF generation.

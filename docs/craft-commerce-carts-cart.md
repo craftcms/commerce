@@ -1,6 +1,6 @@
 # craft.commerce.carts.cart
 
-This template function returns the current users cart, which is an [Order Model](order-model.md).
+This template function returns the current users cart, which is an [Order model](order-model.md).
 
 You would get cart for the current user like this:
 
@@ -14,5 +14,5 @@ which is the same as:
 
 You can now show the current customer their cart, and add things to this cart with forms in your templates.
 
-Once a Cart is completed and turned into an Order, calling the function again will give
+Once a cart is completed and turned into an order, calling the function again will give
 your user a fresh new cart.

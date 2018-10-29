@@ -1,6 +1,6 @@
 # Line Item Model
 
-Line Items belong to an Order and contain information about the purchasable added to the cart. They also contain information on the quantity of that purchasable as well as totals, tax, shipping, and promotion information that get used to calculate the line item total.
+Line items belong to an order and contain information about the purchasable added to the cart. They also contain information on the quantity of that purchasable as well as totals, tax, shipping, and promotion information that get used to calculate the line item total.
 
 ### id
 
@@ -16,7 +16,7 @@ The amount of sales discount that should be applied to the price. Usually a nega
 
 ### salePrice
 
-The price after saleAmount applied. Price + Sale Amount.
+The price after [saleAmount](#saleamount) was applied.
 
 ### qty
 
@@ -64,7 +64,7 @@ The note added to the line item when the purchasable was added to the cart, or u
 
 ### snapshot
 
-The snapshot is json encoded information about the purchasable at the time of when the lineitem was last updated.
+The snapshot is JSON-encoded information about the purchasable at the time of when the line item was last updated.
 This means if the purchasable (variant) is deleted you can still get to core information about what was purchased.
 
 ### order
@@ -81,7 +81,7 @@ The tax category the purchasable belongs to.
 
 ### onSale
 
-Whether the lineItem's `price` is different to the `salePrice`.
+Whether the line item’s `price` is different than the `salePrice`.
 
 ### salesApplied
 

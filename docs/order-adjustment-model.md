@@ -1,6 +1,6 @@
-# Order Adjustment Model 
+# Order Adjustment Model
 
-Order Adjustments belong to an Order and contain information about an adjustment made to the cart. The standard adjustment types are 'Shipping', 'Discount', and 'Tax'. You can access all adjustments on the order in your templates with `cart.adjustments`, and you can access all adjustments made to a line item with `lineItem.adjustments`.
+Order adjustments belong to an order and contain information about an adjustment made to the cart. The standard adjustment types handle shipping, discounts, and tax. You can access all adjustments on the order in your templates with `cart.adjustments`, and you can access all adjustments made to a line item with `lineItem.adjustments`.
 
 ### name
 
@@ -20,12 +20,11 @@ Whether this adjustment is included in the price of the line item or order.
 
 ### sourceSnapshot
 
-A json encoded array of information the adjustment used to perform its adjustment to the order. For example, all the shipping rules and amounts used to add shipping cost to the cart.
+A JSON-encoded array of information the adjustment used to perform its adjustment to the order. For example, all the shipping rules and amounts used to add shipping cost to the cart.
 
 ### orderId
 
 The ID of the order adjustment belongs to. (required)
-
 
 ### lineItemId
 

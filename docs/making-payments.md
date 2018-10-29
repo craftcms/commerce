@@ -1,6 +1,6 @@
 # Making Payments
 
-Once you've set up the store and payment gateways, here's a quick example to get you started accepting payments.
+Once you’ve set up the store and payment gateways, here’s a quick example to get you started accepting payments.
 
 It is assumed that the payment gateway is set on the cart and that the `cart` variable is available to the template as an instance of `craft\commerce\elements\Order`.
 
@@ -18,7 +18,7 @@ It is assumed that the payment gateway is set on the cart and that the `cart` va
 </form>
 ```
 
-If you require custom markup and just applying CSS to a default markup won't do, here's what a simple credit card payment form markup might look like.
+If you require custom markup and just applying CSS to a default markup won’t do, here’s what a simple credit card payment form markup might look like.
 
 This example assumes the availability of the `paymentForm` variable, as discussed in [Payment Form Models](payment-form-models.md).
 

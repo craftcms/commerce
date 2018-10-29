@@ -22,13 +22,14 @@ Returns a [User Element](https://docs.craftcms.com/api/v3/craft-elements-user.ht
 
 ### addresses
 
-Returns an array of [Address Models](address-model.md)
+Returns an array of [Address models](address-model.md).
 
 ### orders
 
-Returns an array of completed [Order Models](order-model.md)
+Returns an array of completed [Order models](order-model.md).
 
 ### userId
+
 Returns the User ID associated with this customer if the customer is a registered user.
 
 ### primaryShippingAddress

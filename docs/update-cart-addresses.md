@@ -6,7 +6,7 @@ You can see if the cart has a billing and shipping address has been set with:
 
 ```twig
 {% if cart.shippingAddress %}
-	{{ cart.shippingAddress.firstName }} ...etc
+    {{ cart.shippingAddress.firstName }} ...etc
 {% endif %}
 ```
 and
@@ -16,8 +16,7 @@ and
 {% endif %}
 ```
 
-Both cart attributes return an [Address Model](address-model.md), or `null` if no addresses are set.
-
+Both cart attributes return an [Address model](address-model.md), or `null` if no addresses are set.
 
 ## Adding or updating the shipping and billing address selected for the current cart.
 
@@ -25,9 +24,9 @@ Adding or updating the addresses on the order is done using the `commerce/cart/u
 
 There are a number of ways you can do this:
 
-### 1. Using an existing Address ID as the default
+### 1. Using an existing address ID as the default
 
-The example below shows how you can add the first address owned by the customer as the `shippingAddressId` while also setting it as the order's billing address, by using the `billingAddressSameAsShipping` param:
+The example below shows how you can add the first address owned by the customer as the `shippingAddressId` while also setting it as the order’s billing address, by using the `billingAddressSameAsShipping` param:
 
 ```twig
 {% set address = craft.commerce.customer.addresses|first %}
@@ -57,11 +56,11 @@ Another way of achieving the same thing is is setting both addresses explicitly:
 </form>
 ```
 
-### 2. Submit New Addresses during checkout
+### 2. Submit new addresses during checkout
 
 Another alternative, if the user wanted to submit new addresses, (they may be a guest) is submitting the address form data directly during checkout.
 
-This will only work if the shippingAddressId is not supplied or is set to a non ID like the word 'new'.
+This will only work if the `shippingAddressId` is not supplied or is set to a non-ID like the word `new`.
 If `shippingAddressId` is an integer then the address form data is ignored and the form action attempts to set the shipping address to that of the ID.
 
 ```twig
@@ -75,8 +74,8 @@ If `shippingAddressId` is an integer then the address form data is ignored and t
     {% for id, name in craft.commerce.countriesList %}
       <option value="{{ id }}">{{ name }}</option>
     {% endfor %}
-		</select>
-  	<input type="hidden" name="sameAddress" value="1">
+        </select>
+      <input type="hidden" name="sameAddress" value="1">
     <input type="submit" value="Add to cart">
 </form>
 ```
@@ -138,4 +137,4 @@ You may need to create other custom routes to allow customers to manage these ad
 
 ## Summary
 
-When using the `update-cart` action, you may include both new shipping and billing address (properly nested under their repsective keys, `shippingAddress[...]` and `billingAddress[...]`), or select existing addresses using one or the other of the `shippingAddressId` and `billingAddressId` params. In either example, you can include `shippingAddressSameAsBilling` or `billingAddressSameAsShipping` to synchronize the attached addresses.
+When using the `update-cart` action, you may include both new shipping and billing address (properly nested under their respective keys, `shippingAddress[...]` and `billingAddress[...]`), or select existing addresses using one or the other of the `shippingAddressId` and `billingAddressId` params. In either example, you can include `shippingAddressSameAsBilling` or `billingAddressSameAsShipping` to synchronize the attached addresses.

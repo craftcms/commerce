@@ -4,19 +4,13 @@ A purchasable is a custom Craft Element Type that can be sold through the cart.
 
 A purchasable:
 
-- Is a custom Element Type (See Craft docs on [Element Types](https://docs.craftcms.com/v3/extend/element-types.html))
-
-- Inherits from the Base Purchasable Abstract Class:
-
-`class MyPurchasable extends craft\commerce\base\Purchasable`
-
-- It meets the `Purchasable` interface:
-
-`craft\commerce\base\PurchasableInterface`
+- is an [element types](https://docs.craftcms.com/v3/extend/element-types.html)
+- implements `craft\commerce\base\PurchasableInterface`
+- can extend `craft\commerce\base\Purchasable`
 
 ## Implementation
 
-To meet the Purchasable Interface, inherit from the base Purchasable, and also implement these methods:
+To implement the Purchasable Interface, inherit from the base Purchasable, and also implement these methods:
 
 ### `getId()`
 
@@ -35,10 +29,10 @@ The default price of the item.
 The stock keeping unit number of the purchasable. Must be unique based on the `commerce_purchasables` table.
 
 When you inherit from `craft\commerce\base\Purchasable` a unique validation rule for the `sku` attribute is added to the `rules()` method.
- 
+
 ### `getSnapshot()`
 
-An array of data that is serialized as json on the line item when the purchasable is added to the cart. This is useful when the purchasable is later deleted, but the cart can still have all relevant data about the purchasable stored within it.
+An array of data that is serialized as JSON on the line item when the purchasable is added to the cart. This is useful when the purchasable is later deleted, but the cart can still have all relevant data about the purchasable stored within it.
 
 ### `getTaxCategoryId()`
 
@@ -78,7 +72,7 @@ Runs any logic needed for this purchasable after it was on an order that was jus
 
 This is called for each line item the purchasable was contained within.
 
-For example, the Variant Purchasable uses this method to deduct stock.
+For example, variants use this method to deduct stock.
 
 ## `getPromotionRelationSource()`
 

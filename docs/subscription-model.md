@@ -4,8 +4,8 @@ Whenever you’re dealing with a subscription in your template, you’re actuall
 ## Simple Output
 
 Outputting a `\craft\commerce\elements\Subscription` object in your template without attaching a property or method will print out the string `Subscription to “{plan}”`, where `plan` is the name of the [subscription plan](plan-model.md).
-	
-# Attributes and methods
+
+## Attributes and Methods
 
 Subscription model has the following attributes and methods:
 
@@ -13,23 +13,23 @@ Subscription model has the following attributes and methods:
 
 ### id
 
-The element id of the subscription.
+The subscription’s ID.
 
 ### userId
 
-The id of the user that has the subscription.
+The subscriber’s user ID.
 
 ### planId
 
-The id of the subscription plan.
+The subscription plan’s ID.
 
 ### gatewayId
 
-The id of the gateway for the subscription.
+The subscription plan’s gateway’s ID.
 
 ### orderId
 
-The id of the order that contains this subscription (if any).
+The subscription plan’s order’s ID (if any).
 
 ### reference
 
@@ -91,7 +91,7 @@ Return the plan for the subscription.
 
 ### getPlanName()
 
-Return the name for the subscription's plan.
+Return the name for the subscription’s plan.
 
 ### getAllPayments()
 

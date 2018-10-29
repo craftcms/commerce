@@ -20,7 +20,7 @@ It returns an [element query](https://docs.craftcms.com/v3/dev/element-queries/)
 `craft.subscriptions` supports the following parameters:
 
 ### ID
-The subscription's element ID.
+The subscription’s element ID.
 
 Accepts: Integer
 
@@ -60,17 +60,17 @@ Whether the subscription is currently on trial.
 Accepts: boolean (`true` or `false`)
 
 ### plan
-The plan the subscription beloings to.
+The plan the subscription belongs to.
 
 Accepts: Plan
 
 ### planId
-The ID of the plan the subscription beloings to.
+The ID of the plan the subscription belongs to.
 
 Accepts: Integer
 
 ### reference
-The reference for this subscription within the gateway's 3rd party system.
+The reference for this subscription within the gateway’s third party system.
 
 Accepts: string
 

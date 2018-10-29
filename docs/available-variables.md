@@ -24,12 +24,12 @@ See [craft.commerce.carts.cart](craft-commerce-carts-cart.md)
 
 ## craft.commerce.countries.allCountries
 
-Returns an array of [Country Models](country-model.md).
+Returns an array of [Country models](country-model.md).
 
 ```twig
 <select>
 {% for country in craft.commerce.countries %}
-	<option value="{{ country.id }}">{{ country.name }}</option>
+    <option value="{{ country.id }}">{{ country.name }}</option>
 {% endfor %}
 </select>
 ```
@@ -43,36 +43,36 @@ Data returned as `[32:'Australia', 72:'USA']`
 ```twig
 <select>
 {% for id, countryName in craft.commerce.countriesList %}
-	<option value="{{ id }}">{{ countryName }}</option>
+    <option value="{{ id }}">{{ countryName }}</option>
 {% endfor %}
 </select>
 ```
 
 ## craft.commerce.states
 
-Returns an array of [State Models](state-model.md).
+Returns an array of [State models](state-model.md).
 
 ```twig
 <select>
 {% for states in craft.commerce.countries %}
-	<option value="{{ state.id }}">{{ state.name }}</option>
+    <option value="{{ state.id }}">{{ state.name }}</option>
 {% endfor %}
 </select>
 ```
 
 ## craft.commerce.states.allStatesAsList
 
-Returns an array indexed by country IDs, usable for a dropdown select box.
+Returns an array of [State model](state-model.md) arrays, indexed by country IDs.
 
 Data returned as `[72:[3:'California', 4:'Washington'],32:[7:'New South Wales']]`
 
 ```twig
 <select>
 {% for countryId, states in craft.commerce.states.allStatesAsList %}
-	<optgroup label="{{ craft.commerce.countries.countriesAsList[countryId] }}">
-	{% for stateId, stateName in craft.commerce.states.allStatesAsList[countryId] %}
-		<option value="{{ stateId }}">{{ stateName }}</option>
-	{% endfor %}
+    <optgroup label="{{ craft.commerce.countries.countriesAsList[countryId] }}">
+    {% for stateId, stateName in craft.commerce.states.allStatesAsList[countryId] %}
+        <option value="{{ stateId }}">{{ stateName }}</option>
+    {% endfor %}
   </optgroup>
 {% endfor %}
 </select>
@@ -80,7 +80,7 @@ Data returned as `[72:[3:'California', 4:'Washington'],32:[7:'New South Wales']]
 
 ## cart.availableShippingMethods
 
-Returns the shipping methods available to applied to the current cart. Will not include some shipping methods if none of the shipping method's rules can match the cart.
+Returns the shipping methods available to applied to the current cart. Will not include some shipping methods if none of the shipping method’s rules can match the cart.
 
 ```twig
 {% for handle, method in cart.availableShippingMethods %}
@@ -119,14 +119,6 @@ Returns all payment gateway available to the customer.
 {% endif %}
 ```
 
-## craft.commerce.orderStatuses.allOrderStatuses
-
-Returns an array of all custom order statuses [Order Status Model](order-status-model.md) set up in the system.
-
-```twig
-{% set statuses = craft.commerce.orderStatuses.allOrderStatuses %}
-```
-
 ## craft.commerce.taxCategories.allTaxCategories
 
 Returns an array of all tax categories set up in the system.
@@ -149,7 +141,7 @@ Returns an array of all product types set up in the system.
 
 ## craft.commerce.orderStatuses.allOrderStatuses
 
-Returns an array of all order statuses [Order Status Model](order-status-model.md) set up in the system.
+Returns an array of all the [Order Status models](order-status-model.md) set up in the system.
 
 ```twig
 {% for status in craft.commerce.orderStatuses.allOrderStatuses %}

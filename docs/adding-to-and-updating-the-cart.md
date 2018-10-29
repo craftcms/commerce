@@ -2,9 +2,9 @@
 
 To add something to the cart you need a [Purchasable](purchasables.md) model, and its `id`. You then submit the `id` as the `purchasableId` param to  the `commerce/cart/updateCart` form action to add it to the cart.
 
-The core [Variant Model](variant-model.md) are [Purchasable](purchasables.md) and have a `id`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information. 
+The core [Variant model](variant-model.md) are [Purchasable](purchasables.md) and have a `id`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information.
 
-The following is an example of getting the first product found in your store. We then get the product's default variant and use its `id` in the form that will add that item to the cart:
+The following is an example of getting the first product found in your store. We then get the product’s default variant and use its ID in the form that will add that item to the cart:
 
 ```twig
 {% set product = craft.products.one() %}
@@ -20,7 +20,7 @@ The following is an example of getting the first product found in your store. We
 ```
 * The `qty` param is not required as it defaults to `1` if not supplied.
 
-The above is a simple example, if your product's type has multiple variants you could loop over all the products variants and allow the customer to choose the variant from a dropdown:
+The above is a simple example, if your product’s type has multiple variants you could loop over all the products variants and allow the customer to choose the variant from a dropdown:
 
 ```twig
 {% set product = craft.products.one() %}
@@ -43,7 +43,7 @@ The above is a simple example, if your product's type has multiple variants you 
 When using the `commerce/cart/updateCart` form action, the redirect is only followed if *all* updates submitted succeed.
 :::
 
-# Line item options and notes
+## Line item options and notes
 
 When submitting a product to the cart, you can optionally include a text note from the customer, or arbitrary data in an options param.
 
@@ -78,24 +78,24 @@ Here is an example of an add to cart form with both a `notes` and `options` para
 In the above example we:
 
 - Allowed a customer to input a `note` with a text field.
-- Allowed a customer to choose an option called 'engraving' with 2 prepared values.
-- Allowed a customer to choose an option called 'giftwrap' with 2 prepared values.
+- Allowed a customer to choose an option called `engraving` with 2 prepared values.
+- Allowed a customer to choose an option called `giftwrap` with 2 prepared values.
 
 ::: warning
 The options and notes param data is not validated. A user could submit any data. Use front-end validation.
 :::
 
-Once the order is complete, the notes and options can be found in the View Order screen.
+Once the order is complete, the notes and options can be found on the View Order page.
 
 <img src="assets/lineitem-options-review.png" width="509" alt="Line Item Option Review.">
 
-# Options uniqueness
+## Options uniqueness
 
 The options data submitted to the line item are hashed into an `optionsSignature` for uniqueness. If you submit the same purchasable ID to the cart with different option data, two line items with be created.
 
 Another way to think about it is that each line item is unique based on the combination of `purchasableId` and `optionsSignature`.
 
-# Adding multiple purchasables to the cart
+## Adding multiple purchasables to the cart
 
 You can add multiple purchasables to the cart in an update cart form. You supply the data to the controller in a different format. All purchasables IDs are supplied in a `purchasables` form array like so:
 
@@ -120,7 +120,7 @@ While using multi-add the same rules apply for updating a quantity vs adding to 
 
 As shown in the example above,  a unique index key is required to group the purchasable ID to its related `notes` and `options` and `qty` param. Using `{{loop.index}}` is an easy way to do this.
 
-# Updating line items
+## Updating line items
 
 Once the purchasable has been added to the cart, your customer may want to update the `qty` or `note`, they can do this by updating a line item.
 
@@ -129,7 +129,6 @@ Line items can have their `qty`, `note`, and `options`updated. They can also be 
 To update a line item, submit a form array param with the name of `lineItems`, with the ID of the array key being the line item ID.
 
 Example:
-
 
 ```twig
 <form method="POST">
@@ -146,9 +145,8 @@ In the example above we are allowing for the editing of one line item. You would
 
 To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in the request. You could do this by adding a checkbox to the form above that looks like this:
 
-
 ```twig
- <input type="checkbox" name="lineItems[LINE_ITEM_ID][remove]" value="1"> Remove item<br>
+<input type="checkbox" name="lineItems[LINE_ITEM_ID][remove]" value="1"> Remove item<br>
 ```
 
 The example templates contain all of the above examples of adding and updating the cart within a full checkout flow.

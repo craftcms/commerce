@@ -1,4 +1,4 @@
-# Subsription Models
+# Subscription Models
 
 ## Subscription form models
 

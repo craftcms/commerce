@@ -1,20 +1,20 @@
-## General Configuration
+# General Configuration
 
-In addition to the settings available in the CP Commerce → Settings screen, the config items below can be placed into a `commerce.php` file in your `craft/config/` folder:
+In addition to the settings available in Commerce → Settings, the config items below can be placed into a `commerce.php` file in your `craft/config/` folder:
 
 ## `pdfAllowRemoteImages`
 
-Determines if a DOMPDF pdf render will allow remote images.
+Determines if a Dompdf PDF render will allow remote images.
 
 Default `false`
 
 ## `autoSetNewCartAddresses`
 
-Determines whether the customer's last used shipping and billing addresses should automatically be set on new carts.
+Determines whether the customer’s last used shipping and billing addresses should automatically be set on new carts.
 
 Can be set to `true` or `false` (default is `true`).
 
-How long the cookie storing the cart should last. The cart exists independently of the Craft users' session.
+How long the cookie storing the cart should last. The cart exists independently of the Craft user’s session.
 
 ## `gatewayPostRedirectTemplate`
 
@@ -26,22 +26,22 @@ The template path that this item points to must contain a form that submits itse
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Redirecting...</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Redirecting...</title>
 </head>
 <body onload="document.forms[0].submit();">
 <form action="{{ actionUrl|raw }}" method="post">
-	<p>Redirecting to payment page...</p>
-	<p>
-		{{ inputs|raw }}
-		<input type="submit" value="Continue" />
-	</p>
+    <p>Redirecting to payment page...</p>
+    <p>
+        {{ inputs|raw }}
+        <input type="submit" value="Continue" />
+    </p>
 </form>
 </body>
 </html>
 ```
 
-Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it loads fast with minimal images and inlined styles to reduce http requests.
+Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inlined styles to reduce http requests.
 
 ## `pdfPaperSize`
 
@@ -63,13 +63,13 @@ Should Commerce purge old inactive carts from the database. See the [`purgeInact
 
 ## `purgeInactiveCartsDuration`
 
-A php [Date Interval](http://php.net/manual/en/class.dateinterval.php)  
+A php [Date Interval](http://php.net/manual/en/class.dateinterval.php)
 Default: 3 months. (`P3M`).
 
 Inactive carts older than this interval from their last update will be purged (deleted).
 
 ::: tip
-The interval check for purging of inactive carts is only run when visiting the Order Index screen in the control panel.
+The interval check for purging of inactive carts is only run when visiting the Orders index page in the Control Panel.
 :::
 
 ## `requireBillingAddressAtCheckout`

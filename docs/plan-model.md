@@ -4,20 +4,20 @@ Whenever you’re dealing with a subscription plan in your template, you’re ac
 ## Simple Output
 
 Outputting a `\craft\commerce\base\Plan` object in your template without attaching a property or method will print out the name of the plan.
-	
-# Attributes and methods
+
+## Attributes and methods
 
 Plan model the following attributes and methods:
 
-## Attributes
+### Attributes
 
 ### id
 
-The plan id.
+The plan ID.
 
 ### gatewayId
 
-The id of the gateway for the plan.
+The ID of the gateway for the plan.
 
 ### name
 
@@ -25,7 +25,7 @@ The name of the subscription plan.
 
 ### handle
 
-The handle of the subscrip.
+The handle of the subscription plan.
 
 ### reference
 
@@ -75,4 +75,4 @@ Returns all active user subscriptions for this plan.
 
 ### canSwitchFrom(Plan $currentPlan)
 
-Whether it's possible to switch to this plan from a different plan.
+Whether it’s possible to switch to this plan from a different plan.
