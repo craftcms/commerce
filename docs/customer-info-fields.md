@@ -4,7 +4,7 @@
 
 The Customer Info field allows you to add Commerce related customer information to the Craft user field layout. This allows you to see the past orders for a customer as well as all addresses they have in their address book.
 
-<img src="assets/customer-info-field.png" width="600" alt="Products field modal">
+<img src="./assets/customer-info-field.png" width="600" alt="Products field modal">
 
 ## Templating
 

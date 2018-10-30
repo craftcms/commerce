@@ -4,7 +4,7 @@ Product Types are a way to distinguish products in your system. They can determi
 
 You can also attach fields, and tab layouts to products and variants at the product type level, like you can with Craft’s entry types.
 
-<img src="assets/product-type-entry-screen.png" width="797" alt="Edit Product Type page">
+<img src="./assets/product-type-entry-screen.png" width="797" alt="Edit Product Type page">
 
 ## Product Type Options
 

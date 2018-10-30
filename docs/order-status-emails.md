@@ -14,7 +14,7 @@ You can set up your email gateway by going to Settings → Email in the Control 
 
 If you want to have a different From Email and From Name for your Commerce store emails, which overrides the Craft CMS email defaults, go to Commerce → Settings → General Settings and enter in your store from name and email address.
 
-<img src="assets/new-email-settings.png" width="645" alt="New Email Settings.">
+<img src="./assets/new-email-settings.png" width="645" alt="New Email Settings.">
 
 ## Creating an Email
 

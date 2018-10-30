@@ -89,7 +89,7 @@ The options and notes param data is not validated. A user could submit any data.
 
 Once the order is complete, the notes and options can be found on the View Order page.
 
-<img src="assets/lineitem-options-review.png" width="509" alt="Line Item Option Review.">
+<img src="./assets/lineitem-options-review.png" width="509" alt="Line Item Option Review.">
 
 ## Options uniqueness
 
