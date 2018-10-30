@@ -7,7 +7,7 @@ Before installing Craft Commerce, make sure you’ve got everything you need:
 * A web host that meets Commerce’s [minimum server requirements](requirements.md).
 * Craft CMS 3.0 or later (see Craft’s [installation instructions](https://docs.craftcms.com/v3/installation.html) for details).
 
-Craft Commerce can only be installed from the plugin store, or through composer.
+Craft Commerce can only be installed from the plugin store, or through Composer.
 
 ## Plugin Store
 
@@ -15,17 +15,12 @@ Log into your Control Panel and and click on “Plugin Store”. Search for “C
 
 ## Composer
 
-Ensure you have composer [installed correctly](https://docs.craftcms.com/v3/installation.html#downloading-with-composer) in your Craft 3 project.
+Ensure you have Composer [installed correctly](https://docs.craftcms.com/v3/installation.html#downloading-with-composer) in your Craft 3 project.
 
-Run the following composer command from within your Craft 3 project:
+Run the following Composer command from within your Craft 3 project:
 
 ```bash
 composer require craftcms/commerce
-```
-then
-
-```bash
-composer update
 ```
 
 ## Example Templates
