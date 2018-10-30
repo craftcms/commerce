@@ -1,8 +1,10 @@
 # Add to Cart
 
-To add something to the cart you need a [Purchasable](purchasables.md) model, and its `id`. You then submit the `id` as the `purchasableId` param to  the `commerce/cart/updateCart` form action to add it to the cart.
+To add something to the cart, submit the ID of a [purchasable](purchasables.md) element as a `purchasableId` param to the `commerce/cart/update-cart` action.
 
-The core [Variant model](variant-model.md) are [Purchasable](purchasables.md) and have a `id`. Products are not purchasable on their own, all products have at one default variant. See the core concept doc on variants for more information.
+::: tip
+Products are not purchasable on their own; all products have at one default variant. See [Products](products.md) for more information.
+:::
 
 The following is an example of getting the first product found in your store. We then get the product’s default variant and use its ID in the form that will add that item to the cart:
 

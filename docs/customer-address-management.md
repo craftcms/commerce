@@ -16,7 +16,7 @@ Customers can only add and remove addresses from the front-end while they are lo
 {% endfor %}
 ```
 
-See the [Address model](address-model.md) page to learn about the fields available on an address.
+See <api:craft\commerce\models\Address> to learn about the fields available on an address.
 
 ## Updating or creating a new a customers address
 

@@ -1,6 +1,6 @@
 # craft.commerce.carts.cart
 
-This template function returns the current users cart, which is an [Order model](order-model.md).
+This template function returns the current user’s cart (a <api:craft\commerce\models\Order> object).
 
 You would get cart for the current user like this:
 

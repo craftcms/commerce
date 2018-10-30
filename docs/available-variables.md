@@ -24,7 +24,7 @@ See [craft.commerce.carts.cart](craft-commerce-carts-cart.md)
 
 ## craft.commerce.countries.allCountries
 
-Returns an array of [Country models](country-model.md).
+Returns an array of <api:craft\commerce\models\Country> objects.
 
 ```twig
 <select>
@@ -50,7 +50,7 @@ Data returned as `[32:'Australia', 72:'USA']`
 
 ## craft.commerce.states
 
-Returns an array of [State models](state-model.md).
+Returns an array of <api:craft\commerce\models\State> objects.
 
 ```twig
 <select>
@@ -62,7 +62,7 @@ Returns an array of [State models](state-model.md).
 
 ## craft.commerce.states.allStatesAsList
 
-Returns an array of [State model](state-model.md) arrays, indexed by country IDs.
+Returns an array of <api:craft\commerce\models\State> object arrays, indexed by country IDs.
 
 Data returned as `[72:[3:'California', 4:'Washington'],32:[7:'New South Wales']]`
 
@@ -125,7 +125,7 @@ Returns an array of all tax categories set up in the system.
 
 ```twig
 {% for taxCategory in craft.commerce.taxCategories.allTaxCategories %}
-{{ taxCategory.id }} - {{ taxCategory.name }}
+    {{ taxCategory.id }} - {{ taxCategory.name }}
 {% endfor %}
 ```
 
@@ -135,17 +135,17 @@ Returns an array of all product types set up in the system.
 
 ```twig
 {% for type in craft.commerce.productTypes.allProductTypes %}
-{{ type.handle }} - {{ type.name }}
+    {{ type.handle }} - {{ type.name }}
 {% endfor %}
 ```
 
 ## craft.commerce.orderStatuses.allOrderStatuses
 
-Returns an array of all the [Order Status models](order-status-model.md) set up in the system.
+Returns an array of <api:craft\commerce\models\OrderStatus> objects representing all the order statuses in the system.
 
 ```twig
 {% for status in craft.commerce.orderStatuses.allOrderStatuses %}
-{{ status.handle }} - {{ status.name }}
+    {{ status.handle }} - {{ status.name }}
 {% endfor %}
 ```
 
@@ -155,7 +155,7 @@ Returns an array of all discounts set up in the system.
 
 ```twig
 {% for discount in craft.commerce.discounts.allDiscounts %}
-{{ discount.name }} - {{ discount.description }}
+    {{ discount.name }} - {{ discount.description }}
 {% endfor %}
 ```
 
@@ -164,10 +164,9 @@ Returns an array of all discounts set up in the system.
 Returns a discount that matches the code supplied.
 
 ```twig
-{% set discount = craft.commerce.discount.getDiscountByCode('HALFOFF')
- %}
+{% set discount = craft.commerce.discount.getDiscountByCode('HALFOFF') %}
 {% if discount %}
-{{ discount.name }} - {{ discount.description }}
+    {{ discount.name }} - {{ discount.description }}
 {% endif %}
 ```
 
@@ -177,6 +176,6 @@ Returns an array of all sales set up in the system.
 
 ```twig
 {% for sale in craft.commerce.allSales %}
-{{ sale.name }} - {{ sale.description }}
+    {{ sale.name }} - {{ sale.description }}
 {% endfor %}
 ```

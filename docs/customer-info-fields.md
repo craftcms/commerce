@@ -8,7 +8,7 @@ The Customer Info field allows you to add Commerce related customer information 
 
 ## Templating
 
-If you named your customer info field `customerInfo` you would be able to have a [Customer model](customer-model.md) returned for a user like so:
+If you named your customer info field `customerInfo`, you would be able to have a <api:craft\commerce\models\Customer> object returned for a user like so:
 
 ```twig
 {% set customer = user.customerInfo %}

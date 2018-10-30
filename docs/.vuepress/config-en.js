@@ -65,29 +65,6 @@ module.exports = {
                 ]
             },
             {
-                title: 'Models',
-                collapsable: false,
-                children: [
-                    'address-model',
-                    'country-model',
-                    'customer-model',
-                    'line-item-model',
-                    'order-adjustment-model',
-                    'order-history-model',
-                    'order-model',
-                    'order-status-model',
-                    'payment-form-models',
-                    'plan-model',
-                    'product-model',
-                    'state-model',
-                    'subscription-form-models',
-                    'subscription-model',
-                    'subscription-payment-model',
-                    'transaction-model',
-                    'variant-model',
-                ]
-            },
-            {
                 title: 'Developers',
                 collapsable: false,
                 children: [
