@@ -33,7 +33,6 @@ module.exports = {
                 items: [
                     { text: 'Commerce 1 Documentation', link: 'https://docs.craftcms.com/commerce/v1/' },
                     { text: 'Commerce 2 Documentation', link: '/' },
-                    { text: 'Commerce 1 Class Reference', link: 'https://docs.craftcms.com/commerce/api/v1/' },
                     { text: 'Commerce 2 Class Reference', link: 'https://docs.craftcms.com/commerce/api/v2/' },
                 ]
             },
