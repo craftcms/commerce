@@ -20,11 +20,11 @@ use yii\db\Connection;
 use yii\db\Expression;
 
 /**
- * LicenseQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
+ * SubscriptionQuery represents a SELECT SQL statement for subscriptions in a way that is independent of DBMS.
+ *
  * @method Subscription[]|array all($db = null)
  * @method Subscription|array|false one($db = null)
  * @method Subscription|array|false nth(int $n, Connection $db = null)
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -140,7 +140,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Sets the [[userId]] property based on a user element or username
      *
-     * @param User|string $value
+     * @param mixed $value
      * @return static self reference
      */
     public function user($value)
@@ -163,7 +163,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Sets the [[planId]] property based on a plan model or handle
      *
-     * @param Plan $value
+     * @param mixed $value
      * @return static self reference
      */
     public function plan($value)
@@ -188,9 +188,12 @@ class SubscriptionQuery extends ElementQuery
      *
      * @param DateTime|string $value The property value
      * @return static self reference
+     * @deprecated in 2.0. Use [[dateCreated()]] instead.
      */
     public function subscribedBefore($value)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
+
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
@@ -206,9 +209,12 @@ class SubscriptionQuery extends ElementQuery
      *
      * @param DateTime|string $value The property value
      * @return static self reference
+     * @deprecated in 2.0. Use [[dateCreated()]] instead.
      */
     public function subscribedAfter($value)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
+
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
@@ -222,26 +228,24 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Sets the [[userId]] property.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function userId($value)
     {
         $this->userId = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[planId]] property.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function planId($value)
     {
         $this->planId = $value;
-
         return $this;
     }
 
@@ -254,7 +258,6 @@ class SubscriptionQuery extends ElementQuery
     public function gatewayId($value)
     {
         $this->gatewayId = $value;
-
         return $this;
     }
 
@@ -268,7 +271,6 @@ class SubscriptionQuery extends ElementQuery
     public function orderId($value)
     {
         $this->orderId = $value;
-
         return $this;
     }
 
@@ -281,20 +283,18 @@ class SubscriptionQuery extends ElementQuery
     public function reference($value)
     {
         $this->reference = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[trialDays]] property.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function trialDays($value)
     {
         $this->trialDays = $value;
-
         return $this;
     }
 
@@ -304,10 +304,9 @@ class SubscriptionQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function onTrial($value)
+    public function onTrial(bool $value = true)
     {
         $this->onTrial = $value;
-
         return $this;
     }
 
@@ -320,7 +319,6 @@ class SubscriptionQuery extends ElementQuery
     public function nextPaymentDate($value)
     {
         $this->nextPaymentDate = $value;
-
         return $this;
     }
 
@@ -330,10 +328,9 @@ class SubscriptionQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isCanceled(bool $value)
+    public function isCanceled(bool $value = true)
     {
         $this->isCanceled = $value;
-
         return $this;
     }
 
@@ -346,7 +343,6 @@ class SubscriptionQuery extends ElementQuery
     public function dateCanceled($value)
     {
         $this->dateCanceled = $value;
-
         return $this;
     }
 
@@ -356,7 +352,7 @@ class SubscriptionQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isExpired(bool $value)
+    public function isExpired(bool $value = true)
     {
         $this->isExpired = $value;
 

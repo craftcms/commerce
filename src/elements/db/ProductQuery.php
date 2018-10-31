@@ -22,10 +22,10 @@ use yii\db\Connection;
 
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
+ *
  * @method Product[]|array all($db = null)
  * @method Product|array|null one($db = null)
  * @method Product|array|null nth(int $n, Connection $db = null)
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -161,7 +161,7 @@ class ProductQuery extends ElementQuery
     /**
      * Sets the [[postDate]] property to only allow products whose Post Date is before the given value.
      *
-     * @param DateTime|string $value The property value
+     * @param string|DateTime $value The property value
      * @return static self reference
      */
     public function before($value)
@@ -179,7 +179,7 @@ class ProductQuery extends ElementQuery
     /**
      * Sets the [[postDate]] property to only allow products whose Post Date is after the given value.
      *
-     * @param DateTime|string $value The property value
+     * @param string|DateTime $value The property value
      * @return static self reference
      */
     public function after($value)
@@ -203,20 +203,18 @@ class ProductQuery extends ElementQuery
     public function editable(bool $value = true)
     {
         $this->editable = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[typeId]] property.
      *
-     * @param int|int[]|null $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function typeId($value)
     {
         $this->typeId = $value;
-
         return $this;
     }
 
@@ -229,10 +227,8 @@ class ProductQuery extends ElementQuery
     public function hasVariant($value)
     {
         $this->hasVariant = $value;
-
         return $this;
     }
-
 
     /**
      * Sets the [[postDate]] property.
@@ -243,7 +239,6 @@ class ProductQuery extends ElementQuery
     public function postDate($value)
     {
         $this->postDate = $value;
-
         return $this;
     }
 
@@ -256,20 +251,18 @@ class ProductQuery extends ElementQuery
     public function expiryDate($value)
     {
         $this->expiryDate = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[availableForPurchase]] property.
      *
-     * @param mixed $value The property value
+     * @param bool $value The property value
      * @return static self reference
      */
-    public function availableForPurchase($value)
+    public function availableForPurchase(bool $value = true)
     {
         $this->availableForPurchase = $value;
-
         return $this;
     }
 
@@ -314,7 +307,7 @@ class ProductQuery extends ElementQuery
             $this->query->addSelect(['commerce_products.availableForPurchase']);
 
             if ($this->availableForPurchase) {
-                $this->subQuery->andWhere(Db::parseParam('commerce_products.availableForPurchase', $this->availableForPurchase));
+                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => true]);
             }
         }
 

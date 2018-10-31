@@ -7,7 +7,9 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
@@ -23,10 +25,10 @@ use yii\db\Connection;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
+ *
  * @method Order[]|array all($db = null)
  * @method Order|array|null one($db = null)
  * @method Order|array|null nth(int $n, Connection $db = null)
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -71,19 +73,9 @@ class OrderQuery extends ElementQuery
     public $datePaid;
 
     /**
-     * @var OrderStatus|int The Order Status that the resulting orders must have.
-     */
-    public $orderStatus;
-
-    /**
      * @var int The Order Status ID that the resulting orders must have.
      */
     public $orderStatusId;
-
-    /**
-     * @var Customer|int The customer  that the resulting orders must have.
-     */
-    public $customer;
 
     /**
      * @var bool The completion status that the resulting orders must have.
@@ -91,19 +83,9 @@ class OrderQuery extends ElementQuery
     public $customerId;
 
     /**
-     * @var Gateway|string The gateway that the resulting orders must have.
-     */
-    public $gateway;
-
-    /**
      * @var int The gateway ID that the resulting orders must have.
      */
     public $gatewayId;
-
-    /**
-     * @var User The user that the resulting orders must belong to.
-     */
-    public $user;
 
     /**
      * @var bool The payment status the resulting orders must belong to.
@@ -116,7 +98,7 @@ class OrderQuery extends ElementQuery
     public $isUnpaid;
 
     /**
-     * @var PurchasableInterface[] The resulting orders must contain these Purchasables.
+     * @var PurchasableInterface|PurchasableInterface[] The resulting orders must contain these Purchasables.
      */
     public $hasPurchasables;
 
@@ -156,26 +138,24 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[number]] property.
      *
-     * @param string $value The property value
+     * @param string|null $value The property value
      * @return static self reference
      */
-    public function number(string $value)
+    public function number(string $value = null)
     {
         $this->number = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[email]] property.
      *
-     * @param string $value The property value
+     * @param string|string[]|null $value The property value
      * @return static self reference
      */
     public function email(string $value)
     {
         $this->email = $value;
-
         return $this;
     }
 
@@ -185,10 +165,9 @@ class OrderQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isCompleted(bool $value)
+    public function isCompleted(bool $value = true)
     {
         $this->isCompleted = $value;
-
         return $this;
     }
 
@@ -201,7 +180,6 @@ class OrderQuery extends ElementQuery
     public function dateOrdered($value)
     {
         $this->dateOrdered = $value;
-
         return $this;
     }
 
@@ -214,20 +192,6 @@ class OrderQuery extends ElementQuery
     public function datePaid($value)
     {
         $this->datePaid = $value;
-
-        return $this;
-    }
-
-    /**
-     * Sets the [[updatedOn]] property.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function updatedOn($value)
-    {
-        $this->updatedOn = $value;
-
         return $this;
     }
 
@@ -240,18 +204,20 @@ class OrderQuery extends ElementQuery
     public function expiryDate($value)
     {
         $this->expiryDate = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[updatedAfter]] property.
      *
-     * @param mixed $value The property value
+     * @param string|DateTime $value The property value
      * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
      */
     public function updatedAfter($value)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
+
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
@@ -265,11 +231,14 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[updatedBefore]] property.
      *
-     * @param mixed $value The property value
+     * @param string|DateTime $value The property value
      * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
      */
     public function updatedBefore($value)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
+
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
@@ -283,7 +252,7 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[orderStatus]] property.
      *
-     * @param OrderStatus|int $value The property value
+     * @param string|string[]|OrderStatus|null $value The property value
      * @return static self reference
      */
     public function orderStatus($value)
@@ -306,28 +275,25 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[orderStatusId]] property.
      *
-     * @param int $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderStatusId(int $value)
+    public function orderStatusId($value)
     {
         $this->orderStatusId = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[customer]] property.
      *
-     * @param Customer|int $value The property value
+     * @param Customer|null $value The property value
      * @return static self reference
      */
-    public function customer($value)
+    public function customer(Customer $value = null)
     {
-        if ($value instanceof Customer) {
+        if ($value) {
             $this->customerId = $value->id;
-        } else if ($value !== null) {
-            $this->customerId = $value;
         } else {
             $this->customerId = null;
         }
@@ -338,28 +304,26 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[customerId]] property.
      *
-     * @param int $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function customerId(int $value)
+    public function customerId($value)
     {
         $this->customerId = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[gateway]] property.
      *
-     * @param Gateway|int $value The property value
+     * @param GatewayInterface|null $value The property value
      * @return static self reference
      */
-    public function gateway($value)
+    public function gateway(GatewayInterface $value = null)
     {
-        if ($value instanceof Gateway) {
+        if ($value) {
+            /** @var Gateway $value */
             $this->gatewayId = $value->id;
-        } else if ($value !== null) {
-            $this->gatewayId = $value;
         } else {
             $this->gatewayId = null;
         }
@@ -370,13 +334,12 @@ class OrderQuery extends ElementQuery
     /**
      * Sets the [[gatewayId]] property.
      *
-     * @param int $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function gatewayId(int $value)
+    public function gatewayId($value)
     {
         $this->gatewayId = $value;
-
         return $this;
     }
 
@@ -407,10 +370,9 @@ class OrderQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isPaid(bool $value)
+    public function isPaid(bool $value = true)
     {
         $this->isPaid = $value;
-
         return $this;
     }
 
@@ -420,17 +382,16 @@ class OrderQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isUnpaid(bool $value)
+    public function isUnpaid(bool $value = true)
     {
         $this->isUnpaid = $value;
-
         return $this;
     }
 
     /**
      * Sets the [[hasPurchasables]] property.
      *
-     * @param PurchasableInterface|PurchasableInterface[] $value The property value
+     * @param PurchasableInterface|PurchasableInterface[]|null $value The property value
      * @return static self reference
      */
     public function hasPurchasables($value)
@@ -503,22 +464,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateUpdated', $this->dateUpdated));
         }
 
-        if ($this->orderStatus) {
-            if ($this->orderStatus instanceof OrderStatus) {
-                $this->orderStatusId = $this->orderStatus->id;
-                $this->orderStatus = null;
-            } else if (is_int($this->orderStatus)) {
-                $this->orderStatusId = $this->orderStatus;
-                $this->orderStatus = null;
-            }
-        }
-
         if ($this->orderStatusId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
-        }
-
-        if ($this->customer) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.customer', $this->customer));
         }
 
         if ($this->customerId) {
@@ -527,10 +474,6 @@ class OrderQuery extends ElementQuery
 
         if ($this->gatewayId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
-        }
-
-        if ($this->user) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.user', $this->user));
         }
 
         if ($this->isPaid) {
@@ -544,16 +487,14 @@ class OrderQuery extends ElementQuery
         if ($this->hasPurchasables) {
             $purchasableIds = [];
 
-            if (is_array($this->hasPurchasables) !== true) {
+            if (!is_array($this->hasPurchasables)) {
                 $this->hasPurchasables = [$this->hasPurchasables];
             }
 
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
                     $purchasableIds[] = $purchasable->getId();
-                }
-
-                if (is_numeric($purchasable)) {
+                } else if (is_numeric($purchasable)) {
                     $purchasableIds[] = $purchasable;
                 }
             }

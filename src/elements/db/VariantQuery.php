@@ -17,10 +17,10 @@ use yii\db\Connection;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
+ *
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -94,102 +94,93 @@ class VariantQuery extends ElementQuery
     // =========================================================================
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value
+     * @return static self reference
      */
     public function sku($value)
     {
         $this->sku = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value
+     * @return static self reference
      */
     public function product($value)
     {
         $this->product = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value
+     * @return static self reference
      */
     public function productId($value)
     {
         $this->productId = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value
+     * @return static self reference
      */
     public function typeId($value)
     {
         $this->typeId = $value;
-
         return $this;
     }
 
 
     /**
-     * @param $value
-     * @return $this
+     * @param bool $value The property value
+     * @return static self reference
      */
-    public function isDefault($value)
+    public function isDefault(bool $value = true)
     {
         $this->isDefault = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value The property value
+     * @return static self reference
      */
     public function stock($value)
     {
         $this->stock = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param mixed $value The property value
+     * @return static self reference
      */
     public function price($value)
     {
         $this->price = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param bool $value
+     * @return static self reference
      */
-    public function hasStock($value)
+    public function hasStock(bool $value = true)
     {
         $this->hasStock = $value;
-
         return $this;
     }
 
     /**
-     * @param $value
-     * @return $this
+     * @param bool $value
+     * @return static self reference
      */
-    public function hasSales($value)
+    public function hasSales(bool $value = true)
     {
         $this->hasSales = $value;
-
         return $this;
     }
 
@@ -202,7 +193,6 @@ class VariantQuery extends ElementQuery
     public function hasProduct($value)
     {
         $this->hasProduct = $value;
-
         return $this;
     }
 
@@ -305,9 +295,6 @@ class VariantQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
-    /**
-     * @return
-     */
     /**
      * Applies the hasVariant query condition
      */

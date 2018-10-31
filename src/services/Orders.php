@@ -64,7 +64,11 @@ class Orders extends Component
     public function getOrdersByCustomer($customer)
     {
         $query = Order::find();
-        $query->customer($customer);
+        if ($customer instanceof Customer) {
+            $query->customer($customer);
+        } else {
+            $query->customerId($customer);
+        }
         $query->isCompleted(true);
         $query->limit(null);
 
