@@ -31,6 +31,11 @@ use yii\db\Connection;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @replace {element} order
+ * @replace {elements} orders
+ * @replace {twig-method} craft.orders()
+ * @replace {myElement} myOrder
+ * @replace {element-class} \craft\commerce\elements\Order
  */
 class OrderQuery extends ElementQuery
 {
@@ -136,7 +141,31 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[number]] property.
+     * Narrows the query results based on the order number.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'` | with a matching order number
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the requested {element} #}
+     * {% set orderNumber = craft.app.request.getQueryParam('number') %}
+     * {% set {element-var} = {twig-method}
+     *     .number(orderNumber)
+     *     .one() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the requested {element}
+     * $orderNumber = Craft::$app->request->getQueryParam('number');
+     * ${element-var} = {php-method}
+     *     ->number($orderNumber)
+     *     ->one();
+     * ```
      *
      * @param string|null $value The property value
      * @return static self reference
@@ -148,7 +177,31 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[email]] property.
+     * Narrows the query results based on the customers’ email addresses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements} with customers…
+     * | - | -
+     * | `'foo@bar.baz'` | with an email of `foo@bar.baz`.
+     * | `'not foo@bar.baz'` | not with an email of `foo@bar.baz`.
+     * | `'*@bar.baz'` | with an email that ends with `@bar.baz`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch orders from customers with a .co.uk domain on their email address #}
+     * {% set {elements-var} = {twig-method}
+     *     .email('*.co.uk')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch orders from customers with a .co.uk domain on their email address
+     * ${elements-var} = {php-method}
+     *     ->email('*.co.uk')
+     *     ->all();
+     * ```
      *
      * @param string|string[]|null $value The property value
      * @return static self reference
@@ -160,7 +213,23 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[isCompleted]] property.
+     * Narrows the query results to only orders that are completed.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch completed orders #}
+     * {% set {elements-var} = {twig-function}
+     *     .isCompleted()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch completed orders
+     * ${elements-var} = {element-class}::find()
+     *     ->isCompleted()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -172,7 +241,35 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[dateOrdered]] property.
+     * Narrows the query results based on the orders’ completion dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were completed on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were completed before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were completed between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were completed recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .dateCompleted(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were completed recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateCompleted(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -184,7 +281,35 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[datePaid]] property.
+     * Narrows the query results based on the orders’ paid dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were paid on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were paid before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were completed between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were paid for recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .datePaid(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were paid for recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->datePaid(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -196,7 +321,35 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[expiryDate]] property.
+     * Narrows the query results based on the orders’ expiry dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2020-04-01'` | that will expire on or after 2020-04-01.
+     * | `'< 2020-05-01'` | that will expire before 2020-05-01
+     * | `['and', '>= 2020-04-04', '< 2020-05-01']` | that will expire between 2020-04-01 and 2020-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} expiring this month #}
+     * {% set nextMonth = date('first day of next month')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .expiryDate("< #{nextMonth}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} expiring this month
+     * $nextMonth = new \DateTime('first day of next month')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->expiryDate("< {$nextMonth}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -208,7 +361,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[updatedAfter]] property.
+     * Narrows the query results based on the {elements}’ last-updated dates.
      *
      * @param string|DateTime $value The property value
      * @return static self reference
@@ -229,7 +382,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[updatedBefore]] property.
+     * Narrows the query results based on the {elements}’ last-updated dates.
      *
      * @param string|DateTime $value The property value
      * @return static self reference
@@ -250,7 +403,33 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[orderStatus]] property.
+     * Narrows the query results based on the order statuses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | with an order status with a handle of `foo`.
+     * | `'not foo'` | not with an order status with a handle of `foo`.
+     * | `['foo', 'bar']` | with an order status with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not with an order status with a handle of `foo` or `bar`.
+     * | a [[OrderStatus|OrderStatus]] object | with an order status represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch shipped {elements} #}
+     * {% set {elements-var} = {twig-method}
+     *     .orderStatus('shipped')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch shipped {elements}
+     * ${elements-var} = {php-method}
+     *     ->orderStatus('shipped')
+     *     ->all();
+     * ```
      *
      * @param string|string[]|OrderStatus|null $value The property value
      * @return static self reference
@@ -273,7 +452,32 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[orderStatusId]] property.
+     * Narrows the query results based on the order statuses, per their IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with an order status with an ID of 1.
+     * | `'not 1'` | not with an order status with an ID of 1.
+     * | `[1, 2]` | with an order status with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with an order status with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order status with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .authorGroupId(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order status with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->authorGroupId(1)
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -285,7 +489,30 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[customer]] property.
+     * Narrows the query results based on the customer.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[Customer|Customer]] object | with a customer represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *     .customer(currentUser.customerFieldHandle)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customer($user->customerFieldHandle)
+     *     ->all();
+     * ```
      *
      * @param Customer|null $value The property value
      * @return static self reference
@@ -302,7 +529,33 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[customerId]] property.
+     * Narrows the query results based on the customer, per their ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a customer with an ID of 1.
+     * | `'not 1'` | not with a customer with an ID of 1.
+     * | `[1, 2]` | with a customer with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a customer with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *     .customerId(currentUser.customerFieldHandle.id)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customerId($user->customerFieldHandle->id)
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -314,7 +567,13 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[gateway]] property.
+     * Narrows the query results based on the gateway.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[Gateway|Gateway]] object | with a gateway represented by the object.
      *
      * @param GatewayInterface|null $value The property value
      * @return static self reference
@@ -332,7 +591,16 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[gatewayId]] property.
+     * Narrows the query results based on the gateway, per its ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a gateway with an ID of 1.
+     * | `'not 1'` | not with a gateway with an ID of 1.
+     * | `[1, 2]` | with a gateway with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a gateway with an ID of 1 or 2.
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -344,7 +612,31 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[user]] property.
+     * Narrows the query results based on the customer’s user account.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a customer with a user account ID of 1.
+     * | a [[User|User]] object | with a customer with a user account represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *     .user(currentUser)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->user($user)
+     *     ->all();
+     * ```
      *
      * @param User|int $value The property value
      * @return static self reference
@@ -365,7 +657,23 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[isPaid]] property.
+     * Narrows the query results to only orders that are paid.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch paid orders #}
+     * {% set {elements-var} = {twig-function}
+     *     .isPaid()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch paid orders
+     * ${elements-var} = {element-class}::find()
+     *     ->isPaid()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -377,7 +685,23 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[isUnpaid]] property.
+     * Narrows the query results to only orders that are not paid.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch unpaid orders #}
+     * {% set {elements-var} = {twig-function}
+     *     .isUnpaid()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch unpaid orders
+     * ${elements-var} = {element-class}::find()
+     *     ->isUnpaid()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -389,7 +713,14 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[hasPurchasables]] property.
+     * Narrows the query results to only orders that have certain purchasables.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[PurchasableInterface|PurchasableInterface]] object | with a purchasable represented by the object.
+     * | an array of [[PurchasableInterface|PurchasableInterface]] objects | with all the purchasables represented by the objects.
      *
      * @param PurchasableInterface|PurchasableInterface[]|null $value The property value
      * @return static self reference

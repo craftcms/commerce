@@ -27,6 +27,12 @@ use yii\db\Expression;
  * @method Subscription|array|false nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @replace {element} subscription
+ * @replace {elements} subscriptions
+ * @replace {twig-method} craft.subscriptions()
+ * @replace {myElement} mySubscription
+ * @replace {element-class} \craft\commerce\elements\Subscription
+ * @supports-status-param
  */
 class SubscriptionQuery extends ElementQuery
 {
@@ -138,7 +144,32 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[userId]] property based on a user element or username
+     * Narrows the query results based on the subscriptions’ user accounts.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | for a user account with a username of `foo`
+     * | `['foo', 'bar']` | for user accounts with a username of `foo` or `bar`.
+     * | a [[User|User]] object | for a user account represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's subscriptions #}
+     * {% set {elements-var} = {twig-method}
+     *     .user(currentUser)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's subscriptions
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->user($user)
+     *     ->all();
+     * ```
      *
      * @param mixed $value
      * @return static self reference
@@ -161,7 +192,31 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[planId]] property based on a plan model or handle
+     * Narrows the query results based on the subscription plan.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | for a plan with a handle of `foo`.
+     * | `['foo', 'bar']` | for plans with a handle of `foo` or `bar`.
+     * | a [[Plan|Plan]] object | for a plan represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch Supporter plan subscriptions #}
+     * {% set {elements-var} = {twig-method}
+     *     .plan('supporter')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch Supporter plan subscriptions
+     * ${elements-var} = {php-method}
+     *     ->plan('supporter')
+     *     ->all();
+     * ```
      *
      * @param mixed $value
      * @return static self reference
@@ -184,7 +239,7 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[dateCreated]] property to only allow subscriptions before a given date
+     * Narrows the query results based on the subscriptions’ creation dates.
      *
      * @param DateTime|string $value The property value
      * @return static self reference
@@ -205,7 +260,7 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[dateCreated]] property to only allow subscriptions after a given date
+     * Narrows the query results based on the subscriptions’ creation dates.
      *
      * @param DateTime|string $value The property value
      * @return static self reference
@@ -226,7 +281,32 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[userId]] property.
+     * Narrows the query results based on the subscriptions’ user accounts’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for a user account with an ID of 1.
+     * | `[1, 2]` | for user accounts with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for user accounts not with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's subscriptions #}
+     * {% set {elements-var} = {twig-method}
+     *     .userId(currentUser.id)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's subscriptions
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->userId($user->id)
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -238,7 +318,15 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[planId]] property.
+     * Narrows the query results based on the subscription plans’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for a plan with an ID of 1.
+     * | `[1, 2]` | for plans with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for plans not with an ID of 1 or 2.
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -250,7 +338,16 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[gatewayId]] property.
+     * Narrows the query results based on the gateway, per its ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a gateway with an ID of 1.
+     * | `'not 1'` | not with a gateway with an ID of 1.
+     * | `[1, 2]` | with a gateway with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a gateway with an ID of 1 or 2.
      *
      * @param int|int[] $value The property value
      * @return static self reference
@@ -263,7 +360,16 @@ class SubscriptionQuery extends ElementQuery
 
 
     /**
-     * Sets the [[orderId]] property.
+     * Narrows the query results based on the order, per its ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with an order with an ID of 1.
+     * | `'not 1'` | not with an order with an ID of 1.
+     * | `[1, 2]` | with an order with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with an order with an ID of 1 or 2.
      *
      * @param int|int[] $value The property value
      * @return static self reference
@@ -275,7 +381,7 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[reference]] property.
+     * Narrows the query results based on the reference.
      *
      * @param string|string[] $value The property value
      * @return static self reference
@@ -287,7 +393,7 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[trialDays]] property.
+     * Narrows the query results based on the number of trial days.
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -299,7 +405,23 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[onTrial]] property.
+     * Narrows the query results to only subscriptions that are on trial.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch trialed subscriptions #}
+     * {% set {elements-var} = {twig-function}
+     *     .onTrial()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch trialed subscriptions
+     * ${elements-var} = {element-class}::find()
+     *     ->isPaid()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -311,7 +433,35 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[nextPaymentDate]] property.
+     * Narrows the query results based on the subscriptions’ next payment dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | with a next payment on or after 2018-04-01.
+     * | `'< 2018-05-01'` | with a next payment before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | with a next payment between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a payment due soon #}
+     * {% set aWeekFromNow = date('+7 days')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .nextPaymentDate("< #{aWeekFromNow}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a payment due soon
+     * $aWeekFromNow = new \DateTime('+7 days')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->nextPaymentDate("< {$aWeekFromNow}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -323,7 +473,23 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[isCanceled]] property.
+     * Narrows the query results to only subscriptions that are canceled.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch canceled subscriptions #}
+     * {% set {elements-var} = {twig-function}
+     *     .isCanceled()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch canceled subscriptions
+     * ${elements-var} = {element-class}::find()
+     *     ->isCanceled()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -335,7 +501,35 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[dateCanceled]] property.
+     * Narrows the query results based on the subscriptions’ cancellation date.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were canceled on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were canceled before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were canceled between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were canceled recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .dateCanceled(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were canceled recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateCanceled(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -347,7 +541,23 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[isExpired]] property.
+     * Narrows the query results to only subscriptions that have expired.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch expired subscriptions #}
+     * {% set {elements-var} = {twig-function}
+     *     .isExpired()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch expired subscriptions
+     * ${elements-var} = {element-class}::find()
+     *     ->isExpired()
+     *     ->all();
+     * ```
      *
      * @param bool $value The property value
      * @return static self reference
@@ -360,7 +570,35 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[dateExpired]] property.
+     * Narrows the query results based on the subscriptions’ expiration date.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that expired on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that expired before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that expired between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that expired recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .dateExpired(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that expired recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateExpired(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -370,6 +608,37 @@ class SubscriptionQuery extends ElementQuery
         $this->dateExpired = $value;
 
         return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ statuses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'active'` _(default)_ | that are active.
+     * | `'expired'` | that have expired.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch expired {elements} #}
+     * {% set {elements-var} = {twig-function}
+     *     .status('expired')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch expired {elements}
+     * ${elements-var} = {element-class}::find()
+     *     ->status('expired')
+     *     ->all();
+     * ```
+     */
+    public function status($value)
+    {
+        return parent::status($value);
     }
 
     // Protected Methods

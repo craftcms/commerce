@@ -23,6 +23,13 @@ use yii\db\Connection;
  * @method Variant|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @replace {element} variant
+ * @replace {elements} variants
+ * @replace {twig-method} craft.variants()
+ * @replace {myElement} myVariant
+ * @replace {element-class} \craft\commerce\elements\Variant
+ * @supports-site-params
+ * @supports-title-param
  */
 class VariantQuery extends ElementQuery
 {
@@ -94,6 +101,42 @@ class VariantQuery extends ElementQuery
     // =========================================================================
 
     /**
+     * Narrows the query results based on the {elements}’ SKUs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | with a SKU of `foo`.
+     * | `'foo*'` | with a SKU that begins with `foo`.
+     * | `'*foo'` | with a SKU that ends with `foo`.
+     * | `'*foo*'` | with a SKU that contains `foo`.
+     * | `'not *foo*'` | with a SKU that doesn’t contain `foo`.
+     * | `['*foo*', '*bar*'` | with a SKU that contains `foo` or `bar`.
+     * | `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Get the requested {element} SKU from the URL #}
+     * {% set requestedSlug = craft.app.request.getSegment(3) %}
+     *
+     * {# Fetch the {element} with that slug #}
+     * {% set {element-var} = {twig-method}
+     *     .sku(requestedSlug|literal)
+     *     .one() %}
+     * ```
+     *
+     * ```php
+     * // Get the requested {element} SKU from the URL
+     * $requestedSlug = \Craft::$app->request->getSegment(3);
+     *
+     * // Fetch the {element} with that slug
+     * ${element-var} = {php-method}
+     *     ->sku(\craft\helpers\Db::escapeParam($requestedSlug))
+     *     ->one();
+     * ```
+     *
      * @param mixed $value
      * @return static self reference
      */
@@ -104,6 +147,14 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ product.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[Product|Product]] object | for a product represented by the object.
+     *
      * @param mixed $value
      * @return static self reference
      */
@@ -114,6 +165,16 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ products’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for a product with an ID of 1.
+     * | `[1, 2]` | for product with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for product not with an ID of 1 or 2.
+     *
      * @param mixed $value
      * @return static self reference
      */
@@ -124,6 +185,16 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ product types, per their IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for a product of a type with an ID of 1.
+     * | `[1, 2]` | for product of a type with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for product of a type not with an ID of 1 or 2.
+     *
      * @param mixed $value
      * @return static self reference
      */
@@ -135,6 +206,24 @@ class VariantQuery extends ElementQuery
 
 
     /**
+     * Narrows the query results to only default variants.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch default variants #}
+     * {% set {elements-var} = {twig-function}
+     *     .isDefault()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch default variants
+     * ${elements-var} = {element-class}::find()
+     *     ->isDefault()
+     *     ->all();
+     * ```
+     *
      * @param bool $value The property value
      * @return static self reference
      */
@@ -145,6 +234,16 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `0` | with no stock.
+     * | `'>= 5'` | with a stock of at least 5.
+     * | `'< 10'` | with a stock of less than 10.
+     *
      * @param mixed $value The property value
      * @return static self reference
      */
@@ -155,6 +254,16 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a price of 100.
+     * | `'>= 100'` | with a price of at least 100.
+     * | `'< 100'` | with a price of less than 100.
+     *
      * @param mixed $value The property value
      * @return static self reference
      */
@@ -165,6 +274,15 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only variants that have stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with stock.
+     * | `false` | with no stock.
+     *
      * @param bool $value
      * @return static self reference
      */
@@ -175,6 +293,15 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only variants that are on sale.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | on sale
+     * | `false` | not on sale
+     *
      * @param bool $value
      * @return static self reference
      */
@@ -185,7 +312,13 @@ class VariantQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[hasProduct]] property.
+     * Narrows the query results to only variants for certain products.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[ProductQuery|ProductQuery]] object | for products that match the query.
      *
      * @param ProductQuery|array $value The property value
      * @return static self reference
