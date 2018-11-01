@@ -178,11 +178,6 @@ class Order extends Element
     // =========================================================================
 
     /**
-     * @inheritdoc
-     */
-    public $id;
-
-    /**
      * @var string Number
      */
     public $number;
@@ -1870,22 +1865,30 @@ class Order extends Element
      */
     private function _updateLineItems()
     {
+        // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
 
         $newLineItemIds = [];
 
+        // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            // If the ID is null that's ok, it's a new line item and will be saves anyway
             $newLineItemIds[] = $lineItem->id;
         }
 
+        // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $newLineItemIds, false)) {
                 $previousLineItem->delete();
             }
+        }
+
+        // Save the line items last, as we know that any possible duplicates are already removed.
+        foreach ($this->getLineItems() as $lineItem) {
+            // Don't run validation as validation of the line item should happen before saving the order
+            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
         }
     }
 }

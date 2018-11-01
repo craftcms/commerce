@@ -21,6 +21,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
+use craft\commerce\services\Gateways;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
@@ -78,7 +79,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.52';
+    public $schemaVersion = '2.0.53';
 
     /**
      * @inheritdoc
@@ -119,6 +120,7 @@ class Plugin extends BasePlugin
         $this->_registerPermissions();
         $this->_registerCraftEventListeners();
         $this->_registerSessionEventListeners();
+        $this->_registerProjectConfigEventListeners();
         $this->_registerWidgets();
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
@@ -297,6 +299,19 @@ class Plugin extends BasePlugin
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
         }
+    }
+
+    /**
+     * Register Commerce’s project config event listeners
+     */
+    private function _registerProjectConfigEventListeners()
+    {
+        $projectConfigService = Craft::$app->getProjectConfig();
+
+        $gatewayService = $this->getGateways();
+        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway']);
+        $projectConfigService->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway']);
+        $projectConfigService->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleArchivedGateway']);
     }
 
     /**

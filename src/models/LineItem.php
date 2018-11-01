@@ -228,7 +228,6 @@ class LineItem extends Model
                     'shippingCategoryId'
                 ], 'required'
             ],
-            [['optionsSignature'], UniqueValidator::class, 'targetClass' => LineItemRecord::class, 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature'], 'message' => 'Not Unique'],
             [['qty'], 'integer', 'min' => 1],
         ];
 

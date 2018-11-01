@@ -262,7 +262,7 @@
         $('#tab-variantFields').parent().toggleClass('hidden');
     });
 
-    window.productTypeShippingCategories = JSON.parse('{{ productType.shippingCategories|keys|json_encode|raw }}');
+    window.productTypeShippingCategories = {{ productType.shippingCategories|keys|json_encode|raw }};
     window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|values|json_encode|raw }};
 
     $.each(window.shippingCategories, function(key, shippingCategory) {
@@ -288,7 +288,7 @@
         });
     });
 
-    window.productTypeTaxCategories = JSON.parse('{{ productType.taxCategories|keys|json_encode|raw }}');
+    window.productTypeTaxCategories = {{ productType.taxCategories|keys|json_encode|raw }};
     window.taxCategories = {{ craft.commerce.taxCategories.allTaxCategories|values|json_encode|raw }};
 
     $.each(window.taxCategories, function(key, taxCategory) {

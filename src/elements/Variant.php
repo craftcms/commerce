@@ -28,7 +28,7 @@ use yii\base\InvalidConfigException;
 use yii\db\Expression;
 
 /**
- * Variant Model
+ * Variant model.
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
  * @property bool $onSale
@@ -118,11 +118,6 @@ class Variant extends Purchasable
 
     // Properties
     // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public $id;
 
     /**
      * @var int $productId

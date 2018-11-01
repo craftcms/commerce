@@ -46,8 +46,8 @@
 {% endblock %}
 
 {% js %}
-    window.currencies = $.map(JSON.parse('{{ craft.commerce.currencies.allcurrencies|json_encode|raw }}'), function(el) { return el });
-    window.currency = JSON.parse('{{ [currency.iso]|json_encode|raw }}');
+    window.currencies = {{ craft.commerce.currencies.allcurrencies|values|json_encode|raw }};
+    window.currency = {{ [currency.iso]|json_encode|raw }};
     $(function () {
         $('#iso').selectize({
             options: window.currencies,

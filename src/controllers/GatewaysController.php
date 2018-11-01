@@ -112,9 +112,10 @@ class GatewaysController extends BaseAdminController
         $gatewayService = Plugin::getInstance()->getGateways();
 
         $type = $request->getRequiredParam('type');
+        $gatewayId = $request->getBodyParam('id');
 
         $config = [
-            'id' => $request->getBodyParam('id'),
+            'id' => $gatewayId,
             'type' => $type,
             'name' => $request->getBodyParam('name'),
             'handle' => $request->getBodyParam('handle'),
@@ -126,6 +127,13 @@ class GatewaysController extends BaseAdminController
         // For new gateway avoid NULL value.
         if (!$request->getBodyParam('id')) {
             $config['isArchived'] = false;
+        }
+
+        // If this is an existing gateway, populate with properties unchangeable by this action.
+        if ($gatewayId) {
+            $savedGateway = $gatewayService->getGatewayById($gatewayId);
+            $config['uid'] = $savedGateway->uid;
+            $config['sortOrder'] = $savedGateway->sortOrder;
         }
 
         /** @var Gateway $gateway */

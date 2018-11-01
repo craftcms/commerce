@@ -67,8 +67,8 @@
 {% endblock %}
 
 {% js %}
-    window.countries = JSON.parse('{{ craft.commerce.countries.allCountries|values|json_encode|raw }}');
-    window.states = JSON.parse('{{ craft.commerce.states.allStates|json_encode|raw }}');
+    window.countries = {{ craft.commerce.countries.allCountries|values|json_encode|raw }};
+    window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
 
     $(document).ready(function () {
     {% if paymentForm is defined and paymentForm %}

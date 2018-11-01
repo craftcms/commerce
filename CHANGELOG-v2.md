@@ -1,5 +1,43 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.0-beta.13 - 2018-11-01
+
+### Changed
+- `craft\commerce\services\LineItems::resolveLineItem()` no longer accepts `$qty` and `$note` arguments, and is no longer responsible for updating line item quantity.
+- `craft\commerce\elements\Subscription::STATUS_ACTIVE` is now set to `'active'` instead of `'live'`.
+- `craft\commerce\elements\db\OrderQuery::customer()` no longer accepts a customer ID. Use `customerId()` to filter orders by their customer ID.
+- `craft\commerce\elements\db\OrderQuery::gateway()` no longer accepts a gateway ID. Use `gatewayId()` to filter orders by their gateway ID.
+
+### Deprecated
+- Deprecated `craft\commerce\eleemnts\db\OrderQuery::updatedAfter()`. `dateUpdated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\OrderQuery::updatedBefore()`. `dateUpdated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\SubscriptionQuery::subscribedAfter()`. `dateCreated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\SubscriptionQuery::subscribedBefore()`. `dateCreated()` should be used instead.
+
+### Removed
+- Removed `craft\commerce\elements\db\OrderQuery::$customer`. `customer()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$gateway`. `gateway()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$orderStatus`. `orderStatus()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$user`. `user()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::updatedOn()`. `dateUpdated()` should be used instead.
+
+### Added
+- Added project configuration support for gateways.
+
+### Fixed
+- Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
+- Fixed a bug where order data exporting would not work on PostgreSQL.
+- Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
+- Fixed a bug where it wasn’t possible to edit a Craft user’s address if the user field layout had a Customer Info field.
+- Fixed a bug where the "From Name" setting was being ignored when sending emails.
+- Fixed a SQL error that occurred when saving an email on PostgreSQL.
+- Fixed an error that occurred when canceling a subscription. ([#541](https://github.com/craftcms/commerce/issues/541))
+
+## 2.0.0-beta.12.1 - 2018-10-19
+
+### Fixed
+- Fixed a bug where it wasn’t possible to edit a Craft user’s address if the user field layout had a Customer Info field.
+
 ## 2.0.0-beta.12 - 2018-10-18
 
 ### Added
