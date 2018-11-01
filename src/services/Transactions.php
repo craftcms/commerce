@@ -204,8 +204,7 @@ class Transactions extends Component
             $transaction->userId = $user->id;
         }
 
-        if ($typeOverride)
-        {
+        if ($typeOverride) {
             $transaction->type = $typeOverride;
         }
 

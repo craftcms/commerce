@@ -5,41 +5,49 @@
     {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
     {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
 
-    <div class="row">
-    <div class="one-half column">
-        <h1>Manage Addresses</h1>
-    </div>
-    <div class="one-half column">
-        <a class="button button-primary right" href="{{ url('shop/customer/addresses/edit') }}">Add New Address</a>
-    </div>
-
-    </div>
-    {% for address in customer.addresses %}
-        {% if loop.index0 is divisible by(3) %}
-        <div class="row">
-        {% endif %}
-            <div class="address-card one-third column">
-                {% include 'shop/_includes/addresses/address' with {'address': address} %}
-                {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == address.id %}
-                {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == address.id %}
-
-                <p>
-                    {% if isPrimaryBilling %}<div>This is the primary billing address</div>{% endif %}
-                    {% if isPrimaryShipping %}<div>This is the primary shipping address</div>{% endif %}
-                </p>
-
-                <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
-                <form method="POST">
-                    <input type="hidden" name="action" value="commerce/customer-addresses/delete">
-                    {{ csrfInput() }}
-                    <input type="hidden" name="id" value="{{ address.id }}"/>
-                    <input type="submit" value="delete"/>
-                </form>
-                <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}Primary Billing{% endif %}</strong><br>
-                <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}Primary Shipping{% endif %}</strong>
-            </div>
-        {% if loop.index is divisible by(3) %}
+    {% if customer.addresses|length %}
+        <div class="flex justify-between items-center">
+            <h1>Manage your addresses</h1>
+            <a class="button button-primary right" href="{{ url('shop/customer/addresses/edit') }}">Add New Address</a>
         </div>
-        {% endif %}
-    {% endfor %}
+
+        <div class="grid-addresses mt-6">
+            {% for address in customer.addresses %}
+                <div class="address-card">
+                    {% include 'shop/_includes/addresses/address' with {'address': address} %}
+
+                    <div class="buttons mt-4">
+                        <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
+                        <form method="POST">
+                            <input type="hidden" name="action" value="commerce/customer-addresses/delete">
+                            {{ csrfInput() }}
+                            <input type="hidden" name="id" value="{{ address.id }}"/>
+                            <input type="submit" value="Delete"/>
+                        </form>
+                    </div>
+
+                    <div>
+                        <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}<i class="fa fa-check text-green"></i> Primary Billing{% endif %}</strong>
+                    </div>
+                    <div>
+                        <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}<i class="fa fa-check text-green"></i> Primary Shipping{% endif %}</strong>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h1 class="text-center">Manage your addresses</h1>
+
+        <hr>
+
+        <div class="empty-index">
+            <i class="fas fa-address-book"></i>
+            <div>
+                You don’t have any addresses yet.
+                <div class="mt-6">
+                    <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}">Add a new address</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -22,12 +22,22 @@ use yii\db\Connection;
 
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
+ *
  * @method Product[]|array all($db = null)
  * @method Product|array|null one($db = null)
  * @method Product|array|null nth(int $n, Connection $db = null)
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @replace {element} product
+ * @replace {elements} products
+ * @replace {twig-method} craft.products()
+ * @replace {myElement} myProduct
+ * @replace {element-class} \craft\commerce\elements\Product
+ * @supports-site-params
+ * @supports-title-param
+ * @supports-slug-param
+ * @supports-uri-param
+ * @supports-status-param
  */
 class ProductQuery extends ElementQuery
 {
@@ -85,7 +95,7 @@ class ProductQuery extends ElementQuery
     public $defaultSku;
 
     /**
-     * @var VariantQuery only return products that match the resulting variant query.
+     * @var VariantQuery|array only return products that match the resulting variant query.
      */
     public $hasVariant;
 
@@ -136,7 +146,33 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[typeId]] property based on a given product types(s)’s handle(s).
+     * Narrows the query results based on the products’ types.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a type with a handle of `foo`.
+     * | `'not foo'` | not of a type with a handle of `foo`.
+     * | `['foo', 'bar']` | of a type with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a type with a handle of `foo` or `bar`.
+     * | an [[ProductType|ProductType]] object | of a type represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo product type #}
+     * {% set {elements-var} = {twig-method}
+     *     .type('foo')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo product type
+     * ${elements-var} = {php-method}
+     *     ->type('foo')
+     *     ->all();
+     * ```
      *
      * @param string|string[]|ProductType|null $value The property value
      * @return static self reference
@@ -159,9 +195,36 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[postDate]] property to only allow products whose Post Date is before the given value.
+     * Narrows the query results to only products that were posted before a certain date.
      *
-     * @param DateTime|string $value The property value
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'2018-04-01'` | that were posted before 2018-04-01.
+     * | a [[\DateTime|DateTime]] object | that were posted before the date represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} posted before this month #}
+     * {% set firstDayOfMonth = date('first day of this month') %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .before(firstDayOfMonth)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} posted before this month
+     * $firstDayOfMonth = new \DateTime('first day of this month');
+     *
+     * ${elements-var} = {php-method}
+     *     ->before($firstDayOfMonth)
+     *     ->all();
+     * ```
+     *
+     * @param string|DateTime $value The property value
      * @return static self reference
      */
     public function before($value)
@@ -177,9 +240,36 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Sets the [[postDate]] property to only allow products whose Post Date is after the given value.
+     * Narrows the query results to only products that were posted on or after a certain date.
      *
-     * @param DateTime|string $value The property value
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'2018-04-01'` | that were posted after 2018-04-01.
+     * | a [[\DateTime|DateTime]] object | that were posted after the date represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} posted this month #}
+     * {% set firstDayOfMonth = date('first day of this month') %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .after(firstDayOfMonth)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} posted this month
+     * $firstDayOfMonth = new \DateTime('first day of this month');
+     *
+     * ${elements-var} = {php-method}
+     *     ->after($firstDayOfMonth)
+     *     ->all();
+     * ```
+     *
+     * @param string|DateTime $value The property value
      * @return static self reference
      */
     public function after($value)
@@ -203,25 +293,54 @@ class ProductQuery extends ElementQuery
     public function editable(bool $value = true)
     {
         $this->editable = $value;
-
         return $this;
     }
 
     /**
-     * Sets the [[typeId]] property.
+     * Narrows the query results based on the products’ types, per the types’ IDs.
      *
-     * @param int|int[]|null $value The property value
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a type with an ID of 1.
+     * | `'not 1'` | not of a type with an ID of 1.
+     * | `[1, 2]` | of a type with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a type with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product type with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .typeId(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the product type with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->typeId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function typeId($value)
     {
         $this->typeId = $value;
-
         return $this;
     }
 
     /**
-     * Sets the [[hasVariant]] property.
+     * Narrows the query results to only products that have certain variants.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[VariantQuery|VariantQuery]] object | with variants that match the query.
      *
      * @param VariantQuery|array $value The property value
      * @return static self reference
@@ -229,13 +348,41 @@ class ProductQuery extends ElementQuery
     public function hasVariant($value)
     {
         $this->hasVariant = $value;
-
         return $this;
     }
 
-
     /**
-     * Sets the [[postDate]] property.
+     * Narrows the query results based on the products’ post dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were posted on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were posted before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were posted between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} posted last month #}
+     * {% set start = date('first day of last month')|atom %}
+     * {% set end = date('first day of this month')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .postDate(['and', ">= #{start}", "< #{end}"])
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} posted last month
+     * $start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
+     * $end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->postDate(['and', ">= {$start}", "< {$end}"])
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -243,12 +390,39 @@ class ProductQuery extends ElementQuery
     public function postDate($value)
     {
         $this->postDate = $value;
-
         return $this;
     }
 
     /**
-     * Sets the [[expiryDate]] property.
+     * Narrows the query results based on the products’ expiry dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2020-04-01'` | that will expire on or after 2020-04-01.
+     * | `'< 2020-05-01'` | that will expire before 2020-05-01
+     * | `['and', '>= 2020-04-04', '< 2020-05-01']` | that will expire between 2020-04-01 and 2020-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} expiring this month #}
+     * {% set nextMonth = date('first day of next month')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .expiryDate("< #{nextMonth}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} expiring this month
+     * $nextMonth = new \DateTime('first day of next month')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->expiryDate("< {$nextMonth}")
+     *     ->all();
+     * ```
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -256,21 +430,69 @@ class ProductQuery extends ElementQuery
     public function expiryDate($value)
     {
         $this->expiryDate = $value;
-
         return $this;
     }
 
     /**
-     * Sets the [[availableForPurchase]] property.
+     * Narrows the query results to only products that are available for purchase.
      *
-     * @param mixed $value The property value
+     * ---
+     *
+     * ```twig
+     * {# Fetch products that are available for purchase #}
+     * {% set {elements-var} = {twig-function}
+     *     .availableForPurchase()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch products that are available for purchase
+     * ${elements-var} = {element-class}::find()
+     *     ->availableForPurchase()
+     *     ->all();
+     * ```
+     *
+     * @param bool $value The property value
      * @return static self reference
      */
-    public function availableForPurchase($value)
+    public function availableForPurchase(bool $value = true)
     {
         $this->availableForPurchase = $value;
-
         return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ statuses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'live'` _(default)_ | that are live.
+     * | `'pending'` | that are pending (enabled with a Post Date in the future).
+     * | `'expired'` | that are expired (enabled with an Expiry Date in the past).
+     * | `'disabled'` | that are disabled.
+     * | `['live', 'pending']` | that are live or pending.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch disabled {elements} #}
+     * {% set {elements-var} = {twig-function}
+     *     .status('disabled')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch disabled {elements}
+     * ${elements-var} = {element-class}::find()
+     *     ->status('disabled')
+     *     ->all();
+     * ```
+     */
+    public function status($value)
+    {
+        return parent::status($value);
     }
 
     // Protected Methods
@@ -314,7 +536,7 @@ class ProductQuery extends ElementQuery
             $this->query->addSelect(['commerce_products.availableForPurchase']);
 
             if ($this->availableForPurchase) {
-                $this->subQuery->andWhere(Db::parseParam('commerce_products.availableForPurchase', $this->availableForPurchase));
+                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => true]);
             }
         }
 

@@ -23,7 +23,7 @@ trait OrderDeprecatedTrait
      */
     public function getTotalTax(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
+        Craft::$app->getDeprecator()->log('Order::getTotalTax()', 'Order::getTotalTax() has been deprecated. Use Order::getAdjustmentsTotalByType("tax") instead.');
 
         return $this->getAdjustmentsTotalByType('tax');
     }

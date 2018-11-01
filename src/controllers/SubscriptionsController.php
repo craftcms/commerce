@@ -13,6 +13,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\helpers\StringHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -64,7 +65,7 @@ class SubscriptionsController extends BaseController
         ];
 
         if (empty($variables['subscription'])) {
-            $variables['subscription'] = Subscription::find()->id($subscriptionId)->one();
+            $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
         }
 
         return $this->renderTemplate('commerce/subscriptions/_edit', $variables);
@@ -117,9 +118,9 @@ class SubscriptionsController extends BaseController
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
-        $planId = $request->getValidatedBodyParam('planId');
+        $planUid = $request->getValidatedBodyParam('planUid');
 
-        if (!$planId || !$plan = $plugin->getPlans()->getPlanById($planId)) {
+        if (!$planUid || !$plan = $plugin->getPlans()->getPlanByUid($planUid)) {
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
@@ -131,7 +132,15 @@ class SubscriptionsController extends BaseController
             $parameters = $gateway->getSubscriptionFormModel();
 
             foreach ($parameters->attributes() as $attributeName) {
-                $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                $value = $request->getValidatedBodyParam($attributeName);
+
+                if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
+                    list($hashedPlanUid, $parameterValue) = explode(':', $value);
+
+                    if ($plan->uid == $hashedPlanUid) {
+                        $parameters->{$attributeName} = $parameterValue;
+                    }
+                }
             }
 
             try {
@@ -147,7 +156,10 @@ class SubscriptionsController extends BaseController
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
 
-            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters);
+            $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
+            $fieldValues = $request->getBodyParam($fieldsLocation, []);
+
+            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }
@@ -188,11 +200,11 @@ class SubscriptionsController extends BaseController
         $error = false;
 
         try {
-            $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
-            $subscription = Subscription::find()->id($subscriptionId)->one();
+            $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
+            $subscription = Subscription::find()->uid($subscriptionUid)->one();
             $userSession = Craft::$app->getUser();
 
-            $validData = $subscriptionId && $subscription;
+            $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
             $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
@@ -239,17 +251,17 @@ class SubscriptionsController extends BaseController
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
-        $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
-        $planId = $request->getValidatedBodyParam('planId');
+        $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
+        $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
 
         try {
-            $subscription = Subscription::find()->id($subscriptionId)->one();
-            $plan = Commerce::getInstance()->getPlans()->getPlanById($planId);
+            $subscription = Subscription::find()->uid($subscriptionUid)->one();
+            $plan = Commerce::getInstance()->getPlans()->getPlanByUid($planUid);
             $userSession = Craft::$app->getUser();
 
-            $validData = $planId && $plan && $subscriptionId && $subscription;
+            $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
             $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
@@ -259,7 +271,15 @@ class SubscriptionsController extends BaseController
                 $parameters = $gateway->getSwitchPlansFormModel();
 
                 foreach ($parameters->attributes() as $attributeName) {
-                    $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                    $value = $request->getValidatedBodyParam($attributeName);
+
+                    if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
+                        list($hashedPlanUid, $parameterValue) = explode(':', $value);
+
+                        if ($hashedPlanUid == $planUid) {
+                            $parameters->{$attributeName} = $parameterValue;
+                        }
+                    }
                 }
 
                 if (!$plugin->getSubscriptions()->switchSubscriptionPlan($subscription, $plan, $parameters)) {
@@ -307,12 +327,12 @@ class SubscriptionsController extends BaseController
         $error = false;
 
         try {
-            $subscriptionId = $request->getValidatedBodyParam('subscriptionId');
+            $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
 
-            $subscription = Subscription::find()->id($subscriptionId)->one();
+            $subscription = Subscription::find()->uid($subscriptionUid)->one();
             $userSession = Craft::$app->getUser();
 
-            $validData = $subscriptionId && $subscription;
+            $validData = $subscriptionUid && $subscription;
             $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
 
             if ($validData && $canModifySubscription) {
@@ -321,7 +341,15 @@ class SubscriptionsController extends BaseController
                 $parameters = $gateway->getCancelSubscriptionFormModel();
 
                 foreach ($parameters->attributes() as $attributeName) {
-                    $parameters->{$attributeName} = $request->getValidatedBodyParam($attributeName);
+                    $value = $request->getValidatedBodyParam($attributeName);
+
+                    if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
+                        list($hashedSubscriptionUid, $parameterValue) = explode(':', $value);
+
+                        if ($hashedSubscriptionUid == $subscriptionUid) {
+                            $parameters->{$attributeName} = $parameterValue;
+                        }
+                    }
                 }
 
                 if (!$plugin->getSubscriptions()->cancelSubscription($subscription, $parameters)) {

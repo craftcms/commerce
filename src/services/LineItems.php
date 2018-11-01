@@ -35,8 +35,8 @@ class LineItems extends Component
      * Plugins can get notified before a line item is being saved
      *
      * ```php
-     * use craft\commerce\events\LineItems;
-     * use craft\commerce\services\LineItemEvent;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\services\LineItems;
      * use yii\base\Event;
      *
      * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
@@ -52,8 +52,8 @@ class LineItems extends Component
      * Plugins can get notified after a line item is being saved
      *
      * ```php
-     * use craft\commerce\events\LineItems;
-     * use craft\commerce\services\LineItemEvent;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\services\LineItems;
      * use yii\base\Event;
      *
      * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
@@ -122,10 +122,10 @@ class LineItems extends Component
      * @param string $note
      * @return LineItem
      */
-    public function resolveLineItem(int $orderId, int $purchasableId, array $options = [], int $qty = 1, string $note = ''): LineItem
+    public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
     {
         ksort($options);
-        $signature = md5(json_encode($options));
+        $signature = md5(Json::encode($options));
 
         $result = $this->_createLineItemQuery()
             ->where([
@@ -137,10 +137,8 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->note = $note;
-            $lineItem->qty += $qty;
         } else {
-            $lineItem = $this->createLineItem($orderId, $purchasableId, $options, $qty, $note);
+            $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
 
         return $lineItem;

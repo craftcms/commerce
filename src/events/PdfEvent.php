@@ -8,7 +8,6 @@
 namespace craft\commerce\events;
 
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
 use yii\base\Event;
 
 /**

@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "2.0.0-beta.9",
+  "version": "2.0.0-beta.12.1",
   "keywords": [
     "cms",
     "craftcms",
@@ -23,7 +23,8 @@
     "craftcms/cms": "^3.0.13",
     "dompdf/dompdf": "~0.8.2",
     "moneyphp/money": "^3.1.3",
-    "dannyvankooten/vat.php": "^1.1.2"
+    "dannyvankooten/vat.php": "^1.1.2",
+    "phpoffice/phpspreadsheet": "^1.4"
   },
   "autoload": {
     "psr-4": {

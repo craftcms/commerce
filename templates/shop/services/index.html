@@ -5,12 +5,12 @@
 
 {% if currentUser and plans|length%}
     {% for plan in plans %}
-        <div class="row service">
-            <div class="two columns">
-                <h4>{{ plan.name }}</h4>
+        <div class="md:flex service">
+            <div class="md:w-1/4">
+                <h2 class="mt-8">{{ plan.name }}</h2>
                 {% set information = plan.getInformation() %}
             </div>
-            <div class="ten columns">
+            <div class="md:w-3/4 md:mt-8 md:pt-4">
                 {% set subscriptions = plan.getActiveUserSubscriptions(currentUser.id) %}
                 {% if subscriptions|length == 0 %}
                     <p><strong>You have no subscriptions to this plan.</strong></p>
@@ -34,39 +34,41 @@
             <hr />
         {% endif %}
     {% endfor %}
-    <div class="row">
-        <div class="two columns">
-            <h4>Subscribe</h4>
+    <div class="md:flex">
+        <div class="md:w-1/4">
+            <h2>Available plans</h2>
         </div>
-        <div class="ten columns">
-            <form method="POST">
-                <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                {{ redirectInput('shop/services') }}
-                {{ csrfInput() }}
+        <div class="md:w-3/4 md:pt-4">
+            {% for plan in plans %}
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
+                    <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                    {{ redirectInput('shop/services') }}
+                    {{ csrfInput() }}
 
-                <div>
-                    <select name="planId" id="planSelect">
-                        {% for plan in plans %}
-                            <option value="{{ plan.id|hash }}">{{ plan.name }}</option>
+                    <h4>{{ plan.name }}</h4>
+
+                    <select name="trialDays" data-plan="{{ plan.id }}">
+                        {% for i in [0, 3, 7, 14] %}
+                            {% if i == 0 %}
+                                <option value="{{ (plan.uid~':0')|hash}}">No trial period.</option>
+                            {% else %}
+                                <option value="{{ (plan.uid~':'~i)|hash  }}">Trial for {{ i }} days</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
-                </div>
 
-                {% set plan = plans[0] %}
+                    {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
 
-                {# Since only stripe currently supports subscriptions, we can get away with non-gateway-specific subscription forms #}
-                {{ plan.gateway.subscriptionFormHtml|raw }}
+                    {% if not paymentSources|length %}
+                        <div class="paymentForm">
+                            {{ plan.gateway.getPaymentFormHtml({})|raw }}
+                        </div>
+                    {% endif %}
 
-                {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
-
-                {% if not paymentSources|length %}
-                    <div class="paymentForm">
-                        {{ plan.gateway.getPaymentFormHtml({})|raw }}
-                    </div>
-                {% endif %}
-
-                <button type="submit">{{ "Subscribe"|t }}</button>
-            </form>
+                    <button type="submit">{{ "Subscribe"|t }}</button>
+                </form>
+            {% endfor %}
         </div>
     </div>
 {% endif %}

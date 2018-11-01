@@ -2,11 +2,9 @@
 
 {% block content %}
 
-    <div class="row">
-
-        <div class="two-thirds column">
-            <h3>Payment</h3>
-
+    <div class="flex -mx-8">
+        <div class="w-2/3 px-8">
+            <h1>Payment</h1>
             {#
             Using the update cart action you could allow the user to select the payment method here.
             We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
@@ -52,7 +50,7 @@
             {% endif %}
 
             {% if cart.gatewayId or cart.paymentSourceId %}
-                <form method="POST" class="form-horizontal" id="paymentForm">
+                <form method="POST" class="form-horizontal paymentSource-form max-w-md" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number) }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
@@ -80,50 +78,9 @@
                 </form>
             {% endif %}
         </div>
-        <div class="one-third column">
 
-            <div class="review-card">
-                <h5>Order Review</h5>
-                <ul>
-                    {% for item in cart.lineItems %}
-                        <li>
-                            <span>{{ item.description }}</span><span class="right">{{ item.subtotal|commerceCurrency(cart.currency) }}</span>
-                        </li>
-                    {% endfor %}
-
-
-                    {% for adjustment in cart.adjustments %}
-                        <li>
-                            <strong>{{ adjustment.name }}</strong> <span class="right">{{ adjustment.amount|commerceCurrency(cart.currency) }}
-                            ({{ adjustment.description }})</span>
-                        </li>
-                    {% endfor %}
-
-
-                    {% if not cart.shippingMethod %}
-
-                        {#
-                        If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
-                        {% redirect "shop/checkout/shipping" %}
-                        You might also want to add a php plugin hook to require
-                        #}
-
-                        <li>
-                            <strong>Shipping</strong> None selected. <a href="{{ url('shop/checkout/shipping') }}">Choose a shipping method.</a>
-                        </li>
-                    {% endif %}
-
-                    <li>
-                        <strong>Total {{ cart.currency }}:</strong> <span class="right">{{ cart.totalPrice|commerceCurrency(cart.currency) }}</span>
-                    </li>
-                    {% if cart.currency != cart.paymentCurrency %}
-                    <li>
-                        <strong>Payment {{ cart.paymentCurrency }}:</strong> <span class="right">{{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</span>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-
+        <div class="w-1/3 px-8 border-l border-grey-lighter">
+            {% include "shop/_includes/order-review" with { showShippingAddress: true, showShippingMethod: true } %}
         </div>
     </div>
 

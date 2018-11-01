@@ -12,14 +12,12 @@ use craft\commerce\elements\Product;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
-use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\SiteEvent;
-use craft\helpers\App;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
@@ -612,24 +610,22 @@ class ProductTypes extends Component
     public function afterSaveSiteHandler(SiteEvent $event)
     {
         if ($event->isNew) {
-            $allSiteSettings = (new Query())
+            $primarySiteSettings = (new Query())
                 ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])
                 ->from(['{{%commerce_producttypes_sites}}'])
-                ->where(['siteId' => Craft::$app->getSites()->getPrimarySite()->id])
-                ->all();
+                ->where(['siteId' => $event->oldPrimarySiteId])
+                ->one();
 
-            if (!empty($allSiteSettings)) {
+            if ($primarySiteSettings) {
                 $newSiteSettings = [];
 
-                foreach ($allSiteSettings as $siteSettings) {
-                    $newSiteSettings[] = [
-                        $siteSettings['productTypeId'],
-                        $event->site->id,
-                        $siteSettings['uriFormat'],
-                        $siteSettings['template'],
-                        $siteSettings['hasUrls']
-                    ];
-                }
+                $newSiteSettings[] = [
+                    $primarySiteSettings['productTypeId'],
+                    $event->site->id,
+                    $primarySiteSettings['uriFormat'],
+                    $primarySiteSettings['template'],
+                    $primarySiteSettings['hasUrls']
+                ];
 
                 Craft::$app->getDb()->createCommand()
                     ->batchInsert(

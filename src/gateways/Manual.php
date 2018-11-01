@@ -218,10 +218,10 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if ($this->onlyAllowForZeroPriceOrders) {
-            return $order->getTotalPrice() == 0;
+        if ($this->onlyAllowForZeroPriceOrders && $order->getTotalPrice() != 0) {
+            return false;
         }
 
-        return true;
+        return parent::availableForUseWithOrder($order);
     }
 }

@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
 
 /**
  * m180718_161906_add_orderPdfAttachment migration.

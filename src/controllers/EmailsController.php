@@ -84,7 +84,7 @@ class EmailsController extends BaseAdminController
         $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
         $email->to = Craft::$app->getRequest()->getBodyParam('to');
         $email->bcc = Craft::$app->getRequest()->getBodyParam('bcc');
-        $email->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
+        $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->attachPdf = Craft::$app->getRequest()->getBodyParam('attachPdf');
         // Only set pdfTemplatePath if attachments are turned on

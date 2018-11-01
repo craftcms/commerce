@@ -2,12 +2,79 @@
 
 ## Unreleased
 
-### Added
-- Dummy gateway now supports subscriptions.
+### Fixed
+- Fixed a bug where custom fields were required when subscribing.
+- Fixed a bug where order data exporting would not work when running PostgreSQL.
+- Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
+- Fixed a bug where it was impossible to edit a Craft user address if it had a Customer Info field set on it.
+- Fixed an issue where the "From Name" commerce setting was being ignored when sending emails.
+- Fixed a SQL error that occurred when saving an email, when running PostgreSQL.
+
+### Changed
+- The `craft\commerce\services\LineItems::resolveLineItem` method’s signature has changed. Now updating line item quantity should be done after resolving the line item, as this method will no longer add quantity.
+
+## 2.0.0-beta.12.1 - 2018-10-19
 
 ### Fixed
-- Fixed a bug where `elements\db\ProductQuery::availableForPurchase` was being ignored in an element query. 
-- Reduced the chance of unnecessary order validation errors within the `commerce/payments/pay` action.
+- Fixed a bug where it was impossible to edit a Craft user if it had a Customer Info field set on it.
+
+## 2.0.0-beta.12 - 2018-10-18
+
+### Added
+- It’s now possible to export orders from the Orders index page as a CSV, ODS, XLS, or XLSX file.
+- It’s now possible to set custom field values when creating a new subscription.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`, which is triggered after an order is paid or authorized in full.
+- Added `craft\commerce\events\SubscriptionSwitchPlansEvent::$parameters`, enabling dynamic configuration of plan parameters.
+- Added `craft\commerce\services\Plans::getPlanByUid()`.
+
+### Changed
+- Customer Info fields now display users’ subscription information. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Simplified subscription statuses, keeping only `live` and `expired`. Information on if/when the subscription was canceled is still available on the subscription object.
+- The Subscriptions index now links subscribers to their Edit User page. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Renamed `craft\commerce\base\SubscriptionResponseInterface::isScheduledForCancelation()` to `isScheduledForCancellation()`.
+
+### Fixed
+- Ajax requests to the `commerce/cart/update-cart` action now include a `success` boolean in the JSON response.
+- Fixed a bug where it wasn’t possible to create a subscription without specifying a trial duration. ([#524](https://github.com/craftcms/commerce/issues/524)
+- Fixed a bug where it wasn’t possible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
+- Fixed SQL errors that occurred when saving shipping categories or tax categories if MySQL was running in strict mode.
+
+### Security
+- When switching between subscription plans, the target plan and subscription’s UIDs must now be passed instead of their IDs.
+- When switching between subscription plans, all form parameters must now also include the target plan’s UID in the hashed parameters.
+- When canceling a subscription, all form parameters must now also include the subscription’s UID in the hashed parameters.
+- When subscribing to a plan, its UID must now be passed instead of its ID.
+- When reactivating a subscription, its UID must now be passed instead of its ID.
+
+## 2.0.0-beta.11 - 2018-09-26
+
+### Added
+- Added `craft\commerce\elements\Order::getLastTransaction()`.
+
+### Removed
+- Removed `craft\commerce\base\SubscriptionGateway::getSubscriptionFormHtml().`
+
+### Fixed
+- Fixed a bug where `commerce/cart/update-cart` requests could return an inaccurate validation error. ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a database error that could occur when saving a shipping method. ([#500](https://github.com/craftcms/commerce/issues/500)
+
+### Security
+- `commerce/subscription/subscribe` forms now must include the plan’s UID in the hashed `trialDays` parameter.
+
+## 2.0.0-beta.10 - 2018-09-18
+
+### Changed
+- The Dummy gateway now supports subscriptions.
+- Subscription queries now only return active subscriptions by default.
+- Order status messages can now be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Renamed `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` to `EVENT_AFTER_EXPIRE_SUBSCRIPTION`, and the event is now fired after saving the expired subscription data to the database.
+- Reduced the chance of unnecessary order validation errors on `commerce/payments/pay` requests.
+
+### Fixed
+- Fixed a bug where the `availableForPurchase` product query param was being ignored.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
+- Fixed a bug that prevented default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405))
+- Fixed a bug where existing products weren’t updated correctly when a new site was added.
 
 ## 2.0.0-beta.9 - 2018-09-07
 

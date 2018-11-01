@@ -5,41 +5,44 @@
 {% extends 'shop/_layouts/checkout' %}
 
 {% block content %}
-
-    <div class="row">
-        <div class="six columns">
-
-            <h3>Already Registered ?</h3>
+    <h1>Please sign in</h1>
+    <div class="flex -mx-8 mt-6 pt-8">
+        <div class="w-1/2 px-8 border-r border-grey-lighter">
+            <h2 class="mt-0">Already Registered?</h2>
 
             <form method="post" accept-charset="UTF-8">
-
                 {{ csrfInput() }}
-
                 <input type="hidden" name="action" value="users/login">
                 {{ redirectInput('shop/checkout/addresses') }}
-                <label for="loginName">Email</label>
-                <input id="loginName" class="u-full-width" type="text" name="loginName" placeholder="email@site.com"
-                       value="{{ craft.app.user.getRememberedUsername() }}">
 
-                <label for="password">Password</label>
-                <input id="password" class="u-full-width" type="password" name="password">
+                <div class="field">
+                    <label for="loginName">Email</label>
+                    <input id="loginName" class="w-full" type="text" name="loginName" placeholder="email@site.com"
+                           value="{{ craft.app.user.getRememberedUsername() }}">
+                </div>
 
-                <label>
-                    <input type="checkbox" name="rememberMe" value="1">
-                    Remember me
-                </label>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" class="w-full" type="password" name="password">
+                </div>
 
-                <input type="submit" value="Login" class="button button-primary"/>
+                <div class="field">
+                    <label>
+                        <input type="checkbox" name="rememberMe" value="1">
+                        Remember me
+                    </label>
+                </div>
 
+                <div class="buttons">
+                    <input type="submit" value="Login" class="button button-primary"/>
+                </div>
             </form>
 
-            <p><a href="{{ url('forgotpassword') }}">Forget your password?</a></p>
-
+            <p><a href="{{ url('forgotpassword') }}">Forgot your password?</a></p>
         </div>
 
-        <div class="six columns">
-
-            <h3>Guest Checkout</h3>
+        <div class="w-1/2 px-8">
+            <h2 class="mt-0">Guest Checkout</h2>
 
             {#
             Setting the guest email address on the guest customer and order.
@@ -50,14 +53,21 @@
                 <input type="hidden" name="action" value="commerce/cart/update-cart">
                 {{ redirectInput('shop/checkout/addresses') }}
                 {{ csrfInput() }}
-                <label for="">Email</label>
-                <input class="u-full-width" type="text" value="{{ cart.email }}" name="email"
-                       placeholder="email@site.com"/>
 
-                <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
+                <div class="field">
+                    <label for="">Email</label>
+                    <input class="w-full" type="text" value="{{ cart.email }}" name="email"
+                           placeholder="email@site.com"/>
+                </div>
 
-                <input type="submit" value="Continue as Guest" class="button button-primary"/>
+                {% set emailErrors = cart.getErrors('email') %}
+                {% if emailErrors|length %}
+                    <span class="text-red">{{ emailErrors|join }}</span><br>
+                {% endif %}
 
+                <div class="buttons">
+                    <input type="submit" value="Continue as Guest" class="button button-primary"/>
+                </div>
             </form>
         </div>
     </div>

@@ -76,8 +76,8 @@
                 <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
                     <form method="POST">
                         <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                        <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-                        <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                        <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                        <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                         {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
                         {{ csrfInput() }}
 
@@ -96,7 +96,7 @@
         {% if subscription.canReactivate() %}
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                 {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
                 {{ csrfInput() }}
 
@@ -112,11 +112,11 @@
 
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
+                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
                 {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
                 {{ csrfInput() }}
 
-                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
+                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
                 <div class="field">
                     <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
