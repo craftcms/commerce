@@ -60,11 +60,6 @@ class Product extends Element
     // =========================================================================
 
     /**
-     * @inheritdoc
-     */
-    public $id;
-
-    /**
      * @var \DateTime Post date
      */
     public $postDate;

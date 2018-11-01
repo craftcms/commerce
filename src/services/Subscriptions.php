@@ -393,7 +393,7 @@ class Subscriptions extends Component
 
         $response = $gateway->reactivateSubscription($subscription);
 
-        if (!$response->isScheduledForCancelation()) {
+        if (!$response->isScheduledForCancellation()) {
             $subscription->isCanceled = false;
             $subscription->dateCanceled = null;
             $subscription->subscriptionData = $response->getData();
@@ -516,8 +516,8 @@ class Subscriptions extends Component
 
         $response = $gateway->cancelSubscription($subscription, $parameters);
 
-        if ($response->isCanceled() || $response->isScheduledForCancelation()) {
-            if ($response->isScheduledForCancelation()) {
+        if ($response->isCanceled() || $response->isScheduledForCancellation()) {
+            if ($response->isScheduledForCancellation()) {
                 $subscription->isCanceled = true;
                 $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
             }

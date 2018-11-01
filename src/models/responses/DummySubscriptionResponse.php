@@ -87,7 +87,7 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
     /**
      * @inheritdoc
      */
-    public function isScheduledForCancelation(): bool
+    public function isScheduledForCancellation(): bool
     {
         return $this->_isCanceled;
     }
