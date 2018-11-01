@@ -57,10 +57,10 @@ module.exports = {
                 title: 'Getting Elements',
                 collapsable: false,
                 children: [
-                    'craft-orders',
-                    'craft-products',
-                    'craft-variants',
-                    'craft-subscriptions',
+                    'dev/element-queries/order-queries',
+                    'dev/element-queries/product-queries',
+                    'dev/element-queries/variant-queries',
+                    'dev/element-queries/subscription-queries',
                     'craft-commerce-carts-cart',
                 ]
             },
