@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.13 - 2018-11-01
 
 ### Changed
 - `craft\commerce\services\LineItems::resolveLineItem()` no longer accepts `$qty` and `$note` arguments, and is no longer responsible for updating line item quantity.
@@ -33,7 +33,7 @@
 ## 2.0.0-beta.12.1 - 2018-10-19
 
 ### Fixed
-- Fixed a bug where it was impossible to edit a Craft user if it had a Customer Info field set on it.
+- Fixed a bug where it wasn’t possible to edit a Craft user’s address if the user field layout had a Customer Info field.
 
 ## 2.0.0-beta.12 - 2018-10-18
 
