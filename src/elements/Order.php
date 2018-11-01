@@ -178,11 +178,6 @@ class Order extends Element
     // =========================================================================
 
     /**
-     * @inheritdoc
-     */
-    public $id;
-
-    /**
      * @var string Number
      */
     public $number;

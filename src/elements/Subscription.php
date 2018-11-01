@@ -27,7 +27,7 @@ use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
- * Class Subscription
+ * Subscription model.
  *
  * @property bool $isOnTrial whether the subscription is still on trial
  * @property string $nextPaymentAmount
@@ -53,7 +53,7 @@ class Subscription extends Element
     /**
      * @var string
      */
-    const STATUS_ACTIVE = 'live';
+    const STATUS_ACTIVE = 'active';
 
     /**
      * @var string
@@ -62,11 +62,6 @@ class Subscription extends Element
 
     // Properties
     // =========================================================================
-
-    /**
-     * @var int ID
-     */
-    public $id;
 
     /**
      * @var int User id
