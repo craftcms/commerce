@@ -21,7 +21,7 @@
 - Removed `craft\commerce\elements\db\OrderQuery::$user`. `user()` should be used instead.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedOn()`. `dateUpdated()` should be used instead.
 
-### Fixed
+### Fixed
 - Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
 - Fixed a bug where order data exporting would not work on PostgreSQL.
 - Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
