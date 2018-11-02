@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.13.1 - 2018-11-02
 
 ### Fixed
 - Fixed an error that occurred when viewing the “Charged”, “Refunded”, or “Disputed” sources on Order indexes. ([#550](https://github.com/craftcms/commerce/issues/550))
