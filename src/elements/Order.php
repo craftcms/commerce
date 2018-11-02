@@ -1694,7 +1694,7 @@ class Order extends Element
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatus' => $orderStatus],
+                'criteria' => ['orderStatusId' => $orderStatus->id],
                 'defaultSort' => ['dateOrdered', 'desc']
             ];
         }
