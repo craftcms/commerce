@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
+
 ## 2.0.0-beta.13.1 - 2018-11-02
 
 ### Fixed
