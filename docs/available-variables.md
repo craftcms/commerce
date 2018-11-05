@@ -10,13 +10,21 @@ To get the Craft Commerce general settings model:
 {% set settings = craft.commerce.settings %}
 ```
 
-## craft.products
+## craft.orders()
 
-See [craft.products](craft-products.md)
+See [Order Queries](dev/element-queries/order-queries.md).
 
-## craft.orders
+## craft.products()
 
-See [craft.orders](craft-orders.md)
+See [Product Queries](dev/element-queries/product-queries.md).
+
+## craft.subscriptions()
+
+See [Order Queries](dev/element-queries/subscription-queries.md).
+
+## craft.variants()
+
+See [Variant Queries](dev/element-queries/variant-queries.md).
 
 ## craft.commerce.carts.cart
 
