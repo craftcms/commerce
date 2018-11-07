@@ -93,7 +93,7 @@ class OrderQuery extends ElementQuery
     public $gatewayId;
 
     /**
-     * @var bool The payment status the resulting orders must belong to.
+     * @var bool Whether the order is paid
      */
     public $isPaid;
 
