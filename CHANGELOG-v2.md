@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
+- Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
+
 ### Fixed
 - Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
 

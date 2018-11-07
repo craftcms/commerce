@@ -107,6 +107,11 @@ class OrderQuery extends ElementQuery
      */
     public $hasPurchasables;
 
+    /**
+     * @var bool Whether the order has any transactions
+     */
+    public $hasTransactions;
+
     // Public Methods
     // =========================================================================
 
@@ -713,6 +718,34 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only carts that have at least one transaction.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch carts that have attempted payments #}
+     * {% set {elements-var} = {twig-function}
+     *     .hasTransactions()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch carts that have attempted payments
+     * ${elements-var} = {element-class}::find()
+     *     ->hasTransactions()
+     *     ->all();
+     * ```
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     */
+    public function hasTransactions(bool $value = true)
+    {
+        $this->hasTransactions = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only orders that have certain purchasables.
      *
      * Possible values include:
@@ -835,6 +868,10 @@ class OrderQuery extends ElementQuery
 
             $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
+        }
+
+        if ($this->hasTransactions) {
+            $this->subQuery->innerJoin('{{%commerce_transactions}} transactions', '[[commerce_orders.id]] = [[transactions.orderId]]');
         }
 
         return parent::beforePrepare();
