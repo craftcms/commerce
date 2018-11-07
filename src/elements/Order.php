@@ -1722,6 +1722,13 @@ class Order extends Element
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
+        $sources[] = [
+            'key' => 'carts:attempted-payment',
+            'label' => Craft::t('commerce', 'Attempted payment'),
+            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+        ];
+
         return $sources;
     }
 
