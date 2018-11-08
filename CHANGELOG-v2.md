@@ -4,6 +4,7 @@
 
 ### Added
 - Added a new element source for orders that displays carts that have an attempted payment.
+- Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
 - Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
 - Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
 
