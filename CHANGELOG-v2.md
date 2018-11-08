@@ -1,5 +1,22 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- Added a new element source for orders that displays carts that have an attempted payment.
+- Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
+- Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
+- Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
+
+### Fixed
+- Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
+- Fixed a bug where accessing the last transaction on a cart that had none would throw an error. ([#558](https://github.com/craftcms/commerce/issues/558))
+
+## 2.0.0-beta.13.1 - 2018-11-02
+
+### Fixed
+- Fixed an error that occurred when viewing the “Charged”, “Refunded”, or “Disputed” sources on Order indexes. ([#550](https://github.com/craftcms/commerce/issues/550))
+
 ## 2.0.0-beta.13 - 2018-11-01
 
 ### Changed
@@ -24,7 +41,7 @@
 ### Added
 - Added project configuration support for gateways.
 
-### Fixed
+### Fixed
 - Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
 - Fixed a bug where order data exporting would not work on PostgreSQL.
 - Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
