@@ -1459,7 +1459,7 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
     }
 
     /**
