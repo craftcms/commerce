@@ -111,7 +111,7 @@ class Order extends Element
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, function(Event $e) {
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
      *     $lineItem = $e->lineItem;
      *     $isNew = $e->isNew;
      *     // ...
