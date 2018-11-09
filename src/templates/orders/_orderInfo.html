@@ -59,6 +59,13 @@
                 {% else %}
                     <td><span class="status"></span></td>
                 {% endif %}
+            {% if order.shippingMethodHandle %}
+            <tr>
+                <td><strong>{{ "Shipping"|t('commerce') }}</strong>
+                </td>
+                <td>{{order.shippingMethod.name}}</td>
+            </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Total Price"|t('commerce') }}</strong>
                 </td>
