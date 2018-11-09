@@ -11,6 +11,7 @@
 ### Fixed
 - Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
 - Fixed a bug where accessing the last transaction on a cart that had none would throw an error. ([#558](https://github.com/craftcms/commerce/issues/558))
+- Fixed an SQL error when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
 
 ## 2.0.0-beta.13.1 - 2018-11-02
 

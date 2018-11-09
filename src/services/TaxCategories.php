@@ -209,7 +209,7 @@ class TaxCategories extends Component
 
         // If this was the default make all others not the default.
         if ($model->default) {
-            TaxCategoryRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
+            TaxCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
         }
 
         // Update Service cache
