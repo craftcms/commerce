@@ -149,7 +149,7 @@ Returns an array of all product types set up in the system.
 
 ## craft.commerce.orderStatuses.allOrderStatuses
 
-Returns an array of <api:craft\commerce\models\OrderStatus> objects representing all the order statuses in the system.
+Returns an array of <api:craft\commerce\elements\OrderStatus> objects representing all the order statuses in the system.
 
 ```twig
 {% for status in craft.commerce.orderStatuses.allOrderStatuses %}
