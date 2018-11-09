@@ -509,7 +509,9 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
-        if ($this->getIsPaid() && $this->datePaid === null) {
+        $justPaid = $this->getIsPaid() && $this->datePaid === null;
+
+        if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new \DateTime());
         }
 
@@ -520,16 +522,16 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
                 $this->markAsComplete();
-
-                if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-                    $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-                }
             }
         }
         // restore recalculation lock state
@@ -1457,7 +1459,7 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
     }
 
     /**
@@ -1717,6 +1719,13 @@ class Order extends Element
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+        ];
+
+        $sources[] = [
+            'key' => 'carts:attempted-payment',
+            'label' => Craft::t('commerce', 'Attempted payment'),
+            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
