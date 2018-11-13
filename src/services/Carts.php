@@ -143,9 +143,19 @@ class Carts extends Component
 
         if ($doPurge) {
             $cartIds = $this->_getCartsIdsToPurge();
-            foreach ($cartIds as $id) {
-                Craft::$app->getElements()->deleteElementById($id);
-            }
+
+            // Taken from craft\services\Elements::deleteElement(); Using the method directly
+            // takes too much resources since it retrieves the order before deleting it.
+
+            // Delete the elements table rows, which will cascade across all other InnoDB tables
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%elements}}', ['id' => $cartIds])
+                ->execute();
+
+            // The searchindex table is probably MyISAM, though
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+                ->execute();
 
             return \count($cartIds);
         }

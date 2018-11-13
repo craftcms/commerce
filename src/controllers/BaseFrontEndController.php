@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
+use craft\helpers\UrlHelper;
 
 /**
  * Class BaseFrontEndController
@@ -57,8 +58,9 @@ class BaseFrontEndController extends BaseController
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
+        $data['paidStatus'] = $cart->getPaidStatus();
         $data['totalQty'] = $cart->getTotalQty();
-        $data['pdfUrl'] = $cart->getPdfUrl() ? $cart->getPdfUrl('ajax') : '';
+        $data['pdfUrl'] = UrlHelper::actionUrl("commerce/downloads/pdf?number={$cart->number}&option=ajax");
         $data['isEmpty'] = $cart->getIsEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->getTotalWeight();
@@ -69,6 +71,9 @@ class BaseFrontEndController extends BaseController
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
             $data['shippingAddress'] = $cart->shippingAddress->attributes;
+            if ($cart->shippingAddress->getErrors()) {
+                $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
+            }
         } else {
             $data['shippingAddress'] = null;
         }
@@ -76,6 +81,9 @@ class BaseFrontEndController extends BaseController
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
             $data['billingAddress'] = $cart->billingAddress->attributes;
+            if ($cart->billingAddress->getErrors()) {
+                $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
+            }
         } else {
             $data['billingAddress'] = null;
         }
@@ -105,6 +113,10 @@ class BaseFrontEndController extends BaseController
             $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
+            $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
+            $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
+            $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
+            $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
             $lineItems[$lineItem->id] = $lineItemData;
             if ($lineItem->getErrors()) {
                 $lineItems['errors'] = $lineItem->getErrors();

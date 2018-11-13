@@ -61,7 +61,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Returns the user element associated with this customer.
+     * Returns the gateway for this subscription plan.
      *
      * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
@@ -129,7 +129,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Returns the subscription count for this plan.
+     * Returns active subscriptions for this plan by user id.
      *
      * @param int $userId the user id
      * @return ElementInterface[]
@@ -143,6 +143,21 @@ abstract class Plan extends Model implements PlanInterface
             ->all();
     }
 
+    /**
+     * Returns all subscriptions for this plan by user id, including expired subscriptions.
+     *
+     * @param int $userId the user id
+     * @return ElementInterface[]
+     */
+    public function getAllUserSubscriptions(int $userId): array
+    {
+        return Subscription::find()
+            ->userId($userId)
+            ->planId($this->id)
+            ->anyStatus()
+            ->all();
+    }
+    
     /**
      * @inheritdoc
      */

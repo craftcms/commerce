@@ -16,6 +16,7 @@ use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
@@ -32,10 +33,10 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\errors\OrderStatusException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -103,15 +104,15 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
-     * @event \yii\base\Event This event is raised when an order is completed
+     * @event \yii\base\Event This event is raised when a line item is added to the order
      *
-     * Plugins can get notified before an order is completed
+     * Plugins can get notified after a line item has been added to the order
      *
      * ```php
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, function(Event $e) {
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
      *     $lineItem = $e->lineItem;
      *     $isNew = $e->isNew;
      *     // ...
@@ -141,7 +142,7 @@ class Order extends Element
     /**
      * @event \yii\base\Event This event is raised after an order is completed
      *
-     * Plugins can get notified before an address is being saved
+     * Plugins can get notified after an order is completed
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -156,18 +157,36 @@ class Order extends Element
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
+    /**
+     * @event \yii\base\Event This event is raised after an order is paid and completed
+     *
+     * Plugins can get notified after an order is paid and completed
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ORDER_PAID, function(Event $e) {
+     *     // @var Order $order
+     *     $order = $e->sender;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
+
     // Properties
     // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public $id;
 
     /**
      * @var string Number
      */
     public $number;
+
+    /**
+     * @var string Reference
+     */
+    public $reference;
 
     /**
      * @var string Coupon Code
@@ -442,9 +461,26 @@ class Order extends Element
     {
         $rules = parent::rules();
 
-        // Address models are valid?
-        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddress']; // from OrderValidatorTrait
-        $rules[] = [['billingAddress', 'shippingAddress'], 'validateAddressReuse']; // from OrderValidatorTrait
+        // Address models are valid
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddress'
+        ]; // from OrderValidatorTrait
+
+        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddressBelongsToOrdersCustomer', 'when' => function($model) {
+                /** @var Order $model */
+                return !$model->isCompleted;
+            }
+        ]; // from OrderValidatorTrait
+
+        // Are the addresses both being set to each other.
+        $rules[] = [
+            ['billingAddress', 'shippingAddress'], 'validateAddressReuse', 'when' => function($model) {
+                /** @var Order $model */
+                return !$model->isCompleted;
+            }
+        ]; // from OrderValidatorTrait
 
         // Line items are valid?
         $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
@@ -453,7 +489,7 @@ class Order extends Element
         $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
 
         $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrdesrValidatorsTrait
+        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
 
@@ -465,33 +501,45 @@ class Order extends Element
     }
 
     /**
-     * Updates the paid amounts on the order, and marks as complete if the order is paid.
+     * @deprecated
      */
     public function updateOrderPaidTotal()
     {
-        if ($this->getIsPaid()) {
-            if ($this->datePaid === null) {
-                $this->datePaid = Db::prepareDateForDb(new \DateTime());
-            }
+        Craft::$app->getDeprecator()->log('Order::updateOrderPaidTotal()', 'The Order::updateOrderPaidTotal() function has been deprecated. Use Order::Order::updateOrderPaidInformation() instead');
+
+        return $this->updateOrderPaidInformation();
+    }
+
+    /**
+     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
+     */
+    public function updateOrderPaidInformation()
+    {
+        $justPaid = $this->getIsPaid() && $this->datePaid === null;
+
+        if ($justPaid) {
+            $this->datePaid = Db::prepareDateForDb(new \DateTime());
         }
 
         // Lock for recalculation
         $originalShouldRecalculate = $this->getShouldRecalculateAdjustments();
         $this->setShouldRecalculateAdjustments(false);
-        Craft::$app->getElements()->saveElement($this);
 
-        if (!$this->isCompleted) {
-            if ($this->getIsPaid()) {
-                $this->markAsComplete();
-            } else {
-                // maybe not paid in full, but authorized enough to complete order.
-                $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
-                if ($totalAuthorized >= $this->getTotalPrice()) {
-                    $this->markAsComplete();
-                }
-            }
+        // Saving the order will update the datePaid as set above and also update the paidStatus.
+        Craft::$app->getElements()->saveElement($this, false);
+
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
         }
 
+        // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
+        if (!$this->isCompleted) {
+            $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
+            if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
+                $this->markAsComplete();
+            }
+        }
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
@@ -539,9 +587,34 @@ class Order extends Element
      */
     public function markAsComplete(): bool
     {
+        // Use a mutex to make sure we check the order is not already complete due to a race condition.
+        $lockName = 'orderComplete:' . $this->id;
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockName, 5)) {
+            throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
+        }
+
+        // Now that we have a lock, make sure this order is not already completed.
         if ($this->isCompleted) {
+            $mutex->release($lockName);
             return true;
         }
+
+        // Try to catch where the order could be marked as completed twice at the same time, and thus cause a race condition.
+        $completedInDb = (new Query())
+            ->select('id')
+            ->from(['{{%commerce_orders}}'])
+            ->where(['isCompleted' => true])
+            ->andWhere(['id' => $this->id])
+            ->exists();
+
+        if ($completedInDb) {
+            $mutex->release($lockName);
+            return true;
+        }
+
+        // Release after we have confirmed this order is not already complete
+        $mutex->release($lockName);
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
@@ -552,6 +625,14 @@ class Order extends Element
             $this->orderStatusId = $orderStatus->id;
         } else {
             throw new OrderStatusException('Could not find a valid default order status.');
+        }
+
+        try {
+            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+            $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+        } catch (\Throwable $exception) {
+            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
+            throw $exception;
         }
 
         // Raising the 'beforeCompleteOrder' event
@@ -648,7 +729,7 @@ class Order extends Element
      */
     public function recalculate()
     {
-        // Don't recalculate the totals of completed orders.
+        // Check if the order needs to recalculated
         if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
             return;
         }
@@ -733,6 +814,7 @@ class Order extends Element
         $oldStatusId = $orderRecord->orderStatusId;
 
         $orderRecord->number = $this->number;
+        $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->email = $this->getEmail();
         $orderRecord->isCompleted = $this->isCompleted;
@@ -768,7 +850,8 @@ class Order extends Element
 
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            if ($customer) {
+            // We need to only save the address to the customers address book while it is a cart
+            if ($customer && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
@@ -779,7 +862,8 @@ class Order extends Element
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            if ($customer) {
+            // We need to only save the address to the customers address book while it is a cart
+            if ($customer && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
@@ -875,7 +959,9 @@ class Order extends Element
         try {
             $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
-                $url = UrlHelper::actionUrl("commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : null));
+                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
+                $url = UrlHelper::siteUrl($path);
             }
         } catch (\Exception $exception) {
             Craft::error($exception->getMessage());
@@ -934,7 +1020,7 @@ class Order extends Element
      */
     public function getIsPaid(): bool
     {
-        return $this->getOutstandingBalance() <= 0 && $this->isCompleted;
+        return !$this->hasOutstandingBalance() && $this->isCompleted;
     }
 
     /**
@@ -995,10 +1081,18 @@ class Order extends Element
      */
     public function getOutstandingBalance(): float
     {
-        $totalPaid = Currency::round($this->totalPaid);
-        $totalPrice = Currency::round($this->totalPrice);
+        $totalPaid = Currency::round($this->getTotalPaid());
+        $totalPrice = Currency::round($this->getTotalPrice());
 
         return $totalPrice - $totalPaid;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasOutstandingBalance()
+    {
+        return $this->getOutstandingBalance() > 0;
     }
 
     /**
@@ -1016,7 +1110,7 @@ class Order extends Element
      */
     public function getIsUnpaid(): bool
     {
-        return $this->getOutstandingBalance() > 0;
+        return $this->hasOutstandingBalance();
     }
 
     /**
@@ -1373,10 +1467,21 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource(PaymentSource $paymentSource = null)
+    public function setPaymentSource(PaymentSource $paymentSource)
     {
         $this->paymentSourceId = $paymentSource->id;
         $this->gatewayId = null;
+    }
+
+    /**
+     * Sets the order's selected gateway id.
+     *
+     * @param int $gatewayId
+     */
+    public function setGatewayId(int $gatewayId)
+    {
+        $this->gatewayId = $gatewayId;
+        $this->paymentSourceId = null;
     }
 
     /**
@@ -1394,7 +1499,16 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
+    }
+
+    /**
+     * @return Transaction|null
+     */
+    public function getLastTransaction()
+    {
+        $transactions = $this->getTransactions();
+        return count($transactions) ? array_pop($transactions) : null;
     }
 
     /**
@@ -1570,7 +1684,8 @@ class Order extends Element
             'shippingLastName',
             'shortNumber',
             'transactionReference',
-            'username'
+            'username',
+            'reference'
         ];
     }
 
@@ -1622,7 +1737,7 @@ class Order extends Element
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatus' => $orderStatus],
+                'criteria' => ['orderStatusId' => $orderStatus->id],
                 'defaultSort' => ['dateOrdered', 'desc']
             ];
         }
@@ -1634,17 +1749,30 @@ class Order extends Element
         $interval->invert = 1;
         $edge->add($interval);
 
+        $edge = $edge->format(\DateTime::ATOM);
+        $updatedAfter = [];
+        $updatedAfter[] = '>= ' . $edge;
+
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
+        $updatedBefore = [];
+        $updatedBefore[] = '< ' . $edge;
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+        ];
+
+        $sources[] = [
+            'key' => 'carts:attempted-payment',
+            'label' => Craft::t('commerce', 'Attempted payment'),
+            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
@@ -1656,7 +1784,7 @@ class Order extends Element
      */
     protected static function defineActions(string $source = null): array
     {
-        $actions = [];
+        $actions = parent::defineActions($source);
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
@@ -1788,22 +1916,30 @@ class Order extends Element
      */
     private function _updateLineItems()
     {
+        // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
 
         $newLineItemIds = [];
 
+        // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // Don't run validation as validation of the line item should happen before saving the order
-            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+            // If the ID is null that's ok, it's a new line item and will be saves anyway
             $newLineItemIds[] = $lineItem->id;
         }
 
+        // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $newLineItemIds, false)) {
                 $previousLineItem->delete();
             }
+        }
+
+        // Save the line items last, as we know that any possible duplicates are already removed.
+        foreach ($this->getLineItems() as $lineItem) {
+            // Don't run validation as validation of the line item should happen before saving the order
+            Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
         }
     }
 }

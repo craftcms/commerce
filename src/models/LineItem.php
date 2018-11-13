@@ -228,7 +228,6 @@ class LineItem extends Model
                     'shippingCategoryId'
                 ], 'required'
             ],
-            [['optionsSignature'], UniqueValidator::class, 'targetClass' => LineItemRecord::class, 'targetAttribute' => ['orderId', 'purchasableId', 'optionsSignature'], 'message' => 'Not Unique'],
             [['qty'], 'integer', 'min' => 1],
         ];
 
@@ -406,7 +405,7 @@ class LineItem extends Model
         }
 
         // If a plugin used the above event and changed the price of the product or
-        //its saleAmount we need to ensure the salePrice works calculates correctly and is rounded
+        // its saleAmount we need to ensure the salePrice works calculates correctly and is rounded
         $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);
 
         // salePrice can not be negative

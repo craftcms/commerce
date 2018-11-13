@@ -10,6 +10,7 @@ namespace craft\commerce\gateways;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\OffsitePaymentForm;
@@ -30,6 +31,11 @@ class Manual extends Gateway
     // =========================================================================
 
     /**
+     * @var bool
+     */
+    public $onlyAllowForZeroPriceOrders;
+
+    /**
      * @inheritdoc
      */
     public function getPaymentFormHtml(array $params)
@@ -43,6 +49,14 @@ class Manual extends Gateway
     public function getPaymentFormModel(): BasePaymentForm
     {
         return new OffsitePaymentForm();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSettingsHtml()
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/gateways/manualGatewaySettings', ['gateway' => $this]);
     }
 
     /**
@@ -197,5 +211,17 @@ class Manual extends Gateway
     public function supportsWebhooks(): bool
     {
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function availableForUseWithOrder(Order $order): bool
+    {
+        if ($this->onlyAllowForZeroPriceOrders && $order->getTotalPrice() != 0) {
+            return false;
+        }
+
+        return parent::availableForUseWithOrder($order);
     }
 }

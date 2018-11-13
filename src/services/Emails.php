@@ -19,7 +19,6 @@ use craft\helpers\Assets;
 use craft\mail\Message;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\helpers\FileHelper;
 
 /**
  * Email service.
@@ -193,7 +192,11 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
 
         if (Plugin::getInstance()->getSettings()->emailSenderAddress) {
-            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddress);
+            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddressPlaceholder);
+        }
+
+        if (Plugin::getInstance()->getSettings()->emailSenderAddress && Plugin::getInstance()->getSettings()->emailSenderName) {
+            $newEmail->setFrom([Plugin::getInstance()->getSettings()->emailSenderAddress => Plugin::getInstance()->getSettings()->emailSenderName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
@@ -209,7 +212,10 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $newEmail->setTo($view->renderString($email->to, $renderVariables));
+                $emails = $view->renderString($email->to, $renderVariables);
+                $emails = preg_split('/[\s,]+/', $emails);
+
+                $newEmail->setTo($emails);
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}”', [
                     'email' => $email->name,
@@ -239,7 +245,7 @@ class Emails extends Component
         try {
             $bcc = $view->renderString($email->bcc, $renderVariables);
             $bcc = str_replace(';', ',', $bcc);
-            $bcc = explode(',', $bcc);
+            $bcc = preg_split('/[\s,]+/', $bcc);
 
             if (array_filter($bcc)) {
                 $newEmail->setBcc($bcc);

@@ -8,13 +8,14 @@
 namespace craft\commerce\adjusters;
 
 use Craft;
+use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\models\TaxRate;
 use craft\commerce\models\TaxAddressZone;
+use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use DvK\Vat\Validator;
@@ -24,8 +25,10 @@ use DvK\Vat\Validator;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property \DvK\Vat\Validator $vatValidator
  */
-class Tax implements AdjusterInterface
+class Tax extends Component implements AdjusterInterface
 {
     // Constants
     // =========================================================================
@@ -101,7 +104,7 @@ class Tax implements AdjusterInterface
         $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
 
         // Do not bother checking VAT ID if the address doesn't match the zone anyway.
-        if ($taxRate->isVat && $vatIdOnAddress && $this->matchAddress($zone)) {
+        if ($taxRate->isVat && $vatIdOnAddress && $this->_matchAddress($zone)) {
 
             // Do we have a valid VAT ID in our cache?
             $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
@@ -123,7 +126,7 @@ class Tax implements AdjusterInterface
         }
 
         //Address doesn't match zone or we should remove the VAT
-        if (!$this->matchAddress($zone) || $removeVat) {
+        if (!$this->_matchAddress($zone) || $removeVat) {
             // Since the address doesn't match or it's a removable vat tax,
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
@@ -237,7 +240,7 @@ class Tax implements AdjusterInterface
      * @param TaxAddressZone $zone
      * @return bool
      */
-    private function matchAddress(TaxAddressZone $zone): bool
+    private function _matchAddress(TaxAddressZone $zone): bool
     {
         //when having no address check default tax zones only
         if (!$this->_address) {

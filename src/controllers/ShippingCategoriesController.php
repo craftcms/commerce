@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategoriesController extends BaseAdminController
+class ShippingCategoriesController extends BaseShippingSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -81,7 +81,7 @@ class ShippingCategoriesController extends BaseAdminController
         $shippingCategory->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $shippingCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingCategory->default = Craft::$app->getRequest()->getBodyParam('default');
+        $shippingCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {

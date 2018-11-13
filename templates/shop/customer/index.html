@@ -1,35 +1,40 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-    <div class="row">
-        <div class="twelve columns">
-            {% if currentUser %}
+    {% if currentUser %}
+        {% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
 
-                <h1>My Orders</h1>
+        <h1 class="text-center">My Orders</h1>
 
-                <table class="u-full-width">
-                    <thead>
+        <hr>
+
+        {% if orders|length %}
+            <table class="w-full mb-8">
+                <thead>
+                <tr>
+                    <th>{{ "Order"|t }}</th>
+                    <th>{{ "Date"|t }}</th>
+                    <th>{{ "Total Quantity"|t }}</th>
+                    <th>{{ "Total"|t }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {# Get completed orders for the current customer.#}
+                {% for order in craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
                     <tr>
-                        <th>{{ "Order"|t }}</th>
-                        <th>{{ "Date"|t }}</th>
-                        <th>{{ "Total Quantity"|t }}</th>
-                        <th>{{ "Total"|t }}</th>
+                        <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order {{ order.reference }}</a></td>
+                        <td>{{ order.dateOrdered|date }}</td>
+                        <td>{{ order.totalQty }} items</td>
+                        <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {# Get completed orders for the current customer.#}
-                    {% for order in craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
-                        <tr>
-                            <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order #{{ order.id }}</a></td>
-                            <td>{{ order.dateOrdered|date }}</td>
-                            <td>{{ order.totalQty }} items</td>
-                            <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-
-            {% endif %}
-        </div>
-    </div>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-index">
+                <i class="fas fa-box-open"></i>
+                <p>You don’t have any orders yet. <br /><a href="{{ url('shop/products') }}">Continue shopping</a></p>
+            </div>
+        {% endif %}
+    {% endif %}
 {% endblock %}

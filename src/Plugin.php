@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
@@ -25,8 +26,10 @@ use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\elements\User as UserElement;
+use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
@@ -35,6 +38,7 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\utilities\ClearCaches;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
@@ -56,7 +60,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.48';
+    public $schemaVersion = '2.0.54';
 
     /**
      * @inheritdoc
@@ -102,6 +106,7 @@ class Plugin extends BasePlugin
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
+        $this->_registerCacheTypes();
     }
 
     /**
@@ -169,10 +174,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin()) {
+        if (Craft::$app->getUser()->getIsAdmin() || Craft::$app->getUser()->checkPermission('commerce-manageShipping') || Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'Settings'),
-                'url' => 'commerce/settings/general'
+                'url' => 'commerce/settings'
             ];
         }
 
@@ -217,7 +222,7 @@ class Plugin extends BasePlugin
             $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:'.$productType->id;
+                    $productSources[] = 'productType:' . $productType->id;
                 }
             }
 
@@ -258,6 +263,8 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
             ];
         });
     }
@@ -361,6 +368,23 @@ class Plugin extends BasePlugin
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
+            $e->types[] = Subscription::class;
+        });
+    }
+
+    private function _registerCacheTypes()
+    {
+        // create the directory if it doesn't exist
+        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+
+        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) {
+            $e->options[] = [
+                'key' => 'commerce-order-exports',
+                'label' => Craft::t('commerce', 'Commerce order exports'),
+                'action' => function() {
+                    FileHelper::clearDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+                }
+            ];
         });
     }
 }

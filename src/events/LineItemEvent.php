@@ -7,7 +7,6 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\base\Purchasable;
 use craft\commerce\models\LineItem;
 use yii\base\Event;
 

@@ -9,7 +9,7 @@
         {% redirect 'shop/services' %}
     {% endif %}
 
-    <h2>Manage subscription</h2>
+    <h1>Manage subscription</h1>
 
     <div><strong>Subscribed to {{ subscription.plan.name }}</strong></div>
 
@@ -22,7 +22,7 @@
             {% if subscription.canReactivate() %}
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                     {{ redirectInput('shop/services') }}
                     {{ csrfInput() }}
 
@@ -37,8 +37,8 @@
                 <div><strong>Switch to {{ plan.name }}</strong></div>
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                    <input type="hidden" name="planId" value="{{ plan.id|hash }}">
-                    <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}">
+                    <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                     {{ redirectInput('shop/services') }}
                     {{ csrfInput() }}
 
@@ -50,17 +50,18 @@
 
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id|hash }}" />
+                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
                 {{ redirectInput('shop/services') }}
                 {{ csrfInput() }}
 
-                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml()|raw }}
+                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
                 <button type="submit">{{ "Unsubscribe"|t }}</button>
             </form>
         {% endif %}
     {% endif %}
-    <h5>Payment history</h5>
+
+    <h2>Payment history</h2>
     {% set payments = subscription.getAllPayments() %}
 
     {% for payment in payments %}

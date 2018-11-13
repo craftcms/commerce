@@ -2,9 +2,158 @@
 
 ## Unreleased
 
+### Added
+- Orders now can have a friendlier reference number with an optional incrementing integer within the reference. ([#184](https://github.com/craftcms/commerce/issues/184))
+- Added a new element source for orders that displays carts that have an attempted payment.
+- Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
+- Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
+- Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
+
 ### Fixed
-- Fixed a unnecessary CSRF error when an external gateway calls the web hook url.
-- Fixed SQL error that occurred when saving a tax rate when in MySQL strict mode.
+- Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
+- Fixed a bug where accessing the last transaction on a cart that had none would throw an error. ([#558](https://github.com/craftcms/commerce/issues/558))
+- Fixed an SQL error when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
+
+## 2.0.0-beta.13.1 - 2018-11-02
+
+### Fixed
+- Fixed an error that occurred when viewing the “Charged”, “Refunded”, or “Disputed” sources on Order indexes. ([#550](https://github.com/craftcms/commerce/issues/550))
+
+## 2.0.0-beta.13 - 2018-11-01
+
+### Changed
+- `craft\commerce\services\LineItems::resolveLineItem()` no longer accepts `$qty` and `$note` arguments, and is no longer responsible for updating line item quantity.
+- `craft\commerce\elements\Subscription::STATUS_ACTIVE` is now set to `'active'` instead of `'live'`.
+- `craft\commerce\elements\db\OrderQuery::customer()` no longer accepts a customer ID. Use `customerId()` to filter orders by their customer ID.
+- `craft\commerce\elements\db\OrderQuery::gateway()` no longer accepts a gateway ID. Use `gatewayId()` to filter orders by their gateway ID.
+
+### Deprecated
+- Deprecated `craft\commerce\eleemnts\db\OrderQuery::updatedAfter()`. `dateUpdated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\OrderQuery::updatedBefore()`. `dateUpdated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\SubscriptionQuery::subscribedAfter()`. `dateCreated()` should be used instead.
+- Deprecated `craft\commerce\eleemnts\db\SubscriptionQuery::subscribedBefore()`. `dateCreated()` should be used instead.
+
+### Removed
+- Removed `craft\commerce\elements\db\OrderQuery::$customer`. `customer()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$gateway`. `gateway()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$orderStatus`. `orderStatus()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$user`. `user()` should be used instead.
+- Removed `craft\commerce\elements\db\OrderQuery::updatedOn()`. `dateUpdated()` should be used instead.
+
+### Fixed
+- Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
+- Fixed a bug where order data exporting would not work on PostgreSQL.
+- Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))
+- Fixed a bug where it wasn’t possible to edit a Craft user’s address if the user field layout had a Customer Info field.
+- Fixed a bug where the "From Name" setting was being ignored when sending emails.
+- Fixed a SQL error that occurred when saving an email on PostgreSQL.
+- Fixed an error that occurred when canceling a subscription. ([#541](https://github.com/craftcms/commerce/issues/541))
+
+## 2.0.0-beta.12.1 - 2018-10-19
+
+### Fixed
+- Fixed a bug where it wasn’t possible to edit a Craft user’s address if the user field layout had a Customer Info field.
+
+## 2.0.0-beta.12 - 2018-10-18
+
+### Added
+- It’s now possible to export orders from the Orders index page as a CSV, ODS, XLS, or XLSX file.
+- It’s now possible to set custom field values when creating a new subscription.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID`, which is triggered after an order is paid or authorized in full.
+- Added `craft\commerce\events\SubscriptionSwitchPlansEvent::$parameters`, enabling dynamic configuration of plan parameters.
+- Added `craft\commerce\services\Plans::getPlanByUid()`.
+
+### Changed
+- Customer Info fields now display users’ subscription information. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Simplified subscription statuses, keeping only `live` and `expired`. Information on if/when the subscription was canceled is still available on the subscription object.
+- The Subscriptions index now links subscribers to their Edit User page. ([#503](https://github.com/craftcms/commerce/issues/503))
+- Renamed `craft\commerce\base\SubscriptionResponseInterface::isScheduledForCancelation()` to `isScheduledForCancellation()`.
+
+### Fixed
+- Ajax requests to the `commerce/cart/update-cart` action now include a `success` boolean in the JSON response.
+- Fixed a bug where it wasn’t possible to create a subscription without specifying a trial duration. ([#524](https://github.com/craftcms/commerce/issues/524)
+- Fixed a bug where it wasn’t possible to edit an expired subscription. ([craftcms/commerce-stripe#30](https://github.com/craftcms/commerce-stripe/issues/30))
+- Fixed SQL errors that occurred when saving shipping categories or tax categories if MySQL was running in strict mode.
+
+### Security
+- When switching between subscription plans, the target plan and subscription’s UIDs must now be passed instead of their IDs.
+- When switching between subscription plans, all form parameters must now also include the target plan’s UID in the hashed parameters.
+- When canceling a subscription, all form parameters must now also include the subscription’s UID in the hashed parameters.
+- When subscribing to a plan, its UID must now be passed instead of its ID.
+- When reactivating a subscription, its UID must now be passed instead of its ID.
+
+## 2.0.0-beta.11 - 2018-09-26
+
+### Added
+- Added `craft\commerce\elements\Order::getLastTransaction()`.
+
+### Removed
+- Removed `craft\commerce\base\SubscriptionGateway::getSubscriptionFormHtml().`
+
+### Fixed
+- Fixed a bug where `commerce/cart/update-cart` requests could return an inaccurate validation error. ([#493](https://github.com/craftcms/commerce/issues/493)
+- Fixed a database error that could occur when saving a shipping method. ([#500](https://github.com/craftcms/commerce/issues/500)
+
+### Security
+- `commerce/subscription/subscribe` forms now must include the plan’s UID in the hashed `trialDays` parameter.
+
+## 2.0.0-beta.10 - 2018-09-18
+
+### Changed
+- The Dummy gateway now supports subscriptions.
+- Subscription queries now only return active subscriptions by default.
+- Order status messages can now be longer than 255 characters. ([#465](https://github.com/craftcms/commerce/issues/465)
+- Renamed `craft\commerce\services\Subscriptions::EVENT_EXPIRE_SUBSCRIPTION` to `EVENT_AFTER_EXPIRE_SUBSCRIPTION`, and the event is now fired after saving the expired subscription data to the database.
+- Reduced the chance of unnecessary order validation errors on `commerce/payments/pay` requests.
+
+### Fixed
+- Fixed a bug where the `availableForPurchase` product query param was being ignored.
+- Fixed a bug that caused sales to incorrectly increase the price of a purchasable when the “Ignore previous matching sales if this sale matches” checkbox was checked.
+- Fixed a bug that prevented default products from being deleted. ([#405](https://github.com/craftcms/commerce/issues/405))
+- Fixed a bug where existing products weren’t updated correctly when a new site was added.
+
+## 2.0.0-beta.9 - 2018-09-07
+
+### Added
+- Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
+- Added a new setting to the Manual payment gateway that restricts it to only be used on zero value orders.
+- Product queries now have an `availableForPurchase` param.
+
+### Changed
+- The `commerce/cart/update-cart` action will now remove items from the cart with a quantity of zero.
+
+### Fixed
+- Fixed a bug where store locations could get incorrect validation errors.
+- Fixed a bug where only admins were allowed to edit addresses on Edit Order pages.
+- Restored missing shipping and tax management permission settings.
+- Fixed a bug where variant errors would not show up on Edit Product pages in some cases.
+- Fixed a bug where order statuses weren’t remembering whether they were the default status. ([#476](https://github.com/craftcms/commerce/issues/476))
+- Fixed a bug where variants with generated SKUs could get incorrect validation errors. ([#451](https://github.com/craftcms/commerce/issues/451))
+- Fixed a bug where order PDF URLs weren’t accessible to customers in some cases.
+- Fixed a bug where Edit Product pages weren’t revealing which tab(s) had errors on it, if the errors occurred within a Matrix field.
+
+## 2.0.0-beta.8.1 - 2018-08-27
+
+### Fixed
+- Fixed a bug where shipping address errors would not show up in `commerce/cart` actions’ JSON responses.
+- Fixed a bug where prices were not being displayed in a localized manor, causing price changes when re-saving variants, for some locales.
+
+## 2.0.0-beta.8 - 2018-08-22
+
+### Added
+- `commerce/cart` actions’ JSON responses now include any address errors.
+
+### Fixed
+- Fixed a CSRF error that could occur when an external gateway tried to call a webhook URL.
+- Fixed a SQL error that occurred when saving a tax rate, if MySQL was running in strict mode.
+- Fixed a SQL error that could occur when saving a discount.
+- Fixed a bug where completed orders could have inaccurate address validation errors. ([#413](https://github.com/craftcms/commerce/issues/413))
+- Fixed a bug where orders’ `datePaid` attributes weren’t getting set on order completion.
+- Fixed a bug where it wasn’t possible to create a subscription plan when only one gateway was available.
+- Fixed a bug where it wasn’t possible to pay for an order in the Control Panel in some cases.
+
+### Security
+- Order queries’ `number` parameter must be set to a complete order number now.
 
 ## 2.0.0-beta.7 - 2018-08-07
 

@@ -7,11 +7,11 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
 use craft\commerce\records\OrderSettings;
@@ -35,10 +35,10 @@ use craft\helpers\ElementHelper;
 use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
+use craft\queue\jobs\ResaveElements;
 use craft\records\Element;
 use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
-use craft\records\Plugin as PluginRecord;
 use craft\records\Site;
 
 /**
@@ -49,6 +49,13 @@ use craft\records\Site;
  */
 class Install extends Migration
 {
+
+    // Private properties
+    // =========================================================================
+
+    private $_variantFieldLayoutId;
+    private $_productFieldLayoutId;
+
     // Public Methods
     // =========================================================================
 
@@ -163,6 +170,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
             'purchasableId' => $this->integer()->notNull(),
+            'purchasableType' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -311,6 +319,7 @@ class Install extends Migration
             'customerId' => $this->integer(),
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
+            'reference' => $this->string(),
             'couponCode' => $this->string(),
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
@@ -324,7 +333,7 @@ class Install extends Migration
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
-            'message' => $this->string(),
+            'message' => $this->text(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
@@ -813,7 +822,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
         $this->createIndex(null, '{{%commerce_countries}}', 'name', true);
         $this->createIndex(null, '{{%commerce_countries}}', 'iso', true);
-        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['email', 'discountId'], true);
+        $this->createIndex(null, '{{%commerce_email_discountuses}}', ['discountId'], false);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', 'discountId', false);
         $this->createIndex(null, '{{%commerce_customers}}', 'userId', false);
@@ -841,6 +851,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'newStatusId', false);
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'customerId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'number', true);
+        $this->createIndex(null, '{{%commerce_orders}}', 'reference', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'billingAddressId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'shippingAddressId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'gatewayId', false);
@@ -1008,7 +1019,7 @@ class Install extends Migration
     }
 
     /**
-     * Adds the foreign keys.
+     * Removes the foreign keys.
      */
     public function dropForeignKeys()
     {
@@ -1065,7 +1076,6 @@ class Install extends Migration
         $this->_defaultProductTypes();
         $this->_defaultProducts();
         $this->_defaultGateways();
-        $this->_defaultSettings();
     }
 
     // Private Methods
@@ -1535,9 +1545,9 @@ class Install extends Migration
     private function _defaultProductTypes()
     {
         $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
-        $productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
+        $this->_productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
         $this->insert(FieldLayout::tableName(), ['type' => Variant::class]);
-        $variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
+        $this->_variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
 
         $data = [
             'name' => 'Clothing',
@@ -1546,9 +1556,12 @@ class Install extends Migration
             'hasVariants' => false,
             'hasVariantTitleField' => false,
             'titleFormat' => '{product.title}',
-            'fieldLayoutId' => $productFieldLayoutId,
-            'variantFieldLayoutId' => $variantFieldLayoutId
+            'fieldLayoutId' => $this->_productFieldLayoutId,
+            'skuFormat' => '',
+            'descriptionFormat' => '',
+            'variantFieldLayoutId' => $this->_variantFieldLayoutId
         ];
+
         $this->insert(ProductType::tableName(), $data);
         $productTypeId = $this->db->getLastInsertID(ProductType::tableName());
 
@@ -1610,7 +1623,8 @@ class Install extends Migration
             $productElementData = [
                 'type' => Product::class,
                 'enabled' => 1,
-                'archived' => 0
+                'archived' => 0,
+                'fieldLayoutId' => $this->_productFieldLayoutId
             ];
             $this->insert(Element::tableName(), $productElementData);
             $productId = $this->db->getLastInsertID(Element::tableName());
@@ -1619,7 +1633,8 @@ class Install extends Migration
             $variantElementData = [
                 'type' => Variant::class,
                 'enabled' => 1,
-                'archived' => 0
+                'archived' => 0,
+                'fieldLayoutId' => $this->_variantFieldLayoutId
             ];
             $this->insert(Element::tableName(), $variantElementData);
             $variantId = $this->db->getLastInsertID(Element::tableName());
@@ -1702,6 +1717,11 @@ class Install extends Migration
             ];
             $this->insert(PurchasableRecord::tableName(), $purchasableData);
         }
+
+        // Generate URIs etc.
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class
+        ]));
     }
 
     /**
@@ -1718,19 +1738,5 @@ class Install extends Migration
             'isArchived' => false,
         ];
         $this->insert(Gateway::tableName(), $data);
-    }
-
-    /**
-     * Set default plugin settings.
-     */
-    private function _defaultSettings()
-    {
-        $data = [
-            'settings' => Json::encode([
-                'orderPdfPath' => 'shop/_pdf/order',
-                'orderPdfFilenameFormat' => 'Order-{number}'
-            ])
-        ];
-        $this->update(PluginRecord::tableName(), $data, ['handle' => Plugin::getInstance()->handle]);
     }
 }

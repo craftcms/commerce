@@ -112,17 +112,17 @@
 
 {% from _self import lazyCreateSelect %}
 
-{{ forms.textField({
-    first: true,
-    label: "Name"|t('commerce'),
-    instructions: "What this tax rate will be called in the CP."|t('commerce'),
-    name: 'name',
-    value: taxRate.name,
-    errors: taxRate.getErrors('name'),
-    autofocus: true,
-    required: true,
-    translatable: true
-}) }}
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "What this tax rate will be called in the CP."|t('commerce'),
+        name: 'name',
+        value: taxRate.name,
+        errors: taxRate.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
 
     {{ forms.selectField({
         label: 'Taxable Subject'|t('commerce'),

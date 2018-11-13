@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\SavableComponent;
+use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\helpers\StringHelper;
@@ -60,8 +61,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
         $params = array_merge(['gateway' => $this->id], $params);
 
         $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', $params);
-        $url = str_replace('http://rc.craft.local/', 'http://umbushka.eu.ngrok.io/', $url);
-
+        
         return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
     }
 
@@ -121,6 +121,14 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function getPaymentConfirmationFormHtml(array $params): string
     {
         return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function availableForUseWithOrder(Order $order): bool
+    {
+        return true;
     }
 
     /**

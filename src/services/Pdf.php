@@ -54,7 +54,7 @@ class Pdf extends Component
      */
     public function renderPdfForOrder(Order $order, $option = '', $templatePath = null): string
     {
-        if (null === $templatePath){
+        if (null === $templatePath) {
             $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
         }
 
@@ -79,7 +79,7 @@ class Pdf extends Component
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
 
-            throw new Exception('Template file does not exist.');
+            throw new Exception('PDF template file does not exist.');
         }
 
         try {

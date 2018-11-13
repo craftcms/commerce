@@ -262,7 +262,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             $this->_sales = [];
             $this->_salePrice = Currency::round($this->getPrice());
 
-            if ($this->getId() && $this->getId()) {
+            if ($this->getId()) {
                 $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
                 $this->_salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this);
             }

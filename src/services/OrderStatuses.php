@@ -174,7 +174,7 @@ class OrderStatuses extends Component
     {
         if ($model->id) {
             $record = OrderStatusRecord::findOne($model->id);
-            if (!$record->id) {
+            if (!$record) {
                 throw new Exception(Craft::t('commerce', 'No order status exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
@@ -206,20 +206,19 @@ class OrderStatuses extends Component
         $transaction = $db->beginTransaction();
 
         try {
-            //only one default status can be among statuses of one order type
-            if ($record->default) {
-                OrderStatusRecord::updateAll(['default' => 0]);
-            }
-
             // Save it!
             $record->save(false);
 
+            if ($record->default) {
+                OrderStatusRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+            }
+
             //Delete old links
             if ($model->id) {
-                $records = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
+                $orderStatusEmailRecords = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
 
-                foreach ($records as $record) {
-                    $record->delete();
+                foreach ($orderStatusEmailRecords as $orderStatusEmailRecord) {
+                    $orderStatusEmailRecord->delete();
                 }
             }
 
@@ -233,7 +232,7 @@ class OrderStatuses extends Component
             $table = OrderStatusEmailRecord::tableName();
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
-            // Now that we have a calendar ID, save it on the model
+            // Now that we have an ID, save it on the model
             $model->id = $record->id;
 
             $transaction->commit();

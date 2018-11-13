@@ -6,10 +6,11 @@
                 <td><strong>{{ "Reference"|t('commerce') }}</strong>
                 </td>
                 <td>
-                    <span id="order-number-short">{{ order.shortNumber }}</span>
+                    <span id="order-number-short">{{ order.reference }}</span>
                     <span class="info">
                         <h2>Order Identification</h2>
                         <table class="data">
+                            <tr><td><strong>{{ 'Reference'|t('commerce') }}</strong></td><td>{{ order.reference }}</td></tr>
                             <tr><td><strong>{{ 'ID'|t('commerce') }}</strong></td><td>{{ order.id }}</td></tr>
                             <tr><td><strong>{{ 'Short'|t('commerce') }}</strong></td><td>{{ order.shortNumber }}</td></tr>
                             <tr><td><strong>{{ 'Full'|t('commerce') }}</strong></td><td>{{ order.number }}</td></tr>
@@ -59,6 +60,13 @@
                 {% else %}
                     <td><span class="status"></span></td>
                 {% endif %}
+            {% if order.shippingMethodHandle %}
+            <tr>
+                <td><strong>{{ "Shipping"|t('commerce') }}</strong>
+                </td>
+                <td>{{order.shippingMethod.name}}</td>
+            </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Total Price"|t('commerce') }}</strong>
                 </td>

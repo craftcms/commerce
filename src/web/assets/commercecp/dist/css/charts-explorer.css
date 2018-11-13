@@ -7,7 +7,10 @@
     border: 1px solid HSLA(240, 4%, 91%, .5);
     margin-bottom: 24px;
 }
-
+.chart-explorer .export-menubtn {
+    float: right;
+    margin-left: 14px;
+}
 .chart-explorer .chart-header {
     position: relative;
     margin-bottom: 14px;

@@ -188,22 +188,6 @@ class Addresses extends Component
             return false;
         }
 
-        // Normalize state name values
-        if (!empty($addressModel->stateValue)) {
-            if ($plugin->getStates()->getStateById((int)$addressModel->stateValue)) {
-                $addressRecord->stateId = $addressModel->stateId = $addressModel->stateValue;
-                $addressRecord->stateName = null;
-                $addressModel->stateName = null;
-            } else {
-                $addressRecord->stateId = null;
-                $addressModel->stateId = null;
-                $addressRecord->stateName = $addressModel->stateName = $addressModel->stateValue;
-            }
-        } else {
-            $addressRecord->stateId = $addressModel->stateId;
-            $addressRecord->stateName = $addressModel->stateName;
-        }
-
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
@@ -219,6 +203,8 @@ class Addresses extends Component
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
         $addressRecord->isStoreLocation = $addressModel->isStoreLocation;
+        $addressRecord->stateId = $addressModel->stateId;
+        $addressRecord->stateName = $addressModel->stateName;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
             Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -14,7 +15,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\MigrationHelper;
 use ReflectionClass;
-use Craft;
 
 /**
  * m180417_161904_fix_purchasables migration.

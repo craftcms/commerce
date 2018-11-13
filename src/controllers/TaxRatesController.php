@@ -22,7 +22,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxRatesController extends BaseAdminController
+class TaxRatesController extends BaseTaxSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -137,8 +137,8 @@ class TaxRatesController extends BaseAdminController
         // Shared attributes
         $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxRate->include = (bool) Craft::$app->getRequest()->getBodyParam('include');
-        $taxRate->isVat = (bool) Craft::$app->getRequest()->getBodyParam('isVat');
+        $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');

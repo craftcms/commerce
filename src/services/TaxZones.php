@@ -8,12 +8,11 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\models\Address;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
-use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZone;
+use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
@@ -182,7 +181,7 @@ class TaxZones extends Component
 
             //If this was the default make all others not the default.
             if ($model->default) {
-                TaxZoneRecord::updateAll(['default' => 0], 'id <> :thisId', [':thisId' => $record->id]);
+                TaxZoneRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
             }
 
             $transaction->commit();

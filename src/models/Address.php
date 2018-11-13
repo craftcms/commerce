@@ -171,6 +171,32 @@ class Address extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function attributeLabels(): array
+    {
+        $labels = parent::attributeLabels();
+        $labels['firstName'] = Craft::t('commerce', 'First Name');
+        $labels['lastName'] = Craft::t('commerce', 'Last Name');
+        $labels['attention'] = Craft::t('commerce', 'Attention');
+        $labels['title'] = Craft::t('commerce', 'Title');
+        $labels['address1'] = Craft::t('commerce', 'Address 1');
+        $labels['address2'] = Craft::t('commerce', 'Address 2');
+        $labels['city'] = Craft::t('commerce', 'City');
+        $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
+        $labels['phone'] = Craft::t('commerce', 'Phone');
+        $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
+        $labels['businessName'] = Craft::t('commerce', 'Business Name');
+        $labels['businessId'] = Craft::t('commerce', 'Business ID');
+        $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
+        $labels['countryId'] = Craft::t('commerce', 'State');
+        $labels['stateId'] = Craft::t('commerce', 'State');
+        $labels['stateName'] = Craft::t('commerce', 'State');
+        $labels['stateValue'] = Craft::t('commerce', 'State');
+        return $labels;
+    }
+
+    /**
      * @return array
      */
     public function rules()
@@ -278,10 +304,23 @@ class Address extends Model
     }
 
     /**
-     * @param $value
+     * Sets the stateId or stateName based on the stateValue set.
+     *
+     * @param string|int $value A state ID or a state name.
      */
     public function setStateValue($value)
     {
-        $this->_stateValue = $value;
+        if ($value) {
+            if (Plugin::getInstance()->getStates()->getStateById((int)$value)) {
+                $this->stateId = $value;
+            } else {
+                $this->stateId = null;
+                $this->stateName = $value;
+            }
+
+            $this->_stateValue = $value;
+        } else {
+            $this->_stateValue = null;
+        }
     }
 }

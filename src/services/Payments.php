@@ -23,7 +23,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\helpers\Db;
 use yii\base\Component;
 
 /**
@@ -187,16 +186,12 @@ class Payments extends Component
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        if ($order->getIsPaid()) {
-            if (!$order->datePaid) {
-                $order->datePaid = Db::prepareDateForDb(new \DateTime());
-            }
+        if (!$order->hasOutstandingBalance() && !$order->datePaid) {
+            $order->updateOrderPaidInformation();
 
-            if (!$order->isCompleted) {
-                $order->markAsComplete();
+            if ($order->isCompleted) {
+                return;
             }
-
-            return;
         }
 
         /** @var Gateway $gateway */
@@ -217,8 +212,7 @@ class Payments extends Component
         }
 
         //creating order, transaction and request
-        $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order);
-        $transaction->type = $defaultAction;
+        $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order, null, $defaultAction);
 
         try {
             /** @var RequestResponseInterface $response */
@@ -253,7 +247,7 @@ class Payments extends Component
             }
 
             // Success!
-            $order->updateOrderPaidTotal();
+            $order->updateOrderPaidInformation();
         } catch (\Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
@@ -364,7 +358,6 @@ class Payments extends Component
         }
 
         $childTransaction = Plugin::getInstance()->getTransactions()->createTransaction(null, $transaction);
-        $childTransaction->type = $transaction->type;
         $this->_updateTransaction($childTransaction, $response);
 
         // Success can mean 2 things in this context.
@@ -373,7 +366,7 @@ class Payments extends Component
         $success = $response->isSuccessful() || $response->isProcessing();
 
         if ($success && $transaction->status === TransactionRecord::STATUS_SUCCESS) {
-            $transaction->order->updateOrderPaidTotal();
+            $transaction->order->updateOrderPaidInformation();
         }
 
         if ($success && $transaction->status === TransactionRecord::STATUS_PROCESSING) {
@@ -410,7 +403,18 @@ class Payments extends Component
             ])
             ->sum('amount');
 
-        $refunded = (float)(new Query())
+        return $paid - $this->getTotalRefundedForOrder($order);
+    }
+
+    /**
+     * Gets the total transactions amount refunded.
+     *
+     * @param Order $order
+     * @return float
+     */
+    public function getTotalRefundedForOrder(Order $order): float
+    {
+        return (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -418,8 +422,6 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_REFUND]
             ])
             ->sum('amount');
-
-        return $paid - $refunded;
     }
 
     /**
@@ -430,7 +432,7 @@ class Payments extends Component
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        return (float)(new Query())
+        $authorized = (float)(new Query())
             ->from(['{{%commerce_transactions}}'])
             ->where([
                 'orderId' => $order->id,
@@ -438,6 +440,8 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
+
+        return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
     // Private Methods
@@ -501,8 +505,7 @@ class Payments extends Component
      */
     private function _capture(Transaction $parent): Transaction
     {
-        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-        $child->type = TransactionRecord::TYPE_CAPTURE;
+        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_CAPTURE);
 
         $gateway = $parent->getGateway();
 
@@ -542,8 +545,7 @@ class Payments extends Component
                 throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support partial refunds.'));
             }
 
-            $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent);
-            $child->type = TransactionRecord::TYPE_REFUND;
+            $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
             $amount = ($amount ?: $parent->amount);
             $child->paymentAmount = $amount;
             $child->amount = $amount / $parent->paymentRate;
