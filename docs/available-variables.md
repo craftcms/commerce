@@ -93,7 +93,7 @@ Returns the shipping methods available to applied to the current cart. Will not 
 ```twig
 {% for handle, method in cart.availableShippingMethods %}
     <label>
-        <input type="radio" name="shippingMethod" value="{{ handle }}"
+        <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
         <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
     </label>
