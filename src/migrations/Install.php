@@ -319,6 +319,7 @@ class Install extends Migration
             'customerId' => $this->integer(),
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
+            'reference' => $this->string(),
             'couponCode' => $this->string(),
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
@@ -850,6 +851,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'newStatusId', false);
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'customerId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'number', true);
+        $this->createIndex(null, '{{%commerce_orders}}', 'reference', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'billingAddressId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'shippingAddressId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'gatewayId', false);

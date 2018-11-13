@@ -9,7 +9,7 @@
 
 {% block main %}
     {% if currentUser %}<p><a href="{{ url('shop/customer') }}">My Orders</a></p>{% endif %}
-    <h1>Order #{{ order.id }}</h1>
+    <h1>Order {{ order.reference }}</h1>
 
 
     <div class="flex -mx-6">

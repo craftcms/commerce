@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Orders now can have a friendlier reference number with an optional incrementing integer within the reference. ([#184](https://github.com/craftcms/commerce/issues/184))
 - Added a new element source for orders that displays carts that have an attempted payment.
 - Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
 - Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.

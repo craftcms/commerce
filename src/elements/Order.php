@@ -33,6 +33,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
@@ -181,6 +182,11 @@ class Order extends Element
      * @var string Number
      */
     public $number;
+
+    /**
+     * @var string Reference
+     */
+    public $reference;
 
     /**
      * @var string Coupon Code
@@ -581,9 +587,34 @@ class Order extends Element
      */
     public function markAsComplete(): bool
     {
+        // Use a mutex to make sure we check the order is not already complete due to a race condition.
+        $lockName = 'orderComplete:' . $this->id;
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockName, 5)) {
+            throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
+        }
+
+        // Now that we have a lock, make sure this order is not already completed.
         if ($this->isCompleted) {
+            $mutex->release($lockName);
             return true;
         }
+
+        // Try to catch where the order could be marked as completed twice at the same time, and thus cause a race condition.
+        $completedInDb = (new Query())
+            ->select('id')
+            ->from(['{{%commerce_orders}}'])
+            ->where(['isCompleted' => true])
+            ->andWhere(['id' => $this->id])
+            ->exists();
+
+        if ($completedInDb) {
+            $mutex->release($lockName);
+            return true;
+        }
+
+        // Release after we have confirmed this order is not already complete
+        $mutex->release($lockName);
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
@@ -594,6 +625,14 @@ class Order extends Element
             $this->orderStatusId = $orderStatus->id;
         } else {
             throw new OrderStatusException('Could not find a valid default order status.');
+        }
+
+        try {
+            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+            $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+        } catch (\Throwable $exception) {
+            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
+            throw $exception;
         }
 
         // Raising the 'beforeCompleteOrder' event
@@ -775,6 +814,7 @@ class Order extends Element
         $oldStatusId = $orderRecord->orderStatusId;
 
         $orderRecord->number = $this->number;
+        $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->email = $this->getEmail();
         $orderRecord->isCompleted = $this->isCompleted;
@@ -1644,7 +1684,8 @@ class Order extends Element
             'shippingLastName',
             'shortNumber',
             'transactionReference',
-            'username'
+            'username',
+            'reference'
         ];
     }
 

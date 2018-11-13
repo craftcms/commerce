@@ -22,7 +22,7 @@
                 {# Get completed orders for the current customer.#}
                 {% for order in craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
                     <tr>
-                        <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order #{{ order.id }}</a></td>
+                        <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order {{ order.reference }}</a></td>
                         <td>{{ order.dateOrdered|date }}</td>
                         <td>{{ order.totalQty }} items</td>
                         <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
