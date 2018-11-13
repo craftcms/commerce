@@ -1708,17 +1708,23 @@ class Order extends Element
         $interval->invert = 1;
         $edge->add($interval);
 
+        $edge = $edge->format(\DateTime::ATOM);
+        $updatedAfter = [];
+        $updatedAfter[] = '>= ' . $edge;
+
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
+        $updatedBefore = [];
+        $updatedBefore[] = '< ' . $edge;
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
