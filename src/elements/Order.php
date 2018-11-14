@@ -369,7 +369,7 @@ class Order extends Element
      */
     public function __toString()
     {
-        return $this->getShortNumber();
+        return $this->reference ?: $this->getShortNumber();
     }
 
     /**
@@ -935,7 +935,7 @@ class Order extends Element
      */
     public function getLink(): string
     {
-        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . substr($this->number, 0, 7) . '</a>');
+        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . ($this->reference ?: $this->getShortNumber()) . '</a>');
     }
 
     /**
@@ -1817,6 +1817,10 @@ class Order extends Element
     protected static function defineTableAttributes(): array
     {
         return [
+            'order' => ['label' => Craft::t('commerce', 'Order')],
+            'cart' => ['label' => Craft::t('commerce', 'Cart')],
+            'reference' => ['label' => Craft::t('commerce', 'Reference')],
+            'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
@@ -1844,9 +1848,11 @@ class Order extends Element
      */
     protected static function defineDefaultTableAttributes(string $source = null): array
     {
-        $attributes = ['number'];
+        $attributes = [];
+        $attributes[] = 'order';
 
         if (0 !== strpos($source, 'carts:')) {
+            $attributes[] = 'reference';
             $attributes[] = 'orderStatus';
             $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';
@@ -1854,6 +1860,7 @@ class Order extends Element
             $attributes[] = 'datePaid';
             $attributes[] = 'paidStatus';
         } else {
+            $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
             $attributes[] = 'totalPrice';
         }
@@ -1868,6 +1875,7 @@ class Order extends Element
     {
         return [
             'number' => Craft::t('commerce', 'Number'),
+            'reference' => Craft::t('commerce', 'Reference'),
             'id' => Craft::t('commerce', 'ID'),
             'orderStatusId' => Craft::t('commerce', 'Order Status'),
             'totalPrice' => Craft::t('commerce', 'Total Payable'),

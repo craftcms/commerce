@@ -6,7 +6,7 @@
                 <td><strong>{{ "Reference"|t('commerce') }}</strong>
                 </td>
                 <td>
-                    <span id="order-number-short">{{ order.reference }}</span>
+                    <span id="order-number-short">{{ order.reference ?: order.shortNumber }}</span>
                     <span class="info">
                         <h2>Order Identification</h2>
                         <table class="data">
