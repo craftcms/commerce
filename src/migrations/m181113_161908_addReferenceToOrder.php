@@ -7,10 +7,7 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\records\Order;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\MigrationHelper;
 use yii\db\Expression;
 
 /**
@@ -28,7 +25,7 @@ class m181113_161908_addReferenceToOrder extends Migration
         $this->createIndex(null, $tableName, 'reference', false); // unique constraint validated in application logic
 
         // default the reference to the short order number to match the default order reference format setting
-        \Craft::$app->getDb()->createCommand()->update($tableName, ['reference' => new Expression('LEFT([[number]], 7)')], 'isCompleted = 1')->execute();
+        \Craft::$app->getDb()->createCommand()->update($tableName, ['reference' => new Expression('LEFT([[number]], 7)')], '[[isCompleted]] = 1')->execute();
     }
 
     /**
