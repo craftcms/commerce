@@ -391,12 +391,12 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
-        if (null !== $this->hasStock && $this->hasStock === true) {
+        if (null !== $this->hasStock && (bool) $this->hasStock === true) {
             $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.hasUnlimitedStock != 1)', 'commerce_variants.hasUnlimitedStock = 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
 
-        if (null !== $this->hasStock && $this->hasStock === false) {
+        if (null !== $this->hasStock && (bool) $this->hasStock === false) {
             $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.hasUnlimitedStock != 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
