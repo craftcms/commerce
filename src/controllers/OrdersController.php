@@ -77,7 +77,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = 'Order ' . substr($variables['order']->number, 0, 7);
+            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart '.$variables['order']->number;
         } else {
             throw new HttpException(404);
         }

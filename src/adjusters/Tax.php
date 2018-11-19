@@ -63,10 +63,10 @@ class Tax extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
-        $this->_address = $this->_order->shippingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->_order->shippingAddressId) : null;
+        $this->_address = $this->_order->getShippingAddress();
 
         if (Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
-            $this->_address = $this->_order->billingAddressId ? Plugin::getInstance()->getAddresses()->getAddressById($this->_order->billingAddressId) : null;
+            $this->_address = $this->_order->getBillingAddress();
         }
 
         $adjustments = [];

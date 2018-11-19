@@ -6,7 +6,7 @@ If the customer is a guest, they have no need to manage an address book.
 
 Customers can only add and remove addresses from the front-end while they are logged in.
 
-## Get all addresses belonging to the current customer.
+## Get all addresses belonging to the current customer
 
 ```twig
 {% addresses = craft.commerce.customer.addresses %}
@@ -18,7 +18,7 @@ Customers can only add and remove addresses from the front-end while they are lo
 
 See <api:craft\commerce\models\Address> to learn about the fields available on an address.
 
-## Updating or creating a new a customers address
+## Updating or creating a new customer address
 
 ```twig
 <form method="post">
@@ -33,7 +33,7 @@ See <api:craft\commerce\models\Address> to learn about the fields available on a
 
 Including an `address[id]` param with a valid address ID that belongs to the current customer will update that address.
 
-## Deleting a customers address
+## Deleting a customer's address
 
 ```twig
 <form method="POST">
@@ -44,4 +44,4 @@ Including an `address[id]` param with a valid address ID that belongs to the cur
 </form>
 ```
 
-If you delete an address that is currently applied as the billing or shipping address of the current customers cart, will result in the addresses on the cart being removed.
+Deleting an address that is currently applied as the billing or shipping address of the current customer's cart will result in the addresses on the cart being removed.

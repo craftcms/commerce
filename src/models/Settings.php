@@ -128,6 +128,11 @@ class Settings extends Model
     public $pdfAllowRemoteImages = false;
 
     /**
+     * @var string The order reference format
+     */
+    public $orderReferenceFormat = '{{number[:7]}}';
+
+    /**
      * @var string
      */
     public $cartVariable = 'cart';

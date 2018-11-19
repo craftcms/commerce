@@ -93,7 +93,7 @@ Returns the shipping methods available to applied to the current cart. Will not 
 ```twig
 {% for handle, method in cart.availableShippingMethods %}
     <label>
-        <input type="radio" name="shippingMethod" value="{{ handle }}"
+        <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
         <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
     </label>
@@ -149,7 +149,7 @@ Returns an array of all product types set up in the system.
 
 ## craft.commerce.orderStatuses.allOrderStatuses
 
-Returns an array of <api:craft\commerce\models\OrderStatus> objects representing all the order statuses in the system.
+Returns an array of <api:craft\commerce\elements\OrderStatus> objects representing all the order statuses in the system.
 
 ```twig
 {% for status in craft.commerce.orderStatuses.allOrderStatuses %}

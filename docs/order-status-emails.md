@@ -32,7 +32,7 @@ The subject of the email.
 Plain text can be entered or twig can also be used to set dynamic values.
 Two special variables available to you:
 
-- `order` – a <api:craft\commerce\models\Order> object.
+- `order` – a <api:craft\commerce\elements\Order> object.
 - `orderHistory` – a <api:craft\commerce\models\OrderHistory> object.
 
 `order` is the current cart or order that this email is a notification for. For example, for the subject we might use a template like:
@@ -52,7 +52,7 @@ If “Send to custom recipient” is selected, an email address can be entered. 
 Plain text can be entered or twig can also be used to set dynamic values.
 Two special variables available to you:
 
-- `order` – a <api:craft\commerce\models\Order> object.
+- `order` – a <api:craft\commerce\elements\Order> object.
 - `orderHistory` – a <api:craft\commerce\models\OrderHistory> object.
 
 `order` is the current cart or order that this email is a notification for. For example, for the subject we might use a template like:
@@ -71,7 +71,7 @@ Plain text can be entered or twig can also be used to set dynamic values.
 
 Two special variables available to you:
 
-- `order` – a <api:craft\commerce\models\Order> object.
+- `order` – a <api:craft\commerce\elements\Order> object.
 - `orderHistory` – a <api:craft\commerce\models\OrderHistory> object.
 
 Most likely, you would BCC the store owner on order confirmation.
@@ -83,7 +83,7 @@ Plain text template path can be entered or Twig code can also be used to set dyn
 
 You can use the following variables in both the template path & template file body:
 
-- `order` – a <api:craft\commerce\models\Order> object.
+- `order` – a <api:craft\commerce\elements\Order> object.
 - `orderHistory` – a <api:craft\commerce\models\OrderHistory> object.
 
 This allows you to have full design flexibility.

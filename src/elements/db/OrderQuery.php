@@ -43,12 +43,17 @@ class OrderQuery extends ElementQuery
     // =========================================================================
 
     /**
-     * @var string The order number of the resulting entry.
+     * @var string The order number of the resulting order.
      */
     public $number;
 
     /**
-     * @var string The email address the resulting emails must have.
+     * @var string The order reference of the resulting order.
+     */
+    public $reference;
+
+    /**
+     * @var string The email address the resulting orders must have.
      */
     public $email;
 
@@ -61,11 +66,6 @@ class OrderQuery extends ElementQuery
      * @var mixed The Date Ordered date that the resulting orders must have.
      */
     public $dateOrdered;
-
-    /**
-     * @var mixed The Updated On date that the resulting orders must have.
-     */
-    public $updatedOn;
 
     /**
      * @var mixed The Expiry Date that the resulting orders must have.
@@ -178,6 +178,42 @@ class OrderQuery extends ElementQuery
     public function number(string $value = null)
     {
         $this->number = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order reference.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'xxxx'` | with a matching order reference
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the requested {element} #}
+     * {% set orderReference = craft.app.request.getQueryParam('ref') %}
+     * {% set {element-var} = {twig-method}
+     *     .reference(orderReference)
+     *     .one() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the requested {element}
+     * $orderReference = Craft::$app->request->getQueryParam('ref');
+     * ${element-var} = {php-method}
+     *     ->reference($orderReference)
+     *     ->one();
+     * ```
+     *
+     * @param string|null $value The property value
+     * @return static self reference
+     */
+    public function reference(string $value = null)
+    {
+        $this->reference = $value;
         return $this;
     }
 
@@ -778,6 +814,7 @@ class OrderQuery extends ElementQuery
         $this->query->select([
             'commerce_orders.id',
             'commerce_orders.number',
+            'commerce_orders.reference',
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
@@ -802,6 +839,10 @@ class OrderQuery extends ElementQuery
 
         if ($this->number) {
             $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+        }
+
+        if ($this->reference) {
+            $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
         }
 
         if ($this->email) {
