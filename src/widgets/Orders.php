@@ -133,7 +133,7 @@ class Orders extends Widget
         $query->isCompleted(true);
         $query->dateOrdered(':notempty:');
         $query->limit($limit);
-        $query->orderBy('dateOrdered');
+        $query->orderBy('dateOrdered DESC');
 
         if ($orderStatusId) {
             $query->orderStatusId($orderStatusId);
