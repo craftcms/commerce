@@ -72,8 +72,8 @@
             <tr>
                 <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
                 <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
-                <td>{{ subscription.dateCanceled|date('D dS M Y') }}</td>
-                <td>{{ subscription.dateExpired|date('D dS M Y') }}</td>
+                <td>{{ subscription.dateCanceled ? subscription.dateCanceled|date('D dS M Y') : '' }}</td>
+                <td>{{ subscription.dateExpired ? subscription.dateExpired|date('D dS M Y') : '' }}</td>
                 <td>{{ subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
             </tr>
         {% endfor %}
