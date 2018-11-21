@@ -74,7 +74,7 @@
                 <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
                 <td>{{ subscription.dateCanceled|date('D dS M Y') }}</td>
                 <td>{{ subscription.dateExpired|date('D dS M Y') }}</td>
-                <td>{{ subscription.status == 'live' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
+                <td>{{ subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
             </tr>
         {% endfor %}
         </tbody>

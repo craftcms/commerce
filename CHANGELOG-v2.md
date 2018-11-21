@@ -14,7 +14,8 @@
 - Fixed a bug where accessing the last transaction on a cart that had none would throw an error. ([#558](https://github.com/craftcms/commerce/issues/558))
 - Fixed an SQL error when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
 - Fixed a bug where brand new addresses submitted to the cart where not being taken into account when calculating tax until after another order save.
- 
+- Fixed a bug where subscriptions would show incorrect status when viewed using the Customer field. ([#566](https://github.com/craftcms/commerce/issues/566))
+
 ## 2.0.0-beta.13.1 - 2018-11-02
 
 ### Fixed
