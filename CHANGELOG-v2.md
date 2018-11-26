@@ -15,6 +15,7 @@
 - Fixed an SQL error when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
 - Fixed a bug where brand new addresses submitted to the cart where not being taken into account when calculating tax until after another order save.
 - Fixed a bug where subscriptions would show incorrect status when viewed using the Customer field. ([#566](https://github.com/craftcms/commerce/issues/566))
+- Fixed the default tax zone checkbox label. ([#532](https://github.com/craftcms/commerce/issues/532))
 
 ## 2.0.0-beta.13.1 - 2018-11-02
 
