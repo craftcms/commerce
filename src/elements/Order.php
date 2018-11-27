@@ -27,6 +27,7 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
+use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -1067,11 +1068,24 @@ class Order extends Element
     }
 
     /**
+     * Get the total price of the order, whose minimum value is enforced by the configured {@link Settings::minimumTotalPriceStrategy strategy set for minimum total price}.
+     *
      * @return float
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemSubTotal() + $this->getAdjustmentsTotal());
+        $total = $this->getItemSubTotal() + $this->getAdjustmentsTotal();
+        $strategy = Plugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
+            return Currency::round(max(0, $total));
+        }
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
+            return Currency::round(max($this->getAdjustmentsTotalByType('shipping'), $total));
+        }
+
+        return Currency::round($total);
     }
 
     /**
