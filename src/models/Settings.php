@@ -138,6 +138,11 @@ class Settings extends Model
     public $cartVariable = 'cart';
 
     /**
+     * @var string
+     */
+    public $minimumTotalPriceStrategy = 'default';
+
+    /**
      * @var array
      */
     public $gatewaySettings = [];
@@ -172,6 +177,18 @@ class Settings extends Model
     }
 
     /**
+     * @return array
+     */
+    public function getMinimumTotalPriceStrategyOptions(): array
+    {
+        return [
+            'default' => Craft::t('commerce', 'Default'),
+            'zero' => Craft::t('commerce', 'Zero'),
+            'shipping' => Craft::t('commerce', 'Shipping')
+        ];
+    }
+
+    /**
      * @param string|null $siteHandle
      * @return string|null
      * @throws InvalidConfigException if the currency in the config file is not set up
@@ -196,7 +213,7 @@ class Settings extends Model
     public function rules()
     {
         return [
-            [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat'], 'required']
+            [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'minimumTotalPriceStrategy'], 'required']
         ];
     }
 }

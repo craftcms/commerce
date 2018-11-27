@@ -92,6 +92,16 @@
             required: true,
         }) }}
 
+        {{ forms.selectField({
+            label: "Minimum Total Price Strategy"|t('commerce'),
+            instructions: "Strategy to apply when calculating the minimum order price. The default strategy will allow the price to go below zero e.g. if a discount is greater than the cart value, zero will prevent the total price from going below zero and shipping will prevent the total price from being lower than the shipping price."|t('commerce'),
+            name: 'settings[minimumTotalPriceStrategy]',
+            value: settings.minimumTotalPriceStrategy,
+            options: settings.getMinimumTotalPriceStrategyOptions(),
+            errors: settings.getErrors('minimumTotalPriceStrategy'),
+            required: true,
+        }) }}
+
         <input type="submit" class="btn submit"
                value="{{ "Save"|t('commerce') }}">
     </form>
