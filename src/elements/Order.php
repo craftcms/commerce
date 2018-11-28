@@ -1140,7 +1140,11 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        $this->_lineItems = $lineItems;
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+            $this->_lineItems = $lineItems[0] ?? [];
+        }else{
+            $this->_lineItems = $lineItems;
+        }
     }
 
     /**
