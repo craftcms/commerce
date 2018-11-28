@@ -77,11 +77,23 @@
                 </td>
                 <td>{{ order.paidStatusHtml|raw }}</td>
             </tr>
+            {% if order.isPaid %}
             <tr>
                 <td><strong>{{ "Paid Date"|t('commerce') }} </strong>
                 </td>
-                <td><span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date('D jS M Y') }}</span></td>
+                <td>
+                    {% if order.datePaid %}
+                    <span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date('D jS M Y') }}</span>
+                    {% endif %}
+                </td>
             </tr>
+            {% else %}
+            <tr>
+                <td><strong>{{ "Last Updated"|t('commerce') }} </strong>
+                </td>
+                <td><span title="{{ order.dateUpdated|date('r') }}">{{ order.dateUpdated|date('D jS M Y') }}</span></td>
+            </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Paid Amount"|t('commerce') }} </strong>
                 </td>
