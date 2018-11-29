@@ -277,7 +277,8 @@ class Sales extends Component
                     // applyAmount is stored as a negative already
                     $takeOffAmount += $sale->applyAmount;
                     if ($sale->ignorePrevious) {
-                        $newPrice = $originalPrice - $sale->applyAmount;
+                        // applyAmount is always negative so add the negative amount to the original price for the new price.
+                        $newPrice = $originalPrice + $sale->applyAmount;
                     }
                     break;
                 case SaleRecord::APPLY_TO_FLAT:
