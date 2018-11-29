@@ -323,7 +323,7 @@ class Sales extends Component
             return false;
         }
 
-        // Purchsable ID match
+        // Purchasable ID match
         if (!$sale->allPurchasables && !\in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
             return false;
         }
