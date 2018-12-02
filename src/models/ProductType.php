@@ -202,7 +202,7 @@ class ProductType extends Model
     public function getShippingCategories(): array
     {
         if (!$this->_shippingCategories) {
-            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductId($this->id);
+            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($this->id);
         }
 
         return $this->_shippingCategories;

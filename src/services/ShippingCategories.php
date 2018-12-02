@@ -231,7 +231,7 @@ class ShippingCategories extends Component
      * @param $productTypeId
      * @return array
      */
-    public function getShippingCategoriesByProductId($productTypeId): array
+    public function getShippingCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
