@@ -200,6 +200,7 @@ class Gateways extends Component
     {
         $result = $this->_createGatewayQuery()
             ->where(['handle' => $handle])
+            ->andWhere(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
             ->one();
 
         return $result ? $this->createGateway($result) : null;
@@ -219,7 +220,6 @@ class Gateways extends Component
 
         if ($runValidation && !$gateway->validate()) {
             Craft::info('Gateway not saved due to validation error.', __METHOD__);
-
             return false;
         }
 
@@ -227,6 +227,13 @@ class Gateways extends Component
             $gatewayUid = StringHelper::UUID();
         } else {
             $gatewayUid = $gateway->uid;
+        }
+
+        $existingGateway = $this->getGatewayByHandle($gateway->handle);
+
+        if ($existingGateway && (!$gateway->id || $gateway->id !== $existingGateway->id)) {
+            $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
+            return false;
         }
 
         $projectConfig = Craft::$app->getProjectConfig();

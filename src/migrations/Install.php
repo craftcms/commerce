@@ -841,8 +841,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_discounts}}', 'code', true);
         $this->createIndex(null, '{{%commerce_discounts}}', 'dateFrom', false);
         $this->createIndex(null, '{{%commerce_discounts}}', 'dateTo', false);
-        $this->createIndex(null, '{{%commerce_gateways}}', 'name', true);
-        $this->createIndex(null, '{{%commerce_gateways}}', 'handle', true);
+        $this->createIndex(null, '{{%commerce_gateways}}', 'handle', false);
+        $this->createIndex(null, '{{%commerce_gateways}}', 'isArchived', false);
         $this->createIndex(null, '{{%commerce_lineitems}}', ['orderId', 'purchasableId', 'optionsSignature'], true);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'taxCategoryId', false);
