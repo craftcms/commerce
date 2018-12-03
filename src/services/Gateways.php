@@ -272,10 +272,12 @@ class Gateways extends Component
             $gatewayRecord->name = $data['name'];
             $gatewayRecord->handle = $data['handle'];
             $gatewayRecord->type = $data['type'];
-            $gatewayRecord->settings = $data['settings'];
+            $gatewayRecord->settings = $data['settings'] ?? null;
             $gatewayRecord->sortOrder = $data['sortOrder'];
             $gatewayRecord->paymentType = $data['paymentType'];
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->isArchived = false;
+            $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
 
             // Save the volume
