@@ -41,9 +41,6 @@
 - Removed `craft\commerce\elements\db\OrderQuery::$user`. `user()` should be used instead.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedOn()`. `dateUpdated()` should be used instead.
 
-### Added
-- Added project configuration support for gateways.
-
 ### Fixed
 - Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
 - Fixed a bug where order data exporting would not work on PostgreSQL.
