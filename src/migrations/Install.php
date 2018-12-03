@@ -367,6 +367,8 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
+            'isArchived' => $this->boolean()->notNull()->defaultValue(false),
+            'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -859,6 +861,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_orders}}', 'orderStatusId', false);
         $this->createIndex(null, '{{%commerce_ordersettings}}', 'handle', true);
         $this->createIndex(null, '{{%commerce_ordersettings}}', 'fieldLayoutId', false);
+        $this->createIndex(null, '{{%commerce_orderstatuses}}', 'isArchived', false);
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'orderStatusId', false);
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'emailId', false);
         $this->createIndex(null, '{{%commerce_paymentcurrencies}}', 'iso', true);
@@ -955,19 +958,19 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['taxCategoryId'], '{{%commerce_taxcategories}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderadjustments}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['newStatusId'], '{{%commerce_orderstatuses}}', ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['newStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['prevStatusId'], '{{%commerce_orderstatuses}}', ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['prevStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['billingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_orders}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_orders}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['paymentSourceId'], '{{%commerce_paymentsources}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['shippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_ordersettings}}', ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['emailId'], '{{%commerce_emails}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['userId'], '{{%users}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_plans}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');

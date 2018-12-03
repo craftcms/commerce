@@ -75,7 +75,6 @@ class OrderStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class]
         ];
     }
 

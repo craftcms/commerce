@@ -17,6 +17,7 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use craft\db\Query;
+use craft\helpers\Db;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -188,6 +189,14 @@ class OrderStatuses extends Component
             return false;
         }
 
+        // Make sure no statuses that are not archived share the handle
+        $existingStatus = $this->getOrderStatusByHandle($model->handle);
+
+        if ($existingStatus && (!$model->id || $model->id !== $existingStatus->id)) {
+            $model->addError('handle', Craft::t('commerce', 'That handle is already in use'));
+            return false;
+        }
+
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->color = $model->color;
@@ -245,36 +254,25 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Delete an order status by ID
-     *
-     * @param $id
-     * @return bool
-     * @throws \Exception
+     * Archive an order status by it's id.
+     * @param int $id
+     * @return boole
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function deleteOrderStatusById($id): bool
+    public function archiveOrderStatusById(int $id): boolean
     {
         $statuses = $this->getAllOrderStatuses();
 
-        $existingOrder = Order::find()
-            ->orderStatusId($id)
-            ->one();
-
-        // Not if it's still in use.
-        if ($existingOrder) {
-            return false;
-        }
-
         if (\count($statuses) >= 2) {
             $record = OrderStatusRecord::findOne($id);
-
-            return (bool)$record->delete();
+            $record->isArchived = true;
+            $record->dateArchived = Db::prepareDateForDb(new \DateTime());
+            return (bool)$record->save();
         }
 
         return false;
     }
-
     /**
      * Returns all Order Statuses
      *
@@ -390,6 +388,7 @@ class OrderStatuses extends Component
                 'sortOrder',
                 'default',
             ])
+            ->where(['isArchived' => false])
             ->orderBy('sortOrder')
             ->from(['{{%commerce_orderstatuses}}']);
     }
