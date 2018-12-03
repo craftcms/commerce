@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\RefundException;
@@ -53,14 +54,17 @@ class OrdersController extends BaseCpController
 
     /**
      * @param $orderId
+     * @param Order $order The order
      * @return Response
      * @throws HttpException
      */
-    public function actionEditOrder($orderId): Response
+    public function actionEditOrder($orderId, Order $order = null): Response
     {
         $plugin = Plugin::getInstance();
+
         $variables = [
             'orderId' => $orderId,
+            'order' => $order,
             'orderSettings' => $plugin->getOrderSettings()->getOrderSettingByHandle('order')
         ];
 
@@ -371,16 +375,22 @@ class OrdersController extends BaseCpController
         $this->requirePostRequest();
 
         $order = $this->_setOrderFromPost();
-        $this->_setContentFromPost($order);
 
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->redirectToPostedUrl($order);
+        $order->setScenario(Element::SCENARIO_LIVE);
+
+        if (!Craft::$app->getElements()->saveElement($order)) {
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'order' => $order
+            ]);
+
+            return null;
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
-        Craft::$app->getUrlManager()->setRouteParams([
-            'order' => $order
-        ]);
+        return $this->redirectToPostedUrl($order);
+
     }
 
     /**
@@ -451,7 +461,8 @@ class OrdersController extends BaseCpController
 
             if ($variables['order']->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
-                    if ($variables['order']->getErrors($field->getField()->handle)) {
+
+                    if ($variables['order']->getErrors($field->handle)) {
                         $hasErrors = true;
                         break;
                     }
@@ -494,14 +505,8 @@ class OrdersController extends BaseCpController
             throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
         }
 
-        return $order;
-    }
-
-    /**
-     * @param Order $order
-     */
-    private function _setContentFromPost($order)
-    {
         $order->setFieldValuesFromRequest('fields');
+
+        return $order;
     }
 }
