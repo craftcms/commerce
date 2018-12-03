@@ -18,9 +18,8 @@
 - Fixed the default tax zone checkbox label. ([#532](https://github.com/craftcms/commerce/issues/532))
 - Fixed a bug where an incomplete cart’s date paid showed as today’s date on the Order Edit Page. ([#588](https://github.com/craftcms/commerce/issues/588))
 - Fixed a bug where sales with a flat amount off increased the price instead of decreasing the price when the checkbox 'Ignore previous matching sales if this sale matches' was checked.
-- Fixed a bug where variant queries ignored the status param. ([#380](https://github.com/craftcms/commerce/issues/380))
-- 
-
+- Fixed a bug where variant queries ignored the `status` param. ([#380](https://github.com/craftcms/commerce/issues/380))
+- Fixed a SQL error that occurred when using the `isPaid` or `isUnPaid` params in an order query. ([#380](https://github.com/craftcms/commerce/issues/380))
 
 ## 2.0.0-beta.13.1 - 2018-11-02
 
