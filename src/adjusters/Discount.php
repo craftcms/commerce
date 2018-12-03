@@ -79,8 +79,15 @@ class Discount extends Component implements AdjusterInterface
         // Find discounts with no coupon or the coupon that matches the order.
         $availableDiscounts = [];
         foreach ($discounts as $discount) {
+
+            if(!$discount->enabled)
+            {
+                continue;
+            }
+
             if ($discount->code == null) {
                 $availableDiscounts[] = $discount;
+                continue;
             }
 
             if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {

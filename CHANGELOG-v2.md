@@ -21,6 +21,7 @@
 - Fixed a bug where variant queries ignored the `status` param. ([#380](https://github.com/craftcms/commerce/issues/380))
 - Fixed an SQL error that occurred when using the `isPaid` or `isUnPaid` params in an order query. ([#380](https://github.com/craftcms/commerce/issues/380))
 - Fixed an issue where custom field validation errors did not show up on the Order Edit Page. ([#580](https://github.com/craftcms/commerce/issues/580))
+- Fixed a bug where disabled discounts were still being applied. ([#576](https://github.com/craftcms/commerce/issues/576))
 
 ## 2.0.0-beta.13.1 - 2018-11-02
 
