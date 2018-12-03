@@ -81,7 +81,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart '.$variables['order']->number;
+            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart ' . $variables['order']->number;
         } else {
             throw new HttpException(404);
         }
@@ -390,7 +390,6 @@ class OrdersController extends BaseCpController
         }
 
         return $this->redirectToPostedUrl($order);
-
     }
 
     /**
