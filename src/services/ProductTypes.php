@@ -462,7 +462,7 @@ class ProductTypes extends Component
             if (!$isNewProductType) {
                 foreach ($allSiteSettings as $siteId => $siteSettings) {
                     Craft::$app->getQueue()->push(new ResaveElements([
-                        'description' => Craft::t('app', 'Resaving {type} products ({site})', [
+                        'description' => Craft::t('commerce', 'Resaving {type} products ({site})', [
                             'type' => $productType->name,
                             'site' => $siteSettings->getSite()->name,
                         ]),

@@ -78,12 +78,12 @@ class SettingsController extends BaseAdminController
         $fieldLayout->type = Subscription::class;
 
         if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
-            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save subscription fields.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription fields.'));
 
             return null;
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('app', 'Subscription fields saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription fields saved.'));
 
         return $this->redirectToPostedUrl();
     }
