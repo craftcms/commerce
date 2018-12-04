@@ -75,7 +75,7 @@ class SubscriptionsController extends BaseController
      * Save a subscription's custom fields.
      *
      * @return Response|null
-     * @throws NotFoundHttpException if rsubscription not found
+     * @throws NotFoundHttpException if subscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
      * @throws \Throwable if reasons

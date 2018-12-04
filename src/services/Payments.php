@@ -291,7 +291,7 @@ class Payments extends Component
     }
 
     /**
-     * Regund a transcation.
+     * Refund a transaction.
      *
      * @param Transaction $transaction the transaction to refund.
      * @param float|null $amount the amount to refund or null for full amount.

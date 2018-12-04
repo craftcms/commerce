@@ -29,7 +29,7 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 
 /**
- * Susbcriptions service.
+ * Subscriptions service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -256,7 +256,7 @@ class Subscriptions extends Component
      *
      * @param Subscription $subscription subscription to expire
      * @param \DateTime $dateTime expiry date time
-     * @return bool whether succesfully expired subscription
+     * @return bool whether successfully expired subscription
      * @throws \Throwable if cannot expire subscription
      */
     public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
@@ -277,7 +277,7 @@ class Subscriptions extends Component
     }
 
     /**
-     * Returns susbcription count for a plan.
+     * Returns subscription count for a plan.
      *
      * @param int $planId
      * @return int
