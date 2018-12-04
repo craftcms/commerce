@@ -157,7 +157,7 @@ abstract class Plan extends Model implements PlanInterface
             ->anyStatus()
             ->all();
     }
-    
+
     /**
      * @inheritdoc
      */

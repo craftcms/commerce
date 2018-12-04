@@ -16,13 +16,11 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\validators\UniqueValidator;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 

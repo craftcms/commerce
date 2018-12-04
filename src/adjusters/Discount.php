@@ -80,8 +80,7 @@ class Discount extends Component implements AdjusterInterface
         $availableDiscounts = [];
         foreach ($discounts as $discount) {
 
-            if(!$discount->enabled)
-            {
+            if (!$discount->enabled) {
                 continue;
             }
 
