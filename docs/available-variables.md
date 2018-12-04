@@ -183,7 +183,7 @@ Returns a discount that matches the code supplied.
 Returns an array of all sales set up in the system.
 
 ```twig
-{% for sale in craft.commerce.allSales %}
+{% for sale in craft.commerce.sales.allSales %}
     {{ sale.name }} - {{ sale.description }}
 {% endfor %}
 ```
