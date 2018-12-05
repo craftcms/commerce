@@ -24,6 +24,7 @@ use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Orders as OrdersService;
+use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
@@ -308,6 +309,12 @@ class Plugin extends BasePlugin
             ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$ordersService, 'pruneDeletedField']);
+
+        $subscriptionsService = $this->getSubscriptions();
+        $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
+            ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
+            ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleDeletedFieldLayout']);
+        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$subscriptionsService, 'pruneDeletedField']);
     }
 
     /**

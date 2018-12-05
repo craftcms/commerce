@@ -12,7 +12,9 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\Plugin;
+use craft\commerce\services\Subscriptions;
 use craft\helpers\App;
+use craft\helpers\StringHelper;
 use yii\web\Response;
 
 /**
@@ -74,15 +76,10 @@ class SettingsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAdmin();
 
-        // Set the field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = Subscription::class;
+        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
 
-        if (!Craft::$app->getFields()->saveLayout($fieldLayout)) {
-            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save subscription fields.'));
-
-            return null;
-        }
+        Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData);
 
         Craft::$app->getSession()->setNotice(Craft::t('app', 'Subscription fields saved.'));
 

@@ -1,9 +1,7 @@
 # Release Notes for Craft Commerce 2.x 3.1 support
 
 ### Added
-- Added project configuration support for gateways.
-- Added project configuration support for product types.
-- Added project configuration support for order field layout.
+- Added project configuration support for Craft Commerce.
 - Added `craft\commerce\services\OrderStatuses::archiveOrderStatusById().`
 
 ### Changed
