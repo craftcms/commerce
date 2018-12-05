@@ -26,6 +26,25 @@ Whenever you change the status of an order, the change from one status to anothe
 
 In addition to setting a new status, you can record a message which is stored with that status change. For example, you might place an order into a status called “Pending Stock”, and in the message you might write in which product you are waiting on stock for. This is a good way to allow multiple store managers to better understand why a particular status was set on an order.
 
+## Changing the status of an order
+
+### In the control panl
+
+An order’s status can be changed on the Edit Order Page within the control panel. Clicking the 'Update Order Status' button will present you with a model window that allows the selection of the new status, and also a message associated with the change. After clicking submit, the order’s status will be updated an a new order history record will be created.
+
+You can change the status of multiple order’s at the same time on the Order Index Page using the checkbox selection and then the 'Update Order Status' from the action menu.
+
+### In code
+
+```php
+$order = Plugin::getInstance()->getOrders()->getOrderById(ID);
+$order->orderStatusId = $orderStatus->id; //  new status ID
+$order->message = $message; // new message
+$result = Craft::$app->getElements()->saveElement($order);
+```
+
+By updating the order status ID on the order and saving the order, the status change event will be triggered and a new order status history record will be created.
+
 ## Email
 
 In addition to using order statuses to manage your orders, You can choose emails that will be sent when an order moves into that status.
