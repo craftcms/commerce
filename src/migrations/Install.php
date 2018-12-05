@@ -14,7 +14,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
-use craft\commerce\records\OrderSettings;
 use craft\commerce\records\OrderStatus;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
@@ -341,16 +340,6 @@ class Install extends Migration
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
             'PRIMARY KEY(id)',
-        ]);
-
-        $this->createTable('{{%commerce_ordersettings}}', [
-            'id' => $this->primaryKey(),
-            'fieldLayoutId' => $this->integer(),
-            'name' => $this->string()->notNull(),
-            'handle' => $this->string()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%commerce_orderstatus_emails}}', [
@@ -779,7 +768,6 @@ class Install extends Migration
         $this->dropTable('{{%commerce_orderadjustments}}');
         $this->dropTable('{{%commerce_orderhistories}}');
         $this->dropTable('{{%commerce_orders}}');
-        $this->dropTable('{{%commerce_ordersettings}}');
         $this->dropTable('{{%commerce_orderstatus_emails}}');
         $this->dropTable('{{%commerce_orderstatuses}}');
         $this->dropTable('{{%commerce_paymentcurrencies}}');
@@ -859,8 +847,6 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_orders}}', 'gatewayId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'customerId', false);
         $this->createIndex(null, '{{%commerce_orders}}', 'orderStatusId', false);
-        $this->createIndex(null, '{{%commerce_ordersettings}}', 'handle', true);
-        $this->createIndex(null, '{{%commerce_ordersettings}}', 'fieldLayoutId', false);
         $this->createIndex(null, '{{%commerce_orderstatuses}}', 'isArchived', false);
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'orderStatusId', false);
         $this->createIndex(null, '{{%commerce_orderstatus_emails}}', 'emailId', false);
@@ -968,7 +954,6 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_orders}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['paymentSourceId'], '{{%commerce_paymentsources}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['shippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
-        $this->addForeignKey(null, '{{%commerce_ordersettings}}', ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['emailId'], '{{%commerce_emails}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderstatus_emails}}', ['orderStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_paymentsources}}', ['gatewayId'], '{{%commerce_gateways}}', ['id'], 'CASCADE');
@@ -1038,7 +1023,6 @@ class Install extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderadjustments}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderhistories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_ordersettings}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_paymentsources}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_plans}}', $this);
@@ -1515,13 +1499,6 @@ class Install extends Migration
     private function _defaultOrderSettings()
     {
         $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
-
-        $data = [
-            'name' => 'Order',
-            'handle' => 'order',
-            'fieldLayoutId' => $this->db->getLastInsertID(FieldLayout::tableName())
-        ];
-        $this->insert(OrderSettings::tableName(), $data);
 
         $data = [
             'name' => 'New',

@@ -24,7 +24,6 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
-use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ShippingMethod;
@@ -1568,14 +1567,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        /** @var OrderSettings $orderSettings */
-        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
-        if ($orderSettings) {
-            return $orderSettings->getFieldLayout();
-        }
-
-        return null;
+        return Craft::$app->getFields()->getLayoutByType(Order::class);
     }
 
     /**

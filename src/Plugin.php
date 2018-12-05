@@ -23,6 +23,7 @@ use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
@@ -301,6 +302,12 @@ class Plugin extends BasePlugin
             ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$productTypeService, 'pruneDeletedField']);
+
+        $ordersService = $this->getOrders();
+        $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
+            ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
+            ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
+        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$ordersService, 'pruneDeletedField']);
     }
 
     /**

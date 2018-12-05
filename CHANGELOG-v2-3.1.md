@@ -2,6 +2,8 @@
 
 ### Added
 - Added project configuration support for gateways.
+- Added project configuration support for product types.
+- Added project configuration support for order field layout.
 - Added `craft\commerce\services\OrderStatuses::archiveOrderStatusById().`
 
 ### Changed
@@ -12,4 +14,7 @@
 
 ### Removed
 - Removed `craft\commerce\services\OrderStatuses::deleteOrderStatusById().`
+- Removed `craft\commerce\services\OrderSettings.`
+- Removed `craft\commerce\models\OrderSettings.`
+- Removed `craft\commerce\records\OrderSettings.`
 
