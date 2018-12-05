@@ -22,6 +22,7 @@ use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\ProductTypes;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
@@ -291,9 +292,15 @@ class Plugin extends BasePlugin
         $projectConfigService = Craft::$app->getProjectConfig();
 
         $gatewayService = $this->getGateways();
-        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway']);
-        $projectConfigService->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway']);
-        $projectConfigService->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleArchivedGateway']);
+        $projectConfigService->onAdd(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway'])
+            ->onUpdate(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleChangedGateway'])
+            ->onRemove(Gateways::CONFIG_GATEWAY_KEY . '.{uid}', [$gatewayService, 'handleArchivedGateway']);
+
+        $productTypeService = $this->getProductTypes();
+        $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
+            ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
+            ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
+        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$productTypeService, 'pruneDeletedField']);
     }
 
     /**

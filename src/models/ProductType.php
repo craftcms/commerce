@@ -107,6 +107,11 @@ class ProductType extends Model
     public $variantFieldLayoutId;
 
     /**
+     * @var string UID
+     */
+    public $uid;
+
+    /**
      * @var TaxCategory[]
      */
     private $_taxCategories;
