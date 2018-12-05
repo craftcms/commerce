@@ -3,26 +3,26 @@
 ## Unreleased
 
 ### Added
-- Orders now can have a friendlier reference number with an optional incrementing integer within the reference. ([#184](https://github.com/craftcms/commerce/issues/184))
-- Added a new element source for orders that displays carts that have an attempted payment.
+- Orders now can have custom-formatted, sequential “reference numbers”. ([#184](https://github.com/craftcms/commerce/issues/184))
+- Order indexes now have an “Attempted Payments” source.
 - Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
 - Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
 - Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
 
 ### Fixed
-- Fixed a bug where the `Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
-- Fixed a bug where accessing the last transaction on a cart that had none would throw an error. ([#558](https://github.com/craftcms/commerce/issues/558))
-- Fixed an SQL error when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
-- Fixed a bug where brand new addresses submitted to the cart where not being taken into account when calculating tax until after another order save.
-- Fixed a bug where subscriptions would show incorrect status when viewed using the Customer field. ([#566](https://github.com/craftcms/commerce/issues/566))
+- Fixed a bug where the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
+- Fixed an error that could occur when accessing the last transaction on a cart. ([#558](https://github.com/craftcms/commerce/issues/558))
+- Fixed an SQL error that occurred when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
+- Fixed a bug where new addresses submitted to the cart were not factoring into tax calculations until the following order update.
+- Fixed a bug where Customer fields could show incorrect subscription statuses. ([#566](https://github.com/craftcms/commerce/issues/566))
 - Fixed the default tax zone checkbox label. ([#532](https://github.com/craftcms/commerce/issues/532))
-- Fixed a bug where an incomplete cart’s date paid showed as today’s date on the Order Edit Page. ([#588](https://github.com/craftcms/commerce/issues/588))
-- Fixed a bug where sales with a flat amount off increased the price instead of decreasing the price when the checkbox 'Ignore previous matching sales if this sale matches' was checked.
+- Fixed a bug where incomplete carts’ Date Paid would show the current date on View Order pages. ([#588](https://github.com/craftcms/commerce/issues/588))
+- Fixed a bug where flat-amount sales increased the price instead of decreasing the price when the checkbox “Ignore previous matching sales if this sale matches” was checked.
 - Fixed a bug where variant queries ignored the `status` param. ([#380](https://github.com/craftcms/commerce/issues/380))
-- Fixed an SQL error that occurred when using the `isPaid` or `isUnPaid` params in an order query. ([#380](https://github.com/craftcms/commerce/issues/380))
-- Fixed an issue where custom field validation errors did not show up on the Order Edit Page. ([#580](https://github.com/craftcms/commerce/issues/580))
-- Fixed a bug where disabled discounts were still being applied. ([#576](https://github.com/craftcms/commerce/issues/576))
-- Fixed a PHP error that occurred when using coupon code that was already taken another discount. ([#569](https://github.com/craftcms/commerce/issues/569))
+- Fixed an SQL error that occurred when using the `isPaid` or `isUnPaid` order query params. ([#380](https://github.com/craftcms/commerce/issues/380))
+- Fixed a bug where custom field validation errors weren’t visible on View Order pages. ([#580](https://github.com/craftcms/commerce/issues/580))
+- Fixed a bug where disabled discounts could still be applied to orders. ([#576](https://github.com/craftcms/commerce/issues/576))
+- Fixed a PHP error that occurred when saving a discount with a non-unique coupon code. ([#569](https://github.com/craftcms/commerce/issues/569))
  
 ## 2.0.0-beta.13.1 - 2018-11-02
 
