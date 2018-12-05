@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.14 - 2018-12-05
 
 ### Added
 - Orders now can have custom-formatted, sequential “reference numbers”. ([#184](https://github.com/craftcms/commerce/issues/184))
