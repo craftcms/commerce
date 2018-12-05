@@ -28,7 +28,7 @@ In addition to setting a new status, you can record a message which is stored wi
 
 ## Changing the status of an order
 
-### In the control panl
+### In the control panel
 
 An order’s status can be changed on the Edit Order Page within the control panel. Clicking the 'Update Order Status' button will present you with a model window that allows the selection of the new status, and also a message associated with the change. After clicking submit, the order’s status will be updated an a new order history record will be created.
 
