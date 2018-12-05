@@ -28,7 +28,6 @@ class Orders extends Component
     // Public Methods
     // =========================================================================
 
-
     /**
      * Handle field layout change
      *
