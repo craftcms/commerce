@@ -1771,7 +1771,7 @@ class Order extends Element
 
         $sources[] = [
             'key' => 'carts:attempted-payment',
-            'label' => Craft::t('commerce', 'Attempted payment'),
+            'label' => Craft::t('commerce', 'Attempted Payments'),
             'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
