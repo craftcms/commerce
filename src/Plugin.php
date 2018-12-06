@@ -22,6 +22,7 @@ use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\Subscriptions;
@@ -315,6 +316,12 @@ class Plugin extends BasePlugin
             ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
             ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleDeletedFieldLayout']);
         Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$subscriptionsService, 'pruneDeletedField']);
+
+        $orderStatusService = $this->getOrderStatuses();
+        $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
+            ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
+            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleArchivedOrderStatus']);
+
     }
 
     /**

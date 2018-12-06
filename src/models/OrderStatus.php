@@ -57,6 +57,21 @@ class OrderStatus extends Model
      */
     public $default;
 
+    /**
+     * @var boo Whether the order status is archived.
+     */
+    public $isArchived = false;
+
+    /**
+     * @var \DateTime Archived Date
+     */
+    public $dateArchived;
+
+    /**
+     * @var string UID
+     */
+    public $uid;
+
     // Public Methods
     // =========================================================================
 

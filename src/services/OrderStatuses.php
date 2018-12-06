@@ -17,7 +17,9 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use craft\db\Query;
+use craft\events\ConfigEvent;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -53,6 +55,7 @@ class OrderStatuses extends Component
      */
     const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
+    const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
     // Properties
     // =========================================================================
@@ -165,87 +168,108 @@ class OrderStatuses extends Component
     /**
      * Save the order status.
      *
-     * @param OrderStatus $model
+     * @param OrderStatus $orderStatus
      * @param array $emailIds
      * @param bool $runValidation should we validate this order status before saving.
      * @return bool
      * @throws Exception
      */
-    public function saveOrderStatus(OrderStatus $model, array $emailIds, bool $runValidation = true): bool
+    public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true): bool
     {
-        if ($model->id) {
-            $record = OrderStatusRecord::findOne($model->id);
-            if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order status exists with the ID “{id}”',
-                    ['id' => $model->id]));
-            }
-        } else {
-            $record = new OrderStatusRecord();
-        }
+        $isNewStatus = !(bool)$orderStatus->id;
 
-        if ($runValidation && !$model->validate()) {
+        if ($runValidation && !$orderStatus->validate()) {
             Craft::info('Order status not saved due to validation error.', __METHOD__);
 
             return false;
         }
 
-        // Make sure no statuses that are not archived share the handle
-        $existingStatus = $this->getOrderStatusByHandle($model->handle);
+        if ($isNewStatus) {
+            $statusUid = StringHelper::UUID();
+        } else {
+            $statusUid = Db::uidById('{{%commerce_orderstatuses}}', $orderStatus->id);
+        }
 
-        if ($existingStatus && (!$model->id || $model->id !== $existingStatus->id)) {
-            $model->addError('handle', Craft::t('commerce', 'That handle is already in use'));
+        // Make sure no statuses that are not archived share the handle
+        $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
+
+        if ($existingStatus && (!$orderStatus->id || $orderStatus->id !== $existingStatus->id)) {
+            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
             return false;
         }
 
-        $record->name = $model->name;
-        $record->handle = $model->handle;
-        $record->color = $model->color;
-        $record->sortOrder = $model->sortOrder ?: 999;
-        $record->default = $model->default;
+        $projectConfig = Craft::$app->getProjectConfig();
 
-        //validating emails ids
-        $exist = EmailRecord::find()->where(['in', 'id', $emailIds])->exists();
-        $hasEmails = (boolean)count($emailIds);
-
-        if (!$exist && $hasEmails) {
-            $model->addError('emails', 'One or more emails do not exist in the system.');
+        if ($orderStatus->isArchived) {
+            $configData = null;
+        } else {
+            $emails = Db::uidsByIds('{{%commerce_emails}}', $emailIds);
+            $configData = [
+                'name' => $orderStatus->name,
+                'handle' => $orderStatus->handle,
+                'color' => $orderStatus->color,
+                'sortOrder' => $orderStatus->sortOrder,
+                'default' => $orderStatus->default,
+                'emails' => array_values($emails)
+            ];
         }
 
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
+        $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
+        $projectConfig->set($configPath, $configData);
 
+        if ($isNewStatus) {
+            $orderStatus->id = Db::idByUid('{{%commerce_orderstatuses}}', $statusUid);
+        }
+
+        return true;
+    }
+
+    /**
+     * Handle gateway status change.
+     *
+     * @param ConfigEvent $event
+     */
+    public function handleChangedOrderStatus(ConfigEvent $event)
+    {
+        $statusUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
         try {
-            // Save it!
-            $record->save(false);
+            $statusRecord = $this->_getOrderStatusRecord($statusUid);
 
-            if ($record->default) {
-                OrderStatusRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+            $statusRecord->name = $data['name'];
+            $statusRecord->handle = $data['handle'];
+            $statusRecord->color = $data['color'];
+            $statusRecord->sortOrder = $data['sortOrder'] ?: 999;
+            $statusRecord->default = $data['default'];
+            $statusRecord->uid = $statusUid;
+
+            // Save the volume
+            $statusRecord->save(false);
+
+            if ($statusRecord->default) {
+                OrderStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
             }
 
-            //Delete old links
-            if ($model->id) {
-                $orderStatusEmailRecords = OrderStatusEmailRecord::find()->where(['orderStatusId' => $model->id])->all();
+            $connection = Craft::$app->getDb();
+            $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
 
-                foreach ($orderStatusEmailRecords as $orderStatusEmailRecord) {
-                    $orderStatusEmailRecord->delete();
+            if (!empty($data['emails'])) {
+                $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
+
+                foreach ($emailIds as $emailId) {
+                    $connection->createCommand()
+                        ->insert('{{%commerce_orderstatus_emails}}', [
+                            'orderStatusId' => $statusRecord->id,
+                            'emailId' => $emailId
+                        ])
+                        ->execute();
                 }
             }
 
-            //Save new links
-            $rows = array_map(
-                function($id) use ($record) {
-                    return [$id, $record->id];
-                }, $emailIds);
-
-            $cols = ['emailId', 'orderStatusId'];
-            $table = OrderStatusEmailRecord::tableName();
-            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-            // Now that we have an ID, save it on the model
-            $model->id = $record->id;
-
             $transaction->commit();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -256,23 +280,50 @@ class OrderStatuses extends Component
     /**
      * Archive an order status by it's id.
      * @param int $id
-     * @return boole
+     * @return bool
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function archiveOrderStatusById(int $id): boolean
+    public function archiveOrderStatusById(int $id): bool
     {
         $statuses = $this->getAllOrderStatuses();
+        $status = $this->getOrderStatusById($id);
 
-        if (\count($statuses) >= 2) {
-            $record = OrderStatusRecord::findOne($id);
-            $record->isArchived = true;
-            $record->dateArchived = Db::prepareDateForDb(new \DateTime());
-            return (bool)$record->save();
+        if (\count($statuses) >= 2 && $status) {
+            $status->isArchived = true;
+            return $this->saveOrderStatus($status);
         }
 
         return false;
     }
+
+
+    /**
+     * Handle order status being archived
+     *
+     * @param ConfigEvent $event
+     */
+    public function handleArchivedOrderStatus(ConfigEvent $event)
+    {
+        $orderStatusUid = $event->tokenMatches[0];
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        try {
+            $orderStatusRecord = $this->_getOrderStatusRecord($orderStatusUid);
+
+            $orderStatusRecord->isArchived = true;
+            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+
+            // Save the volume
+            $orderStatusRecord->save(false);
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
     /**
      * Returns all Order Statuses
      *
@@ -349,10 +400,15 @@ class OrderStatuses extends Component
      */
     public function reorderOrderStatuses(array $ids): bool
     {
-        foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_orderstatuses}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
-                ->execute();
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        $uidsByIds = Db::uidsByIds('{{%commerce_orderstatuses}}', $ids);
+
+        foreach ($ids as $orderStatus => $statusId) {
+            if (!empty($uidsByIds[$statusId])) {
+                $statusUid = $uidsByIds[$statusId];
+                $projectConfig->set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $orderStatus + 1);
+            }
         }
 
         return true;
@@ -391,5 +447,16 @@ class OrderStatuses extends Component
             ->where(['isArchived' => false])
             ->orderBy('sortOrder')
             ->from(['{{%commerce_orderstatuses}}']);
+    }
+
+    /**
+     * Gets an order status' record by uid.
+     *
+     * @param string $uid
+     * @return OrderStatusRecord
+     */
+    private function _getOrderStatusRecord(string $uid): OrderStatusRecord
+    {
+        return OrderStatusRecord::findOne(['uid' => $uid]) ?? new OrderStatusRecord();
     }
 }

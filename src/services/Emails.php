@@ -67,6 +67,8 @@ class Emails extends Component
      */
     const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
 
+    const CONFIG_EMAILS_KEY = 'commerce.emails';
+
     // Public Methods
     // =========================================================================
 
