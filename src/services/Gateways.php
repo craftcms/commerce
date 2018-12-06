@@ -430,7 +430,6 @@ class Gateways extends Component
             ->from(['{{%commerce_gateways}}']);
     }
 
-
     /**
      * Gets a gateway's record by uid.
      *
@@ -441,5 +440,4 @@ class Gateways extends Component
     {
         return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
     }
-
 }
