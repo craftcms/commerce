@@ -248,6 +248,48 @@ class ProductTypes extends Component
     }
 
     /**
+     * @param $taxCategoryId
+     * @return array
+     */
+    public function getProductTypesByTaxCategoryId($taxCategoryId): array
+    {
+        $rows = $this->_createProductTypeQuery()
+            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
+            ->where(['productTypeTaxCategories.taxCategoryId' => $taxCategoryId])
+            ->all();
+
+        $productTypes = [];
+
+        foreach ($rows as $row) {
+            $key = $row['id'];
+            $productTypes[$key] = new ProductType($row);
+        }
+
+        return $productTypes;
+    }
+
+    /**
+     * @param $shippingCategoryId
+     * @return array
+     */
+    public function getProductTypesByShippingCategoryId($shippingCategoryId): array
+    {
+        $rows = $this->_createProductTypeQuery()
+            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
+            ->where(['productTypeShippingCategories.shippingCategoryId' => $shippingCategoryId])
+            ->all();
+
+        $productTypes = [];
+
+        foreach ($rows as $row) {
+            $key = $row['id'];
+            $productTypes[$key] = new ProductType($row);
+        }
+
+        return $productTypes;
+    }
+
+    /**
      * Saves a product type.
      *
      * @param ProductType $productType The product type model.
@@ -346,21 +388,6 @@ class ProductTypes extends Component
                 // Get all previous categories
                 $oldShippingCategories = $oldProductType->getShippingCategories();
                 $oldTaxCategories = $oldProductType->getTaxCategories();
-            }
-
-            // Remove all existing categories
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', ['productTypeId' => $productType->id])->execute();
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', ['productTypeId' => $productType->id])->execute();
-
-            // Add back the new categories
-            foreach ($productType->getShippingCategories() as $shippingCategory) {
-                $data = ['productTypeId' => $productType->id, 'shippingCategoryId' => $shippingCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data)->execute();
-            }
-
-            foreach ($productType->getTaxCategories() as $taxCategory) {
-                $data = ['productTypeId' => $productType->id, 'taxCategoryId' => $taxCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data)->execute();
             }
 
             // Update all products that used the removed tax & shipping categories
@@ -660,18 +687,18 @@ class ProductTypes extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'fieldLayoutId',
-                'variantFieldLayoutId',
-                'name',
-                'handle',
-                'hasDimensions',
-                'hasVariants',
-                'hasVariantTitleField',
-                'titleFormat',
-                'skuFormat',
-                'descriptionFormat',
+                'productTypes.id',
+                'productTypes.fieldLayoutId',
+                'productTypes.variantFieldLayoutId',
+                'productTypes.name',
+                'productTypes.handle',
+                'productTypes.hasDimensions',
+                'productTypes.hasVariants',
+                'productTypes.hasVariantTitleField',
+                'productTypes.titleFormat',
+                'productTypes.skuFormat',
+                'productTypes.descriptionFormat',
             ])
-            ->from(['{{%commerce_producttypes}}']);
+            ->from(['{{%commerce_producttypes}} productTypes']);
     }
 }

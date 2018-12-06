@@ -32,15 +32,37 @@
     errors: shippingCategory is defined ? shippingCategory.getErrors('description')
 }) }}
 
-{{ forms.checkboxField({
-    label: "Use this shipping category by default for new products"|t('commerce'),
-    id: 'default',
-    name: 'default',
-    value: 1,
-    checked: shippingCategory is defined ? shippingCategory.default,
-    errors: shippingCategory is defined ? shippingCategory.getErrors('default')
-}) }}
+{% set productTypeInputs %}
+    {% for productType in productTypes %}
+        {{ forms.checkboxField({
+            label: productType.name,
+            name: 'productTypes['~productType.id~']',
+            value: productType.id,
+            id: 'productType:'~productType.id,
+            checked: (productType.id in shippingCategory.productTypeIds),
+        }) }}
+    {% endfor %}
+{% endset %}
 
+{{ forms.field({
+    label: "Available to Product Types"|t('commerce'),
+    instructions: "Which product types should this category be available to?"|t('commerce')
+}, productTypeInputs) }}
+
+{% set defaultInput %}
+    {{ forms.checkboxField({
+        label: "Use this shipping category by default for new products. Products default to this when no categories are selected above."|t('commerce'),
+        id: 'default',
+        name: 'default',
+        value: 1,
+        checked: shippingCategory is defined ? shippingCategory.default,
+        errors: shippingCategory is defined ? shippingCategory.getErrors('default')
+    }) }}
+{% endset %}
+
+{{ forms.field({
+    label: "Default Category"|t('commerce')
+}, defaultInput) }}
 
 {% if shippingCategory is not defined or not shippingCategory.handle %}
     {% set nameId = 'name'|namespaceInputId|e('js') %}

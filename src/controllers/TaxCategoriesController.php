@@ -43,7 +43,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
     {
         $variables = [
             'id' => $id,
-            'taxCategory' => $taxCategory
+            'taxCategory' => $taxCategory,
+            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
         ];
 
         if (!$variables['taxCategory']) {
@@ -83,6 +84,17 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $taxCategory->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+
+        // Set the new product types
+        $productTypes = [];
+        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId)
+        {
+            if($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId))
+            {
+                $productTypes[] = $productType;
+            }
+        }
+        $taxCategory->setProductTypes($productTypes);
 
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {

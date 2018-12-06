@@ -201,34 +201,11 @@ class ProductType extends Model
      */
     public function getShippingCategories(): array
     {
-        if (!$this->_shippingCategories) {
-            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductId($this->id);
+        if ($this->_shippingCategories === null) {
+            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($this->id);
         }
 
         return $this->_shippingCategories;
-    }
-
-    /**
-     * @param int[]|ShippingCategory[] $shippingCategories
-     */
-    public function setShippingCategories($shippingCategories)
-    {
-        $categories = [];
-        foreach ($shippingCategories as $category) {
-            if (is_numeric($category)) {
-                if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
-                    $categories[$category->id] = $category;
-                }
-            } else {
-                if ($category instanceof ShippingCategory) {
-                    if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
-                        $categories[$category->id] = $category;
-                    }
-                }
-            }
-        }
-
-        $this->_shippingCategories = $categories;
     }
 
     /**
@@ -236,34 +213,11 @@ class ProductType extends Model
      */
     public function getTaxCategories(): array
     {
-        if (!$this->_taxCategories) {
+        if ($this->_taxCategories === null) {
             $this->_taxCategories = Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($this->id);
         }
 
         return $this->_taxCategories;
-    }
-
-    /**
-     * @param int[]|TaxCategory[] $taxCategories
-     */
-    public function setTaxCategories($taxCategories)
-    {
-        $categories = [];
-        foreach ($taxCategories as $category) {
-            if (is_numeric($category)) {
-                if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
-                    $categories[$category->id] = $category;
-                }
-            } else {
-                if ($category instanceof TaxCategory) {
-                    if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
-                        $categories[$category->id] = $category;
-                    }
-                }
-            }
-        }
-
-        $this->_taxCategories = $categories;
     }
 
     /**
