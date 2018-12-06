@@ -152,22 +152,22 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param ShippingCategory $model
+     * @param ShippingCategory $shippingCategory
      * @param bool $runValidation should we validate this before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveShippingCategory(ShippingCategory $model, bool $runValidation = true): bool
+    public function saveShippingCategory(ShippingCategory $shippingCategory, bool $runValidation = true): bool
     {
         $oldHandle = null;
 
-        if ($model->id) {
-            $record = ShippingCategoryRecord::findOne($model->id);
+        if ($shippingCategory->id) {
+            $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                    ['id' => $shippingCategory->id]));
             }
 
             $oldHandle = $record->handle;
@@ -175,32 +175,41 @@ class ShippingCategories extends Component
             $record = new ShippingCategoryRecord();
         }
 
-        if ($runValidation && !$model->validate()) {
+        if ($runValidation && !$shippingCategory->validate()) {
             Craft::info('Shipping category not saved due to validation error.', __METHOD__);
 
             return false;
         }
 
-        $record->name = $model->name;
-        $record->handle = $model->handle;
-        $record->description = $model->description;
-        $record->default = $model->default;
+        $record->name = $shippingCategory->name;
+        $record->handle = $shippingCategory->handle;
+        $record->description = $shippingCategory->description;
+        $record->default = $shippingCategory->default;
 
         // Save it!
         $record->save(false);
 
         // Now that we have a record ID, save it on the model
-        $model->id = $record->id;
+        $shippingCategory->id = $record->id;
 
         // If this was the default make all others not the default.
-        if ($model->default) {
+        if ($shippingCategory->default) {
             ShippingCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
         }
 
-        // Update Service cache
-        $this->_memoizeShippingCategory($model);
+        // Remove existing Categories <-> ProductType relationships
+        Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', ['shippingCategoryId' => $shippingCategory->id])->execute();
 
-        if (null !== $oldHandle && $model->handle != $oldHandle) {
+        // Add back the new categories
+        foreach ($shippingCategory->getProductTypes() as $productType) {
+            $data = ['productTypeId' => (int)$productType->id, 'shippingCategoryId' => (int)$shippingCategory->id];
+            Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data)->execute();
+        }
+
+        // Update Service cache
+        $this->_memoizeShippingCategory($shippingCategory);
+
+        if (null !== $oldHandle && $shippingCategory->handle != $oldHandle) {
             unset($this->_shippingCategoriesByHandle[$oldHandle]);
         }
 
@@ -231,14 +240,14 @@ class ShippingCategories extends Component
      * @param $productTypeId
      * @return array
      */
-    public function getShippingCategoriesByProductId($productTypeId): array
+    public function getShippingCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
-            ->innerJoin('{{%commerce_producttypes}} productTypes', '[[productTypeShippingCategories.productTypeId]] = [[productTypes.id]]')
-            ->where(['productTypes.id' => $productTypeId])
+            ->where(['productTypeShippingCategories.productTypeId' => $productTypeId])
             ->all();
 
+        // Always need at least the default category
         if (empty($rows)) {
             $category = $this->getDefaultShippingCategory();
 
