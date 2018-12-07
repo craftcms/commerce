@@ -641,6 +641,14 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function eagerLoadingMap(array $sourceElements, string $handle): array
     {
         if ($handle == 'product') {

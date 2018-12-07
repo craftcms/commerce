@@ -882,11 +882,11 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->isPaid) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPaid', '>= commerce_orders.totalPrice'));
+            $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
         }
 
         if ($this->isUnpaid) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPaid', '< commerce_orders.totalPrice'));
+            $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
         }
 
         if ($this->hasPurchasables) {
