@@ -572,8 +572,57 @@ class ProductTypes extends Component
             $this->_siteSettingsByProductId[$productTypeRecord->id]
         );
 
-        // Update tax and shipping zones for this product type (if applicable)
-        $this->_updateTaxAndShippingZones($productTypeRecord->uid);
+        // Fire an 'afterSaveProductType' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
+                'productType' => $this->getProductTypeById($productTypeRecord->id),
+                'isNew' => empty($this->_savingProductTypes[$productTypeUid]),
+            ]));
+        }
+    }
+
+    /**
+     * Returns all product types by a tax category id.
+     *
+     * @param $taxCategoryId
+     * @return array
+     */
+    public function getProductTypesByTaxCategoryId($taxCategoryId): array
+    {
+        $rows = $this->_createProductTypeQuery()
+            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
+            ->where(['productTypeTaxCategories.taxCategoryId' => $taxCategoryId])
+            ->all();
+
+        $productTypes = [];
+
+        foreach ($rows as $row) {
+            $productTypes[$row['id']] = new ProductType($row);
+        }
+
+        return $productTypes;
+    }
+
+    /**
+     * Returns all product types by a shipping category id.
+     *
+     * @param $shippingCategoryId
+     * @return array
+     */
+    public function getProductTypesByShippingCategoryId($shippingCategoryId): array
+    {
+        $rows = $this->_createProductTypeQuery()
+            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
+            ->where(['productTypeShippingCategories.shippingCategoryId' => $shippingCategoryId])
+            ->all();
+
+        $productTypes = [];
+
+        foreach ($rows as $row) {
+            $productTypes[$row['id']] = new ProductType($row);
+        }
+
+        return $productTypes;
     }
 
     /**
@@ -788,98 +837,6 @@ class ProductTypes extends Component
     // =========================================================================
 
     /**
-     * Updates a product type's tax and shipping zones.
-     * This only happens if a product type is saved via CP.
-     *
-     * @param string $productTypeUid
-     * @throws \yii\db\Exception
-     */
-    private function _updateTaxAndShippingZones(string $productTypeUid)
-    {
-        // Check if we're saving the product type via CP
-        if (!empty($this->_savingProductTypes[$productTypeUid])) {
-
-            /** @var ProductType $productType */
-            $productType = $this->_savingProductTypes[$productTypeUid];
-            $productType->id = Db::idByUid('{{%commerce_producttypes}}', $productTypeUid);
-
-            // Load up the previous setup for comparison
-            $oldProductTypeRow = $this->_createProductTypeQuery()
-                ->where(['id' => $productType->id])
-                ->one();
-
-            $oldProductType = new ProductType($oldProductTypeRow);
-
-            // Get all previous categories
-            $oldShippingCategories = $oldProductType->getShippingCategories();
-            $oldTaxCategories = $oldProductType->getTaxCategories();
-
-            // Remove all existing categories
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', ['productTypeId' => $productType->id])->execute();
-            Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', ['productTypeId' => $productType->id])->execute();
-
-            // Grab the new categories
-            $newShippingCategories = $productType->getShippingCategories();
-            $newTaxCategories = $productType->getTaxCategories();
-
-            // Add back the new categories
-            foreach ($newShippingCategories as $shippingCategory) {
-                $data = ['productTypeId' => $productType->id, 'shippingCategoryId' => $shippingCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data)->execute();
-            }
-
-            foreach ($newTaxCategories as $taxCategory) {
-                $data = ['productTypeId' => $productType->id, 'taxCategoryId' => $taxCategory->id];
-                Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data)->execute();
-            }
-
-            // Were any categories removed?
-            $removedShippingCategoryIds = array_diff(array_keys($oldShippingCategories), array_keys($newShippingCategories));
-            $removedTaxCategoryIds = array_diff(array_keys($oldTaxCategories), array_keys($newTaxCategories));
-
-            // Update all products that used the removed product type shipping categories
-            if ($removedShippingCategoryIds) {
-                $defaultShippingCategory = array_values($newShippingCategories)[0];
-                if ($defaultShippingCategory) {
-                    $data = ['shippingCategoryId' => $defaultShippingCategory->id];
-                    ProductRecord::updateAll($data, [
-                        'shippingCategoryId' => $removedShippingCategoryIds,
-                        'typeId' => $productType->id
-                    ]);
-                }
-            }
-
-            // Update all products that used the removed product type tax categories
-            if ($removedTaxCategoryIds) {
-                $defaultTaxCategory = array_values($newTaxCategories)[0];
-                if ($defaultTaxCategory) {
-                    $data = ['taxCategoryId' => $defaultTaxCategory->id];
-                    ProductRecord::updateAll($data, [
-                        'taxCategoryId' => $removedTaxCategoryIds,
-                        'typeId' => $productType->id
-                    ]);
-                }
-            }
-        } else {
-            // Just generate the model for the afterSaveProductType event
-            $productTypeRow = $this->_createProductTypeQuery()
-                ->where(['uid' => $productTypeUid])
-                ->one();
-
-            $productType = new ProductType($productTypeRow);
-
-        }
-
-
-        // Fire an 'afterSaveProductType' event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PRODUCTTYPE)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_PRODUCTTYPE, new ProductTypeEvent([
-                'productType' => $productType,
-                'isNew' => empty($this->_savingProductTypes[$productTypeUid]),
-            ]));
-        }
-    }
-    /**
      * Memoize a product type
      *
      * @param ProductType $productType The product type to memoize.
@@ -899,20 +856,20 @@ class ProductTypes extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'fieldLayoutId',
-                'variantFieldLayoutId',
-                'name',
-                'handle',
-                'hasDimensions',
-                'hasVariants',
-                'hasVariantTitleField',
-                'titleFormat',
-                'skuFormat',
-                'descriptionFormat',
-                'uid'
+                'productTypes.id',
+                'productTypes.fieldLayoutId',
+                'productTypes.variantFieldLayoutId',
+                'productTypes.name',
+                'productTypes.handle',
+                'productTypes.hasDimensions',
+                'productTypes.hasVariants',
+                'productTypes.hasVariantTitleField',
+                'productTypes.titleFormat',
+                'productTypes.skuFormat',
+                'productTypes.descriptionFormat',
+                'productTypes.uid'
             ])
-            ->from(['{{%commerce_producttypes}}']);
+            ->from(['{{%commerce_producttypes}} productTypes']);
     }
 
     /**
