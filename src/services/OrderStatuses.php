@@ -225,9 +225,11 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Handle gateway status change.
+     * Handle order status change.
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleChangedOrderStatus(ConfigEvent $event)
     {
@@ -273,8 +275,6 @@ class OrderStatuses extends Component
             $transaction->rollBack();
             throw $e;
         }
-
-        return true;
     }
 
     /**
@@ -302,6 +302,8 @@ class OrderStatuses extends Component
      * Handle order status being archived
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleArchivedOrderStatus(ConfigEvent $event)
     {

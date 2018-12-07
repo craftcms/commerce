@@ -266,6 +266,8 @@ class Gateways extends Component
      * Handle gateway change
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleChangedGateway(ConfigEvent $event)
     {
@@ -301,6 +303,8 @@ class Gateways extends Component
      * Handle gateway being archived
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleArchivedGateway(ConfigEvent $event)
     {

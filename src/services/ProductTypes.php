@@ -377,8 +377,8 @@ class ProductTypes extends Component
      * Handle a product type change.
      *
      * @param ConfigEvent $event
-     * @throws \Throwable
-     * @throws \yii\db\Exception
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleChangedProductType(ConfigEvent $event)
     {
@@ -586,7 +586,6 @@ class ProductTypes extends Component
     public function deleteProductTypeById(int $id): bool
     {
         $productType = $this->getProductTypeById($id);
-
         Craft::$app->getProjectConfig()->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productType->uid);
         return true;
     }
@@ -595,8 +594,8 @@ class ProductTypes extends Component
      * Handle a product type getting deleted.
      *
      * @param ConfigEvent $event
-     * @throws \Throwable
-     * @throws \yii\db\Exception
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleDeletedProductType(ConfigEvent $event)
     {
