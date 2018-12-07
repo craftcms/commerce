@@ -10,6 +10,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
+use craft\commerce\events\EmailEvent;
+use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -323,6 +325,26 @@ class OrderStatuses extends Component
         } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;
+        }
+    }
+
+    /**
+     * Prune a deleted email from order statuses.
+     *
+     * @param EmailEvent $event
+     */
+    public function pruneDeletedEmail(EmailEvent $event)
+    {
+        $emailUid = $event->email->uid;
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $statuses = $projectConfig->get(self::CONFIG_STATUSES_KEY);
+
+        // Loop through the volumes and prune the UID from field layouts.
+        if (is_array($statuses)) {
+            foreach ($statuses as $orderStatusUid => $orderStatus) {
+                $projectConfig->remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatusUid . '.emails.' . $emailUid);
+            }
         }
     }
 

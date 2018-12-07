@@ -3,6 +3,7 @@
 ### Added
 - Added project configuration support for Craft Commerce.
 - Added `craft\commerce\services\OrderStatuses::archiveOrderStatusById().`
+- `craft\commerce\services\Emails` now fires the `beforeSaveEmail`, `afterSaveEmail`, `beforeDeleteEmail` and `afterDeleteEmail` events.
 
 ### Changed
 - Order statuses are now archived instead of being deleted.
