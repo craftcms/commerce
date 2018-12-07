@@ -210,7 +210,7 @@ class OrderStatuses extends Component
                 'color' => $orderStatus->color,
                 'sortOrder' => $orderStatus->sortOrder,
                 'default' => $orderStatus->default,
-                'emails' => array_values($emails)
+                'emails' => array_combine($emails, $emails)
             ];
         }
 

@@ -204,7 +204,7 @@ class m181206_120000_remaining_project_config_support extends Migration
             ->all();
 
         foreach($relationRows as $relationRow) {
-            $statusRows[$relationRow['statusId']]['emails'][] = $relationRow['emailUid'];
+            $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
         }
 
         foreach ($statusRows as &$statusRow) {
