@@ -4,6 +4,8 @@
 
 ### Changed
 - It’s now possible to how subscription dates on subscriptions indexes.
+- `craft\commerce\models\Address::toArray()` now supports `country` and `state` being passed to `$extraFields`. 
+- `craft\commerce\models\Customer::toArray()` now supports `user`, `email`, `addresses`, `orders`, `subscriptions`, `primaryBillingAddress`, and `primaryShippingAddress` being passed to `$extraFields`.
 
 ### Removed
 - Removed the `forgive` attribute for subscription payments.
