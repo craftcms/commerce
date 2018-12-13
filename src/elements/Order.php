@@ -515,7 +515,7 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
-        $justPaid = $this->getIsPaid() && $this->datePaid === null;
+        $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
 
         if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new \DateTime());
