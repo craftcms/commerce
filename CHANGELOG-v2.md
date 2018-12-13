@@ -1,7 +1,9 @@
 # Release Notes for Craft Commerce 2.x
 
-### Added
-- It is now possible to display subscription date on the susbcription index page.
+## Unreleased
+
+### Changed
+- It’s now possible to how subscription dates on subscriptions indexes.
 
 ### Removed
 - Removed the `forgive` attribute for subscription payments.
