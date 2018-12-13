@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce 2.x
 
+### Added
+- It is now possible to display subscription date on the susbcription index page.
+
 ### Fixed
 - Fixed a bug where the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#600](https://github.com/craftcms/commerce/issues/600))
 
