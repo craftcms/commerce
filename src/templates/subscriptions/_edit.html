@@ -148,8 +148,8 @@
                 <tr class="infoRow" data-info="{{ info|json_encode }}">
                     <td>{{ payment.paymentDate|datetime }}</td>
                     <td>{{ payment.paymentCurrency }} {{ payment.paymentAmount }}</td>
-                    <td class="payment-status-{{ payment.paid ? 'paid' : (payment.forgiven ? 'forgiven' : 'unpaid') }}">
-                        {{ payment.paid ? 'Paid'|t('commerce') : (payment.forgiven ? 'Forgiven'|t('commerce') : 'Unpaid'|t('commerce')) }}
+                    <td class="payment-status-{{ payment.paid ? 'paid' : 'unpaid' }}">
+                        {{ payment.paid ? 'Paid'|t('commerce') : 'Unpaid'|t('commerce') }}
                     </td>
                     <td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
                 </tr>
