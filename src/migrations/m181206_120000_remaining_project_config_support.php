@@ -56,6 +56,8 @@ class m181206_120000_remaining_project_config_support extends Migration
         $projectConfig->set(Emails::CONFIG_EMAILS_KEY, $emailData);
         $projectConfig->set(OrderStatuses::CONFIG_STATUSES_KEY, $statusData);
 
+        $this->dropTableIfExists('{{%commerce_ordersettings}}');
+
         return true;
     }
 
