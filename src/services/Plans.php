@@ -206,7 +206,7 @@ class Plans extends Component
             ->where(['planInformationId' => $entryId])
             ->all();
 
-        return $this->_populatedPlans($results);
+        return $this->_populatePlans($results);
     }
 
     /**
