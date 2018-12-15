@@ -194,6 +194,22 @@ class Plans extends Component
     }
 
     /**
+     * Returns plans which use the provided Entry for its "information"
+     *
+     * @param string $id The Entry ID to search by
+     * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
+     */
+    public function getPlansByInformationEntryId(int $entryId)
+    {
+        $results = $this->_createPlansQuery()
+            ->where(['planInformationId' => $entryId])
+            ->all();
+
+        return $this->_populatedPlans($results);
+    }
+
+    /**
      * Save a subscription plan
      *
      * @param Plan $plan The payment source being saved.
