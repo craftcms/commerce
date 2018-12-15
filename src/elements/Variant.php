@@ -605,7 +605,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if (!$this->hasUnlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-                    $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                    $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
@@ -613,7 +613,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if ($qty[$lineItem->purchasableId] < $this->minQty) {
-                    $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                    $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
@@ -621,7 +621,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if ($this->maxQty != 0 && $qty[$lineItem->purchasableId] > $this->maxQty) {
-                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }

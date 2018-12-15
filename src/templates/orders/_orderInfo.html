@@ -36,7 +36,7 @@
                         {% else %}
                             <div id="order-completionStatus">
                                 <a href="#"
-                                   class="updatecompletion btn small"> {{ "Mark as Complete"|t('commerce') }}</a>
+                                   class="updatecompletion btn small"> {{ "Mark as complete"|t('commerce') }}</a>
                             </div>
                         {% endif %}
                     </div>
@@ -53,7 +53,7 @@
                                     href="#"
                                     class="updatestatus btn small"
                                     data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-                                    data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t('commerce') }}</a>
+                                    data-orderStatuses="{{ orderStatusesJson }}">{{ "Update status"|t('commerce') }}</a>
                         </div>
                     </td>
                 {% else %}
