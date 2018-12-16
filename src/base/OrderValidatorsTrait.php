@@ -84,7 +84,7 @@ trait OrderValidatorsTrait
     public function validateAddressReuse($attribute)
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
-            $this->addError($attribute, Craft::t('commerce', 'You can\'t set shipping address to be the same as billing when you\'re setting billing address to be same as shipping'));
+            $this->addError($attribute, Craft::t('commerce', 'shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
         }
     }
 

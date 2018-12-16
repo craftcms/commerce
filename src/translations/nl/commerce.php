@@ -801,5 +801,17 @@ return [
     'Status change message' => 'Status change message',
     'Address Line 1' => 'Address Line 1',
     'New {productType} product' => 'New {productType} product',
-    'Address Line 2' => 'Address Line 2'
+    'Address Line 2' => 'Address Line 2',
+    'Maximum order quantity for this item is {num}.' => 'Maximum order quantity for this item is {num}.',
+    'Included tax rates are only allowed for the default tax zone.' => 'Included tax rates are only allowed for the default tax zone.',
+    'Mark as complete' => 'Mark as complete',
+    'Not all SKUs are unique.' => 'Not all SKUs are unique.',
+    'Not a valid credit card number.' => 'Not a valid credit card number.',
+    'There are only {num} "{description}" items left in stock.' => 'There are only {num} "{description}" items left in stock.',
+    'shippingSameAsBilling and billingSameAsShipping can’t both be set.' => 'shippingSameAsBilling and billingSameAsShipping can’t both be set.',
+    'Update status' => 'Update status',
+    'Minimum order quantity for this item is {num}.' => 'Minimum order quantity for this item is {num}.',
+    'At least one state must be selected.' => 'At least one state must be selected.',
+    'At least one country must be selected.' => 'At least one country must be selected.',
+    'Attempted Payments' => 'Attempted Payments'
 ];

@@ -1,5 +1,18 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Changed
+- It’s now possible to how subscription dates on subscriptions indexes.
+- `craft\commerce\models\Address::toArray()` now supports `country` and `state` being passed to `$extraFields`. 
+- `craft\commerce\models\Customer::toArray()` now supports `user`, `email`, `addresses`, `orders`, `subscriptions`, `primaryBillingAddress`, and `primaryShippingAddress` being passed to `$extraFields`.
+
+### Removed
+- Removed the `forgive` attribute for subscription payments.
+
+### Fixed
+- Fixed a bug where the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#600](https://github.com/craftcms/commerce/issues/600))
+
 ## 2.0.0-beta.14 - 2018-12-05
 
 ### Added
