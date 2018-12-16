@@ -39,23 +39,31 @@ class m181206_120000_remaining_project_config_support extends Migration
         // Field layouts
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
         Craft::$app->getFields()->deleteLayoutsByType(Order::class);
-        $orderConfigData = [StringHelper::UUID() => $orderFieldLayout->getConfig()];
+        $layoutConfig = $orderFieldLayout->getConfig();
+
+        if ($layoutConfig) {
+            $orderConfigData = [StringHelper::UUID() => $layoutConfig];
+            $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
+        }
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
         Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
-        $subscriptionConfigData = [StringHelper::UUID() => $subscriptionFieldLayout->getConfig()];
+        $layoutConfig = $subscriptionFieldLayout->getConfig();
+
+        if ($layoutConfig) {
+            $subscriptionConfigData = [StringHelper::UUID() => $layoutConfig];
+            $projectConfig->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionConfigData);
+        }
 
         $productTypeData = $this->_getProductTypeData();
+        $projectConfig->set(ProductTypes::CONFIG_PRODUCTTYPES_KEY, $productTypeData);
 
         $emailData = $this->_getEmailData();
-        $statusData = $this->_getStatusData();
-
-        $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
-        $projectConfig->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionConfigData);
-        $projectConfig->set(ProductTypes::CONFIG_PRODUCTTYPES_KEY, $productTypeData);
         $projectConfig->set(Emails::CONFIG_EMAILS_KEY, $emailData);
-        $projectConfig->set(OrderStatuses::CONFIG_STATUSES_KEY, $statusData);
 
+        $statusData = $this->_getStatusData();
+        $projectConfig->set(OrderStatuses::CONFIG_STATUSES_KEY, $statusData);
+        
         $this->dropTableIfExists('{{%commerce_ordersettings}}');
 
         return true;
