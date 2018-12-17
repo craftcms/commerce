@@ -62,7 +62,7 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         $lineItemId = $request->getParam('lineItemId');
-        
+
         $this->_cart = $this->_getCart();
 
         $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
@@ -185,11 +185,6 @@ class CartController extends BaseFrontEndController
             }
 
             $lineItem->note = $note;
-
-            // Only allow one line item to be added to the cart
-            if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-                $this->_cart->setLineItems([]);
-            }
 
             $this->_cart->addLineItem($lineItem);
         }
