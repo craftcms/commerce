@@ -71,6 +71,22 @@ class Customer extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'user',
+            'email',
+            'addresses',
+            'orders',
+            'subscriptions',
+            'primaryBillingAddress',
+            'primaryShippingAddress',
+        ];
+    }
+
+    /**
      * Returns the user element associated with this customer.
      *
      * @return User|null

@@ -1,4 +1,4 @@
-{% for tab in orderSettings.getFieldLayout().getTabs() %}
+{% for tab in fieldLayout.getTabs() %}
     <div id="tab{{ loop.index }}" class="hidden">
         {% include "_includes/fields" with {
             fields: tab.getFields(),

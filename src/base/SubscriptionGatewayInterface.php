@@ -32,7 +32,7 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * Cancels a subscription.
      *
      * @param Subscription $subscription the subscription to cancel
-     * @param CancelSubscriptionForm $parameters additional paramters touse
+     * @param CancelSubscriptionForm $parameters additional parameters to use
      * @return SubscriptionResponseInterface
      * @throws SubscriptionException for all subscription-related errors.
      */

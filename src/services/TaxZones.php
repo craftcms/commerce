@@ -134,13 +134,13 @@ class TaxZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', 'Please select some countries');
+                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', 'Please select some states');
+                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
             }
         }
 
