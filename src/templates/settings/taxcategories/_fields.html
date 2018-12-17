@@ -39,7 +39,7 @@
             name: 'productTypes['~productType.id~']',
             value: productType.id,
             id: 'productType:'~productType.id,
-            checked: (productType.id in taxCategory.productTypeIds),
+            checked: taxCategory is defined ? (productType.id in taxCategory.productTypeIds) : false,
         }) }}
     {% endfor %}
 {% endset %}

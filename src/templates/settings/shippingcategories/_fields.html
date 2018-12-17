@@ -39,7 +39,7 @@
             name: 'productTypes['~productType.id~']',
             value: productType.id,
             id: 'productType:'~productType.id,
-            checked: (productType.id in shippingCategory.productTypeIds),
+            checked: shippingCategory is defined ? (productType.id in shippingCategory.productTypeIds) : false,
         }) }}
     {% endfor %}
 {% endset %}
