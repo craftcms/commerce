@@ -43,7 +43,8 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-                $exportButton = $('<div class="btn menubtn export-menubtn">'+Craft.t('commerce', 'Export')+'</div><div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
+                $exportButton = $('<div class="btn menubtn export-menubtn">'+Craft.t('commerce', 'Export')+'</div>').appendTo($chartHeader),
+			    $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
