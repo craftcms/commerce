@@ -44,11 +44,6 @@ class SubscriptionPayment extends Model
     public $paid = false;
 
     /**
-     * @var bool whether the payment was forgiven
-     */
-    public $forgiven = false;
-
-    /**
      * @var string the gateway response text
      */
     public $response;

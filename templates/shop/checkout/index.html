@@ -5,53 +5,12 @@
 {% extends 'shop/_layouts/checkout' %}
 
 {% block content %}
-    <h1>Please sign in</h1>
-    <div class="flex -mx-8 mt-6 pt-8">
+    <h1>Let’s grab your email to get started</h1>
+    <div class="flex -mx-8 mt-6">
         <div class="w-1/2 px-8 border-r border-grey-lighter">
-            <h2 class="mt-0">Already Registered?</h2>
-
-            <form method="post" accept-charset="UTF-8">
-                {{ csrfInput() }}
-                <input type="hidden" name="action" value="users/login">
-                {{ redirectInput('shop/checkout/addresses') }}
-
-                <div class="field">
-                    <label for="loginName">Email</label>
-                    <input id="loginName" class="w-full" type="text" name="loginName" placeholder="email@site.com"
-                           value="{{ craft.app.user.getRememberedUsername() }}">
-                </div>
-
-                <div class="field">
-                    <label for="password">Password</label>
-                    <input id="password" class="w-full" type="password" name="password">
-                </div>
-
-                <div class="field">
-                    <label>
-                        <input type="checkbox" name="rememberMe" value="1">
-                        Remember me
-                    </label>
-                </div>
-
-                <div class="buttons">
-                    <input type="submit" value="Login" class="button button-primary"/>
-                </div>
-            </form>
-
-            <p><a href="{{ url('forgotpassword') }}">Forgot your password?</a></p>
-        </div>
-
-        <div class="w-1/2 px-8">
-            <h2 class="mt-0">Guest Checkout</h2>
-
-            {#
-            Setting the guest email address on the guest customer and order.
-            This will have no affect if the user is currently logged in as the cart uses the currentUsers email address.
-            #}
-
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/cart/update-cart">
-                {{ redirectInput('shop/checkout/addresses') }}
+                {{ redirectInput('shop/checkout/register-signin') }}
                 {{ csrfInput() }}
 
                 <div class="field">
@@ -62,13 +21,17 @@
 
                 {% set emailErrors = cart.getErrors('email') %}
                 {% if emailErrors|length %}
-                    <span class="text-red">{{ emailErrors|join }}</span><br>
+                <span class="text-red">{{ emailErrors|join }}</span><br>
                 {% endif %}
 
                 <div class="buttons">
-                    <input type="submit" value="Continue as Guest" class="button button-primary"/>
+                    <input type="submit" value="Continue" class="button button-primary"/>
                 </div>
             </form>
+        </div>
+
+        <div class="w-1/2 px-8">
+
         </div>
     </div>
 {% endblock %}

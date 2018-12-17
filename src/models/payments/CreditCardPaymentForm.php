@@ -119,7 +119,7 @@ class CreditCardPaymentForm extends BasePaymentForm
         }
 
         if (array_sum(str_split($str)) % 10 !== 0) {
-            $this->addError($attribute, Craft::t('commerce', 'Not a valid Credit Card Number'));
+            $this->addError($attribute, Craft::t('commerce', 'Not a valid credit card number.'));
         }
     }
 }

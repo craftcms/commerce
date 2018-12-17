@@ -152,7 +152,7 @@ class TaxRates extends Component
             }
 
             if ($record->include && !$taxZone->default) {
-                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
+                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone.'));
 
                 return false;
             }

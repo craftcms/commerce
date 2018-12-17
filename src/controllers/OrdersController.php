@@ -61,12 +61,8 @@ class OrdersController extends BaseCpController
         $plugin = Plugin::getInstance();
         $variables = [
             'orderId' => $orderId,
-            'orderSettings' => $plugin->getOrderSettings()->getOrderSettingByHandle('order')
+            'fieldLayout' => Craft::$app->getFields()->getLayoutByType(Order::class)
         ];
-
-        if (!$variables['orderSettings']) {
-            throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));
-        }
 
         if (empty($variables['order']) && !empty($variables['orderId'])) {
             $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
@@ -77,7 +73,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = 'Order ' . substr($variables['order']->number, 0, 7);
+            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart '.$variables['order']->number;
         } else {
             throw new HttpException(404);
         }
@@ -444,8 +440,8 @@ class OrdersController extends BaseCpController
             'class' => null
         ];
 
-        $orderSettings = $variables['orderSettings'];
-        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
+        $fieldLayout = $variables['fieldLayout'];
+        foreach ($fieldLayout->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 

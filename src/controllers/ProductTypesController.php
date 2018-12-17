@@ -144,9 +144,6 @@ class ProductTypesController extends BaseAdminController
 
         $productType->setSiteSettings($allSiteSettings);
 
-        $productType->setTaxCategories(Craft::$app->getRequest()->getBodyParam('taxCategories'));
-        $productType->setShippingCategories(Craft::$app->getRequest()->getBodyParam('shippingCategories'));
-
         // Set the product type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = Product::class;

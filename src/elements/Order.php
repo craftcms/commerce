@@ -24,7 +24,6 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
-use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ShippingMethod;
@@ -33,6 +32,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\db\Query;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
@@ -111,7 +111,7 @@ class Order extends Element
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, function(Event $e) {
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
      *     $lineItem = $e->lineItem;
      *     $isNew = $e->isNew;
      *     // ...
@@ -181,6 +181,11 @@ class Order extends Element
      * @var string Number
      */
     public $number;
+
+    /**
+     * @var string Reference
+     */
+    public $reference;
 
     /**
      * @var string Coupon Code
@@ -363,7 +368,7 @@ class Order extends Element
      */
     public function __toString()
     {
-        return $this->getShortNumber();
+        return $this->reference ?: $this->getShortNumber();
     }
 
     /**
@@ -509,7 +514,9 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
-        if ($this->getIsPaid() && $this->datePaid === null) {
+        $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
+
+        if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new \DateTime());
         }
 
@@ -520,16 +527,16 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
                 $this->markAsComplete();
-
-                if ($this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-                    $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-                }
             }
         }
         // restore recalculation lock state
@@ -579,9 +586,34 @@ class Order extends Element
      */
     public function markAsComplete(): bool
     {
+        // Use a mutex to make sure we check the order is not already complete due to a race condition.
+        $lockName = 'orderComplete:' . $this->id;
+        $mutex = Craft::$app->getMutex();
+        if (!$mutex->acquire($lockName, 5)) {
+            throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
+        }
+
+        // Now that we have a lock, make sure this order is not already completed.
         if ($this->isCompleted) {
+            $mutex->release($lockName);
             return true;
         }
+
+        // Try to catch where the order could be marked as completed twice at the same time, and thus cause a race condition.
+        $completedInDb = (new Query())
+            ->select('id')
+            ->from(['{{%commerce_orders}}'])
+            ->where(['isCompleted' => true])
+            ->andWhere(['id' => $this->id])
+            ->exists();
+
+        if ($completedInDb) {
+            $mutex->release($lockName);
+            return true;
+        }
+
+        // Release after we have confirmed this order is not already complete
+        $mutex->release($lockName);
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
@@ -592,6 +624,14 @@ class Order extends Element
             $this->orderStatusId = $orderStatus->id;
         } else {
             throw new OrderStatusException('Could not find a valid default order status.');
+        }
+
+        try {
+            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+            $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+        } catch (\Throwable $exception) {
+            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
+            throw $exception;
         }
 
         // Raising the 'beforeCompleteOrder' event
@@ -778,6 +818,7 @@ class Order extends Element
         $oldStatusId = $orderRecord->orderStatusId;
 
         $orderRecord->number = $this->number;
+        $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->email = $this->getEmail();
         $orderRecord->isCompleted = $this->isCompleted;
@@ -898,7 +939,7 @@ class Order extends Element
      */
     public function getLink(): string
     {
-        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . substr($this->number, 0, 7) . '</a>');
+        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . ($this->reference ?: $this->getShortNumber()) . '</a>');
     }
 
     /**
@@ -1462,7 +1503,7 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
     }
 
     /**
@@ -1531,14 +1572,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        /** @var OrderSettings $orderSettings */
-        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
-        if ($orderSettings) {
-            return $orderSettings->getFieldLayout();
-        }
-
-        return null;
+        return Craft::$app->getFields()->getLayoutByType(Order::class);
     }
 
     /**
@@ -1647,7 +1681,8 @@ class Order extends Element
             'shippingLastName',
             'shortNumber',
             'transactionReference',
-            'username'
+            'username',
+            'reference'
         ];
     }
 
@@ -1699,7 +1734,7 @@ class Order extends Element
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatus' => $orderStatus],
+                'criteria' => ['orderStatusId' => $orderStatus->id],
                 'defaultSort' => ['dateOrdered', 'desc']
             ];
         }
@@ -1711,17 +1746,30 @@ class Order extends Element
         $interval->invert = 1;
         $edge->add($interval);
 
+        $edge = $edge->format(\DateTime::ATOM);
+        $updatedAfter = [];
+        $updatedAfter[] = '>= ' . $edge;
+
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['updatedAfter' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
         ];
+        $updatedBefore = [];
+        $updatedBefore[] = '< ' . $edge;
 
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['updatedBefore' => $edge, 'isCompleted' => 'not 1'],
+            'criteria' => ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'],
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+        ];
+
+        $sources[] = [
+            'key' => 'carts:attempted-payment',
+            'label' => Craft::t('commerce', 'Attempted Payments'),
+            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
@@ -1766,6 +1814,10 @@ class Order extends Element
     protected static function defineTableAttributes(): array
     {
         return [
+            'order' => ['label' => Craft::t('commerce', 'Order')],
+            'cart' => ['label' => Craft::t('commerce', 'Cart')],
+            'reference' => ['label' => Craft::t('commerce', 'Reference')],
+            'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
@@ -1793,9 +1845,11 @@ class Order extends Element
      */
     protected static function defineDefaultTableAttributes(string $source = null): array
     {
-        $attributes = ['number'];
+        $attributes = [];
+        $attributes[] = 'order';
 
         if (0 !== strpos($source, 'carts:')) {
+            $attributes[] = 'reference';
             $attributes[] = 'orderStatus';
             $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';
@@ -1803,6 +1857,7 @@ class Order extends Element
             $attributes[] = 'datePaid';
             $attributes[] = 'paidStatus';
         } else {
+            $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
             $attributes[] = 'totalPrice';
         }
@@ -1817,6 +1872,7 @@ class Order extends Element
     {
         return [
             'number' => Craft::t('commerce', 'Number'),
+            'reference' => Craft::t('commerce', 'Reference'),
             'id' => Craft::t('commerce', 'ID'),
             'orderStatusId' => Craft::t('commerce', 'Order Status'),
             'totalPrice' => Craft::t('commerce', 'Total Payable'),

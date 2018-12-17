@@ -6,15 +6,15 @@
                 <td><strong>{{ "Reference"|t('commerce') }}</strong>
                 </td>
                 <td>
-                    <span id="order-number-short">{{ order.shortNumber }}</span>
+                    <span id="order-number-short">{{ order.reference ?: order.shortNumber }}</span>
                     <span class="info">
                         <h2>Order Identification</h2>
                         <table class="data">
+                            <tr><td><strong>{{ 'Reference'|t('commerce') }}</strong></td><td>{{ order.reference }}</td></tr>
                             <tr><td><strong>{{ 'ID'|t('commerce') }}</strong></td><td>{{ order.id }}</td></tr>
                             <tr><td><strong>{{ 'Short'|t('commerce') }}</strong></td><td>{{ order.shortNumber }}</td></tr>
                             <tr><td><strong>{{ 'Full'|t('commerce') }}</strong></td><td>{{ order.number }}</td></tr>
                         </table>
-                        </div>
                     </span>
                 </td>
             </tr>
@@ -36,7 +36,7 @@
                         {% else %}
                             <div id="order-completionStatus">
                                 <a href="#"
-                                   class="updatecompletion btn small"> {{ "Mark as Complete"|t('commerce') }}</a>
+                                   class="updatecompletion btn small"> {{ "Mark as complete"|t('commerce') }}</a>
                             </div>
                         {% endif %}
                     </div>
@@ -53,12 +53,19 @@
                                     href="#"
                                     class="updatestatus btn small"
                                     data-currentStatus="{{ order.orderStatus.attributes|json_encode() }}"
-                                    data-orderStatuses="{{ orderStatusesJson }}">{{ "Update Status"|t('commerce') }}</a>
+                                    data-orderStatuses="{{ orderStatusesJson }}">{{ "Update status"|t('commerce') }}</a>
                         </div>
                     </td>
                 {% else %}
                     <td><span class="status"></span></td>
                 {% endif %}
+            {% if order.shippingMethodHandle %}
+            <tr>
+                <td><strong>{{ "Shipping"|t('commerce') }}</strong>
+                </td>
+                <td>{{order.shippingMethod.name}}</td>
+            </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Total Price"|t('commerce') }}</strong>
                 </td>
@@ -69,11 +76,23 @@
                 </td>
                 <td>{{ order.paidStatusHtml|raw }}</td>
             </tr>
+            {% if order.isPaid %}
             <tr>
                 <td><strong>{{ "Paid Date"|t('commerce') }} </strong>
                 </td>
-                <td><span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date('D jS M Y') }}</span></td>
+                <td>
+                    {% if order.datePaid %}
+                    <span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date('D jS M Y') }}</span>
+                    {% endif %}
+                </td>
             </tr>
+            {% else %}
+            <tr>
+                <td><strong>{{ "Last Updated"|t('commerce') }} </strong>
+                </td>
+                <td><span title="{{ order.dateUpdated|date('r') }}">{{ order.dateUpdated|date('D jS M Y') }}</span></td>
+            </tr>
+            {% endif %}
             <tr>
                 <td><strong>{{ "Paid Amount"|t('commerce') }} </strong>
                 </td>

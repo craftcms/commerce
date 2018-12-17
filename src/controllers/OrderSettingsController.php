@@ -9,8 +9,8 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\OrderSettings as OrderSettingsModel;
-use craft\commerce\Plugin;
+use craft\commerce\services\Orders;
+use craft\helpers\StringHelper;
 use yii\web\Response;
 
 /**
@@ -30,8 +30,9 @@ class OrderSettingsController extends BaseAdminController
      */
     public function actionEdit(array $variables = []): Response
     {
-        $variables['orderSettings'] = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
 
+        $variables['fieldLayout'] = $fieldLayout;
         $variables['title'] = Craft::t('commerce', 'Order Settings');
 
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
@@ -41,26 +42,13 @@ class OrderSettingsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $orderSettings = new OrderSettingsModel();
-
-        // Shared attributes
-        $orderSettings->id = Craft::$app->getRequest()->getBodyParam('orderSettingsId');
-        $orderSettings->name = 'Order';
-        $orderSettings->handle = 'order';
-
-        // Set the field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $fieldLayout->type = Order::class;
-        $orderSettings->setFieldLayout($fieldLayout);
+        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
 
-        // Save it
-        if (Plugin::getInstance()->getOrderSettings()->saveOrderSetting($orderSettings)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order settings saved.'));
-            $this->redirectToPostedUrl($orderSettings);
-        } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order settings.'));
-        }
+        Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getUrlManager()->setRouteParams(['orderSettings' => $orderSettings]);
+        Craft::$app->getSession()->setNotice(Craft::t('app', 'Order fields saved.'));
+
+        return $this->redirectToPostedUrl();
     }
 }
