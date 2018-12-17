@@ -749,7 +749,6 @@ class Order extends Element
             return;
         }
 
-        // collect new adjustments
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
             $adjustments = (new $adjuster)->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
