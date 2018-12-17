@@ -749,11 +749,6 @@ class Order extends Element
             return;
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $this->setAdjustments([]);
-            return;
-        }
-
         // collect new adjustments
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
             $adjustments = (new $adjuster)->adjust($this);
@@ -1182,8 +1177,8 @@ class Order extends Element
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $this->_lineItems = $lineItems[0] ?? [];
-        }else{
+            $this->_lineItems = [$lineItems[0]] ?? [];
+        } else {
             $this->_lineItems = $lineItems;
         }
     }
