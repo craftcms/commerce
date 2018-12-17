@@ -306,20 +306,20 @@ class ShippingMethods extends Component
 
     /**
      * Gets the the lite shipping method or returns a new one.
+     *
      * @return ShippingMethod
      */
     public function getLiteShippingMethod()
     {
         $liteMethod = $this->_createShippingMethodQuery()->one();
 
-        if ($liteMethod == null)
-        {
+        if ($liteMethod == null) {
             $liteMethod = new ShippingMethod();
             $liteMethod->isLite = true;
             $liteMethod->name = 'Shipping Cost';
             $liteMethod->handle = 'liteShipping';
             $liteMethod->enabled = true;
-        }else{
+        } else {
             $liteMethod = new ShippingMethod($liteMethod);
         }
 

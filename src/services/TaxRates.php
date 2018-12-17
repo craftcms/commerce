@@ -198,15 +198,14 @@ class TaxRates extends Component
     {
         $liteRate = $this->_createTaxRatesQuery()->one();
 
-        if ($liteRate == null)
-        {
+        if ($liteRate == null) {
             $liteRate = new TaxRate();
             $liteRate->isLite = true;
             $liteRate->name = 'Tax';
             $liteRate->include = false;
             $liteRate->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
             $liteRate->taxable = TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE;
-        }else{
+        } else {
             $liteRate = new TaxRate($liteRate);
         }
 

@@ -330,6 +330,5 @@ class ShippingRules extends Component
         }
 
         return $query;
-
     }
 }
