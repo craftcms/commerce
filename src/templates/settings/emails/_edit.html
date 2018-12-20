@@ -91,7 +91,7 @@
 
     {{ forms.lightswitchField({
         label: "Attach PDF"|t('commerce'),
-        instructions: 'This email should render the order PDF template and attach it to the email.'|t('commerce'),
+        instructions: 'This email should render the order PDF template and include it as an attachment.'|t('commerce'),
         id: 'attach-pdf',
         name: 'attachPdf',
         value: 1,
@@ -102,7 +102,7 @@
     <div id="pdf-template-path-container"{% if not email.attachPdf %} class="hidden"{% endif %}>
     {{ forms.textField({
         label: 'PDF Template Path'|t('commerce'),
-        instructions: 'By default the PDF template path is the \'Order PDF Template\' in the general commerce config, but can choose a different template for this email\'s PDF. '|t('commerce'),
+        instructions: "By default the PDF template path is the 'Order PDF Template' in the general commerce config, but can choose a different template for this email's PDF."|t('commerce'),
         placeholder: craft.commerce.settings.orderPdfPath,
         id: 'pdf-template-path',
         name: 'pdfTemplatePath',
