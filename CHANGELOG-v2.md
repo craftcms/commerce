@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Subscription plans can now be ordered.
+
 ### Changed
 - It’s now possible to how subscription dates on subscriptions indexes.
 - `craft\commerce\models\Address::toArray()` now supports `country` and `state` being passed to `$extraFields`. 
