@@ -9,7 +9,7 @@ Customers can only add and remove addresses from the front-end while they are lo
 ## Get all addresses belonging to the current customer
 
 ```twig
-{% addresses = craft.commerce.customer.addresses %}
+{% set addresses = craft.commerce.customer.addresses %}
 {% for address in addresses %}
   {address.firstName}<br/>
   ...
