@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.0-beta.15 - 2018-12-27
 
 ### Changed
 - It’s now possible to show subscription dates on subscriptions indexes.
