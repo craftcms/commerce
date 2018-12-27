@@ -1659,11 +1659,12 @@ class Order extends Element
             case 'totalShippingCost':
             case 'totalDiscount':
                 {
+                    $amount = $this->getAdjustmentsTotalByType('discount');
                     if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
                     }
 
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
                 }
             default:
                 {
