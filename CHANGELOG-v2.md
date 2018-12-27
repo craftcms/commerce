@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 
+
 ## 2.0.0-beta.15 - 2018-12-27
 
 ### Changed

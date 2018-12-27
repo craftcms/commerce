@@ -1382,7 +1382,9 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+
+        return $shippingMethods[$this->shippingMethodHandle] ?? null;
     }
 
     /**
