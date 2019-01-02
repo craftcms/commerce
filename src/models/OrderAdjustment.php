@@ -10,6 +10,8 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\helpers\Json;
+use yii\base\InvalidArgumentException;
 
 /**
  * Order adjustment model.
@@ -55,7 +57,7 @@ class OrderAdjustment extends Model
     /**
      * @var mixed Adjuster options
      */
-    public $sourceSnapshot;
+    private $_sourceSnapshot;
 
     /**
      * @var int Order ID
@@ -91,6 +93,43 @@ class OrderAdjustment extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $attributes = parent::attributes();
+        $attributes[] = 'sourceSnapshot';
+
+        return $attributes;
+    }
+
+    /**
+     * Gets the options for the line item.
+     */
+    public function getSourceSnapshot(): array
+    {
+        return $this->_sourceSnapshot;
+    }
+
+    /**
+     * Set the options array on the line item.
+     *
+     * @param array|string $snapshot
+     */
+    public function setSourceSnapshot($snapshot)
+    {
+        if (is_string($snapshot)) {
+            $snapshot = Json::decode($snapshot);
+        }
+
+        if (!is_array($snapshot)) {
+            throw new InvalidArgumentException('Adjustment source snapshot must be an array.');
+        }
+
+        $this->_sourceSnapshot = $snapshot;
+    }
+
+    /**
      * @return LineItem|null
      */
     public function getLineItem()
@@ -112,7 +151,7 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return LineItem|null
+     * @return Order|null
      */
     public function getOrder()
     {
@@ -130,14 +169,5 @@ class OrderAdjustment extends Model
     public function setOrder(Order $order)
     {
         $this->_order = $order;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        $this->sourceSnapshot = [];
     }
 }
