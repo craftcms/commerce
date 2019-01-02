@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -96,6 +97,7 @@ class OrderAdjustments extends Component
         $adjustments = [];
 
         foreach ($rows as $row) {
+            $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
             $adjustments[] = new OrderAdjustment($row);
         }
 
