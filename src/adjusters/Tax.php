@@ -257,7 +257,7 @@ class Tax extends Component implements AdjusterInterface
     private function _validateVatNumber($businessVatId)
     {
         try {
-            return $this->getVatValidator()->validate($businessVatId);
+            return $this->_getVatValidator()->validate($businessVatId);
         } catch (\Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
@@ -268,7 +268,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return Validator
      */
-    private function getVatValidator()
+    private function _getVatValidator()
     {
         if ($this->_vatValidator === null) {
             $this->_vatValidator = new Validator();
