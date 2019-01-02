@@ -163,7 +163,7 @@ class Tax extends Component implements AdjusterInterface
                         // We need to display the adjustment that removed the included tax
                         $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
                         $adjustment->amount = $amount;
-                        $adjustment->lineItemId = $item->id;
+                        $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';
 
                         $adjustments[] = $adjustment;
@@ -223,7 +223,7 @@ class Tax extends Component implements AdjusterInterface
                 $adjustment = $this->_createAdjustment($taxRate);
                 // We need to display the adjustment that removed the included tax
                 $adjustment->amount = $itemTax;
-                $adjustment->lineItemId = $item->id;
+                $adjustment->setLineItem($item);
 
                 if ($taxRate->include) {
                     $adjustment->included = true;
@@ -287,7 +287,7 @@ class Tax extends Component implements AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $rate->name;
         $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
-        $adjustment->orderId = $this->_order->id;
+        $adjustment->setOrder($this->_order);
         $adjustment->sourceSnapshot = $rate->attributes;
 
         return $adjustment;
