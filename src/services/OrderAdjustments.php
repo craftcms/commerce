@@ -131,20 +131,15 @@ class OrderAdjustments extends Component
             return false;
         }
 
-        $fields = [
-            'name',
-            'type',
-            'description',
-            'amount',
-            'included',
-            'orderId',
-            'lineItemId',
-            'sourceSnapshot'
-        ];
-
-        foreach ($fields as $field) {
-            $record->$field = $orderAdjustment->$field;
-        }
+        $record->name = $orderAdjustment->name;
+        $record->type = $orderAdjustment->type;
+        $record->description = $orderAdjustment->description;
+        $record->amount = $orderAdjustment->amount;
+        $record->included = $orderAdjustment->included;
+        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
+        $record->lineItemId = $orderAdjustment->getLineItem()->id;
+        $record->orderId = $orderAdjustment->getOrder()->id;
+        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
 
         $record->save(false);
 

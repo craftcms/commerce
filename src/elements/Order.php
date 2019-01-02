@@ -891,8 +891,9 @@ class Order extends Element
             }
         }
 
-        $this->_updateAdjustments();
-        $this->_updateLineItems();
+        $this->_saveAdjustments();
+        $this->_saveLineItems();
+
 
         if ($this->isCompleted) {
             //creating order history record
@@ -1384,7 +1385,9 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+
+        return $shippingMethods[$this->shippingMethodHandle] ?? null;
     }
 
     /**
@@ -1652,11 +1655,12 @@ class Order extends Element
             case 'totalShippingCost':
             case 'totalDiscount':
                 {
+                    $amount = $this->getAdjustmentsTotalByType('discount');
                     if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
                     }
 
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
                 }
             default:
                 {
@@ -1893,7 +1897,7 @@ class Order extends Element
      *
      * @return null
      */
-    private function _updateAdjustments()
+    private function _saveAdjustments()
     {
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
@@ -1917,7 +1921,7 @@ class Order extends Element
     /**
      * Updates the line items, including deleting the old ones.
      */
-    private function _updateLineItems()
+    private function _saveLineItems()
     {
         // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
@@ -1940,9 +1944,23 @@ class Order extends Element
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
+        // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+
+            // Update any adjustments to this line item with the new line item ID.
+            foreach ($this->getAdjustments() as $adjustment)
+            {
+                // Was the adjustment for this line item, but the line item ID didn't exist when the adjustment was made?
+                if($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId)
+                {
+                    // Re-save the adjustment with the new line item ID, since it exists now.
+                    $adjustment->lineItemId = $lineItem->id;
+                    // Validation not needed as the adjustments are validated before the order is saved
+                    Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                }
+            }
         }
     }
 }

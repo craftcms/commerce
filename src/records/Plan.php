@@ -23,6 +23,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $isArchived
  * @property \DateTime $dateArchived
  * @property string $planData
+ * @property int $sortOrder
  * @property ActiveQueryInterface $gateway
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

@@ -2,12 +2,21 @@
 
 ## Unreleased
 
+### Added
+- Subscription plans can now be ordered.
+
+### Fixed
+- Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 
+- Fixed a bug where newly created line items did not have their adjustments listed correctly under them in the cart. ([#422](https://github.com/craftcms/commerce/issues/422))
+
+## 2.0.0-beta.15 - 2018-12-27
+
 ### Changed
-- It’s now possible to how subscription dates on subscriptions indexes.
+- It’s now possible to show subscription dates on subscriptions indexes.
 - `craft\commerce\models\Address::toArray()` now supports `country` and `state` being passed to `$extraFields`. 
 - `craft\commerce\models\Customer::toArray()` now supports `user`, `email`, `addresses`, `orders`, `subscriptions`, `primaryBillingAddress`, and `primaryShippingAddress` being passed to `$extraFields`.
 
-### Removed
+### Removed
 - Removed the `forgive` attribute for subscription payments.
 
 ### Fixed

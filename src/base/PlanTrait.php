@@ -72,4 +72,9 @@ trait PlanTrait
      * @var string plan uid
      */
     public $uid;
+
+    /**
+     * @var int sort order
+     */
+    public $sortOrder;
 }
