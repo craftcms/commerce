@@ -760,19 +760,22 @@ class Variant extends Purchasable
      */
     public function afterOrderComplete(Order $order, LineItem $lineItem)
     {
-        // Update the qty in the db directly
-        Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
-            ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
-            ['id' => $this->id])->execute();
+        // Don't reduce stock of unlimited items.
+        if (!$this->hasUnlimitedStock) {
+            // Update the qty in the db directly
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+                ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
+                ['id' => $this->id])->execute();
 
-        // Update the stock
-        $this->stock = (new Query())
-            ->select(['stock'])
-            ->from('{{%commerce_variants}}')
-            ->where('id = :variantId', [':variantId' => $this->id])
-            ->scalar();
+            // Update the stock
+            $this->stock = (new Query())
+                ->select(['stock'])
+                ->from('{{%commerce_variants}}')
+                ->where('id = :variantId', [':variantId' => $this->id])
+                ->scalar();
 
-        Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+        }
     }
 
     /**

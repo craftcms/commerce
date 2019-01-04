@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 
 - Fixed a bug where newly created line items did not have their adjustments listed correctly under them in the cart. ([#422](https://github.com/craftcms/commerce/issues/422))
+- Fixed a issue where variants with unlimited stock still had there stock reduced on order completion. ([#616](https://github.com/craftcms/commerce/issues/616))
 
 ## 2.0.0-beta.15 - 2018-12-27
 
