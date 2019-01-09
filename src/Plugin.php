@@ -65,7 +65,7 @@ class Plugin extends BasePlugin
 
     // Edition constants
     const EDITION_LITE = 'lite';
-    const EDITION_STANDARD = 'standard';
+    const EDITION_PRO = 'pro';
 
     // Static
     // =========================================================================
@@ -74,7 +74,7 @@ class Plugin extends BasePlugin
     {
         return [
             self::EDITION_LITE,
-            self::EDITION_STANDARD,
+            self::EDITION_PRO,
         ];
     }
 

@@ -8,7 +8,7 @@
     sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') }
 } %}
 
-{% if craft.commerce.is('standard') %}
+{% if craft.commerce.is('pro') %}
     {% set sidebarNavItems = sidebarNavItems|merge({
         discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
     }) %}

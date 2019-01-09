@@ -66,7 +66,7 @@ class OrderAdjustments extends Component
             $adjusters[] = Shipping::class;
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_STANDARD)) {
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
             $adjusters[] = Discount::class;
         }
 
