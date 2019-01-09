@@ -50,7 +50,7 @@ The customer be switched to a different currency in the following ways.
 
 1) The PHP constant `COMMERCE_PAYMENT_CURRENCY` is set to a 3-digit ISO code that corresponds to a payment currency you have set up. Having this constant set will lock the cart’s payment currency to this currency code. You would most likely set this constant in your `index.php` file in a similar location to your `CRAFT_LOCALE` constant.
 
-2) Using the `commerce/cart/updateCart` form action, you can set POST param to named `paymentCurrency` to a valid 3-digit ISO code. This will have no affect if you have set the `COMMERCE_PAYMENT_CURRENCY` constant.
+2) Using the `commerce/cart/update-cart` form action, you can set POST param to named `paymentCurrency` to a valid 3-digit ISO code. This will have no affect if you have set the `COMMERCE_PAYMENT_CURRENCY` constant.
 
 3) Using the `commerce/payments/pay` form action, you can set POST param to named `paymentCurrency` to a valid 3-digit ISO code. This will also have no affect if you have set the `COMMERCE_PAYMENT_CURRENCY` constant.
 
