@@ -234,7 +234,7 @@ class Discounts extends Component
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
                 ->select('uses')
-                ->from('{{%commerce_customer_discountuses}}')
+                ->from(CustomerDiscountUseRecord::tableName())
                 ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
@@ -464,7 +464,7 @@ class Discounts extends Component
         $db = Craft::$app->getDb();
 
         $db->createCommand()
-            ->delete('{{%commerce_customer_discountuses}}', ['discountId' => $id])
+            ->delete(CustomerDiscountUseRecord::tableName(), ['discountId' => $id])
             ->execute();
 
         $db->createCommand()
@@ -532,7 +532,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_customer_discountuse}}', [
+                    ->update(CustomerDiscountUseRecord::tableName(), [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'customerId' => $order->customerId,
