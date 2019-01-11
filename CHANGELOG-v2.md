@@ -4,6 +4,8 @@
 
 ### Added
 - Subscription plans can now be ordered.
+- Added “Total Tax”, and “Total Included Tax” as columns available on the Orders index page.
+- Added `craft\commerce\services\Plans::getPlansByInformationEntryId()`.
 
 ### Fixed
 - Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 

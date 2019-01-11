@@ -56,7 +56,11 @@
                             {% endif %}
                         </td>
                         <td data-title="{{ 'Note'|t('commerce') }}">
-                            {% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
+                            {% if lineItem.note %}
+                                <span class="info">
+                                    {{ lineItem.note|nl2br }}
+                                </span>
+                            {% endif %}
                         </td>
                         <td data-title="{{ 'Price'|t('commerce') }}">
                             {{ lineItem.salePrice|currency(order.currency) }}

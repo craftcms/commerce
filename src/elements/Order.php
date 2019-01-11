@@ -121,6 +121,24 @@ class Order extends Element
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
     /**
+     * @event \yii\base\Event This event is raised when a line item is removed from the order
+     *
+     * Plugins can get notified after a line item has been removed from the order
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_REMOVE_LINE_ITEM, function(Event $e) {
+     *     $lineItem = $e->lineItem;
+     *     $isNew = $e->isNew;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
+
+    /**
      * @event \yii\base\Event This event is raised when an order is completed
      *
      * Plugins can get notified before an order is completed
@@ -686,6 +704,13 @@ class Order extends Element
                 unset($lineItems[$key]);
                 $this->setLineItems($lineItems);
             }
+        }
+
+        // Raising the 'afterRemoveLineItemToOrder' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+            ]));
         }
     }
 
@@ -1659,6 +1684,16 @@ class Order extends Element
 
                     return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
                 }
+            case 'totalTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
+            case 'totalIncludedTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax', true);
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
             default:
                 {
                     return parent::tableAttributeHtml($attribute);
@@ -1824,6 +1859,8 @@ class Order extends Element
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
             'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
             'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
+            'totalTax' => ['label' => Craft::t('commerce', 'Total Tax')],
+            'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
             'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
             'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
@@ -1947,11 +1984,9 @@ class Order extends Element
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
 
             // Update any adjustments to this line item with the new line item ID.
-            foreach ($this->getAdjustments() as $adjustment)
-            {
+            foreach ($this->getAdjustments() as $adjustment) {
                 // Was the adjustment for this line item, but the line item ID didn't exist when the adjustment was made?
-                if($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId)
-                {
+                if ($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId) {
                     // Re-save the adjustment with the new line item ID, since it exists now.
                     $adjustment->lineItemId = $lineItem->id;
                     // Validation not needed as the adjustments are validated before the order is saved

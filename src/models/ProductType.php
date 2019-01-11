@@ -214,6 +214,29 @@ class ProductType extends Model
     }
 
     /**
+     * @param int[]|ShippingCategory[] $shippingCategories
+     */
+    public function setShippingCategories($shippingCategories)
+    {
+        $categories = [];
+        foreach ($shippingCategories as $category) {
+            if (is_numeric($category)) {
+                if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
+                    $categories[$category->id] = $category;
+                }
+            } else {
+                if ($category instanceof ShippingCategory) {
+                    if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
+                        $categories[$category->id] = $category;
+                    }
+                }
+            }
+        }
+
+        $this->_shippingCategories = $categories;
+    }
+
+    /**
      * @return TaxCategory[]
      */
     public function getTaxCategories(): array
@@ -223,6 +246,29 @@ class ProductType extends Model
         }
 
         return $this->_taxCategories;
+    }
+
+    /**
+     * @param int[]|TaxCategory[] $taxCategories
+     */
+    public function setTaxCategories($taxCategories)
+    {
+        $categories = [];
+        foreach ($taxCategories as $category) {
+            if (is_numeric($category)) {
+                if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
+                    $categories[$category->id] = $category;
+                }
+            } else {
+                if ($category instanceof TaxCategory) {
+                    if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
+                        $categories[$category->id] = $category;
+                    }
+                }
+            }
+        }
+
+        $this->_taxCategories = $categories;
     }
 
     /**
