@@ -400,6 +400,7 @@ class Install extends Migration
             'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
+            'sortOrder' => $this->integer(),
             'uid' => $this->uid(),
         ]);
 
