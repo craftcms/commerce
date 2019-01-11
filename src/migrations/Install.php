@@ -274,7 +274,7 @@ class Install extends Migration
             'length' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
             'width' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
             'subtotal' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
-            'total' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
+            'total' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
             'snapshot' => $this->longText(),

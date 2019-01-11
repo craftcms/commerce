@@ -206,19 +206,7 @@ class Discount extends Component implements AdjusterInterface
                     $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
 
-                $lineItemDiscount = $amountPerItem + $amountPercentage;
-
-                $diff = null;
-                // If the discount is now larger than the subtotal only make the discount amount the same as the total of the line.
-                if ((($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) * -1) > $item->getSubtotal()) {
-                    $diff = ($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) - $item->getSubtotal();
-                }
-
-                if ($diff !== null) {
-                    $adjustment->amount = $diff;
-                } else {
-                    $adjustment->amount = $lineItemDiscount;
-                }
+                $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
                     $adjustments[] = $adjustment;
