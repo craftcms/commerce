@@ -1667,6 +1667,16 @@ class Order extends Element
 
                     return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
                 }
+            case 'totalTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
+            case 'totalIncludedTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax', true);
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
             default:
                 {
                     return parent::tableAttributeHtml($attribute);
@@ -1832,6 +1842,8 @@ class Order extends Element
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
             'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
             'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
+            'totalTax' => ['label' => Craft::t('commerce', 'Total Tax')],
+            'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
             'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
             'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added “Total Tax”, and “Total Included Tax” as columns available on the Orders index page.
+
 ### Fixed
 - Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 
 - Fixed a bug where newly created line items did not have their adjustments listed correctly under them in the cart. ([#422](https://github.com/craftcms/commerce/issues/422))
