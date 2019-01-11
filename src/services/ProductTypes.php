@@ -420,9 +420,9 @@ class ProductTypes extends Component
             }
 
             // Save the field layouts
-            if (!empty($data['productFieldLayouts'])) {
+            if ((!empty($data['productFieldLayouts']) && $config = reset($data['productFieldLayouts'])) && !empty($config)) {
                 //Create the new layout
-                $layout = FieldLayout::createFromConfig(reset($data['productFieldLayouts']));
+                $layout = FieldLayout::createFromConfig($config);
                 $layout->type = Product::class;
                 $layout->uid = key($data['productFieldLayouts']);
                 $fields->saveLayout($layout);
@@ -431,9 +431,9 @@ class ProductTypes extends Component
                 $productTypeRecord->fieldLayoutId = null;
             }
 
-            if (!empty($data['variantFieldLayouts'])) {
+            if ((!empty($data['variantFieldLayouts']) && $config = reset($data['variantFieldLayouts'])) && !empty($config)) {
                 //Create the new layout
-                $layout = FieldLayout::createFromConfig(reset($data['variantFieldLayouts']));
+                $layout = FieldLayout::createFromConfig($config);
                 $layout->type = Variant::class;
                 $layout->uid = key($data['variantFieldLayouts']);
                 $fields->saveLayout($layout);
