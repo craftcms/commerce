@@ -130,7 +130,7 @@ class OrderAdjustments extends Component
         $record->amount = $orderAdjustment->amount;
         $record->included = $orderAdjustment->included;
         $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
-        $record->lineItemId = $orderAdjustment->getLineItem()->id;
+        $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
         $record->orderId = $orderAdjustment->getOrder()->id;
         $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
 
