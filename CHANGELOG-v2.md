@@ -14,6 +14,7 @@
 - Fixed an bug that caused custom PDF paper size settings set to be ignored. ([#618](https://github.com/craftcms/commerce/issues/618))
 - Fixed a bug where the CSV export button would not register clicks consistently. ([#543](https://github.com/craftcms/commerce/issues/543))
 - Fixed a bug that would occur when removing all Order custom fields.
+- Fixed an error where deleted sites would not be removed from product type project config settings.
 
 ## 2.0.0-beta.15 - 2018-12-27
 

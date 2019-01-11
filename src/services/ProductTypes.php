@@ -20,6 +20,7 @@ use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
+use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
 use craft\events\SiteEvent;
 use craft\helpers\Db;
@@ -694,8 +695,26 @@ class ProductTypes extends Component
             $this->_productTypesByHandle[$productTypeRecord->handle],
             $this->_siteSettingsByProductId[$productTypeRecord->id]
         );
+    }
 
+    /**
+     * Prune a deleted site from category group site settings.
+     *
+     * @param DeleteSiteEvent $event
+     */
+    public function pruneDeletedSite(DeleteSiteEvent $event)
+    {
+        $siteUid = $event->site->uid;
 
+        $projectConfig = Craft::$app->getProjectConfig();
+        $productTypes = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
+
+        // Loop through the product types and prune the UID from field layouts.
+        if (is_array($productTypes)) {
+            foreach ($productTypes as $productTypeUid => $productType) {
+                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $siteUid);
+            }
+        }
     }
 
     /**
