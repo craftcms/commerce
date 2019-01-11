@@ -1955,11 +1955,9 @@ class Order extends Element
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
 
             // Update any adjustments to this line item with the new line item ID.
-            foreach ($this->getAdjustments() as $adjustment)
-            {
+            foreach ($this->getAdjustments() as $adjustment) {
                 // Was the adjustment for this line item, but the line item ID didn't exist when the adjustment was made?
-                if($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId)
-                {
+                if ($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId) {
                     // Re-save the adjustment with the new line item ID, since it exists now.
                     $adjustment->lineItemId = $lineItem->id;
                     // Validation not needed as the adjustments are validated before the order is saved
