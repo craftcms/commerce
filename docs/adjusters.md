@@ -46,16 +46,18 @@ This ensures that even if the line item is new and has no ID yet, the adjustment
 Below is an example adjuster class that puts a $2 discount on each line item:
 
 ```php
+<?php 
+
 use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
 
-class Tax extends Component implements AdjusterInterface
+class MyAdjuster extends Component implements AdjusterInterface
 {
 
-  public function adjust(Order $order)
+  public function adjust(Order $order): array
   {
     $adjustments = [];
     

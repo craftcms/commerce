@@ -356,26 +356,28 @@ class Emails extends Component
         }
 
         // BCC:
-        try {
-            $bcc = $view->renderString($email->bcc, $renderVariables);
-            $bcc = str_replace(';', ',', $bcc);
-            $bcc = preg_split('/[\s,]+/', $bcc);
+        if ($email->bcc) {
+            try {
+                $bcc = $view->renderString($email->bcc, $renderVariables);
+                $bcc = str_replace(';', ',', $bcc);
+                $bcc = preg_split('/[\s,]+/', $bcc);
 
-            if (array_filter($bcc)) {
-                $newEmail->setBcc($bcc);
+                if (array_filter($bcc)) {
+                    $newEmail->setBcc($bcc);
+                }
+            } catch (\Exception $e) {
+                $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage()
+                ]);
+                Craft::error($error, __METHOD__);
+
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
+
+                return false;
             }
-        } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}”', [
-                'email' => $email->name,
-                'order' => $order->getShortNumber(),
-                'message' => $e->getMessage()
-            ]);
-            Craft::error($error, __METHOD__);
-
-            Craft::$app->language = $originalLanguage;
-            $view->setTemplateMode($oldTemplateMode);
-
-            return false;
         }
 
         // Subject:

@@ -15,6 +15,7 @@ use yii\base\InvalidArgumentException;
 
 /**
  * Order adjustment model.
+ * @property array $sourceSnapshot
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

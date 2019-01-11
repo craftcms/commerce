@@ -483,7 +483,10 @@ class LineItem extends Model
 
         foreach ($adjustments as $adjustment) {
             // Since the line item may not yet be saved and won't have an ID, we need to check the adjuster references this as it's line item.
-            if ($adjustment->lineItemId == $this->id || $adjustment->getLineItem() === $this) {
+            $hasLineItemId = (bool) $adjustment->lineItemId;
+            $hasLineItem = (bool) $adjustment->getLineItem();
+
+            if (($hasLineItemId && $adjustment->lineItemId == $this->id) || ($hasLineItem && $adjustment->getLineItem() === $this)) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
