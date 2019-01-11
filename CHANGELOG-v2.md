@@ -12,6 +12,7 @@
 - Fixed a issue where variants with unlimited stock still had there stock reduced on order completion. ([#616](https://github.com/craftcms/commerce/issues/616))
 - Fixed an bug that caused custom PDF paper size settings set to be ignored. ([#618](https://github.com/craftcms/commerce/issues/618))
 - Fixed a bug where the CSV export button would not register clicks consistently. ([#543](https://github.com/craftcms/commerce/issues/543))
+- Fixed a PHP error caused when sending emails without the BCC filled-in. ([#596](https://github.com/craftcms/commerce/issues/596))
 
 ## 2.0.0-beta.15 - 2018-12-27
 
