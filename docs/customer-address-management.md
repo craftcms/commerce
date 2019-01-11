@@ -9,9 +9,9 @@ Customers can only add and remove addresses from the front-end while they are lo
 ## Get all addresses belonging to the current customer
 
 ```twig
-{% addresses = craft.commerce.customer.addresses %}
+{% set addresses = craft.commerce.customer.addresses %}
 {% for address in addresses %}
-  {address.firstName}<br/>
+  {{ address.firstName }}<br/>
   ...
 {% endfor %}
 ```
@@ -23,9 +23,10 @@ See <api:craft\commerce\models\Address> to learn about the fields available on a
 ```twig
 <form method="post">
   <input type="hidden" name="action" value="commerce/customer-addresses/save">
-  <input type="hidden" name="redirect" value="commerce/customer/addresses">
-  <input type="text" name="address[firstName]" value="{{ address ? address[firstName] : '' }}">
-  <input type="text" name="address[lastName]" value="{{ address ? address[lastName] : '' }}">
+  {{ redirectInput('commerce/customer/addresses') }}
+	{{ csrfInput() }}
+  <input type="text" name="address[firstName]" value="{{ address is defined ? address[firstName] : '' }}">
+  <input type="text" name="address[lastName]" value="{{ address is defined ? address[lastName] : '' }}">
   ...
   <input type="submit" value="Save"/>
 </form>
@@ -38,7 +39,8 @@ Including an `address[id]` param with a valid address ID that belongs to the cur
 ```twig
 <form method="POST">
   <input type="hidden" name="action" value="commerce/customer-addresses/delete">
-  <input type="hidden" name="redirect" value="commerce/customer/addresses">
+  {{ redirectInput('commerce/customer/addresses') }}
+	{{ csrfInput() }}
   <input type="hidden" name="id" value="{{ address.id }}"/>
   <input type="submit" value="delete"/>
 </form>
