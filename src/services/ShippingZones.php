@@ -160,13 +160,13 @@ class ShippingZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'shippingZoneId'];
-                $table = ShippingZoneCountryRecord::tableName();
+                $table = '{{%commerce_shippingzone_countries}}';
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'shippingZoneId'];
-                $table = ShippingZoneStateRecord::tableName();
+                $table = '{{%commerce_shippingzone_states}}';
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
