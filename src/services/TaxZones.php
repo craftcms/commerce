@@ -169,13 +169,13 @@ class TaxZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'taxZoneId'];
-                $table = TaxZoneCountryRecord::tableName();
+                $table = '{{%commerce_taxzone_countries}}';
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'taxZoneId'];
-                $table = TaxZoneStateRecord::tableName();
+                $table = '{{%commerce_taxzone_states}}';
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
