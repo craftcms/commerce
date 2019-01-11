@@ -629,8 +629,8 @@ class Order extends Element
             $mutex->release($lockName);
             return true;
         }
-
         // Release after we have confirmed this order is not already complete
+
         $mutex->release($lockName);
 
         $this->isCompleted = true;
@@ -915,8 +915,8 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
-
         $this->_saveAdjustments();
+
         $this->_saveLineItems();
 
 
@@ -1782,8 +1782,8 @@ class Order extends Element
         $interval = new \DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
-
         $edge = $edge->format(\DateTime::ATOM);
+
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 

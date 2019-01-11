@@ -186,12 +186,7 @@ class CartController extends BaseFrontEndController
 
             $lineItem->note = $note;
 
-            // Only one line item allowed for lite
-            if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-                $this->_cart->setLineItems([$lineItem]);
-            } else {
-                $this->_cart->addLineItem($lineItem);
-            }
+            $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
