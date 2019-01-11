@@ -97,17 +97,7 @@ class Plans extends Component
         $results = $this->_createPlansQuery()
             ->all();
 
-        $plans = [];
-
-        foreach ($results as $result) {
-            try {
-                $plans[] = $this->_populatePlan($result);
-            } catch (InvalidConfigException $exception) {
-                continue; // Just skip this
-            }
-        }
-
-        return $plans;
+        return $this->_populatePlans($results);
     }
 
     /**
@@ -121,17 +111,7 @@ class Plans extends Component
             ->where(['enabled' => true])
             ->all();
 
-        $sources = [];
-
-        foreach ($results as $result) {
-            try {
-                $sources[] = $this->_populatePlan($result);
-            } catch (InvalidConfigException $exception) {
-                continue; // Just skip this
-            }
-        }
-
-        return $sources;
+        return $this->_populatePlans($results);
     }
 
     /**
@@ -146,17 +126,7 @@ class Plans extends Component
             ->where(['gatewayId' => $gatewayId])
             ->all();
 
-        $plans = [];
-
-        foreach ($results as $result) {
-            try {
-                $plans[] = $this->_populatePlan($result);
-            } catch (InvalidConfigException $exception) {
-                continue; // Just skip this
-            }
-        }
-
-        return $plans;
+        return $this->_populatePlans($results);
     }
 
     /**
@@ -221,6 +191,22 @@ class Plans extends Component
             ->one();
 
         return $result ? $this->_populatePlan($result) : null;
+    }
+
+    /**
+     * Returns plans which use the provided Entry for its "information"
+     *
+     * @param string $id The Entry ID to search by
+     * @return Plan|null
+     * @throws InvalidConfigException if the plan configuration is not correct
+     */
+    public function getPlansByInformationEntryId(int $entryId)
+    {
+        $results = $this->_createPlansQuery()
+            ->where(['planInformationId' => $entryId])
+            ->all();
+
+        return $this->_populatePlans($results);
     }
 
     /**
@@ -336,6 +322,27 @@ class Plans extends Component
             ])
             ->where(['isArchived' => false])
             ->from(['{{%commerce_plans}}']);
+    }
+
+    /**
+     * Populate an array of plans from their database table rows
+     *
+     * @param array $results
+     * @return Plan[]
+     */
+    private function _populatePlans(array $results): array
+    {
+        $plans = [];
+
+        foreach ($results as $result) {
+            try {
+                $plans[] = $this->_populatePlan($result);
+            } catch (InvalidConfigException $exception) {
+                continue; // Just skip this
+            }
+        }
+
+        return $plans;
     }
 
     /**
