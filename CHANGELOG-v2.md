@@ -1,5 +1,59 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- Subscription plans can now be ordered.
+
+### Fixed
+- Fixed a bug where the custom shipping method set on an order could not be retrieved with `Order::getShippingMethod()` 
+- Fixed a bug where newly created line items did not have their adjustments listed correctly under them in the cart. ([#422](https://github.com/craftcms/commerce/issues/422))
+- Fixed a issue where variants with unlimited stock still had there stock reduced on order completion. ([#616](https://github.com/craftcms/commerce/issues/616))
+- Fixed an bug that caused custom PDF paper size settings set to be ignored. ([#618](https://github.com/craftcms/commerce/issues/618))
+- Fixed a bug where the CSV export button would not register clicks consistently. ([#543](https://github.com/craftcms/commerce/issues/543))
+
+## 2.0.0-beta.15 - 2018-12-27
+
+### Changed
+- It’s now possible to show subscription dates on subscriptions indexes.
+- `craft\commerce\models\Address::toArray()` now supports `country` and `state` being passed to `$extraFields`. 
+- `craft\commerce\models\Customer::toArray()` now supports `user`, `email`, `addresses`, `orders`, `subscriptions`, `primaryBillingAddress`, and `primaryShippingAddress` being passed to `$extraFields`.
+
+### Removed
+- Removed the `forgive` attribute for subscription payments.
+
+### Fixed
+- Fixed a bug where the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#600](https://github.com/craftcms/commerce/issues/600))
+
+## 2.0.0-beta.14 - 2018-12-05
+
+### Added
+- Orders now can have custom-formatted, sequential “reference numbers”. ([#184](https://github.com/craftcms/commerce/issues/184))
+- Order indexes now have an “Attempted Payments” source.
+- Added `craft\commerce\base\Plan::getAllUserSubscriptions()`.
+- Added `craft\commerce\elements\db\OrderQuery::$hasTransactions`.
+- Added `craft\commerce\elements\db\OrderQuery::hasTransactions()`.
+
+### Fixed
+- Fixed a bug where the `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event would not always be fired. ([#530](https://github.com/craftcms/commerce/issues/530))
+- Fixed an error that could occur when accessing the last transaction on a cart. ([#558](https://github.com/craftcms/commerce/issues/558))
+- Fixed an SQL error that occurred when saving a new default tax category. ([#560](https://github.com/craftcms/commerce/issues/560))
+- Fixed a bug where new addresses submitted to the cart were not factoring into tax calculations until the following order update.
+- Fixed a bug where Customer fields could show incorrect subscription statuses. ([#566](https://github.com/craftcms/commerce/issues/566))
+- Fixed the default tax zone checkbox label. ([#532](https://github.com/craftcms/commerce/issues/532))
+- Fixed a bug where incomplete carts’ Date Paid would show the current date on View Order pages. ([#588](https://github.com/craftcms/commerce/issues/588))
+- Fixed a bug where flat-amount sales increased the price instead of decreasing the price when the checkbox “Ignore previous matching sales if this sale matches” was checked.
+- Fixed a bug where variant queries ignored the `status` param. ([#380](https://github.com/craftcms/commerce/issues/380))
+- Fixed an SQL error that occurred when using the `isPaid` or `isUnPaid` order query params. ([#380](https://github.com/craftcms/commerce/issues/380))
+- Fixed a bug where custom field validation errors weren’t visible on View Order pages. ([#580](https://github.com/craftcms/commerce/issues/580))
+- Fixed a bug where disabled discounts could still be applied to orders. ([#576](https://github.com/craftcms/commerce/issues/576))
+- Fixed a PHP error that occurred when saving a discount with a non-unique coupon code. ([#569](https://github.com/craftcms/commerce/issues/569))
+ 
+## 2.0.0-beta.13.1 - 2018-11-02
+
+### Fixed
+- Fixed an error that occurred when viewing the “Charged”, “Refunded”, or “Disputed” sources on Order indexes. ([#550](https://github.com/craftcms/commerce/issues/550))
+
 ## 2.0.0-beta.13 - 2018-11-01
 
 ### Changed
@@ -21,10 +75,7 @@
 - Removed `craft\commerce\elements\db\OrderQuery::$user`. `user()` should be used instead.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedOn()`. `dateUpdated()` should be used instead.
 
-### Added
-- Added project configuration support for gateways.
-
-### Fixed
+### Fixed
 - Fixed a bug where required custom fields were not getting validated when subscribing to a plan.
 - Fixed a bug where order data exporting would not work on PostgreSQL.
 - Fixed a bug where subscriptions could not be edited in Control Panel. ([#534](https://github.com/craftcms/commerce/issues/534))

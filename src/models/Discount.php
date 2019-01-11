@@ -10,7 +10,9 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Discount model
@@ -286,7 +288,8 @@ class Discount extends Model
     public function rules()
     {
         return [
-            [['name'], 'required']
+            [['name'], 'required'],
+            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
     }
 

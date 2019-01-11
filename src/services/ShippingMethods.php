@@ -16,6 +16,7 @@ use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
@@ -95,7 +96,7 @@ class ShippingMethods extends Component
         }
 
         $result = $this->_createShippingMethodQuery()
-            ->where(['handle' => $shippingMethodHandle])
+            ->andWhere(['handle' => $shippingMethodHandle])
             ->one();
 
         if (!$result) {
@@ -124,7 +125,7 @@ class ShippingMethods extends Component
         }
 
         $result = $this->_createShippingMethodQuery()
-            ->where(['id' => $shippingMethodId])
+            ->andWhere(['id' => $shippingMethodId])
             ->one();
 
         if (!$result) {
@@ -263,6 +264,7 @@ class ShippingMethods extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
+        $record->isLite = $model->isLite;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -274,6 +276,54 @@ class ShippingMethods extends Component
         $model->id = $record->id;
 
         return true;
+    }
+
+    /**
+     * Save a lite shipping method.
+     *
+     * @param ShippingMethod $model
+     * @param bool $runValidation should we validate this method before saving.
+     * @return bool
+     * @throws Exception
+     */
+    public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
+    {
+        $model->isLite = true;
+        $model->id = null;
+
+        // Delete the current lite shipping rules also first.
+        Craft::$app->getDb()->createCommand()
+            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
+            ->execute();
+
+        // Delete the current lite shipping method.
+        Craft::$app->getDb()->createCommand()
+            ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
+            ->execute();
+
+        return $this->saveShippingMethod($model, $runValidation);
+    }
+
+    /**
+     * Gets the the lite shipping method or returns a new one.
+     *
+     * @return ShippingMethod
+     */
+    public function getLiteShippingMethod()
+    {
+        $liteMethod = $this->_createShippingMethodQuery()->one();
+
+        if ($liteMethod == null) {
+            $liteMethod = new ShippingMethod();
+            $liteMethod->isLite = true;
+            $liteMethod->name = 'Shipping Cost';
+            $liteMethod->handle = 'liteShipping';
+            $liteMethod->enabled = true;
+        } else {
+            $liteMethod = new ShippingMethod($liteMethod);
+        }
+
+        return $liteMethod;
     }
 
     /**
@@ -329,13 +379,20 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
                 'handle',
                 'enabled',
+                'isLite'
             ])
             ->from(['{{%commerce_shippingmethods}}']);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+            $query->andWhere('[[isLite]] = true');
+        }
+
+        return $query;
     }
 }

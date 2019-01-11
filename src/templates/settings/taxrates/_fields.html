@@ -144,12 +144,12 @@
 
     {% set taxZoneSelectParams = {
         label: "Tax Zone"|t('commerce'),
-        instructions: "Select a tax zone."|t('commerce'),
+        instructions: "Select a tax zone. If no zone is selected, this rate will match anywhere."|t('commerce'),
         id: 'taxZoneId',
         name: 'taxZoneId',
         value: taxRate.taxZoneId,
         errors: taxRate.getErrors('taxZoneId'),
-        required: true,
+        required: false,
         options: taxZones,
         class: 'selectize fullwidth',
     } %}
@@ -196,7 +196,7 @@
     }) }}
 
     {{ forms.lightSwitchField({
-        label: "Don’t apply this tax when the shipping address has a valid VAT ID"|t('commerce'),
+        label: "Don’t apply this tax when the address has a valid VAT ID"|t('commerce'),
         name: 'isVat',
         on: taxRate.isVat,
         errors: taxRate.getErrors('isVat'),

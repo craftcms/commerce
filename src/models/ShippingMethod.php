@@ -50,6 +50,11 @@ class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public $enabled;
 
+    /**
+     * @var bool Is this the shipping method for the lite edition.
+     */
+    public $isLite = false;
+
     // Public Methods
     // =========================================================================
 

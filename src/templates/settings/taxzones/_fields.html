@@ -57,9 +57,9 @@
 }) }}
 
 {% if craft.commerce.settings.useBillingAddressForTax %}
-    {% set labelDefault = "This tax rate will not be applied if a valid businessTaxId is entered into the billing address."|t('commerce') %}
+    {% set labelDefault = "Default to this tax zone when no billing address is set"|t('commerce') %}
 {% else %}
-    {% set labelDefault = "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') %}
+    {% set labelDefault = "Default to this tax zone when no shipping address is set"|t('commerce') %}
 {% endif %}
 
 {{ forms.checkboxField({

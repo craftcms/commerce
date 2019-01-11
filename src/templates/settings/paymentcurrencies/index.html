@@ -23,7 +23,7 @@
                 <tr data-id="{{ currency.id }}"
                     data-name="{{ currency.currency }}">
                     <th scope="row" data-title="{{ 'Currency'|t('commerce') }}">
-                        <a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name }}
+                        <a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name }}</a>
                     </th>
                     <td data-title="{{ 'Code'|t('commerce') }}">
                         <code>{{ currency.iso }}</code></td>

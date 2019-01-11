@@ -200,6 +200,7 @@ class Gateways extends Component
     {
         $result = $this->_createGatewayQuery()
             ->where(['handle' => $handle])
+            ->andWhere(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
             ->one();
 
         return $result ? $this->createGateway($result) : null;
@@ -219,7 +220,6 @@ class Gateways extends Component
 
         if ($runValidation && !$gateway->validate()) {
             Craft::info('Gateway not saved due to validation error.', __METHOD__);
-
             return false;
         }
 
@@ -227,6 +227,13 @@ class Gateways extends Component
             $gatewayUid = StringHelper::UUID();
         } else {
             $gatewayUid = $gateway->uid;
+        }
+
+        $existingGateway = $this->getGatewayByHandle($gateway->handle);
+
+        if ($existingGateway && (!$gateway->id || $gateway->id !== $existingGateway->id)) {
+            $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
+            return false;
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -259,6 +266,8 @@ class Gateways extends Component
      * Handle gateway change
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleChangedGateway(ConfigEvent $event)
     {
@@ -272,10 +281,12 @@ class Gateways extends Component
             $gatewayRecord->name = $data['name'];
             $gatewayRecord->handle = $data['handle'];
             $gatewayRecord->type = $data['type'];
-            $gatewayRecord->settings = $data['settings'];
+            $gatewayRecord->settings = $data['settings'] ?? null;
             $gatewayRecord->sortOrder = $data['sortOrder'];
             $gatewayRecord->paymentType = $data['paymentType'];
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->isArchived = false;
+            $gatewayRecord->dateArchived = null;
             $gatewayRecord->uid = $gatewayUid;
 
             // Save the volume
@@ -292,6 +303,8 @@ class Gateways extends Component
      * Handle gateway being archived
      *
      * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
      */
     public function handleArchivedGateway(ConfigEvent $event)
     {
@@ -421,7 +434,6 @@ class Gateways extends Component
             ->from(['{{%commerce_gateways}}']);
     }
 
-
     /**
      * Gets a gateway's record by uid.
      *
@@ -432,5 +444,4 @@ class Gateways extends Component
     {
         return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
     }
-
 }

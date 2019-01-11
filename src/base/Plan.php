@@ -129,7 +129,7 @@ abstract class Plan extends Model implements PlanInterface
     }
 
     /**
-     * Returns all subscriptions for this plan.
+     * Returns active subscriptions for this plan by user id.
      *
      * @param int $userId the user id
      * @return ElementInterface[]
@@ -140,6 +140,21 @@ abstract class Plan extends Model implements PlanInterface
             ->userId($userId)
             ->planId($this->id)
             ->status(Subscription::STATUS_ACTIVE)
+            ->all();
+    }
+
+    /**
+     * Returns all subscriptions for this plan by user id, including expired subscriptions.
+     *
+     * @param int $userId the user id
+     * @return ElementInterface[]
+     */
+    public function getAllUserSubscriptions(int $userId): array
+    {
+        return Subscription::find()
+            ->userId($userId)
+            ->planId($this->id)
+            ->anyStatus()
             ->all();
     }
 

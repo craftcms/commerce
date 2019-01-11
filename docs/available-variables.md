@@ -10,13 +10,21 @@ To get the Craft Commerce general settings model:
 {% set settings = craft.commerce.settings %}
 ```
 
-## craft.products
+## craft.orders()
 
-See [craft.products](craft-products.md)
+See [Order Queries](dev/element-queries/order-queries.md).
 
-## craft.orders
+## craft.products()
 
-See [craft.orders](craft-orders.md)
+See [Product Queries](dev/element-queries/product-queries.md).
+
+## craft.subscriptions()
+
+See [Order Queries](dev/element-queries/subscription-queries.md).
+
+## craft.variants()
+
+See [Variant Queries](dev/element-queries/variant-queries.md).
 
 ## craft.commerce.carts.cart
 
@@ -85,7 +93,7 @@ Returns the shipping methods available to applied to the current cart. Will not 
 ```twig
 {% for handle, method in cart.availableShippingMethods %}
     <label>
-        <input type="radio" name="shippingMethod" value="{{ handle }}"
+        <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
         <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
     </label>
@@ -104,7 +112,7 @@ Returns all payment gateway available to the customer.
 {% if craft.commerce.gateways.allFrontEndGateways|length %}
 <form method="POST" id="paymentMethod" class="form-inline">
 
-    <input type="hidden" name="action" value="commerce/cart/updateCart">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/checkout/payment">
     {{ getCsrfInput() }}
 
@@ -141,7 +149,7 @@ Returns an array of all product types set up in the system.
 
 ## craft.commerce.orderStatuses.allOrderStatuses
 
-Returns an array of <api:craft\commerce\models\OrderStatus> objects representing all the order statuses in the system.
+Returns an array of <api:craft\commerce\elements\OrderStatus> objects representing all the order statuses in the system.
 
 ```twig
 {% for status in craft.commerce.orderStatuses.allOrderStatuses %}
@@ -175,7 +183,7 @@ Returns a discount that matches the code supplied.
 Returns an array of all sales set up in the system.
 
 ```twig
-{% for sale in craft.commerce.allSales %}
+{% for sale in craft.commerce.sales.allSales %}
     {{ sale.name }} - {{ sale.description }}
 {% endfor %}
 ```

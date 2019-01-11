@@ -159,13 +159,13 @@ class Discounts extends Component
             ->where(['discounts.id' => $discount->id])
             ->all();
 
-        $purchsableIds = [];
+        $purchasableIds = [];
         $categoryIds = [];
         $userGroupIds = [];
 
         foreach ($rows as $row) {
             if ($row['purchasableId']) {
-                $purchsableIds[] = $row['purchasableId'];
+                $purchasableIds[] = $row['purchasableId'];
             }
 
             if ($row['categoryId']) {
@@ -177,7 +177,7 @@ class Discounts extends Component
             }
         }
 
-        $discount->setPurchasableIds($purchsableIds);
+        $discount->setPurchasableIds($purchasableIds);
         $discount->setCategoryIds($categoryIds);
         $discount->setUserGroupIds($userGroupIds);
     }

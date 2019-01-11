@@ -42,7 +42,7 @@ The above is a simple example, if your product’s type has multiple variants yo
 ```
 
 ::: warning
-When using the `commerce/cart/updateCart` form action, the redirect is only followed if *all* updates submitted succeed.
+When using the `commerce/cart/update-cart` form action, the redirect is only followed if *all* updates submitted succeed.
 :::
 
 ## Line item options and notes
@@ -109,9 +109,9 @@ You can add multiple purchasables to the cart in an update cart form. You supply
     {{ csrfInput() }}
 
     {% for variant in product.variants %}
-        <input type="hidden" name="purchasables[{{loop.index}}]][id]" value="{{ variant.id }}">
-        <input type="hidden" name="purchasables[{{loop.index}}]][qty]" value="1">
-        <input type="hidden" name="purchasables[{{loop.index}}]][note]" value="1">
+        <input type="hidden" name="purchasables[{{loop.index}}][id]" value="{{ variant.id }}">
+        <input type="hidden" name="purchasables[{{loop.index}}][qty]" value="1">
+        <input type="hidden" name="purchasables[{{loop.index}}][note]" value="1">
     {% endfor %}
 
     <input type="submit" value="Add all variants to cart">

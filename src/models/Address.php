@@ -167,7 +167,19 @@ class Address extends Model
         $names[] = 'countryText';
         $names[] = 'stateText';
         $names[] = 'stateValue';
+        $names[] = 'abbreviationText';
         return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'country',
+            'state',
+        ];
     }
 
     /**

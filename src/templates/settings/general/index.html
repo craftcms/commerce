@@ -9,11 +9,11 @@
     <h2>{{ "General Settings"|t('commerce') }}</h2>
 
     <form action="" method="post" accept-charset="UTF-8">
-        <input type="hidden" name="action"
-               value="commerce/settings/save-settings">
+        <input type="hidden" name="action" value="commerce/settings/save-settings">
         {{ redirectInput('commerce/settings/general') }}
         {{ csrfInput() }}
 
+        <h3>{{ 'Email'|t('commerce') }}</h3>
         {{ forms.textField({
             label: 'Status Email Address'|t('commerce'),
             instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
@@ -34,6 +34,7 @@
             errors: settings.getErrors('emailSenderName'),
         }) }}
 
+        <h3>{{ 'Units'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Weight Unit"|t('commerce'),
             instructions: "The unit of measurement that should be used when specifying product weights."|t('commerce'),
@@ -54,6 +55,7 @@
             required: true,
         }) }}
 
+        <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
         {{ forms.textField({
             label: "Order PDF Template"|t('commerce'),
             instructions: "The path to the template used for generating order PDFs."|t('commerce'),
@@ -78,8 +80,70 @@
             required: true,
         }) }}
 
-        <input type="submit" class="btn submit"
-               value="{{ "Save"|t('commerce') }}">
+        {{ forms.textField({
+            label: "Order Reference Number Format"|t('commerce'),
+            instructions: "A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique."|t('commerce', {
+            ex1: "<code>2018-{number[:7]}</code>",
+            ex2: "<code>{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}</code>"
+            }),
+            id: 'orderReferenceFormat',
+            name: 'settings[orderReferenceFormat]',
+            value: settings.orderReferenceFormat,
+            class: 'code ltr',
+            errors: settings.getErrors('orderReferenceFormat'),
+            required: true,
+        }) }}
+
+        {% if craft.commerce.is('lite') %}
+        <h3>{{ 'Tax & Shipping'|t('commerce') }}</h3>
+
+        {{ forms.textField({
+            label: "Shipping Base Rate"|t('commerce'),
+            instructions: "What the shipping cost is for the order."|t('commerce'),
+            id: 'shippingBaseRate',
+            name: 'lite[shippingBaseRate]',
+            value: lite.shippingBaseRate ?? 0,
+            class: 'code ltr',
+            errors: lite.getErrors('shippingBaseRate'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Shipping Per Item Rate"|t('commerce'),
+            instructions: "What the shipping cost is for each item."|t('commerce'),
+            id: 'shippingPerItemRate',
+            name: 'lite[shippingPerItemRate]',
+            value: lite.shippingPerItemRate ?? 0,
+            class: 'code ltr',
+            errors: lite.getErrors('shippingPerItemRate'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Tax Name"|t('commerce'),
+            instructions: "What is the name of the tax. For example, 'GST' or 'VAT'"|t('commerce'),
+            id: 'taxName',
+            name: 'lite[taxName]',
+            value: lite.taxName ?? 'Tax',
+            class: 'code ltr',
+            errors: lite.getErrors('taxName'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order Tax Rate"|t('commerce'),
+            instructions: "Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
+            id: 'taxRate',
+            name: 'lite[taxRate]',
+            value: lite.getTaxRateAsPercent,
+            class: 'code ltr',
+            errors: lite.getErrors('taxRate'),
+            required: true,
+        }) }}
+
+        {% endif %}
+
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>
 
 {% endblock %}

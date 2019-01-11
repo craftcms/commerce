@@ -82,7 +82,7 @@ Event::on(Sales::class, Sales::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, function(Sal
 
 ## Order related events
 
-### The `afterAddLineItemToOrder` event
+### The `afterAddLineItem` event
 
 Plugins can get notified after a line item has been added to the order
 
@@ -90,7 +90,7 @@ Plugins can get notified after a line item has been added to the order
 use craft\commerce\elements\Order;
 use yii\base\Event;
 
-Event::on(Order::class, Order::EVENT_AFTER_ADD_LINEITEM_TO_ORDER, function(Event $e) {
+Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
     $lineItem = $e->lineItem;
     $isNew = $e->isNew;
     // ...
