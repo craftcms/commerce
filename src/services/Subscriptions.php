@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\Field;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
@@ -248,21 +249,21 @@ class Subscriptions extends Component
     public function handleChangedFieldLayout(ConfigEvent $event)
     {
         $data = $event->newValue;
+        $fieldsService = Craft::$app->getFields();
 
-        if (!empty($data)) {
-            $fields = Craft::$app->getFields();
-
+        if (empty($data) || empty($config = reset($data))) {
             // Delete the field layout
-            $fields->deleteLayoutsByType(Subscription::class);
-
-            //Create the new layout
-            $layout = FieldLayout::createFromConfig(reset($data));
-            $layout->type = Subscription::class;
-            $layout->uid = key($data);
-            $fields->saveLayout($layout);
+            $fieldsService->deleteLayoutsByType(Subscription::class);
+            return;
         }
-    }
 
+        // Save the field layout
+        $layout = FieldLayout::createFromConfig(reset($data));
+        $layout->id = $fieldsService->getLayoutByType(Subscription::class)->id;
+        $layout->type = Subscription::class;
+        $layout->uid = key($data);
+        $fieldsService->saveLayout($layout);
+    }
 
     /**
      * Prune a deleted field from subscription field layouts.
