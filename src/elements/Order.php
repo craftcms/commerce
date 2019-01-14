@@ -1202,7 +1202,8 @@ class Order extends Element
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $this->_lineItems = [$lineItems[0]] ?? [];
+            $last = array_values(array_slice($lineItems, -1))[0];
+            $this->_lineItems = [$last];
         } else {
             $this->_lineItems = $lineItems;
         }
