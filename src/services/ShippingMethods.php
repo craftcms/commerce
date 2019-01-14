@@ -13,7 +13,6 @@ use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
-use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
@@ -70,7 +69,8 @@ class ShippingMethods extends Component
             $results = $this->_createShippingMethodQuery()->all();
 
             foreach ($results as $result) {
-                $this->_memoizeShippingMethod(new ShippingMethod($result));
+                $shippingMethod = new ShippingMethod($result);
+                $this->_memoizeShippingMethod($shippingMethod);
             }
 
             $this->_fetchedAllShippingMethods = true;
@@ -155,7 +155,7 @@ class ShippingMethods extends Component
      * @param Order $cart
      * @return array
      */
-    public function getAvailableShippingMethods(Order $cart): array
+    public function getAvailableShippingMethods(Order $order): array
     {
         $availableMethods = [];
 
@@ -163,56 +163,39 @@ class ShippingMethods extends Component
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
-            'order' => $cart
+            'order' => $order
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
             $this->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
         }
 
+        /** @var ShippingMethod $method */
         foreach ($event->shippingMethods as $method) {
-            /**
-             * @var ShippingRule $rule
-             */
-            if ($method->getIsEnabled() && $rule = $this->getMatchingShippingRule($cart, $method)) {
-                $amount = $rule->getBaseRate();
 
-                foreach ($cart->lineItems as $item) {
-                    if ($item->purchasable && !$item->purchasable->hasFreeShipping()) {
-                        $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
-                        $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
-                        $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+            $totalPrice = $method->getPriceForOrder($order);
 
-                        $percentageAmount = $item->getSubtotal() * $percentageRate;
-                        $perItemAmount = $item->qty * $perItemRate;
-                        $weightAmount = ($item->weight * $item->qty) * $weightRate;
-
-                        $amount += ($percentageAmount + $perItemAmount + $weightAmount);
-                    }
-                }
-
-                $amount = max($amount, $rule->getMinRate());
-
-                if ($rule->getMaxRate()) {
-                    $amount = min($amount, $rule->getMaxRate());
-                }
+            if ($method->getIsEnabled() && $method->matchOrder($order)) {
 
                 $availableMethods[$method->getHandle()] = [
-                    'name' => $method->getName(),
-                    'description' => $rule->getDescription(),
-                    'amount' => $amount,
-                    'handle' => $method->getHandle(),
-                    'type' => $method->getType(),
-                    'method' => $method
+                    'method' => $method,
+                    'price' => $totalPrice, // Store the price so we can sort on it before returning
                 ];
             }
         }
 
+        // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
         uasort($availableMethods, function($a, $b) {
-            return $a['amount'] - $b['amount'];
+            return $a['price'] - $b['price'];
         });
 
-        return $availableMethods;
+        $shippingMethods = [];
+        foreach ($availableMethods as $shippingMethod) {
+            $method = $shippingMethod['method'];
+            $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
+        }
+
+        return $shippingMethods;
     }
 
     /**
@@ -224,14 +207,7 @@ class ShippingMethods extends Component
      */
     public function getMatchingShippingRule(Order $order, $method)
     {
-        foreach ($method->getShippingRules() as $rule) {
-            /** @var ShippingRuleInterface $rule */
-            if ($rule->matchOrder($order)) {
-                return $rule;
-            }
-        }
-
-        return false;
+        return $method->getMatchingShippingRule($order);
     }
 
     /**

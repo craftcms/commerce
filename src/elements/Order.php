@@ -1413,6 +1413,26 @@ class Order extends Element
     {
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
+        // Do we have a shipping method available based on the current selection?
+        if (isset($shippingMethods[$this->shippingMethodHandle])) {
+            return $shippingMethods[$this->shippingMethodHandle];
+        }
+        $handles = [];
+
+        /** @var ShippingMethod $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            $handles[] = $shippingMethod->getHandle();
+        }
+
+        if (count($shippingMethods)) {
+            /** @var ShippingMethod $firstAvailable */
+            $firstAvailable = array_values($shippingMethods)[0];
+            $handle = $firstAvailable->getHandle();
+            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles)) {
+                $this->shippingMethodHandle = $firstAvailable->getHandle();
+            }
+        }
+
         return $shippingMethods[$this->shippingMethodHandle] ?? null;
     }
 

@@ -95,7 +95,7 @@ Returns the shipping methods available to applied to the current cart. Will not 
     <label>
         <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-        <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
+        <strong>{{ method.name }}</strong> {{ method.priceForOrder(cart)|currency(cart.currency) }}
     </label>
 {% endfor %}
 ```
