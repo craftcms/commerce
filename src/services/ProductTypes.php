@@ -826,28 +826,24 @@ class ProductTypes extends Component
     {
         if ($event->isNew) {
             $primarySiteSettings = (new Query())
-                ->select(['productTypeId', 'uriFormat', 'template', 'hasUrls'])
-                ->from(['{{%commerce_producttypes_sites}}'])
+                ->select([
+                    'productTypes.uid productTypeUid',
+                    'producttypes_sites.uriFormat',
+                    'producttypes_sites.template',
+                    'producttypes_sites.hasUrls'])
+                ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
+                ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
                 ->where(['siteId' => $event->oldPrimarySiteId])
                 ->one();
 
             if ($primarySiteSettings) {
-                $newSiteSettings = [];
-
-                $newSiteSettings[] = [
-                    $primarySiteSettings['productTypeId'],
-                    $event->site->id,
-                    $primarySiteSettings['uriFormat'],
-                    $primarySiteSettings['template'],
-                    $primarySiteSettings['hasUrls']
+                $newSiteSettings = [
+                    'uriFormat' => $primarySiteSettings['uriFormat'],
+                    'template' => $primarySiteSettings['template'],
+                    'hasUrls' => $primarySiteSettings['hasUrls']
                 ];
 
-                Craft::$app->getDb()->createCommand()
-                    ->batchInsert(
-                        '{{%commerce_producttypes_sites}}',
-                        ['productTypeId', 'siteId', 'uriFormat', 'template', 'hasUrls'],
-                        $newSiteSettings)
-                    ->execute();
+                Craft::$app->getProjectConfig()->set(self::CONFIG_PRODUCTTYPES_KEY . '.' . $primarySiteSettings['productTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);
             }
         }
     }
