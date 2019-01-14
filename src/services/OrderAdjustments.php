@@ -62,7 +62,7 @@ class OrderAdjustments extends Component
     {
         $adjusters = [];
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
             $adjusters[] = Shipping::class;
         }
 
@@ -70,7 +70,7 @@ class OrderAdjustments extends Component
             $adjusters[] = Discount::class;
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
             $adjusters[] = Tax::class;
         }
 
