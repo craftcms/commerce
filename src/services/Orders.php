@@ -37,18 +37,20 @@ class Orders extends Component
     {
         $data = $event->newValue;
 
-        $fields = Craft::$app->getFields();
+        $fieldsService = Craft::$app->getFields();
 
-        // Delete the field layout
-        $fields->deleteLayoutsByType(Order::class);
-
-        if ((!empty($data) && $config = reset($data)) && !empty($data)) {
-            //Create the new layout
-            $layout = FieldLayout::createFromConfig(reset($data));
-            $layout->type = Order::class;
-            $layout->uid = key($data);
-            $fields->saveLayout($layout);
+        if (empty($data) || empty($config = reset($data))) {
+            // Delete the field layout
+            $fieldsService->deleteLayoutsByType(Order::class);
+            return;
         }
+
+        // Save the field layout
+        $layout = FieldLayout::createFromConfig(reset($data));
+        $layout->id = $fieldsService->getLayoutByType(Order::class)->id;
+        $layout->type = Order::class;
+        $layout->uid = key($data);
+        $fieldsService->saveLayout($layout);
     }
 
 

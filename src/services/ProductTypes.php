@@ -399,7 +399,7 @@ class ProductTypes extends Component
             // Basic data
             $productTypeRecord = $this->_getProductTypeRecord($productTypeUid);
             $isNewProductType = $productTypeRecord->getIsNewRecord();
-            $fields = Craft::$app->getFields();
+            $fieldsService = Craft::$app->getFields();
 
             $productTypeRecord->uid = $productTypeUid;
             $productTypeRecord->name = $data['name'];
@@ -412,34 +412,31 @@ class ProductTypes extends Component
             $productTypeRecord->skuFormat = $data['skuFormat'];
             $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
 
-            // Delete the field layouts
-            if ($productTypeRecord->fieldLayoutId) {
-                $fields->deleteLayoutById($productTypeRecord->fieldLayoutId);
-            }
-            if ($productTypeRecord->variantFieldLayoutId) {
-                $fields->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
-            }
-
-            // Save the field layouts
-            if ((!empty($data['productFieldLayouts']) && $config = reset($data['productFieldLayouts'])) && !empty($config)) {
-                //Create the new layout
+            if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
+                // Save the main field layout
                 $layout = FieldLayout::createFromConfig($config);
+                $layout->id = $productTypeRecord->fieldLayoutId;
                 $layout->type = Product::class;
                 $layout->uid = key($data['productFieldLayouts']);
-                $fields->saveLayout($layout);
+                $fieldsService->saveLayout($layout);
                 $productTypeRecord->fieldLayoutId = $layout->id;
-            } else {
+            } else if ($productTypeRecord->fieldLayoutId) {
+                // Delete the main field layout
+                $fieldsService->deleteLayoutById($productTypeRecord->fieldLayoutId);
                 $productTypeRecord->fieldLayoutId = null;
             }
 
-            if ((!empty($data['variantFieldLayouts']) && $config = reset($data['variantFieldLayouts'])) && !empty($config)) {
-                //Create the new layout
+            if (!empty($data['variantFieldLayouts']) && !empty($config = reset($data['variantFieldLayouts']))) {
+                // Save the variant field layout
                 $layout = FieldLayout::createFromConfig($config);
+                $layout->id = $productTypeRecord->variantFieldLayoutId;
                 $layout->type = Variant::class;
                 $layout->uid = key($data['variantFieldLayouts']);
-                $fields->saveLayout($layout);
+                $fieldsService->saveLayout($layout);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
-            } else {
+            } else if ($productTypeRecord->variantFieldLayoutId) {
+                // Delete the variant field layout
+                $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
             }
 
