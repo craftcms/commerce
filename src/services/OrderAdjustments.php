@@ -77,7 +77,10 @@ class OrderAdjustments extends Component
         $event = new RegisterComponentTypesEvent([
             'types' => $adjusters
         ]);
-        $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+            $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+        }
 
         return $event->types;
     }
