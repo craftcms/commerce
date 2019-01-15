@@ -20,12 +20,10 @@ class m190111_161909_lineItemTotalCanBeNegative extends Migration
      */
     public function safeUp()
     {
-        $tableName = '{{%commerce_lineitems}}';
-
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)
-            $this->execute('alter table {{%commerce_lineitems}} alter column [[total]] type numeric(14,4) NOT NULL DEFAULT 0');
+            $this->execute('alter table {{%commerce_lineitems}} alter column [[total]] type numeric(14,4), alter column [[total]] set not null, alter column [[total]] set default 0');
         } else {
             $this->alterColumn('{{%commerce_lineitems}}', 'total', $this->decimal(14, 4)->notNull()->defaultValue(0));
         }
