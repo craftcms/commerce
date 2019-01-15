@@ -42,6 +42,11 @@ The above is a simple example, if your product’s type has multiple variants yo
 ```
 
 ::: warning
+In the Lite edition of Craft Commerce only single line item can exist in the cart. Whenever a customer adds something to the cart, it replaces whatever item was in the cart.
+If multiple items are added to the cart in a single request, only the last item submitted is added to the cart.    
+:::
+
+::: warning
 When using the `commerce/cart/update-cart` form action, the redirect is only followed if *all* updates submitted succeed.
 :::
 

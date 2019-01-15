@@ -2,6 +2,8 @@
 
 Discounts are deductions off line items and an order, while products are in the cart. Discounts are only calculated while items are in the cart, [Sales](sales.md) can apply to a product outside of the cart context.
 
+Discounts are only available in the Pro edition of Craft Commerce.
+
 To create a new discount, go to Commerce → Promotions → Discounts in the Control Panel.
 
 ## Ordering
