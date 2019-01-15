@@ -4,25 +4,34 @@ When a cart is completed, it becomes an order. You can view orders in the Commer
 
 When a cart becomes an order, the following things happen:
 
-1) The order gets a `dateOrdered` date.
+1) The `dateOrdered` order attribute is set to the current date.
 2) The `isCompleted` order attribute is set to `true`.
 3) The default [order status](custom-order-statuses.md) is set on the order and any emails for this status are sent.
 4) The order reference number is generated for the order, based on the ‘Order Reference Number Format‘ setting found in Commerce → Settings → General Settings section of the Control Panel. 
 
-## Order Number
+## Order Numbers
 
-The order number is a hash, generated when the cart is created. It exists from initial creation for the entire life of the order.  
+You can identify an order in three ways. By the order number, short order number, and order reference number.
+
+### Order Number
+
+The order number is a hash, generated when the cart is created in the session, which exists in the users session, even before the cart is saved 
+in the database. It exists from initial creation of the cart, for the entire life of the order.  
+
 This is different to the order reference number that is only generated after the cart has been completed and becomes an order. 
+
+We recommend using the order number when referencing the order in URLs or anytime the order is retrieved publicly. 
 
 ### Short Order Number
 
-The short order number is the first 7 characters of the order number. This is short enough to still be unique and is a little friendlier to customers, although not as friendly as the order reference number.
+The short order number is the first 7 characters of the order number. 
+This is short enough to still be unique, and is a little friendlier to customers, although not as friendly as the order reference number.
 
-## Order Reference Number
+### Order Reference Number
 
 The order reference number is generated on cart completion by the ‘Order Reference Number Format’ in general settings.
 
-This number is usually the best to use as the customer facing identifier of the order.
+This number is usually the best to use as the customer facing identifier of the order, but shouldn't be used in URLs.
 
 The ‘Order Reference Number Format’ is a mini Twig template, which will be rendered when the order is completed.
 

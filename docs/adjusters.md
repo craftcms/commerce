@@ -2,6 +2,8 @@
 
 Adjusters are classes that return adjustment models to the cart. Adjustment models contain an amount which modifies the price of the order or line item. Adjustment models always belong to the order, but can optionally belong to a line item.
 
+Custom adjusters are only available in the Pro editon of Craft Commerce.
+
 An adjuster class implements the Adjuster Interface found at `vendor/craftcms/commerce/src/base/AdjusterInterface.php`.
 
 ## Register a New Adjuster

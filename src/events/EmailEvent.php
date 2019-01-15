@@ -7,27 +7,27 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\models\ProductType;
+use craft\commerce\models\Email;
 use yii\base\Event;
 
 /**
- * Product type event class.
+ * Class EmailEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ProductTypeEvent extends Event
+class EmailEvent extends Event
 {
     // Properties
-    // =========================================================================
+    // ==========================================================================
 
     /**
-     * @var ProductType|null The product type model associated with the event.
+     * @var Email Email
      */
-    public $productType;
+    public $email;
 
     /**
-     * @var bool Whether the product type is brand new
+     * @var bool Whether the email is brand new.
      */
     public $isNew = false;
 }

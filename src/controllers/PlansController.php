@@ -12,6 +12,7 @@ use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
+use craft\helpers\Json;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\HttpException;
@@ -112,10 +113,19 @@ class PlansController extends BaseAdminController
 
         $planInformationIds = $request->getBodyParam('planInformation');
 
-        $plan = $gateway->getPlanModel();
+        $planService = Plugin::getInstance()->getPlans();
+        $planId = $request->getParam('planId');
+
+        if ($planId) {
+            $plan = $planService->getPlanById($planId);
+        }
+
+        if (empty($plan)) {
+            $plan = $gateway->getPlanModel();
+        }
 
         // Shared attributes
-        $plan->id = $request->getParam('planId');
+        $plan->id = $planId;
         $plan->gatewayId = $gatewayId;
         $plan->name = $request->getParam('name');
         $plan->handle = $request->getParam('handle');
@@ -126,7 +136,7 @@ class PlansController extends BaseAdminController
         $plan->isArchived = false;
 
         // Save $plan
-        if (Plugin::getInstance()->getPlans()->savePlan($plan)) {
+        if ($planService->savePlan($plan)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription plan saved.'));
             $this->redirectToPostedUrl($plan);
         } else {
@@ -158,4 +168,21 @@ class PlansController extends BaseAdminController
 
         return $this->asJson(['success' => true]);
     }
+
+    /**
+     * @throws HttpException
+     */
+    public function actionReorder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+
+        if ($success = Plugin::getInstance()->getPlans()->reorderPlans($ids)) {
+            return $this->asJson(['success' => $success]);
+        }
+
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
+    }
+
 }

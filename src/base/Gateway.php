@@ -103,12 +103,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     {
         return [
             [['paymentType', 'handle'], 'required'],
-            [
-                ['handle'],
-                UniqueValidator::class,
-                'targetClass' => GatewayRecord::class,
-                'targetAttribute' => ['handle']
-            ]
         ];
     }
 

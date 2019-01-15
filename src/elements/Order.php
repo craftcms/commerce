@@ -24,7 +24,6 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
-use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\ShippingMethod;
@@ -630,8 +629,8 @@ class Order extends Element
             $mutex->release($lockName);
             return true;
         }
-
         // Release after we have confirmed this order is not already complete
+
         $mutex->release($lockName);
 
         $this->isCompleted = true;
@@ -775,7 +774,6 @@ class Order extends Element
             return;
         }
 
-        // collect new adjustments
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
             $adjustments = (new $adjuster)->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
@@ -917,8 +915,8 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
-
         $this->_saveAdjustments();
+
         $this->_saveLineItems();
 
 
@@ -1203,7 +1201,12 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        $this->_lineItems = $lineItems;
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+            $last = array_values(array_slice($lineItems, -1))[0];
+            $this->_lineItems = [$last];
+        } else {
+            $this->_lineItems = $lineItems;
+        }
     }
 
     /**
@@ -1410,6 +1413,26 @@ class Order extends Element
     {
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
+        // Do we have a shipping method available based on the current selection?
+        if (isset($shippingMethods[$this->shippingMethodHandle])) {
+            return $shippingMethods[$this->shippingMethodHandle];
+        }
+        $handles = [];
+
+        /** @var ShippingMethod $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            $handles[] = $shippingMethod->getHandle();
+        }
+
+        if (count($shippingMethods)) {
+            /** @var ShippingMethod $firstAvailable */
+            $firstAvailable = array_values($shippingMethods)[0];
+            $handle = $firstAvailable->getHandle();
+            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles)) {
+                $this->shippingMethodHandle = $firstAvailable->getHandle();
+            }
+        }
+
         return $shippingMethods[$this->shippingMethodHandle] ?? null;
     }
 
@@ -1596,14 +1619,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        /** @var OrderSettings $orderSettings */
-        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
-        if ($orderSettings) {
-            return $orderSettings->getFieldLayout();
-        }
-
-        return null;
+        return Craft::$app->getFields()->getLayoutByType(Order::class);
     }
 
     /**
@@ -1787,8 +1803,8 @@ class Order extends Element
         $interval = new \DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
-
         $edge = $edge->format(\DateTime::ATOM);
+
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 

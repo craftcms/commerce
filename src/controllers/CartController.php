@@ -185,6 +185,7 @@ class CartController extends BaseFrontEndController
             }
 
             $lineItem->note = $note;
+
             $this->_cart->addLineItem($lineItem);
         }
 

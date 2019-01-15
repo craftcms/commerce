@@ -13,6 +13,7 @@ use craft\commerce\adjusters\Shipping;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\events\RegisterComponentTypesEvent;
@@ -59,16 +60,27 @@ class OrderAdjustments extends Component
      */
     public function getAdjusters(): array
     {
-        $adjusters = [
-            Shipping::class,
-            Discount::class,
-            Tax::class
-        ];
+        $adjusters = [];
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
+            $adjusters[] = Shipping::class;
+        }
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+            $adjusters[] = Discount::class;
+        }
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
+            $adjusters[] = Tax::class;
+        }
 
         $event = new RegisterComponentTypesEvent([
             'types' => $adjusters
         ]);
-        $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+            $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+        }
 
         return $event->types;
     }

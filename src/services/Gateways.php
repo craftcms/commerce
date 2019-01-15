@@ -17,9 +17,11 @@ use craft\commerce\gateways\MissingGateway;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
+use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -36,7 +38,7 @@ class Gateways extends Component
 {
 
     /**
-     * @var array|null Volume setting overrides
+     * @var array|null Gateway setting overrides
      */
     private $_overrides;
 
@@ -59,6 +61,8 @@ class Gateways extends Component
      * ```
      */
     const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
+
+    const CONFIG_GATEWAY_KEY = 'commerce.gateways';
 
     // Public Methods
     // =========================================================================
@@ -167,7 +171,6 @@ class Gateways extends Component
         /** @var Gateway $gateway */
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
-        $gateway->dateArchived = Db::prepareDateForDb(new \DateTime());
 
         return $this->saveGateway($gateway);
     }
@@ -197,6 +200,7 @@ class Gateways extends Component
     {
         $result = $this->_createGatewayQuery()
             ->where(['handle' => $handle])
+            ->andWhere(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
             ->one();
 
         return $result ? $this->createGateway($result) : null;
@@ -212,45 +216,115 @@ class Gateways extends Component
      */
     public function saveGateway(Gateway $gateway, bool $runValidation = true): bool
     {
-        if ($gateway->id) {
-            $record = GatewayRecord::findOne($gateway->id);
-
-            if (!$record) {
-                throw new Exception(\Craft::t('commerce', 'No gateway exists with the ID “{id}”', ['id' => $gateway->id]));
-            }
-        } else {
-            $record = new GatewayRecord();
-        }
+        $isNewGateway = $gateway->getIsNew();
 
         if ($runValidation && !$gateway->validate()) {
             Craft::info('Gateway not saved due to validation error.', __METHOD__);
-
             return false;
         }
 
-        $record->settings = $gateway->settings;
-        $record->name = $gateway->name;
-        $record->handle = $gateway->handle;
-        $record->paymentType = $gateway->paymentType;
-        $record->type = get_class($gateway);
-        $record->isFrontendEnabled = $gateway->isFrontendEnabled;
-        $record->isArchived = $gateway->isArchived;
-        $record->dateArchived = $gateway->dateArchived;
-
-        $record->validate();
-        $gateway->addErrors($record->getErrors());
-
-        if (!$gateway->hasErrors()) {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $gateway->id = $record->id;
-
-            return true;
+        if ($isNewGateway) {
+            $gatewayUid = StringHelper::UUID();
+        } else {
+            $gatewayUid = $gateway->uid;
         }
 
-        return false;
+        $existingGateway = $this->getGatewayByHandle($gateway->handle);
+
+        if ($existingGateway && (!$gateway->id || $gateway->id !== $existingGateway->id)) {
+            $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
+            return false;
+        }
+
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        if ($gateway->isArchived) {
+            $configData = null;
+        } else {
+            $configData = [
+                'name' => $gateway->name,
+                'handle' => $gateway->handle,
+                'type' => \get_class($gateway),
+                'settings' => $gateway->getSettings(),
+                'sortOrder' => $gateway->sortOrder,
+                'paymentType' => $gateway->paymentType,
+                'isFrontendEnabled' => $gateway->isFrontendEnabled,
+            ];
+        }
+
+        $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;
+        $projectConfig->set($configPath, $configData);
+
+        if ($isNewGateway) {
+            $gateway->id = Db::idByUid('{{%commerce_gateways}}', $gatewayUid);
+        }
+
+        return true;
+    }
+
+    /**
+     * Handle gateway change
+     *
+     * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
+     */
+    public function handleChangedGateway(ConfigEvent $event)
+    {
+        $gatewayUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        try {
+            $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
+
+            $gatewayRecord->name = $data['name'];
+            $gatewayRecord->handle = $data['handle'];
+            $gatewayRecord->type = $data['type'];
+            $gatewayRecord->settings = $data['settings'] ?? null;
+            $gatewayRecord->sortOrder = $data['sortOrder'];
+            $gatewayRecord->paymentType = $data['paymentType'];
+            $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
+            $gatewayRecord->isArchived = false;
+            $gatewayRecord->dateArchived = null;
+            $gatewayRecord->uid = $gatewayUid;
+
+            // Save the volume
+            $gatewayRecord->save(false);
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle gateway being archived
+     *
+     * @param ConfigEvent $event
+     * @return void
+     * @throws \Throwable if reasons
+     */
+    public function handleArchivedGateway(ConfigEvent $event)
+    {
+        $gatewayUid = $event->tokenMatches[0];
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        try {
+            $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
+
+            $gatewayRecord->isArchived = true;
+            $gatewayRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+
+            // Save the volume
+            $gatewayRecord->save(false);
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -261,20 +335,15 @@ class Gateways extends Component
      */
     public function reorderGateways(array $ids): bool
     {
-        /** @var Gateway[] $allGateways */
-        $allGateways = $this->getAllGateways();
+        $projectConfig = Craft::$app->getProjectConfig();
 
-        $count = 999;
+        $uidsByIds = Db::uidsByIds('{{%commerce_gateways}}', $ids);
 
-        // Append those not in the table an put them at 999+
-        foreach ($allGateways as $gateway) {
-            if ($gateway->isArchived) {
-                $ids[$count++] = $gateway->id;
+        foreach ($ids as $gatewayOrder => $gatewayId) {
+            if (!empty($uidsByIds[$gatewayId])) {
+                $gatewayUid = $uidsByIds[$gatewayId];
+                $projectConfig->set(self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid . '.sortOrder', $gatewayOrder + 1);
             }
-        }
-
-        foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_gateways}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
@@ -359,7 +428,20 @@ class Gateways extends Component
                 'isArchived',
                 'dateArchived',
                 'settings',
+                'uid',
+                'sortOrder'
             ])
             ->from(['{{%commerce_gateways}}']);
+    }
+
+    /**
+     * Gets a gateway's record by uid.
+     *
+     * @param string $uid
+     * @return GatewayRecord
+     */
+    private function _getGatewayRecord(string $uid): GatewayRecord
+    {
+        return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
     }
 }

@@ -251,6 +251,7 @@ class Plans extends Component
         $record->enabled = $plan->enabled;
         $record->isArchived = $plan->isArchived;
         $record->dateArchived = $plan->dateArchived;
+        $record->sortOrder = $plan->sortOrder ?? 99;
 
         // Save it!
         $record->save(false);
@@ -296,6 +297,24 @@ class Plans extends Component
         return $this->savePlan($plan);
     }
 
+    /**
+     * Reorders subscription plans by ids.
+     *
+     * @param array $ids Array of plans.
+     * @return bool Always true.
+     */
+    public function reorderPlans(array $ids): bool
+    {
+        $command = Craft::$app->getDb()->createCommand();
+
+        foreach ($ids as $planOrder => $planId) {
+            $command->update('{{%commerce_plans}}', ['sortOrder' => $planOrder + 1], ['id' => $planId])->execute();
+        }
+
+        return true;
+    }
+
+
     // Private methods
     // =========================================================================
 
@@ -318,9 +337,11 @@ class Plans extends Component
                 'enabled',
                 'isArchived',
                 'dateArchived',
+                'sortOrder',
                 'uid'
             ])
             ->where(['isArchived' => false])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->from(['{{%commerce_plans}}']);
     }
 

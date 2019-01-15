@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\RefundException;
@@ -54,23 +53,16 @@ class OrdersController extends BaseCpController
 
     /**
      * @param $orderId
-     * @param Order $order The order
      * @return Response
      * @throws HttpException
      */
-    public function actionEditOrder($orderId, Order $order = null): Response
+    public function actionEditOrder($orderId): Response
     {
         $plugin = Plugin::getInstance();
-
         $variables = [
             'orderId' => $orderId,
-            'order' => $order,
-            'orderSettings' => $plugin->getOrderSettings()->getOrderSettingByHandle('order')
+            'fieldLayout' => Craft::$app->getFields()->getLayoutByType(Order::class)
         ];
-
-        if (!$variables['orderSettings']) {
-            throw new HttpException(404, Craft::t('commerce', 'No order settings found.'));
-        }
 
         if (empty($variables['order']) && !empty($variables['orderId'])) {
             $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
@@ -81,7 +73,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!empty($variables['orderId'])) {
-            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart ' . $variables['order']->number;
+            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart '.$variables['order']->number;
         } else {
             throw new HttpException(404);
         }
@@ -375,21 +367,16 @@ class OrdersController extends BaseCpController
         $this->requirePostRequest();
 
         $order = $this->_setOrderFromPost();
+        $this->_setContentFromPost($order);
 
-        $order->setScenario(Element::SCENARIO_LIVE);
-
-        if (!Craft::$app->getElements()->saveElement($order)) {
-
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
-
-            Craft::$app->getUrlManager()->setRouteParams([
-                'order' => $order
-            ]);
-
-            return null;
+        if (Craft::$app->getElements()->saveElement($order)) {
+            return $this->redirectToPostedUrl($order);
         }
 
-        return $this->redirectToPostedUrl($order);
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
+        Craft::$app->getUrlManager()->setRouteParams([
+            'order' => $order
+        ]);
     }
 
     /**
@@ -453,15 +440,14 @@ class OrdersController extends BaseCpController
             'class' => null
         ];
 
-        $orderSettings = $variables['orderSettings'];
-        foreach ($orderSettings->getFieldLayout()->getTabs() as $index => $tab) {
+        $fieldLayout = $variables['fieldLayout'];
+        foreach ($fieldLayout->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
             if ($variables['order']->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
-
-                    if ($variables['order']->getErrors($field->handle)) {
+                    if ($variables['order']->getErrors($field->getField()->handle)) {
                         $hasErrors = true;
                         break;
                     }
@@ -504,8 +490,14 @@ class OrdersController extends BaseCpController
             throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
         }
 
-        $order->setFieldValuesFromRequest('fields');
-
         return $order;
+    }
+
+    /**
+     * @param Order $order
+     */
+    private function _setContentFromPost($order)
+    {
+        $order->setFieldValuesFromRequest('fields');
     }
 }

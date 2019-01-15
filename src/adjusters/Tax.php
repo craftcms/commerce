@@ -104,7 +104,8 @@ class Tax extends Component implements AdjusterInterface
         $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
 
         // Do not bother checking VAT ID if the address doesn't match the zone anyway.
-        if ($taxRate->isVat && $vatIdOnAddress && $this->_matchAddress($zone)) {
+        $useZone = ($zone && $this->_matchAddress($zone));
+        if ($taxRate->isVat && $vatIdOnAddress && ($useZone || $taxRate->getIsEverywhere())) {
 
             // Do we have a valid VAT ID in our cache?
             $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
@@ -126,7 +127,8 @@ class Tax extends Component implements AdjusterInterface
         }
 
         //Address doesn't match zone or we should remove the VAT
-        if (!$this->_matchAddress($zone) || $removeVat) {
+        $doesntMatchZone = (($zone && !$this->_matchAddress($zone)) && !$taxRate->getIsEverywhere());
+        if ($doesntMatchZone || $removeVat) {
             // Since the address doesn't match or it's a removable vat tax,
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {

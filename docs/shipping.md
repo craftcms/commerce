@@ -1,14 +1,23 @@
 # Shipping
 
-The shipping system in Craft Commerce is a way for shipping costs to be added to the cart when a customer selects a shipping method you set up.
+The shipping system in Craft Commerce is a way for shipping costs to be added to the cart.
 
-The core components of the shipping system are:
+In the Lite edition of Craft Commerce only two fixed shipping costs can be configured.
+
+1) A single fixed per order shipping cost
+2) A per item fixed shipping cost
+
+These shipping cost settings can be updated in Commerce → Settings → General. These costs show up on every order made when running the Lite edition of Craft Commerce. 
+You can set these to zero if no shipping costs are to be added to the order. 
+
+In the Pro edition of Commerce complex shipping rules including categories, zones and rules are available. The core components of the shipping system are:
 
 - Shipping categories
 - Shipping zones
 - Shipping methods and rules
 
-Shipping methods and rules are at the core of the shipping engine. The shipping rules use shipping categories, shipping zones and additional order conditions to determine which shipping methods are available to the cart for your customer to select from.
+Shipping methods and rules are at the core of the shipping engine in the Pro edition of Craft Commerce. 
+The shipping rules uses shipping categories, shipping zones, and additional order conditions to determine which shipping methods are available to the cart for your customer to select from.
 
 ## Shipping Categories
 

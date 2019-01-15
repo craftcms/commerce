@@ -32,6 +32,7 @@
                     <td data-title="{{ 'Active subscriptions'|t('commerce') }}">{{ plan.subscriptionCount }}</td>
                     <td data-title="{{ 'Enabled'|t('commerce') }}">{{ plan.enabled ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
                     <td data-title="{{ 'Information linked?'|t('commerce') }}"  class="code">{{ plan.planInformationId ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
+                    <td class="thin"><a class="move icon" title="{{ 'Delete'|t('commerce') }}" role="button"></a></td>
                     <td class="thin"><a class="delete icon" title="{{ 'Archive'|t('commerce') }}" role="button"></a></td>
                 </tr>
             {% endfor %}
@@ -52,6 +53,10 @@
         noObjectsSelector: '#no-plans',
         newObjectBtnSelector: '#newPlanButtonContainer',
         deleteAction: 'commerce/plans/archive-plan',
-        confirmDeleteMessage: '{{ "Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions."|t('commerce') }}'
+        confirmDeleteMessage: '{{ "Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions."|t('commerce') }}',
+        sortable: true,
+        reorderAction: 'commerce/plans/reorder',
+        reorderSuccessMessage: Craft.t('commerce', 'Plans reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder plans.')
     });
 {% endjs %}
