@@ -52,4 +52,9 @@ trait GatewayTrait
      * @var int|null Sort order
      */
     public $sortOrder;
+
+    /**
+     * @var string|null UID
+     */
+    public $uid;
 }

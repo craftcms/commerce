@@ -18,6 +18,7 @@ use craft\i18n\Locale;
  *
  * @property string $cpEditUrl
  * @property string $rateAsPercent
+ * @property bool $isEverywhere
  * @property TaxAddressZone|null $taxZone
  * @property TaxCategory|null $taxCategory
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -64,6 +65,11 @@ class TaxRate extends Model
     public $taxCategoryId;
 
     /**
+     * @var int Is this the tax rate for the lite edition
+     */
+    public $isLite;
+
+    /**
      * @var int Tax zone ID
      */
     public $taxZoneId;
@@ -87,7 +93,7 @@ class TaxRate extends Model
     public function rules()
     {
         return [
-            [['taxZoneId', 'taxCategoryId', 'name'], 'required']
+            [['taxCategoryId', 'name'], 'required']
         ];
     }
 
@@ -131,5 +137,13 @@ class TaxRate extends Model
         }
 
         return $this->_taxCategory;
+    }
+
+    /**
+     * @return bool Does this tax rate apply everywhere
+     */
+    public function getIsEverywhere(): bool
+    {
+        return !$this->getTaxZone();
     }
 }

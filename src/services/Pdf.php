@@ -114,13 +114,13 @@ class Pdf extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
-        // Paper Size and Orientation
+        // Set the options
+        $dompdf->setOptions($options);
+
+        // Paper size and orientation
         $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
         $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
-        $options->setDefaultPaperOrientation($pdfPaperOrientation);
-        $options->setDefaultPaperSize($pdfPaperSize);
-
-        $dompdf->setOptions($options);
+        $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
 
         $dompdf->loadHtml($html);
         $dompdf->render();

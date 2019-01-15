@@ -88,7 +88,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->default = Craft::$app->getRequest()->getBodyParam('default');
+        $taxZone->default = (bool) Craft::$app->getRequest()->getBodyParam('default');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
 

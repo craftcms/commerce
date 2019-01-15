@@ -14,7 +14,6 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
-use craft\commerce\Plugin;
 
 /**
  * Tax Adjustments
@@ -47,17 +46,7 @@ class Shipping extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this->_order);
-
-        $shippingMethod = null;
-
-        /** @var ShippingMethod $method */
-        foreach ($shippingMethods as $method) {
-            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->shippingMethodHandle)) {
-                /** @var ShippingMethod $shippingMethod */
-                $shippingMethod = $method['method'];
-            }
-        }
+        $shippingMethod = $order->getShippingMethod();
 
         if ($shippingMethod === null) {
             return [];
@@ -66,7 +55,7 @@ class Shipping extends Component implements AdjusterInterface
         $adjustments = [];
 
         /** @var ShippingRule $rule */
-        $rule = Plugin::getInstance()->getShippingMethods()->getMatchingShippingRule($this->_order, $shippingMethod);
+        $rule = $shippingMethod->getMatchingShippingRule($this->_order);
         if ($rule) {
             $itemTotalAmount = 0;
             //checking items shipping categories
@@ -83,7 +72,7 @@ class Shipping extends Component implements AdjusterInterface
                     $weightAmount = ($item->weight * $item->qty) * $weightRate;
 
                     $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
-                    $adjustment->lineItemId = $item->id;
+                    $adjustment->setLineItem($item);
                     if ($adjustment->amount) {
                         $adjustments[] = $adjustment;
                     }
@@ -133,8 +122,7 @@ class Shipping extends Component implements AdjusterInterface
         //preparing model
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->orderId = $this->_order->id;
-        $adjustment->lineItemId = null;
+        $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
         $adjustment->sourceSnapshot = $rule->getOptions();
         $adjustment->description = $rule->getDescription();

@@ -124,7 +124,7 @@ class Discount extends Component implements AdjusterInterface
         $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $discount->name;
-        $adjustment->orderId = $this->_order->id;
+        $adjustment->setOrder($this->_order);
         $adjustment->description = $discount->description;
         $adjustment->sourceSnapshot = $discount->attributes;
 
@@ -193,7 +193,7 @@ class Discount extends Component implements AdjusterInterface
         foreach ($this->_order->getLineItems() as $item) {
             if (in_array($item->id, $matchingLineIds, false)) {
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
-                $adjustment->lineItemId = $item->id;
+                $adjustment->setLineItem($item);
 
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
 
@@ -206,19 +206,7 @@ class Discount extends Component implements AdjusterInterface
                     $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
 
-                $lineItemDiscount = $amountPerItem + $amountPercentage;
-
-                $diff = null;
-                // If the discount is now larger than the subtotal only make the discount amount the same as the total of the line.
-                if ((($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) * -1) > $item->getSubtotal()) {
-                    $diff = ($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) - $item->getSubtotal();
-                }
-
-                if ($diff !== null) {
-                    $adjustment->amount = $diff;
-                } else {
-                    $adjustment->amount = $lineItemDiscount;
-                }
+                $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
                     $adjustments[] = $adjustment;
@@ -231,7 +219,7 @@ class Discount extends Component implements AdjusterInterface
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
                 $shippingCost = $item->getAdjustmentsTotalByType('shipping');
                 if ($shippingCost > 0) {
-                    $adjustment->lineItemId = $item->id;
+                    $adjustment->setLineItem($item);
                     $adjustment->amount = $shippingCost * -1;
                     $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
                     $adjustments[] = $adjustment;
@@ -241,7 +229,6 @@ class Discount extends Component implements AdjusterInterface
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->lineItemId = null;
             $baseDiscountAdjustment->amount = $discount->baseDiscount;
             $adjustments[] = $baseDiscountAdjustment;
         }

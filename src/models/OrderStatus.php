@@ -57,6 +57,21 @@ class OrderStatus extends Model
      */
     public $default;
 
+    /**
+     * @var boo Whether the order status is archived.
+     */
+    public $isArchived = false;
+
+    /**
+     * @var \DateTime Archived Date
+     */
+    public $dateArchived;
+
+    /**
+     * @var string UID
+     */
+    public $uid;
+
     // Public Methods
     // =========================================================================
 
@@ -75,7 +90,6 @@ class OrderStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class]
         ];
     }
 

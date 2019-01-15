@@ -366,7 +366,7 @@ use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\services\Payments;
 use yii\base\Event;
 
-Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT_EVENT, function(ProcessPaymentEvent $e) {
+Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function(ProcessPaymentEvent $e) {
     // Do something - perhaps check if the transaction is allowed for the order based on some business rules.
 });
 ```
@@ -380,7 +380,7 @@ use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\services\Payments;
 use yii\base\Event;
 
-Event::on(Payments::class, Payments::EVENT_AFTER_PROCESS_PAYMENT_EVENT, function(ProcessPaymentEvent $e) {
+Event::on(Payments::class, Payments::EVENT_AFTER_PROCESS_PAYMENT, function(ProcessPaymentEvent $e) {
     // Do something - maybe let accounting dept. know that a transaction went through for an order.
 });
 ```

@@ -27,7 +27,7 @@ class ProductTypeEvent extends Event
     public $productType;
 
     /**
-     * @var bool Whether the category group is brand new
+     * @var bool Whether the product type is brand new
      */
     public $isNew = false;
 }

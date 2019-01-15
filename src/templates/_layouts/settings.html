@@ -6,39 +6,39 @@
 
 {% if currentUser.admin %}
 {% set navItems = {
-    'general': { title: "General Settings"|t('commerce') },
-    'ordersettings': { title: "Order Fields"|t('commerce') },
-    'orderstatuses': { title: "Order Statuses"|t('commerce') },
-    'emails': { title: "Emails"|t('commerce') },
-    'gateways': { title: "Gateways"|t('commerce') },
-    'paymentcurrencies': { title: "Payment Currencies"|t('commerce') },
-    'location': { title: "Store Location"|t('commerce') },
-    'products-heading': { heading: "Products"|t('commerce') },
-    'producttypes': { title: "Product Types"|t('commerce') },
-    'subscriptions-heading': { heading: "Subscriptions"|t('commerce') },
-    'subscriptions/plans': { title: "Subscription Plans"|t('commerce') },
-    'subscriptions/fields': { title: "Subscription Fields"|t('commerce') },
-    'regions-heading': { heading: "Regions"|t('commerce') },
-    'countries': { title: "Countries"|t('commerce') },
-    'states': { title: "States"|t('commerce') }
+    'general': { title: "General Settings"|t('commerce'), minEdition: 'lite' },
+    'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: 'lite' },
+    'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: 'lite' },
+    'emails': { title: "Emails"|t('commerce'), minEdition: 'lite' },
+    'gateways': { title: "Gateways"|t('commerce'), minEdition: 'lite' },
+    'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: 'lite' },
+    'location': { title: "Store Location"|t('commerce'), minEdition: 'lite' },
+    'products-heading': { heading: "Products"|t('commerce'), minEdition: 'lite' },
+    'producttypes': { title: "Product Types"|t('commerce'), minEdition: 'lite' },
+    'subscriptions-heading': { heading: "Subscriptions"|t('commerce'), minEdition: 'lite' },
+    'subscriptions/plans': { title: "Subscription Plans"|t('commerce'), minEdition: 'lite' },
+    'subscriptions/fields': { title: "Subscription Fields"|t('commerce'), minEdition: 'lite' },
+    'regions-heading': { heading: "Regions"|t('commerce'), minEdition: 'lite' },
+    'countries': { title: "Countries"|t('commerce'), minEdition: 'lite' },
+    'states': { title: "States"|t('commerce'), minEdition: 'lite' }
 } %}
 {% endif %}
 
 {% if currentUser.admin or currentUser.can('commerce-manageShipping') %}
 {% set navItems = navItems|merge({
-    'shipping-heading': { heading: "Shipping"|t('commerce') },
-    'shippingcategories': { title: "Shipping Categories"|t('commerce') },
-    'shippingzones': { title: "Shipping Zones"|t('commerce') },
-    'shippingmethods': { title: "Shipping Methods"|t('commerce') }
+    'shipping-heading': { heading: "Shipping"|t('commerce'), minEdition: 'pro' },
+    'shippingcategories': { title: "Shipping Categories"|t('commerce'), minEdition: 'pro' },
+    'shippingzones': { title: "Shipping Zones"|t('commerce'), minEdition: 'pro' },
+    'shippingmethods': { title: "Shipping Methods"|t('commerce'), minEdition: 'pro' }
 }) %}
 {% endif %}
 
 {% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}
 {% set navItems = navItems|merge({
-    'taxes-heading': { heading: "Taxes"|t('commerce') },
-    'taxcategories': { title: "Tax Categories"|t('commerce') },
-    'taxzones': { title: "Tax Zones"|t('commerce') },
-    'taxrates': { title: "Tax Rates"|t('commerce') }
+    'taxes-heading': { heading: "Taxes"|t('commerce'), minEdition: 'pro' },
+    'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: 'pro' },
+    'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: 'pro' },
+    'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: 'pro' },
 }) %}
 {% endif %}
 
@@ -53,7 +53,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for id, item in navItems %}
+            {% for id, item in navItems if craft.commerce.is(item.minEdition, '>=') %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

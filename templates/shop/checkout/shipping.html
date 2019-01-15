@@ -42,7 +42,7 @@
                                 <strong>{{ method.name }}</strong>
 
                                 <span class="price">
-                        {{ method.amount|commerceCurrency(cart.currency) }}
+                        {{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}
                     </span>
                             </label>
                         </div>

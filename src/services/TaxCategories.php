@@ -167,22 +167,22 @@ class TaxCategories extends Component
     /**
      * Save a tax category.
      *
-     * @param TaxCategory $model
+     * @param TaxCategory $taxCategory
      * @param bool $runValidation should we validate this state before saving.
      * @return bool
      * @throws Exception
      * @throws \Exception
      */
-    public function saveTaxCategory(TaxCategory $model, bool $runValidation = true): bool
+    public function saveTaxCategory(TaxCategory $taxCategory, bool $runValidation = true): bool
     {
         $oldHandle = null;
 
-        if ($model->id) {
-            $record = TaxCategoryRecord::findOne($model->id);
+        if ($taxCategory->id) {
+            $record = TaxCategoryRecord::findOne($taxCategory->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'No tax category exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                    ['id' => $taxCategory->id]));
             }
 
             $oldHandle = $record->handle;
@@ -190,32 +190,40 @@ class TaxCategories extends Component
             $record = new TaxCategoryRecord();
         }
 
-        if ($runValidation && !$model->validate()) {
+        if ($runValidation && !$taxCategory->validate()) {
             Craft::info('Tax category not saved due to validation error.', __METHOD__);
 
             return false;
         }
 
-        $record->name = $model->name;
-        $record->handle = $model->handle;
-        $record->description = $model->description;
-        $record->default = $model->default;
+        $record->name = $taxCategory->name;
+        $record->handle = $taxCategory->handle;
+        $record->description = $taxCategory->description;
+        $record->default = $taxCategory->default;
 
         // Save it!
         $record->save(false);
 
         // Now that we have a record ID, save it on the model
-        $model->id = $record->id;
+        $taxCategory->id = $record->id;
 
         // If this was the default make all others not the default.
-        if ($model->default) {
+        if ($taxCategory->default) {
             TaxCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
         }
 
-        // Update Service cache
-        $this->_memoizeTaxCategory($model);
+        // Remove existing Categories <-> ProductType relationships
+        Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', ['taxCategoryId' => $record->id])->execute();
 
-        if (null !== $oldHandle && $model->handle != $oldHandle) {
+        foreach ($taxCategory->getProductTypes() as $productType) {
+            $data = ['productTypeId' => (int)$productType->id, 'taxCategoryId' => $taxCategory->id];
+            Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data)->execute();
+        }
+
+        // Update Service cache
+        $this->_memoizeTaxCategory($taxCategory);
+
+        if (null !== $oldHandle && $taxCategory->handle != $oldHandle) {
             unset($this->_taxCategoriesByHandle[$oldHandle]);
         }
 
@@ -252,8 +260,7 @@ class TaxCategories extends Component
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
-            ->innerJoin('{{%commerce_producttypes}} productTypes', '[[productTypeTaxCategories.productTypeId]] = [[productTypes.id]]')
-            ->where(['productTypes.id' => $productTypeId])
+            ->where(['productTypeTaxCategories.productTypeId' => $productTypeId])
             ->all();
 
         if (empty($rows)) {

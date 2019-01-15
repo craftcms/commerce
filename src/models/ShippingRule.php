@@ -124,6 +124,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
+     * @var bool Is lite shipping rule
+     */
+    public $isLite = 0;
+
+    /**
      * @param Order $order
      * @return array
      */

@@ -1,5 +1,7 @@
 # Shipping Methods
 
+Shipping methods are only available in the Pro edition of Craft Commerce. This page only applies to developers using the Pro edition of Craft Commerce.
+
 If you need to add shipping costs to the cart, you have the following options:
 
 1) Use the built in shipping method and shipping rules engine to define your rules and prices based on a few product and cart attributes, including per item rates, base order rates, weight rates, and percentage of cost rates.
