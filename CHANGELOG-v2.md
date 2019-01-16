@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+
+- Fixed an issue where the `totalPaid`, `totalPrice`, `totalShippingCost` Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
+
 ## 2.0.0 - 2019-01-15
 
 ### Added
