@@ -1,0 +1,186 @@
+{% extends 'buy/_layout/main' %}
+
+{% block title %}
+Buy your hand-crafted free-range coastal artisan t-shirt.
+{% endblock %}
+
+{% block content %}
+{% if cart.isEmpty %}
+{% redirect 'buy/add' %}
+{% endif %}
+
+{# Do we have have more than 1 line item? If so, we are likely on Pro, let's use the main cart checkout example template #}
+{% if cart.lineItems|length > 1 %}
+    {% redirect '/shop/cart' %}
+{% endif %}
+
+{% set step = craft.app.request.param('step') %}
+{% set showEmailForm = (not step or step == 1) %}
+{% set showShippingForm = (step == 2 and not showEmailForm) %}
+{% set showPaymentForm = (step == 3 and not showShipping and not showEmailForm) %}
+
+<div class="p-10 pt-8 border-b border-solid border-grey-light">
+
+    <div class="flex items-center mb-4">
+        <div class="border-2 border-solid border-red-commerce py-2 px-3 rounded-full font-bold mr-2 text-red-commerce">
+            1
+        </div>
+        <h2 class="text-lg">Your Email</h2>
+    </div>
+
+    {% if showEmailForm %}
+    <form method="POST" class="add-to-cart-form">
+        <input type="hidden" name="action" value="commerce/cart/update-cart">
+        {{ redirectInput('buy?step=2') }}
+        {{ csrfInput() }}
+        <div class="flex">
+        <div class="w-full/2 w-full">
+            <label for="email" class="block text-sm mb-2">E-mail</label>
+            <input id="email" name="email" type="email" value="{{cart.email}}" {% if currentUser %}}disabled{% endif %}} class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+        </div>
+        <div class="w-1/2 w-full">
+        <button type="submit" class="bg-blue-commerce text-white w-full rounded px-3 py-3 ml-1 mt-6 text-sm hover:bg-blue-dark outline-0">
+            Next
+        </button>
+        </div>
+        </div>
+    </form>
+    {% else %}
+    {{ cart.email }}
+    {% endif %}
+
+</div>
+
+<div class="p-10 pt-8 border-b border-solid border-grey-light">
+
+    <div class="flex items-center mb-4">
+        <div class="border-2 border-solid border-red-commerce py-2 px-3 rounded-full font-bold mr-2 text-red-commerce">
+            2
+        </div>
+        <h2 class="text-lg">Your Address</h2>
+    </div>
+
+    {% if showShippingForm %}
+    <form method="POST" class="add-to-cart-form">
+        <input type="hidden" name="action" value="commerce/cart/update-cart">
+        {{ redirectInput('buy') }}
+        {{ csrfInput() }}
+        <div class="flex">
+            <div class="w-full/2 w-full">
+                <label for="firstName" class="block text-sm mb-2">First Name</label>
+                <input id="firstName" name="shippingAddress[firstName]" type="text" value="{{cart.shippingAddress.firstName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+            </div>
+            <div class="w-full/2 w-full">
+                <label for="lastName" class="block text-sm mb-2">Last Name</label>
+                <input id="lastName" name="shippingAddress[lastName]" type="text" value="{{cart.shippingAddress.lastName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+            </div>
+            <div class="w-full/2 w-full">
+                <label for="state" class="block text-sm mb-2">Last Name</label>
+                <input id="state" name="shippingAddress[stateValue]" type="text" value="{{cart.shippingAddress.stateValue ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+            </div>
+            <div class="w-1/2 w-full">
+                <button type="submit" class="bg-blue-commerce text-white w-full rounded px-3 py-3 ml-1 mt-6 text-sm hover:bg-blue-dark outline-0">
+                    Next
+                </button>
+            </div>
+        </div>
+    </form>
+    {% else %}
+    {{ cart.shippingAddress.countryText ?? ''}}
+    {% endif %}
+
+</div>
+
+{% if showPaymentForm %}
+<div class="p-10 pt-8 border-b border-solid border-grey-light">
+    <div class="flex items-center mb-4">
+        <div class="border-2 border-solid border-red-commerce py-2 px-3 rounded-full font-bold mr-2 text-red-commerce">
+            2
+        </div>
+        <h2 class="text-lg">Your Payment Information</h2>
+    </div>
+    <div class="flex flex-wrap">
+
+        <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
+            <label for="payment" class="block text-sm mb-2">Credit Card</label>
+            <input id="payment" type="text"
+                   class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+        </div>
+        <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
+            <label for="cvv" class="block text-sm mb-2">CVV</label>
+            <input id="cvv" type="text"
+                   class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+        </div>
+
+        <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
+            <label for="exp_month" class="block text-sm mb-2">Expiry
+                Month</label>
+            <input id="exp_month" type="text"
+                   class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+        </div>
+        <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
+            <label for="exp_year" class="block text-sm mb-2">Expiry Year</label>
+            <input id="exp_year" type="text"
+                   class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+        </div>
+    </div>
+</div>
+
+<div class="p-10 pt-8">
+    <button type="submit"
+            class="bg-blue-commerce text-white w-full rounded px-4 py-4 mb-6 text-lg hover:bg-blue-dark">
+        Buy ${{ cart.totalPrice }}
+    </button>
+    <div class="flex items-center justify-center mb-8">
+        <div>
+            <span class="font-bold">Need any help?</span>
+            <span class="text-grey-darker">Don't hesitate to <a href="#"
+                                                                class="text-grey-darker underline">contact support</a>!</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block sidebar %}
+
+<h2 class="font-bold text-xl mb-4">{{
+    cart.lineitems[0].description }}</h2>
+<div class="mb-4">
+    <span class="text-2xl align-top">$</span>
+    <span class="text-5.5xl font-light lh-fix">{{ cart.itemTotal }}</span>
+</div>
+<div class="italic w-3/4 leading-normal mb-8">
+    Authentic Craft t-shirt
+</div>
+<div class="list-items mb-8">
+    <div class="flex items-center mb-4">
+        {% include 'buy/_components/checkboxicon' %}
+        <div>Made of <span class="font-bold">real</span>
+            material
+        </div>
+    </div>
+    <div class="flex items-center mb-4">
+        {% include 'buy/_components/checkboxicon' %}
+        <div>You will look cool</div>
+    </div>
+    <div class="flex items-center mb-4">
+        {% include 'buy/_components/checkboxicon' %}
+        <div>Fully supported</div>
+    </div>
+</div> <!-- end list-items -->
+
+<div class="border-b border-solid border-grey-light"></div>
+
+<div class="testimonial pt-10 text-lg italic leading-normal mb-4">
+    "Buying this will not give you true happiness, there is no
+    such thing."
+</div>
+
+<div class="flex items-center">
+    <img src="https://avatars.io/twitter/angrybrad" alt="avatar"
+         width="48" class="rounded-full mr-2">
+    <div class="text-lg font-bold">Brad Bell</div>
+</div>
+
+{% endblock %}

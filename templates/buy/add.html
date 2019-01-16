@@ -1,0 +1,24 @@
+{% extends 'buy/_layout/main' %}
+{% block title %}
+Adding to cart...{% include 'buy/_components/spinner' %}
+{% endblock %}
+{% block content %}
+{% set purchasableId = craft.app.request.param('purchasableId') %}
+<form method="POST" name="auto-add-to-cart" class="add-to-cart-form">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
+    {{ redirectInput('buy') }}
+    <input type="hidden" name="qty" value="1">
+    {{ csrfInput() }}
+    {% if purchasableId %}
+    <input type="hidden" name="purchasableId" value="{{ purchasableId }}">
+    {% else %}
+    <input type="hidden" name="purchasableId" value="{{ craft.products.first.defaultVariant.id }}">
+    {% endif %}
+    <input type="submit" hidden/>
+</form>
+<script>
+    window.onload = function(){
+        document.forms['auto-add-to-cart'].submit();
+    }
+</script>
+{% endblock %}
