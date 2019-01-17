@@ -1,11 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.1 - 2019-01-17
 
 ### Fixed
 
 - Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
-- Fixed an issue where custom field validation errors did not show up on the Order Edit Page. ([#580](https://github.com/craftcms/commerce/issues/580))
+- Fixed an issue where custom field validation errors did not show up on the Edit Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
 
 ### Changed
 
