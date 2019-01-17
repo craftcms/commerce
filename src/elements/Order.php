@@ -1697,8 +1697,18 @@ class Order extends Element
                     return $this->getPaidStatusHtml();
                 }
             case 'totalPaid':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                }
             case 'totalPrice':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+                }
             case 'totalShippingCost':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('shipping');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
             case 'totalDiscount':
                 {
                     $amount = $this->getAdjustmentsTotalByType('discount');

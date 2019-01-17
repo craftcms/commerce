@@ -56,6 +56,8 @@ class BaseFrontEndController extends BaseController
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->gatewayId;
+        $data['gatewayId'] = $cart->gatewayId;
+        $data['paymentSourceId'] = $cart->paymentSourceId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
         $data['paidStatus'] = $cart->getPaidStatus();
