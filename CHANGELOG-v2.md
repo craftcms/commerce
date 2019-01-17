@@ -4,10 +4,13 @@
 
 ### Fixed
 
-- Fixed an issue where the `totalPaid`, `totalPrice`, `totalShippingCost` Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
+- Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
 - Fixed an issue where custom field validation errors did not show up on the Order Edit Page. ([#580](https://github.com/craftcms/commerce/issues/580))
-- Renamed the shipping rule condition ‘mimimum order price’ to ‘minimum order value before adjustments’ to clarify.
-- Renamed the shipping rule condition ‘maximum order price’ to ‘maximum order value before adjustments’ to clarify.
+
+### Changed
+
+- Renamed the shipping rule condition from “Mimimum order price” to “Minimum order value” which clarifies the condition is based on item value before discounts and tax.
+- Renamed the shipping rule condition from “Maximum order price” to “Maximum order value” which clarifies the condition is based on item value before discounts and tax.
 
 ## 2.0.0 - 2019-01-15
 
