@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+
+- Fixed a PHP error raised when using the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
+
 ## 2.0.1 - 2019-01-17
 
 ### Fixed

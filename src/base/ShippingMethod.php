@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\base\Model;
