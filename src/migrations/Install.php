@@ -12,13 +12,15 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\ProductType as ProductTypeModel;
+use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
+use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
 use craft\commerce\records\OrderStatus;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
-use craft\commerce\records\ProductTypeSite;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
@@ -1547,24 +1549,31 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->_variantFieldLayoutId
         ];
 
-        $this->insert(ProductType::tableName(), $data);
-        $productTypeId = $this->db->getLastInsertID(ProductType::tableName());
+        $productType = new ProductTypeModel($data);
+        Craft::configure(new $productType, $data);
 
         $siteIds = (new Query())
             ->select('id')
             ->from(Site::tableName())
             ->column();
 
+        $allSiteSettings = [];
+
         foreach ($siteIds as $siteId) {
-            $data = [
-                'productTypeId' => $productTypeId,
-                'siteId' => $siteId,
-                'uriFormat' => 'shop/products/{slug}',
-                'template' => 'shop/products/_product',
-                'hasUrls' => true
-            ];
-            $this->insert(ProductTypeSite::tableName(), $data);
+
+            $siteSettings = new ProductTypeSiteModel();
+
+            $siteSettings->siteId = $siteId;
+            $siteSettings->hasUrls = true;
+            $siteSettings->uriFormat = 'shop/products/{slug}';
+            $siteSettings->template = 'shop/products/_product';
+
+            $allSiteSettings[$siteId] = $siteSettings;
         }
+
+        $productType->setSiteSettings($allSiteSettings);
+
+        Plugin::getInstance()->getProductTypes()->saveProductType($productType);
     }
 
     /**
