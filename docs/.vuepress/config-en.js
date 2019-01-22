@@ -24,6 +24,7 @@ module.exports = {
                 collapsable: false,
                 children: [
                     'configuration',
+                    'project-config'
                 ]
             },
             {

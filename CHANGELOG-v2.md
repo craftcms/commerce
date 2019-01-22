@@ -1,5 +1,24 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+
+- Fixed a PHP error raised when using the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
+- Fixed a PHP error that occurred when viewing an order that used a since-deleted shipping method.
+
+## 2.0.1 - 2019-01-17
+
+### Fixed
+
+- Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
+- Fixed an issue where custom field validation errors did not show up on the Edit Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
+
+### Changed
+
+- Renamed the shipping rule condition from “Mimimum order price” to “Minimum order value” which clarifies the condition is based on item value before discounts and tax.
+- Renamed the shipping rule condition from “Maximum order price” to “Maximum order value” which clarifies the condition is based on item value before discounts and tax.
+
 ## 2.0.0 - 2019-01-15
 
 ### Added
