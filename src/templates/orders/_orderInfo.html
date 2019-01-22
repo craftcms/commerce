@@ -63,7 +63,7 @@
             <tr>
                 <td><strong>{{ "Shipping"|t('commerce') }}</strong>
                 </td>
-                <td>{{order.shippingMethod.name}}</td>
+                <td>{{order.shippingMethod.name ?? order.shippingMethodHandle ?? ''}}</td>
             </tr>
             {% endif %}
             <tr>
