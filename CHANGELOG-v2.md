@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Added Commerce Lite example templates folder in `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+
 ### Fixed
 
 - Fixed a PHP error raised when using the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
