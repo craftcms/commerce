@@ -630,7 +630,7 @@ return [
     'Short' => 'Kort',
     'Couldn’t save subscription plan.' => 'Kan abonnementsplan niet opslaan.',
     'Manage subscription' => 'Abonnement beheren',
-    'Gateways' => 'Gateways.',
+    'Gateways' => 'Gateways',
     'A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off). Percentages are rounded to 2 decimal places.' => 'Gebruik een percentage of een vast bedrag (bijvoorbeeld: ‘3%’ voor 3% korting en ‘10’ voor $10 korting). Percentages worden afgerond op 2 decimalen.',
     'There is no gateway selected that supports payment sources.' => 'Er is geen gateway geselecteerd die betaalbronnen ondersteunt.',
     'Card Holder' => 'Kaarthouder',
