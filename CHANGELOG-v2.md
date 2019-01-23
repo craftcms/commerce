@@ -4,6 +4,7 @@
 
 ### Fixed
 - Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
+- Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))
 
 ## 2.0.2 - 2019-01-23
 
