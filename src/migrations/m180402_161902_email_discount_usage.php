@@ -31,7 +31,6 @@ class m180402_161902_email_discount_usage extends Migration
 
         $couponUseByEmail = (new \craft\db\Query())
             ->select(['count(*) as uses', '[[orders.email]] as email', '[[discounts.id]] as discountId'])
-            ->limit(null)
             ->from('{{%commerce_orders}} orders')
             ->where(['not', ['couponCode' => null]])
             ->leftJoin('{{%commerce_discounts}} discounts', '[[code]] = [[couponCode]]')
