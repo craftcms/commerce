@@ -1,10 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.2 - 2019-01-23
 
 ### Added
 
-- Added new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
 
 ### Fixed
 
