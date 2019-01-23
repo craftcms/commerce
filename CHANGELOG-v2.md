@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
+
 ## 2.0.2 - 2019-01-23
 
 ### Added

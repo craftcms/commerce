@@ -23,6 +23,7 @@ use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
 use craft\events\SiteEvent;
+use craft\helpers\App;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
