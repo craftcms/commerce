@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.2 - 2019-01-23
+
+### Added
+
+- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+
+### Fixed
+
+- Fixed a PHP error raised when extending the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
+- Fixed a PHP error that occurred when viewing an order that used a since-deleted shipping method.
+
 ## 2.0.1 - 2019-01-17
 
 ### Fixed
