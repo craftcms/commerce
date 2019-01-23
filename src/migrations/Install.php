@@ -14,10 +14,10 @@ use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
+use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
-use craft\commerce\records\OrderStatus;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
@@ -1060,16 +1060,21 @@ class Install extends Migration
      */
     public function insertDefaultData()
     {
+        // The following defaults are not stored in the project config.
         $this->_defaultCountries();
         $this->_defaultStates();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
-        $this->_defaultOrderSettings();
-        $this->_defaultProductTypes();
-        $this->_defaultProducts();
-        $this->_defaultGateways();
+
+        // Don't make the same config changes twice
+        if (Craft::$app->projectConfig->get('plugins.commerce', true) === null) {
+            $this->_defaultOrderSettings();
+            $this->_defaultProductTypes();
+            $this->_defaultProducts(); // Not in project config, but dependant on demo product type
+            $this->_defaultGateways();
+        }
     }
 
     // Private Methods
@@ -1513,7 +1518,8 @@ class Install extends Migration
             'color' => 'green',
             'default' => true
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+        $orderStatus = new OrderStatusModel($data);
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
 
         $data = [
             'name' => 'Shipped',
@@ -1521,7 +1527,8 @@ class Install extends Migration
             'color' => 'blue',
             'default' => false
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+        $orderStatus = new OrderStatusModel($data);
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
     /**
@@ -1550,7 +1557,6 @@ class Install extends Migration
         ];
 
         $productType = new ProductTypeModel($data);
-        Craft::configure(new $productType, $data);
 
         $siteIds = (new Query())
             ->select('id')
@@ -1724,13 +1730,12 @@ class Install extends Migration
     private function _defaultGateways()
     {
         $data = [
-            'type' => Dummy::class,
             'name' => 'Dummy',
             'handle' => 'dummy',
-            'settings' => Json::encode([]),
             'isFrontendEnabled' => true,
             'isArchived' => false,
         ];
-        $this->insert(Gateway::tableName(), $data);
+        $gateway = new Dummy($data);
+        Plugin::getInstance()->getGateways()->saveGateway($gateway);
     }
 }
