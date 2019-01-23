@@ -24,7 +24,7 @@ class m180218_130000_sale_order extends Migration
 
         $sales = (new Query())
             ->select(['id'])
-            ->from('{{%commerce_sales}}')
+            ->from(['{{%commerce_sales}}'])
             ->column();
 
         $count = 1;

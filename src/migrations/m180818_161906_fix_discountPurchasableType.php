@@ -29,7 +29,7 @@ class m180818_161906_fix_discountPurchasableType extends Migration
 
         $discountPurchasables = (new Query())
             ->select(['id', 'discountId', 'purchasableId', 'purchasableType'])
-            ->from('{{%commerce_discount_purchasables}}')
+            ->from(['{{%commerce_discount_purchasables}}'])
             ->all();
 
         foreach ($discountPurchasables as $discountPurchasable) {

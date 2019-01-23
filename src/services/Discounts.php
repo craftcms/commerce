@@ -233,8 +233,8 @@ class Discounts extends Component
         if ($discount->perUserLimit > 0 && $user) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
-                ->select('uses')
-                ->from('{{%commerce_customer_discountuses}}')
+                ->select(['uses'])
+                ->from(['{{%commerce_customer_discountuses}}'])
                 ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
@@ -255,8 +255,8 @@ class Discounts extends Component
 
         if ($discount->perEmailLimit > 0) {
             $usage = (new Query())
-                ->select('uses')
-                ->from('{{%commerce_email_discountuses}}')
+                ->select(['uses'])
+                ->from(['{{%commerce_email_discountuses}}'])
                 ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
                 ->scalar();
 

@@ -36,40 +36,40 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
     {
         $salesProducts = (new Query())
             ->select(['saleId', 'productId'])
-            ->from('{{%commerce_sale_products}}')
+            ->from(['{{%commerce_sale_products}}'])
             ->all();
 
         $salesProductIds = (new Query())
             ->select(['productId'])
-            ->from('{{%commerce_sale_products}}')
+            ->from(['{{%commerce_sale_products}}'])
             ->distinct()
             ->column();
 
         $salesProductTypes = (new Query())
             ->select(['saleId', 'productTypeId'])
-            ->from('{{%commerce_sale_producttypes}}')
+            ->from(['{{%commerce_sale_producttypes}}'])
             ->all();
 
         $discountsProducts = (new Query())
             ->select(['discountId', 'productId'])
-            ->from('{{%commerce_discount_products}}')
+            ->from(['{{%commerce_discount_products}}'])
             ->all();
 
         $discountsProductIds = (new Query())
             ->select(['discountId'])
-            ->from('{{%commerce_discount_products}}')
+            ->from(['{{%commerce_discount_products}}'])
             ->distinct()
             ->column();
 
         $discountsProductTypes = (new Query())
             ->select(['discountId', 'productTypeId'])
-            ->from('{{%commerce_discount_producttypes}}')
+            ->from(['{{%commerce_discount_producttypes}}'])
             ->all();
 
         // Get all Product Types
         $productTypes = (new Query())
             ->select(['id', 'name', 'handle'])
-            ->from('{{%commerce_producttypes}}')
+            ->from(['{{%commerce_producttypes}}'])
             ->all();
 
         // Create a category group for the product types sales and discounts to link to
@@ -127,7 +127,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
             $discountExists = (new Query())
                 ->select(['id'])
-                ->from('{{%commerce_discounts}}')
+                ->from(['{{%commerce_discounts}}'])
                 ->where(['id' => $discountsProductType['discountId']])
                 ->exists();
 
@@ -166,7 +166,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
             $saleExists = (new Query())
                 ->select(['id'])
-                ->from('{{%commerce_sales}}')
+                ->from(['{{%commerce_sales}}'])
                 ->where(['id' => $salesProductType['saleId']])
                 ->exists();
 
@@ -209,7 +209,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         // Get all variant IDs with their product ID
         $variantIds = (new Query())
             ->select(['id', 'productId'])
-            ->from('{{%commerce_variants}}')
+            ->from(['{{%commerce_variants}}'])
             ->where(['in', 'productId', $salesProductIds])
             ->pairs();
 
@@ -218,9 +218,10 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         foreach ($salesProducts as $salesProduct) {
             $saleExists = (new Query())
                 ->select(['id'])
-                ->from('{{%commerce_sales}}')
+                ->from(['{{%commerce_sales}}'])
                 ->where(['id' => $salesProduct['saleId']])
                 ->exists();
+
             // The variant is the purchasable, so link to the variant
             foreach ($variantIds as $variantId => $productId) {
                 if ($salesProduct['productId'] == $productId && $saleExists) {
@@ -257,7 +258,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         // Get all variant IDs with their product ID
         $variantIds = (new Query())
             ->select(['id', 'productId'])
-            ->from('{{%commerce_variants}}')
+            ->from(['{{%commerce_variants}}'])
             ->where(['in', 'productId', $discountsProductIds])
             ->pairs();
 
@@ -266,7 +267,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         foreach ($discountsProducts as $discountsProduct) {
             $discountExists = (new Query())
                 ->select(['id'])
-                ->from('{{%commerce_discounts}}')
+                ->from(['{{%commerce_discounts}}'])
                 ->where(['id' => $discountsProduct['discountId']])
                 ->exists();
 

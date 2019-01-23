@@ -21,7 +21,7 @@ class m180402_161903_primary_customer_addresses_relations extends Migration
     {
         $rougueOnes = (new \craft\db\Query())
             ->select(['customers.primaryBillingAddressId'])
-            ->from('{{%commerce_customers}} customers')
+            ->from(['{{%commerce_customers}} customers'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[customers.primaryBillingAddressId]] = [[addresses.id]]')
             ->where(['addresses.id' => null])
             ->andWhere(['not', ['customers.primaryBillingAddressId' => null]])
@@ -31,7 +31,7 @@ class m180402_161903_primary_customer_addresses_relations extends Migration
 
         $rougueTwos = (new \craft\db\Query())
             ->select(['customers.primaryShippingAddressId'])
-            ->from('{{%commerce_customers}} customers')
+            ->from(['{{%commerce_customers}} customers'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[customers.primaryShippingAddressId]] = [[addresses.id]]')
             ->where(['addresses.id' => null])
             ->andWhere(['not', ['customers.primaryShippingAddressId' => null]])

@@ -22,7 +22,7 @@ class m180402_161904_order_addresses_relations extends Migration
     {
         $rougueOnes = (new \craft\db\Query())
             ->select(['orders.billingAddressId'])
-            ->from('{{%commerce_orders}} orders')
+            ->from(['{{%commerce_orders}} orders'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[orders.billingAddressId]] = [[addresses.id]]')
             ->where(['addresses.id' => null])
             ->andWhere(['not', ['orders.billingAddressId' => null]])
@@ -34,7 +34,7 @@ class m180402_161904_order_addresses_relations extends Migration
 
         $rougueTwos = (new \craft\db\Query())
             ->select(['orders.shippingAddressId'])
-            ->from('{{%commerce_orders}} orders')
+            ->from(['{{%commerce_orders}} orders'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[orders.shippingAddressId]] = [[addresses.id]]')
             ->where(['addresses.id' => null])
             ->andWhere(['not', ['orders.shippingAddressId' => null]])
