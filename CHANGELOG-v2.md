@@ -8,7 +8,7 @@
 
 ### Fixed
 
-- Fixed a PHP error raised when using the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
+- Fixed a PHP error raised when extending the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
 - Fixed a PHP error that occurred when viewing an order that used a since-deleted shipping method.
 
 ## 2.0.1 - 2019-01-17
