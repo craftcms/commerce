@@ -18,7 +18,7 @@ The Lite edition of Craft Commerce is designed for websites that just need the b
 
 The Lite edition has the following limitations that the Pro edition does not:
 
-- Only one purchasable can ordered in a single payment trasaction.
+- Only one purchasable can ordered in a single payment transaction.
 - Shipping costs can be configured in settings as fixed amounts per order, with no shipping method choices for the customer.
 - Tax costs can be configured as a fixed percentage of the order total, with no support for tax zones, or VAT ID validation.
 - Discount promotions, including coupon codes, are not available.
