@@ -27,8 +27,8 @@ class m180417_161904_fix_purchasables extends Migration
     public function safeUp()
     {
         // Delete any variant element records for variants that do not exist due to incorrect deletion
-        $variantIds = (new Query())->select('id')->from('{{%commerce_variants}}')->limit(null)->column();
-        $elementIds = (new Query())->select('id')->from('{{%elements}}')->where([
+        $variantIds = (new Query())->select(['id'])->from('{{%commerce_variants}}')->limit(null)->column();
+        $elementIds = (new Query())->select(['id'])->from('{{%elements}}')->where([
             'and',
             ['type' => Variant::class],
             ['not in', 'id', $variantIds]
@@ -39,8 +39,8 @@ class m180417_161904_fix_purchasables extends Migration
         }
 
         // Delete any product element records for product that do not exist
-        $productIds = (new Query())->select('id')->from('{{%commerce_products}}')->limit(null)->column();
-        $elementIds = (new Query())->select('id')->from('{{%elements}}')->where([
+        $productIds = (new Query())->select(['id'])->from('{{%commerce_products}}')->limit(null)->column();
+        $elementIds = (new Query())->select(['id'])->from('{{%elements}}')->where([
             'and',
             ['type' => Product::class],
             ['not in', 'id', $productIds]
@@ -64,13 +64,13 @@ class m180417_161904_fix_purchasables extends Migration
         $this->addForeignKey(null, '{{%commerce_variants}}', ['productId'], '{{%commerce_products}}', ['id'], 'SET NULL');
 
         // Delete Everything in Purchasable table
-        $purchasableIds = (new Query())->select('id')->from('{{%commerce_purchasables}}')->limit(null)->column();
+        $purchasableIds = (new Query())->select(['id'])->from('{{%commerce_purchasables}}')->limit(null)->column();
         foreach ($purchasableIds as $id) {
             $this->delete('{{%commerce_purchasables}}', ['id' => $id]);
         }
 
         // Need to recreate all purchasable rows, so need to get all elements unfortunately
-        $elementsRows = (new Query())->select('id, type')->from('{{%elements}}')->limit(null)->all();
+        $elementsRows = (new Query())->select(['id', 'type'])->from('{{%elements}}')->limit(null)->all();
 
         // Cache the reflection classes we need.
         $reflectionClassesByType = [];

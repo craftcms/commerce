@@ -1559,7 +1559,7 @@ class Install extends Migration
         $productType = new ProductTypeModel($data);
 
         $siteIds = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(Site::tableName())
             ->column();
 
@@ -1590,17 +1590,17 @@ class Install extends Migration
     private function _defaultProducts()
     {
         $productTypeId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ProductType::tableName())
             ->scalar();
 
         $taxCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(TaxCategory::tableName())
             ->scalar();
 
         $shippingCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ShippingCategory::tableName())
             ->scalar();
 
@@ -1641,7 +1641,7 @@ class Install extends Migration
 
             // Populate the i18n data for each site
             $siteIds = (new Query())
-                ->select('id')
+                ->select(['id'])
                 ->from(Site::tableName())
                 ->column();
 
