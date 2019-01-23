@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added Commerce Lite example templates folder in `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+- Added new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
 
 ### Fixed
 
