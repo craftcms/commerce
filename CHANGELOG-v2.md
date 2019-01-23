@@ -5,6 +5,7 @@
 ### Fixed
 - Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))
+- Fixed an error that occurred when updating to Craft Commerce 2 with a database with missing DB constraints on the `commerce_orderhistories` table.
 
 ## 2.0.2 - 2019-01-23
 
