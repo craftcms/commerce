@@ -23,6 +23,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
+use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
@@ -43,6 +44,8 @@ use yii\base\InvalidConfigException;
  * @property string $snapshot allow the variant to ask the product what data to snapshot
  * @property int $totalStock
  * @property bool $hasUnlimitedStock whether at least one variant has unlimited stock
+ * @property \craft\commerce\elements\Variant $cheapestVariant
+ * @property \craft\commerce\models\ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -163,11 +166,6 @@ class Product extends Element
      * @var Variant This product's cheapest variant
      */
     private $_cheapestVariant;
-
-    /**
-     * @var array The variant IDs to delete
-     */
-    private $_variantIdsToDelete = [];
 
     // Public Methods
     // =========================================================================
@@ -750,28 +748,6 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeDelete(): bool
-    {
-        $this->_variantIdsToDelete = Variant::find()->product($this)->ids();
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterDelete(): bool
-    {
-        foreach ($this->_variantIdsToDelete as $id) {
-            Craft::$app->getElements()->deleteElementById($id, Variant::class);
-        }
-
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function rules()
     {
         $rules = parent::rules();
@@ -943,10 +919,18 @@ class Product extends Element
 
         $actions = [];
 
-        $actions[] = [
-            'type' => CopyReferenceTag::class,
-            'elementType' => static::class,
-        ];
+        // Copy Reference Tag
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => CopyReferenceTag::class
+        ]);
+
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Products restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some products restored.'),
+            'failMessage' => Craft::t('commerce', 'Products not restored.'),
+        ]);
 
         if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();

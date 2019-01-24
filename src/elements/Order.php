@@ -34,6 +34,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\elements\actions\Delete;
+use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -1201,9 +1202,14 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $last = array_values(array_slice($lineItems, -1))[0];
-            $this->_lineItems = [$last];
+        // Lite should only allow one line item while the order is a cart.
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE) && $this->isCompleted == false) {
+            if (empty($lineItems)) {
+                $this->_lineItems = [];
+            } else {
+                $last = array_values(array_slice($lineItems, -1))[0];
+                $this->_lineItems = [$last];
+            }
         } else {
             $this->_lineItems = $lineItems;
         }
@@ -1697,8 +1703,18 @@ class Order extends Element
                     return $this->getPaidStatusHtml();
                 }
             case 'totalPaid':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                }
             case 'totalPrice':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+                }
             case 'totalShippingCost':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('shipping');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
             case 'totalDiscount':
                 {
                     $amount = $this->getAdjustmentsTotalByType('discount');
@@ -1861,6 +1877,14 @@ class Order extends Element
                 ]);
                 $actions[] = $updateOrderStatusAction;
             }
+
+            // Restore
+            $actions[] = Craft::$app->getElements()->createAction([
+                'type' => Restore::class,
+                'successMessage' => Craft::t('commerce', 'Orders restored.'),
+                'partialSuccessMessage' => Craft::t('commerce', 'Some orders restored.'),
+                'failMessage' => Craft::t('commerce', 'Orders not restored.'),
+            ]);
         }
 
         return $actions;

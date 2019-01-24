@@ -1,9 +1,37 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
+- Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))
+- Fixed an error that occurred when updating to Craft Commerce 2 with a database with missing DB constraints on the `commerce_orderhistories` table.
+- Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
+- Fixed an issue where the “restore” button would not show up on the product index page when listing Trashed products.
+- Fixed a PHP error that occurred when deleting the last line item while running the Lite edition.
+
+## 2.0.2 - 2019-01-23
+
+### Added
+- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+
+### Fixed
+- Fixed a PHP error raised when extending the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
+- Fixed a PHP error that occurred when viewing an order that used a since-deleted shipping method.
+
+## 2.0.1 - 2019-01-17
+
+### Fixed
+- Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
+- Fixed an issue where custom field validation errors did not show up on the Edit Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
+
+### Changed
+- Renamed the shipping rule condition from “Mimimum order price” to “Minimum order value” which clarifies the condition is based on item value before discounts and tax.
+- Renamed the shipping rule condition from “Maximum order price” to “Maximum order value” which clarifies the condition is based on item value before discounts and tax.
+
 ## 2.0.0 - 2019-01-15
 
 ### Added
-
 - Craft Commerce has been completely rewritten for Craft 3.
 - Emails, gateways, order fields, order statuses, product types, and subscription fields are now stored in the project config.
 - Added support for Craft 3.1 project config support.
@@ -103,7 +131,6 @@
 - Added `craft\commerce\services\Transactions::EVENT_AFTER_SAVE_TRANSACTION`.
 
 ### Changed
-
 - Payment Methods are now called “Gateways”.
 - Order statuses are now archived instead of deleted.
 - Product types can no longer select applicable shipping categories. Instead, shipping categories select applicable product types.
@@ -152,7 +179,6 @@
 - Vat ID validation is now powered by the “vat.php” library.
 
 ### Removed
-
 - Removed the `cartCookieDuration` config setting. All carts are now related to craft php session and not their own cookie.
 - Removed the `requireEmailForAnonymousPayments` config setting, as completed order now always require the correct email address to make anonymous payments on orders.
 - Removed `baseShipping`, `baseDiscount`, `baseTax`, `baseTaxIncluded` attributes from the order model. Orders now have order-level adjustments.
@@ -165,6 +191,5 @@
 - Removed the `getLastUsedBillingAddress()` and `getLatUsedShippingAddress()` methods from `Customer` models.
 
 ### Fixed
-
 - Fixed a bug where a product’s `getCpEditUrl()` method could omit the site handle on multi-site installs. ([craftcms/cms#3089](https://github.com/craftcms/cms/issues/3089))
 - Fixed a bug where handles and names for archived gateways were not freed up for re-use. ([#485](https://github.com/craftcms/commerce/issues/485))

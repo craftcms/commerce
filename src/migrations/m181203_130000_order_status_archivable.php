@@ -8,8 +8,8 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
+use craft\db\Query;
 use craft\helpers\MigrationHelper;
-use yii\db\Expression;
 
 /**
  * m181203_130000_order_status_archivable migration.
@@ -32,6 +32,21 @@ class m181203_130000_order_status_archivable extends Migration
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderhistories}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
+
+        // For people that never had order history cascade deletes when an order was deleted.
+        $orderIds = (new Query())
+            ->select(['id'])
+            ->from(['{{%commerce_orders}}'])
+            ->column();
+
+        $brokenOrderHistoryIds = (new Query())
+            ->select(['id'])
+            ->from(['{{%commerce_orderhistories}}'])
+            ->where(['not', ['orderId' => $orderIds]])
+            ->column();
+
+        // Let's delete any order history for orders that don't exist
+        $this->delete('{{%commerce_orderhistories}}', ['id' => $brokenOrderHistoryIds]);
 
         // Rebuild all the foreign keys.
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');

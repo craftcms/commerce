@@ -12,13 +12,15 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\ProductType as ProductTypeModel;
+use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
+use craft\commerce\models\OrderStatus as OrderStatusModel;
+use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\Gateway;
-use craft\commerce\records\OrderStatus;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
-use craft\commerce\records\ProductTypeSite;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
@@ -1058,16 +1060,21 @@ class Install extends Migration
      */
     public function insertDefaultData()
     {
+        // The following defaults are not stored in the project config.
         $this->_defaultCountries();
         $this->_defaultStates();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
-        $this->_defaultOrderSettings();
-        $this->_defaultProductTypes();
-        $this->_defaultProducts();
-        $this->_defaultGateways();
+
+        // Don't make the same config changes twice
+        if (Craft::$app->projectConfig->get('plugins.commerce', true) === null) {
+            $this->_defaultOrderSettings();
+            $this->_defaultProductTypes();
+            $this->_defaultProducts(); // Not in project config, but dependant on demo product type
+            $this->_defaultGateways();
+        }
     }
 
     // Private Methods
@@ -1511,7 +1518,8 @@ class Install extends Migration
             'color' => 'green',
             'default' => true
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+        $orderStatus = new OrderStatusModel($data);
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
 
         $data = [
             'name' => 'Shipped',
@@ -1519,7 +1527,8 @@ class Install extends Migration
             'color' => 'blue',
             'default' => false
         ];
-        $this->insert(OrderStatus::tableName(), $data);
+        $orderStatus = new OrderStatusModel($data);
+        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
     /**
@@ -1547,24 +1556,30 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->_variantFieldLayoutId
         ];
 
-        $this->insert(ProductType::tableName(), $data);
-        $productTypeId = $this->db->getLastInsertID(ProductType::tableName());
+        $productType = new ProductTypeModel($data);
 
         $siteIds = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(Site::tableName())
             ->column();
 
+        $allSiteSettings = [];
+
         foreach ($siteIds as $siteId) {
-            $data = [
-                'productTypeId' => $productTypeId,
-                'siteId' => $siteId,
-                'uriFormat' => 'shop/products/{slug}',
-                'template' => 'shop/products/_product',
-                'hasUrls' => true
-            ];
-            $this->insert(ProductTypeSite::tableName(), $data);
+
+            $siteSettings = new ProductTypeSiteModel();
+
+            $siteSettings->siteId = $siteId;
+            $siteSettings->hasUrls = true;
+            $siteSettings->uriFormat = 'shop/products/{slug}';
+            $siteSettings->template = 'shop/products/_product';
+
+            $allSiteSettings[$siteId] = $siteSettings;
         }
+
+        $productType->setSiteSettings($allSiteSettings);
+
+        Plugin::getInstance()->getProductTypes()->saveProductType($productType);
     }
 
     /**
@@ -1575,17 +1590,17 @@ class Install extends Migration
     private function _defaultProducts()
     {
         $productTypeId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ProductType::tableName())
             ->scalar();
 
         $taxCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(TaxCategory::tableName())
             ->scalar();
 
         $shippingCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ShippingCategory::tableName())
             ->scalar();
 
@@ -1626,7 +1641,7 @@ class Install extends Migration
 
             // Populate the i18n data for each site
             $siteIds = (new Query())
-                ->select('id')
+                ->select(['id'])
                 ->from(Site::tableName())
                 ->column();
 
@@ -1715,13 +1730,12 @@ class Install extends Migration
     private function _defaultGateways()
     {
         $data = [
-            'type' => Dummy::class,
             'name' => 'Dummy',
             'handle' => 'dummy',
-            'settings' => Json::encode([]),
             'isFrontendEnabled' => true,
             'isArchived' => false,
         ];
-        $this->insert(Gateway::tableName(), $data);
+        $gateway = new Dummy($data);
+        Plugin::getInstance()->getGateways()->saveGateway($gateway);
     }
 }

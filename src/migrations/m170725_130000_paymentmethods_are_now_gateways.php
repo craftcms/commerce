@@ -27,7 +27,7 @@ class m170725_130000_paymentmethods_are_now_gateways extends Migration
 
         $rows = (new Query())
             ->select(['id', 'name', 'type'])
-            ->from('{{%commerce_gateways}}')
+            ->from(['{{%commerce_gateways}}'])
             ->all();
 
         foreach ($rows as $row) {
