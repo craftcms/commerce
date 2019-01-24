@@ -919,10 +919,18 @@ class Product extends Element
 
         $actions = [];
 
-        $actions[] = [
-            'type' => CopyReferenceTag::class,
-            'elementType' => static::class,
-        ];
+        // Copy Reference Tag
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => CopyReferenceTag::class
+        ]);
+
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Products restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some products restored.'),
+            'failMessage' => Craft::t('commerce', 'Products not restored.'),
+        ]);
 
         if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();

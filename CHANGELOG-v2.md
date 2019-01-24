@@ -7,7 +7,8 @@
 - Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))
 - Fixed an error that occurred when updating to Craft Commerce 2 with a database with missing DB constraints on the `commerce_orderhistories` table.
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
- 
+- Fixed an issue where the “restore” button would not show up on the product index page when listing Trashed products.
+
 ## 2.0.2 - 2019-01-23
 
 ### Added
