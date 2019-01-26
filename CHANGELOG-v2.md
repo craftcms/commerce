@@ -9,6 +9,7 @@
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
 - Fixed an issue where the “restore” button would not show up on the product index page when listing Trashed products.
 - Fixed a PHP error that occurred when deleting the last line item while running the Lite edition.
+- Fixed an error that occurred when restoring products.
 
 ## 2.0.2 - 2019-01-23
 

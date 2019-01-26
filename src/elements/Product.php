@@ -438,6 +438,10 @@ class Product extends Element
         $count = 1;
         $this->_defaultVariant = null;
 
+        if (empty($variants)) {
+            return;
+        }
+
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
