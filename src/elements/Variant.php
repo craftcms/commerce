@@ -185,6 +185,12 @@ class Variant extends Purchasable
     public $maxQty;
 
     /**
+     * @var bool Whether the variant was deleted along with its product
+     * @see beforeDelete()
+     */
+    public $deletedWithProduct = false;
+
+    /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
@@ -878,6 +884,24 @@ class Variant extends Purchasable
         $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        Craft::$app->getDb()->createCommand()
+            ->update('{{%commerce_variants}}', [
+                'deletedWithProduct' => $this->deletedWithProduct,
+            ], ['id' => $this->id], [], false)
+            ->execute();
+
+        return true;
     }
 
     // Protected Methods

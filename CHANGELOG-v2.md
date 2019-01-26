@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Variants that were soft-deleted as a result of their product being deleted are now also restored when their product is restored.
+
 ### Fixed
 - Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))

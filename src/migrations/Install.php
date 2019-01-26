@@ -747,6 +747,7 @@ class Install extends Migration
             'hasUnlimitedStock' => $this->boolean(),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
+            'deletedWithProduct' => $this->integer()->null(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
