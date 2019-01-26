@@ -298,7 +298,13 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
-        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
+        $product = Product::find()
+            ->id($this->productId)
+            ->siteId($this->siteId)
+            ->trashed(null)
+            ->one();
+
+        if ($product === null) {
             throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 

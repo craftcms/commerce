@@ -748,6 +748,24 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function afterDelete()
+    {
+        $variants = Variant::find()
+            ->productId($this->id)
+            ->all();
+
+        $elementsService = Craft::$app->getElements();
+
+        foreach ($variants as $variant) {
+            $elementsService->deleteElement($variant);
+        }
+
+        parent::afterDelete();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function rules()
     {
         $rules = parent::rules();
