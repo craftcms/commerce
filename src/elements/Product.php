@@ -726,7 +726,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.

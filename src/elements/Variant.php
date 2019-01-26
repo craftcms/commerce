@@ -863,7 +863,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         $product = $this->getProduct();
 
