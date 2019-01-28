@@ -8,11 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\commerce\base\Model;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
-use craft\commerce\base\ShippingMethodInterface;
-use craft\commerce\base\ShippingRuleInterface;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\helpers\UrlHelper;
@@ -28,7 +24,7 @@ use craft\validators\UniqueValidator;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethod extends BaseShippingMethod implements ShippingMethodInterface
+class ShippingMethod extends BaseShippingMethod
 {
     // Public Methods
     // =========================================================================
