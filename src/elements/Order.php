@@ -1807,7 +1807,7 @@ class Order extends Element
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
+                'label' => Craft::t('commerce', $orderStatus->name),
                 'criteria' => ['orderStatusId' => $orderStatus->id],
                 'defaultSort' => ['dateOrdered', 'desc']
             ];
