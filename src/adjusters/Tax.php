@@ -127,8 +127,8 @@ class Tax extends Component implements AdjusterInterface
         }
 
         //Address doesn't match zone or we should remove the VAT
-        $doesntMatchZone = (($zone && !$this->_matchAddress($zone)) && !$taxRate->getIsEverywhere());
-        if ($doesntMatchZone || $removeVat) {
+        $doesNotMatchZone = (($zone && !$this->_matchAddress($zone)) && !$taxRate->getIsEverywhere());
+        if ($doesNotMatchZone || $removeVat) {
             // Since the address doesn't match or it's a removable vat tax,
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
