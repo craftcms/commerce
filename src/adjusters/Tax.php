@@ -270,7 +270,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return Validator
      */
-    private function _getVatValidator()
+    private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
             $this->_vatValidator = new Validator();
