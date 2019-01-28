@@ -75,8 +75,17 @@ class SettingsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $settings = new SettingsModel();
-        $settings->load(Craft::$app->getRequest()->getBodyParams(), 'settings');
+        $params = Craft::$app->getRequest()->getBodyParams();
+        $data = $params['settings'];
+
+        $settings = Plugin::getInstance()->getSettings();
+        $settings->emailSenderAddress = $data['emailSenderAddress'] ?? $settings->emailSenderAddress;
+        $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
+        $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
+        $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
+        $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
+        $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
+        $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
 
         $liteValid = true;
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
