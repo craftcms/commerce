@@ -3,17 +3,16 @@
 ## Unreleased
 
 ### Changed
-- Variants that were soft-deleted as a result of their product being deleted are now also restored when their product is restored.
+- Soft-deleted products are now restorable.
 
 ### Fixed
+- Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
+- Fixed a bug where sale conditions could be lost when upgrading to Commerce 2. ([#626](https://github.com/craftcms/commerce/issues/626))
 - Fixed a PHP error that occurred when saving a product type. ([#645](https://github.com/craftcms/commerce/issues/645))
-- Fixed an error that occurred when updating to Craft Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
-- Fixed an issue where the “restore” button would not show up on the product index page when listing Trashed products.
-- Fixed a PHP error that occurred when deleting the last line item while running the Lite edition. ([#639](https://github.com/craftcms/commerce/pull/639))
-- Fixed a bug that caused the Craft Commerce general settings to not save from the control panel. ([#655](https://github.com/craftcms/commerce/issues/655))
-- Fixed a issue when updating to Craft Commerce 2 that caused some installations to not keep product sale conditions.([#626](https://github.com/craftcms/commerce/issues/626))
-- Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
+- Fixed a PHP error that occurred when deleting the cart's line item while running the Lite edition. ([#639](https://github.com/craftcms/commerce/pull/639))
+- Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
+- Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 
 ## 2.0.2 - 2019-01-23
 
