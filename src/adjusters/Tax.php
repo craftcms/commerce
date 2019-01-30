@@ -53,6 +53,11 @@ class Tax extends Component implements AdjusterInterface
      */
     private $_address;
 
+    /**
+     * @var array
+     */
+    private $_costRemovedByLineItem = [];
+
     // Public Methods
     // =========================================================================
 
@@ -98,7 +103,6 @@ class Tax extends Component implements AdjusterInterface
     {
         $zone = $taxRate->taxZone;
         $adjustments = [];
-
         $removeVat = false;
 
         $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
@@ -150,6 +154,7 @@ class Tax extends Component implements AdjusterInterface
                     $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
                     $adjustment->amount = $amount;
                     $adjustment->type = 'discount';
+                    $adjustment->included = false;
 
                     $adjustments[] = $adjustment;
                 }
@@ -167,6 +172,9 @@ class Tax extends Component implements AdjusterInterface
                         $adjustment->amount = $amount;
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';
+                        $adjustment->included = false;
+                        $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
+                        $this->_costRemovedByLineItem[$objectId] = $amount;
 
                         $adjustments[] = $adjustment;
                     }
@@ -213,7 +221,14 @@ class Tax extends Component implements AdjusterInterface
         // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
             if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+                /**
+                 * Any reduction in price to the line item we have added while inside this adjuster needs to be deducted,
+                 * since the discount adjustments we just added won't be picked up in getTaxableSubtotal()
+                 */
                 $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
+                $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
+                $taxableAmount += $this->_costRemovedByLineItem[$objectId];
+
                 if (!$taxRate->include) {
                     $amount = $taxRate->rate * $taxableAmount;
                     $itemTax = Currency::round($amount);

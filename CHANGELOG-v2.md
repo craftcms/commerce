@@ -13,6 +13,7 @@
 - Fixed a PHP error that occurred when deleting the cart's line item while running the Lite edition. ([#639](https://github.com/craftcms/commerce/pull/639))
 - Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
+- Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
 
 ## 2.0.2 - 2019-01-23
 
