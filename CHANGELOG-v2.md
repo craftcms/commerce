@@ -14,6 +14,7 @@
 - Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
+- Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
 
 ## 2.0.2 - 2019-01-23
 
