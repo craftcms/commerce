@@ -48,16 +48,18 @@ class SettingsController extends BaseAdminController
             'shippingPerItemRate' => 0,
             'taxRate' => 0,
             'taxName' => 'Tax',
+            'taxInclude' => false,
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $shippingMethod = Plugin::getInstance()->getShippingMethods()->getLiteShippingMethod();
             $shippingRule = Plugin::getInstance()->getShippingRules()->getLiteShippingRule();
-            $taxRate = Plugin::getInstance()->getTaxRates()->getLitetaxRate();
+            $taxRate = Plugin::getInstance()->getTaxRates()->getLiteTaxRate();
             $lite->shippingBaseRate = $shippingRule->getBaseRate();
             $lite->shippingPerItemRate = $shippingRule->getPerItemRate();
             $lite->taxName = $taxRate->name;
             $lite->taxRate = $taxRate->rate;
+            $lite->taxInclude = $taxRate->include;
         }
 
         $variables = [
@@ -93,6 +95,7 @@ class SettingsController extends BaseAdminController
             $lite->shippingPerItemRate = Craft::$app->getRequest()->getBodyParam('lite.shippingPerItemRate');
             $lite->shippingBaseRate = Craft::$app->getRequest()->getBodyParam('lite.shippingBaseRate');
             $lite->taxName = Craft::$app->getRequest()->getBodyParam('lite.taxName');
+            $lite->taxInclude = (bool) Craft::$app->getRequest()->getBodyParam('lite.taxInclude');
 
             $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
             $rate = Craft::$app->getRequest()->getBodyParam('lite.taxRate');
@@ -234,9 +237,10 @@ class SettingsController extends BaseAdminController
      */
     private function _saveLiteSettings(LiteSettings $liteSettings)
     {
-        $taxRate = Plugin::getInstance()->getTaxRates()->getLitetaxRate();
+        $taxRate = Plugin::getInstance()->getTaxRates()->getLiteTaxRate();
         $taxRate->rate = $liteSettings->taxRate;
         $taxRate->name = $liteSettings->taxName;
+        $taxRate->include = $liteSettings->taxInclude;
         $taxSaved = Plugin::getInstance()->getTaxRates()->saveLiteTaxRate($taxRate, false);
 
         $shippingMethod = Plugin::getInstance()->getShippingMethods()->getLiteShippingMethod();

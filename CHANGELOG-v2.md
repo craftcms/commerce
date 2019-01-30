@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added 
+- Added the “Tax included in price” tax setting to the Lite edition. ([#654](https://github.com/craftcms/commerce/issues/654))
+ 
 ### Changed
 - Soft-deleted products are now restorable.
 

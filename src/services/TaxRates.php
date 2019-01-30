@@ -194,7 +194,7 @@ class TaxRates extends Component
     /**
      * @return TaxRate
      */
-    public function getLitetaxRate()
+    public function getLiteTaxRate(): TaxRate
     {
         $liteRate = $this->_createTaxRatesQuery()->one();
 
