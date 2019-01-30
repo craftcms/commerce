@@ -14,6 +14,7 @@
 - Fixed a PHP error that occurred when deleting the last line item while running the Lite edition.
 - Fixed an error that occurred when restoring products.
 - Fixed a bug that caused the Craft Commerce general settings to not save from the control panel. ([#655](https://github.com/craftcms/commerce/issues/655))
+- Fixed a issue when when updating to Craft Commerce 2 that caused some installations to not keep product sale conditions.([#626](https://github.com/craftcms/commerce/issues/626))
 
 ## 2.0.2 - 2019-01-23
 
