@@ -56,17 +56,17 @@ class LineItem extends Model
     public $id;
 
     /**
-     * @var float Price
+     * @var float Price is the original price of the purchasable
      */
     public $price = 0;
 
     /**
-     * @var float Sale amount
+     * @var float Sale amount off the price, based on the sales applied to the purchasable.
      */
     public $saleAmount = 0;
 
     /**
-     * @var float Sale price
+     * @var float Sale price is the price of the line item. Sale price is price + saleAmount
      */
     public $salePrice = 0;
 
