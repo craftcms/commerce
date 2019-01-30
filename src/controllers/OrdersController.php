@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -243,6 +244,7 @@ class OrdersController extends BaseCpController
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = Craft::$app->getRequest()->getParam('amount');
+        $amount = Localization::normalizeNumber($amount);
         $note = Craft::$app->getRequest()->getRequiredBodyParam('note');
 
         if (!$transaction) {

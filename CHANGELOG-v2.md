@@ -15,6 +15,7 @@
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
 - Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
+- Fixed an error when refunding a transaction with a localized currency format.  ([#659](https://github.com/craftcms/commerce/issues/659))
 
 ## 2.0.2 - 2019-01-23
 
