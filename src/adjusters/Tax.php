@@ -173,8 +173,14 @@ class Tax extends Component implements AdjusterInterface
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';
                         $adjustment->included = false;
+
                         $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
-                        $this->_costRemovedByLineItem[$objectId] = $amount;
+
+                        if(isset($this->_costRemovedByLineItem[$objectId])) {
+                            $this->_costRemovedByLineItem[$objectId] += $amount;
+                        }else{
+                            $this->_costRemovedByLineItem[$objectId] = $amount;
+                        }
 
                         $adjustments[] = $adjustment;
                     }
