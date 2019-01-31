@@ -20,6 +20,7 @@
 - Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
 - Fixed an error when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
 - Fixed a SQL error caused my missing input validations when saving a Discount. ([#673](https://github.com/craftcms/commerce/issues/673))
+- Fixed the credit card form expiry input to allow non-numeric characters. ([#636](https://github.com/craftcms/commerce/issues/#636))
 
 ## 2.0.2 - 2019-01-23
 
