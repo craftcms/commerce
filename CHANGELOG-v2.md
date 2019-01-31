@@ -7,6 +7,7 @@
  
 ### Changed
 - Soft-deleted products are now restorable.
+- Commerce project config settings are now deleted when Commerce is uninstalled.
 
 ### Fixed
 - Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.

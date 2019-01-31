@@ -17,7 +17,6 @@ use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
-use craft\commerce\records\Gateway;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
@@ -33,7 +32,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\queue\jobs\ResaveElements;
@@ -80,6 +78,7 @@ class Install extends Migration
     {
         $this->dropForeignKeys();
         $this->dropTables();
+        $this->dropProjectConfig();
 
         $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class]]);
 
@@ -809,6 +808,14 @@ class Install extends Migration
         $this->dropTable('{{%commerce_variants}}');
 
         return null;
+    }
+
+    /**
+     * Deletes the project config entry.
+     */
+    public function dropProjectConfig()
+    {
+        Craft::$app->projectConfig->remove('commerce');
     }
 
     /**
