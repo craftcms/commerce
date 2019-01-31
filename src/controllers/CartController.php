@@ -192,7 +192,11 @@ class CartController extends BaseFrontEndController
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
             foreach ($purchasables as $key => $purchasable) {
-                $purchasableId = $request->getRequiredParam("purchasables.{$key}.id");
+                $purchasableId = $request->getParam("purchasables.{$key}.id");
+                if(!$purchasableId)
+                {
+                    continue;
+                }
                 $note = $request->getParam("purchasables.{$key}.note", '');
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);

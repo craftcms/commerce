@@ -18,7 +18,9 @@ use craft\validators\UniqueValidator;
  * Discount model
  *
  * @property string|false $cpEditUrl
- * @property string $percentDiscountAsPercent
+ * @property-read string $percentDiscountAsPercent
+ * @property array $categoryIds
+ * @property array $purchasableIds
  * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -287,8 +289,24 @@ class Discount extends Model
      */
     public function rules()
     {
+        $h = $this->purchaseTotal;
         return [
             [['name'], 'required'],
+            [
+                [
+                    'purchaseTotal',
+                    'perUserLimit',
+                    'perEmailLimit',
+                    'totalUseLimit',
+                    'totalUses',
+                    'purchaseTotal',
+                    'purchaseQty',
+                    'maxPurchaseQty',
+                    'baseDiscount',
+                    'perItemDiscount',
+                    'percentDiscount'
+                ], 'number', 'skipOnEmpty' => false
+            ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
     }
