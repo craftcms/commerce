@@ -367,7 +367,7 @@ class Plugin extends BasePlugin
      */
     private function _registerFieldTypes()
     {
-        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
             $event->types[] = Customer::class;
