@@ -1430,11 +1430,10 @@ class Order extends Element
             $handles[] = $shippingMethod->getHandle();
         }
 
-        if (count($shippingMethods)) {
+        if (!empty($shippingMethods)) {
             /** @var ShippingMethod $firstAvailable */
             $firstAvailable = array_values($shippingMethods)[0];
-            $handle = $firstAvailable->getHandle();
-            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles)) {
+            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
                 $this->shippingMethodHandle = $firstAvailable->getHandle();
             }
         }

@@ -14,8 +14,11 @@ use craft\i18n\Locale;
 /**
  * Class Lite Settings
  *
+ * @property-read string $taxRateAsPercent
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
  */
 class LiteSettings extends Model
 {
@@ -43,13 +46,19 @@ class LiteSettings extends Model
     public $taxName;
 
     /**
+     * @var string Tax include
+     */
+    public $taxInclude;
+
+    /**
      * @return array|string[]
      */
-    public function safeAttributes()
+    public function safeAttributes(): array
     {
         return [
             'taxRate',
-            'taxname',
+            'taxName',
+            'taxInclude',
             'shippingBaseRate',
             'shippingPerItemRate'
         ];

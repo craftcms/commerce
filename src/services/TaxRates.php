@@ -142,9 +142,9 @@ class TaxRates extends Component
         $record->isVat = $model->isVat;
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
-        $record->taxZoneId = $model->taxZoneId;
-        $record->isEverywhere = $model->getIsEverywhere();
-        $record->isLite = $model->getIsEverywhere();
+        $record->taxZoneId = $model->taxZoneId ?: null;
+        $record->isEverywhere = $model->getIsEverywhere() || $model->isLite;
+        $record->isLite = $model->isLite;
 
         if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
@@ -194,7 +194,7 @@ class TaxRates extends Component
     /**
      * @return TaxRate
      */
-    public function getLitetaxRate()
+    public function getLiteTaxRate(): TaxRate
     {
         $liteRate = $this->_createTaxRatesQuery()->one();
 

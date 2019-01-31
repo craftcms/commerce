@@ -29,6 +29,7 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
@@ -438,6 +439,10 @@ class Product extends Element
         $count = 1;
         $this->_defaultVariant = null;
 
+        if (empty($variants)) {
+            return;
+        }
+
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
@@ -726,7 +731,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.
@@ -743,6 +748,51 @@ class Product extends Element
         }
 
         return parent::beforeValidate();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterDelete()
+    {
+        $variants = Variant::find()
+            ->productId($this->id)
+            ->all();
+
+        $elementsService = Craft::$app->getElements();
+
+        foreach ($variants as $variant) {
+            $variant->deletedWithProduct = true;
+            $elementsService->deleteElement($variant);
+        }
+
+        parent::afterDelete();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterRestore()
+    {
+        // Also restore any variants for this element
+        $elementsService = Craft::$app->getElements();
+        foreach (ElementHelper::supportedSitesForElement($this) as $siteInfo) {
+            $variants = Variant::find()
+                ->anyStatus()
+                ->siteId($siteInfo['siteId'])
+                ->productId($this->id)
+                ->trashed()
+                ->andWhere(['commerce_variants.deletedWithProduct' => true])
+                ->all();
+
+            foreach ($variants as $variant) {
+                $elementsService->restoreElement($variant);
+            }
+        }
+
+        $this->setVariants($variants);
+
+        parent::afterRestore();
     }
 
     /**

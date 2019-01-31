@@ -2,13 +2,23 @@
 
 ## Unreleased
 
+### Added 
+- Added the “Tax included in price” tax setting to the Lite edition. ([#654](https://github.com/craftcms/commerce/issues/654))
+ 
+### Changed
+- Soft-deleted products are now restorable.
+
 ### Fixed
-- Added a missing class. ([#643](https://github.com/craftcms/commerce/issues/643))
-- Fixed a bug where site settings were being accessed incorrectly. ([#645](https://github.com/craftcms/commerce/issues/645))
-- Fixed an error that occurred when updating to Craft Commerce 2 with a database with missing DB constraints on the `commerce_orderhistories` table.
+- Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
+- Fixed a bug where sale conditions could be lost when upgrading to Commerce 2. ([#626](https://github.com/craftcms/commerce/issues/626))
+- Fixed a PHP error that occurred when saving a product type. ([#645](https://github.com/craftcms/commerce/issues/645))
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
-- Fixed an issue where the “restore” button would not show up on the product index page when listing Trashed products.
-- Fixed a PHP error that occurred when deleting the last line item while running the Lite edition.
+- Fixed a PHP error that occurred when deleting the cart's line item while running the Lite edition. ([#639](https://github.com/craftcms/commerce/pull/639))
+- Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
+- Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
+- Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
+- Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
+- Fixed an error when refunding a transaction with a localized currency format.  ([#659](https://github.com/craftcms/commerce/issues/659))
 
 ## 2.0.2 - 2019-01-23
 

@@ -141,6 +141,14 @@
             required: true,
         }) }}
 
+        {{ forms.lightSwitchField({
+            label: "Is this tax is already included in the price of items?"|t('commerce'),
+            name: 'lite[taxInclude]',
+            on: lite.taxInclude,
+            checked: lite.taxInclude,
+            errors: lite.getErrors('taxInclude')
+        }) }}
+
         {% endif %}
 
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">

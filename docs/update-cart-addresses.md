@@ -60,14 +60,13 @@ Another way of achieving the same thing is is setting both addresses explicitly:
 
 Another alternative, if the user wanted to submit new addresses, (they may be a guest) is submitting the address form data directly during checkout.
 
-This will only work if the `shippingAddressId` is not supplied or is set to a non-ID like the word `new`.
-If `shippingAddressId` is an integer then the address form data is ignored and the form action attempts to set the shipping address to that of the ID.
+This will only work if the `shippingAddressId` is not supplied or sent as an empty string. If `shippingAddressId` is an integer then the address form data is ignored and the form action attempts to set the shipping address to that of the ID.
 
 ```twig
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/cart">
-    <input type="hidden" name="shippingAddressId" value="new">
+    <input type="hidden" name="shippingAddressId" value="">
     <input type="text" name="shippingAddress[firstName]" value="">
     <input type="text" name="shippingAddress[lastName]" value="">
     <select name="shippingAddress[countryId]">
