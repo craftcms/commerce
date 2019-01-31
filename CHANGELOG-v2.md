@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added 
+- Donations can now be accepted.
 - Added the “Tax included in price” tax setting to the Lite edition. ([#654](https://github.com/craftcms/commerce/issues/654))
  
 ### Changed

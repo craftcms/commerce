@@ -35,6 +35,7 @@ module.exports = {
                     'orders',
                     'products',
                     'product-types',
+                    'donations',
                     'customers',
                     'sales',
                     'discounts',

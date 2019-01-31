@@ -8,20 +8,13 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Purchasable;
-use craft\commerce\elements\db\VariantQuery;
-use craft\commerce\helpers\Currency;
+use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
-use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
-use craft\commerce\records\Variant as VariantRecord;
-use craft\db\Query;
+use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\UrlHelper;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
-use yii\db\Expression;
 
 /**
  * Donation purchasable.
@@ -35,17 +28,25 @@ class Donation extends Purchasable
     // =========================================================================
 
     /**
-     * @inheritdoc
+     * @var bool Is the product available for purchase.
      */
-    public $sku = 'DONATION';
+    public $availableForPurchase;
+
+    /**
+     * @var string The SKU
+     */
+    private $_sku;
+
+    // Public Methods
+    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public $price;
-
-    // Public Methods
-    // =========================================================================
+    public function getPrice(): float
+    {
+        return 0;
+    }
 
     /**
      * @inheritdoc
@@ -72,6 +73,15 @@ class Donation extends Purchasable
     }
 
     /**
+     * @inheritdoc
+     * @return DonationQuery The newly created [[DonationQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new DonationQuery(static::class);
+    }
+
+    /**
      * Returns the product title and variants title together for variable products.
      *
      * @return string
@@ -95,7 +105,7 @@ class Donation extends Purchasable
      */
     public function getCpEditUrl(): string
     {
-        return '';
+        return UrlHelper::cpUrl('commerce/settings/donation');
     }
 
     /**
@@ -107,19 +117,8 @@ class Donation extends Purchasable
     }
 
     /**
-     * Cached on the purchasable table.
-     *
-     * @inheritdoc
-     */
-    public function getPrice(): float
-    {
-        return 0;
-    }
-
-    /**
      *
      * @return array
-     * @throws InvalidConfigException
      */
     public function getSnapshot(): array
     {
@@ -127,29 +126,19 @@ class Donation extends Purchasable
     }
 
     /**
-     * @return bool
-     */
-    public function getOnSale(): bool
-    {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
-    }
-
-    /**
      * @inheritdoc
      */
     public function getSku(): string
     {
-        return $this->sku;
+        return $this->_sku;
     }
 
     /**
-     * Returns whether this variant has stock.
-     *
-     * @return bool
+     * @param string|null $value
      */
-    public function hasStock(): bool
+    public function setSku($value)
     {
-        return true;
+        $this->_sku = $value;
     }
 
     /**
@@ -162,19 +151,10 @@ class Donation extends Purchasable
 
     /**
      * @inheritdoc
-     * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public function isTaxFree(): bool
     {
-        return new VariantQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasStatuses(): bool
-    {
-        return false;
+        return true;
     }
 
     /**
@@ -183,11 +163,30 @@ class Donation extends Purchasable
     public function populateLineItem(LineItem $lineItem)
     {
         if (isset($lineItem->options['donationAmount'])) {
-            $lineItem->salePrice = $lineItem->options['donationAmount'];
+            $lineItem->price = $lineItem->options['donationAmount'];
             $lineItem->saleAmount = 0;
         }
 
         return $lineItem->salePrice ?? 0;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLineItemRules(LineItem $lineItem): array
+    {
+        return [
+            [
+                'purchasableId', function($attribute, $params, $validator) use ($lineItem) {
+                if (!isset($lineItem->options['donationAmount'])) {
+                    $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
+                }
+                if (isset($lineItem->options['donationAmount']) && !is_numeric($lineItem->options['donationAmount'])) {
+                    $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount'));
+                }
+            }
+            ]
+        ];
     }
 
     /**
@@ -203,8 +202,34 @@ class Donation extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        return true;
+        return (bool)$this->availableForPurchase;
     }
+
+    /**
+     * @param bool $isNew
+     * @throws Exception
+     */
+    public function afterSave(bool $isNew)
+    {
+        if (!$isNew) {
+            $record = DonationRecord::findOne($this->id);
+
+            if (!$record) {
+                throw new Exception('Invalid donation ID: ' . $this->id);
+            }
+        } else {
+            $record = new DonationRecord();
+            $record->id = $this->id;
+        }
+
+        $record->sku = $this->sku;
+        $record->availableForPurchase = $this->availableForPurchase;
+
+        $record->save(false);
+
+        return parent::afterSave($isNew);
+    }
+
 
     /**
      * @inheritdoc

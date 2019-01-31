@@ -21,6 +21,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
+use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderStatuses;
@@ -84,7 +85,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.58';
+    public $schemaVersion = '2.0.59';
 
     /**
      * @inheritdoc
@@ -105,6 +106,7 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     use CommerceServices;
+    use Variables;
     use DeprecatedVariables;
     use Routes;
 

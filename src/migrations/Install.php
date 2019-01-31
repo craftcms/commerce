@@ -8,16 +8,16 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
-use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
-use craft\commerce\records\Gateway;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
@@ -33,7 +33,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\queue\jobs\ResaveElements;
@@ -221,6 +220,15 @@ class Install extends Migration
             'enabled' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
             'sortOrder' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%commerce_donations}}', [
+            'id' => $this->primaryKey(),
+            'sku' => $this->string()->notNull(),
+            'availableForPurchase' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -946,6 +954,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_discount_categories}}', ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_usergroups}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_usergroups}}', ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_donations}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['shippingCategoryId'], '{{%commerce_shippingcategories}}', ['id'], null, 'CASCADE');
@@ -1068,6 +1077,7 @@ class Install extends Migration
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
+        $this->_defaultDonationPurchasable();
 
         // Don't make the same config changes twice
         if (Craft::$app->projectConfig->get('plugins.commerce', true) === null) {
@@ -1502,6 +1512,17 @@ class Install extends Migration
             'default' => true
         ];
         $this->insert(ShippingCategory::tableName(), $data);
+    }
+
+    /**
+     * Add the donation purchasable
+     */
+    public function _defaultDonationPurchasable()
+    {
+        $donation = new Donation();
+        $donation->sku = 'DONATION-CC3';
+        $donation->availableForPurchase = false;
+        Craft::$app->getElements()->saveElement($donation);
     }
 
     /**
