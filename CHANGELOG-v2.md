@@ -3,11 +3,11 @@
 ## Unreleased
 
 ### Added 
-- Added the “Tax is included in price” tax setting to the Lite edition. ([#654](https://github.com/craftcms/commerce/issues/654))
+- Added the "Tax is included in price" tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
  
 ### Changed
 - Soft-deleted products are now restorable.
-- Commerce project config settings are now deleted when Commerce is uninstalled.
+- Commerce project config settings are now removed when Commerce is uninstalled.
 
 ### Fixed
 - Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
@@ -18,10 +18,10 @@
 - Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
-- Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
-- Fixed an error when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
-- Fixed a SQL error caused my missing input validations when saving a Discount. ([#673](https://github.com/craftcms/commerce/issues/673))
-- Fixed the credit card form expiry input to allow non-numeric characters. ([#636](https://github.com/craftcms/commerce/issues/#636))
+- Fixed a SQL error that occurred when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
+- Fixed an error that occurred when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
+- Fixed a SQL error that could occur when saving an invalid discount. ([#673](https://github.com/craftcms/commerce/issues/673))
+- Fixed a bug where it wans't posible to add non-numeric characters to expiry input in the default credit card form. ([#636](https://github.com/craftcms/commerce/issues/636))
 
 ## 2.0.2 - 2019-01-23
 
