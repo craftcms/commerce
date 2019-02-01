@@ -193,10 +193,18 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat'], 'required']
+            [
+                ['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'],
+                'required'
+            ],
+            [
+                ['emailSenderAddress'],
+                'email',
+                'skipOnEmpty' => true // Allow the email to be blank, it then defaults to the system email
+            ]
         ];
     }
 }

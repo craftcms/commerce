@@ -185,6 +185,12 @@ class Variant extends Purchasable
     public $maxQty;
 
     /**
+     * @var bool Whether the variant was deleted along with its product
+     * @see beforeDelete()
+     */
+    public $deletedWithProduct = false;
+
+    /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
@@ -298,7 +304,13 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
-        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
+        $product = Product::find()
+            ->id($this->productId)
+            ->siteId($this->siteId)
+            ->trashed(null)
+            ->one();
+
+        if ($product === null) {
             throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 
@@ -857,7 +869,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         $product = $this->getProduct();
 
@@ -872,6 +884,24 @@ class Variant extends Purchasable
         $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        Craft::$app->getDb()->createCommand()
+            ->update('{{%commerce_variants}}', [
+                'deletedWithProduct' => $this->deletedWithProduct,
+            ], ['id' => $this->id], [], false)
+            ->execute();
+
+        return true;
     }
 
     // Protected Methods

@@ -23,11 +23,13 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
+use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
@@ -43,6 +45,8 @@ use yii\base\InvalidConfigException;
  * @property string $snapshot allow the variant to ask the product what data to snapshot
  * @property int $totalStock
  * @property bool $hasUnlimitedStock whether at least one variant has unlimited stock
+ * @property \craft\commerce\elements\Variant $cheapestVariant
+ * @property \craft\commerce\models\ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -163,11 +167,6 @@ class Product extends Element
      * @var Variant This product's cheapest variant
      */
     private $_cheapestVariant;
-
-    /**
-     * @var array The variant IDs to delete
-     */
-    private $_variantIdsToDelete = [];
 
     // Public Methods
     // =========================================================================
@@ -439,6 +438,10 @@ class Product extends Element
         $this->_variants = [];
         $count = 1;
         $this->_defaultVariant = null;
+
+        if (empty($variants)) {
+            return;
+        }
 
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
@@ -728,7 +731,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.
@@ -750,23 +753,46 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeDelete(): bool
+    public function afterDelete()
     {
-        $this->_variantIdsToDelete = Variant::find()->product($this)->ids();
+        $variants = Variant::find()
+            ->productId($this->id)
+            ->all();
 
-        return true;
+        $elementsService = Craft::$app->getElements();
+
+        foreach ($variants as $variant) {
+            $variant->deletedWithProduct = true;
+            $elementsService->deleteElement($variant);
+        }
+
+        parent::afterDelete();
     }
 
     /**
      * @inheritdoc
      */
-    public function afterDelete(): bool
+    public function afterRestore()
     {
-        foreach ($this->_variantIdsToDelete as $id) {
-            Craft::$app->getElements()->deleteElementById($id, Variant::class);
+        // Also restore any variants for this element
+        $elementsService = Craft::$app->getElements();
+        foreach (ElementHelper::supportedSitesForElement($this) as $siteInfo) {
+            $variants = Variant::find()
+                ->anyStatus()
+                ->siteId($siteInfo['siteId'])
+                ->productId($this->id)
+                ->trashed()
+                ->andWhere(['commerce_variants.deletedWithProduct' => true])
+                ->all();
+
+            foreach ($variants as $variant) {
+                $elementsService->restoreElement($variant);
+            }
         }
 
-        return true;
+        $this->setVariants($variants);
+
+        parent::afterRestore();
     }
 
     /**
@@ -943,10 +969,18 @@ class Product extends Element
 
         $actions = [];
 
-        $actions[] = [
-            'type' => CopyReferenceTag::class,
-            'elementType' => static::class,
-        ];
+        // Copy Reference Tag
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => CopyReferenceTag::class
+        ]);
+
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Products restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some products restored.'),
+            'failMessage' => Craft::t('commerce', 'Products not restored.'),
+        ]);
 
         if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();

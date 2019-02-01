@@ -10,14 +10,14 @@ namespace craft\commerce\migrations;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
-use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
-use craft\commerce\records\Gateway;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType;
@@ -33,7 +33,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\ElementHelper;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\queue\jobs\ResaveElements;
@@ -80,8 +79,9 @@ class Install extends Migration
     {
         $this->dropForeignKeys();
         $this->dropTables();
+        $this->dropProjectConfig();
 
-        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class]]);
+        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class, Subscription::class]]);
 
         return true;
     }
@@ -747,6 +747,7 @@ class Install extends Migration
             'hasUnlimitedStock' => $this->boolean(),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
+            'deletedWithProduct' => $this->integer()->null(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -759,55 +760,63 @@ class Install extends Migration
      */
     public function dropTables()
     {
-        $this->dropTable('{{%commerce_addresses}}');
-        $this->dropTable('{{%commerce_countries}}');
-        $this->dropTable('{{%commerce_customer_discountuses}}');
-        $this->dropTable('{{%commerce_email_discountuses}}');
-        $this->dropTable('{{%commerce_customers}}');
-        $this->dropTable('{{%commerce_customers_addresses}}');
-        $this->dropTable('{{%commerce_discount_purchasables}}');
-        $this->dropTable('{{%commerce_discount_categories}}');
-        $this->dropTable('{{%commerce_discount_usergroups}}');
-        $this->dropTable('{{%commerce_discounts}}');
-        $this->dropTable('{{%commerce_emails}}');
-        $this->dropTable('{{%commerce_gateways}}');
-        $this->dropTable('{{%commerce_lineitems}}');
-        $this->dropTable('{{%commerce_orderadjustments}}');
-        $this->dropTable('{{%commerce_orderhistories}}');
-        $this->dropTable('{{%commerce_orders}}');
-        $this->dropTable('{{%commerce_orderstatus_emails}}');
-        $this->dropTable('{{%commerce_orderstatuses}}');
-        $this->dropTable('{{%commerce_paymentcurrencies}}');
-        $this->dropTable('{{%commerce_paymentsources}}');
-        $this->dropTable('{{%commerce_plans}}');
-        $this->dropTable('{{%commerce_products}}');
-        $this->dropTable('{{%commerce_producttypes}}');
-        $this->dropTable('{{%commerce_producttypes_sites}}');
-        $this->dropTable('{{%commerce_producttypes_shippingcategories}}');
-        $this->dropTable('{{%commerce_producttypes_taxcategories}}');
-        $this->dropTable('{{%commerce_purchasables}}');
-        $this->dropTable('{{%commerce_sale_purchasables}}');
-        $this->dropTable('{{%commerce_sale_categories}}');
-        $this->dropTable('{{%commerce_sale_usergroups}}');
-        $this->dropTable('{{%commerce_sales}}');
-        $this->dropTable('{{%commerce_shippingcategories}}');
-        $this->dropTable('{{%commerce_shippingmethods}}');
-        $this->dropTable('{{%commerce_shippingrule_categories}}');
-        $this->dropTable('{{%commerce_shippingrules}}');
-        $this->dropTable('{{%commerce_shippingzone_countries}}');
-        $this->dropTable('{{%commerce_shippingzone_states}}');
-        $this->dropTable('{{%commerce_shippingzones}}');
-        $this->dropTable('{{%commerce_states}}');
-        $this->dropTable('{{%commerce_subscriptions}}');
-        $this->dropTable('{{%commerce_taxcategories}}');
-        $this->dropTable('{{%commerce_taxrates}}');
-        $this->dropTable('{{%commerce_taxzone_countries}}');
-        $this->dropTable('{{%commerce_taxzone_states}}');
-        $this->dropTable('{{%commerce_taxzones}}');
-        $this->dropTable('{{%commerce_transactions}}');
-        $this->dropTable('{{%commerce_variants}}');
+        $this->dropTableIfExists('{{%commerce_addresses}}');
+        $this->dropTableIfExists('{{%commerce_countries}}');
+        $this->dropTableIfExists('{{%commerce_customer_discountuses}}');
+        $this->dropTableIfExists('{{%commerce_email_discountuses}}');
+        $this->dropTableIfExists('{{%commerce_customers}}');
+        $this->dropTableIfExists('{{%commerce_customers_addresses}}');
+        $this->dropTableIfExists('{{%commerce_discount_purchasables}}');
+        $this->dropTableIfExists('{{%commerce_discount_categories}}');
+        $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
+        $this->dropTableIfExists('{{%commerce_discounts}}');
+        $this->dropTableIfExists('{{%commerce_emails}}');
+        $this->dropTableIfExists('{{%commerce_gateways}}');
+        $this->dropTableIfExists('{{%commerce_lineitems}}');
+        $this->dropTableIfExists('{{%commerce_orderadjustments}}');
+        $this->dropTableIfExists('{{%commerce_orderhistories}}');
+        $this->dropTableIfExists('{{%commerce_orders}}');
+        $this->dropTableIfExists('{{%commerce_orderstatus_emails}}');
+        $this->dropTableIfExists('{{%commerce_orderstatuses}}');
+        $this->dropTableIfExists('{{%commerce_paymentcurrencies}}');
+        $this->dropTableIfExists('{{%commerce_paymentsources}}');
+        $this->dropTableIfExists('{{%commerce_plans}}');
+        $this->dropTableIfExists('{{%commerce_products}}');
+        $this->dropTableIfExists('{{%commerce_producttypes}}');
+        $this->dropTableIfExists('{{%commerce_producttypes_sites}}');
+        $this->dropTableIfExists('{{%commerce_producttypes_shippingcategories}}');
+        $this->dropTableIfExists('{{%commerce_producttypes_taxcategories}}');
+        $this->dropTableIfExists('{{%commerce_purchasables}}');
+        $this->dropTableIfExists('{{%commerce_sale_purchasables}}');
+        $this->dropTableIfExists('{{%commerce_sale_categories}}');
+        $this->dropTableIfExists('{{%commerce_sale_usergroups}}');
+        $this->dropTableIfExists('{{%commerce_sales}}');
+        $this->dropTableIfExists('{{%commerce_shippingcategories}}');
+        $this->dropTableIfExists('{{%commerce_shippingmethods}}');
+        $this->dropTableIfExists('{{%commerce_shippingrule_categories}}');
+        $this->dropTableIfExists('{{%commerce_shippingrules}}');
+        $this->dropTableIfExists('{{%commerce_shippingzone_countries}}');
+        $this->dropTableIfExists('{{%commerce_shippingzone_states}}');
+        $this->dropTableIfExists('{{%commerce_shippingzones}}');
+        $this->dropTableIfExists('{{%commerce_states}}');
+        $this->dropTableIfExists('{{%commerce_subscriptions}}');
+        $this->dropTableIfExists('{{%commerce_taxcategories}}');
+        $this->dropTableIfExists('{{%commerce_taxrates}}');
+        $this->dropTableIfExists('{{%commerce_taxzone_countries}}');
+        $this->dropTableIfExists('{{%commerce_taxzone_states}}');
+        $this->dropTableIfExists('{{%commerce_taxzones}}');
+        $this->dropTableIfExists('{{%commerce_transactions}}');
+        $this->dropTableIfExists('{{%commerce_variants}}');
 
         return null;
+    }
+
+    /**
+     * Deletes the project config entry.
+     */
+    public function dropProjectConfig()
+    {
+        Craft::$app->projectConfig->remove('commerce');
     }
 
     /**
@@ -1018,41 +1027,146 @@ class Install extends Migration
      */
     public function dropForeignKeys()
     {
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_addresses}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customer_discountuses}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_email_discountuses}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers_addresses}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_purchasables}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_categories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_usergroups}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_lineitems}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderadjustments}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderhistories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_paymentsources}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_plans}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_products}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_sites}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_shippingcategories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_taxcategories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_purchasables}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_purchasables}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_categories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_usergroups}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrule_categories}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrules}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_countries}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_states}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_states}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_subscriptions}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxrates}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_countries}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_states}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_transactions}}', $this);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}', $this);
+        if ($this->_tableExists('{{%commerce_addresses}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_addresses}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_addresses}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_customer_discountuses}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_customer_discountuses}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customer_discountuses}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_email_discountuses}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_email_discountuses}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_email_discountuses}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_customers}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_customers}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_customers_addresses}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_customers_addresses}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers_addresses}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_discount_purchasables}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_discount_purchasables}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_purchasables}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_discount_categories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_discount_categories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_categories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_discount_usergroups}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_discount_usergroups}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_usergroups}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_lineitems}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_lineitems}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_lineitems}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_orderadjustments}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_orderadjustments}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderadjustments}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_orderhistories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_orderhistories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderhistories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_orders}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_orders}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_orderstatus_emails}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_orderstatus_emails}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orderstatus_emails}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_paymentsources}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_paymentsources}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_paymentsources}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_plans}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_plans}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_plans}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_products}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_products}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_products}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_producttypes}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_producttypes}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_producttypes_sites}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_producttypes_sites}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_sites}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_producttypes_shippingcategories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_producttypes_shippingcategories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_shippingcategories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_producttypes_taxcategories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_producttypes_taxcategories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_taxcategories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_purchasables}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_purchasables}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_purchasables}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_sale_purchasables}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_sale_purchasables}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_purchasables}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_sale_categories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_sale_categories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_categories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_sale_usergroups}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_sale_usergroups}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_sale_usergroups}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_shippingrule_categories}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_shippingrule_categories}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrule_categories}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_shippingrules}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_shippingrules}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingrules}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_shippingzone_countries}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_shippingzone_countries}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_countries}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_shippingzone_states}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_shippingzone_states}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_shippingzone_states}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_states}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_states}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_states}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_subscriptions}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_subscriptions}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_subscriptions}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_taxrates}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_taxrates}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxrates}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_taxzone_countries}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_taxzone_countries}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_countries}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_taxzone_states}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_taxzone_states}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_taxzone_states}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_transactions}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_transactions}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_transactions}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_variants}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_variants}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}', $this);
+        }
     }
 
     /**
@@ -1559,7 +1673,7 @@ class Install extends Migration
         $productType = new ProductTypeModel($data);
 
         $siteIds = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(Site::tableName())
             ->column();
 
@@ -1590,17 +1704,17 @@ class Install extends Migration
     private function _defaultProducts()
     {
         $productTypeId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ProductType::tableName())
             ->scalar();
 
         $taxCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(TaxCategory::tableName())
             ->scalar();
 
         $shippingCategoryId = (new Query())
-            ->select('id')
+            ->select(['id'])
             ->from(ShippingCategory::tableName())
             ->scalar();
 
@@ -1641,7 +1755,7 @@ class Install extends Migration
 
             // Populate the i18n data for each site
             $siteIds = (new Query())
-                ->select('id')
+                ->select(['id'])
                 ->from(Site::tableName())
                 ->column();
 
@@ -1737,5 +1851,23 @@ class Install extends Migration
         ];
         $gateway = new Dummy($data);
         Plugin::getInstance()->getGateways()->saveGateway($gateway);
+    }
+
+    /**
+     * Returns if the table exists.
+     *
+     * @param string $tableName
+     * @param Migration|null $migration
+     * @return bool If the table exists.
+     */
+    private function _tableExists(string $tableName): bool
+    {
+        $schema = $this->db->getSchema();
+        $schema->refresh();
+
+        $rawTableName = $schema->getRawTableName($tableName);
+        $table = $schema->getTableSchema($rawTableName);
+
+        return (bool)$table;
     }
 }

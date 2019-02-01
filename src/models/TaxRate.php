@@ -18,7 +18,7 @@ use craft\i18n\Locale;
  *
  * @property string $cpEditUrl
  * @property string $rateAsPercent
- * @property bool $isEverywhere
+ * @property-read bool $isEverywhere
  * @property TaxAddressZone|null $taxZone
  * @property TaxCategory|null $taxCategory
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -120,7 +120,7 @@ class TaxRate extends Model
      */
     public function getTaxZone()
     {
-        if (null === $this->_taxZone) {
+        if (null === $this->_taxZone && $this->taxZoneId) {
             $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
         }
 
