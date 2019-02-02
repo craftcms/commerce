@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- Added additional useful information when logging email rendering errors. ([#669](https://github.com/craftcms/commerce/pull/669))
+
 ## 2.0.3 - 2019-02-02
 
 ### Added 
