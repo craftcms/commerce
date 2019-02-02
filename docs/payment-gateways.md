@@ -55,14 +55,12 @@ Additional payment gateways can be added to Commerce with relatively little work
 
 ## Storing config outside of the database
 
-If you do not wish to store your payment gateway config information in the database (which could include secret API keys), you can override the values of a payment method’s setting by placing a `gatewaySettings` key into your `commerce.php` config file. You then use the payment gateway’s handle  as the key to the config for that payment method.
+If you do not wish to store your payment gateway config information in the database (which could include secret API keys), you can override the values of a payment method’s setting via the `commerce-gateways.php` config file. Use the payment gateway’s handle as the key to the config for that payment method. Note that you still need to configure the gateway in the Control Panel first in order to reference the gateway’s handle within this config file.
 
 ```php
 return [
-  'gatewaySettings' => [
-    'myStripeGateway' => [
-      'apiKey' => getenv('STRIPE_API_KEY'),
-    ],
+  'myStripeGateway' => [
+    'apiKey' => getenv('STRIPE_API_KEY'),
   ],
 ];
 ```
