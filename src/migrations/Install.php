@@ -780,6 +780,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%commerce_discount_categories}}');
         $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
         $this->dropTableIfExists('{{%commerce_discounts}}');
+        $this->dropTableIfExists('{{%commerce_donations}}');
         $this->dropTableIfExists('{{%commerce_emails}}');
         $this->dropTableIfExists('{{%commerce_gateways}}');
         $this->dropTableIfExists('{{%commerce_lineitems}}');
@@ -1069,6 +1070,10 @@ class Install extends Migration
         if ($this->_tableExists('{{%commerce_discount_usergroups}}')) {
             MigrationHelper::dropAllForeignKeysToTable('{{%commerce_discount_usergroups}}', $this);
             MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_usergroups}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_donations}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_donations}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_donations}}', $this);
         }
         if ($this->_tableExists('{{%commerce_lineitems}}')) {
             MigrationHelper::dropAllForeignKeysToTable('{{%commerce_lineitems}}', $this);
