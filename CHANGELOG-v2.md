@@ -2,25 +2,32 @@
 
 ## Unreleased
 
+### Added
+- Added additional useful information when logging email rendering errors. ([#669](https://github.com/craftcms/commerce/pull/669))
+
+## 2.0.3 - 2019-02-02
+
 ### Added 
 - Donations can now be accepted.
-- Added the “Tax included in price” tax setting to the Lite edition. ([#654](https://github.com/craftcms/commerce/issues/654))
+- Added the "Tax is included in price" tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
  
 ### Changed
 - Soft-deleted products are now restorable.
+- Commerce project config settings are now removed when Commerce is uninstalled.
 
 ### Fixed
 - Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
 - Fixed a bug where sale conditions could be lost when upgrading to Commerce 2. ([#626](https://github.com/craftcms/commerce/issues/626))
 - Fixed a PHP error that occurred when saving a product type. ([#645](https://github.com/craftcms/commerce/issues/645))
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
-- Fixed a PHP error that occurred when deleting the cart's line item while running the Lite edition. ([#639](https://github.com/craftcms/commerce/pull/639))
+- Fixed a PHP error that occurred when deleting the cart's line item on Commerce Lite. ([#639](https://github.com/craftcms/commerce/pull/639))
 - Fixed a bug where Commerce's general settings weren't saving. ([#655](https://github.com/craftcms/commerce/issues/655))
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
-- Fixed a SQL error raised when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
-- Fixed an error when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
-- Fixed a SQL error caused my missing input validations when saving a Discount. ([#673](https://github.com/craftcms/commerce/issues/673))
+- Fixed a SQL error that occurred when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
+- Fixed an error that occurred when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
+- Fixed a SQL error that could occur when saving an invalid discount. ([#673](https://github.com/craftcms/commerce/issues/673))
+- Fixed a bug where it wans't posible to add non-numeric characters to expiry input in the default credit card form. ([#636](https://github.com/craftcms/commerce/issues/636))
 
 ## 2.0.2 - 2019-01-23
 

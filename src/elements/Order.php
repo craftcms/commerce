@@ -77,6 +77,7 @@ use yii\base\InvalidConfigException;
  * @property-read int $itemSubtotal the total of all line item subtotals
  * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
  * @property-read bool $isEmpty the order has no line items with any qty
+ * @property-read null|Transaction $lastTransaction The last transaction on the order.
  * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
  * @property-read string $paidStatus the order’s paid status
  * @property-read string $paidStatusHtml the order’s paid status as HTML
