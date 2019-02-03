@@ -1080,7 +1080,10 @@ class Install extends Migration
         $this->_defaultDonationPurchasable();
 
         // Don't make the same config changes twice
-        if (Craft::$app->projectConfig->get('plugins.commerce', true) === null) {
+        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) === null);
+        $configExists = (Craft::$app->projectConfig->get('commerce', true) === null);
+
+        if ($installed || $configExists) {
             $this->_defaultOrderSettings();
             $this->_defaultProductTypes();
             $this->_defaultProducts(); // Not in project config, but dependant on demo product type
