@@ -22,7 +22,7 @@ You could have a project level event listener, that could reorder these adjuster
 
 ## Adjusting
 
-The only method in the Adjuster Interface is the `orderadjust(Order $order)` method
+The only method in the Adjuster Interface is the `adjust(Order $order)` method
 Each order adjustment model should contain all information about how the adjuster came to its adjustment. For example, the shipping adjuster includes the information about the matching shipping rules used to calculate the shipping cost, and stores the rule information in the `sourceSnapshot` attribute of the adjustment model.
 
 The `amount` value on the Order Adjustment model is used when totalling the cart. Use negative amounts to reduce the price of the order.

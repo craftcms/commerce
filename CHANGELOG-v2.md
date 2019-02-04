@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.0.4 - 2019-02-04
+
+### Fixed
+- Fixed a PHP error when recalculating tax.
+
+### Added
+- Added additional useful information when logging email rendering errors. ([#669](https://github.com/craftcms/commerce/pull/669))
+
 ## 2.0.3 - 2019-02-02
 
 ### Added 
