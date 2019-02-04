@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fixed a PHP error when recalculating tax.
+
 ### Added
 - Added additional useful information when logging email rendering errors. ([#669](https://github.com/craftcms/commerce/pull/669))
 

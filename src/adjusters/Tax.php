@@ -233,7 +233,7 @@ class Tax extends Component implements AdjusterInterface
                  */
                 $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                 $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
-                $taxableAmount += $this->_costRemovedByLineItem[$objectId];
+                $taxableAmount += $this->_costRemovedByLineItem[$objectId] ?? 0;
 
                 if (!$taxRate->include) {
                     $amount = $taxRate->rate * $taxableAmount;
