@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.0.4 - 2019-02-04
 
 ### Fixed
 - Fixed a PHP error when recalculating tax.
