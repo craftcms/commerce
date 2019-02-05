@@ -76,7 +76,13 @@ interface ShippingMethodInterface
      * @return float
      */
     public function getPriceForOrder(Order $order);
-
+    
+    /**
+     * @param Order $order
+     * @return float
+     */
+    public function getDescriptionForOrder(Order $order);
+    
     /**
      * The first matching shipping rule for this shipping method
      *
