@@ -182,7 +182,7 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
         $shippingRule = $this->getMatchingShippingRule($order);
 
         if (!$shippingRule) {
-            return 0;
+            return;
         }
 
         return $shippingRule->description;
