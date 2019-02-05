@@ -175,7 +175,7 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
 
     /**
      * @param Order $order
-     * @return float
+     * @return string
      */
     public function getDescriptionForOrder(Order $order)
     {
