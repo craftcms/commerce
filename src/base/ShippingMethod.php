@@ -174,6 +174,21 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
     }
 
     /**
+     * @param Order $order
+     * @return float
+     */
+    public function getDescriptionForOrder(Order $order)
+    {
+        $shippingRule = $this->getMatchingShippingRule($order);
+
+        if (!$shippingRule) {
+            return 0;
+        }
+
+        return $shippingRule->description;
+    }
+    
+    /**
      * @deprecated in 2.0
      */
     public function getAmount()
