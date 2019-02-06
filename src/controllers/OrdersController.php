@@ -315,7 +315,11 @@ class OrdersController extends BaseCpController
 
         if ($order && !$order->isCompleted && $order->markAsComplete()) {
             $date = new \DateTime($order->dateOrdered);
-            return $this->asJson(['success' => true, 'dateOrdered' => $date]);
+            return $this->asJson([
+                'success' => true,
+                'dateOrdered' => $date,
+                'order' => $order,
+            ]);
         }
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
