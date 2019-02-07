@@ -589,12 +589,12 @@ class Payments extends Component
      */
     private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
     {
-        if ($response->isRedirect()) {
-            $transaction->status = TransactionRecord::STATUS_REDIRECT;
-        } elseif ($response->isSuccessful()) {
+        if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
+        } elseif ($response->isRedirect()) {
+            $transaction->status = TransactionRecord::STATUS_REDIRECT;
         } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;
         }
