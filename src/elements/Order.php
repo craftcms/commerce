@@ -547,10 +547,6 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
-        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-        }
-
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
@@ -559,6 +555,11 @@ class Order extends Element
                 $this->markAsComplete();
             }
         }
+
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+        
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
