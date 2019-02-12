@@ -37,6 +37,6 @@ composer require craftcms/commerce
 
 We highly recommend you check out these resources as you’re getting started with Craft Commerce:
 
-- **[Craft Slack](https://craftcms.com/slack)** – one of the most friendly and helpful Slacks on the planet.
+- **[Craft Discord](https://craftcms.com/discord)** – one of the most friendly and helpful Discords on the planet.
 - **[Craft Commerce Documentation](https://docs.craftcms.com/commerce/v2/)** – the official documentation.
 - **[Craft CMS Stack Exchange](http://craftcms.stackexchange.com/)** – community-run Q&A for Craft developers.
