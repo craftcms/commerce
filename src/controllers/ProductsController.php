@@ -11,12 +11,12 @@ use Craft;
 use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\commerce\web\assets\productindex\ProductIndexAsset;
-use craft\commerce\helpers\Product as ProductHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -122,7 +122,7 @@ class ProductsController extends BaseCpController
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#meta-pane',
                     'previewUrl' => $variables['product']->getUrl(),
-                    'previewAction' => 'commerce/products-preview/preview-product',
+                    'previewAction' => Craft::$app->getSecurity()->hashData('commerce/products-preview/preview-product'),
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
                         'productId' => $variables['product']->id,
@@ -226,7 +226,7 @@ class ProductsController extends BaseCpController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('app', 'Couldn’t save product.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -247,7 +247,7 @@ class ProductsController extends BaseCpController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('app', 'Product saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
 
         return $this->redirectToPostedUrl($product);
     }

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\Field;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
@@ -23,13 +24,16 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
+use craft\events\ConfigEvent;
+use craft\events\FieldEvent;
 use craft\events\ModelEvent;
 use craft\helpers\Db;
+use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
 /**
- * Susbcriptions service.
+ * Subscriptions service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -232,8 +236,70 @@ class Subscriptions extends Component
      */
     const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = 'receiveSubscriptionPayment';
 
+    const CONFIG_FIELDLAYOUT_KEY = 'commerce.subscriptions.fieldLayouts';
+
     // Public Methods
     // =========================================================================
+
+    /**
+     * Handle field layout change
+     *
+     * @param ConfigEvent $event
+     */
+    public function handleChangedFieldLayout(ConfigEvent $event)
+    {
+        $data = $event->newValue;
+        $fieldsService = Craft::$app->getFields();
+
+        if (empty($data) || empty($config = reset($data))) {
+            // Delete the field layout
+            $fieldsService->deleteLayoutsByType(Subscription::class);
+            return;
+        }
+
+        // Save the field layout
+        $layout = FieldLayout::createFromConfig(reset($data));
+        $layout->id = $fieldsService->getLayoutByType(Subscription::class)->id;
+        $layout->type = Subscription::class;
+        $layout->uid = key($data);
+        $fieldsService->saveLayout($layout);
+    }
+
+    /**
+     * Prune a deleted field from subscription field layouts.
+     *
+     * @param FieldEvent $event
+     */
+    public function pruneDeletedField(FieldEvent $event)
+    {
+        /** @var Field $field */
+        $field = $event->field;
+        $fieldUid = $field->uid;
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
+
+        // Prune the UID from field layouts.
+        if (is_array($layoutData)) {
+            foreach ($layoutData as $layoutUid => $layout) {
+                if (!empty($layout['tabs'])) {
+                    foreach ($layout['tabs'] as $tabUid => $tab) {
+                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle field layout being deleted
+     *
+     * @param ConfigEvent $event
+     */
+    public function handleDeletedFieldLayout(ConfigEvent $event)
+    {
+        Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
+    }
 
     /**
      * Prevent deleting a user if they have any subscriptions - active or otherwise.
@@ -256,7 +322,7 @@ class Subscriptions extends Component
      *
      * @param Subscription $subscription subscription to expire
      * @param \DateTime $dateTime expiry date time
-     * @return bool whether succesfully expired subscription
+     * @return bool whether successfully expired subscription
      * @throws \Throwable if cannot expire subscription
      */
     public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
@@ -277,7 +343,7 @@ class Subscriptions extends Component
     }
 
     /**
-     * Returns susbcription count for a plan.
+     * Returns subscription count for a plan.
      *
      * @param int $planId
      * @return int

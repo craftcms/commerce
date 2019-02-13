@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\db;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
@@ -96,9 +97,21 @@ class VariantQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
-
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function __construct($elementType, array $config = [])
+    {
+        // Default status
+        if (!isset($config['status'])) {
+            $config['status'] = Element::STATUS_ENABLED;
+        }
+
+        parent::__construct($elementType, $config);
+    }
 
     /**
      * Narrows the query results based on the {elements}’ SKUs.
@@ -391,12 +404,12 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
-        if (null !== $this->hasStock && $this->hasStock === true) {
+        if (null !== $this->hasStock && (bool) $this->hasStock === true) {
             $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.hasUnlimitedStock != 1)', 'commerce_variants.hasUnlimitedStock = 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
 
-        if (null !== $this->hasStock && $this->hasStock === false) {
+        if (null !== $this->hasStock && (bool) $this->hasStock === false) {
             $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.hasUnlimitedStock != 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }

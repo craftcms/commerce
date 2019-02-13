@@ -56,7 +56,7 @@ trait OrderValidatorsTrait
     }
 
     /**
-     * Validates address belongs to the orders custome.
+     * Validates that an address belongs to the order‘s customer.
      *
      * @param string $attribute the attribute being validated
      */
@@ -77,14 +77,14 @@ trait OrderValidatorsTrait
     }
 
     /**
-     * Validates that shipping address isn't being set to be the same as billing adress, when billing address is set to be shipping address
+     * Validates that shipping address isn't being set to be the same as billing address, when billing address is set to be shipping address
      *
      * @param string $attribute the attribute being validated
      */
     public function validateAddressReuse($attribute)
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
-            $this->addError($attribute, Craft::t('commerce', 'You can\'t set shipping address to be the same as billing when you\'re setting billing address to be same as shipping'));
+            $this->addError($attribute, Craft::t('commerce', 'shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
         }
     }
 

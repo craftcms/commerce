@@ -542,6 +542,7 @@ class Subscription extends Element
             'subscriber' => ['label' => Craft::t('commerce', 'Subscribing user')],
             'reference' => ['label' => Craft::t('commerce', 'Subscription reference')],
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
             'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
         ];
@@ -556,7 +557,7 @@ class Subscription extends Element
 
         $attributes[] = 'subscriber';
         $attributes[] = 'orderLink';
-        $attributes[] = 'orderLink';
+        $attributes[] = 'dateCreated';
 
         return $attributes;
     }

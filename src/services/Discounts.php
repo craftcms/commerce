@@ -159,13 +159,13 @@ class Discounts extends Component
             ->where(['discounts.id' => $discount->id])
             ->all();
 
-        $purchsableIds = [];
+        $purchasableIds = [];
         $categoryIds = [];
         $userGroupIds = [];
 
         foreach ($rows as $row) {
             if ($row['purchasableId']) {
-                $purchsableIds[] = $row['purchasableId'];
+                $purchasableIds[] = $row['purchasableId'];
             }
 
             if ($row['categoryId']) {
@@ -177,7 +177,7 @@ class Discounts extends Component
             }
         }
 
-        $discount->setPurchasableIds($purchsableIds);
+        $discount->setPurchasableIds($purchasableIds);
         $discount->setCategoryIds($categoryIds);
         $discount->setUserGroupIds($userGroupIds);
     }
@@ -233,8 +233,8 @@ class Discounts extends Component
         if ($discount->perUserLimit > 0 && $user) {
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
-                ->select('uses')
-                ->from('{{%commerce_customer_discountuses}}')
+                ->select(['uses'])
+                ->from(['{{%commerce_customer_discountuses}}'])
                 ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
@@ -255,8 +255,8 @@ class Discounts extends Component
 
         if ($discount->perEmailLimit > 0) {
             $usage = (new Query())
-                ->select('uses')
-                ->from('{{%commerce_email_discountuses}}')
+                ->select(['uses'])
+                ->from(['{{%commerce_email_discountuses}}'])
                 ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
                 ->scalar();
 
@@ -381,7 +381,8 @@ class Discounts extends Component
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
-        $record->freeShipping = $model->freeShipping;
+        $record->hasFreeShippingForMatchingItems = $model->hasFreeShippingForMatchingItems;
+        $record->hasFreeShippingForOrder = $model->hasFreeShippingForOrder;
         $record->excludeOnSale = $model->excludeOnSale;
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
@@ -532,7 +533,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_customer_discountuse}}', [
+                    ->update('{{%commerce_customer_discountuses}}', [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'customerId' => $order->customerId,
@@ -594,7 +595,8 @@ class Discounts extends Component
                 'discounts.percentDiscount',
                 'discounts.percentageOffSubject',
                 'discounts.excludeOnSale',
-                'discounts.freeShipping',
+                'discounts.hasFreeShippingForMatchingItems',
+                'discounts.hasFreeShippingForOrder',
                 'discounts.allGroups',
                 'discounts.allPurchasables',
                 'discounts.allCategories',

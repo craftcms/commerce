@@ -62,7 +62,7 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         $lineItemId = $request->getParam('lineItemId');
-        
+
         $this->_cart = $this->_getCart();
 
         $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
@@ -185,13 +185,18 @@ class CartController extends BaseFrontEndController
             }
 
             $lineItem->note = $note;
+
             $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
             foreach ($purchasables as $key => $purchasable) {
-                $purchasableId = $request->getRequiredParam("purchasables.{$key}.id");
+                $purchasableId = $request->getParam("purchasables.{$key}.id");
+                if(!$purchasableId)
+                {
+                    continue;
+                }
                 $note = $request->getParam("purchasables.{$key}.note", '');
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);

@@ -43,7 +43,7 @@ class BaseFrontEndController extends BaseController
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalPaid'] = $cart->getTotalPaid();
         $data['email'] = $cart->getEmail();
-        $data['isCompleted'] = $cart->isCompleted;
+        $data['isCompleted'] = (bool)$cart->isCompleted;
         $data['dateOrdered'] = $cart->dateOrdered;
         $data['datePaid'] = $cart->datePaid;
         $data['currency'] = $cart->currency;
@@ -56,6 +56,8 @@ class BaseFrontEndController extends BaseController
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->gatewayId;
+        $data['gatewayId'] = $cart->gatewayId;
+        $data['paymentSourceId'] = $cart->paymentSourceId;
         $data['customerId'] = $cart->customerId;
         $data['isPaid'] = $cart->getIsPaid();
         $data['paidStatus'] = $cart->getPaidStatus();

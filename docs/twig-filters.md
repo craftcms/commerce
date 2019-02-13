@@ -37,7 +37,7 @@ Should the amount passed have its minor unit zeros removed for a cleaner looking
 You might want to show the order’s price in all available payment currencies:
 
 ```twig
-{% for currency in craft.commerce.paymentCurrenciess %}
+{% for currency in craft.commerce.paymentCurrencies %}
     Total in {{ currency.iso|upper }}: {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }} <br>
 {% endfor %}
 </select>

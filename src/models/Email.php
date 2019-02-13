@@ -71,6 +71,11 @@ class Email extends Model
      */
     public $pdfTemplatePath;
 
+    /**
+     * @var string UID
+     */
+    public $uid;
+
     // Public Methods
     // =========================================================================
 

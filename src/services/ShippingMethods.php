@@ -13,9 +13,9 @@ use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
-use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
@@ -69,7 +69,8 @@ class ShippingMethods extends Component
             $results = $this->_createShippingMethodQuery()->all();
 
             foreach ($results as $result) {
-                $this->_memoizeShippingMethod(new ShippingMethod($result));
+                $shippingMethod = new ShippingMethod($result);
+                $this->_memoizeShippingMethod($shippingMethod);
             }
 
             $this->_fetchedAllShippingMethods = true;
@@ -95,7 +96,7 @@ class ShippingMethods extends Component
         }
 
         $result = $this->_createShippingMethodQuery()
-            ->where(['handle' => $shippingMethodHandle])
+            ->andWhere(['handle' => $shippingMethodHandle])
             ->one();
 
         if (!$result) {
@@ -124,7 +125,7 @@ class ShippingMethods extends Component
         }
 
         $result = $this->_createShippingMethodQuery()
-            ->where(['id' => $shippingMethodId])
+            ->andWhere(['id' => $shippingMethodId])
             ->one();
 
         if (!$result) {
@@ -154,7 +155,7 @@ class ShippingMethods extends Component
      * @param Order $cart
      * @return array
      */
-    public function getAvailableShippingMethods(Order $cart): array
+    public function getAvailableShippingMethods(Order $order): array
     {
         $availableMethods = [];
 
@@ -162,56 +163,39 @@ class ShippingMethods extends Component
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
-            'order' => $cart
+            'order' => $order
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
             $this->trigger(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS, $event);
         }
 
+        /** @var ShippingMethod $method */
         foreach ($event->shippingMethods as $method) {
-            /**
-             * @var ShippingRule $rule
-             */
-            if ($method->getIsEnabled() && $rule = $this->getMatchingShippingRule($cart, $method)) {
-                $amount = $rule->getBaseRate();
 
-                foreach ($cart->lineItems as $item) {
-                    if ($item->purchasable && !$item->purchasable->hasFreeShipping()) {
-                        $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
-                        $perItemRate = $rule->getPerItemRate($item->shippingCategoryId);
-                        $weightRate = $rule->getWeightRate($item->shippingCategoryId);
+            $totalPrice = $method->getPriceForOrder($order);
 
-                        $percentageAmount = $item->getSubtotal() * $percentageRate;
-                        $perItemAmount = $item->qty * $perItemRate;
-                        $weightAmount = ($item->weight * $item->qty) * $weightRate;
-
-                        $amount += ($percentageAmount + $perItemAmount + $weightAmount);
-                    }
-                }
-
-                $amount = max($amount, $rule->getMinRate());
-
-                if ($rule->getMaxRate()) {
-                    $amount = min($amount, $rule->getMaxRate());
-                }
+            if ($method->getIsEnabled() && $method->matchOrder($order)) {
 
                 $availableMethods[$method->getHandle()] = [
-                    'name' => $method->getName(),
-                    'description' => $rule->getDescription(),
-                    'amount' => $amount,
-                    'handle' => $method->getHandle(),
-                    'type' => $method->getType(),
-                    'method' => $method
+                    'method' => $method,
+                    'price' => $totalPrice, // Store the price so we can sort on it before returning
                 ];
             }
         }
 
+        // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
         uasort($availableMethods, function($a, $b) {
-            return $a['amount'] - $b['amount'];
+            return $a['price'] - $b['price'];
         });
 
-        return $availableMethods;
+        $shippingMethods = [];
+        foreach ($availableMethods as $shippingMethod) {
+            $method = $shippingMethod['method'];
+            $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
+        }
+
+        return $shippingMethods;
     }
 
     /**
@@ -223,14 +207,7 @@ class ShippingMethods extends Component
      */
     public function getMatchingShippingRule(Order $order, $method)
     {
-        foreach ($method->getShippingRules() as $rule) {
-            /** @var ShippingRuleInterface $rule */
-            if ($rule->matchOrder($order)) {
-                return $rule;
-            }
-        }
-
-        return false;
+        return $method->getMatchingShippingRule($order);
     }
 
     /**
@@ -263,6 +240,7 @@ class ShippingMethods extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
+        $record->isLite = $model->isLite;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -274,6 +252,54 @@ class ShippingMethods extends Component
         $model->id = $record->id;
 
         return true;
+    }
+
+    /**
+     * Save a lite shipping method.
+     *
+     * @param ShippingMethod $model
+     * @param bool $runValidation should we validate this method before saving.
+     * @return bool
+     * @throws Exception
+     */
+    public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
+    {
+        $model->isLite = true;
+        $model->id = null;
+
+        // Delete the current lite shipping rules also first.
+        Craft::$app->getDb()->createCommand()
+            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
+            ->execute();
+
+        // Delete the current lite shipping method.
+        Craft::$app->getDb()->createCommand()
+            ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
+            ->execute();
+
+        return $this->saveShippingMethod($model, $runValidation);
+    }
+
+    /**
+     * Gets the the lite shipping method or returns a new one.
+     *
+     * @return ShippingMethod
+     */
+    public function getLiteShippingMethod()
+    {
+        $liteMethod = $this->_createShippingMethodQuery()->one();
+
+        if ($liteMethod == null) {
+            $liteMethod = new ShippingMethod();
+            $liteMethod->isLite = true;
+            $liteMethod->name = 'Shipping Cost';
+            $liteMethod->handle = 'liteShipping';
+            $liteMethod->enabled = true;
+        } else {
+            $liteMethod = new ShippingMethod($liteMethod);
+        }
+
+        return $liteMethod;
     }
 
     /**
@@ -329,13 +355,20 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
                 'handle',
                 'enabled',
+                'isLite'
             ])
             ->from(['{{%commerce_shippingmethods}}']);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+            $query->andWhere('[[isLite]] = true');
+        }
+
+        return $query;
     }
 }

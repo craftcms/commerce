@@ -107,6 +107,11 @@ class ProductType extends Model
     public $variantFieldLayoutId;
 
     /**
+     * @var string UID
+     */
+    public $uid;
+
+    /**
      * @var TaxCategory[]
      */
     private $_taxCategories;
@@ -201,8 +206,8 @@ class ProductType extends Model
      */
     public function getShippingCategories(): array
     {
-        if (!$this->_shippingCategories) {
-            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductId($this->id);
+        if ($this->_shippingCategories === null) {
+            $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($this->id);
         }
 
         return $this->_shippingCategories;
@@ -236,7 +241,7 @@ class ProductType extends Model
      */
     public function getTaxCategories(): array
     {
-        if (!$this->_taxCategories) {
+        if ($this->_taxCategories === null) {
             $this->_taxCategories = Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($this->id);
         }
 

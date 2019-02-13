@@ -34,7 +34,13 @@
                                 {{ orderHistory.order.email }}
                             {% endif %}
                         </td>
-                        <td>{{ orderHistory.message }}</td>
+                        <td>
+                            {% if orderHistory.message %}
+                                <span class="info">
+                                    {{ orderHistory.message | md }}
+                                </span>
+                            {% endif %}
+                        </td>
                         <td>{{ orderHistory.dateCreated|date }}</td>
                     </tr>
                 {% endfor %}

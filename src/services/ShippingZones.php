@@ -130,13 +130,13 @@ class ShippingZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', 'Please select some countries');
+                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', 'Please select some states');
+                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
             }
         }
 
@@ -160,13 +160,13 @@ class ShippingZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'shippingZoneId'];
-                $table = ShippingZoneCountryRecord::tableName();
+                $table = '{{%commerce_shippingzone_countries}}';
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'shippingZoneId'];
-                $table = ShippingZoneStateRecord::tableName();
+                $table = '{{%commerce_shippingzone_states}}';
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 

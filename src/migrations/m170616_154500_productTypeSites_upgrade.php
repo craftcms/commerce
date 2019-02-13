@@ -24,9 +24,18 @@ class m170616_154500_productTypeSites_upgrade extends Migration
         $this->addColumn('{{%commerce_producttypes_i18n}}', 'hasUrls', $this->boolean());
 
         // Migrate hasUrls to be site specific
-        $productTypes = (new Query())->select('id, hasUrls, template')->from('{{%commerce_producttypes}}')->all();
+        $productTypes = (new Query())
+            ->select(['id', 'hasUrls', 'template'])
+            ->from(['{{%commerce_producttypes}}'])
+            ->all();
+
         foreach ($productTypes as $productType) {
-            $productTypeSites = (new Query())->select('*')->from('{{%commerce_producttypes_i18n}}')->all();
+
+            $productTypeSites = (new Query())
+                ->select('*')
+                ->from(['{{%commerce_producttypes_i18n}}'])
+                ->all();
+
             foreach ($productTypeSites as $productTypeSite) {
                 $productTypeSite['template'] = $productType['template'];
                 $productTypeSite['hasUrls'] = $productType['hasUrls'];

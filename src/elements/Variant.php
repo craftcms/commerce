@@ -185,6 +185,12 @@ class Variant extends Purchasable
     public $maxQty;
 
     /**
+     * @var bool Whether the variant was deleted along with its product
+     * @see beforeDelete()
+     */
+    public $deletedWithProduct = false;
+
+    /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
@@ -298,7 +304,13 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
-        if (($product = Plugin::getInstance()->getProducts()->getProductById($this->productId, $this->siteId)) === null) {
+        $product = Product::find()
+            ->id($this->productId)
+            ->siteId($this->siteId)
+            ->trashed(null)
+            ->one();
+
+        if ($product === null) {
             throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 
@@ -605,7 +617,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if (!$this->hasUnlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-                    $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                    $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
@@ -613,7 +625,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if ($qty[$lineItem->purchasableId] < $this->minQty) {
-                    $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}', ['num' => $this->minQty]);
+                    $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
@@ -621,7 +633,7 @@ class Variant extends Purchasable
             [
                 'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
                 if ($this->maxQty != 0 && $qty[$lineItem->purchasableId] > $this->maxQty) {
-                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}', ['num' => $this->maxQty]);
+                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
@@ -636,6 +648,14 @@ class Variant extends Purchasable
     public static function find(): ElementQueryInterface
     {
         return new VariantQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
     }
 
     /**
@@ -752,19 +772,22 @@ class Variant extends Purchasable
      */
     public function afterOrderComplete(Order $order, LineItem $lineItem)
     {
-        // Update the qty in the db directly
-        Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
-            ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
-            ['id' => $this->id])->execute();
+        // Don't reduce stock of unlimited items.
+        if (!$this->hasUnlimitedStock) {
+            // Update the qty in the db directly
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+                ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
+                ['id' => $this->id])->execute();
 
-        // Update the stock
-        $this->stock = (new Query())
-            ->select(['stock'])
-            ->from('{{%commerce_variants}}')
-            ->where('id = :variantId', [':variantId' => $this->id])
-            ->scalar();
+            // Update the stock
+            $this->stock = (new Query())
+                ->select(['stock'])
+                ->from('{{%commerce_variants}}')
+                ->where('id = :variantId', [':variantId' => $this->id])
+                ->scalar();
 
-        Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+        }
     }
 
     /**
@@ -846,7 +869,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate(): bool
+    public function beforeValidate()
     {
         $product = $this->getProduct();
 
@@ -861,6 +884,24 @@ class Variant extends Purchasable
         $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeDelete(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        Craft::$app->getDb()->createCommand()
+            ->update('{{%commerce_variants}}', [
+                'deletedWithProduct' => $this->deletedWithProduct,
+            ], ['id' => $this->id], [], false)
+            ->execute();
+
+        return true;
     }
 
     // Protected Methods

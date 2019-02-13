@@ -47,17 +47,7 @@ class Shipping extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this->_order);
-
-        $shippingMethod = null;
-
-        /** @var ShippingMethod $method */
-        foreach ($shippingMethods as $method) {
-            if ($method['method']->getIsEnabled() == true && ($method['method']->getHandle() == $this->_order->shippingMethodHandle)) {
-                /** @var ShippingMethod $shippingMethod */
-                $shippingMethod = $method['method'];
-            }
-        }
+        $shippingMethod = $order->getShippingMethod();
 
         if ($shippingMethod === null) {
             return [];
@@ -65,13 +55,25 @@ class Shipping extends Component implements AdjusterInterface
 
         $adjustments = [];
 
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
         /** @var ShippingRule $rule */
-        $rule = Plugin::getInstance()->getShippingMethods()->getMatchingShippingRule($this->_order, $shippingMethod);
+        $rule = $shippingMethod->getMatchingShippingRule($this->_order);
         if ($rule) {
             $itemTotalAmount = 0;
             //checking items shipping categories
             foreach ($order->getLineItems() as $item) {
-                if (!$item->purchasable->hasFreeShipping()) {
+
+                // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
+                $hasFreeShippingFromDiscount = false;
+                foreach ($discounts as $discount) {
+                    if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount) && $discount->hasFreeShippingForMatchingItems) {
+                        $hasFreeShippingFromDiscount = true;
+                    }
+                }
+
+                $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
+                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount) {
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                     $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
@@ -83,7 +85,7 @@ class Shipping extends Component implements AdjusterInterface
                     $weightAmount = ($item->weight * $item->qty) * $weightRate;
 
                     $adjustment->amount = Currency::round($percentageAmount + $perItemAmount + $weightAmount);
-                    $adjustment->lineItemId = $item->id;
+                    $adjustment->setLineItem($item);
                     if ($adjustment->amount) {
                         $adjustments[] = $adjustment;
                     }
@@ -133,8 +135,7 @@ class Shipping extends Component implements AdjusterInterface
         //preparing model
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->orderId = $this->_order->id;
-        $adjustment->lineItemId = null;
+        $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
         $adjustment->sourceSnapshot = $rule->getOptions();
         $adjustment->description = $rule->getDescription();

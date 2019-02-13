@@ -24,7 +24,6 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
-use craft\commerce\models\OrderSettings;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Settings;
@@ -36,6 +35,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\elements\actions\Delete;
+use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -78,6 +78,7 @@ use yii\base\InvalidConfigException;
  * @property-read int $itemSubtotal the total of all line item subtotals
  * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
  * @property-read bool $isEmpty the order has no line items with any qty
+ * @property-read null|Transaction $lastTransaction The last transaction on the order.
  * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
  * @property-read string $paidStatus the order’s paid status
  * @property-read string $paidStatusHtml the order’s paid status as HTML
@@ -121,6 +122,24 @@ class Order extends Element
      * ```
      */
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event This event is raised when a line item is removed from the order
+     *
+     * Plugins can get notified after a line item has been removed from the order
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_REMOVE_LINE_ITEM, function(Event $e) {
+     *     $lineItem = $e->lineItem;
+     *     $isNew = $e->isNew;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
 
     /**
      * @event \yii\base\Event This event is raised when an order is completed
@@ -516,7 +535,7 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
-        $justPaid = $this->getIsPaid() && $this->datePaid === null;
+        $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
 
         if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new \DateTime());
@@ -529,10 +548,6 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
-        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-        }
-
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
@@ -541,6 +556,11 @@ class Order extends Element
                 $this->markAsComplete();
             }
         }
+
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+        
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
@@ -613,8 +633,8 @@ class Order extends Element
             $mutex->release($lockName);
             return true;
         }
-
         // Release after we have confirmed this order is not already complete
+
         $mutex->release($lockName);
 
         $this->isCompleted = true;
@@ -689,6 +709,13 @@ class Order extends Element
                 $this->setLineItems($lineItems);
             }
         }
+
+        // Raising the 'afterRemoveLineItemToOrder' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+            ]));
+        }
     }
 
     /**
@@ -751,7 +778,6 @@ class Order extends Element
             return;
         }
 
-        // collect new adjustments
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
             $adjustments = (new $adjuster)->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
@@ -893,9 +919,10 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
+        $this->_saveAdjustments();
 
-        $this->_updateAdjustments();
-        $this->_updateLineItems();
+        $this->_saveLineItems();
+
 
         if ($this->isCompleted) {
             //creating order history record
@@ -1191,7 +1218,17 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        $this->_lineItems = $lineItems;
+        // Lite should only allow one line item while the order is a cart.
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE) && $this->isCompleted == false) {
+            if (empty($lineItems)) {
+                $this->_lineItems = [];
+            } else {
+                $last = array_values(array_slice($lineItems, -1))[0];
+                $this->_lineItems = [$last];
+            }
+        } else {
+            $this->_lineItems = $lineItems;
+        }
     }
 
     /**
@@ -1396,7 +1433,28 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+
+        // Do we have a shipping method available based on the current selection?
+        if (isset($shippingMethods[$this->shippingMethodHandle])) {
+            return $shippingMethods[$this->shippingMethodHandle];
+        }
+        $handles = [];
+
+        /** @var ShippingMethod $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            $handles[] = $shippingMethod->getHandle();
+        }
+
+        if (!empty($shippingMethods)) {
+            /** @var ShippingMethod $firstAvailable */
+            $firstAvailable = array_values($shippingMethods)[0];
+            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
+                $this->shippingMethodHandle = $firstAvailable->getHandle();
+            }
+        }
+
+        return $shippingMethods[$this->shippingMethodHandle] ?? null;
     }
 
     /**
@@ -1582,14 +1640,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        /** @var OrderSettings $orderSettings */
-        $orderSettings = Plugin::getInstance()->getOrderSettings()->getOrderSettingByHandle('order');
-
-        if ($orderSettings) {
-            return $orderSettings->getFieldLayout();
-        }
-
-        return null;
+        return Craft::$app->getFields()->getLayoutByType(Order::class);
     }
 
     /**
@@ -1667,15 +1718,36 @@ class Order extends Element
                     return $this->getPaidStatusHtml();
                 }
             case 'totalPaid':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                }
             case 'totalPrice':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+                }
             case 'totalShippingCost':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('shipping');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
             case 'totalDiscount':
                 {
+                    $amount = $this->getAdjustmentsTotalByType('discount');
                     if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($this->$attribute, $this->currency);
+                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
                     }
 
-                    return Craft::$app->getFormatter()->asCurrency($this->$attribute * -1, $this->currency);
+                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
+                }
+            case 'totalTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax');
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
+            case 'totalIncludedTax':
+                {
+                    $amount = $this->getAdjustmentsTotalByType('tax', true);
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
                 }
             default:
                 {
@@ -1762,8 +1834,8 @@ class Order extends Element
         $interval = new \DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
-
         $edge = $edge->format(\DateTime::ATOM);
+
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 
@@ -1785,7 +1857,7 @@ class Order extends Element
 
         $sources[] = [
             'key' => 'carts:attempted-payment',
-            'label' => Craft::t('commerce', 'Attempted payment'),
+            'label' => Craft::t('commerce', 'Attempted Payments'),
             'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
@@ -1820,6 +1892,14 @@ class Order extends Element
                 ]);
                 $actions[] = $updateOrderStatusAction;
             }
+
+            // Restore
+            $actions[] = Craft::$app->getElements()->createAction([
+                'type' => Restore::class,
+                'successMessage' => Craft::t('commerce', 'Orders restored.'),
+                'partialSuccessMessage' => Craft::t('commerce', 'Some orders restored.'),
+                'failMessage' => Craft::t('commerce', 'Orders not restored.'),
+            ]);
         }
 
         return $actions;
@@ -1842,6 +1922,8 @@ class Order extends Element
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
             'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
             'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
+            'totalTax' => ['label' => Craft::t('commerce', 'Total Tax')],
+            'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
             'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
             'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
@@ -1912,7 +1994,7 @@ class Order extends Element
      *
      * @return null
      */
-    private function _updateAdjustments()
+    private function _saveAdjustments()
     {
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
@@ -1936,7 +2018,7 @@ class Order extends Element
     /**
      * Updates the line items, including deleting the old ones.
      */
-    private function _updateLineItems()
+    private function _saveLineItems()
     {
         // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
@@ -1959,9 +2041,21 @@ class Order extends Element
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
+        // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+
+            // Update any adjustments to this line item with the new line item ID.
+            foreach ($this->getAdjustments() as $adjustment) {
+                // Was the adjustment for this line item, but the line item ID didn't exist when the adjustment was made?
+                if ($adjustment->getLineItem() === $lineItem && !$adjustment->lineItemId) {
+                    // Re-save the adjustment with the new line item ID, since it exists now.
+                    $adjustment->lineItemId = $lineItem->id;
+                    // Validation not needed as the adjustments are validated before the order is saved
+                    Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
+                }
+            }
         }
     }
 }

@@ -39,7 +39,7 @@ class LineItems extends Component
      * use craft\commerce\services\LineItems;
      * use yii\base\Event;
      *
-     * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
+     * Event::on(LineItems::class, LineItems::EVENT_BEFORE_SAVE_LINE_ITEM, function(LineItemEvent $e) {
      *     // Do something - perhaps let a 3rd party service know about changes to an order
      * });
      * ```
@@ -56,7 +56,7 @@ class LineItems extends Component
      * use craft\commerce\services\LineItems;
      * use yii\base\Event;
      *
-     * Event::on(LineItems::class, LineItems::EVENT_DEFAULT_ORDER_STATUS, function(LineItemEvent $e) {
+     * Event::on(LineItems::class, LineItems::EVENT_AFTER_SAVE_LINE_ITEM, function(LineItemEvent $e) {
      *     // Do something - perhaps reserve the stock
      * });
      * ```

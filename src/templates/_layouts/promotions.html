@@ -5,9 +5,14 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercepromotions" %}
 
 {% set sidebarNavItems = {
-    sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') },
-    discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
+    sales: { label: 'Sales'|t('commerce'), url: url('commerce/promotions/sales') }
 } %}
+
+{% if craft.commerce.is('pro') %}
+    {% set sidebarNavItems = sidebarNavItems|merge({
+        discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
+    }) %}
+{% endif %}
 
 {% set docTitle = sidebarNavItems[selectedSidebarNavItem].label~' - '~title~' - '~'Commerce' %}
 
