@@ -7,7 +7,8 @@
 
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
- 
+- `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
+
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
