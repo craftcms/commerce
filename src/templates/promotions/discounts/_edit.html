@@ -295,12 +295,20 @@
         }, pctDiscountInput) }}
 
         {{ forms.checkboxField({
-            label: "Set shipping costs to zero for matching products"|t('commerce'),
-            id: 'freeShipping',
-            name: 'freeShipping',
+            label: "Remove all shipping costs from the order"|t('commerce'),
+            id: 'hasFreeShippingForOrder',
+            name: 'hasFreeShippingForOrder',
             value: 1,
-            checked: discount.freeShipping,
-            errors: discount.getErrors('freeShipping')
+            checked: discount.hasFreeShippingForOrder
+        }) }}
+
+        {{ forms.checkboxField({
+            label: "Remove shipping costs for matching products only"|t('commerce'),
+            id: 'hasFreeShippingForMatchingItems',
+            name: 'hasFreeShippingForMatchingItems',
+            value: 1,
+            checked: discount.hasFreeShippingForMatchingItems,
+            disabled: discount.hasFreeShippingForOrder
         }) }}
 
         {{ forms.checkboxField({
@@ -327,6 +335,15 @@
                     $('#coupon-fields').addClass('hidden');
                 } else {
                     $('#coupon-fields').removeClass('hidden');
+                }
+            });
+
+            $("#hasFreeShippingForOrder").click(function (){
+                if ($("#hasFreeShippingForOrder").prop("checked")){
+                    $("#hasFreeShippingForMatchingItems").prop("checked", false);
+                    $("#hasFreeShippingForMatchingItems").prop("disabled", true);
+                }else{
+                    $("#hasFreeShippingForMatchingItems").prop("disabled", false);
                 }
             });
 

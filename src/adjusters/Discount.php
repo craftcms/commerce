@@ -60,9 +60,19 @@ class Discount extends Component implements AdjusterInterface
     private $_order;
 
     /**
+     * @var bool Whole order has free shipping applied
+     */
+    private $_hasFreeShippingForOrderApplied;
+
+    /**
      * @var
      */
     private $_discount;
+
+    /**
+     * @var array
+     */
+    private $_shippingDiscountByLineItem = [];
 
     // Public Methods
     // =========================================================================
@@ -214,17 +224,40 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
-        foreach ($this->_order->getLineItems() as $item) {
-            if (in_array($item->id, $matchingLineIds, false) && $discount->freeShipping) {
-                $adjustment = $this->_createOrderAdjustment($this->_discount);
-                $shippingCost = $item->getAdjustmentsTotalByType('shipping');
-                if ($shippingCost > 0) {
-                    $adjustment->setLineItem($item);
-                    $adjustment->amount = $shippingCost * -1;
-                    $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
-                    $adjustments[] = $adjustment;
+
+        if (!$discount->hasFreeShippingForOrder) {
+            // Remove shipping cost from items with free shipping.
+            foreach ($this->_order->getLineItems() as $item) {
+                if (in_array($item->id, $matchingLineIds, false) && $discount->hasFreeShippingForMatchingItems) {
+
+                    $objectId = spl_object_hash($item);
+
+                    $adjustment = $this->_createOrderAdjustment($this->_discount);
+                    $shippingCost = $item->getAdjustmentsTotalByType('shipping');
+                    $amountDiscounted = $this->_shippingDiscountByLineItem[$objectId] ?? 0;
+
+                    if (($shippingCost + $amountDiscounted) > 0) {
+                        $adjustment->setLineItem($item);
+                        $adjustment->amount = $shippingCost * -1;
+                        $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
+                        $adjustments[] = $adjustment;
+
+                        if(isset($this->_costRemovedByLineItem[$objectId])) {
+                            $this->_shippingDiscountByLineItem[$objectId] += $adjustment->amount;
+                        }else{
+                            $this->_shippingDiscountByLineItem[$objectId] = $adjustment->amount;
+                        }
+
+                    }
                 }
             }
+        } else if (!$this->_hasFreeShippingForOrderApplied) {
+            // Don't remove order shipping cost more than once
+            $this->_hasFreeShippingForOrderApplied = true;
+            $adjustment = $this->_createOrderAdjustment($this->_discount);
+            $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
+            $adjustment->description = Craft::t('commerce', 'Remove All Shipping Costs');
+            $adjustments[] = $adjustment;
         }
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {

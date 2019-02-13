@@ -2,7 +2,14 @@
 
 ## Unreleased
 
+### Added
+- It is now possible for discounts to make the whole order have free shipping.
+
+### Fixed
+- Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
+ 
 ### Changed
+- `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
 
 ## 2.0.4 - 2019-02-04

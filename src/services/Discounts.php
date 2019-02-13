@@ -381,7 +381,8 @@ class Discounts extends Component
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
-        $record->freeShipping = $model->freeShipping;
+        $record->hasFreeShippingForMatchingItems = $model->hasFreeShippingForMatchingItems;
+        $record->hasFreeShippingForOrder = $model->hasFreeShippingForOrder;
         $record->excludeOnSale = $model->excludeOnSale;
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
@@ -594,7 +595,8 @@ class Discounts extends Component
                 'discounts.percentDiscount',
                 'discounts.percentageOffSubject',
                 'discounts.excludeOnSale',
-                'discounts.freeShipping',
+                'discounts.hasFreeShippingForMatchingItems',
+                'discounts.hasFreeShippingForOrder',
                 'discounts.allGroups',
                 'discounts.allPurchasables',
                 'discounts.allCategories',
