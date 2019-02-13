@@ -69,11 +69,6 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discount;
 
-    /**
-     * @var array
-     */
-    private $_shippingDiscountByLineItem = [];
-
     // Public Methods
     // =========================================================================
 
@@ -224,40 +219,15 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
-
-        if (!$discount->hasFreeShippingForOrder) {
-            // Remove shipping cost from items with free shipping.
-            foreach ($this->_order->getLineItems() as $item) {
-                if (in_array($item->id, $matchingLineIds, false) && $discount->hasFreeShippingForMatchingItems) {
-
-                    $objectId = spl_object_hash($item);
-
-                    $adjustment = $this->_createOrderAdjustment($this->_discount);
-                    $shippingCost = $item->getAdjustmentsTotalByType('shipping');
-                    $amountDiscounted = $this->_shippingDiscountByLineItem[$objectId] ?? 0;
-
-                    if (($shippingCost + $amountDiscounted) > 0) {
-                        $adjustment->setLineItem($item);
-                        $adjustment->amount = $shippingCost * -1;
-                        $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
-                        $adjustments[] = $adjustment;
-
-                        if(isset($this->_costRemovedByLineItem[$objectId])) {
-                            $this->_shippingDiscountByLineItem[$objectId] += $adjustment->amount;
-                        }else{
-                            $this->_shippingDiscountByLineItem[$objectId] = $adjustment->amount;
-                        }
-
-                    }
-                }
-            }
-        } else if (!$this->_hasFreeShippingForOrderApplied) {
+        if ($discount->hasFreeShippingForOrder && !$this->_hasFreeShippingForOrderApplied) {
             // Don't remove order shipping cost more than once
             $this->_hasFreeShippingForOrderApplied = true;
             $adjustment = $this->_createOrderAdjustment($this->_discount);
             $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
-            $adjustment->description = Craft::t('commerce', 'Remove All Shipping Costs');
-            $adjustments[] = $adjustment;
+            $adjustment->description = Craft::t('commerce', 'Remove all shipping costs.');
+            if ($this->_order->getAdjustmentsTotalByType('shipping') > 0) {
+                $adjustments[] = $adjustment;
+            }
         }
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {

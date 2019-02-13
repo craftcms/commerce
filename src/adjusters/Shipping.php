@@ -14,6 +14,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
+use craft\commerce\Plugin;
 
 /**
  * Tax Adjustments
@@ -54,13 +55,25 @@ class Shipping extends Component implements AdjusterInterface
 
         $adjustments = [];
 
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
         /** @var ShippingRule $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);
         if ($rule) {
             $itemTotalAmount = 0;
             //checking items shipping categories
             foreach ($order->getLineItems() as $item) {
-                if (!$item->purchasable->hasFreeShipping()) {
+
+                // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
+                $hasFreeShippingFromDiscount = false;
+                foreach ($discounts as $discount) {
+                    if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount) && $discount->hasFreeShippingForMatchingItems) {
+                        $hasFreeShippingFromDiscount = true;
+                    }
+                }
+
+                $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
+                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount) {
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                     $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
