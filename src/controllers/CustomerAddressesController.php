@@ -129,9 +129,17 @@ class CustomerAddressesController extends BaseFrontEndController
 
             $this->redirectToPostedUrl();
         } else {
+            $errorMsg = Craft::t('commerce', 'Could not save address.');
+
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['error' => $address->errors]);
+                return $this->asJson([
+                    'error' => $errorMsg,
+                    'errors' => $address->errors
+                ]);
             }
+
+            Craft::$app->getSession()->setError($errorMsg);
+
             Craft::$app->getUrlManager()->setRouteParams([
                 'address' => $address,
             ]);

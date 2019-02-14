@@ -8,6 +8,7 @@
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
 - `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
+- `commerce/customer-addresses/*` actions’ JSON responses now include the standard `errors` array.
 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
