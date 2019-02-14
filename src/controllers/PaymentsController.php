@@ -307,7 +307,10 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
-            $response = ['success' => true];
+            $response = [
+                'success' => true,
+                'order' => $this->cartArray($order),
+            ];
 
             if ($redirect) {
                 $response['redirect'] = $redirect;
