@@ -224,7 +224,6 @@ class Discount extends Component implements AdjusterInterface
             $this->_hasFreeShippingForOrderApplied = true;
             $adjustment = $this->_createOrderAdjustment($this->_discount);
             $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
-            $adjustment->description = Craft::t('commerce', 'Remove all shipping costs.');
             if ($this->_order->getAdjustmentsTotalByType('shipping') > 0) {
                 $adjustments[] = $adjustment;
             }
