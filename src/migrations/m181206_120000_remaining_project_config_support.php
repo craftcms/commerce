@@ -36,12 +36,12 @@ class m181206_120000_remaining_project_config_support extends Migration
             return true;
         }
 
+        $id = (new Query())->select(['fieldLayoutId'])->from(['{{%commerce_ordersettings}}'])->scalar();
         // Field layouts
-        $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
-        Craft::$app->getFields()->deleteLayoutsByType(Order::class);
-        $layoutConfig = $orderFieldLayout->getConfig();
+        $orderFieldLayout = Craft::$app->getFields()->getLayoutById($id);
+        Craft::$app->getFields()->deleteLayoutById($id);
 
-        if ($layoutConfig) {
+        if ($orderFieldLayout && $layoutConfig = $orderFieldLayout->getConfig()) {
             $orderConfigData = [StringHelper::UUID() => $layoutConfig];
             $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
         }
@@ -63,7 +63,7 @@ class m181206_120000_remaining_project_config_support extends Migration
 
         $statusData = $this->_getStatusData();
         $projectConfig->set(OrderStatuses::CONFIG_STATUSES_KEY, $statusData);
-        
+
         $this->dropTableIfExists('{{%commerce_ordersettings}}');
 
         return true;

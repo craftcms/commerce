@@ -9,7 +9,8 @@
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
 - `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
 - `commerce/customer-addresses/*` actions’ JSON responses now include the standard `errors` array.
-
+- Fixed a bug when upgrading from Commerce 1.x to Commerce 2.x that would cause the order field layout to be lost.
+ 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
