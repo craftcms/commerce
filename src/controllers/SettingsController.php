@@ -204,7 +204,8 @@ class SettingsController extends BaseAdminController
             'businessTaxId',
             'businessId',
             'countryId',
-            'stateValue'
+            'stateValue',
+            'phone'
         ];
         foreach ($attributes as $attr) {
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
