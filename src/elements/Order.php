@@ -1898,7 +1898,6 @@ class Order extends Element
     {
         return [
             'order' => ['label' => Craft::t('commerce', 'Order')],
-            'cart' => ['label' => Craft::t('commerce', 'Cart')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
