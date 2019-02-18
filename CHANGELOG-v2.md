@@ -13,7 +13,8 @@
 - Fixed a bug when upgrading from Commerce 1.x to Commerce 2.x that would cause the order field layout to be lost. ([#668](https://github.com/craftcms/commerce/issues/668))
 - Fixed a bug that removed a line item when the `qty` parameter was missing from line item update requests.
 - Fixed an PHP error caused when saving a product that is marked as disabled.  ([#683](https://github.com/craftcms/commerce/pull/683))
- 
+- Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
+
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))

@@ -247,13 +247,7 @@ class Discounts extends Component
             }
         }
 
-        if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
-            $explanation = Craft::t('commerce', 'Discount is limited in use to those who have supplied their email address.');
-
-            return false;
-        }
-
-        if ($discount->perEmailLimit > 0) {
+        if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
                 ->from(['{{%commerce_email_discountuses}}'])
