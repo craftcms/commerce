@@ -246,7 +246,11 @@ class CartController extends BaseFrontEndController
                     $lineItem->setOptions($options);
                 }
 
-                if ($removeLine || $qty == 0) {
+                if($qty !== null && $qty == 0){
+                    $removeLine = true;
+                }
+
+                if ($removeLine) {
                     $this->_cart->removeLineItem($lineItem);
                 } else {
                     $this->_cart->addLineItem($lineItem);
