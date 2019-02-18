@@ -5,7 +5,8 @@
 ### Added
 - It is now possible for discounts to make the whole order have free shipping.
 - The `commerce/payments/pay` actions’ JSON responses now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
- 
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
+
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
 - `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.

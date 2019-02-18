@@ -105,13 +105,32 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
+     * @event \yii\base\Event This event is raised before a line item has been added to the order
+     *
+     * Plugins can get notified before a new line item has been added to the order
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\events\CancelableEvent
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(CancelableEvent $e) {
+     *     $lineItem = $e->lineItem;
+     *     $isNew = $e->isNew;
+     *     $isValid = $e->isValid;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
+
+    /**
      * @event \yii\base\Event This event is raised when a line item is added to the order
      *
      * Plugins can get notified after a line item has been added to the order
      *
      * ```php
      * use craft\commerce\elements\Order;
-     * use yii\base\Event;
+     * use yii\events\Event;
      *
      * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
      *     $lineItem = $e->lineItem;
@@ -559,7 +578,7 @@ class Order extends Element
         if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
             $this->trigger(self::EVENT_AFTER_ORDER_PAID);
         }
-        
+
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
@@ -725,6 +744,22 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
+        $isNew = (bool) $lineItem->id ;
+
+        if($isNew) {
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+                $lineItemEvent = new LineItemEvent([
+                    'lineItem' => $lineItem,
+                    'isNew' => $isNew
+                ]);
+                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+
+                if(!$lineItemEvent->isValid)
+                {
+                    return;
+                }
+            }
+        }
 
         $replaced = false;
         foreach ($lineItems as $key => $item) {
