@@ -14,6 +14,7 @@
 - Fixed a bug that removed a line item when the `qty` parameter was missing from line item update requests.
 - Fixed an PHP error caused when saving a product that is marked as disabled.  ([#683](https://github.com/craftcms/commerce/pull/683))
 - Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
+- Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
