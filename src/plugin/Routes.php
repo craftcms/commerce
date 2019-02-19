@@ -44,6 +44,8 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
+            $event->rules['commerce/settings/donation'] = 'commerce/donations/edit';
+
             $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/plan-index';
             $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
             $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';

@@ -34,6 +34,7 @@
 ## 2.0.3 - 2019-02-02
 
 ### Added 
+- Donations can now be accepted.
 - Added the "Tax is included in price" tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
  
 ### Changed

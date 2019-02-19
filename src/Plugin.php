@@ -21,6 +21,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
+use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderStatuses;
@@ -105,6 +106,7 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     use CommerceServices;
+    use Variables;
     use DeprecatedVariables;
     use Routes;
 
@@ -365,7 +367,7 @@ class Plugin extends BasePlugin
      */
     private function _registerFieldTypes()
     {
-        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
             $event->types[] = Customer::class;
