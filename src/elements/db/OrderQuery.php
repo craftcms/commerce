@@ -172,10 +172,10 @@ class OrderQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param string|null $value The property value
+     * @param string|array|null $value The property value.
      * @return static self reference
      */
-    public function number(string $value = null)
+    public function number($value = null)
     {
         $this->number = $value;
         return $this;
@@ -838,7 +838,11 @@ class OrderQuery extends ElementQuery
         ]);
 
         if ($this->number) {
-            $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+            if (is_string($this->number)) {
+                $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
+            }
         }
 
         if ($this->reference) {
