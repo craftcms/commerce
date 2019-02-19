@@ -744,9 +744,9 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = (bool) $lineItem->id ;
+        $isNew = (bool)$lineItem->id;
 
-        if($isNew) {
+        if ($isNew) {
             if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
                 $lineItemEvent = new LineItemEvent([
                     'lineItem' => $lineItem,
@@ -754,8 +754,7 @@ class Order extends Element
                 ]);
                 $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
-                if(!$lineItemEvent->isValid)
-                {
+                if (!$lineItemEvent->isValid) {
                     return;
                 }
             }
