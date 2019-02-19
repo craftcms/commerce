@@ -7,7 +7,6 @@
 
 namespace craft\commerce\adjusters;
 
-use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
@@ -95,7 +94,12 @@ class Discount extends Component implements AdjusterInterface
             }
 
             if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {
-                $availableDiscounts[] = $discount;
+                $explanation = '';
+                if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this->_order, $explanation)) {
+                    $availableDiscounts[] = $discount;
+                } else {
+                    $this->_order->couponCode = null;
+                }
             }
         }
 

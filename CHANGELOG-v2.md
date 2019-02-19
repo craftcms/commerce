@@ -16,6 +16,7 @@
 - Fixed an PHP error caused when saving a product that is marked as disabled.  ([#683](https://github.com/craftcms/commerce/pull/683))
 - Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
 - Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
+- Fixed a bug that allowed a coupon code stay applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
