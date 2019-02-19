@@ -128,6 +128,15 @@
             class: 'selectize fullwidth'
         }) }}
 
+        {{ forms.textField({
+            label: 'Phone Number'|t('commerce'),
+            id: 'phone',
+            name: 'phone',
+            placeholder: storeLocation.phone,
+            value: storeLocation.phone,
+            errors: storeLocation.getErrors('phone'),
+        }) }}
+
         <input type="submit" class="btn submit"
                value="{{ 'Save'|t('commerce') }}">
     </form>
