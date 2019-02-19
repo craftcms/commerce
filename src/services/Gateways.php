@@ -231,7 +231,7 @@ class Gateways extends Component
 
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
-        if ($existingGateway && (!$gateway->id || $gateway->id !== $existingGateway->id)) {
+        if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
             $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
             return false;
         }

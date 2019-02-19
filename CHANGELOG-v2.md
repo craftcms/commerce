@@ -17,6 +17,7 @@
 - Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
 - Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
 - Fixed a bug that allowed a coupon code stay applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
+- Fixed a bug that sometimes prevented payment gateways from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
