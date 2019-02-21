@@ -27,7 +27,9 @@ class m170830_130000_order_refactor extends Migration
         $this->renameColumn('{{%commerce_orderadjustments}}', 'optionsJson', 'sourceSnapshot');
 
         // Grab all orders.
-        $allOrders = (new Query())->select('*')->from('{{%commerce_orders}}')->limit(null);
+        $allOrders = (new Query())
+            ->select('*')
+            ->from(['{{%commerce_orders}}']);
 
         foreach ($allOrders->batch() as $orders) {
             foreach ($orders as $order) {
@@ -48,8 +50,17 @@ class m170830_130000_order_refactor extends Migration
                 $customAdjusterTypes = [];
 
                 // Get current line items and adjustments for the current order
-                $lineItems = (new Query())->select('*')->from('{{%commerce_lineitems}}')->where(['orderId' => $order['id']])->limit(null)->all();
-                $adjustments = (new Query())->select('*')->from('{{%commerce_orderadjustments}}')->where(['orderId' => $order['id']])->limit(null)->all();
+                $lineItems = (new Query())
+                    ->select('*')
+                    ->from(['{{%commerce_lineitems}}'])
+                    ->where(['orderId' => $order['id']])
+                    ->all();
+
+                $adjustments = (new Query())
+                    ->select('*')
+                    ->from(['{{%commerce_orderadjustments}}'])
+                    ->where(['orderId' => $order['id']])
+                    ->all();
 
                 // Loop over adjustments and save the adjustments into type groupings so we can save the data into the new adjustments sourceSnapshot so that history is kept.
                 foreach ($adjustments as $adjustment) {

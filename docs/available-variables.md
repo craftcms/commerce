@@ -95,7 +95,7 @@ Returns the shipping methods available to applied to the current cart. Will not 
     <label>
         <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
                {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-        <strong>{{ method.name }}</strong> {{ method.amount|currency(cart.currency) }}
+        <strong>{{ method.name }}</strong> {{ method.priceForOrder(cart)|currency(cart.currency) }}
     </label>
 {% endfor %}
 ```
@@ -112,7 +112,7 @@ Returns all payment gateway available to the customer.
 {% if craft.commerce.gateways.allFrontEndGateways|length %}
 <form method="POST" id="paymentMethod" class="form-inline">
 
-    <input type="hidden" name="action" value="commerce/cart/updateCart">
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
     <input type="hidden" name="redirect" value="commerce/checkout/payment">
     {{ getCsrfInput() }}
 
@@ -183,7 +183,7 @@ Returns a discount that matches the code supplied.
 Returns an array of all sales set up in the system.
 
 ```twig
-{% for sale in craft.commerce.allSales %}
+{% for sale in craft.commerce.sales.allSales %}
     {{ sale.name }} - {{ sale.description }}
 {% endfor %}
 ```

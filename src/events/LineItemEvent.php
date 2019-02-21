@@ -8,7 +8,7 @@
 namespace craft\commerce\events;
 
 use craft\commerce\models\LineItem;
-use yii\base\Event;
+use craft\events\CancelableEvent;
 
 /**
  * Class LineItemEvent
@@ -16,7 +16,7 @@ use yii\base\Event;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItemEvent extends Event
+class LineItemEvent extends CancelableEvent
 {
     // Properties
     // =========================================================================

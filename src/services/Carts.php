@@ -55,10 +55,10 @@ class Carts extends Component
         if (null === $this->_cart) {
             $number = $this->getSessionCartNumber();
 
-            $cart = Order::find()->isCompleted(false)->number($number)->one();
+            $cart = Order::find()->isCompleted(false)->number($number)->trashed(null)->one();
             if ($this->_cart = $cart) {
                 // We do not want to use the same order number as a completed order.
-                if ($this->_cart->isCompleted) {
+                if ($this->_cart->isCompleted || $this->_cart->trashed) {
                     $this->forgetCart();
                     Plugin::getInstance()->getCustomers()->forgetCustomer();
                     return $this->getCart();

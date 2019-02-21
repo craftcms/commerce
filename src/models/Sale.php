@@ -102,7 +102,7 @@ class Sale extends Model
     /**
      * @var int[] Product Ids
      */
-    private $_purchsableIds;
+    private $_purchasableIds;
 
     /**
      * @var int[] Product Type IDs
@@ -198,11 +198,11 @@ class Sale extends Model
      */
     public function getPurchasableIds(): array
     {
-        if (null === $this->_purchsableIds) {
+        if (null === $this->_purchasableIds) {
             $this->_loadRelations();
         }
 
-        return $this->_purchsableIds;
+        return $this->_purchasableIds;
     }
 
     /**
@@ -234,7 +234,7 @@ class Sale extends Model
      */
     public function setPurchasableIds(array $purchasableIds)
     {
-        $this->_purchsableIds = array_unique($purchasableIds);
+        $this->_purchasableIds = array_unique($purchasableIds);
     }
 
     /**

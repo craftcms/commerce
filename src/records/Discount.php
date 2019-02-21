@@ -26,7 +26,8 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $discountUserGroups
  * @property bool $enabled
  * @property bool $excludeOnSale
- * @property bool $freeShipping
+ * @property bool $hasFreeShippingForMatchingItems
+ * @property bool $hasFreeShippingForOrder
  * @property UserGroup[] $groups
  * @property int $id
  * @property int $maxPurchaseQty

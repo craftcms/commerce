@@ -36,10 +36,34 @@ class CustomerAddressesController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $address = new Address();
+        $addressId = Craft::$app->getRequest()->getBodyParam("address.id");
 
+        $customerService = Plugin::getInstance()->getCustomers();
+        $customerId = $customerService->getCustomerId();
+        $addressIds = $customerService->getAddressIds($customerId);
+        $customer = $customerService->getCustomerById($customerId);
+
+        // Ensure any incoming ID is within the editable addresses for a customer:
+        if ($addressId && !in_array($addressId, $addressIds, false)) {
+            $error = Craft::t('commerce', 'Not allowed to edit that address.');
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson(['error' => $error]);
+            }
+            Craft::$app->getUser()->setFlash('error', $error);
+
+            return;
+        }
+
+        // If we make it past the ownership check, and there was actually an ID passed, look it up:
+        if ($addressId) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressById($addressId);
+        } else {
+            // Otherwise, set up a new Address model to populate:
+            $address = new Address();
+        }
+
+        // Attributes we want to merge into the Address model's data:
         $attrs = [
-            'id',
             'attention',
             'title',
             'firstName',
@@ -58,24 +82,10 @@ class CustomerAddressesController extends BaseFrontEndController
             'stateName',
             'stateValue'
         ];
+
+        // Set Address attributes to new values (if provided) or use the existing ones for values that aren’t sent:
         foreach ($attrs as $attr) {
-            $address->$attr = Craft::$app->getRequest()->getBodyParam("address.{$attr}");
-        }
-
-        $customerService = Plugin::getInstance()->getCustomers();
-        $customerId = $customerService->getCustomerId();
-        $addressIds = $customerService->getAddressIds($customerId);
-        $customer = $customerService->getCustomerById($customerId);
-
-        // if this is an existing address
-        if ($address->id && !in_array($address->id, $addressIds, false)) {
-            $error = Craft::t('commerce', 'Not allowed to edit that address.');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['error' => $error]);
-            }
-            Craft::$app->getSession()->setError($error);
-
-            return;
+            $address->$attr = Craft::$app->getRequest()->getBodyParam("address.{$attr}", $address->$attr);
         }
 
         if ($customerService->saveAddress($address)) {
@@ -114,11 +124,22 @@ class CustomerAddressesController extends BaseFrontEndController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
+
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+
             $this->redirectToPostedUrl();
         } else {
+            $errorMsg = Craft::t('commerce', 'Could not save address.');
+
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['error' => $address->errors]);
+                return $this->asJson([
+                    'error' => $errorMsg,
+                    'errors' => $address->errors
+                ]);
             }
+
+            Craft::$app->getSession()->setError($errorMsg);
+
             Craft::$app->getUrlManager()->setRouteParams([
                 'address' => $address,
             ]);

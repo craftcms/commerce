@@ -167,7 +167,19 @@ class Address extends Model
         $names[] = 'countryText';
         $names[] = 'stateText';
         $names[] = 'stateValue';
+        $names[] = 'abbreviationText';
         return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields()
+    {
+        return [
+            'country',
+            'state',
+        ];
     }
 
     /**
@@ -189,7 +201,7 @@ class Address extends Model
         $labels['businessName'] = Craft::t('commerce', 'Business Name');
         $labels['businessId'] = Craft::t('commerce', 'Business ID');
         $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
-        $labels['countryId'] = Craft::t('commerce', 'State');
+        $labels['countryId'] = Craft::t('commerce', 'Country');
         $labels['stateId'] = Craft::t('commerce', 'State');
         $labels['stateName'] = Craft::t('commerce', 'State');
         $labels['stateValue'] = Craft::t('commerce', 'State');

@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -47,6 +48,11 @@ class ShippingCategory extends Model
      */
     public $default;
 
+    /**
+     * @var ProductType[]
+     */
+    private $_productTypes;
+
     // Public Methods
     // =========================================================================
 
@@ -66,6 +72,41 @@ class ShippingCategory extends Model
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/shippingcategories/' . $this->id);
+    }
+
+    /**
+     * @param array $productTypes
+     */
+    public function setProductTypes($productTypes)
+    {
+        $this->_productTypes = $productTypes;
+    }
+
+    /**
+     * @return ProductType[]
+     */
+    public function getProductTypes(): array
+    {
+        if ($this->_productTypes === null) {
+            $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
+        }
+
+        return $this->_productTypes;
+    }
+
+    /**
+     * Helper method to just get the product type IDs
+     *
+     * @return int[]
+     */
+    public function getProductTypeIds(): array
+    {
+        $ids = [];
+        foreach ($this->getProductTypes() as $productType) {
+            $ids[] = $productType->id;
+        }
+
+        return $ids;
     }
 
     /**

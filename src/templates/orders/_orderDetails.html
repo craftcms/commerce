@@ -5,8 +5,8 @@
                 <thead>
                 <tr>
                     <th scope="col">{{ 'Item'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Note'|t('commerce') }}</span></th>
-                    <th scope="col">{{ 'Price'|t('commerce') }}</span></th>
+                    <th scope="col">{{ 'Note'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Price'|t('commerce') }}</th>
                     <th scope="col">{{ 'Quantity'|t('commerce') }}</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
@@ -56,7 +56,11 @@
                             {% endif %}
                         </td>
                         <td data-title="{{ 'Note'|t('commerce') }}">
-                            {% if lineItem.note %}{{ lineItem.note|nl2br }}{% endif %}
+                            {% if lineItem.note %}
+                                <span class="info">
+                                    {{ lineItem.note|nl2br }}
+                                </span>
+                            {% endif %}
                         </td>
                         <td data-title="{{ 'Price'|t('commerce') }}">
                             {{ lineItem.salePrice|currency(order.currency) }}
@@ -123,7 +127,7 @@
                     <td>
                         {% if order.isPaid and order.totalPrice > 0 %}
                             <div class="paidLogo">
-                                <span>{{ 'PAID'|t('commerce') }}</div>
+                                <span>{{ 'PAID'|t('commerce') }}</span></div>
                         {% endif %}
                     </td>
                     <td></td>

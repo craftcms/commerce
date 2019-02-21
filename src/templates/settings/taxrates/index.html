@@ -35,8 +35,12 @@
                         <span data-icon="check"
                               title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                     </td>
-                    <td data-title="{{ 'Tax Zone'|t('commerce') }}"><a
-                                href="{{ taxRate.taxZone.cpEditUrl }}">{{ taxRate.taxZone.name }}</a>
+                    <td data-title="{{ 'Tax Zone'|t('commerce') }}">
+                        {% if not taxRate.isEverywhere %}
+                        <a href="{{ taxRate.taxZone.cpEditUrl }}">{{ taxRate.taxZone.name }}</a>
+                        {% else %}
+                         {{ 'Everywhere'|t('commerce') }}
+                        {% endif %}
                     </td>
                     <td data-title="{{ 'Tax Category'|t('commerce') }}"><a
                                 href="{{ taxRate.taxCategory.cpEditUrl }}">{{ taxRate.taxCategory.name }}</a>

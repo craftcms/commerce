@@ -100,7 +100,7 @@ class TaxRates extends Component
         }
 
         $result = $this->_createTaxRatesQuery()
-            ->where(['id' => $id])
+            ->andWhere(['id' => $id])
             ->one();
 
         if (!$result) {
@@ -142,9 +142,11 @@ class TaxRates extends Component
         $record->isVat = $model->isVat;
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
-        $record->taxZoneId = $model->taxZoneId;
+        $record->taxZoneId = $model->taxZoneId ?: null;
+        $record->isEverywhere = $model->getIsEverywhere() || $model->isLite;
+        $record->isLite = $model->isLite;
 
-        if ($record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
+        if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
@@ -152,7 +154,7 @@ class TaxRates extends Component
             }
 
             if ($record->include && !$taxZone->default) {
-                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone. Zone selected is not default.'));
+                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone.'));
 
                 return false;
             }
@@ -165,6 +167,49 @@ class TaxRates extends Component
         $model->id = $record->id;
 
         return true;
+    }
+
+    /**
+     * Saves a lite tax rate
+     *
+     * @param TaxRate $model
+     * @param bool $runValidation should we validate this rate before saving.
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function saveLiteTaxRate(TaxRate $model, bool $runValidation = true): bool
+    {
+        $model->isLite = true;
+        $model->id = null;
+
+        // Delete the current lite tax rate.
+        Craft::$app->getDb()->createCommand()
+            ->delete(TaxRateRecord::tableName(), ['isLite' => true])
+            ->execute();
+
+        return $this->saveTaxRate($model, $runValidation);
+    }
+
+    /**
+     * @return TaxRate
+     */
+    public function getLiteTaxRate(): TaxRate
+    {
+        $liteRate = $this->_createTaxRatesQuery()->one();
+
+        if ($liteRate == null) {
+            $liteRate = new TaxRate();
+            $liteRate->isLite = true;
+            $liteRate->name = 'Tax';
+            $liteRate->include = false;
+            $liteRate->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $liteRate->taxable = TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE;
+        } else {
+            $liteRate = new TaxRate($liteRate);
+        }
+
+        return $liteRate;
     }
 
     /**
@@ -193,7 +238,7 @@ class TaxRates extends Component
      */
     private function _createTaxRatesQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'taxZoneId',
@@ -203,7 +248,14 @@ class TaxRates extends Component
                 'include',
                 'isVat',
                 'taxable',
+                'isLite'
             ])
             ->from(['{{%commerce_taxrates}}']);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
+            $query->andWhere('[[isLite]] = true');
+        }
+
+        return $query;
     }
 }

@@ -12,11 +12,9 @@
         {{ redirectInput('commerce/settings/ordersettings') }}
 
         {{ csrfInput() }}
-        {% if orderSettings.id %}<input type="hidden" name="orderSettingsId"
-                                        value="{{ orderSettings.id }}">{% endif %}
 
         {% include "_includes/fieldlayoutdesigner" with {
-            fieldLayout: orderSettings.getFieldLayout(),
+            fieldLayout: fieldLayout,
         } only %}
 
         <div class="buttons">

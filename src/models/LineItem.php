@@ -16,13 +16,11 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\Plugin;
-use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\validators\UniqueValidator;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -58,17 +56,17 @@ class LineItem extends Model
     public $id;
 
     /**
-     * @var float Price
+     * @var float Price is the original price of the purchasable
      */
     public $price = 0;
 
     /**
-     * @var float Sale amount
+     * @var float Sale amount off the price, based on the sales applied to the purchasable.
      */
     public $saleAmount = 0;
 
     /**
-     * @var float Sale price
+     * @var float Sale price is the price of the line item. Sale price is price + saleAmount
      */
     public $salePrice = 0;
 
@@ -484,7 +482,11 @@ class LineItem extends Model
         $adjustments = $this->getOrder()->getAdjustments();
 
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId == $this->id) {
+            // Since the line item may not yet be saved and won't have an ID, we need to check the adjuster references this as it's line item.
+            $hasLineItemId = (bool) $adjustment->lineItemId;
+            $hasLineItem = (bool) $adjustment->getLineItem();
+
+            if (($hasLineItemId && $adjustment->lineItemId == $this->id) || ($hasLineItem && $adjustment->getLineItem() === $this)) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\adjusters;
 
-use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
@@ -60,6 +59,11 @@ class Discount extends Component implements AdjusterInterface
     private $_order;
 
     /**
+     * @var bool Whole order has free shipping applied
+     */
+    private $_hasFreeShippingForOrderApplied;
+
+    /**
      * @var
      */
     private $_discount;
@@ -79,12 +83,23 @@ class Discount extends Component implements AdjusterInterface
         // Find discounts with no coupon or the coupon that matches the order.
         $availableDiscounts = [];
         foreach ($discounts as $discount) {
+
+            if (!$discount->enabled) {
+                continue;
+            }
+
             if ($discount->code == null) {
                 $availableDiscounts[] = $discount;
+                continue;
             }
 
             if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {
-                $availableDiscounts[] = $discount;
+                $explanation = '';
+                if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this->_order, $explanation)) {
+                    $availableDiscounts[] = $discount;
+                } else {
+                    $this->_order->couponCode = null;
+                }
             }
         }
 
@@ -118,7 +133,7 @@ class Discount extends Component implements AdjusterInterface
         $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = $discount->name;
-        $adjustment->orderId = $this->_order->id;
+        $adjustment->setOrder($this->_order);
         $adjustment->description = $discount->description;
         $adjustment->sourceSnapshot = $discount->attributes;
 
@@ -187,7 +202,7 @@ class Discount extends Component implements AdjusterInterface
         foreach ($this->_order->getLineItems() as $item) {
             if (in_array($item->id, $matchingLineIds, false)) {
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
-                $adjustment->lineItemId = $item->id;
+                $adjustment->setLineItem($item);
 
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
 
@@ -200,19 +215,7 @@ class Discount extends Component implements AdjusterInterface
                     $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
 
-                $lineItemDiscount = $amountPerItem + $amountPercentage;
-
-                $diff = null;
-                // If the discount is now larger than the subtotal only make the discount amount the same as the total of the line.
-                if ((($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) * -1) > $item->getSubtotal()) {
-                    $diff = ($lineItemDiscount + $item->getAdjustmentsTotalByType('discount')) - $item->getSubtotal();
-                }
-
-                if ($diff !== null) {
-                    $adjustment->amount = $diff;
-                } else {
-                    $adjustment->amount = $lineItemDiscount;
-                }
+                $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
                     $adjustments[] = $adjustment;
@@ -220,22 +223,18 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
-        foreach ($this->_order->getLineItems() as $item) {
-            if (in_array($item->id, $matchingLineIds, false) && $discount->freeShipping) {
-                $adjustment = $this->_createOrderAdjustment($this->_discount);
-                $shippingCost = $item->getAdjustmentsTotalByType('shipping');
-                if ($shippingCost > 0) {
-                    $adjustment->lineItemId = $item->id;
-                    $adjustment->amount = $shippingCost * -1;
-                    $adjustment->description = Craft::t('commerce', 'Remove Shipping Cost');
-                    $adjustments[] = $adjustment;
-                }
+        if ($discount->hasFreeShippingForOrder && !$this->_hasFreeShippingForOrderApplied) {
+            // Don't remove order shipping cost more than once
+            $this->_hasFreeShippingForOrderApplied = true;
+            $adjustment = $this->_createOrderAdjustment($this->_discount);
+            $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
+            if ($this->_order->getAdjustmentsTotalByType('shipping') > 0) {
+                $adjustments[] = $adjustment;
             }
         }
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->lineItemId = null;
             $baseDiscountAdjustment->amount = $discount->baseDiscount;
             $adjustments[] = $baseDiscountAdjustment;
         }

@@ -32,15 +32,37 @@
     errors: taxCategory is defined ? taxCategory.getErrors('description')
 }) }}
 
-{{ forms.checkboxField({
-    label: "Use this tax category by default for new products"|t('commerce'),
-    id: 'default',
-    name: 'default',
-    value: 1,
-    checked: taxCategory is defined ? taxCategory.default,
-    errors: taxCategory is defined ? taxCategory.getErrors('default')
-}) }}
+{% set productTypeInputs %}
+    {% for productType in productTypes %}
+        {{ forms.checkboxField({
+            label: productType.name,
+            name: 'productTypes['~productType.id~']',
+            value: productType.id,
+            id: 'productType:'~productType.id,
+            checked: taxCategory is defined ? (productType.id in taxCategory.productTypeIds) : false,
+        }) }}
+    {% endfor %}
+{% endset %}
 
+{{ forms.field({
+    label: "Available to Product Types"|t('commerce'),
+    instructions: "Which product types should this category be available to?"|t('commerce')
+}, productTypeInputs) }}
+
+{% set defaultInput %}
+    {{ forms.checkboxField({
+        label: "New products default to the first tax category available to them. If none are available, this category will be used."|t('commerce'),
+        id: 'default',
+        name: 'default',
+        value: 1,
+        checked: taxCategory is defined ? taxCategory.default,
+        errors: taxCategory is defined ? taxCategory.getErrors('default')
+    }) }}
+{% endset %}
+
+{{ forms.field({
+    label: "Default Category"|t('commerce')
+}, defaultInput) }}
 
 {% if taxCategory is not defined or not taxCategory.handle %}
     {% set nameId = 'name'|namespaceInputId|e('js') %}

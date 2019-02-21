@@ -64,7 +64,7 @@ class CommerceCpAsset extends AssetBundle
         parent::registerAssetFiles($view);
 
         if ($view instanceof View) {
-            $view->registerTranslations('app', [
+            $view->registerTranslations('commerce', [
                 'New {productType} product',
                 'New product',
                 'Update Order Status',

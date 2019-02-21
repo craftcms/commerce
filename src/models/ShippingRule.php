@@ -124,6 +124,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
+     * @var bool Is lite shipping rule
+     */
+    public $isLite = 0;
+
+    /**
      * @param Order $order
      * @return array
      */
@@ -257,10 +262,10 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         // order total rules exclude maximum limit (min <= x < max)
-        if ($this->minTotal && $this->minTotal > $order->itemTotal) {
+        if ($this->minTotal && $this->minTotal > $order->getItemSubtotal()) {
             return false;
         }
-        if ($this->maxTotal && $this->maxTotal <= $order->itemTotal) {
+        if ($this->maxTotal && $this->maxTotal <= $order->getItemSubtotal()) {
             return false;
         }
 

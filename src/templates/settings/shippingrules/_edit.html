@@ -230,9 +230,9 @@
         }) }}
 
         {{ commerceForms.numberField({
-            label: "Minimum Order Total Price"|t('commerce'),
+            label: "Minimum Order Total Value"|t('commerce'),
             name: 'minTotal',
-            instructions: "The minimum total price of the cart to match this rule. Zero matches all carts."|t('commerce'),
+            instructions: "The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
             value: shippingRule.minTotal + 0,
             type: 'number',
             min: 0,
@@ -242,9 +242,9 @@
         }) }}
 
         {{ commerceForms.numberField({
-            label: "Maximum Order Total Price"|t('commerce'),
+            label: "Maximum Order Total Value"|t('commerce'),
             name: 'maxTotal',
-            instructions: "The maximum total price of the cart to match this rule. Zero matches all carts."|t('commerce'),
+            instructions: "The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
             value: shippingRule.maxTotal + 0,
             type: 'number',
             min: 0,

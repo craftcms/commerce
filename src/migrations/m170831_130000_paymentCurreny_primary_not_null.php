@@ -22,7 +22,7 @@ class m170831_130000_paymentCurreny_primary_not_null extends Migration
     {
         $primaryId = (new Query())
             ->select(['id'])
-            ->from('{{%commerce_paymentcurrencies}}')
+            ->from(['{{%commerce_paymentcurrencies}}'])
             ->where(['primary' => true])
             ->scalar();
 

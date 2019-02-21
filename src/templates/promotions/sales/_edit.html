@@ -105,7 +105,7 @@
             {% endif %}
 
             {% for purchasableType in purchasableTypes %}
-                {% set instruction = "for which this sale will be applicable to. Leave all purchsable fields blank for any purchsable."|t('commerce') %}
+                {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
                 {{ forms.elementSelectField({
                     id: 'purchasables-'~purchasableType.elementType|id,
                     label: purchasableType.name,
