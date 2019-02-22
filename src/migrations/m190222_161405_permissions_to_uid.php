@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\migrations;
+namespace craft\commerce\migrations;
 
 use craft\db\Migration;
 use craft\db\Query;
