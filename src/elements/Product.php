@@ -243,9 +243,9 @@ class Product extends Element
     public function getIsEditable(): bool
     {
         if ($this->getType()) {
-            $id = $this->getType()->id;
+            $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $id);
+            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
         }
 
         return false;
@@ -927,7 +927,7 @@ class Product extends Element
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->id;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->id);
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -987,7 +987,7 @@ class Product extends Element
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->id);
+                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->uid);
             }
 
             if ($canManage) {

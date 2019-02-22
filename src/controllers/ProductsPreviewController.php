@@ -181,7 +181,7 @@ class ProductsPreviewController extends Controller
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->id);
+        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
     /**
