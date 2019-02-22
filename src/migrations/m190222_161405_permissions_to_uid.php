@@ -23,7 +23,7 @@ class m190222_161405_permissions_to_uid extends Migration
 
         $productTypeMap = (new Query())
             ->select(['id', 'uid'])
-            ->from(['{{%commerce_producttypes'])
+            ->from('{{%commerce_producttypes}}')
             ->pairs();
 
         $relations = [
