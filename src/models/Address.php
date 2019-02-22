@@ -260,20 +260,20 @@ class Address extends Model
     public function validateBusinessTaxId($attribute, $params, $validator)
     {
         // Do we have a valid VAT ID in our cache?
-        $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $attribute);
+        $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:'.$this->businessTaxId);
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validBusinessTaxId) {
-            $validBusinessTaxId = $this->_validateVatNumber($attribute);
+            $validBusinessTaxId = $this->_validateVatNumber($this->businessTaxId);
         }
 
         if ($validBusinessTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $attribute, '1');
+            Craft::$app->getCache()->set('commerce:validVatId:'.$this->businessTaxId, '1');
         }
 
         // Clean up if the API returned false and the item was still in cache
         if (!$validBusinessTaxId) {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $attribute);
+            Craft::$app->getCache()->delete('commerce:validVatId:'.$this->businessTaxId);
             $this->addError('businessTaxId', Craft::t('commerce', 'Invalid Business Tax ID.'));
         }
     }
