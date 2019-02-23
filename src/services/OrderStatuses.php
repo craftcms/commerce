@@ -467,6 +467,7 @@ class OrderStatuses extends Component
                 'color',
                 'sortOrder',
                 'default',
+                'uid',
             ])
             ->where(['isArchived' => false])
             ->orderBy('sortOrder')
