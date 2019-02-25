@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.0 - 2019-02-26
 
 ### Added
 - Added a new Donation built-in purchasable type. ([#201](https://github.com/craftcms/commerce/issues/201))
