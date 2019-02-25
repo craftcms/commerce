@@ -5,7 +5,7 @@
 ### Fixed
 - Fixed some template loading errors on Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
 
-## 2.1.0 - 2019-02-26
+## 2.1.0 - 2019-02-25
 
 ### Added
 - Added a new Donation built-in purchasable type. ([#201](https://github.com/craftcms/commerce/issues/201))
