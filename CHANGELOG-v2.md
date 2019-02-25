@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.0.1 - 2019-02-25
 
 ### Fixed
 - Fixed some template loading errors on Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
