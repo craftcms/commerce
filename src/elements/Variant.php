@@ -567,7 +567,24 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        return (bool)$this->getProduct()->freeShipping;
+        $isShippable = $this->getIsShippable();
+        return $isShippable && $this->getProduct()->freeShipping;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsShippable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsTaxable(): bool
+    {
+        return true;
     }
 
     /**

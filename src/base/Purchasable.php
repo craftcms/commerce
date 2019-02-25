@@ -206,11 +206,19 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
+     * @return bool
+     */
+    public function getIsShippable(): bool
+    {
+        return true;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function isTaxFree(): bool
+    public function getIsTaxable(): bool
     {
-        return false;
+        return true;
     }
 
     /**

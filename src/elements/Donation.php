@@ -152,9 +152,17 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function isTaxFree(): bool
+    public function getIsShippable(): bool
     {
-        return true;
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsTaxable(): bool
+    {
+        return false;
     }
 
     /**
