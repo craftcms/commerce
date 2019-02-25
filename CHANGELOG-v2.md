@@ -4,11 +4,11 @@
 
 ### Added
 - Added support for donations. ([#201](https://github.com/craftcms/commerce/issues/201))
-- It is now possible for discounts to make the whole order have free shipping.
-- The `commerce/payments/pay` actions’ JSON responses now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
+- It is now possible for discounts give the whole order free shipping. ([#745](https://github.com/craftcms/commerce/issues/745))
+- The `commerce/payments/pay` action JSON response now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
 - Added total order counts to the order index source list.
-- Renamed “Settings” to “System Settings” and added a new “Store Settings” area to the control panel for non project config settings.
+- Renamed “Settings” to “System Settings” and added a “Store Settings” section to the control panel for non project config related settings.
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
 
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
@@ -19,7 +19,7 @@
 - Fixed an PHP error caused when saving a product that is marked as disabled.  ([#683](https://github.com/craftcms/commerce/pull/683))
 - Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
 - Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
-- Fixed a bug that allowed a coupon code stay applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
+- Fixed a bug that allowed a coupon code remain applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
 - Fixed a bug that sometimes prevented payment gateways from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
 - Fixed an issue that prevented the modification of shipping and tax settings when `allowAdminChanges` was set to false.
  
