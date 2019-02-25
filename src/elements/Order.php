@@ -1835,7 +1835,7 @@ class Order extends Element
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badge' => $count
+                'badgeCount' => $count
             ]
         ];
 
@@ -1851,7 +1851,7 @@ class Order extends Element
                 'label' => $orderStatus->name,
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badge' => $count
+                'badgeCount' => $count
             ];
         }
 
