@@ -3,11 +3,13 @@
 ## Unreleased
 
 ### Added
+- Added support for donations. ([#201](https://github.com/craftcms/commerce/issues/201))
 - It is now possible for discounts to make the whole order have free shipping.
 - The `commerce/payments/pay` actions’ JSON responses now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
 - Added total order counts to the order index source list.
-  
+- Renamed “Settings” to “System Settings” and added a new “Store Settings” area to the control panel for non project config settings.
+
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
 - `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
@@ -24,6 +26,7 @@
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
+- Moved shipping and tax configuration to their own sub-navigation menu items.
 
 ## 2.0.4 - 2019-02-04
 
@@ -36,7 +39,6 @@
 ## 2.0.3 - 2019-02-02
 
 ### Added 
-- Donations can now be accepted.
 - Added the "Tax is included in price" tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
  
 ### Changed
