@@ -58,7 +58,7 @@
 
         <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
 
-        {% if not subscription.isCanceled and not subscription.isExpired %}
+        {% if subscription.gateway.supportsPlanSwitch and not subscription.isCanceled and not subscription.isExpired %}
             {% set plans = subscription.alternativePlans %}
             {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
 

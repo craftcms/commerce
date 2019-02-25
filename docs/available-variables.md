@@ -119,7 +119,7 @@ Returns all payment gateway available to the customer.
     <label for="">Payment Method</label>
     <select id="gatewayId" name="gatewayId" class="form-control" >
         {% for id,name in craft.commerce.gateways.allFrontEndGateways %}
-            <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
+            <option value="{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
         {% endfor %}
     </select>
 
