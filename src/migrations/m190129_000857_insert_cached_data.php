@@ -16,11 +16,12 @@ class m190129_000857_insert_cached_data extends Migration
      */
     public function safeUp()
     {
+        $db = Craft::$app->getDb();
+
         if (Craft::$app->getCache()->exists('commerce_discount_purchasables_001')) {
             $newSalesPurchasables = Craft::$app->getCache()->get('commerce_discount_purchasables_001');
             $newSalesPurchasables = Json::decode($newSalesPurchasables);
             foreach ($newSalesPurchasables as $newDiscountPurchasable) {
-                $db = Craft::$app->getDb();
                 $db->createCommand()
                     ->insert('{{%commerce_discount_purchasables}}', $newDiscountPurchasable)
                     ->execute();
@@ -33,7 +34,6 @@ class m190129_000857_insert_cached_data extends Migration
             $newSalesPurchasables = Craft::$app->getCache()->get('commerce_sale_purchasables_001');
             $newSalesPurchasables = Json::decode($newSalesPurchasables);
             foreach ($newSalesPurchasables as $newSalePurchasable) {
-                $db = Craft::$app->getDb();
                 $db->createCommand()
                     ->insert('{{%commerce_sale_purchasables}}', $newSalePurchasable)
                     ->execute();

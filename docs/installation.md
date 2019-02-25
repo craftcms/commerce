@@ -25,4 +25,4 @@ composer require craftcms/commerce
 
 ## Example Templates
 
-If you’d like to use Commerce’s sample store templates as a starting point, you can copy them from your `vendor/craftcms/commerce/templates/shop/` folder to your `templates/shop/` folder.
+We provide [example templates](example-templates.md) to help get you started learning how to use Commerce.

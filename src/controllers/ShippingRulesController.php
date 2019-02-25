@@ -34,7 +34,7 @@ class ShippingRulesController extends BaseShippingSettingsController
     {
         $methodsExist = Plugin::getInstance()->getShippingMethods()->ShippingMethodExists();
         $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules();
-        return $this->renderTemplate('commerce/settings/shippingrules/index', compact('shippingRules', 'methodsExist'));
+        return $this->renderTemplate('commerce/shipping/shippingrules/index', compact('shippingRules', 'methodsExist'));
     }
 
     /**
@@ -80,7 +80,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $countries = $plugin->getCountries()->getAllCountries();
         $states = $plugin->getStates()->getAllStates();
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/settings/shippingzones/_fields', [
+            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
                 'countries' => ArrayHelper::map($countries, 'id', 'name'),
                 'states' => ArrayHelper::map($states, 'id', 'name'),
             ])
@@ -105,7 +105,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
 
-        return $this->renderTemplate('commerce/settings/shippingrules/_edit', $variables);
+        return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
 
     /**
@@ -115,16 +115,28 @@ class ShippingRulesController extends BaseShippingSettingsController
     {
         $this->requirePostRequest();
 
+        $request = Craft::$app->getRequest();
+
         $shippingRule = new ShippingRule();
 
-        // Shared attributes
-        $fields = [
-            'id', 'name', 'description', 'shippingZoneId', 'methodId', 'enabled', 'minQty', 'maxQty', 'minTotal', 'maxTotal',
-            'minWeight', 'maxWeight', 'baseRate', 'perItemRate', 'weightRate', 'percentageRate', 'minRate', 'maxRate'
-        ];
-        foreach ($fields as $field) {
-            $shippingRule->$field = Craft::$app->getRequest()->getBodyParam($field);
-        }
+        $shippingRule->id = $request->getBodyParam('id');
+        $shippingRule->name = $request->getBodyParam('name');
+        $shippingRule->description = $request->getBodyParam('description');
+        $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
+        $shippingRule->methodId = $request->getBodyParam('methodId');
+        $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
+        $shippingRule->minQty = $request->getBodyParam('minQty');
+        $shippingRule->maxQty = $request->getBodyParam('maxQty');
+        $shippingRule->minTotal = $request->getBodyParam('minTotal');
+        $shippingRule->maxTotal = $request->getBodyParam('maxTotal');
+        $shippingRule->minWeight = $request->getBodyParam('minWeight');
+        $shippingRule->maxWeight = $request->getBodyParam('maxWeight');
+        $shippingRule->baseRate = $request->getBodyParam('baseRate');
+        $shippingRule->perItemRate = $request->getBodyParam('perItemRate');
+        $shippingRule->weightRate = $request->getBodyParam('weightRate');
+        $shippingRule->percentageRate = $request->getBodyParam('percentageRate');
+        $shippingRule->minRate = $request->getBodyParam('minRate');
+        $shippingRule->maxRate = $request->getBodyParam('maxRate');
 
         $ruleCategories = [];
         $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');

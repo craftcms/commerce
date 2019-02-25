@@ -247,13 +247,7 @@ class Discounts extends Component
             }
         }
 
-        if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
-            $explanation = Craft::t('commerce', 'Discount is limited in use to those who have supplied their email address.');
-
-            return false;
-        }
-
-        if ($discount->perEmailLimit > 0) {
+        if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
                 ->from(['{{%commerce_email_discountuses}}'])
@@ -381,7 +375,8 @@ class Discounts extends Component
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
-        $record->freeShipping = $model->freeShipping;
+        $record->hasFreeShippingForMatchingItems = $model->hasFreeShippingForMatchingItems;
+        $record->hasFreeShippingForOrder = $model->hasFreeShippingForOrder;
         $record->excludeOnSale = $model->excludeOnSale;
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
@@ -594,7 +589,8 @@ class Discounts extends Component
                 'discounts.percentDiscount',
                 'discounts.percentageOffSubject',
                 'discounts.excludeOnSale',
-                'discounts.freeShipping',
+                'discounts.hasFreeShippingForMatchingItems',
+                'discounts.hasFreeShippingForOrder',
                 'discounts.allGroups',
                 'discounts.allPurchasables',
                 'discounts.allCategories',

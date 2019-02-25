@@ -42,7 +42,7 @@ class TaxRate extends Model
     /**
      * @var float Rate
      */
-    public $rate = .05;
+    public $rate = .00;
 
     /**
      * @var bool Include

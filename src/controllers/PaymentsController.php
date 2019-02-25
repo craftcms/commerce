@@ -297,6 +297,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$success) {
             if ($request->getAcceptsJson()) {
+                // TODO: remame paymentForm to paymentFormErrors on next breaking release.
                 return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
             }
 
@@ -307,7 +308,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
-            $response = ['success' => true];
+            $response = ['success' => true, 'order' => $this->cartArray($order)];
 
             if ($redirect) {
                 $response['redirect'] = $redirect;

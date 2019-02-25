@@ -92,7 +92,7 @@ class Dummy implements RequestResponseInterface
      */
     public function getMessage(): string
     {
-        return $this->_success ? '' : Craft::t('commerce', 'Payment failed.');
+        return $this->_success ? '' : Craft::t('commerce', 'Dummy gateway payment failed.');
     }
 
     /**

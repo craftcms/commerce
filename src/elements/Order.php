@@ -105,13 +105,32 @@ class Order extends Element
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
+     * @event \yii\base\Event This event is raised before a line item has been added to the order
+     *
+     * Plugins can get notified before a new line item has been added to the order
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\events\CancelableEvent
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(CancelableEvent $e) {
+     *     $lineItem = $e->lineItem;
+     *     $isNew = $e->isNew;
+     *     $isValid = $e->isValid;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
+
+    /**
      * @event \yii\base\Event This event is raised when a line item is added to the order
      *
      * Plugins can get notified after a line item has been added to the order
      *
      * ```php
      * use craft\commerce\elements\Order;
-     * use yii\base\Event;
+     * use yii\events\Event;
      *
      * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
      *     $lineItem = $e->lineItem;
@@ -547,10 +566,6 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
-        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
-            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
-        }
-
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
@@ -559,6 +574,11 @@ class Order extends Element
                 $this->markAsComplete();
             }
         }
+
+        if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+
         // restore recalculation lock state
         $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
     }
@@ -724,6 +744,21 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
+        $isNew = (bool)$lineItem->id;
+
+        if ($isNew) {
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+                $lineItemEvent = new LineItemEvent([
+                    'lineItem' => $lineItem,
+                    'isNew' => $isNew
+                ]);
+                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+
+                if (!$lineItemEvent->isValid) {
+                    return;
+                }
+            }
+        }
 
         $replaced = false;
         foreach ($lineItems as $key => $item) {
@@ -1791,12 +1826,16 @@ class Order extends Element
      */
     protected static function defineSources(string $context = null): array
     {
+        $allCriteria =  ['isCompleted' => true];
+        $count =  $count = Craft::configure(self::find(), $allCriteria)->count();
+
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
-                'defaultSort' => ['dateOrdered', 'desc']
+                'defaultSort' => ['dateOrdered', 'desc'],
+                'badgeCount' => $count
             ]
         ];
 
@@ -1804,12 +1843,15 @@ class Order extends Element
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
+            $criteriaStatus = ['orderStatusId' => $orderStatus->id];
+            $count = Craft::configure(self::find(), $criteriaStatus)->count();
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatusId' => $orderStatus->id],
-                'defaultSort' => ['dateOrdered', 'desc']
+                'criteria' => $criteriaStatus,
+                'defaultSort' => ['dateOrdered', 'desc'],
+                'badgeCount' => $count
             ];
         }
 
@@ -1824,27 +1866,30 @@ class Order extends Element
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 
+        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
+            'criteria' => $criteriaActive,
+            'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
 
+        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'],
+            'criteria' => $criteriaInactive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
+        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:attempted-payment',
             'label' => Craft::t('commerce', 'Attempted Payments'),
-            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+            'criteria' => $criteriaAttemptedPayment,
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
         ];
 
         return $sources;
@@ -1897,7 +1942,6 @@ class Order extends Element
     {
         return [
             'order' => ['label' => Craft::t('commerce', 'Order')],
-            'cart' => ['label' => Craft::t('commerce', 'Cart')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
