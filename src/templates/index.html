@@ -11,7 +11,7 @@
 {% endif %}
 
 {% if currentUser.can('commerce-manageShipping') %}
- {% redirect 'commerce/settings/shippingmethods' %}
+ {% redirect 'commerce/shipping/shippingmethods' %}
 {% endif %}
 
 {% if currentUser.can('commerce-manageTaxes') %}

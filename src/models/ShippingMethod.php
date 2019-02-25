@@ -82,7 +82,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/shippingmethods/' . $this->id);
+        return UrlHelper::cpUrl('commerce/shipping/shippingmethods/' . $this->id);
     }
 
     /**

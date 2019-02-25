@@ -1,0 +1,55 @@
+{% extends "commerce/_layouts/cp" %}
+{% set selectedSubnavItem = 'store-settings' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
+
+{% set title = "Store Settings"|t('commerce') %}
+
+{% set navItems = {} %}
+
+{% if currentUser.admin or currentUser.can('commerce-manageStoreSettings')%}
+{% set navItems = {
+    'store-heading': { heading: "Store"|t('commerce'), minEdition: 'lite' },
+    'location': { title: "Store Location"|t('commerce'), minEdition: 'lite' },
+    'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: 'lite' },
+    'donation': { title: "Donations"|t('commerce'), minEdition: 'lite' },
+    'regions-heading': { heading: "Regions"|t('commerce'), minEdition: 'lite' },
+    'countries': { title: "Countries"|t('commerce'), minEdition: 'lite' },
+    'states': { title: "States"|t('commerce'), minEdition: 'lite' },
+
+} %}
+{% endif %}
+
+{% if currentUser.can('commerce-manageStoreSettings') and craft.commerce.is('lite') %}
+{% set navItems = navItems|merge({
+    'taxandshipping-heading': { heading: "Tax & Shipping"|t('commerce'), minEdition: 'lite' },
+    'shipping': { title: "Shipping"|t('commerce'), minEdition: 'lite' },
+    'tax': { title: "Tax"|t('commerce'), minEdition: 'lite' },
+}) %}
+{% endif %}
+
+{% if selectedItem is not defined %}
+    {% set selectedItem = craft.app.request.getSegment(3) %}
+{% endif %}
+
+{% if selectedItem %}
+{% set docTitle = navItems[selectedItem].title~' - '~title %}
+{% else %}
+{% set docTitle = 'Store Settings' %}
+{% endif %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            {% for handle, item in navItems if craft.commerce.is(item.minEdition, '>=') %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li>
+                        <a href="{{ url('commerce/store-settings/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}
+

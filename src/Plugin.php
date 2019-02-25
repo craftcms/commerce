@@ -24,9 +24,9 @@ use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
@@ -187,13 +187,6 @@ class Plugin extends BasePlugin
             }
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $ret['subnav']['promotions'] = [
-                'label' => Craft::t('commerce', 'Promotions'),
-                'url' => 'commerce/promotions'
-            ];
-        }
-
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
@@ -201,9 +194,39 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin() || Craft::$app->getUser()->checkPermission('commerce-manageShipping') || Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
+            $ret['subnav']['promotions'] = [
+                'label' => Craft::t('commerce', 'Promotions'),
+                'url' => 'commerce/promotions'
+            ];
+        }
+
+        if (self::getInstance()->is('pro', '>=')) {
+            if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
+                $ret['subnav']['shipping'] = [
+                    'label' => Craft::t('commerce', 'Shipping'),
+                    'url' => 'commerce/shipping'
+                ];
+            }
+
+            if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+                $ret['subnav']['tax'] = [
+                    'label' => Craft::t('commerce', 'Tax'),
+                    'url' => 'commerce/tax'
+                ];
+            }
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
+            $ret['subnav']['store-settings'] = [
+                'label' => Craft::t('commerce', 'Store Settings'),
+                'url' => 'commerce/store-settings'
+            ];
+        }
+
+        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
-                'label' => Craft::t('commerce', 'Settings'),
+                'label' => Craft::t('commerce', 'System Settings'),
                 'url' => 'commerce/settings'
             ];
         }
@@ -290,8 +313,9 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
+                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
         });
     }
@@ -349,7 +373,6 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
-
     }
 
     /**

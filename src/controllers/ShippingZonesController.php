@@ -31,7 +31,7 @@ class ShippingZonesController extends BaseShippingSettingsController
     public function actionIndex(): Response
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/settings/shippingzones/index', [
+        return $this->renderTemplate('commerce/shipping/shippingzones/index', [
             'shippingZones' => $shippingZones
         ]);
     }
@@ -73,7 +73,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
         $variables['states'] = ArrayHelper::map($states, 'id', 'name');
 
-        return $this->renderTemplate('commerce/settings/shippingzones/_edit', $variables);
+        return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }
 
     /**

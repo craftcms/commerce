@@ -17,7 +17,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseAdminController
+class DonationsController extends BaseStoreSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -34,7 +34,7 @@ class DonationsController extends BaseAdminController
             $donation = new Donation();
         }
 
-        return $this->renderTemplate('commerce/settings/donation/_edit', compact('donation'));
+        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
     }
 
     /**
@@ -59,9 +59,8 @@ class DonationsController extends BaseAdminController
         $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');;
         $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
 
-        if (!Craft::$app->getElements()->saveElement($donation))
-        {
-            return $this->renderTemplate('commerce/settings/donation/_edit', compact('donation'));
+        if (!Craft::$app->getElements()->saveElement($donation)) {
+            return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('app', 'Donation settings saved.'));

@@ -1,0 +1,49 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% set selectedTab = 'tax' %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+<h2>{{ "Tax"|t('commerce') }}</h2>
+
+        <form action="" method="post" accept-charset="UTF-8">
+            <input type="hidden" name="action" value="commerce/lite-tax/save-settings">
+            {{ redirectInput('commerce/store-settings/tax') }}
+            {{ csrfInput() }}
+
+        {{ forms.textField({
+            label: "Tax Name"|t('commerce'),
+            instructions: "What is the name of the tax. For example, 'GST' or 'VAT'"|t('commerce'),
+            id: 'taxName',
+            name: 'taxName',
+            value: settings.taxName ?? 'Tax',
+            class: 'code ltr',
+            errors: settings.getErrors('taxName'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Order Tax Rate"|t('commerce'),
+            instructions: "Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
+            id: 'taxRate',
+            name: 'taxRate',
+            value: settings.getTaxRateAsPercent,
+            class: 'code ltr',
+            errors: settings.getErrors('taxRate'),
+            required: true,
+        }) }}
+
+        {{ forms.lightSwitchField({
+            label: "Is this tax is already included in the price of items?"|t('commerce'),
+            name: 'taxInclude',
+            on: settings.taxInclude,
+            checked: settings.taxInclude,
+            errors: settings.getErrors('taxInclude')
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
+        </form>
+
+{% endblock %}
