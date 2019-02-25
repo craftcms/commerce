@@ -1826,12 +1826,16 @@ class Order extends Element
      */
     protected static function defineSources(string $context = null): array
     {
+        $allCriteria =  ['isCompleted' => true];
+        $count =  $count = Craft::configure(self::find(), $allCriteria)->count();
+
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
-                'defaultSort' => ['dateOrdered', 'desc']
+                'defaultSort' => ['dateOrdered', 'desc'],
+                'badge' => $count
             ]
         ];
 
@@ -1839,12 +1843,15 @@ class Order extends Element
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
+            $criteriaStatus = ['orderStatusId' => $orderStatus->id];
+            $count = Craft::configure(self::find(), $criteriaStatus)->count();
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
-                'criteria' => ['orderStatusId' => $orderStatus->id],
-                'defaultSort' => ['dateOrdered', 'desc']
+                'criteria' => $criteriaStatus,
+                'defaultSort' => ['dateOrdered', 'desc'],
+                'badge' => $count
             ];
         }
 
@@ -1859,27 +1866,30 @@ class Order extends Element
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 
+        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['commerce_orders.dateUpdated', 'asc']
+            'criteria' => $criteriaActive,
+            'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
 
+        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'],
+            'criteria' => $criteriaInactive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
         ];
 
+        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:attempted-payment',
             'label' => Craft::t('commerce', 'Attempted Payments'),
-            'criteria' => ['hasTransactions' => true, 'isCompleted' => 'not 1'],
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+            'criteria' => $criteriaAttemptedPayment,
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
         ];
 
         return $sources;
