@@ -203,6 +203,7 @@ class Tax extends Component implements AdjusterInterface
                 }
             }
 
+            // Will not have any taxes, even for order level taxes.
             if ($allItemsTaxFree) {
                 return [];
             }
