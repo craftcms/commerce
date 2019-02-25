@@ -1,0 +1,69 @@
+{% extends "commerce/_layouts/shipping" %}
+
+{% block content %}
+    <h2>{{ "Shipping Methods"|t('commerce') }}</h2>
+
+    <div id="no-shipping-methods"{% if shippingMethods|length %} class="hidden"{% endif %}>
+        <p>{{ "No shipping methods exist yet."|t('commerce') }}</p>
+    </div>
+
+    {% if shippingMethods|length %}
+        <table id="shipping-methods" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                <th scope="col">{{ 'Handle'|t('commerce') }}</th>
+                <th scope="col">{{ 'Type'|t('commerce') }}</th>
+                <th class="thin"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for shippingMethod in shippingMethods %}
+                {% set id = shippingMethod.getId() %}
+                <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingMethod.getName() }}"{% endif %}>
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
+                        {%- spaceless %}
+                            {% set url = shippingMethod.getCpEditUrl() %}
+                            {% if url %}<a href="{{ url }}">{% endif %}
+                            <span class="status{% if shippingMethod.getIsEnabled() %} enabled{% endif %}"></span>
+                            <span class="label">{{ shippingMethod.getName() }}</span>
+                            {% if url %}</a>{% endif %}
+                        {% endspaceless -%}
+                    </th>
+                    <td data-title="{{ 'Handle'|t('commerce') }}"
+                        class="code">{{ shippingMethod.getHandle() }}</td>
+                    <td data-title="{{ 'Type'|t('commerce') }}">{{ shippingMethod.getType() }}</td>
+                    <td class="thin">
+                        {%- if id -%}
+                            <a class="delete icon"
+                               title="{{ 'Delete'|t('commerce') }}"
+                               role="button"></a>
+                        {%- endif -%}
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="buttons">
+        <a href="{{ url('commerce/shipping/shippingmethods/new') }}"
+           class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+    </div>
+{% endblock %}
+
+
+{% js %}
+    {#<script>#}
+
+    var adminTable = new Craft.AdminTable({
+    tableSelector: '#shipping-methods',
+    noObjectsSelector: '#no-shipping-methods',
+    deleteAction: 'commerce/shipping-methods/delete',
+    confirmDeleteMessage:  Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
+    deleteSuccessMessage:  Craft.t('commerce', '“{name}” deleted.') ,
+    deleteFailMessage:     Craft.t('commerce', 'Couldn’t delete “{name}”.')
+    });
+    {#</script>#}
+{% endjs %}

@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PaymentCurrenciesController extends BaseAdminController
+class PaymentCurrenciesController extends BaseStoreSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -31,7 +31,7 @@ class PaymentCurrenciesController extends BaseAdminController
     {
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
 
-        return $this->renderTemplate('commerce/settings/paymentcurrencies/index', compact('currencies'));
+        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/index', compact('currencies'));
     }
 
     /**
@@ -72,7 +72,7 @@ class PaymentCurrenciesController extends BaseAdminController
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
 
-        return $this->renderTemplate('commerce/settings/paymentcurrencies/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/_edit', $variables);
     }
 
     /**

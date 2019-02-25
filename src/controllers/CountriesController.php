@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class CountriesController extends BaseAdminController
+class CountriesController extends BaseStoreSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -30,7 +30,7 @@ class CountriesController extends BaseAdminController
     public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        return $this->renderTemplate('commerce/settings/countries/index',
+        return $this->renderTemplate('commerce/store-settings/countries/index',
             compact('countries'));
     }
 
@@ -66,7 +66,7 @@ class CountriesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
-        return $this->renderTemplate('commerce/settings/countries/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
     }
 
     /**

@@ -1,27 +1,36 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.0 - 2019-02-26
 
 ### Added
-- It is now possible for discounts to make the whole order have free shipping.
-- The `commerce/payments/pay` actions’ JSON responses now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
+- Added a new Donation built-in purchasable type. ([#201](https://github.com/craftcms/commerce/issues/201))
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
-
-### Fixed
-- Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
-- `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
-- `commerce/customer-addresses/*` actions’ JSON responses now include the standard `errors` array.
-- Fixed a bug when upgrading from Commerce 1.x to Commerce 2.x that would cause the order field layout to be lost. ([#668](https://github.com/craftcms/commerce/issues/668))
-- Fixed a bug that removed a line item when the `qty` parameter was missing from line item update requests.
-- Fixed an PHP error caused when saving a product that is marked as disabled.  ([#683](https://github.com/craftcms/commerce/pull/683))
-- Coupon codes with a “Per email limit” condition no long return an error message to customers until an email address is present.
-- Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
-- Fixed a bug that allowed a coupon code stay applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
-- Fixed a bug that sometimes prevented payment gateways from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
+- Added `craft\commerce\base\PurchasableInterface::getIsTaxable()`.
+- Added `craft\commerce\base\PurchasableInterface::getIsShippable()`.
+- Added `craft\commerce\models\Discount::getHasFreeShippingForMatchingItems()`.
 
 ### Changed
-- `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
+- Discounts can now apply free shipping on the whole order. ([#745](https://github.com/craftcms/commerce/issues/745))
+- The "Settings" section has been split into "System Settings", "Store Settings", "Shipping", and "Tax" sections.
+- The Orders index page now shows total order counts.
+- The `commerce/payments/pay` action JSON response now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
+
+### Deprecated
+- `craft\commerce\models\Discount::$freeShipping` is deprecated. `getHasFreeShippingForMatchingItems()` should be used instead.
+
+### Fixed
+- Fixed an bug where multiple shipping discounts could result in a negative shipping cost.
+- Fixed a validation error that occurred when attempting to apply a coupon with a per-email limit, if the cart didn't have a customer email assigned to it yet.
+- `commerce/cart/*` actions' JSON responses now encode all boolean attributes correctly.
+- `commerce/customer-addresses/*` actions' JSON responses now include an `errors` array if there were any issues with the request.
+- Fixed a bug where the order field layout could be lost when upgrading from Commerce 1 to 2. ([#668](https://github.com/craftcms/commerce/issues/668))
+- Fixed a bug where line item update requests could result in line items being removed if the `qty` parameter was missing.
+- Fixed a bug where coupon codes weren't being removed from carts when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
+- Fixed a bug that could prevent a payment gateway from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
+- Fixed a bug that prevented shipping and tax settings from being modified when the `allowAdminChanges` config setting was set to `false`.
+- Fixed a PHP error that occurred when saving a product that was marked as disabled. ([#683](https://github.com/craftcms/commerce/pull/683))
+- Fixed a PHP error that occurred when trying to access a soft-deleted cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
 
 ## 2.0.4 - 2019-02-04
 

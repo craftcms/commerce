@@ -123,6 +123,20 @@ interface PurchasableInterface
     public function hasFreeShipping(): bool;
 
     /**
+     * Returns whether this purchasable can be shipped and whether it is counted in shipping calculations.
+     *
+     * @return bool
+     */
+    public function getIsShippable(): bool;
+
+    /**
+     * Returns whether this purchasable is exempt from taxes.
+     *
+     * @return bool
+     */
+    public function getIsTaxable(): bool;
+
+    /**
      * Returns whether this purchasable can be subject to discounts or sales.
      *
      * @return bool
