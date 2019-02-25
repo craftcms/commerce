@@ -85,7 +85,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.1.01';
+    public $schemaVersion = '2.1.02';
 
     /**
      * @inheritdoc
@@ -303,8 +303,8 @@ class Plugin extends BasePlugin
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             $productTypePermissions = [];
-            foreach ($productTypes as $id => $productType) {
-                $suffix = ':' . $id;
+            foreach ($productTypes as $productType) {
+                $suffix = ':' . $productType->uid;
                 $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 

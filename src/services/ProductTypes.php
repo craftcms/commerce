@@ -152,11 +152,11 @@ class ProductTypes extends Component
     {
         if (null === $this->_editableProductTypeIds) {
             $this->_editableProductTypeIds = [];
-            $allProductTypeIds = $this->getAllProductTypeIds();
+            $allProductTypes = $this->getAllProductTypes();
 
-            foreach ($allProductTypeIds as $productTypeId) {
-                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productTypeId)) {
-                    $this->_editableProductTypeIds[] = $productTypeId;
+            foreach ($allProductTypes as $productType) {
+                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid)) {
+                    $this->_editableProductTypeIds[] = $productType->id;
                 }
             }
         }
