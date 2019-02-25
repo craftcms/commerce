@@ -1,0 +1,42 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% set selectedTab = 'shipping' %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+<h2>{{ "Shipping"|t('commerce') }}</h2>
+
+        <form action="" method="post" accept-charset="UTF-8">
+            <input type="hidden" name="action" value="commerce/lite-shipping/save-settings">
+            {{ redirectInput('commerce/store-settings/shipping') }}
+            {{ csrfInput() }}
+
+        {{ forms.textField({
+            label: "Shipping Base Rate"|t('commerce'),
+            instructions: "What the shipping cost is for the order."|t('commerce'),
+            id: 'shippingBaseRate',
+            name: 'shippingBaseRate',
+            value: settings.shippingBaseRate ?? 0,
+            class: 'code ltr',
+            errors: settings.getErrors('shippingBaseRate'),
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Shipping Per Item Rate"|t('commerce'),
+            instructions: "What the shipping cost is for each item."|t('commerce'),
+            id: 'shippingPerItemRate',
+            name: 'shippingPerItemRate',
+            value: settings.shippingPerItemRate ?? 0,
+            class: 'code ltr',
+            errors: settings.getErrors('shippingPerItemRate'),
+            required: true,
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
+        </form>
+
+
+{% endblock %}

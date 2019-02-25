@@ -76,7 +76,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/shippingzones/' . $this->id);
+        return UrlHelper::cpUrl('commerce/shipping/shippingzones/' . $this->id);
     }
 
     /**

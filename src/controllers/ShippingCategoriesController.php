@@ -30,7 +30,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     public function actionIndex(): Response
     {
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
-        return $this->renderTemplate('commerce/settings/shippingcategories/index', compact('shippingCategories'));
+        return $this->renderTemplate('commerce/shipping/shippingcategories/index', compact('shippingCategories'));
     }
 
     /**
@@ -65,7 +65,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
         }
 
-        return $this->renderTemplate('commerce/settings/shippingcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/shipping/shippingcategories/_edit', $variables);
     }
 
     /**

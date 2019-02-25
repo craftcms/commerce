@@ -1,11 +1,3 @@
 {% if currentUser.admin %}
 {% redirect 'commerce/settings/general' %}
 {% endif %}
-
-{% if currentUser.can('commerce-manageShipping') %}
-{% redirect 'commerce/settings/shippingmethods' %}
-{% endif %}
-
-{% if currentUser.can('commerce-manageTaxes') %}
-{% redirect 'commerce/settings/taxrates' %}
-{% endif %}

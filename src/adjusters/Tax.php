@@ -159,7 +159,7 @@ class Tax extends Component implements AdjusterInterface
                     $adjustments[] = $adjustment;
                 }
 
-                // Not an order level taxable, modify the line items.
+                // Not an order level taxable, add tax adjustments to the line items.
                 foreach ($this->_order->getLineItems() as $item) {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
@@ -176,9 +176,9 @@ class Tax extends Component implements AdjusterInterface
 
                         $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
 
-                        if(isset($this->_costRemovedByLineItem[$objectId])) {
+                        if (isset($this->_costRemovedByLineItem[$objectId])) {
                             $this->_costRemovedByLineItem[$objectId] += $amount;
-                        }else{
+                        } else {
                             $this->_costRemovedByLineItem[$objectId] = $amount;
                         }
 
@@ -195,6 +195,19 @@ class Tax extends Component implements AdjusterInterface
 
         // Is this an order level tax rate?
         if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
+
+            $allItemsTaxFree = true;
+            foreach ($this->_order->getLineItems() as $item) {
+                if (!$item->getPurchasable()->isTaxFree()) {
+                    $allItemsTaxFree = false;
+                }
+            }
+
+            // Will not have any taxes, even for order level taxes.
+            if ($allItemsTaxFree) {
+                return [];
+            }
+
             $orderTaxableAmount = 0;
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
@@ -226,7 +239,7 @@ class Tax extends Component implements AdjusterInterface
 
         // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
-            if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+            if ($item->taxCategoryId == $taxRate->taxCategoryId && !$item->getPurchasable()->isTaxFree()) {
                 /**
                  * Any reduction in price to the line item we have added while inside this adjuster needs to be deducted,
                  * since the discount adjustments we just added won't be picked up in getTaxableSubtotal()

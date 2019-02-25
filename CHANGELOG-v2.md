@@ -3,9 +3,12 @@
 ## Unreleased
 
 ### Added
+- Added support for donations. ([#201](https://github.com/craftcms/commerce/issues/201))
 - It is now possible for discounts to make the whole order have free shipping.
 - The `commerce/payments/pay` actions’ JSON responses now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
+- Added total order counts to the order index source list.
+- Renamed “Settings” to “System Settings” and added a new “Store Settings” area to the control panel for non project config settings.
 
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 
@@ -18,10 +21,12 @@
 - Fixed a error that occurs when trying to access a trashed cart from the front-end. ([#700](https://github.com/craftcms/commerce/issues/700))
 - Fixed a bug that allowed a coupon code stay applied cart even when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
 - Fixed a bug that sometimes prevented payment gateways from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
-
+- Fixed an issue that prevented the modification of shipping and tax settings when `allowAdminChanges` was set to false.
+ 
 ### Changed
 - `Discount::getFreeShipping()` is now `Discount::getHasFreeShippingForMatchingItems()`
 - The `craft\commerce\elements\Order::EVENT_AFTER_ORDER_PAID` event is now fired after the `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER` event. ([#670](https://github.com/craftcms/commerce/issues/670))
+- Moved shipping and tax configuration to their own sub-navigation menu items.
 
 ## 2.0.4 - 2019-02-04
 
