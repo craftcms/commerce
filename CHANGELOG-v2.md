@@ -7,8 +7,10 @@
 - It is now possible for discounts give the whole order free shipping. ([#745](https://github.com/craftcms/commerce/issues/745))
 - The `commerce/payments/pay` action JSON response now include the order data. ([#715](https://github.com/craftcms/commerce/issues/715))
 - Added total order counts to the order index source list.
-- Renamed “Settings” to “System Settings” and added a “Store Settings” section to the control panel for non project config related settings.
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
+- Renamed “Settings” to “System Settings” and added a new “Store Settings” area to the control panel for non project config settings.
+- Added `PurchasableInterface::getIsTaxable()`
+- Added `PurchasableInterface::getIsShippable()`
 
 ### Fixed
 - Fixed an issue where multiple shipping discounts could remove too much shipping cost. 

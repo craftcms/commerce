@@ -198,7 +198,7 @@ class Tax extends Component implements AdjusterInterface
 
             $allItemsTaxFree = true;
             foreach ($this->_order->getLineItems() as $item) {
-                if (!$item->getPurchasable()->isTaxFree()) {
+                if ($item->getPurchasable()->getIsTaxable()) {
                     $allItemsTaxFree = false;
                 }
             }
@@ -239,7 +239,7 @@ class Tax extends Component implements AdjusterInterface
 
         // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
-            if ($item->taxCategoryId == $taxRate->taxCategoryId && !$item->getPurchasable()->isTaxFree()) {
+            if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getPurchasable()->getIsTaxable()) {
                 /**
                  * Any reduction in price to the line item we have added while inside this adjuster needs to be deducted,
                  * since the discount adjustments we just added won't be picked up in getTaxableSubtotal()
