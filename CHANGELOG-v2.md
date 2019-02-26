@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where sometimes it was impossible to create a new gateway.
+
 ## 2.1.0.2 - 2019-02-25
 
 ### Fixed

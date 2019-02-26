@@ -246,7 +246,7 @@ class Gateways extends Component
                 'handle' => $gateway->handle,
                 'type' => \get_class($gateway),
                 'settings' => $gateway->getSettings(),
-                'sortOrder' => $gateway->sortOrder,
+                'sortOrder' => $gateway->sortOrder ?? 99,
                 'paymentType' => $gateway->paymentType,
                 'isFrontendEnabled' => $gateway->isFrontendEnabled,
             ];
