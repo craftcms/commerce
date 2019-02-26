@@ -90,7 +90,7 @@ class TaxCategory extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/taxcategories/' . $this->id);
+        return UrlHelper::cpUrl('commerce/tax/taxcategories/' . $this->id);
     }
 
     /**

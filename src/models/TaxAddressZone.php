@@ -77,7 +77,7 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/taxzones/' . $this->id);
+        return UrlHelper::cpUrl('commerce/tax/taxzones/' . $this->id);
     }
 
     /**
