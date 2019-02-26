@@ -102,7 +102,7 @@ class TaxRate extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/taxrates/' . $this->id);
+        return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
     }
 
     /**

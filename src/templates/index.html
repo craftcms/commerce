@@ -15,7 +15,7 @@
 {% endif %}
 
 {% if currentUser.can('commerce-manageTaxes') %}
-{% redirect 'commerce/settings/taxrates' %}
+{% redirect 'commerce/tax/taxrates' %}
 {% endif %}
 
 {% extends "403" %}
