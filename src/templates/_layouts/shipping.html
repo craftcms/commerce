@@ -28,7 +28,7 @@
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}
                     <li>
-                        <a href="{{ url('commerce/settings/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                        <a href="{{ url('commerce/shipping/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
