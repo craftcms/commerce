@@ -14,6 +14,7 @@
 
 ### Added
 - Added a new Donation built-in purchasable type. ([#201](https://github.com/craftcms/commerce/issues/201))
+- Added a new “Manage store settings” user permission, which determines whether the current user is allowed to manage store settings.
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
 - Added `craft\commerce\base\PurchasableInterface::getIsTaxable()`.
 - Added `craft\commerce\base\PurchasableInterface::getIsShippable()`.
