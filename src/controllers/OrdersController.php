@@ -15,6 +15,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
@@ -110,6 +111,8 @@ class OrdersController extends BaseCpController
 
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
+
+        Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
