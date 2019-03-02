@@ -9,11 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\ElementInterface;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Variant;
-use craft\db\Query;
-use craft\db\Table;
-use craft\events\ElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use yii\base\Component;
 

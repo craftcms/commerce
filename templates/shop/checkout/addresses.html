@@ -17,8 +17,8 @@
                 {{ csrfInput() }}
 
                 {% if not cart.email %}
-                    <label for="">Email</label>
-                    <input class="w-full" type="text" value="{{ cart.email }}" name="email"
+                    <label for="email">Email</label>
+                    <input id="email" class="w-full" type="text" value="{{ cart.email }}" name="email"
                            placeholder="email@site.com"/>
 
                     <span class="flash">{{ cart.getErrors('email')|join }}</span><br>

@@ -23,6 +23,7 @@ use yii\base\Exception;
 /**
  * Shipping method service.
  *
+ * @property ShippingMethod $liteShippingMethod
  * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -152,7 +153,7 @@ class ShippingMethods extends Component
     /**
      * Get all available shipping methods.
      *
-     * @param Order $cart
+     * @param Order $order
      * @return array
      */
     public function getAvailableShippingMethods(Order $order): array
@@ -285,7 +286,7 @@ class ShippingMethods extends Component
      *
      * @return ShippingMethod
      */
-    public function getLiteShippingMethod()
+    public function getLiteShippingMethod(): ShippingMethod
     {
         $liteMethod = $this->_createShippingMethodQuery()->one();
 

@@ -18,6 +18,8 @@ use yii\db\ActiveQueryInterface;
  * @property Email[] $emails
  * @property string $handle
  * @property int $id
+ * @property bool $isArchived
+ * @property bool $dateArchived
  * @property string $name
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property Discount $discount
  * @property int $discountId
  * @property int $id
+ * @property int $email
  * @property int $uses
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

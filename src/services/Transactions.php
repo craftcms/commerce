@@ -302,7 +302,7 @@ class Transactions extends Component
     public function getTransactionByReferenceAndStatus(string $reference, string $status)
     {
         $result = $this->_createTransactionQuery()
-            ->where(['reference' => $reference, 'status' => $status])
+            ->where(compact('reference', 'status'))
             ->one();
 
         return $result ? new Transaction($result) : null;

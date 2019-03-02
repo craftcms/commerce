@@ -347,11 +347,11 @@ class LineItem extends Model
     }
 
     /**
-     * @param \craft\commerce\base\Element $purchasable
+     * @param PurchasableInterface $purchasable
      */
-    public function setPurchasable(Element $purchasable)
+    public function setPurchasable(PurchasableInterface $purchasable)
     {
-        $this->purchasableId = $purchasable->id;
+        $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
     }
 
