@@ -4,6 +4,11 @@
 
 ### Fixed
 - Fixed a bug where sometimes it was impossible to create a new gateway.
+- Fixed a SQL error raised when saving a variant with the same SKU as a soft-deleted variant. ([#718](https://github.com/craftcms/commerce/issues/718))
+
+### Changed
+- SKU uniqueness validation is not enforced at the application level.
+- Purchasable types are now responsible to ensure SKU uniqueness when they are restored from being soft-deleted.
 
 ## 2.1.0.2 - 2019-02-25
 

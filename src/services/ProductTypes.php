@@ -537,7 +537,7 @@ class ProductTypes extends Component
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
-                            // Loop through each of the changed sites and update all of the categories’ slugs and
+                            // Loop through each of the changed sites and update all of the products’ slugs and
                             // URIs
                             foreach ($sitesWithNewUriFormats as $siteId) {
                                 $product = Product::find()

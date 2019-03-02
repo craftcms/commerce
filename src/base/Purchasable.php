@@ -15,7 +15,8 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
-use craft\validators\UniqueValidator;
+use craft\db\Query;
+use craft\db\Table;
 
 /**
  * Base Purchasable
@@ -32,6 +33,8 @@ use craft\validators\UniqueValidator;
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
+ * @property bool $isShippable
+ * @property bool $isTaxable
  * @property int $taxCategoryId the purchasable's tax category ID
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -185,7 +188,21 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         $rules = parent::rules();
 
-        $rules[] = [['sku'], UniqueValidator::class, 'targetClass' => PurchasableRecord::class, 'targetAttribute' => ['sku']];
+        $rules[] = [
+            'sku', function($attribute, $params, $validator) {
+
+                $found = (new Query())->select(['[[p.sku]]','[[e.id]]'])
+                    ->from('{{%commerce_purchasables}} p')
+                    ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
+                    ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
+                    ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
+                    ->count();
+
+                if ($found) {
+                    $this->addError($attribute, Craft::t('commerce', 'SKU "{sku}" has already been taken.', ['sku' => $this->getSku()]));
+                }
+            }
+        ];
 
         return $rules;
     }
