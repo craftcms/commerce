@@ -1,8 +1,13 @@
 module.exports = {
     filenameHashing: false,
-
-    // tweak internal webpack configuration.
-    // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
+    configureWebpack: {
+        externals: {
+            'vue': 'Vue',
+            'vue-router': 'VueRouter',
+            'vuex': 'Vuex',
+            'axios': 'axios'
+        },
+    },
     chainWebpack: config => {
         // Remove the standard entry point
         config.entryPoints.delete('app')
