@@ -122,8 +122,6 @@ function replaceApiLink(link) {
                 hash = ''
                 if (isMethod) {
                     hash = 'method-'
-                } else if (!subject.match(/^EVENT_/)) {
-                    hash = 'property-'
                 }
                 hash += subject.replace(/_/g, '-').toLowerCase()
             }
