@@ -380,11 +380,7 @@ class Subscriptions extends Component
         $gateway = $plan->getGateway();
 
         // fire a 'beforeCreateSubscription' event
-        $event = new CreateSubscriptionEvent([
-            'user' => $user,
-            'plan' => $plan,
-            'parameters' => $parameters
-        ]);
+        $event = new CreateSubscriptionEvent(compact('user', 'plan', 'parameters'));
         $this->trigger(self::EVENT_BEFORE_CREATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
@@ -431,7 +427,9 @@ class Subscriptions extends Component
      * @param Subscription $subscription
      * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
-     * @throws SubscriptionException  if something went wrong when reactivating subscription
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
      */
     public function reactivateSubscription(Subscription $subscription): bool
     {
@@ -564,10 +562,7 @@ class Subscriptions extends Component
         }
 
         // fire a 'beforeCancelSubscription' event
-        $event = new CancelSubscriptionEvent([
-            'subscription' => $subscription,
-            'parameters' => $parameters
-        ]);
+        $event = new CancelSubscriptionEvent(compact('subscription', 'parameters'));
         $this->trigger(self::EVENT_BEFORE_CANCEL_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
@@ -602,10 +597,7 @@ class Subscriptions extends Component
 
                 // fire an 'afterCancelSubscription' event
                 if ($this->hasEventHandlers(self::EVENT_AFTER_CANCEL_SUBSCRIPTION)) {
-                    $this->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, new CancelSubscriptionEvent([
-                        'subscription' => $subscription,
-                        'parameters' => $parameters
-                    ]));
+                    $this->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, new CancelSubscriptionEvent(compact('subscription', 'parameters')));
                 }
             } catch (\Throwable $exception) {
                 Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
@@ -652,11 +644,7 @@ class Subscriptions extends Component
     {
 
         if ($this->hasEventHandlers(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT)) {
-            $this->trigger(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, new SubscriptionPaymentEvent([
-                'subscription' => $subscription,
-                'payment' => $payment,
-                'paidUntil' => $paidUntil
-            ]));
+            $this->trigger(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, new SubscriptionPaymentEvent(compact('subscription', 'payment', 'paidUntil')));
         }
 
         $subscription->nextPaymentDate = $paidUntil;

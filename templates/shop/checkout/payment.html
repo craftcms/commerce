@@ -24,7 +24,7 @@
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
-                    <label for="gatewayId">Select a payment method:</label>
+                    <label for="paymentMethod">Select a payment method:</label>
                     <select id="paymentMethod" name="paymentMethod" class="form-control">
                         {% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
 

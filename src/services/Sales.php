@@ -230,7 +230,7 @@ class Sales extends Component
     {
         $sales = [];
 
-        if ($purchasable->id) {
+        if ($purchasable->getId()) {
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
                 $id = $purchasable->getId();
@@ -357,13 +357,11 @@ class Sales extends Component
         }
 
         // Are we dealing with the current session outside of any cart/order context
-        if (!$order) {
-            if (!$sale->allGroups) {
-                // User groups of the currently logged in user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
-                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                    return false;
-                }
+        if (!$order && !$sale->allGroups) {
+            // User groups of the currently logged in user
+            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                return false;
             }
         }
 
@@ -383,10 +381,7 @@ class Sales extends Component
             return false;
         }
 
-        $saleMatchEvent = new SaleMatchEvent([
-            'sale' => $sale,
-            'purchasable' => $purchasable
-        ]);
+        $saleMatchEvent = new SaleMatchEvent(compact('sale', 'purchasable'));
 
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {

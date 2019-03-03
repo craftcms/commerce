@@ -11,13 +11,10 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
-use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
-use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
@@ -284,7 +281,6 @@ class OrderStatuses extends Component
      * @param int $id
      * @return bool
      * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function archiveOrderStatusById(int $id): bool
     {
@@ -420,7 +416,10 @@ class OrderStatuses extends Component
      *
      * @param array $ids
      * @return bool
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\web\ServerErrorHttpException
      */
     public function reorderOrderStatuses(array $ids): bool
     {

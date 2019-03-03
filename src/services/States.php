@@ -17,7 +17,8 @@ use yii\base\Exception;
 /**
  * State service.
  *
- * @property State[]|array $allStates an array of all states
+ * @property State[] $allStates an array of all states
+ * @property array $allStatesAsList
  * @property array $statesGroupedByCountries all states grouped by countries
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -92,7 +93,7 @@ class States extends Component
     public function getStateByAbbreviation(int $countryId, string $abbreviation)
     {
         $result = $this->_createStatesQuery()
-            ->where(['countryId' => $countryId, 'abbreviation' => $abbreviation])
+            ->where(compact('countryId', 'abbreviation'))
             ->one();
 
         return $result ? new State($result) : null;

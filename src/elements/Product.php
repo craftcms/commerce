@@ -731,6 +731,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function beforeRestore(): bool
+    {
+        $variants = Variant::find()->trashed(null)->productId($this->id)->status(null)->all();
+        Craft::$app->getElements()->restoreElements($variants);
+        $this->setVariants($variants);
+
+        return parent::beforeRestore();
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function beforeValidate()
     {
         // We need to generate all variant sku formats before validating the product,

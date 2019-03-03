@@ -61,11 +61,7 @@ class PaymentCurrencies extends Component
             }
         }
 
-        if (isset($this->_allCurrenciesById[$id])) {
-            return $this->_allCurrenciesById[$id];
-        }
-
-        return null;
+        return $this->_allCurrenciesById[$id] ?? null;
     }
 
     /**
@@ -86,7 +82,7 @@ class PaymentCurrencies extends Component
             foreach ($rows as $row) {
                 $paymentCurrency = new PaymentCurrency($row);
 
-                // TODO: Fix this with money/money package
+                // TODO: Fix this with money/money package in 3.0
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
                     throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }

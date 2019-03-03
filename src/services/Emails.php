@@ -132,8 +132,12 @@ class Emails extends Component
      * Save an email.
      *
      * @param Email $email
+     * @param bool $runValidation
      * @return bool
-     * @throws \Exception
+     * @throws Exception
+     * @throws \yii\base\ErrorException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\web\ServerErrorHttpException
      */
     public function saveEmail(Email $email, bool $runValidation = true): bool
     {
@@ -296,10 +300,7 @@ class Emails extends Component
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 
         //sending emails
-        $renderVariables = [
-            'order' => $order,
-            'orderHistory' => $orderHistory
-        ];
+        $renderVariables = compact('order', 'orderHistory');
 
         $newEmail = new Message();
 
@@ -438,55 +439,53 @@ class Emails extends Component
             return false;
         }
 
-        if ($email->attachPdf) {
-            if ($path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
-                // Email Body
-                if (!$view->doesTemplateExist($path)) {
-                    $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
-                        'templatePath' => $path,
-                        'email' => $email->name,
-                        'order' => $order->getShortNumber()
-                    ]);
-                    Craft::error($error, __METHOD__);
+        if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
+            // Email Body
+            if (!$view->doesTemplateExist($path)) {
+                $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
+                    'templatePath' => $path,
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber()
+                ]);
+                Craft::error($error, __METHOD__);
 
-                    Craft::$app->language = $originalLanguage;
-                    $view->setTemplateMode($oldTemplateMode);
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
 
-                    return false;
+                return false;
+            }
+
+            try {
+                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, null, $path);
+
+                $tempPath = Assets::tempFilePath('pdf');
+
+                file_put_contents($tempPath, $pdf);
+
+                // Get a file name
+                $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
+                $fileName = $view->renderObjectTemplate($filenameFormat, $order);
+                if (!$fileName) {
+                    $fileName = 'Order-' . $order->number;
                 }
 
-                try {
-                    $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, null, $path);
+                // Attachment information
+                $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
+                $newEmail->attach($tempPath, $options);
+            } catch (\Exception $e) {
+                $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                Craft::error($error, __METHOD__);
 
-                    $tempPath = Assets::tempFilePath('pdf');
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
 
-                    file_put_contents($tempPath, $pdf);
-
-                    // Get a file name
-                    $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
-                    $fileName = $view->renderObjectTemplate($filenameFormat, $order);
-                    if (!$fileName) {
-                        $fileName = 'Order-' . $order->number;
-                    }
-
-                    // Attachment information
-                    $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
-                    $newEmail->attach($tempPath, $options);
-                } catch (\Exception $e) {
-                    $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
-                        'email' => $email->name,
-                        'order' => $order->getShortNumber(),
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine()
-                    ]);
-                    Craft::error($error, __METHOD__);
-
-                    Craft::$app->language = $originalLanguage;
-                    $view->setTemplateMode($oldTemplateMode);
-
-                    return false;
-                }
+                return false;
             }
         }
 

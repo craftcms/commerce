@@ -96,14 +96,13 @@ class LineItems extends Component
             $results = $this->_createLineItemQuery()
                 ->where(['orderId' => $orderId])
                 ->all();
-            $lineItems = [];
+
+            $this->_lineItemsByOrderId[$orderId] = [];
 
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $lineItems[] = new LineItem($result);
+                $this->_lineItemsByOrderId[$orderId][] = new LineItem($result);
             }
-
-            $this->_lineItemsByOrderId[$orderId] = $lineItems;
         }
 
         return $this->_lineItemsByOrderId[$orderId];
@@ -118,8 +117,6 @@ class LineItems extends Component
      * @param int $orderId
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
-     * @param int $qty
-     * @param string $note
      * @return LineItem
      */
     public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem

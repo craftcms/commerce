@@ -326,10 +326,7 @@ class Discounts extends Component
         }
 
         // Raise the 'beforeMatchLineItem' event
-        $event = new MatchLineItemEvent([
-            'lineItem' => $lineItem,
-            'discount' => $discount
-        ]);
+        $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
 
         $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
 

@@ -22,6 +22,7 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
+use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -918,6 +919,50 @@ class Variant extends Purchasable
                 'deletedWithProduct' => $this->deletedWithProduct,
             ], ['id' => $this->id], [], false)
             ->execute();
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeRestore(): bool
+    {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
+        // Check to see if any other purchasable has the same SKU and update this one before restore
+        $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
+            ->from('{{%commerce_purchasables}} p')
+            ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
+            ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
+            ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
+            ->count();
+
+        if ($found) {
+            // Set new SKU in memory
+            $this->sku = $this->getSku() . '-1';
+
+            // Update variant table with new SKU
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+                ['sku' => $this->sku],
+                ['id' => $this->getId()]
+            )->execute();
+
+            if ($this->isDefault) {
+                Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}',
+                    ['defaultSku' => $this->sku],
+                    ['id' => $this->productId]
+                )->execute();
+            }
+
+            // Update purchasable table with new SKU
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_purchasables}}',
+                ['sku' => $this->sku],
+                ['id' => $this->getId()]
+            )->execute();
+        }
 
         return true;
     }

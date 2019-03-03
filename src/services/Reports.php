@@ -1,4 +1,6 @@
-<?php
+<?php /** @noinspection ArgumentEqualsDefaultValueInspection */
+/** @noinspection ArgumentEqualsDefaultValueInspection */
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -39,9 +41,9 @@ class Reports extends Component
      * @param string $endDate
      * @param int|null $orderStatusId Status ID, or null for all statuses
      * @return string|null
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\HttpException
-     * @throws \yii\web\RangeNotSatisfiableHttpException
+     * @throws Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function getOrdersExportFile($format, $startDate, $endDate, $orderStatusId = null)
     {
