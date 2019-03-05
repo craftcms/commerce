@@ -24,6 +24,10 @@ trait Routes
 
     private function _registerCpRoutes()
     {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules['commerce/order/view/<number:{handle}'] = 'commerce/order/view';
+        });
+
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
@@ -125,9 +129,7 @@ trait Routes
             $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-
             // Promotions
-
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
             $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
@@ -140,7 +142,6 @@ trait Routes
 
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
-
         });
     }
 }
