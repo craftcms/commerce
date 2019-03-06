@@ -668,14 +668,15 @@ class ProductQuery extends ElementQuery
                 $variantQuery = Craft::configure($query, $this->hasVariant);
             }
 
-            $variantQuery->limit = null;
-            $variantQuery->select('commerce_variants.productId');
-            $productIds = $variantQuery->column();
+            $variantQuery->limit = $this->limit;
+            $variants = $variantQuery->all();
+            $productIds = array_column($variants, 'productId');
 
             // Remove any blank product IDs (if any)
+
             $productIds = array_filter($productIds);
 
-            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
+            $this->subQuery->andWhere(['commerce_products.id' => array_values($productIds)]);
         }
     }
 
