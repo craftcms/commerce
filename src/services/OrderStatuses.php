@@ -207,7 +207,7 @@ class OrderStatuses extends Component
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
-                'sortOrder' => $orderStatus->sortOrder,
+                'sortOrder' => $orderStatus->sortOrder ?? 99,
                 'default' => $orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
@@ -242,7 +242,7 @@ class OrderStatuses extends Component
             $statusRecord->name = $data['name'];
             $statusRecord->handle = $data['handle'];
             $statusRecord->color = $data['color'];
-            $statusRecord->sortOrder = $data['sortOrder'] ?: 999;
+            $statusRecord->sortOrder = $data['sortOrder'] ?? 99;
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
 
