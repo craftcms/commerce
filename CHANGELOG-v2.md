@@ -9,6 +9,7 @@
 - Fixed a error that occurred when viewing the order of a deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
 - Fixed a performance issue when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
 - Fixed a bug where order status sorting order was not being saved for new statuses.
+- Fixed a bug where required fields on variant field layouts were not being validated. ([#761](https://github.com/craftcms/commerce/issues/761)
 
 ### Changed
 - SKU uniqueness validation is not enforced at the application level.
