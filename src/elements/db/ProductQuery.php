@@ -669,8 +669,8 @@ class ProductQuery extends ElementQuery
             }
 
             $variantQuery->limit = null;
-            $variants = $variantQuery->all();
-            $productIds = array_column($variants, 'productId');
+            $variantQuery->select('commerce_variants.productId');
+            $productIds = $variantQuery->asArray()->column();
 
             // Remove any blank product IDs (if any)
             $productIds = array_filter($productIds);
