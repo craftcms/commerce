@@ -415,9 +415,8 @@ class VariantQuery extends ElementQuery
         }
 
         if (null !== $this->hasSales) {
-            $query = Variant::find();
+            $query = clone $this;
             $query->hasSales = null;
-            $query->limit = null;
             $variants = $query->all();
 
             $ids = [];
