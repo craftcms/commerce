@@ -2,19 +2,18 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a bug where sometimes it was impossible to create a new gateway.
-- Fixed a SQL error raised when saving a variant with the same SKU as a soft-deleted variant. ([#718](https://github.com/craftcms/commerce/issues/718))
-- Fixed breadcrumb navigation on Store settings pages. ([#769](https://github.com/craftcms/commerce/issues/769))
-- Fixed a error that occurred when viewing the order of a deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
-- Fixed a performance issue when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
-- Fixed a bug where order status sorting order was not being saved for new statuses.
-- Fixed a bug where required fields on variant field layouts were not being validated. ([#761](https://github.com/craftcms/commerce/issues/761)
-- Fixed a bug where an expired coupon discount could incorrectly giving free shipping to some line items. ([#777](https://github.com/craftcms/commerce/issues/777)
-
 ### Changed
-- SKU uniqueness validation is not enforced at the application level.
+- Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
 - Purchasable types are now responsible to ensure SKU uniqueness when they are restored from being soft-deleted.
+
+### Fixed
+- Fixed a bug where orders could receive free shipping on some line items when an expired coupon code had been entered. ([#777](https://github.com/craftcms/commerce/issues/777)
+- Fixed a bug where variants weren't enforcing required field validation. ([#761](https://github.com/craftcms/commerce/issues/761)
+- Fixed a bug where the sort order wasn't getting saved correctly for new order statuses.
+- Fixed the breadcrumb navigation on Store Settings pages. ([#769](https://github.com/craftcms/commerce/issues/769))
+- Fixed an error that occurred when viewing an order for a soft-deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
+- Fixed an error that could occur when saving a new gateway.
+- Fixed a SQL error that occurred when saving a purchasable with the same SKU as a soft-deleted purchasable. ([#718](https://github.com/craftcms/commerce/issues/718))
 
 ## 2.1.0.2 - 2019-02-25
 
