@@ -78,33 +78,15 @@ class Discount extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
+        $adjustments = [];
+        $availableDiscounts = [];
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
 
-        // Find discounts with no coupon or the coupon that matches the order.
-        $availableDiscounts = [];
         foreach ($discounts as $discount) {
-
-            if (!$discount->enabled) {
-                continue;
-            }
-
-            if ($discount->code == null) {
+            if (Plugin::getInstance()->getDiscounts()->matchOrder($order, $discount)) {
                 $availableDiscounts[] = $discount;
-                continue;
-            }
-
-            if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {
-                $explanation = '';
-                if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this->_order, $explanation)) {
-                    $availableDiscounts[] = $discount;
-                } else {
-                    $this->_order->couponCode = null;
-                }
             }
         }
-
-        $adjustments = [];
-
 
         foreach ($availableDiscounts as $discount) {
             $newAdjustments = $this->_getAdjustments($discount);
