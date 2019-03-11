@@ -259,6 +259,10 @@ class Address extends Model
      */
     public function validateBusinessTaxId($attribute, $params, $validator)
     {
+        if (!Plugin::getInstance()->getSettings()->validateAddressBusinessTaxIdAsVatNumber) {
+            return;
+        }
+
         // Do we have a valid VAT ID in our cache?
         $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:'.$this->businessTaxId);
 
