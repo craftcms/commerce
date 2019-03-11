@@ -1824,8 +1824,8 @@ class Order extends Element
      */
     protected static function defineSources(string $context = null): array
     {
-        $allCriteria =  ['isCompleted' => true];
-        $count =  $count = Craft::configure(self::find(), $allCriteria)->count();
+        $allCriteria = ['isCompleted' => true];
+        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
 
         $sources = [
             '*' => [
