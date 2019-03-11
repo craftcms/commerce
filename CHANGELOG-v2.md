@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.1 - 2018-03-11
 
 ### Changed
 - Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
