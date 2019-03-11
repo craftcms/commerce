@@ -368,7 +368,6 @@ class Customers extends Component
      * Handle the user logout.
      *
      * @param UserEvent $event
-     * @throws Exception
      */
     public function logoutHandler(UserEvent $event)
     {

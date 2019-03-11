@@ -1,5 +1,20 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.1.1 - 2018-03-11
+
+### Changed
+- Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
+- Purchasable types are now responsible to ensure SKU uniqueness when they are restored from being soft-deleted.
+
+### Fixed
+- Fixed a bug where orders could receive free shipping on some line items when an expired coupon code had been entered. ([#777](https://github.com/craftcms/commerce/issues/777)
+- Fixed a bug where variants weren't enforcing required field validation. ([#761](https://github.com/craftcms/commerce/issues/761)
+- Fixed a bug where the sort order wasn't getting saved correctly for new order statuses.
+- Fixed the breadcrumb navigation on Store Settings pages. ([#769](https://github.com/craftcms/commerce/issues/769))
+- Fixed an error that occurred when viewing an order for a soft-deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
+- Fixed an error that could occur when saving a new gateway.
+- Fixed a SQL error that occurred when saving a purchasable with the same SKU as a soft-deleted purchasable. ([#718](https://github.com/craftcms/commerce/issues/718))
+
 ## 2.1.0.2 - 2019-02-25
 
 ### Fixed
@@ -14,6 +29,7 @@
 
 ### Added
 - Added a new Donation built-in purchasable type. ([#201](https://github.com/craftcms/commerce/issues/201))
+- Added a new “Manage store settings” user permission, which determines whether the current user is allowed to manage store settings.
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_LINE_ITEM`.
 - Added `craft\commerce\base\PurchasableInterface::getIsTaxable()`.
 - Added `craft\commerce\base\PurchasableInterface::getIsShippable()`.

@@ -14,7 +14,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
-use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
@@ -28,7 +27,6 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -448,6 +446,7 @@ class ProductTypes extends Component
 
             $sitesNowWithoutUrls = [];
             $sitesWithNewUriFormats = [];
+            $allOldSiteSettingsRecords = [];
 
             if (!$isNewProductType) {
                 // Get the old product type site settings
@@ -537,7 +536,7 @@ class ProductTypes extends Component
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
-                            // Loop through each of the changed sites and update all of the categories’ slugs and
+                            // Loop through each of the changed sites and update all of the products’ slugs and
                             // URIs
                             foreach ($sitesWithNewUriFormats as $siteId) {
                                 $product = Product::find()

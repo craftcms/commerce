@@ -294,6 +294,10 @@ class Discounts extends Component
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount): bool
     {
+        if (!$this->matchOrder($lineItem->order, $discount)) {
+            return false;
+        }
+
         if ($lineItem->onSale && $discount->excludeOnSale) {
             return false;
         }
@@ -326,14 +330,45 @@ class Discounts extends Component
         }
 
         // Raise the 'beforeMatchLineItem' event
-        $event = new MatchLineItemEvent([
-            'lineItem' => $lineItem,
-            'discount' => $discount
-        ]);
+        $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
 
         $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
 
         return $event->isValid;
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    public function matchOrder(Order $order, Discount $discount): bool
+    {
+        // If the discount is no longer enabled don't use
+        if (!$discount->enabled) {
+            return false;
+        }
+
+        // If the discount does not have a coupon code, it is available
+        if ($discount->code == null) {
+            return true;
+        }
+
+        // If we have a coupon code on the order and it matches the discount coupon code
+        if ($order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0)) {
+            $explanation = '';
+
+            // Only use the discount is it it still available (it may have expired since being valid on the order)
+            if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($order, $explanation)) {
+                return true;
+            }
+
+            // Remove it from the order if it is no longer valid.
+            // Yes, this is an order mutation, which we normally shouldn't do in an adjuster
+            $order->couponCode = null;
+        }
+
+        return false;
     }
 
     /**

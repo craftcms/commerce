@@ -374,19 +374,17 @@ class Order extends Element
      */
     public function init()
     {
-        if (!$this->isCompleted) {
-            // Set default addresses on the order
-            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
-                        $this->setShippingAddress($address);
-                    }
+        // Set default addresses on the order
+        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+            if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
+                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
+                    $this->setShippingAddress($address);
                 }
+            }
 
-                if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
-                    if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
-                        $this->setBillingAddress($address);
-                    }
+            if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
+                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
+                    $this->setBillingAddress($address);
                 }
             }
         }
@@ -1826,8 +1824,8 @@ class Order extends Element
      */
     protected static function defineSources(string $context = null): array
     {
-        $allCriteria =  ['isCompleted' => true];
-        $count =  $count = Craft::configure(self::find(), $allCriteria)->count();
+        $allCriteria = ['isCompleted' => true];
+        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
 
         $sources = [
             '*' => [

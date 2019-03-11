@@ -896,7 +896,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false);
         $this->createIndex(null, '{{%commerce_producttypes_taxcategories}}', ['productTypeId', 'taxCategoryId'], true);
         $this->createIndex(null, '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false);
-        $this->createIndex(null, '{{%commerce_purchasables}}', 'sku', true);
+        $this->createIndex(null, '{{%commerce_purchasables}}', 'sku', false); // Application layer enforces unique
         $this->createIndex(null, '{{%commerce_sale_purchasables}}', ['saleId', 'purchasableId'], true);
         $this->createIndex(null, '{{%commerce_sale_purchasables}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_sale_categories}}', ['saleId', 'categoryId'], true);
@@ -941,7 +941,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_transactions}}', 'gatewayId', false);
         $this->createIndex(null, '{{%commerce_transactions}}', 'orderId', false);
         $this->createIndex(null, '{{%commerce_transactions}}', 'userId', false);
-        $this->createIndex(null, '{{%commerce_variants}}', 'sku', true);
+        $this->createIndex(null, '{{%commerce_variants}}', 'sku', false);
         $this->createIndex(null, '{{%commerce_variants}}', 'productId', false);
     }
 
@@ -1201,10 +1201,10 @@ class Install extends Migration
         $this->_defaultDonationPurchasable();
 
         // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) === null);
-        $configExists = (Craft::$app->projectConfig->get('commerce', true) === null);
+        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
+        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
 
-        if ($installed || $configExists) {
+        if (!$installed && !$configExists) {
             $this->_defaultOrderSettings();
             $this->_defaultProductTypes();
             $this->_defaultProducts(); // Not in project config, but dependant on demo product type

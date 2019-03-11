@@ -32,6 +32,8 @@ use craft\validators\UniqueValidator;
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
+ * @property bool $isShippable
+ * @property bool $isTaxable
  * @property int $taxCategoryId the purchasable's tax category ID
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -185,7 +187,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         $rules = parent::rules();
 
-        $rules[] = [['sku'], UniqueValidator::class, 'targetClass' => PurchasableRecord::class, 'targetAttribute' => ['sku']];
+        $rules[] = [
+            ['sku'],
+            UniqueValidator::class,
+            'targetClass' => PurchasableRecord::class,
+            'caseInsensitive' => true,
+        ];
 
         return $rules;
     }

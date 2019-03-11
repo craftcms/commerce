@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
+use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
@@ -158,12 +159,12 @@ class Addresses extends Component
      * @param Address $addressModel The address to be saved.
      * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
-     * @throws InvalidConfigException if an address does not exist.
+     * @throws \InvalidArgumentException if an address does not exist.
+     * @throws \yii\db\Exception
      */
     public function saveAddress(Address $addressModel, bool $runValidation = true): bool
     {
         $isNewAddress = !$addressModel->id;
-        $plugin = Plugin::getInstance();
 
         if ($addressModel->id) {
             $addressRecord = AddressRecord::findOne($addressModel->id);
@@ -246,11 +247,11 @@ class Addresses extends Component
     }
 
     /**
-     * @param $address
+     * @param Address $address
      * @param $zone
      * @return bool
      */
-    public function addressWithinZone($address, AddressZoneInterface $zone)
+    public function addressWithinZone($address, AddressZoneInterface $zone): bool
     {
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
