@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- Fixed a PHP error raised when a discount adjustment was applied to the cart.
+
 ## 2.1.1 - 2018-03-11
 
 ### Changed
