@@ -15,8 +15,6 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
-use craft\db\Query;
-use craft\db\Table;
 use craft\validators\UniqueValidator;
 
 /**
