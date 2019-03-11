@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- Added a “Minimum Total Price Strategy” setting that allows the minimum order price be negative (default), at least zero, or at least the shipping cost. ([#651](https://github.com/craftcms/commerce/issues/651))
+- Added `craft\commerce\elements\Order::getTotal()` to get the price of the order before any pricing strategies.
+
 ## 2.1.1.1 - 2018-03-01
 
 ### Fixed
@@ -8,7 +14,7 @@
 ## 2.1.1 - 2018-03-11
 
 ### Changed
-- Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
+- Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758))
 - Purchasable types are now responsible to ensure SKU uniqueness when they are restored from being soft-deleted.
 
 ### Fixed

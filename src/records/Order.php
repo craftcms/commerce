@@ -47,6 +47,7 @@ use yii\db\ActiveQueryInterface;
  * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle
+ * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
  * @property Transaction[] $transactions

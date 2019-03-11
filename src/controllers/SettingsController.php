@@ -13,6 +13,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
 use craft\commerce\models\LiteSettings;
 use craft\commerce\models\Settings as SettingsModel;
+use craft\commerce\models\Settings;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;
@@ -65,6 +66,7 @@ class SettingsController extends BaseAdminController
         $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
+        $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
         $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
         $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;

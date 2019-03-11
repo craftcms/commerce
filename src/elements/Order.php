@@ -26,6 +26,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
+use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -83,6 +84,7 @@ use yii\base\InvalidConfigException;
  * @property-read string $paidStatusHtml the order’s paid status as HTML
  * @property-read string $shortNumber
  * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $total
  * @property-read float $totalPrice
  * @property-read int $totalSaleAmount the total sale amount
  * @property-read float $totalTaxablePrice
@@ -461,6 +463,7 @@ class Order extends Element
         $names[] = 'outstandingBalance';
         $names[] = 'shortNumber';
         $names[] = 'totalPaid';
+        $names[] = 'total';
         $names[] = 'totalPrice';
         $names[] = 'totalQty';
         $names[] = 'totalSaleAmount';
@@ -883,6 +886,7 @@ class Order extends Element
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
+        $orderRecord->total = $this->getTotal();
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
@@ -1126,11 +1130,36 @@ class Order extends Element
     }
 
     /**
+     * Returns the raw total of the order, which is the total of all line items and adjustments. This number can be negative, so it is not the price of the order.
+     *
+     * @see Order::getTotalPrice() The actual total price of the order.
+     *
+     * @return float
+     */
+    public function getTotal(): float
+    {
+        return Currency::round($this->getItemSubtotal() + $this->getAdjustmentsTotal());
+    }
+
+    /**
+     * Get the total price of the order, whose minimum value is enforced by the configured {@link Settings::minimumTotalPriceStrategy strategy set for minimum total price}.
+     *
      * @return float
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemSubTotal() + $this->getAdjustmentsTotal());
+        $total = $this->getItemSubtotal() + $this->getAdjustmentsTotal(); // Don't get the pre-rounded total.
+        $strategy = Plugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
+            return Currency::round(max(0, $total));
+        }
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
+            return Currency::round(max($this->getAdjustmentsTotalByType('shipping'), $total));
+        }
+
+        return Currency::round($total);
     }
 
     /**
@@ -1141,7 +1170,7 @@ class Order extends Element
     public function getOutstandingBalance(): float
     {
         $totalPaid = Currency::round($this->getTotalPaid());
-        $totalPrice = Currency::round($this->getTotalPrice());
+        $totalPrice = $this->getTotalPrice(); // Already rounded
 
         return $totalPrice - $totalPaid;
     }
@@ -1739,6 +1768,10 @@ class Order extends Element
                 {
                     return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
                 }
+            case 'total':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
+                }
             case 'totalPrice':
                 {
                     return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
@@ -1945,6 +1978,7 @@ class Order extends Element
             'number' => ['label' => Craft::t('commerce', 'Number')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
+            'total' => ['label' => Craft::t('commerce', 'Total')],
             'totalPrice' => ['label' => Craft::t('commerce', 'Total')],
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
             'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
