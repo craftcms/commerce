@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\Element;
+use yii\db\ActiveQuery;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -35,13 +36,29 @@ class Purchasable extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return ActiveQuery
      */
-    public function rules()
+    public static function find()
     {
-        return [
-            [['sku'], 'unique']
-        ];
+        return parent::find()
+            ->innerJoinWith(['element element'])
+            ->where(['element.dateDeleted' => null]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public static function findWithTrashed(): ActiveQuery
+    {
+        return static::find()->where([]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public static function findTrashed(): ActiveQuery
+    {
+        return static::find()->where(['not', ['element.dateDeleted' => null]]);
     }
 
     /**
