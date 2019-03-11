@@ -91,7 +91,7 @@ class Discount extends Component implements AdjusterInterface
         foreach ($availableDiscounts as $discount) {
             $newAdjustments = $this->_getAdjustments($discount);
             if ($newAdjustments) {
-                $adjustments = array_push($adjustments, ...$newAdjustments);
+                array_push($adjustments, ...$newAdjustments);
 
                 if ($discount->stopProcessing) {
                     break;
