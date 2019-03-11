@@ -14,7 +14,7 @@
             {% for order in orders %}
                 <tr>
                     <td>
-                        <a href="{{ order.getCpEditUrl() }}">{{ order.number[:7] }}</a>
+                        <a href="{{ order.getCpEditUrl() }}">{{ order.reference }}</a>
                     </td>
                     {% if showStatuses %}
                         <td>
