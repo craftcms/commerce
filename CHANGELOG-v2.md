@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.2 - 2019-03-12
 
 ### Added
 - Added a “Minimum Total Price Strategy” setting that allows the minimum order price be negative (default), at least zero, or at least the shipping cost. ([#651](https://github.com/craftcms/commerce/issues/651))
