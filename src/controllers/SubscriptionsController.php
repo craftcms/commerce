@@ -93,13 +93,39 @@ class SubscriptionsController extends BaseController
         $subscription->setFieldValuesFromRequest('fields');
 
         if (Craft::$app->getElements()->saveElement($subscription)) {
-            $this->redirectToPostedUrl($subscription);
+            return $this->redirectToPostedUrl($subscription);
         }
 
         Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription..'));
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+    }
+
+    /**
+     * Refreshes all subscription payments
+     *
+     * @return Response|null
+     * @throws BadRequestHttpException If not POST request
+     * @throws ForbiddenHttpException If permissions are lacking
+     * @throws NotFoundHttpException If subscription not found
+     */
+    public function actionRefreshPayments(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
+
+        if (!$subscription = Subscription::find()->id($subscriptionId)->one()) {
+            throw new NotFoundHttpException('Subscription not found');
+        }
+
+        $gateway = $subscription->getGateway();
+        $gateway->refreshPaymentHistory($subscription);
+
+        // Save
+        return $this->redirectToPostedUrl($subscription);
     }
 
     /**
