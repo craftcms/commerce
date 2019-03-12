@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- `commerce-manageSubscriptions` permission is now required (instead of admin permissions) to manage another user's subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
+
 ### Added
 - Added a “Minimum Total Price Strategy” setting that allows the minimum order price be negative (default), at least zero, or at least the shipping cost. ([#651](https://github.com/craftcms/commerce/issues/651))
 - Added `craft\commerce\elements\Order::getTotal()` to get the price of the order before any pricing strategies.
