@@ -66,6 +66,7 @@ class BaseFrontEndController extends BaseController
         $data['isEmpty'] = $cart->getIsEmpty();
         $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalWeight'] = $cart->getTotalWeight();
+        $data['total'] = $cart->getTotal();
         $data['totalPrice'] = $cart->getTotalPrice();
 
         $data['availableShippingMethods'] = $cart->getAvailableShippingMethods();

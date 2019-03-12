@@ -24,6 +24,13 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
+
+    // Constants
+    // =========================================================================
+    const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
+    const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
+    const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
+
     // Properties
     // =========================================================================
 
@@ -76,6 +83,11 @@ class Settings extends Model
      * @var string
      */
     public $emailSenderNamePlaceholder;
+
+    /**
+     * @var string
+     */
+    public $minimumTotalPriceStrategy = 'default';
 
     /**
      * @var array
@@ -168,6 +180,18 @@ class Settings extends Model
             'm' => Craft::t('commerce', 'Meters (m)'),
             'ft' => Craft::t('commerce', 'Feet (ft)'),
             'in' => Craft::t('commerce', 'Inches (in)'),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getMinimumTotalPriceStrategyOptions(): array
+    {
+        return [
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping')
         ];
     }
 
