@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.2 - 2019-03-12
 
 ### Added
 - Added a “Minimum Total Price Strategy” setting that allows the minimum order price be negative (default), at least zero, or at least the shipping cost. ([#651](https://github.com/craftcms/commerce/issues/651))
@@ -11,12 +11,12 @@
 ### Changed
 - The `commerce-manageSubscriptions` permission is now required (instead of admin permissions) to manage another user's subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
 
-## 2.1.1.1 - 2018-03-01
+## 2.1.1.1 - 2019-03-01
 
 ### Fixed
 - Fixed a PHP error raised when a discount adjustment was applied to the cart.
 
-## 2.1.1 - 2018-03-11
+## 2.1.1 - 2019-03-11
 
 ### Changed
 - Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758))
