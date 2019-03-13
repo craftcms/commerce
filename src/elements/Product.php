@@ -938,7 +938,7 @@ class Product extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
         foreach ($productTypes as $productType) {
-            $key = 'productType:' . $productType->id;
+            $key = 'productType:' . $productType->uid;
             $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
 
             $sources[$key] = [
@@ -971,6 +971,12 @@ class Product extends Element
                 {
                     if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
                         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
+
+                        if ($productType) {
+                            $productTypes = [$productType];
+                        }
+                    } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                         if ($productType) {
                             $productTypes = [$productType];
