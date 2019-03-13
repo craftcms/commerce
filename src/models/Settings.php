@@ -122,6 +122,11 @@ class Settings extends Model
     /**
      * @var bool
      */
+    public $validateAddressBusinessTaxIdAsVatNumber = false;
+
+    /**
+     * @var bool
+     */
     public $requireShippingAddressAtCheckout = false;
 
     /**
