@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+
 ## 2.1.2 - 2019-03-12
 
 ### Added
@@ -8,7 +11,6 @@
 - Added `craft\commerce\base\SubscriptionGatewayInterface::refreshPaymentHistory()` method that should be used to refresh all payments on a subscription.
 - Added `craft\commerce\base\SubscriptionGateway::refreshPaymentHistory()` method to fulfill the interface requirements.
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
-
 
 ### Changed
 - The `commerce-manageSubscriptions` permission is now required (instead of admin permissions) to manage another user's subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
