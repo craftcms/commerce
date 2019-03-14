@@ -15,7 +15,11 @@
 {% endif %}
 
 {% if currentUser.can('commerce-manageTaxes') %}
-{% redirect 'commerce/tax/taxrates' %}
+    {% redirect 'commerce/tax/taxrates' %}
+{% endif %}
+
+{% if currentUser.can('commerce-manageSubscriptions') %}
+    {% redirect 'commerce/subscriptions' %}
 {% endif %}
 
 {% extends "403" %}
