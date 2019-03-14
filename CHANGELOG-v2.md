@@ -5,6 +5,9 @@
 ### Added
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
 
+### Fixed
+- Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))
+
 ## 2.1.2 - 2019-03-12
 
 ### Added

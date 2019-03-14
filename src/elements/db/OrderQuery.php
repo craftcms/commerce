@@ -916,7 +916,10 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->hasTransactions) {
-            $this->subQuery->innerJoin('{{%commerce_transactions}} transactions', '[[commerce_orders.id]] = [[transactions.orderId]]');
+            $this->subQuery->andWhere(['exists', (new Query())
+                ->from(['{{%commerce_transactions}} transactions'])
+                ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            ]);
         }
 
         return parent::beforePrepare();
