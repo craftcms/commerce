@@ -4,6 +4,7 @@
 
 ### Added
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
+- The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
 
 ### Fixed
 - Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))
