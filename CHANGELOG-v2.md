@@ -10,6 +10,7 @@
 - Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))
 - Fixed an error where Product Type sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
 - Fixed a template bug which prevented users with only the `commerce-manageSubscriptions` permission set from accessing the Commerce control panel. ([#722](https://github.com/craftcms/commerce/issues/722))
+- Fixed an issue where a product's metadata did not make it into Live Preview.
 
 ## 2.1.2 - 2019-03-12
 
