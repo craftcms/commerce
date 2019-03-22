@@ -16,12 +16,16 @@
                     {% if currentUser %}<a class="edit" href="{{ url('shop/checkout/addresses') }}">Edit</a>{% endif %}
                 </div>#}
             {#
-            Choosing a shipping method.
-            Now that we know the cart's address, we need to show all available shipping methods. Only those that match
-            at least one rule contained in the shipping method are compatible with the order. `cart.shippingMethods` only returns
-            methods available to the order. If you require shipping and no methods are avaialable, create a catch all rule
-            in a method that matches all addresses.
+                Choosing a shipping method.
+                Now that we know the cart's address, we need to show all available shipping methods. Only those that match
+                at least one rule contained in the shipping method are compatible with the order. `cart.shippingMethods` only returns
+                methods available to the order. If you require shipping and no methods are avaialable, create a catch all rule
+                in a method that matches all addresses.
             #}
+
+            {% if cart.availableShippingMethods|length < 2 and cart.shippingMethod %}
+                {% redirect 'shop/checkout/payment' %}
+            {% endif %}
 
             {% if not cart.availableShippingMethods|length %}
                 <p>No shipping methods available.<p><p> <a class="button button-primary" href="{{ url('shop/checkout/payment') }}">Continue to payment</a></p>
