@@ -347,6 +347,7 @@ class Install extends Migration
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
             'message' => $this->text(),
+            'registerUserOnOrderComplete' => $this->boolean(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),

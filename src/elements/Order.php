@@ -329,6 +329,11 @@ class Order extends Element
     public $customerId;
 
     /**
+     * @var bool Register the email on order completion
+     */
+    public $registerUserOnOrderComplete;
+
+    /**
      * @var Address
      */
     private $_shippingAddress;
@@ -857,8 +862,8 @@ class Order extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // TODO: Move the recalculate to somewhere else. Saving should be saving only
-        // Right now orders always recalc when saved and not completed but that shouldn't be the case.
+        // TODO: Move the recalculate to somewhere else. Saving should be for saving only
+        // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
 
         if (!$isNew) {
@@ -894,6 +899,7 @@ class Order extends Element
         $orderRecord->orderLanguage = $this->orderLanguage;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
+        $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;

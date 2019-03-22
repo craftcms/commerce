@@ -10,16 +10,16 @@ namespace craft\commerce\migrations;
 use craft\db\Migration;
 
 /**
- * m190311_161910_order_total migration.
+ * m190322_161911_register_on_checkout migration.
  */
-class m190311_161910_order_total extends Migration
+class m190322_161911_register_on_checkout extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp()
     {
-            $this->addColumn('{{%commerce_orders}}', 'total', $this->decimal(14, 4)->defaultValue(0));
+            $this->addColumn('{{%commerce_orders}}', 'registerUserOnOrderComplete', $this->boolean());
     }
 
     /**
@@ -27,7 +27,7 @@ class m190311_161910_order_total extends Migration
      */
     public function safeDown()
     {
-        echo "m190311_161910_order_total cannot be reverted.\n";
+        echo "m190322_161911_register_on_checkout cannot be reverted.\n";
         return false;
     }
 }

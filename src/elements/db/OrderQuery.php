@@ -826,6 +826,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
+            'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
