@@ -709,15 +709,15 @@ class Product extends Element
                     $variant->siteId = $this->siteId;
                 }
 
-                // We already have set the default to the correct variant in beforeSave()
-                if ($variant->isDefault) {
-                    $this->defaultVariantId = $variant->id;
-                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();;
-                }
-
                 $keepVariantIds[] = $variant->id;
 
                 Craft::$app->getElements()->saveElement($variant, false);
+
+                // We already have set the default to the correct variant in beforeSave()
+                if ($variant->isDefault) {
+                    $this->defaultVariantId = $variant->id;
+                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
+                }
             }
 
             foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
@@ -884,11 +884,9 @@ class Product extends Element
         foreach ($this->getVariants() as $variant) {
             // Make the first variant (or the last one that isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault) {
-                $defaultVariant = $variant;
+                $this->_defaultVariant = $variant;
             }
         }
-
-        $this->_defaultVariant = $defaultVariant;
 
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
