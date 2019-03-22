@@ -165,6 +165,7 @@ class OrdersController extends BaseCpController
 
             $paymentFormHtml = $gateway->getPaymentFormHtml([
                 'paymentForm' => $paymentFormModel,
+                'order' => $order
             ]);
 
             $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
