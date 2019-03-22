@@ -11,6 +11,7 @@
 - Fixed an error where Product Type sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
 - Fixed a template bug which prevented users with only the `commerce-manageSubscriptions` permission set from accessing the Commerce control panel. ([#722](https://github.com/craftcms/commerce/issues/722))
 - Fixed a bug where a product’s `defaultVariantId` was not being set when saving the product for the first time. ([#796](https://github.com/craftcms/commerce/issues/796))
+- Fixed a a PHP error when using `craft\commerce\elements\db\Variant::hasSales` query parameter within a product query. 
 
 ## 2.1.2 - 2019-03-12
 

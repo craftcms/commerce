@@ -415,8 +415,17 @@ class VariantQuery extends ElementQuery
         }
 
         if (null !== $this->hasSales) {
-            $query = clone $this;
+
+            // We can't just clone the query as it my be modifying the select statement etc
+            // But we want to use the same conditions so that we improve performance over searching all variants
+            $query = Variant::find();
+            foreach($this->criteriaAttributes() as $attribute)
+            {
+                $query->$attribute = $this->$attribute;
+            }
+
             $query->hasSales = null;
+            $query->limit = null;
             $variants = $query->all();
 
             $ids = [];
