@@ -25,8 +25,8 @@ See <api:craft\commerce\models\Address> to learn about the fields available on a
   <input type="hidden" name="action" value="commerce/customer-addresses/save">
   {{ redirectInput('commerce/customer/addresses') }}
 	{{ csrfInput() }}
-  <input type="text" name="address[firstName]" value="{{ address is defined ? address[firstName] : '' }}">
-  <input type="text" name="address[lastName]" value="{{ address is defined ? address[lastName] : '' }}">
+  <input type="text" name="address[firstName]" value="{{ address is defined ? address.firstName : '' }}">
+  <input type="text" name="address[lastName]" value="{{ address is defined ? address.lastName : '' }}">
   ...
   <input type="submit" value="Save"/>
 </form>

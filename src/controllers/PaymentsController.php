@@ -107,6 +107,11 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
+        // Set if the customer should be registered on order completion
+        if ($request->getBodyParam('registerUserOnOrderComplete')) {
+            $order->registerUserOnOrderComplete = true;
+        }
+
         // These are used to compare if the order changed during its final
         // recalculation before payment.
         $originalTotalPrice = $order->getOutstandingBalance();
