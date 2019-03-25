@@ -601,6 +601,7 @@ class Customers extends Component
         $user->username = $order->email;
         $user->firstName = $order->billingAddress->firstName ?? '';
         $user->lastName = $order->billingAddress->lastName ?? '';
+        $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS); //  don't validate required custom fields.
 
         if (Craft::$app->getElements()->saveElement($user)) {
