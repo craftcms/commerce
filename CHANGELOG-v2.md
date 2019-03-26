@@ -14,6 +14,7 @@
 - Fixed a bug where a product’s `defaultVariantId` was not being set when saving the product for the first time. ([#796](https://github.com/craftcms/commerce/issues/796))
 - Fixed a a PHP error when using `craft\commerce\elements\db\Variant::hasSales` query parameter within a product query. 
 - Fixed an issue where a product's metadata did not make it into Live Preview.
+- Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
 
 ## 2.1.2 - 2019-03-12
 
