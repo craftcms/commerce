@@ -257,6 +257,10 @@ class OrderStatuses extends Component
             $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
 
             if (!empty($data['emails'])) {
+                foreach ($data['emails'] as $emailUid) {
+                    Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY.'.'.$emailUid);
+                }
+                
                 $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
 
                 foreach ($emailIds as $emailId) {
