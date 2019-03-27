@@ -1,23 +1,164 @@
-# Release Notes for Craft Commerce 1.x
+Commerce Changelog
+==================
 
-## Unreleased
+### Unreleased
 
-### Added
-- Added a new template hook (`cp.commerce.product.edit.right-pane`) for the right pane of the edit product screen.
-- Added the `pdfAllowRemoteImages` config setting, which can be set to `true` to allow external images to be loaded in PDF templates.
-
-### Fixed
-- Fixed an issue in the example templates where the `same address` checkbox still being checked when different addresses where previously selected.
-- Fixed the error array returned from `commerce/customerAddresses/save` to include field names as the error keys.
+## 1.2.1368 - 2018-11-30
 
 ### Changed
-- The order email address now always returns the user’s email address if the order was made as a registered user, even after the user changes their email address.
+- Updated the Payflow Omnipay driver to 2.3.1
+- Updated the Securepay Omnipay driver to 2.2.0
+- Updated the Authorize.net Omnipay driver to 2.5.1
+- Updated the Payment Express Omnipay driver to 2.2.1
+- Updated the Eway Omnipay driver to 2.2.2
+- Updated the Payfast Omnipay driver to 2.2
 
+## 1.2.1366 - 2018-11-28
+
+### Fixed
+- Fixed a bug where it was possible to create duplicate order history change records.
+- Fixed a bug where offsite gateways wouldn’t redirect back and complete the transaction correctly for Control Panel payments.
+
+## 1.2.1365 - 2018-10-23
+
+### Fixed
+- Fix a bug where it wasn’t possible to set the billing address based off an existing shipping address.
+
+### Fixed
+- Fixed a Javascript error when viewing a customer field on the Edit User page. 
+
+## 1.2.1364 - 2018-08-23
+
+### Fixed
+- Fixed a PHP error that would occur when saving a User.
+
+## 1.2.1363 - 2018-08-23
+
+### Added
+- Added the [resaveAllCustomerOrdersOnCustomerSave](https://craftcommerce.com/docs/configuration#resaveallcustomerordersoncustomersave) config setting.
+
+### Fixed
+- Fixed a bug where the Date Paid column on the Orders index page could show incorrect values.
+
+### Security
+- Fixed a bug where it was possible to access purchase receipts when it shouldn’t have been.
+
+## 1.2.1362 - 2018-05-10
+
+### Changed
+- Commerce will now enforce boolean types for settings that a gateway expects to be boolean.
+
+### Fixed
+- Fixed an SSL error that could when communicating with the Authorize.net payment gateway.
+
+## 1.2.1360 - 2018-03-23
+
+### Added
+- The order index page now includes the time when displaying order dates.
+
+### Changed
+- Line item modals on Edit Order pages now include the line item total.
+- Added Craft 2.6.3013 compatibility. 
+
+## 1.2.1359 - 2018-03-08
+
+### Fixed
+- Fixed an error where variants would indicate they had zero stock at checkout when they had been marked as having unlimited stock.
+
+## 1.2.1358 - 2018-03-07
+
+### Fixed
+- Fixed a PHP error that would occur when using an order element criteria model.
+
+## 1.2.1356 - 2018-03-07
+
+### Added
+- Added the `shippingMethod` order criteria param.
+
+### Changed
+- Order recalculation now occurs after the `orders.onBeforeSaveOrder` event.
+
+### Fixed
+- Fixed a bug where a blank order could be placed if the cart’s cookie was deleted while the customer was on the payment page.
+- Fixed a bug where a cart could be completed despite a lack of available stock, in some cases.
+- Fixed a bug where the “Capture” transaction button on Edit Order pages was still shown after a capture was completed.
+
+## 1.2.1354 - 2018-02-06
+
+### Added
+- Commerce now adds `Craft Commerce` to the `X-Powered-By` header on requests, unless disabled by the [sendPoweredByHeader](https://craftcms.com/docs/config-settings#sendPoweredByHeader) config setting.
+
+### Changed
+- Updated the Authorize.net driver to 2.5.1
+- Updated the Worldpay Omnipay driver to 2.2.2
+- Updated the PayPal Omnipay driver to 2.6.4
+- Updated the Payflow Omnipay driver to 2.3
+- Updated the Dompdf Package to 0.8.2
+
+### Fixed
+- Fixed an error that occurred when generating an order PDF.
+- Fixed a PHP error that could occur if you edited a non-primary currency’s settings.
+
+## 1.2.1353 - 2018-01-18
+
+### Added
+- Added the [`requireShippingMethodSelectionAtCheckout`](https://craftcommerce.com/docs/configuration#requireshippingmethodselectionatcheckout) config setting.
+- Added new user permissions to manage shipping and tax settings without needing to be an admin.
+
+### Fixed
+- Fixed an error that occurred when creating or editing a discount.
+- Fixed an error that occurred when generating an order PDF.
+
+## 1.2.1352 - 2018-01-16
+
+### Added
+- Added the ability to update the email address of a guest order from the Control Panel.
+- Added the [`commerce_defaultCartShippingAddress`](https://craftcommerce.com/docs/hooks-reference#commerce_defaultcartshippingaddress) and [`commerce_defaultCartBillingAddress`](https://craftcommerce.com/docs/hooks-reference#commerce_defaultcartbillingaddress) plugin hooks.
+
+## 1.2.1351 - 2017-10-31
+
+### Added
+- Added the [`defaultSku`](https://craftcommerce.com/docs/craft-commerce-products#defaultsku) product criteria param.
+- Added stock information to the Product index page.
+
+### Fixed
+- Fixed a bug where stock validation was off by one when different line item options were set for the same purchasable.
+- Fixed a bug where custom adjusters supplied by plugins where not being sorted by priority before getting applied to the order.
+- Fixed a bug where the `commerce/cart/updateCart` action was not returning the correct validation errors when an invalid shipping address was submitted along with the `sameAddress` param.
+
+## 1.2.1350 - 2017-10-05
+
+### Changed
+- Order adjustments are now displayed in the order they were applied, rather than alphabetically.
+
+### Fixed
+- Fixed a bug where emails weren’t getting sent to customers.
+
+## 1.2.1349 - 2017-09-29
+
+### Added
+- Added the `cp.commerce.product.edit.right-pane` template hook, enabling plugins to modify the right pane on Edit Product pages.
+- Added the `pdfAllowRemoteImages` config setting, which can be set to `true` to allow external images to be loaded in PDF templates.
+
+### Changed
+- `Commerce_OrderModel::getEmail()` now always returns the associated user account’s email, if there is one.
+- The error data returned for `commerce/customerAddresses/save` Ajax requests now include field handles as the error keys.
+- `Commerce_CustomerModel::getEmail()` has now been deprecated. It will only return the email address of the associated user account's email if there was one. Use `order.email` to get the email address of the order within templates.
+- Updated the Dompdf package to 0.8.1.
+- Updated the PayFast Omnipay driver to 2.1.3.
+
+### Fixed
+- Fixed an issue in the example templates where the “Use same address for billing” checkbox would remain checked when different addresses were previously selected.
+- Fixed a tax calculation error that occurred when included tax was removed from a product’s price and subsequent additional taxes did not take the removed values into account.
 
 ## 1.2.1346 - 2017-07-24
 
 ### Added
 - Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
+
+### Changed
+- Updated the Migs Omnipay driver to 2.2.2
+- Updated the Stripe Omnipay driver to 2.4.7
 
 ### Fixed
 - Fixed an API authentication error when making payments using the Stripe gateway.
@@ -26,10 +167,6 @@
 - Fixed a PHP error that could occur if a purchasable invalidated a line item when it was being added to a new cart.
 - Fixed an issue where credit card forms’ First/Last Name fields were getting overridden by billing addresses’ values for some gateways.
 - Fixed a bug where adding to cart with invalid `options` params would pass stock validation.
-
-### Changed
-- Updated the Migs omnipay driver to 2.2.2
-- Updated the Stripe omnipay driver to 2.4.7
 
 ## 1.2.1345 - 2017-06-26
 
