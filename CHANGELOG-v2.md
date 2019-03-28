@@ -6,6 +6,7 @@
 - Added the ability for customers to register on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
 - The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
+- The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
 
 ### Fixed
 - Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))

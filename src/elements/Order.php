@@ -836,7 +836,7 @@ class Order extends Element
     }
 
     /**
-     * @return array
+     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
      */
     public function getAvailableShippingMethods(): array
     {
