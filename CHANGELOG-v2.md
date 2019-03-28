@@ -17,6 +17,7 @@
 - Fixed an issue where a product's metadata did not make it into Live Preview.
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
 - Fixed a bug that caused additional discounts to be incorrectly applied when adding multiple line items to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
+- Fixed a bug that could cause the post date of a product to be incorrect when saved for the first time. ([#774](https://github.com/craftcms/commerce/issues/774))
 
 ## 2.1.2 - 2019-03-12
 

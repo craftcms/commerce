@@ -95,10 +95,10 @@ class Product
         $product->typeId = $request->getBodyParam('typeId');
         $product->siteId = $siteId ?? $product->siteId;
         $product->enabled = (bool)$request->getBodyParam('enabled');
-        if (($postDate = Craft::$app->getRequest()->getBodyParam('postDate')) !== null) {
+        if (($postDate = $request->getBodyParam('postDate')) !== null) {
             $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;
         }
-        if (($expiryDate = Craft::$app->getRequest()->getBodyParam('expiryDate')) !== null) {
+        if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
         $product->promotable = (bool)$request->getBodyParam('promotable');
