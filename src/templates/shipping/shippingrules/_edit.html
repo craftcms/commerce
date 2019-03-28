@@ -6,6 +6,8 @@
     { label: shippingMethod.getName()|t('commerce'), url: url('commerce/shipping/shippingmethods/'~methodId) },
 ] %}
 
+{% set selectedSubnavItem = 'shipping' %}
+
 {% set fullPageForm = true %}
 
 {% macro lazyCreateSelect(selectParams, newOptionLabel, modalHeading, html, js, action, successText) %}

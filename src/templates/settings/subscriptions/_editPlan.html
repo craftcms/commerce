@@ -6,6 +6,8 @@
     { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
 ] %}
 
+{% set selectedSubnavItem = 'settings' %}
+
 {% set fullPageForm = gatewayOptions|length > 0 %}
 
 {% import "_includes/forms" as forms %}
