@@ -204,7 +204,7 @@
 
     </div>
 
-    <div id="tax-and-shipping">
+    <div id="tax-and-shipping" class="hidden">
         <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
             {% for cat in productType.getShippingCategories() %}
                 {% if loop.first %}<ul class="bullets">{% endif %}
