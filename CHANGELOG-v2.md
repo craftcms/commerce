@@ -4,6 +4,7 @@
 
 ### Added
 - Added the ability for customers to register on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
+- Added support for the Project Config `rebuild` functionality.
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
 - The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
 - The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
