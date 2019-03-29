@@ -9,6 +9,9 @@
 - The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
 - The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
 
+### Changed
+- Craft Commerce now requires Craft CMS 3.1.20 or later.
+
 ### Fixed
 - Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))
 - Fixed an error where Product Type sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
