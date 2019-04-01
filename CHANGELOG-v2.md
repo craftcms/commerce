@@ -4,9 +4,13 @@
 
 ### Added
 - Added the ability for customers to register on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
+- Added support for the Project Config `rebuild` functionality.
 - Added `validateAddressBusinessTaxIdAsVatNumber` general config setting.
 - The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
 - The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.1.20 or later.
 
 ### Fixed
 - Fixed a bug where an order could be listed multiple times in the "Attempted payments" order view. ([#602](https://github.com/craftcms/commerce/issues/602))
@@ -19,6 +23,8 @@
 - Fixed a bug that caused additional discounts to be incorrectly applied when adding multiple line items to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
 - Fixed a bug that could cause the post date of a product to be incorrect when saved for the first time. ([#774](https://github.com/craftcms/commerce/issues/774))
 - Fixed a bug that stopped emails from being sent when a custom “from email address” was set in Commerce's general settings. ([#806](https://github.com/craftcms/commerce/issues/806))
+- Fixed a bug where modifying order status settings via `project.yaml` file could fail. ([#802](https://github.com/craftcms/commerce/pull/802))
+
 
 ## 2.1.2 - 2019-03-12
 

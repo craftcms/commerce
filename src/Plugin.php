@@ -17,6 +17,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
@@ -34,6 +35,7 @@ use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\elements\User as UserElement;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -44,6 +46,7 @@ use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
@@ -374,6 +377,10 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $event) {
+            $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
+        });
     }
 
     /**
