@@ -41,6 +41,21 @@ trait OrderValidatorsTrait
     }
 
     /**
+     * @param $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePaymentCurrency($attribute, $params, Validator $validator)
+    {
+        try {
+            // this will confirm the payment source is valid and belongs to the orders customer
+            $this->getPaymentCurrency();
+        } catch (InvalidConfigException $e) {
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
+        }
+    }
+
+    /**
      * Validates addresses, and also adds prefixed validation errors to order
      *
      * @param string $attribute the attribute being validated

@@ -537,6 +537,8 @@ class Order extends Element
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
 
+        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
+
         $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
         $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
         $rules[] = [['email'], 'email'];
@@ -1138,9 +1140,9 @@ class Order extends Element
     /**
      * Returns the raw total of the order, which is the total of all line items and adjustments. This number can be negative, so it is not the price of the order.
      *
+     * @return float
      * @see Order::getTotalPrice() The actual total price of the order.
      *
-     * @return float
      */
     public function getTotal(): float
     {
@@ -1551,6 +1553,13 @@ class Order extends Element
     {
         if ($this->_paymentCurrency === null) {
             $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        if ($this->_paymentCurrency) {
+            $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+                throw new InvalidConfigException('Payment currency not allowed.');
+            }
         }
 
         return $this->_paymentCurrency;
