@@ -50,7 +50,7 @@ class Addresses extends Component
     /**
      * @event AddressEvent The event that is raised after an address is saved.
      *
-     * Plugins can get notified before an address is being saved
+     * Plugins can get notified after an address has been saved
      *
      * ```php
      * use craft\commerce\events\AddressEvent;
