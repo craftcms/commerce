@@ -1,33 +1,33 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.3 - 2019-04-03
 
 ### Added
-- Added the ability for customers to register on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
-- Added new “Capture Payment” and “Refund Payment” permissions. ([#788](https://github.com/craftcms/commerce/pull/788))
-- Added support for the Project Config `rebuild` functionality.
-- Added `validateBusinessTaxIdAsVatId` to Commerce's general settings.
-- The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
-- The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
-- Added the `craft\commerce\services\Addresses::EVENT_AFTER_DELETE_ADDRESS` event. ([#810](https://github.com/craftcms/commerce/pull/810))
+- Added support for user registration on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
+- Added “Capture Payment” and “Refund Payment” user permissions. ([#788](https://github.com/craftcms/commerce/pull/788))
+- Added support for the `project-config/rebuild` command.
+- Added the `validateBusinessTaxIdAsVatId` setting, which can be set to `true` from `config/commerce.php`.
+- Added `craft\commerce\services\Addresses::EVENT_AFTER_DELETE_ADDRESS`. ([#810](https://github.com/craftcms/commerce/pull/810))
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.1.20 or later.
+- An `order` variable is now available to payment forms when a payment is made from the Control Panel.
+- Ajax requests to `commerce/cart/get-cart` now include the price of available shipping methods in the response.
 
 ### Fixed
-- Fixed a bug where an order could be listed multiple times in the “Attempted payments” order view. ([#602](https://github.com/craftcms/commerce/issues/602))
-- Fixed an error where Product Type sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
-- Fixed a template bug which prevented users with just the `commerce-manageSubscriptions` permission set from accessing the Commerce control panel. ([#722](https://github.com/craftcms/commerce/issues/722))
-- Fixed a bug where a product’s `defaultVariantId` was not being set when saving the product for the first time. ([#796](https://github.com/craftcms/commerce/issues/796))
-- Fixed a a PHP error when using `craft\commerce\elements\db\Variant::hasSales` query parameter within a product query. 
-- Fixed an issue where a product's metadata did not make it into Live Preview.
-- Fixed a bug that caused the incorrect subnavigation item to be highlighted.
-- Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
-- Fixed a bug that caused additional discounts to be incorrectly applied when adding multiple line items to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
-- Fixed a bug that could cause the post date of a product to be incorrect when saved for the first time. ([#774](https://github.com/craftcms/commerce/issues/774))
-- Fixed a bug that stopped emails from being sent when a custom “from email address” was set in Commerce's general settings. ([#806](https://github.com/craftcms/commerce/issues/806))
-- Fixed a bug where modifying order status settings via `project.yaml` file could fail. ([#802](https://github.com/craftcms/commerce/pull/802))
-- Fixed a PHP error raised when submitting a new `paymentCurrency` parameter to the `commerce/payments/pay` action. ([#809](https://github.com/craftcms/commerce/pull/809))
+- Fixed a bug where an order could be listed multiple times under “Attempted Payments” on order pages. ([#602](https://github.com/craftcms/commerce/issues/602))
+- Fixed a bug where product sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
+- Fixed a bug where non-admin users could get a 403 error when attempting to edit subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
+- Fixed a bug where products’ `defaultVariantId` was not getting set on the first save. ([#796](https://github.com/craftcms/commerce/issues/796))
+- Fixed a PHP error when querying for products with the `hasSales` param.
+- Fixed a bug where product metadata wasn’t available to templates on Live Preview requests.
+- Fixed a bug where the wrong Commerce subnav item could appear selected in the Control Panel.
+- Fixed a bug where taxes could be incorrectly calculated if included taxes had been removed from the price.
+- Fixed a bug where additional discounts could be incorrectly applied to an order if multiple products had been added to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
+- Fixed a bug where products’ Post Dates could be incorrect on first save. ([#774](https://github.com/craftcms/commerce/issues/774))
+- Fixed a bug where emails weren’t getting sent when the “Status Email Address” setting was set. ([#806](https://github.com/craftcms/commerce/issues/806))
+- Fixed a bug where order status email changes in `project.yaml` could be ignored. ([#802](https://github.com/craftcms/commerce/pull/802))
+- Fixed a PHP error that occurred when submitting a `paymentCurrency` parameter on a `commerce/payments/pay` request. ([#809](https://github.com/craftcms/commerce/pull/809))
 
 ## 2.1.2 - 2019-03-12
 
