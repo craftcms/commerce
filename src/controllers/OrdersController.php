@@ -202,6 +202,7 @@ class OrdersController extends BaseCpController
      */
     public function actionTransactionCapture(): Response
     {
+        $this->requirePermission('commerce-capturePayment');
         $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
@@ -238,7 +239,7 @@ class OrdersController extends BaseCpController
      */
     public function actionTransactionRefund()
     {
-
+        $this->requirePermission('commerce-refundPayment');
         $this->requirePostRequest();
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
