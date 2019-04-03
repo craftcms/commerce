@@ -6,7 +6,7 @@
 - Added the ability for customers to register on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
 - Added new “Capture Payment” and “Refund Payment” permissions. ([#788](https://github.com/craftcms/commerce/pull/788))
 - Added support for the Project Config `rebuild` functionality.
-- Added `validateAddressBusinessTaxIdAsVatNumber` to Commerce's general settings.
+- Added `validateBusinessTaxIdAsVatId` to Commerce's general settings.
 - The `order` variable is now available to the gateway payment forms when paying using Commerce control panel.
 - The data returned for `commerce/cart/get-cart` Ajax requests now includes the prices of the available shipping methods.
 - Added the `craft\commerce\services\Addresses::EVENT_AFTER_DELETE_ADDRESS` event. ([#810](https://github.com/craftcms/commerce/pull/810))

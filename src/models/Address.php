@@ -259,7 +259,7 @@ class Address extends Model
      */
     public function validateBusinessTaxId($attribute, $params, $validator)
     {
-        if (!Plugin::getInstance()->getSettings()->validateAddressBusinessTaxIdAsVatNumber) {
+        if (!Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
             return;
         }
 

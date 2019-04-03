@@ -122,7 +122,7 @@ class Settings extends Model
     /**
      * @var bool
      */
-    public $validateAddressBusinessTaxIdAsVatNumber = false;
+    public $validateBusinessTaxIdAsVatId = false;
 
     /**
      * @var bool
