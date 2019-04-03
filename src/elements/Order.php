@@ -329,6 +329,11 @@ class Order extends Element
     public $customerId;
 
     /**
+     * @var bool Register the email on order completion
+     */
+    public $registerUserOnOrderComplete;
+
+    /**
      * @var Address
      */
     private $_shippingAddress;
@@ -531,6 +536,8 @@ class Order extends Element
         $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
+
+        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
 
         $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
         $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
@@ -831,7 +838,7 @@ class Order extends Element
     }
 
     /**
-     * @return array
+     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
      */
     public function getAvailableShippingMethods(): array
     {
@@ -857,8 +864,8 @@ class Order extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // TODO: Move the recalculate to somewhere else. Saving should be saving only
-        // Right now orders always recalc when saved and not completed but that shouldn't be the case.
+        // TODO: Move the recalculate to somewhere else. Saving should be for saving only
+        // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
 
         if (!$isNew) {
@@ -894,6 +901,7 @@ class Order extends Element
         $orderRecord->orderLanguage = $this->orderLanguage;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
+        $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
@@ -1132,9 +1140,9 @@ class Order extends Element
     /**
      * Returns the raw total of the order, which is the total of all line items and adjustments. This number can be negative, so it is not the price of the order.
      *
+     * @return float
      * @see Order::getTotalPrice() The actual total price of the order.
      *
-     * @return float
      */
     public function getTotal(): float
     {
@@ -1545,6 +1553,13 @@ class Order extends Element
     {
         if ($this->_paymentCurrency === null) {
             $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        if ($this->_paymentCurrency) {
+            $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+                throw new InvalidConfigException('Payment currency not allowed.');
+            }
         }
 
         return $this->_paymentCurrency;

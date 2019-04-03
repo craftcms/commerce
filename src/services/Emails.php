@@ -298,20 +298,23 @@ class Emails extends Component
         $view = Craft::$app->getView();
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
+        $option = 'email';
 
         //sending emails
-        $renderVariables = compact('order', 'orderHistory');
+        $renderVariables = compact('order', 'orderHistory', 'option');
 
         $newEmail = new Message();
 
         $originalLanguage = Craft::$app->language;
 
-        if (Plugin::getInstance()->getSettings()->emailSenderAddress) {
-            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddressPlaceholder);
+        $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
+        $nameOverride  = Plugin::getInstance()->getSettings()->emailSenderName;
+        if ($emailOverride) {
+            $newEmail->setFrom($emailOverride);
         }
 
-        if (Plugin::getInstance()->getSettings()->emailSenderAddress && Plugin::getInstance()->getSettings()->emailSenderName) {
-            $newEmail->setFrom([Plugin::getInstance()->getSettings()->emailSenderAddress => Plugin::getInstance()->getSettings()->emailSenderName]);
+        if ($nameOverride && $emailOverride) {
+            $newEmail->setFrom([$emailOverride => $nameOverride]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
@@ -456,7 +459,7 @@ class Emails extends Component
             }
 
             try {
-                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, null, $path);
+                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, 'email', $path);
 
                 $tempPath = Assets::tempFilePath('pdf');
 

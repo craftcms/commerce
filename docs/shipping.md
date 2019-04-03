@@ -23,7 +23,9 @@ The shipping rules uses shipping categories, shipping zones, and additional orde
 
 Shipping categories are a way to identify different types of products to the shipping system.
 
-When defining a product type, you can choose the shipping categories that products of that type can belong to. When setting up individual products, an author can choose which shipping category that product belongs to.
+When defining a product type, you can see the shipping categories that products of that type can belong to. When setting up individual products, an author can choose which shipping category from the available shipping categories that product belongs to.
+
+You can manage which if a product type can use a shipping category when setting up the shipping category.
 
 While setting up shipping rules, you have the ability to include those shipping categories into the rule’s conditions, and costs.
 

@@ -826,6 +826,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
+            'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
@@ -916,7 +917,10 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->hasTransactions) {
-            $this->subQuery->innerJoin('{{%commerce_transactions}} transactions', '[[commerce_orders.id]] = [[transactions.orderId]]');
+            $this->subQuery->andWhere(['exists', (new Query())
+                ->from(['{{%commerce_transactions}} transactions'])
+                ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            ]);
         }
 
         return parent::beforePrepare();

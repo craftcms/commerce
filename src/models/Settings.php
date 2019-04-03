@@ -122,6 +122,11 @@ class Settings extends Model
     /**
      * @var bool
      */
+    public $validateBusinessTaxIdAsVatId = false;
+
+    /**
+     * @var bool
+     */
     public $requireShippingAddressAtCheckout = false;
 
     /**
@@ -189,9 +194,9 @@ class Settings extends Model
     public function getMinimumTotalPriceStrategyOptions(): array
     {
         return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 

@@ -51,7 +51,7 @@ class Addresses extends Component
     /**
      * @event AddressEvent The event that is raised after an address is saved.
      *
-     * Plugins can get notified before an address is being saved
+     * Plugins can get notified after an address has been saved
      *
      * ```php
      * use craft\commerce\events\AddressEvent;
@@ -64,6 +64,23 @@ class Addresses extends Component
      * ```
      */
     const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
+
+    /**
+     * @event AddressEvent The event that is raised after an address is deleted.
+     *
+     * Plugins can get notified after an address has been deleted.
+     *
+     * ```php
+     * use craft\commerce\events\AddressEvent;
+     * use craft\commerce\services\Addresses;
+     * use yii\base\Event;
+     *
+     * Event::on(Addresses::class, Addresses::EVENT_AFTER_DELETE_ADDRESS, function(AddressEvent $e) {
+     *     // Do something - perhaps remove this address from a payment gateway.
+     * });
+     * ```
+     */
+    const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
     // Properties
     // =========================================================================
@@ -237,13 +254,26 @@ class Addresses extends Component
      */
     public function deleteAddressById(int $id): bool
     {
-        $address = AddressRecord::findOne($id);
+        $addressRecord = AddressRecord::findOne($id);
 
-        if (!$address) {
+        if (!$addressRecord) {
             return false;
         }
 
-        return (bool)$address->delete();
+        // Get the Address model before deletion to pass to the Event.
+        $address = $this->getAddressById($id);
+
+        $result = (bool) $addressRecord->delete();
+
+        //Raise the afterDeleteAddress event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_ADDRESS)) {
+            $this->trigger(self::EVENT_AFTER_DELETE_ADDRESS, new AddressEvent([
+                'address' => $address,
+                'isNew' => false
+            ]));
+        }
+
+        return $result;
     }
 
     /**

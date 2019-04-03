@@ -134,6 +134,6 @@ class OrderStatusesController extends BaseAdminController
             return $this->asJson(['success' => true]);
         }
 
-        return null;
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Order Status.')]);
     }
 }
