@@ -316,10 +316,10 @@ class Plugin extends BasePlugin
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                     'commerce-capturePayment' => [
-                      'label' => Craft::t('app', 'Capture Payment')
+                      'label' => Craft::t('commerce', 'Capture Payment')
                     ],
                     'commerce-refundPayment' => [
-                      'label' => Craft::t('app', 'Refund Payment')
+                      'label' => Craft::t('commerce', 'Refund Payment')
                     ],
                   ]],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
