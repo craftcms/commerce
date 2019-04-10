@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\CustomerEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
@@ -35,6 +36,40 @@ class Customers extends Component
 {
     // Constants
     // =========================================================================
+
+    /**
+     * @event CustomerEvent The event that is raised before a customer is saved.
+     *
+     * Plugins can get notified before a customer is saved
+     *
+     * ```php
+     * use craft\commerce\events\CustomerEvent;
+     * use craft\commerce\services\Customers;
+     * use yii\base\Event;
+     *
+     * Event::on(Customers::class, Customers::EVENT_BEFORE_SAVE_CUSTOMER, function(CustomerEvent $e) {
+     *     // Do something - perhaps let an external CRM system know about a new customer.
+     * });
+     * ```
+     */
+    const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
+
+    /**
+     * @event CustomerEvent The event that is raised after a customer has been saved.
+     *
+     * Plugins can get notified after a customer has been saved
+     *
+     * ```php
+     * use craft\commerce\events\CustomerEvent;
+     * use craft\commerce\services\Customers;
+     * use yii\base\Event;
+     *
+     * Event::on(Customers::class, Customers::EVENT_AFTER_SAVE_CUSTOMER, function(CustomerEvent $e) {
+     *     // Do something - perhaps set a new customer follow up reminder in an external CRM system.
+     * });
+     * ```
+     */
+    const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
 
     const SESSION_CUSTOMER = 'commerce_customer';
 
@@ -178,20 +213,32 @@ class Customers extends Component
      */
     public function saveCustomer(Customer $customer, bool $runValidation = true): bool
     {
-        if (!$customer->id) {
+        $isNewCustomer = !$customer->id;
+
+        if ($isNewCustomer) {
             $customerRecord = new CustomerRecord();
         } else {
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Craft::t('commerce', 'No customer exists with the ID “{id}”',
-                    ['id' => $customer->id]));
+                throw new Exception(
+                    Craft::t(
+                        'commerce',
+                        'No customer exists with the ID “{id}”',
+                        ['id' => $customer->id]));
             }
+        }
+
+        //Raise the beforeSaveCustomer event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER, new CustomerEvent([
+                'customer' => $customer,
+                'isNew' => $isNewCustomer
+            ]));
         }
 
         if ($runValidation && !$customer->validate()) {
             Craft::info('Customer not saved due to validation error.', __METHOD__);
-
             return false;
         }
 
@@ -204,6 +251,14 @@ class Customers extends Component
 
         $customerRecord->save(false);
         $customer->id = $customerRecord->id;
+
+        //Raise the afterSaveCustomer event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER, new CustomerEvent([
+                'customer' => $customer,
+                'isNew' => $isNewCustomer
+            ]));
+        }
 
         return true;
     }
