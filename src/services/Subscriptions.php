@@ -28,6 +28,7 @@ use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
 use craft\events\ModelEvent;
 use craft\helpers\Db;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -249,6 +250,8 @@ class Subscriptions extends Component
     public function handleChangedFieldLayout(ConfigEvent $event)
     {
         $data = $event->newValue;
+
+        ProjectConfigHelper::ensureAllFieldsProcessed();
         $fieldsService = Craft::$app->getFields();
 
         if (empty($data) || empty($config = reset($data))) {

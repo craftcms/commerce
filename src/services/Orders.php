@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
 
@@ -38,6 +39,7 @@ class Orders extends Component
     {
         $data = $event->newValue;
 
+        ProjectConfigHelper::ensureAllFieldsProcessed();
         $fieldsService = Craft::$app->getFields();
 
         if (empty($data) || empty($config = reset($data))) {
