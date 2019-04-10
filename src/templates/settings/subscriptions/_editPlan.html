@@ -1,10 +1,12 @@
-{% extends "commerce/_layouts/settingscp" %}
+{% extends "commerce/_layouts/cp" %}
 {% set title = brandNewPlan ? 'Create a new subscription plan'|t('commerce') : plan.name %}
 
 {% set crumbs = [
     { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
     { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
 ] %}
+
+{% set selectedSubnavItem = 'settings' %}
 
 {% set fullPageForm = gatewayOptions|length > 0 %}
 

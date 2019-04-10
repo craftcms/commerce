@@ -103,7 +103,7 @@ class Customer extends Model
         }
 
         if (($user = Craft::$app->getUsers()->getUserById($this->userId)) === null) {
-            throw new InvalidConfigException("Invalid user ID: {$this->userId}");
+            return null; // They are probably soft-deleted
         }
 
         return $this->_user = $user;

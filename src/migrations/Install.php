@@ -8,6 +8,7 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
@@ -227,6 +228,15 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable('{{%commerce_donations}}', [
+            'id' => $this->primaryKey(),
+            'sku' => $this->string()->notNull(),
+            'availableForPurchase' => $this->boolean(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable('{{%commerce_emails}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -324,6 +334,7 @@ class Install extends Migration
             'reference' => $this->string(),
             'couponCode' => $this->string(),
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
+            'total' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'totalPaid' => $this->decimal(14, 4)->defaultValue(0),
             'paidStatus' => $this->enum('paidStatus', ['paid', 'partial', 'unpaid']),
@@ -336,6 +347,7 @@ class Install extends Migration
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
             'message' => $this->text(),
+            'registerUserOnOrderComplete' => $this->boolean(),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
@@ -771,6 +783,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%commerce_discount_categories}}');
         $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
         $this->dropTableIfExists('{{%commerce_discounts}}');
+        $this->dropTableIfExists('{{%commerce_donations}}');
         $this->dropTableIfExists('{{%commerce_emails}}');
         $this->dropTableIfExists('{{%commerce_gateways}}');
         $this->dropTableIfExists('{{%commerce_lineitems}}');
@@ -885,7 +898,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_producttypes_shippingcategories}}', 'shippingCategoryId', false);
         $this->createIndex(null, '{{%commerce_producttypes_taxcategories}}', ['productTypeId', 'taxCategoryId'], true);
         $this->createIndex(null, '{{%commerce_producttypes_taxcategories}}', 'taxCategoryId', false);
-        $this->createIndex(null, '{{%commerce_purchasables}}', 'sku', true);
+        $this->createIndex(null, '{{%commerce_purchasables}}', 'sku', false); // Application layer enforces unique
         $this->createIndex(null, '{{%commerce_sale_purchasables}}', ['saleId', 'purchasableId'], true);
         $this->createIndex(null, '{{%commerce_sale_purchasables}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_sale_categories}}', ['saleId', 'categoryId'], true);
@@ -930,7 +943,7 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_transactions}}', 'gatewayId', false);
         $this->createIndex(null, '{{%commerce_transactions}}', 'orderId', false);
         $this->createIndex(null, '{{%commerce_transactions}}', 'userId', false);
-        $this->createIndex(null, '{{%commerce_variants}}', 'sku', true);
+        $this->createIndex(null, '{{%commerce_variants}}', 'sku', false);
         $this->createIndex(null, '{{%commerce_variants}}', 'productId', false);
     }
 
@@ -955,6 +968,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_discount_categories}}', ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_usergroups}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_discount_usergroups}}', ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_donations}}', ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['shippingCategoryId'], '{{%commerce_shippingcategories}}', ['id'], null, 'CASCADE');
@@ -1059,6 +1073,10 @@ class Install extends Migration
         if ($this->_tableExists('{{%commerce_discount_usergroups}}')) {
             MigrationHelper::dropAllForeignKeysToTable('{{%commerce_discount_usergroups}}', $this);
             MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_discount_usergroups}}', $this);
+        }
+        if ($this->_tableExists('{{%commerce_donations}}')) {
+            MigrationHelper::dropAllForeignKeysToTable('{{%commerce_donations}}', $this);
+            MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_donations}}', $this);
         }
         if ($this->_tableExists('{{%commerce_lineitems}}')) {
             MigrationHelper::dropAllForeignKeysToTable('{{%commerce_lineitems}}', $this);
@@ -1182,9 +1200,13 @@ class Install extends Migration
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
+        $this->_defaultDonationPurchasable();
 
         // Don't make the same config changes twice
-        if (Craft::$app->projectConfig->get('plugins.commerce', true) === null) {
+        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
+        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
+
+        if (!$installed && !$configExists) {
             $this->_defaultOrderSettings();
             $this->_defaultProductTypes();
             $this->_defaultProducts(); // Not in project config, but dependant on demo product type
@@ -1616,6 +1638,17 @@ class Install extends Migration
             'default' => true
         ];
         $this->insert(ShippingCategory::tableName(), $data);
+    }
+
+    /**
+     * Add the donation purchasable
+     */
+    public function _defaultDonationPurchasable()
+    {
+        $donation = new Donation();
+        $donation->sku = 'DONATION-CC3';
+        $donation->availableForPurchase = false;
+        Craft::$app->getElements()->saveElement($donation);
     }
 
     /**

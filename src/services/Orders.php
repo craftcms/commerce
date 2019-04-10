@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\events\ConfigEvent;
@@ -137,7 +138,7 @@ class Orders extends Component
         } else {
             $query->customerId($customer);
         }
-        $query->isCompleted(true);
+        $query->isCompleted();
         $query->limit(null);
 
         return $query->all();
@@ -153,7 +154,7 @@ class Orders extends Component
     {
         $query = Order::find();
         $query->email($email);
-        $query->isCompleted(true);
+        $query->isCompleted();
         $query->limit(null);
 
         return $query->all();

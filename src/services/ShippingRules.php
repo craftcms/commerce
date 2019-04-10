@@ -21,7 +21,8 @@ use yii\base\Exception;
 /**
  * Shipping rule service.
  *
- * @property array|ShippingRule[] $allShippingRules
+ * @property ShippingRule $liteShippingRule The lite shipping rule
+ * @property ShippingRule[] $allShippingRules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -191,7 +192,6 @@ class ShippingRules extends Component
 
         // Generate a rule category record for all categories regardless of data submitted
         foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
-            /** @var ShippingCategory $ruleCategory */
             if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
@@ -241,7 +241,7 @@ class ShippingRules extends Component
      *
      * @return ShippingRule
      */
-    public function getLiteShippingRule()
+    public function getLiteShippingRule(): ShippingRule
     {
         $liteRule = $this->_createShippingRulesQuery()->one();
 

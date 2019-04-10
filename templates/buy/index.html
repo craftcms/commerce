@@ -86,8 +86,8 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
                 <input id="firstName" name="shippingAddress[firstName]" type="text" value="{{cart.shippingAddress.firstName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2 ">
-                <label for="lastName" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
-                <input id="lastName" name="shippingAddress[lastName]" type="text" value="{{cart.shippingAddress.lastName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <label for="addressLastName" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
+                <input id="addressLastName" name="shippingAddress[lastName]" type="text" value="{{cart.shippingAddress.lastName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
         </div>
         <div class="flex mb-4">
@@ -168,14 +168,14 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
                        class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
-                <label for="cvv" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
-                <input id="cvv" type="text" name="lastName" value="{{ paymentForm.lastName ?? '' }}"
+                <label for="lastName" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
+                <input id="lastName" type="text" name="lastName" value="{{ paymentForm.lastName ?? '' }}"
                        class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
 
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
-                <label for="payment" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('number') %}text-red{% endif %}">Credit Card</label>
-                <input id="payment" type="text" name="number"
+                <label for="number" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('number') %}text-red{% endif %}">Credit Card</label>
+                <input id="number" type="text" name="number"
                        class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">

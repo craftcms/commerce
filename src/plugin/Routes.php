@@ -55,50 +55,11 @@ trait Routes
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
 
-            $event->rules['commerce/settings/location'] = 'commerce/settings/edit-location';
-
-            $event->rules['commerce/settings/taxcategories'] = 'commerce/tax-categories/index';
-            $event->rules['commerce/settings/taxcategories/new'] = 'commerce/tax-categories/edit';
-            $event->rules['commerce/settings/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
-
-            $event->rules['commerce/settings/countries'] = 'commerce/countries/index';
-            $event->rules['commerce/settings/countries/new'] = 'commerce/countries/edit';
-            $event->rules['commerce/settings/countries/<id:\d+>'] = 'commerce/countries/edit';
-
-            $event->rules['commerce/settings/states'] = 'commerce/states/index';
-            $event->rules['commerce/settings/states/new'] = 'commerce/states/edit';
-            $event->rules['commerce/settings/states/<id:\d+>'] = 'commerce/states/edit';
-
-            $event->rules['commerce/settings/taxzones'] = 'commerce/tax-zones/index';
-            $event->rules['commerce/settings/taxzones/new'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/settings/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/settings/taxrates'] = 'commerce/tax-rates/index';
-            $event->rules['commerce/settings/taxrates/new'] = 'commerce/tax-rates/edit';
-            $event->rules['commerce/settings/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
-
             $event->rules['commerce/settings/ordersettings'] = 'commerce/order-settings/edit';
 
             $event->rules['commerce/settings/gateways'] = 'commerce/gateways/index';
             $event->rules['commerce/settings/gateways/new'] = 'commerce/gateways/edit';
             $event->rules['commerce/settings/gateways/<id:\d+>'] = 'commerce/gateways/edit';
-
-            $event->rules['commerce/settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
-            $event->rules['commerce/settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
-            $event->rules['commerce/settings/paymentcurrencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
-
-            $event->rules['commerce/settings/shippingzones'] = 'commerce/shipping-zones/index';
-            $event->rules['commerce/settings/shippingzones/new'] = 'commerce/shipping-zones/edit';
-            $event->rules['commerce/settings/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
-
-            $event->rules['commerce/settings/shippingcategories'] = 'commerce/shipping-categories/index';
-            $event->rules['commerce/settings/shippingcategories/new'] = 'commerce/shipping-categories/edit';
-            $event->rules['commerce/settings/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
-
-            $event->rules['commerce/settings/shippingmethods'] = 'commerce/shipping-methods/index';
-            $event->rules['commerce/settings/shippingmethods/new'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/settings/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/settings/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
-            $event->rules['commerce/settings/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
             $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
             $event->rules['commerce/settings/emails/new'] = 'commerce/emails/edit';
@@ -108,6 +69,65 @@ trait Routes
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
             $event->rules['commerce/settings/orderstatuses/<id:\d+>'] = 'commerce/order-statuses/edit';
 
+
+            // Store Settings
+
+            $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
+
+            $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
+            $event->rules['commerce/store-settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
+            $event->rules['commerce/store-settings/paymentcurrencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
+
+            $event->rules['commerce/store-settings/donation'] = 'commerce/donations/edit';
+
+            // Store Settings - Regions
+
+            $event->rules['commerce/store-settings/countries'] = 'commerce/countries/index';
+            $event->rules['commerce/store-settings/countries/new'] = 'commerce/countries/edit';
+            $event->rules['commerce/store-settings/countries/<id:\d+>'] = 'commerce/countries/edit';
+
+            $event->rules['commerce/store-settings/states'] = 'commerce/states/index';
+            $event->rules['commerce/store-settings/states/new'] = 'commerce/states/edit';
+            $event->rules['commerce/store-settings/states/<id:\d+>'] = 'commerce/states/edit';
+
+            // Lite shipping and tax
+
+            $event->rules['commerce/store-settings/shipping'] = 'commerce/lite-shipping/edit';
+            $event->rules['commerce/store-settings/tax'] = 'commerce/lite-tax/edit';
+
+            // Shipping
+
+            $event->rules['commerce/shipping/shippingzones'] = 'commerce/shipping-zones/index';
+            $event->rules['commerce/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
+            $event->rules['commerce/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
+
+            $event->rules['commerce/shipping/shippingcategories'] = 'commerce/shipping-categories/index';
+            $event->rules['commerce/shipping/shippingcategories/new'] = 'commerce/shipping-categories/edit';
+            $event->rules['commerce/shipping/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
+
+            $event->rules['commerce/shipping/shippingmethods'] = 'commerce/shipping-methods/index';
+            $event->rules['commerce/shipping/shippingmethods/new'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/shipping/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
+            $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
+
+
+            // Taxes
+
+            $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
+            $event->rules['commerce/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
+            $event->rules['commerce/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
+
+            $event->rules['commerce/tax/taxzones'] = 'commerce/tax-zones/index';
+            $event->rules['commerce/tax/taxzones/new'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/tax/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/tax/taxrates'] = 'commerce/tax-rates/index';
+            $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
+            $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
+
+
+            // Promotions
+
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
             $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
@@ -116,8 +136,11 @@ trait Routes
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
+            // Customers
+
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
+
         });
     }
 }

@@ -65,6 +65,11 @@ class Sales extends Component
      */
     private $_allActiveSales;
 
+    /**
+     * @var array
+     */
+    private $_purchasableSaleMatch = [];
+
     // Public Methods
     // =========================================================================
 
@@ -230,7 +235,7 @@ class Sales extends Component
     {
         $sales = [];
 
-        if ($purchasable->id) {
+        if ($purchasable->getId()) {
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
                 $id = $purchasable->getId();
@@ -318,6 +323,24 @@ class Sales extends Component
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
+        $purchasableId = $purchasable->id;
+        $saleId = $sale->id;
+
+        if (!isset($this->_purchasableSaleMatch[$purchasableId])) {
+            $this->_purchasableSaleMatch[$purchasableId] = [];
+        }
+
+        if (!isset($this->_purchasableSaleMatch[$purchasableId][$saleId])) {
+            $this->_purchasableSaleMatch[$purchasableId][$saleId] = null;
+        }
+
+        if ($this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+            return $this->_purchasableSaleMatch[$purchasableId][$saleId];
+        }
+
+        // default response is no match
+        $this->_purchasableSaleMatch[$purchasableId][$saleId] = false;
+
         // can't match something not promotable
         if (!$purchasable->getIsPromotable()) {
             return false;
@@ -329,18 +352,17 @@ class Sales extends Component
         }
 
         // Category match
-        $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
-        $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-        $saleCategories = $sale->getCategoryIds();
-        $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $saleCategories);
+        if (!$sale->allCategories) {
+            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $saleCategories = $sale->getCategoryIds();
+            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-        if (!$sale->allCategories && !$purchasableIsRelateToOneOrMoreCategories) {
-            return false;
+            if (empty($relatedCategories)) {
+                return false;
+            }
         }
 
-
         if ($order) {
-
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
@@ -357,13 +379,11 @@ class Sales extends Component
         }
 
         // Are we dealing with the current session outside of any cart/order context
-        if (!$order) {
-            if (!$sale->allGroups) {
-                // User groups of the currently logged in user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
-                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                    return false;
-                }
+        if (!$order && !$sale->allGroups) {
+            // User groups of the currently logged in user
+            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                return false;
             }
         }
 
@@ -372,7 +392,7 @@ class Sales extends Component
         if ($order) {
             // Date we care about in the context of an order is the date the order was placed.
             // If the order is still a cart, use the current date time.
-            $date = $order->isCompleted ? $order->dateOrdered : new \DateTime();
+            $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
         if ($sale->dateFrom && $sale->dateFrom >= $date) {
@@ -383,17 +403,15 @@ class Sales extends Component
             return false;
         }
 
-        $saleMatchEvent = new SaleMatchEvent([
-            'sale' => $sale,
-            'purchasable' => $purchasable
-        ]);
+        $saleMatchEvent = new SaleMatchEvent(compact('sale', 'purchasable'));
 
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
         }
 
-        return $saleMatchEvent->isValid;
+        $this->_purchasableSaleMatch[$purchasableId][$saleId] = $saleMatchEvent->isValid;
+        return $this->_purchasableSaleMatch[$purchasableId][$saleId];
     }
 
     /**

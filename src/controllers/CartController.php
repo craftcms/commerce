@@ -193,8 +193,7 @@ class CartController extends BaseFrontEndController
         if ($purchasables = $request->getParam('purchasables')) {
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
-                if(!$purchasableId)
-                {
+                if (!$purchasableId) {
                     continue;
                 }
                 $note = $request->getParam("purchasables.{$key}.note", '');
@@ -246,7 +245,7 @@ class CartController extends BaseFrontEndController
                     $lineItem->setOptions($options);
                 }
 
-                if($qty !== null && $qty == 0){
+                if ($qty !== null && $qty == 0) {
                     $removeLine = true;
                 }
 
@@ -263,6 +262,11 @@ class CartController extends BaseFrontEndController
         // Set guest email address onto guest customer and order.
         if (Craft::$app->getUser()->isGuest && $email = $request->getParam('email')) {
             $this->_cart->setEmail($email);
+        }
+
+        // Set if the customer should be registered on order completion
+        if ($registerUserOnOrderComplete = $request->getBodyParam('registerUserOnOrderComplete')) {
+            $this->_cart->registerUserOnOrderComplete = true;
         }
 
         // Set payment currency on cart
@@ -408,8 +412,8 @@ class CartController extends BaseFrontEndController
             $this->_cart->setBillingAddress($billingAddress);
         }
 
-        $this->_cart->billingSameAsShipping = $billingIsShipping;
-        $this->_cart->shippingSameAsBilling = $shippingIsBilling;
+        $this->_cart->billingSameAsShipping = (bool)$billingIsShipping;
+        $this->_cart->shippingSameAsBilling = (bool)$shippingIsBilling;
 
         // Set primary addresses
         if ($request->getBodyParam('makePrimaryShippingAddress')) {

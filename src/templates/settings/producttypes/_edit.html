@@ -1,10 +1,12 @@
-{% extends "commerce/_layouts/settingscp" %}
+{% extends "commerce/_layouts/cp" %}
 {% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
 
 {% set crumbs = [
     { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
     { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
 ] %}
+
+{% set selectedSubnavItem = 'settings' %}
 
 {% set fullPageForm = true %}
 
@@ -202,6 +204,34 @@
 
     </div>
 
+    <div id="tax-and-shipping" class="hidden">
+        <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
+            {% for cat in productType.getShippingCategories() %}
+                {% if loop.first %}<ul class="bullets">{% endif %}
+                    {% if currentUser.can('commerce-manageShipping') %}
+                        <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+                    {% else %}
+                        <li>{{ cat.name }}</li>
+                    {% endif %}
+                {% if loop.last %}</ul>{% endif %}
+            {% endfor %}
+            <br>
+            {% if currentUser.can('commerce-manageShipping') %}<a href="{{ url('commerce/shipping/shippingcategories')}}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
+        <hr>
+
+        <h3>{{ 'Available Tax Categories'|t('commerce') }} </h3>
+            {% for cat in productType.getTaxCategories() %}
+                {% if loop.first %}<ul class="bullets">{% endif %}
+                    {% if currentUser.can('commerce-manageTax') %}
+                        <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+                    {% else %}
+                        <li>{{ cat.name }}</li>
+                    {% endif %}
+                {% if loop.last %}</ul>{% endif %}
+            {% endfor %}
+            <br>
+            {% if currentUser.can('commerce-manageTax') %}<a href="{{ url('commerce/tax/taxcategories')}}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
+    </div>
     <div id="product-fields" class="hidden">
 
         {% include "_includes/fieldlayoutdesigner" with {

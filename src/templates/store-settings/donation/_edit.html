@@ -1,0 +1,40 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% set selectedTab = 'donation' %}
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+<h2>{{ "Donation Settings"|t('commerce') }}</h2>
+
+<form method="post" accept-charset="UTF-8" data-saveshortcut>
+    <input type="hidden" name="action" value="commerce/donations/save">
+    {{ redirectInput('commerce/store-settings/donation') }}
+    {{ csrfInput() }}
+
+    {{ forms.textField({
+        first: true,
+        label: "SKU"|t('commerce'),
+        instructions: "The unique SKU of the donation purchasable."|t('commerce'),
+        id: 'sku',
+        name: 'sku',
+        class: 'code',
+        value: donation.sku,
+        errors: donation.getErrors('sku'),
+        autofocus: true,
+        required: true,
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Available for purchase?"|t('commerce'),
+        id: 'availableForPurchase',
+        name: 'availableForPurchase',
+        value: 1,
+        checked: donation.availableForPurchase,
+        errors: donation.getErrors('availableForPurchase')
+    }) }}
+
+    <div class="buttons">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
+    </div>
+</form>
+{% endblock %}

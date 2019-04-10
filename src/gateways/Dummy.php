@@ -274,9 +274,9 @@ class Dummy extends SubscriptionGateway
      */
     public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): SubscriptionResponseInterface
     {
-        $subscription = new DummySubscriptionResponse();
-        $subscription->setIsCanceled(true);
-        return $subscription;
+        $response = new DummySubscriptionResponse();
+        $response->setIsCanceled(true);
+        return $response;
     }
 
     /**

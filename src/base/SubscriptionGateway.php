@@ -86,5 +86,10 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
         throw new NotImplementedException('This gateway has not implemented subscription reactivation');
     }
 
-
+    /**
+     * @inheritdoc
+     */
+    public function refreshPaymentHistory(Subscription $subscription)
+    {
+    }
 }

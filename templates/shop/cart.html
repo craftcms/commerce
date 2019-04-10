@@ -51,15 +51,17 @@
                             </select>
                             {% endif %}
 
+                            {% if item.options.donationAmount is defined %}
+                            <input type="text" name="lineItems[{{ item.id }}][options][donationAmount]" placeholder="Donation" value="{{item.options.donationAmount}}">
+                            {% endif %}
+
                             <input type="text" placeholder="My Note"
                                    size="20"
                                    name="lineItems[{{ item.id }}][note]"
                                    value="{{ item.note }}">
 
                             <span {% if item.getFirstError('qty') %}class="has-error"{% endif %}>
-                            <input type="number"
-                                   name="lineItems[{{ item.id }}][qty]"
-                                   min="0" value="{{ item.qty }}">
+                            <input type="{% if item.options.donationAmount is defined %}hidden{%else%}number{%endif%}" name="lineItems[{{ item.id }}][qty]" min="0" value="{{ item.qty }}">
                         </span>
 
                         </td>
@@ -137,6 +139,8 @@
                             Total Tax: {{ cart.adjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }}
                             <br>
                             Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}
+                            <br>
+                            Total: {{ cart.total }}
                             <br>
 
                             <h4>Total

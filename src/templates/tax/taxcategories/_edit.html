@@ -1,0 +1,20 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Tax Categories"|t('commerce'), url: url('commerce/tax/taxcategories') },
+] %}
+
+{% set selectedSubnavItem = 'tax' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/tax-categories/save">
+    {{ redirectInput('commerce/tax/taxcategories') }}
+    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId"
+                                  value="{{ taxCategory.id }}">{% endif %}
+    {% include "commerce/tax/taxcategories/_fields" %}
+{% endblock %}

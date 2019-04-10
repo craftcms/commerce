@@ -120,7 +120,7 @@ class ProductsController extends BaseCpController
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
-                    'extraFields' => '#meta-pane',
+                    'extraFields' => '#details',
                     'previewUrl' => $variables['product']->getUrl(),
                     'previewAction' => Craft::$app->getSecurity()->hashData('commerce/products-preview/preview-product'),
                     'previewParams' => [
@@ -216,6 +216,10 @@ class ProductsController extends BaseCpController
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
             $product->setScenario(Element::SCENARIO_LIVE);
+            foreach ($product->getVariants() as $variant)
+            {
+                $variant->setScenario(Element::SCENARIO_LIVE);
+            }
         }
 
         if (!Craft::$app->getElements()->saveElement($product)) {
@@ -262,7 +266,7 @@ class ProductsController extends BaseCpController
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->id);
+        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
     // Private Methods

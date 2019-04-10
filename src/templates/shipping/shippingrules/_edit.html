@@ -1,0 +1,476 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping Methods"|t('commerce'), url: url('commerce/shipping/shippingmethods') },
+    { label: shippingMethod.getName()|t('commerce'), url: url('commerce/shipping/shippingmethods/'~methodId) },
+] %}
+
+{% set selectedSubnavItem = 'shipping' %}
+
+{% set fullPageForm = true %}
+
+{% macro lazyCreateSelect(selectParams, newOptionLabel, modalHeading, html, js, action, successText) %}
+
+    {% from "_includes/forms" import selectField %}
+    {{ selectField(selectParams) }}
+
+    {% js %}
+        (function () {
+        var $select = $('#{{ selectParams.id }}').selectize({
+        dropdownParent: 'body'
+        });
+
+        var selectize = $select.get(0).selectize;
+
+        selectize.addOption({
+        value: 'new',
+        text: '{{ newOptionLabel|e("js") }}'
+        });
+
+        selectize.on('item_add', function (value, $item) {
+        if (value == 'new') {
+        // Not a real option
+        selectize.clear();
+
+        var $form = $(
+        '
+        <form class="modal fitted lazy-create-modal">' +
+            '
+            <div class="header">' +
+                '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+                '
+            </div>
+            ' +
+            '
+            <div class="body">' +
+                '{{ html|e("js") }}' +
+                '
+            </div>
+            ' +
+            '
+            <div class="footer">' +
+                '
+                <div class="buttons right">' +
+                    '
+                    <div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>
+                    ' +
+                    '<input type="submit" class="btn submit"
+                            value="{{ 'Save'|t('commerce') }}"/>' +
+                    '
+                    <div class="spinner hidden"/>
+                    ' +
+                    '
+                </div>
+                ' +
+                '
+            </div>
+            ' +
+            '
+        </form>'
+        );
+
+        var modal = new Garnish.Modal($form, {
+        onHide: function () {
+        modal.destroy();
+        delete modal;
+        }
+        });
+
+        eval('{{ js|e("js") }}');
+
+        setTimeout(function () {
+        $form.find('.text:first').focus();
+
+        modal.updateSizeAndPosition();
+        $form.find('.body:first').on('resize', function () {
+        modal.updateSizeAndPosition();
+        });
+        }, 100);
+
+        $form.on('submit', function (ev) {
+        ev.preventDefault();
+        $form.find('.spinner').removeClass('hidden');
+        var namespacedData = Garnish.getPostData($form),
+        data = {};
+
+        for (var name in namespacedData) {
+        data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+        }
+
+        Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
+        $form.find('.spinner').addClass('hidden');
+        if (textStatus == 'success') {
+        if (response.success) {
+        Craft.cp.displayNotice('{{ successText|e("js") }}');
+        selectize.addOption({
+        value: response.id,
+        text: response.name,
+        $order: selectize.order - 1
+        });
+        selectize.setValue(response.id);
+        modal.hide();
+        } else {
+        Craft.ui.clearErrorsFromField($form.find('.field'));
+
+        for (var attribute in response.errors) {
+        Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
+        }
+
+        modal.updateSizeAndPosition();
+        Garnish.shake($form);
+        }
+        }
+        });
+        });
+
+        $form.find('.cancel-btn').on('click', function () {
+        modal.hide();
+        });
+        }
+        });
+        })();
+    {% endjs %}
+
+{% endmacro %}
+
+
+{% from _self import lazyCreateSelect %}
+{% import "_includes/forms" as forms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+    {% set tabs = {
+        0: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
+        1: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
+        2: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
+    } %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/shipping-rules/save">
+    {{ redirectInput('commerce/shipping/shippingmethods/{methodId}#rules') }}
+    <input type="hidden" name="methodId" value="{{ methodId }}">
+
+    {% if shippingRule.id %}<input type="hidden" name="id"
+                                   value="{{ shippingRule.id }}">{% endif %}
+
+    <div id="rule-tab">
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            instructions: "What this shipping rule will be called in the CP."|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: shippingRule.name,
+            errors: shippingRule.getErrors('name'),
+            autofocus: true,
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            first: true,
+            label: "Description"|t('commerce'),
+            instructions: "Describe this rule."|t('commerce'),
+            name: 'description',
+            value: shippingRule.description,
+            errors: shippingRule.getErrors('description'),
+        }) }}
+
+        {{ forms.checkboxField({
+            label: "Enable this shipping rule"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            checked: shippingRule.enabled,
+            errors: shippingRule.getErrors('enabled')
+        }) }}
+    </div>
+    <div id="conditions-tab" class="hidden">
+        <p>{{ "Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition."|t('commerce') }}</p>
+
+        {% set shippingZoneSelectParams = {
+            label: "Shipping Zone"|t('commerce'),
+            instructions: "Select a shipping zone."|t('commerce'),
+            id: 'shippingZoneId',
+            name: 'shippingZoneId',
+            value: shippingRule.shippingZoneId,
+            errors: shippingRule.getErrors('shippingZoneId'),
+            required: false,
+            options: shippingZones,
+            class: 'selectize fullwidth',
+        } %}
+
+        {{ lazyCreateSelect(
+            shippingZoneSelectParams,
+            'New shipping zone'|t('commerce'),
+            'Create a new shipping zone'|t('commerce'),
+            newShippingZoneFields,
+            newShippingZoneJs,
+            'commerce/shippingZones/save',
+            'Shipping zone saved.'|t
+        ) }}
+
+        {{ commerceForms.numberField({
+            label: "Minimum Order Quantity"|t('commerce'),
+            name: 'minQty',
+            instructions: "The minimum number of items in the cart to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.minQty + 0,
+            type: 'number',
+            min: 0,
+            errors: shippingRule.getErrors('minQty'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Maximum Order Quantity"|t('commerce'),
+            name: 'maxQty',
+            instructions: "The maximum number of items in the cart to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.maxQty + 0,
+            type: 'number',
+            min: 0,
+            errors: shippingRule.getErrors('maxQty'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Minimum Order Total Value"|t('commerce'),
+            name: 'minTotal',
+            instructions: "The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.minTotal + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('minTotal'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Maximum Order Total Value"|t('commerce'),
+            name: 'maxTotal',
+            instructions: "The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.maxTotal + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('maxTotal'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Minimum Order Total Weight"|t('commerce'),
+            name: 'minWeight',
+            instructions: "The minimum weight of the cart to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.minWeight + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('minWeight'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Maximum Order Total Weight"|t('commerce'),
+            name: 'maxWeight',
+            instructions: "The maximum weight of the cart to match this rule. Zero matches all carts."|t('commerce'),
+            value: shippingRule.maxWeight + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('maxWeight'),
+            required: true,
+        }) }}
+
+        <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
+        {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories %}
+        {% if shippingCategories %}
+            <table id="shipping-categories-conditions"
+                   class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Condition'|t('commerce') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for shippingCategory in shippingCategories %}
+                    {% set id = shippingCategory.id %}
+                    <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}>
+                        <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
+                            {{ shippingCategory.name }}
+                        </th>
+                        <td data-title="{{ 'Condition'|t('commerce') }}">
+                            {{ forms.selectField({
+                                name: 'ruleCategories['~shippingCategory.id~'][condition]',
+                                value: shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? 'allow',
+                                options: categoryShippingOptions
+                            }) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    <div id="costs-tab" class="hidden">
+
+        {{ commerceForms.numberField({
+            label: "Base Rate"|t('commerce'),
+            name: 'baseRate',
+            instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate."|t('commerce'),
+            value: shippingRule.baseRate + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('baseRate'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Minimum Total Shipping Cost"|t('commerce'),
+            name: 'minRate',
+            instructions: "The minimum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
+            value: shippingRule.minRate + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('minRate'),
+            required: true,
+        }) }}
+
+        {{ commerceForms.numberField({
+            label: "Maximum Total Shipping Cost"|t('commerce'),
+            instructions: "The maximum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
+            name: 'maxRate',
+            value: shippingRule.maxRate + 0,
+            type: 'number',
+            min: 0,
+            step: 'any',
+            errors: shippingRule.getErrors('maxRate'),
+            required: true,
+        }) }}
+
+        <h3>{{ "Item Rates"|t('commerce') }}</h3>
+        {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories %}
+        {% if shippingCategories %}
+            <table id="shipping-categories-rates"
+                   class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Name'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Per Item Rate'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Weight Rate'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Percentage Rate'|t('commerce') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td scope="row" data-title="{{ 'Name'|t('commerce') }}">
+
+                    </td>
+                    <td data-title="{{ 'Per Item Rate'|t('commerce') }}">
+                        {{ commerceForms.numberField({
+                            name: 'perItemRate',
+                            value: shippingRule.perItemRate + 0,
+                            type: 'number',
+                            min: 0,
+                            step: 'any',
+                            errors: shippingRule.getErrors('perItemRate'),
+                            required: true,
+                        }) }}
+                    </td>
+                    <td data-title="{{ 'Weight Rate'|t('commerce') }}">
+                        {{ commerceForms.numberField({
+                            name: 'weightRate',
+                            value: shippingRule.weightRate + 0,
+                            type: 'number',
+                            min: 0,
+                            step: 'any',
+                            errors: shippingRule.getErrors('weightRate'),
+                            required: true,
+                        }) }}
+                    </td>
+                    <td data-title="{{ 'Percentage Rate'|t('commerce') }}">
+                        {{ commerceForms.numberField({
+                            name: 'percentageRate',
+                            value: shippingRule.percentageRate + 0,
+                            type: 'number',
+                            min: 0,
+                            step: 'any',
+                            errors: shippingRule.getErrors('percentageRate'),
+                            required: true,
+                        }) }}
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="4"
+                        data-title="{{ 'Category Rate Overrides'|t('commerce') }}">
+                        {{ "Category Rate Overrides"|t('commerce') }}
+                    </th>
+                </tr>
+                {% for shippingCategory in shippingCategories %}
+                    {% set perItemRate = shippingRule.getShippingRuleCategories[shippingCategory.id].perItemRate ?? '' %}
+                    {% set weightRate = shippingRule.getShippingRuleCategories[shippingCategory.id].weightRate ?? '' %}
+                    {% set percentageRate = shippingRule.getShippingRuleCategories[shippingCategory.id].percentageRate ?? '' %}
+                    {% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
+                    {% set id = shippingCategory.id %}
+                    <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
+                            class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
+                        <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
+                            {{ shippingCategory.name }}
+                        </th>
+                        <td data-title="{{ 'Per Item Rate'|t('commerce') }}">
+                            {{ commerceForms.numberField({
+                                name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
+                                placeholder: shippingRule.perItemRate + 0,
+                                class: 'categoryPerItemRate',
+                                value: perItemRate ? perItemRate + 0 : '',
+                                type: 'number',
+                                step: 'any'
+                            }) }}
+                        </td>
+                        <td data-title="{{ 'Weight Rate'|t('commerce') }}">
+                            {{ commerceForms.numberField({
+                                name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
+                                class: 'categoryWeightRate',
+                                placeholder: shippingRule.weightRate + 0,
+                                value: weightRate ? weightRate + 0 : '',
+                                type: 'number',
+                                step: 'any'
+                            }) }}
+                        </td>
+                        <td data-title="{{ 'Percentage Rate'|t('commerce') }}">
+                            {{ commerceForms.numberField({
+                                name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
+                                class: 'categoryPercentageRate',
+                                placeholder: shippingRule.percentageRate + 0,
+                                value: percentageRate ? percentageRate + 0 : '',
+                                type: 'number',
+                                step: 'any'
+                            }) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% js "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
+{% js "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
+{% js "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
+
+{% js %}
+    window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }};
+
+    $("select[name^='ruleCategories']").change(function() {
+    var id = $(this).closest('tr').data('id');
+    var value = $(this).val();
+    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
+    if (value == 'disallow')
+    {
+    $rateRow.addClass('hidden');
+    }else{
+    $rateRow.removeClass('hidden');
+    }
+    });
+{% endjs %}

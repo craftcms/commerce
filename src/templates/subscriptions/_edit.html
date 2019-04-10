@@ -58,7 +58,7 @@
 
         <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
 
-        {% if not subscription.isCanceled and not subscription.isExpired %}
+        {% if subscription.gateway.supportsPlanSwitch and not subscription.isCanceled and not subscription.isExpired %}
             {% set plans = subscription.alternativePlans %}
             {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
 
@@ -157,6 +157,17 @@
 
             </tbody>
         </table>
+
+        <form method="POST">
+            <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
+            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+            {{ redirectInput('commerce/subscriptions/' ~ subscription.id) }}
+            {{ csrfInput() }}
+
+            <div class="field">
+                <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
+            </div>
+        </form>
     </div>
 {% endblock %}
 

@@ -81,9 +81,10 @@
     </table>
 {% endif %}
 
-{% includecss %}
+{% css %}
     .address-heading-label { margin-bottom:4px; }
-{% endincludecss %}
+{% endcss %}
+
 {% js %}
     window.countries = {{ craft.commerce.countries.allCountries|values|json_encode|raw }};
     window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};

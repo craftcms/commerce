@@ -1,0 +1,21 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce " ~ "Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping Categories"|t('commerce'), url: url('commerce/shipping/shippingcategories') },
+] %}
+
+{% set selectedSubnavItem = 'shipping' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action"
+           value="commerce/shipping-categories/save">
+    {{ redirectInput('commerce/shipping/shippingcategories') }}
+    {% if shippingCategory.id %}<input type="hidden" name="shippingCategoryId"
+                                       value="{{ shippingCategory.id }}">{% endif %}
+    {% include "commerce/shipping/shippingcategories/_fields" %}
+{% endblock %}

@@ -30,7 +30,7 @@
             <td><span class="tableRowInfo" data-icon="info"
                       href="#"></span></td>
             <td>
-                {% if transaction.canCapture() %}
+                {% if currentUser.can('commerce-capturePayment') and transaction.canCapture() %}
                     <form method="post">
                         {{ csrfInput() }}
                         <a class="small btn submit formsubmit"
@@ -41,7 +41,7 @@
                            data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
                     </form>
                 {% endif %}
-                {% if transaction.canRefund() %}
+                {% if currentUser.can('commerce-refundPayment') and transaction.canRefund() %}
                     <form method="post">
                         {{ csrfInput() }}
                         {% import "_includes/forms" as forms %}

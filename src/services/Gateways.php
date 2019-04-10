@@ -28,8 +28,10 @@ use yii\base\Exception;
 /**
  * Gateway service.
  *
- * @property GatewayInterface[]|array $allFrontEndGateways all frontend enabled gateways
- * @property GatewayInterface[]|array $allGateways all gateways
+ * @property GatewayInterface[] $allFrontEndGateways all frontend enabled gateways
+ * @property GatewayInterface[] $allGateways all gateways
+ * @property GatewayInterface[] $allCustomerEnabledGateways all gateways enabled for the customer
+ * @property array $allSubscriptionGateways
  * @property string[] $allGatewayTypes all registered gateway types
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -194,7 +196,7 @@ class Gateways extends Component
      * Returns a gateway by its handle.
      *
      * @param string $handle
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|GatewayInterface|null The gateway or null if not found.
      */
     public function getGatewayByHandle(string $handle)
     {
@@ -246,7 +248,7 @@ class Gateways extends Component
                 'handle' => $gateway->handle,
                 'type' => \get_class($gateway),
                 'settings' => $gateway->getSettings(),
-                'sortOrder' => $gateway->sortOrder,
+                'sortOrder' => $gateway->sortOrder ?? 99,
                 'paymentType' => $gateway->paymentType,
                 'isFrontendEnabled' => $gateway->isFrontendEnabled,
             ];

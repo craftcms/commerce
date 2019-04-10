@@ -19,7 +19,8 @@ use yii\base\Exception;
 /**
  * Tax rate service.
  *
- * @property array|TaxRate[] $allTaxRates an array of all of the existing tax rates
+ * @property TaxRate $liteTaxRate the lite tax rate
+ * @property TaxRate[] $allTaxRates an array of all of the existing tax rates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -250,6 +251,7 @@ class TaxRates extends Component
                 'taxable',
                 'isLite'
             ])
+            ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from(['{{%commerce_taxrates}}']);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {

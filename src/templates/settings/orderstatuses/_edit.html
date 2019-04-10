@@ -1,9 +1,11 @@
-{% extends "commerce/_layouts/settingscp" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
     { label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
     { label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
 ] %}
+
+{% set selectedSubnavItem = 'settings' %}
 
 {% set fullPageForm = true %}
 

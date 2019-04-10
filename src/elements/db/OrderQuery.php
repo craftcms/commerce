@@ -172,10 +172,10 @@ class OrderQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param string|null $value The property value
+     * @param string|array|null $value The property value.
      * @return static self reference
      */
-    public function number(string $value = null)
+    public function number($value = null)
     {
         $this->number = $value;
         return $this;
@@ -826,6 +826,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
+            'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
@@ -838,7 +839,11 @@ class OrderQuery extends ElementQuery
         ]);
 
         if ($this->number) {
-            $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+            if (is_string($this->number)) {
+                $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
+            }
         }
 
         if ($this->reference) {
@@ -912,7 +917,10 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->hasTransactions) {
-            $this->subQuery->innerJoin('{{%commerce_transactions}} transactions', '[[commerce_orders.id]] = [[transactions.orderId]]');
+            $this->subQuery->andWhere(['exists', (new Query())
+                ->from(['{{%commerce_transactions}} transactions'])
+                ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            ]);
         }
 
         return parent::beforePrepare();

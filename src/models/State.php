@@ -63,7 +63,7 @@ class State extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/states/' . $this->id);
+        return UrlHelper::cpUrl('commerce/store-settings/states/' . $this->id);
     }
 
     /**

@@ -196,11 +196,10 @@ class Plans extends Component
     /**
      * Returns plans which use the provided Entry for its "information"
      *
-     * @param string $id The Entry ID to search by
-     * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
+     * @param int $entryId The Entry ID to search by
+     * @return Plan[]
      */
-    public function getPlansByInformationEntryId(int $entryId)
+    public function getPlansByInformationEntryId(int $entryId): array
     {
         $results = $this->_createPlansQuery()
             ->where(['planInformationId' => $entryId])
@@ -217,7 +216,7 @@ class Plans extends Component
      * @return bool Whether the plan was saved successfully
      * @throws InvalidConfigException if subscription plan not found by id.
      */
-    public function savePlan(Plan $plan, bool $runValidation = true)
+    public function savePlan(Plan $plan, bool $runValidation = true): bool
     {
         if ($plan->id) {
             $record = PlanRecord::findOne($plan->id);
