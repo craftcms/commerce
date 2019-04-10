@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+## 2.1.3.1 - 2019-04-10
+
+### Fixed
+- Fixed a bug where `project.yaml` changes weren’t always getting picked up.
+
 ## 2.1.3 - 2019-04-03
 
 ### Added
