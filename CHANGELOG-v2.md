@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\models\Address::getFullName()`
+
 ## 2.1.3.1 - 2019-04-10
 
 ### Fixed
