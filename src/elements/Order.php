@@ -1890,7 +1890,12 @@ class Order extends Element
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
-            $count = Craft::configure(self::find(), $criteriaStatus)->count();
+
+            $count = (new Query())
+                ->where($criteriaStatus)
+                ->from(['{{%commerce_orders}}'])
+                ->count();
+
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
