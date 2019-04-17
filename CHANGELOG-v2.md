@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Added
-- Added `craft\commerce\models\Address::getFullName()`
-
 ### Changed
 - Improved performance of the Order index page. ([#828](https://github.com/craftcms/commerce/issues/828))
 

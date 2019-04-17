@@ -216,31 +216,6 @@ class Address extends Model
     }
 
     /**
-     * Returns the address full name.
-     *
-     * @return string|null
-     */
-    public function getFullName()
-    {
-        $firstName = trim($this->firstName);
-        $lastName = trim($this->lastName);
-
-        if (!$firstName && !$lastName) {
-            return null;
-        }
-
-        $name = $firstName;
-
-        if ($firstName && $lastName) {
-            $name .= ' ';
-        }
-
-        $name .= $lastName;
-
-        return $name;
-    }
-
-    /**
      * @return array
      */
     public function rules()
@@ -308,14 +283,28 @@ class Address extends Model
     }
 
     /**
-     * @return string
+     * Returns the address full name.
+     *
+     * @return string|null
      */
-    public function getFullName(): string
+    public function getFullName()
     {
         $firstName = trim($this->firstName);
         $lastName = trim($this->lastName);
 
-        return $firstName . ($firstName && $lastName ? ' ' : '') . $lastName;
+        if (!$firstName && !$lastName) {
+            return null;
+        }
+
+        $name = $firstName;
+
+        if ($firstName && $lastName) {
+            $name .= ' ';
+        }
+
+        $name .= $lastName;
+
+        return $name;
     }
 
     /**
