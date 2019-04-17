@@ -8,14 +8,18 @@
     {    label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
+{% if order.isCompleted %}
 {% set pdfUrl = order.getPdfUrl() %}
+{% endif %}
 
 {% hook "cp.commerce.order.edit" %}
 
 {% block actionButton %}
+    {% if order.isCompleted %}
     {% if pdfUrl %}
         <a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
         <div class="flex-grow"></div>
+    {% endif %}
     {% endif %}
 
     <input type="hidden" name="action" value="commerce/orders/save-order">
