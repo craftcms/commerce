@@ -592,7 +592,7 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustmemnts.
+     * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
      */
