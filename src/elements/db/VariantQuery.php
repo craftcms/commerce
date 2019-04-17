@@ -361,7 +361,7 @@ class VariantQuery extends ElementQuery
      * | - | -
      * | `100` | with a minQty of 100.
      * | `'>= 100'` | with a minQty of at least 100.
-     * | `'< 100'` | with a minQtu of less than 100.
+     * | `'< 100'` | with a minQty of less than 100.
      *
      * @param mixed $value The property value
      * @return static self reference
@@ -381,7 +381,7 @@ class VariantQuery extends ElementQuery
      * | - | -
      * | `100` | with a maxQty of 100.
      * | `'>= 100'` | with a maxQty of at least 100.
-     * | `'< 100'` | with a maxQtu of less than 100.
+     * | `'< 100'` | with a maxQty of less than 100.
      *
      * @param mixed $value The property value
      * @return static self reference
