@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a PHP error on the Order edit page when viewing inactive carts. ([#826](https://github.com/craftcms/commerce/issues/826))
 - Fixed a deprecation warning. ([#825](https://github.com/craftcms/commerce/issues/825))
+- Fixed a bug where the default variant was set to the wrong variant on product save. ([#830](https://github.com/craftcms/commerce/issues/830))
 
 ### Changed
 - Improved performance of the Order index page. ([#828](https://github.com/craftcms/commerce/issues/828))

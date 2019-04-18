@@ -880,11 +880,10 @@ class Product extends Element
         }
 
         $defaultVariant = null;
-
         foreach ($this->getVariants() as $variant) {
             // Make the first variant (or the last one that isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault) {
-                $this->_defaultVariant = $variant;
+                $this->_defaultVariant = $defaultVariant = $variant;
             }
         }
 
