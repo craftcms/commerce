@@ -117,7 +117,7 @@ class Discount extends Component implements AdjusterInterface
         $adjustment->name = $discount->name;
         $adjustment->setOrder($this->_order);
         $adjustment->description = $discount->description;
-        $adjustment->sourceSnapshot = $discount->attributes;
+        $adjustment->sourceSnapshot = $discount->toArray();
 
         return $adjustment;
     }

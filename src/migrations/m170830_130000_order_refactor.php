@@ -65,7 +65,7 @@ class m170830_130000_order_refactor extends Migration
                 // Loop over adjustments and save the adjustments into type groupings so we can save the data into the new adjustments sourceSnapshot so that history is kept.
                 foreach ($adjustments as $adjustment) {
                     // convert text json to php array
-                    $sourceSnapshot = Json::decode($adjustment['sourceSnapshot']);
+                    $sourceSnapshot = Json::decodeIfJson($adjustment['sourceSnapshot']);
                     $adjustment['sourceSnapshot'] = $sourceSnapshot;
 
                     $adjustmentIdsToDelete[] = $adjustment['id'];

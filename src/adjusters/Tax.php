@@ -324,7 +324,7 @@ class Tax extends Component implements AdjusterInterface
         $adjustment->name = $rate->name;
         $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
         $adjustment->setOrder($this->_order);
-        $adjustment->sourceSnapshot = $rate->attributes;
+        $adjustment->sourceSnapshot = $rate->toArray();
 
         return $adjustment;
     }
