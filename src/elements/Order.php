@@ -1716,7 +1716,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml(string $attribute): string
+    protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus':
