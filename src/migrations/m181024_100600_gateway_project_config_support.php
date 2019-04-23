@@ -44,9 +44,9 @@ class m181024_100600_gateway_project_config_support extends Migration
                 'handle' => $gatewayRow['handle'],
                 'type' => $gatewayRow['type'],
                 'settings' => $settings,
-                'sortOrder' => $gatewayRow['sortOrder'],
+                'sortOrder' => (int)$gatewayRow['sortOrder'],
                 'paymentType' => $gatewayRow['paymentType'],
-                'isFrontendEnabled' => $gatewayRow['isFrontendEnabled'],
+                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
             ];
         }
 

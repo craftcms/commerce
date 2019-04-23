@@ -169,9 +169,9 @@ class Emails extends Component
             'recipientType' => $email->recipientType,
             'to' => $email->to,
             'bcc' => $email->bcc,
-            'enabled' => $email->enabled,
+            'enabled' => (bool)$email->enabled,
             'templatePath' => $email->templatePath,
-            'attachPdf' => $email->attachPdf,
+            'attachPdf' => (bool)$email->attachPdf,
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
 

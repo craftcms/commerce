@@ -207,8 +207,8 @@ class OrderStatuses extends Component
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
-                'sortOrder' => $orderStatus->sortOrder ?? 99,
-                'default' => $orderStatus->default,
+                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
+                'default' => (bool)$orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
         }
