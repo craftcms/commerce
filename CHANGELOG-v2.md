@@ -9,6 +9,7 @@
 
 ### Changed
 - Improved performance of the Order index page. ([#828](https://github.com/craftcms/commerce/issues/828))
+- `commerce/cart/*` actions' JSON responses now include the cart’s errors in the `errors` key.
 
 ## 2.1.3.1 - 2019-04-10
 
