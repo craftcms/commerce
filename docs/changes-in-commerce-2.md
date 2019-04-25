@@ -19,7 +19,7 @@ The element queries now exist on the root craft variable.
 
 Example:
 
-To get all produces in Commerce 1.2.x:
+To get all products in Commerce 1.2.x:
 `craft.commerce.products.find()`
 
 To do the same in Commerce 2:
