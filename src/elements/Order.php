@@ -814,6 +814,11 @@ class Order extends Element
             }
         }
 
+        if($this->_mergeDuplicateLineItems())
+        {
+            $lineItemRemoved = true;
+        }
+
         if ($lineItemRemoved) {
             $this->recalculate();
             return;
@@ -1685,9 +1690,6 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
-    // Private Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
@@ -2069,6 +2071,37 @@ class Order extends Element
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Combines line items with the same purchasable ID and options signature.
+     */
+    private function _mergeDuplicateLineItems()
+    {
+        $keysByHash = [];
+        $lineItemsHashesToRemove = [];
+        $quantityByHash = [];
+        $lineItemsByHash = [];
+        // Ensure no duplicate line items exist, and if they do, combine them.
+        foreach ($this->getLineItems() as $lineItem) {
+            $hash = spl_object_hash($lineItem);
+            $lineItemsByHash[$hash] = $lineItem;
+            $quantityByHash[$hash] = $lineItem->qty;
+            $uniqueKey = [$lineItem->orderId, $lineItem->purchasableId, $lineItem->getOptionsSignature()];
+            $keysByHash[$hash] = $uniqueKey;
+            foreach ($keysByHash as $hash => $key) {
+                if ($uniqueKey == $key && $hash != spl_object_hash($lineItem)) {
+                    $lineItem->qty += $quantityByHash[$hash];
+                    $lineItemsHashesToRemove[] = $hash;
+                }
+            }
+        }
+
+        foreach ($lineItemsHashesToRemove as $hash) {
+            $this->removeLineItem($lineItemsByHash[$hash]);
+        }
+
+        return !empty($lineItemsHashesToRemove);
+    }
 
     /**
      * Updates the adjustments, including deleting the old ones.
