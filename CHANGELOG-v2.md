@@ -10,8 +10,8 @@
 - `commerce/cart/*` actions' JSON responses now include the cart’s errors in the `errors` key.
 - Commerce now correctly typecasts all boolean and integer values saved to the project config.
 
-
 ### Fixed
+- Fixed a Database integrity constraint error raised when adding duplicate line items the cart. ([#506](https://github.com/craftcms/commerce/issues/506))
 - Fixed a PHP error on the Order edit page when viewing inactive carts. ([#826](https://github.com/craftcms/commerce/issues/826))
 - Fixed a deprecation warning. ([#825](https://github.com/craftcms/commerce/issues/825))
 - Fixed a bug where the default variant was set to the wrong variant on product save. ([#830](https://github.com/craftcms/commerce/issues/830))
