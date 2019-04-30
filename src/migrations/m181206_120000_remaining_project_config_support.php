@@ -115,6 +115,11 @@ class m181206_120000_remaining_project_config_support extends Migration
             }
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
+
+            $productTypeRows['hasDimensions'] = (bool)$productTypeRows['hasDimensions'];
+            $productTypeRows['hasVariants'] = (bool)$productTypeRows['hasVariants'];
+            $productTypeRows['hasVariantTitleField'] = (bool)$productTypeRows['hasVariantTitleField'];
+
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
         }
@@ -136,6 +141,9 @@ class m181206_120000_remaining_project_config_support extends Migration
             $typeUid = $productTypeSiteRow['typeUid'];
             $siteUid = $productTypeSiteRow['siteUid'];
             unset($productTypeSiteRow['siteUid'], $productTypeSiteRow['typeUid']);
+
+            $productTypeSiteRow['hasUrls'] = (bool)$productTypeSiteRow['hasUrls'];
+
             $typeData[$typeUid]['siteSettings'][$siteUid] = $productTypeSiteRow;
         }
 
@@ -169,6 +177,8 @@ class m181206_120000_remaining_project_config_support extends Migration
 
         foreach ($emailRows as &$row) {
             unset($row['uid']);
+            $row['enabled'] = (bool)$row['enabled'];
+            $row['attachPdf'] = (bool)$row['attachPdf'];
         }
 
         return $emailRows;
@@ -220,6 +230,10 @@ class m181206_120000_remaining_project_config_support extends Migration
         foreach ($statusRows as &$statusRow) {
             $statusUid = $statusRow['uid'];
             unset($statusRow['uid']);
+
+            $statusRow['default'] = (bool)$statusRow['default'];
+            $statusRow['sortOrder'] = (int)$statusRow['sortOrder'];
+
             $statusData[$statusUid] = $statusRow;
         }
 

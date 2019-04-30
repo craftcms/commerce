@@ -76,9 +76,9 @@ class ProjectConfigData
                 'handle' => $gatewayRow['handle'],
                 'type' => $gatewayRow['type'],
                 'settings' => $settings,
-                'sortOrder' => $gatewayRow['sortOrder'],
+                'sortOrder' => (int)$gatewayRow['sortOrder'],
                 'paymentType' => $gatewayRow['paymentType'],
-                'isFrontendEnabled' => $gatewayRow['isFrontendEnabled'],
+                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
             ];
         }
 
@@ -132,6 +132,10 @@ class ProjectConfigData
             }
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
+            $productTypeRow['hasDimensions'] =  (bool)$productTypeRow['hasDimensions'];
+            $productTypeRow['hasVariants'] =  (bool)$productTypeRow['hasVariants'];
+            $productTypeRow['hasVariantTitleField'] =  (bool)$productTypeRow['hasVariantTitleField'];
+
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
         }
@@ -153,6 +157,9 @@ class ProjectConfigData
             $typeUid = $productTypeSiteRow['typeUid'];
             $siteUid = $productTypeSiteRow['siteUid'];
             unset($productTypeSiteRow['siteUid'], $productTypeSiteRow['typeUid']);
+
+            $productTypeSiteRow['hasUrls'] = (bool)$productTypeSiteRow['hasUrls'];
+
             $typeData[$typeUid]['siteSettings'][$siteUid] = $productTypeSiteRow;
         }
 
@@ -186,6 +193,9 @@ class ProjectConfigData
 
         foreach ($emailRows as &$row) {
             unset($row['uid']);
+
+            $row['enabled'] = (bool)$row['enabled'];
+            $row['attachPdf'] = (bool)$row['attachPdf'];
         }
 
         return $emailRows;
@@ -237,6 +247,10 @@ class ProjectConfigData
         foreach ($statusRows as &$statusRow) {
             $statusUid = $statusRow['uid'];
             unset($statusRow['uid']);
+
+            $statusRow['default'] = (bool)$statusRow['default'];
+            $statusRow['sortOrder'] = (int)$statusRow['sortOrder'];
+
             $statusData[$statusUid] = $statusRow;
         }
 

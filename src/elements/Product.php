@@ -302,7 +302,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('Category’s group (' . $this->groupId . ') is not enabled for site ' . $this->siteId);
+            throw new InvalidConfigException('The „' . $this->getType()->name . '” product group is not enabled for the „' . $this->getSite()->name . '” site.');
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -880,11 +880,10 @@ class Product extends Element
         }
 
         $defaultVariant = null;
-
         foreach ($this->getVariants() as $variant) {
             // Make the first variant (or the last one that isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault) {
-                $this->_defaultVariant = $variant;
+                $this->_defaultVariant = $defaultVariant = $variant;
             }
         }
 

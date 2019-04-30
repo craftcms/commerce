@@ -320,6 +320,7 @@ class CartController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);

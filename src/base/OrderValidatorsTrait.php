@@ -110,28 +110,7 @@ trait OrderValidatorsTrait
      */
     public function validateLineItems($attribute)
     {
-
-        // Ensure no duplicate line items exist, and if they do, combine them.
-        $keysByLineItemId = [];
-        $quantityByLineItemId = [];
-        $idsToRemove = [];
-        foreach ($this->getLineItems() as $lineItem) {
-            $quantityByLineItemId[$lineItem->id] = $lineItem->qty;
-            $uniqueKey = [$lineItem->orderId, $lineItem->purchasableId, $lineItem->getOptionsSignature()];
-            $keysByLineItemId[$lineItem->id] = $uniqueKey;
-            foreach ($keysByLineItemId as $index => $key) {
-                if ($uniqueKey === $key && $index != $lineItem->id) {
-                    $lineItem->qty += $quantityByLineItemId[$index];
-                    $idsToRemove[] = $index;
-                }
-            }
-        }
-
-        foreach ($idsToRemove as $id) {
-            if ($lineItem = Plugin::getInstance()->lineItems->getLineItemById($id)) {
-                $this->removeLineItem($lineItem);
-            }
-        }
+        $this->_mergeDuplicateLineItems();
 
         foreach ($this->getLineItems() as $key => $lineItem) {
             if (!$lineItem->validate()) {

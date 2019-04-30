@@ -592,7 +592,7 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustmemnts.
+     * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
      */
@@ -812,6 +812,12 @@ class Order extends Element
                 $this->removeLineItem($item);
                 $lineItemRemoved = true;
             }
+        }
+
+        // This is run in a validation, but need to run again incase the options
+        // data was changed on population of the line item by a plugin.
+        if ($this->_mergeDuplicateLineItems()) {
+            $lineItemRemoved = true;
         }
 
         if ($lineItemRemoved) {
@@ -1685,9 +1691,6 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
-    // Private Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
@@ -1716,7 +1719,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml(string $attribute): string
+    protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus':
@@ -1890,7 +1893,12 @@ class Order extends Element
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
-            $count = Craft::configure(self::find(), $criteriaStatus)->count();
+
+            $count = (new Query())
+                ->where($criteriaStatus)
+                ->from(['{{%commerce_orders}}'])
+                ->count();
+
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
@@ -2064,6 +2072,28 @@ class Order extends Element
 
     // Private Methods
     // =========================================================================
+
+    /**
+     * Combines line items with the same purchasable ID and options signature.
+     */
+    private function _mergeDuplicateLineItems()
+    {
+        $lineItems = $this->getLineItems();
+        // Ensure no duplicate line items exist, and if they do, combine them.
+        $lineItemsByKey = [];
+        foreach ($lineItems as $lineItem) {
+            $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+            if (isset($lineItemsByKey[$key])) {
+                $lineItemsByKey[$key]->qty += $lineItem->qty;
+            } else {
+                $lineItemsByKey[$key] = $lineItem;
+            }
+        }
+
+        $this->setLineItems($lineItemsByKey);
+
+        return $lineItems > $lineItemsByKey;
+    }
 
     /**
      * Updates the adjustments, including deleting the old ones.

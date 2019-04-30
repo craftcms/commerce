@@ -139,7 +139,7 @@ class Shipping extends Component implements AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
-        $adjustment->sourceSnapshot = $rule->getOptions();
+        $adjustment->sourceSnapshot = $rule->toArray();
         $adjustment->description = $rule->getDescription();
 
         return $adjustment;

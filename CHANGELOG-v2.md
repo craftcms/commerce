@@ -1,6 +1,21 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.4 - 2019-04-29
+
+### Added
+- Added `craft\commerce\base\SubscriptionResponseInterface::isInactive().`
+
+### Changed
+- Improved performance of the Orders index page. ([#828](https://github.com/craftcms/commerce/issues/828))
+- `commerce/cart/*` action JSON responses now list cart errors under an `errors` key.
+- Commerce now correctly typecasts all boolean and integer values saved to the project config.
+
+### Fixed
+- Fixed a SQL error that occurred when duplicate line items were added the cart. ([#506](https://github.com/craftcms/commerce/issues/506))
+- Fixed a PHP error on the View Order page when viewing inactive carts. ([#826](https://github.com/craftcms/commerce/issues/826))
+- Fixed a deprecation warning. ([#825](https://github.com/craftcms/commerce/issues/825))
+- Fixed a bug where the wrong variant could be set as the default when saving a product. ([#830](https://github.com/craftcms/commerce/issues/830))
+- Fixed a bug that prevented plugins and modules from adding custom index table attributes. ([#832](https://github.com/craftcms/commerce/pull/832))
 
 ## 2.1.3.1 - 2019-04-10
 
