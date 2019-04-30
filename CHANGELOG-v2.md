@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Changed
+- A declined charge when starting a subscription will no longer create a subscription.
+
 ## 2.1.4 - 2019-04-29
 
 ### Added

@@ -399,6 +399,10 @@ class Subscriptions extends Component
 
         $response = $gateway->subscribe($user, $plan, $parameters);
 
+        if ($response->isInactive()) {
+            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
+        }
+
         $subscription = new Subscription();
         $subscription->userId = $user->id;
         $subscription->planId = $plan->id;

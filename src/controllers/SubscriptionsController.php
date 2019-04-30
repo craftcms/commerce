@@ -175,16 +175,17 @@ class SubscriptionsController extends BaseController
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                 }
+
+                $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
+                $fieldValues = $request->getBodyParam($fieldsLocation, []);
+
+                $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
             } catch (\Throwable $exception) {
                 Craft::error($exception->getMessage(), 'commerce');
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
 
-            $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
-            $fieldValues = $request->getBodyParam($fieldsLocation, []);
-
-            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }
