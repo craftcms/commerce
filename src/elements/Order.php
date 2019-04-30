@@ -814,8 +814,9 @@ class Order extends Element
             }
         }
 
-        if($this->_mergeDuplicateLineItems())
-        {
+        // This is run in a validation, but need to run again incase the options
+        // data was changed on population of the line item by a plugin.
+        if ($this->_mergeDuplicateLineItems()) {
             $lineItemRemoved = true;
         }
 
@@ -2077,30 +2078,21 @@ class Order extends Element
      */
     private function _mergeDuplicateLineItems()
     {
-        $keysByHash = [];
-        $lineItemsHashesToRemove = [];
-        $quantityByHash = [];
-        $lineItemsByHash = [];
+        $lineItems = $this->getLineItems();
         // Ensure no duplicate line items exist, and if they do, combine them.
-        foreach ($this->getLineItems() as $lineItem) {
-            $hash = spl_object_hash($lineItem);
-            $lineItemsByHash[$hash] = $lineItem;
-            $quantityByHash[$hash] = $lineItem->qty;
-            $uniqueKey = [$lineItem->orderId, $lineItem->purchasableId, $lineItem->getOptionsSignature()];
-            $keysByHash[$hash] = $uniqueKey;
-            foreach ($keysByHash as $hash => $key) {
-                if ($uniqueKey == $key && $hash != spl_object_hash($lineItem)) {
-                    $lineItem->qty += $quantityByHash[$hash];
-                    $lineItemsHashesToRemove[] = $hash;
-                }
+        $lineItemsByKey = [];
+        foreach ($lineItems as $lineItem) {
+            $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+            if (isset($lineItemsByKey[$key])) {
+                $lineItemsByKey[$key]->qty += $lineItem->qty;
+            } else {
+                $lineItemsByKey[$key] = $lineItem;
             }
         }
 
-        foreach ($lineItemsHashesToRemove as $hash) {
-            $this->removeLineItem($lineItemsByHash[$hash]);
-        }
+        $this->setLineItems($lineItemsByKey);
 
-        return !empty($lineItemsHashesToRemove);
+        return $lineItems > $lineItemsByKey;
     }
 
     /**
