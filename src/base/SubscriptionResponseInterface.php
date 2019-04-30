@@ -59,4 +59,11 @@ interface SubscriptionResponseInterface
      * @return bool
      */
     public function isScheduledForCancellation(): bool;
+
+    /**
+     * Whether the subscription is inactive, probably due to a failed starting payment.
+     *
+     * @return bool
+     */
+    public function isInactive(): bool;
 }
