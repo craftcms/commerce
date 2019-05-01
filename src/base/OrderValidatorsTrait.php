@@ -3,6 +3,7 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
@@ -110,7 +111,7 @@ trait OrderValidatorsTrait
      */
     public function validateLineItems($attribute)
     {
-        $this->_mergeDuplicateLineItems();
+        OrderHelper::mergeDuplicateLineItems($this);
 
         foreach ($this->getLineItems() as $key => $lineItem) {
             if (!$lineItem->validate()) {
