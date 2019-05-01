@@ -140,6 +140,8 @@
                             <br>
                             Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}
                             <br>
+                            Total: {{ cart.total }}
+                            <br>
 
                             <h4>Total
                                 Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>

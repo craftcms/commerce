@@ -19,6 +19,7 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
@@ -26,6 +27,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
+use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -83,6 +85,7 @@ use yii\base\InvalidConfigException;
  * @property-read string $paidStatusHtml the order’s paid status as HTML
  * @property-read string $shortNumber
  * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $total
  * @property-read float $totalPrice
  * @property-read int $totalSaleAmount the total sale amount
  * @property-read float $totalTaxablePrice
@@ -327,6 +330,11 @@ class Order extends Element
     public $customerId;
 
     /**
+     * @var bool Register the email on order completion
+     */
+    public $registerUserOnOrderComplete;
+
+    /**
      * @var Address
      */
     private $_shippingAddress;
@@ -466,6 +474,7 @@ class Order extends Element
         $names[] = 'outstandingBalance';
         $names[] = 'shortNumber';
         $names[] = 'totalPaid';
+        $names[] = 'total';
         $names[] = 'totalPrice';
         $names[] = 'totalQty';
         $names[] = 'totalSaleAmount';
@@ -534,6 +543,8 @@ class Order extends Element
         $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
         $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
 
+        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
+
         $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
         $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
         $rules[] = [['email'], 'email'];
@@ -587,7 +598,7 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustmemnts.
+     * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
      */
@@ -809,6 +820,12 @@ class Order extends Element
             }
         }
 
+        // This is run in a validation, but need to run again incase the options
+        // data was changed on population of the line item by a plugin.
+        if (OrderHelper::mergeDuplicateLineItems($this)) {
+            $lineItemRemoved = true;
+        }
+
         if ($lineItemRemoved) {
             $this->recalculate();
             return;
@@ -833,7 +850,7 @@ class Order extends Element
     }
 
     /**
-     * @return array
+     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
      */
     public function getAvailableShippingMethods(): array
     {
@@ -859,8 +876,8 @@ class Order extends Element
      */
     public function afterSave(bool $isNew)
     {
-        // TODO: Move the recalculate to somewhere else. Saving should be saving only
-        // Right now orders always recalc when saved and not completed but that shouldn't be the case.
+        // TODO: Move the recalculate to somewhere else. Saving should be for saving only
+        // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
 
         if (!$isNew) {
@@ -888,6 +905,7 @@ class Order extends Element
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
         $orderRecord->couponCode = $this->couponCode;
+        $orderRecord->total = $this->getTotal();
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
         $orderRecord->currency = $this->currency;
@@ -895,6 +913,7 @@ class Order extends Element
         $orderRecord->orderLanguage = $this->orderLanguage;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
+        $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
@@ -1131,11 +1150,36 @@ class Order extends Element
     }
 
     /**
+     * Returns the raw total of the order, which is the total of all line items and adjustments. This number can be negative, so it is not the price of the order.
+     *
+     * @return float
+     * @see Order::getTotalPrice() The actual total price of the order.
+     *
+     */
+    public function getTotal(): float
+    {
+        return Currency::round($this->getItemSubtotal() + $this->getAdjustmentsTotal());
+    }
+
+    /**
+     * Get the total price of the order, whose minimum value is enforced by the configured {@link Settings::minimumTotalPriceStrategy strategy set for minimum total price}.
+     *
      * @return float
      */
     public function getTotalPrice(): float
     {
-        return Currency::round($this->getItemSubTotal() + $this->getAdjustmentsTotal());
+        $total = $this->getItemSubtotal() + $this->getAdjustmentsTotal(); // Don't get the pre-rounded total.
+        $strategy = Plugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
+            return Currency::round(max(0, $total));
+        }
+
+        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
+            return Currency::round(max($this->getAdjustmentsTotalByType('shipping'), $total));
+        }
+
+        return Currency::round($total);
     }
 
     /**
@@ -1146,7 +1190,7 @@ class Order extends Element
     public function getOutstandingBalance(): float
     {
         $totalPaid = Currency::round($this->getTotalPaid());
-        $totalPrice = Currency::round($this->getTotalPrice());
+        $totalPrice = $this->getTotalPrice(); // Already rounded
 
         return $totalPrice - $totalPaid;
     }
@@ -1523,6 +1567,13 @@ class Order extends Element
             $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
 
+        if ($this->_paymentCurrency) {
+            $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+                throw new InvalidConfigException('Payment currency not allowed.');
+            }
+        }
+
         return $this->_paymentCurrency;
     }
 
@@ -1646,9 +1697,6 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
-    // Private Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
@@ -1677,7 +1725,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml(string $attribute): string
+    protected function tableAttributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus':
@@ -1743,6 +1791,10 @@ class Order extends Element
             case 'totalPaid':
                 {
                     return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                }
+            case 'total':
+                {
+                    return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
                 }
             case 'totalPrice':
                 {
@@ -1829,8 +1881,8 @@ class Order extends Element
      */
     protected static function defineSources(string $context = null): array
     {
-        $allCriteria =  ['isCompleted' => true];
-        $count =  $count = Craft::configure(self::find(), $allCriteria)->count();
+        $allCriteria = ['isCompleted' => true];
+        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
 
         $sources = [
             '*' => [
@@ -1847,7 +1899,12 @@ class Order extends Element
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
-            $count = Craft::configure(self::find(), $criteriaStatus)->count();
+
+            $count = (new Query())
+                ->where($criteriaStatus)
+                ->from(['{{%commerce_orders}}'])
+                ->count();
+
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
@@ -1950,6 +2007,7 @@ class Order extends Element
             'number' => ['label' => Craft::t('commerce', 'Number')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
+            'total' => ['label' => Craft::t('commerce', 'Total')],
             'totalPrice' => ['label' => Craft::t('commerce', 'Total')],
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
             'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],

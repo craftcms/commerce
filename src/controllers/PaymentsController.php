@@ -107,6 +107,11 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
+        // Set if the customer should be registered on order completion
+        if ($request->getBodyParam('registerUserOnOrderComplete')) {
+            $order->registerUserOnOrderComplete = true;
+        }
+
         // These are used to compare if the order changed during its final
         // recalculation before payment.
         $originalTotalPrice = $order->getOutstandingBalance();
@@ -118,7 +123,7 @@ class PaymentsController extends BaseFrontEndController
             $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
 
             try {
-                $plugin->getCarts()->setPaymentCurrency($order, $currency);
+                $order->setPaymentCurrency($currency);
             } catch (CurrencyException $exception) {
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($exception->getMessage());

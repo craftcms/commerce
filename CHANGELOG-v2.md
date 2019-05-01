@@ -2,18 +2,94 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a bug where sometimes it was impossible to create a new gateway.
-- Fixed a SQL error raised when saving a variant with the same SKU as a soft-deleted variant. ([#718](https://github.com/craftcms/commerce/issues/718))
-- Fixed breadcrumb navigation on Store settings pages. ([#769](https://github.com/craftcms/commerce/issues/769))
-- Fixed a error that occurred when viewing the order of a deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
-- Fixed a performance issue when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758)
-- Fixed a bug where order status sorting order was not being saved for new statuses.
-- Fixed a bug where required fields on variant field layouts were not being validated. ([#761](https://github.com/craftcms/commerce/issues/761)
+### Added
+- Added `craft\commerce\helpers\Order::mergeDuplicateLineItems().`
+- Added `craft\commerce\helpers\Order::mergeOrders().`
 
 ### Changed
-- SKU uniqueness validation is not enforced at the application level.
+- A declined charge when starting a subscription will no longer create a subscription.
+
+## 2.1.4 - 2019-04-29
+
+### Added
+- Added `craft\commerce\base\SubscriptionResponseInterface::isInactive().`
+
+### Changed
+- Improved performance of the Orders index page. ([#828](https://github.com/craftcms/commerce/issues/828))
+- `commerce/cart/*` action JSON responses now list cart errors under an `errors` key.
+- Commerce now correctly typecasts all boolean and integer values saved to the project config.
+
+### Fixed
+- Fixed a SQL error that occurred when duplicate line items were added the cart. ([#506](https://github.com/craftcms/commerce/issues/506))
+- Fixed a PHP error on the View Order page when viewing inactive carts. ([#826](https://github.com/craftcms/commerce/issues/826))
+- Fixed a deprecation warning. ([#825](https://github.com/craftcms/commerce/issues/825))
+- Fixed a bug where the wrong variant could be set as the default when saving a product. ([#830](https://github.com/craftcms/commerce/issues/830))
+- Fixed a bug that prevented plugins and modules from adding custom index table attributes. ([#832](https://github.com/craftcms/commerce/pull/832))
+
+## 2.1.3.1 - 2019-04-10
+
+### Fixed
+- Fixed a bug where `project.yaml` changes weren’t always getting picked up.
+
+## 2.1.3 - 2019-04-03
+
+### Added
+- Added support for user registration on checkout. ([#472](https://github.com/craftcms/commerce/issues/472))
+- Added “Capture Payment” and “Refund Payment” user permissions. ([#788](https://github.com/craftcms/commerce/pull/788))
+- Added support for the `project-config/rebuild` command.
+- Added the `validateBusinessTaxIdAsVatId` setting, which can be set to `true` from `config/commerce.php`.
+- Added `craft\commerce\services\Addresses::EVENT_AFTER_DELETE_ADDRESS`. ([#810](https://github.com/craftcms/commerce/pull/810))
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.1.20 or later.
+- An `order` variable is now available to payment forms when a payment is made from the Control Panel.
+- Ajax requests to `commerce/cart/get-cart` now include the price of available shipping methods in the response.
+
+### Fixed
+- Fixed a bug where an order could be listed multiple times under “Attempted Payments” on order pages. ([#602](https://github.com/craftcms/commerce/issues/602))
+- Fixed a bug where product sources did not fully support using UIDs. ([#781](https://github.com/craftcms/commerce/issues/781))
+- Fixed a bug where non-admin users could get a 403 error when attempting to edit subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
+- Fixed a bug where products’ `defaultVariantId` was not getting set on the first save. ([#796](https://github.com/craftcms/commerce/issues/796))
+- Fixed a PHP error when querying for products with the `hasSales` param.
+- Fixed a bug where product metadata wasn’t available to templates on Live Preview requests.
+- Fixed a bug where the wrong Commerce subnav item could appear selected in the Control Panel.
+- Fixed a bug where taxes could be incorrectly calculated if included taxes had been removed from the price.
+- Fixed a bug where additional discounts could be incorrectly applied to an order if multiple products had been added to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
+- Fixed a bug where products’ Post Dates could be incorrect on first save. ([#774](https://github.com/craftcms/commerce/issues/774))
+- Fixed a bug where emails weren’t getting sent when the “Status Email Address” setting was set. ([#806](https://github.com/craftcms/commerce/issues/806))
+- Fixed a bug where order status email changes in `project.yaml` could be ignored. ([#802](https://github.com/craftcms/commerce/pull/802))
+- Fixed a PHP error that occurred when submitting a `paymentCurrency` parameter on a `commerce/payments/pay` request. ([#809](https://github.com/craftcms/commerce/pull/809))
+
+## 2.1.2 - 2019-03-12
+
+### Added
+- Added a “Minimum Total Price Strategy” setting that allows the minimum order price be negative (default), at least zero, or at least the shipping cost. ([#651](https://github.com/craftcms/commerce/issues/651))
+- Added `craft\commerce\elements\Order::getTotal()` to get the price of the order before any pricing strategies.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::refreshPaymentHistory()` method that should be used to refresh all payments on a subscription.
+- Added `craft\commerce\base\SubscriptionGateway::refreshPaymentHistory()` method to fulfill the interface requirements.
+
+### Changed
+- The `commerce-manageSubscriptions` permission is now required (instead of admin permissions) to manage another user's subscriptions. ([#722](https://github.com/craftcms/commerce/issues/722))
+
+## 2.1.1.1 - 2019-03-01
+
+### Fixed
+- Fixed a PHP error raised when a discount adjustment was applied to the cart.
+
+## 2.1.1 - 2019-03-11
+
+### Changed
+- Improved performance when listing products with sales that have many category conditions. ([#758](https://github.com/craftcms/commerce/issues/758))
 - Purchasable types are now responsible to ensure SKU uniqueness when they are restored from being soft-deleted.
+
+### Fixed
+- Fixed a bug where orders could receive free shipping on some line items when an expired coupon code had been entered. ([#777](https://github.com/craftcms/commerce/issues/777))
+- Fixed a bug where variants weren't enforcing required field validation. ([#761](https://github.com/craftcms/commerce/issues/761))
+- Fixed a bug where the sort order wasn't getting saved correctly for new order statuses.
+- Fixed the breadcrumb navigation on Store Settings pages. ([#769](https://github.com/craftcms/commerce/issues/769))
+- Fixed an error that occurred when viewing an order for a soft-deleted user. ([#771](https://github.com/craftcms/commerce/issues/771))
+- Fixed an error that could occur when saving a new gateway.
+- Fixed a SQL error that occurred when saving a purchasable with the same SKU as a soft-deleted purchasable. ([#718](https://github.com/craftcms/commerce/issues/718))
 
 ## 2.1.0.2 - 2019-02-25
 

@@ -23,6 +23,7 @@ use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -780,6 +781,17 @@ class ProductTypes extends Component
         $this->_memoizeProductType(new ProductType($result));
 
         return $this->_productTypesById[$productTypeId];
+    }
+
+    /**
+     * Returns a product type by its UID.
+     *
+     * @param string $uid the product type's UID
+     * @return ProductType|null either the product type or `null`
+     */
+    public function getProductTypeByUid(string $uid)
+    {
+        return ArrayHelper::firstWhere($this->getAllProductTypes(), 'uid', $uid, true);
     }
 
     /**

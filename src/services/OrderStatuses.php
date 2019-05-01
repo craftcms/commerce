@@ -207,8 +207,8 @@ class OrderStatuses extends Component
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
-                'sortOrder' => $orderStatus->sortOrder ?? 99,
-                'default' => $orderStatus->default,
+                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
+                'default' => (bool)$orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
         }
@@ -257,6 +257,10 @@ class OrderStatuses extends Component
             $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
 
             if (!empty($data['emails'])) {
+                foreach ($data['emails'] as $emailUid) {
+                    Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY.'.'.$emailUid);
+                }
+                
                 $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
 
                 foreach ($emailIds as $emailId) {

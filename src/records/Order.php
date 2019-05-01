@@ -42,11 +42,13 @@ use yii\db\ActiveQueryInterface;
  * @property string $paidStatus
  * @property string $paymentCurrency
  * @property int $paymentSourceId
+ * @property string $registerUserOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
  * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle
+ * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
  * @property Transaction[] $transactions

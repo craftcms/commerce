@@ -15,8 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
-use craft\db\Query;
-use craft\db\Table;
+use craft\validators\UniqueValidator;
 
 /**
  * Base Purchasable
@@ -189,19 +188,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $rules = parent::rules();
 
         $rules[] = [
-            'sku', function($attribute, $params, $validator) {
-
-                $found = (new Query())->select(['[[p.sku]]','[[e.id]]'])
-                    ->from('{{%commerce_purchasables}} p')
-                    ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
-                    ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
-                    ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
-                    ->count();
-
-                if ($found) {
-                    $this->addError($attribute, Craft::t('commerce', 'SKU "{sku}" has already been taken.', ['sku' => $this->getSku()]));
-                }
-            }
+            ['sku'],
+            UniqueValidator::class,
+            'targetClass' => PurchasableRecord::class,
+            'caseInsensitive' => true,
         ];
 
         return $rules;

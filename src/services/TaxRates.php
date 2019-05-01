@@ -251,6 +251,7 @@ class TaxRates extends Component
                 'taxable',
                 'isLite'
             ])
+            ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from(['{{%commerce_taxrates}}']);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {

@@ -264,6 +264,11 @@ class CartController extends BaseFrontEndController
             $this->_cart->setEmail($email);
         }
 
+        // Set if the customer should be registered on order completion
+        if ($registerUserOnOrderComplete = $request->getBodyParam('registerUserOnOrderComplete')) {
+            $this->_cart->registerUserOnOrderComplete = true;
+        }
+
         // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
@@ -315,6 +320,7 @@ class CartController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);

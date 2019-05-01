@@ -67,8 +67,10 @@ class Shipping extends Component implements AdjusterInterface
                 // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                 $hasFreeShippingFromDiscount = false;
                 foreach ($discounts as $discount) {
-                    if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount) && $discount->hasFreeShippingForMatchingItems) {
-                        $hasFreeShippingFromDiscount = true;
+                    if ($discount->hasFreeShippingForMatchingItems) {
+                        if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
+                            $hasFreeShippingFromDiscount = true;
+                        }
                     }
                 }
 
@@ -137,7 +139,7 @@ class Shipping extends Component implements AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
-        $adjustment->sourceSnapshot = $rule->getOptions();
+        $adjustment->sourceSnapshot = $rule->toArray();
         $adjustment->description = $rule->getDescription();
 
         return $adjustment;

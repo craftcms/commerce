@@ -17,6 +17,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
@@ -34,6 +35,7 @@ use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
 use craft\elements\User as UserElement;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
@@ -44,6 +46,7 @@ use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
@@ -86,7 +89,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.1.03';
+    public $schemaVersion = '2.1.06';
 
     /**
      * @inheritdoc
@@ -273,7 +276,7 @@ class Plugin extends BasePlugin
             $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:' . $productType->id;
+                    $productSources[] = 'productType:' . $productType->uid;
                 }
             }
 
@@ -311,7 +314,14 @@ class Plugin extends BasePlugin
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
-                'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
+                'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                    'commerce-capturePayment' => [
+                      'label' => Craft::t('commerce', 'Capture Payment')
+                    ],
+                    'commerce-refundPayment' => [
+                      'label' => Craft::t('commerce', 'Refund Payment')
+                    ],
+                  ]],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
@@ -374,6 +384,10 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $event) {
+            $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
+        });
     }
 
     /**

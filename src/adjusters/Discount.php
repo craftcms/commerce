@@ -78,38 +78,20 @@ class Discount extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
+        $adjustments = [];
+        $availableDiscounts = [];
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
 
-        // Find discounts with no coupon or the coupon that matches the order.
-        $availableDiscounts = [];
         foreach ($discounts as $discount) {
-
-            if (!$discount->enabled) {
-                continue;
-            }
-
-            if ($discount->code == null) {
+            if (Plugin::getInstance()->getDiscounts()->matchOrder($order, $discount)) {
                 $availableDiscounts[] = $discount;
-                continue;
-            }
-
-            if ($this->_order->couponCode && (strcasecmp($this->_order->couponCode, $discount->code) == 0)) {
-                $explanation = '';
-                if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this->_order, $explanation)) {
-                    $availableDiscounts[] = $discount;
-                } else {
-                    $this->_order->couponCode = null;
-                }
             }
         }
-
-        $adjustments = [];
-
 
         foreach ($availableDiscounts as $discount) {
             $newAdjustments = $this->_getAdjustments($discount);
             if ($newAdjustments) {
-                $adjustments = array_push($adjustments, ...$newAdjustments);
+                array_push($adjustments, ...$newAdjustments);
 
                 if ($discount->stopProcessing) {
                     break;
@@ -135,7 +117,7 @@ class Discount extends Component implements AdjusterInterface
         $adjustment->name = $discount->name;
         $adjustment->setOrder($this->_order);
         $adjustment->description = $discount->description;
-        $adjustment->sourceSnapshot = $discount->attributes;
+        $adjustment->sourceSnapshot = $discount->toArray();
 
         return $adjustment;
     }
@@ -162,18 +144,19 @@ class Discount extends Component implements AdjusterInterface
         $matchingTotal = 0;
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
+            $lineItemHashId = spl_object_hash($item);
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount)) {
                 if (!$this->_discount->allGroups) {
                     $customer = $this->_order->getCustomer();
                     $user = $customer ? $customer->getUser() : null;
                     $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
                     if ($user && array_intersect($userGroups, $this->_discount->getUserGroupIds())) {
-                        $matchingLineIds[] = $item->id;
+                        $matchingLineIds[] = $lineItemHashId;
                         $matchingQty += $item->qty;
                         $matchingTotal += $item->getSubtotal();
                     }
                 } else {
-                    $matchingLineIds[] = $item->id;
+                    $matchingLineIds[] = $lineItemHashId;
                     $matchingQty += $item->qty;
                     $matchingTotal += $item->getSubtotal();
                 }
@@ -200,7 +183,8 @@ class Discount extends Component implements AdjusterInterface
         }
 
         foreach ($this->_order->getLineItems() as $item) {
-            if (in_array($item->id, $matchingLineIds, false)) {
+            $lineItemHashId = spl_object_hash($item);
+            if ($matchingLineIds && in_array($lineItemHashId, $matchingLineIds, false)) {
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
                 $adjustment->setLineItem($item);
 

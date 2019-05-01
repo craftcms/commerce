@@ -302,7 +302,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('Category’s group (' . $this->groupId . ') is not enabled for site ' . $this->siteId);
+            throw new InvalidConfigException('The „' . $this->getType()->name . '” product group is not enabled for the „' . $this->getSite()->name . '” site.');
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -709,15 +709,15 @@ class Product extends Element
                     $variant->siteId = $this->siteId;
                 }
 
-                // We already have set the default to the correct variant in beforeSave()
-                if ($variant->isDefault) {
-                    $this->defaultVariantId = $variant->id;
-                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();;
-                }
-
                 $keepVariantIds[] = $variant->id;
 
                 Craft::$app->getElements()->saveElement($variant, false);
+
+                // We already have set the default to the correct variant in beforeSave()
+                if ($variant->isDefault) {
+                    $this->defaultVariantId = $variant->id;
+                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
+                }
             }
 
             foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
@@ -880,22 +880,21 @@ class Product extends Element
         }
 
         $defaultVariant = null;
-
         foreach ($this->getVariants() as $variant) {
             // Make the first variant (or the last one that isDefault) the default.
             if ($defaultVariant === null || $variant->isDefault) {
-                $defaultVariant = $variant;
+                $this->_defaultVariant = $defaultVariant = $variant;
             }
         }
-
-        $this->_defaultVariant = $defaultVariant;
 
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
-            $this->postDate = DateTimeHelper::currentUTCDateTime();
+            $this->postDate = new \DateTime();
+            // ...without the seconds
+            $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }
 
         return parent::beforeSave($isNew);
@@ -938,7 +937,7 @@ class Product extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
 
         foreach ($productTypes as $productType) {
-            $key = 'productType:' . $productType->id;
+            $key = 'productType:' . $productType->uid;
             $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
 
             $sources[$key] = [
@@ -971,6 +970,12 @@ class Product extends Element
                 {
                     if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
                         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
+
+                        if ($productType) {
+                            $productTypes = [$productType];
+                        }
+                    } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                         if ($productType) {
                             $productTypes = [$productType];

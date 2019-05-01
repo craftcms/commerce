@@ -76,6 +76,10 @@ class ProductTypesController extends BaseAdminController
                 'label' => Craft::t('commerce', 'Settings'),
                 'url' => '#product-type-settings',
             ],
+            'taxAndShipping' => [
+                'label' => Craft::t('commerce', 'Tax & Shipping'),
+                'url' => '#tax-and-shipping',
+            ],
             'productFields' => [
                 'label' => Craft::t('commerce', 'Product Fields'),
                 'url' => '#product-fields',

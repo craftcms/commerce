@@ -27,7 +27,6 @@ use yii\web\Response;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * TODO when checking if subscription is currentUser's, allow for commerce permission instead of admin
  */
 class SubscriptionsController extends BaseController
 {
@@ -94,13 +93,39 @@ class SubscriptionsController extends BaseController
         $subscription->setFieldValuesFromRequest('fields');
 
         if (Craft::$app->getElements()->saveElement($subscription)) {
-            $this->redirectToPostedUrl($subscription);
+            return $this->redirectToPostedUrl($subscription);
         }
 
         Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription..'));
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+    }
+
+    /**
+     * Refreshes all subscription payments
+     *
+     * @return Response|null
+     * @throws BadRequestHttpException If not POST request
+     * @throws ForbiddenHttpException If permissions are lacking
+     * @throws NotFoundHttpException If subscription not found
+     */
+    public function actionRefreshPayments(): Response
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
+
+        if (!$subscription = Subscription::find()->id($subscriptionId)->one()) {
+            throw new NotFoundHttpException('Subscription not found');
+        }
+
+        $gateway = $subscription->getGateway();
+        $gateway->refreshPaymentHistory($subscription);
+
+        // Save
+        return $this->redirectToPostedUrl($subscription);
     }
 
     /**
@@ -150,16 +175,17 @@ class SubscriptionsController extends BaseController
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                 }
+
+                $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
+                $fieldValues = $request->getBodyParam($fieldsLocation, []);
+
+                $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
             } catch (\Throwable $exception) {
                 Craft::error($exception->getMessage(), 'commerce');
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
 
-            $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
-            $fieldValues = $request->getBodyParam($fieldsLocation, []);
-
-            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }
@@ -206,7 +232,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -263,7 +289,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -333,7 +359,7 @@ class SubscriptionsController extends BaseController
             $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */

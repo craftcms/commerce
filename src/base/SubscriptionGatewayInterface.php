@@ -55,6 +55,13 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function getSubscriptionPayments(Subscription $subscription): array;
 
     /**
+     * Refresh the subscription payment history for a given subscription.
+     *
+     * @param Subscription $subscription
+     */
+    public function refreshPaymentHistory(Subscription $subscription);
+
+    /**
      * Returns a subscription plan by its reference
      *
      * @param string $reference

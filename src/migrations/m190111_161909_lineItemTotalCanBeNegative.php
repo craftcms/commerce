@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use yii\db\Expression;
 
 /**
  * m190111_161909_lineItemTotalCanBeNegative migration.

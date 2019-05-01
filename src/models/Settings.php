@@ -24,6 +24,13 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
+
+    // Constants
+    // =========================================================================
+    const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
+    const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
+    const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
+
     // Properties
     // =========================================================================
 
@@ -78,6 +85,11 @@ class Settings extends Model
     public $emailSenderNamePlaceholder;
 
     /**
+     * @var string
+     */
+    public $minimumTotalPriceStrategy = 'default';
+
+    /**
      * @var array
      */
     public $paymentCurrency;
@@ -106,6 +118,11 @@ class Settings extends Model
      * @var bool
      */
     public $useBillingAddressForTax = false;
+
+    /**
+     * @var bool
+     */
+    public $validateBusinessTaxIdAsVatId = false;
 
     /**
      * @var bool
@@ -168,6 +185,18 @@ class Settings extends Model
             'm' => Craft::t('commerce', 'Meters (m)'),
             'ft' => Craft::t('commerce', 'Feet (ft)'),
             'in' => Craft::t('commerce', 'Inches (in)'),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getMinimumTotalPriceStrategyOptions(): array
+    {
+        return [
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 

@@ -5,68 +5,85 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\migrations;
+namespace craft\commerce\helpers;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
-use craft\commerce\services\Emails;
-use craft\commerce\services\Orders;
-use craft\commerce\services\OrderStatuses;
-use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Subscriptions;
-use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\StringHelper;
+use craft\helpers\Json;
 
 /**
- * m181206_120000_remaining_project_config_support migration.
+ * Class ProjectConfigData
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 2.1.3
  */
-class m181206_120000_remaining_project_config_support extends Migration
+class ProjectConfigData
 {
+    // Public Methods
+    // =========================================================================
+
+
+    // Project config rebuild methods
+    // =========================================================================
+
     /**
-     * @inheritdoc
+     * Return a rebuilt project config array
+     * @return array
      */
-    public function safeUp()
+    public static function rebuildProjectConfig(): array
     {
-        // Don't make the same config changes twice
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '2.0.55', '>')) {
-            return true;
-        }
-
-        $id = (new Query())->select(['fieldLayoutId'])->from(['{{%commerce_ordersettings}}'])->scalar();
-        // Field layouts
-        $orderFieldLayout = Craft::$app->getFields()->getLayoutById($id);
-        Craft::$app->getFields()->deleteLayoutById($id);
-
-        if ($orderFieldLayout && $layoutConfig = $orderFieldLayout->getConfig()) {
-            $orderConfigData = [StringHelper::UUID() => $layoutConfig];
-            $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
-        }
+        $output = [];
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
-        Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
-        $layoutConfig = $subscriptionFieldLayout->getConfig();
 
-        if ($layoutConfig) {
-            $subscriptionConfigData = [StringHelper::UUID() => $layoutConfig];
-            $projectConfig->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $subscriptionConfigData);
+        if ($subscriptionFieldLayout->uid) {
+            $output['subscriptions'] = [
+                'fieldLayouts' => [
+                    $subscriptionFieldLayout->uid => $subscriptionFieldLayout->getConfig()
+                ]
+            ];
         }
 
-        $productTypeData = $this->_getProductTypeData();
-        $projectConfig->set(ProductTypes::CONFIG_PRODUCTTYPES_KEY, $productTypeData);
+        $output['gateways'] = self::_rebuildGatewayProjectConfig();
 
-        $emailData = $this->_getEmailData();
-        $projectConfig->set(Emails::CONFIG_EMAILS_KEY, $emailData);
+        $output['productTypes'] = self::_getProductTypeData();
+        $output['emails'] = self::_getEmailData();
+        $output['orderStatuses'] = self::_getStatusData();
 
-        $statusData = $this->_getStatusData();
-        $projectConfig->set(OrderStatuses::CONFIG_STATUSES_KEY, $statusData);
+        return $output;
+    }
 
-        $this->dropTableIfExists('{{%commerce_ordersettings}}');
+    /**
+     * Return gateway data config array.
+     *
+     * @return array
+     */
+    private static function _rebuildGatewayProjectConfig(): array
+    {
+        $gatewayData = (new Query())
+            ->select(['*'])
+            ->from(['{{%commerce_gateways}}'])
+            ->where(['isArchived' => false])
+            ->all();
 
-        return true;
+        $configData = [];
+
+        foreach ($gatewayData as $gatewayRow) {
+            $settings = Json::decodeIfJson($gatewayRow['settings']);
+            $configData[$gatewayRow['uid']] = [
+                'name' => $gatewayRow['name'],
+                'handle' => $gatewayRow['handle'],
+                'type' => $gatewayRow['type'],
+                'settings' => $settings,
+                'sortOrder' => (int)$gatewayRow['sortOrder'],
+                'paymentType' => $gatewayRow['paymentType'],
+                'isFrontendEnabled' => (bool)$gatewayRow['isFrontendEnabled'],
+            ];
+        }
+
+
+        return $configData;
     }
 
     /**
@@ -74,7 +91,7 @@ class m181206_120000_remaining_project_config_support extends Migration
      *
      * @return array
      */
-    private function _getProductTypeData(): array
+    private static function _getProductTypeData(): array
     {
         $productTypeRows = (new Query())
             ->select([
@@ -115,10 +132,9 @@ class m181206_120000_remaining_project_config_support extends Migration
             }
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
-
-            $productTypeRows['hasDimensions'] = (bool)$productTypeRows['hasDimensions'];
-            $productTypeRows['hasVariants'] = (bool)$productTypeRows['hasVariants'];
-            $productTypeRows['hasVariantTitleField'] = (bool)$productTypeRows['hasVariantTitleField'];
+            $productTypeRow['hasDimensions'] =  (bool)$productTypeRow['hasDimensions'];
+            $productTypeRow['hasVariants'] =  (bool)$productTypeRow['hasVariants'];
+            $productTypeRow['hasVariantTitleField'] =  (bool)$productTypeRow['hasVariantTitleField'];
 
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
@@ -155,7 +171,7 @@ class m181206_120000_remaining_project_config_support extends Migration
      *
      * @return array
      */
-    private function _getEmailData(): array
+    private static function _getEmailData(): array
     {
         $emailRows = (new Query())
             ->select([
@@ -177,6 +193,7 @@ class m181206_120000_remaining_project_config_support extends Migration
 
         foreach ($emailRows as &$row) {
             unset($row['uid']);
+
             $row['enabled'] = (bool)$row['enabled'];
             $row['attachPdf'] = (bool)$row['attachPdf'];
         }
@@ -189,7 +206,7 @@ class m181206_120000_remaining_project_config_support extends Migration
      *
      * @return array
      */
-    private function _getStatusData(): array
+    private static function _getStatusData(): array
     {
         $statusData = [];
 
@@ -238,14 +255,5 @@ class m181206_120000_remaining_project_config_support extends Migration
         }
 
         return $statusData;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function safeDown()
-    {
-        echo "m181206_120000_remaining_project_config_support cannot be reverted.\n";
-        return false;
     }
 }
