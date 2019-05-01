@@ -221,8 +221,8 @@ Possible values include:
 
 ```php
 // Fetch products created last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+$start = (new \DateTime('first day of last month'))->format(\DateTime::ATOM);
+$end = (new \DateTime('first day of this month'))->format(\DateTime::ATOM);
 
 $products = \craft\commerce\elements\Product::find()
     ->dateCreated(['and', ">= {$start}", "< {$end}"])
@@ -259,7 +259,7 @@ Possible values include:
 
 ```php
 // Fetch products updated in the last week
-$lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
+$lastWeek = (new \DateTime('1 week ago'))->format(\DateTime::ATOM);
 
 $products = \craft\commerce\elements\Product::find()
     ->dateUpdated(">= {$lastWeek}")
@@ -464,14 +464,14 @@ Determines the order that the products should be returned in.
 ```twig
 {# Fetch all products in order of date created #}
 {% set products = craft.products()
-    .orderBy('elements.dateCreated asc')
+    .orderBy('dateCreated asc')
     .all() %}
 ```
 
 ```php
 // Fetch all products in order of date created
 $products = \craft\commerce\elements\Product::find()
-    ->orderBy('elements.dateCreated asc')
+    ->orderBy('dateCreated asc')
     ->all();
 ```
 :::
@@ -554,7 +554,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
 ::: code
 ```twig
 {# Get the search query from the 'q' query string param #}
-{% set searchQuery = craft.request.getQueryParam('q') %}
+{% set searchQuery = craft.app.request.getQueryParam('q') %}
 
 {# Fetch all products that match the search query #}
 {% set products = craft.products()
@@ -743,6 +743,31 @@ Possible values include:
 // Fetch products with a title that contains "Foo"
 $products = \craft\commerce\elements\Product::find()
     ->title('*Foo*')
+    ->all();
+```
+:::
+
+
+### `trashed`
+
+Narrows the query results to only products that have been soft-deleted.
+
+
+
+
+
+::: code
+```twig
+{# Fetch trashed products #}
+{% set products = {twig-function}
+    .trashed()
+    .all() %}
+```
+
+```php
+// Fetch trashed products
+$products = \craft\commerce\elements\Product::find()
+    ->trashed()
     ->all();
 ```
 :::
