@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\helpers\Order::mergeDuplicateLineItems().`
+- Added `craft\commerce\helpers\Order::mergeOrders().`
+
 ### Changed
 - A declined charge when starting a subscription will no longer create a subscription.
 
