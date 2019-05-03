@@ -197,8 +197,8 @@ Possible values include:
 
 ```php
 // Fetch orders created last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+$start = (new \DateTime('first day of last month'))->format(\DateTime::ATOM);
+$end = (new \DateTime('first day of this month'))->format(\DateTime::ATOM);
 
 $orders = \craft\commerce\elements\Order::find()
     ->dateCreated(['and', ">= {$start}", "< {$end}"])
@@ -305,7 +305,7 @@ Possible values include:
 
 ```php
 // Fetch orders updated in the last week
-$lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
+$lastWeek = (new \DateTime('1 week ago'))->format(\DateTime::ATOM);
 
 $orders = \craft\commerce\elements\Order::find()
     ->dateUpdated(">= {$lastWeek}")
@@ -448,6 +448,29 @@ Possible values include:
 | an array of [PurchasableInterface](api:craft\commerce\base\PurchasableInterface) objects | with all the purchasables represented by the objects.
 
 
+
+
+### `hasTransactions`
+
+Narrows the query results to only carts that have at least one transaction.
+
+
+
+::: code
+```twig
+{# Fetch carts that have attempted payments #}
+{% set orders = {twig-function}
+    .hasTransactions()
+    .all() %}
+```
+
+```php
+// Fetch carts that have attempted payments
+$orders = \craft\commerce\elements\Order::find()
+    ->hasTransactions()
+    ->all();
+```
+:::
 
 
 ### `id`
@@ -671,14 +694,14 @@ Determines the order that the orders should be returned in.
 ```twig
 {# Fetch all orders in order of date created #}
 {% set orders = craft.orders()
-    .orderBy('elements.dateCreated asc')
+    .orderBy('dateCreated asc')
     .all() %}
 ```
 
 ```php
 // Fetch all orders in order of date created
 $orders = \craft\commerce\elements\Order::find()
-    ->orderBy('elements.dateCreated asc')
+    ->orderBy('dateCreated asc')
     ->all();
 ```
 :::
@@ -749,6 +772,37 @@ $orders = \craft\commerce\elements\Order::find()
 :::
 
 
+### `reference`
+
+Narrows the query results based on the order reference.
+
+Possible values include:
+
+| Value | Fetches orders…
+| - | -
+| `'xxxx'` | with a matching order reference
+
+
+
+::: code
+```twig
+{# Fetch the requested order #}
+{% set orderReference = craft.app.request.getQueryParam('ref') %}
+{% set order = craft.orders()
+    .reference(orderReference)
+    .one() %}
+```
+
+```php
+// Fetch the requested order
+$orderReference = Craft::$app->request->getQueryParam('ref');
+$order = \craft\commerce\elements\Order::find()
+    ->reference($orderReference)
+    ->one();
+```
+:::
+
+
 ### `relatedTo`
 
 Narrows the query results to only orders that are related to certain other elements.
@@ -789,7 +843,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
 ::: code
 ```twig
 {# Get the search query from the 'q' query string param #}
-{% set searchQuery = craft.request.getQueryParam('q') %}
+{% set searchQuery = craft.app.request.getQueryParam('q') %}
 
 {# Fetch all orders that match the search query #}
 {% set orders = craft.orders()
@@ -804,6 +858,31 @@ $searchQuery = \Craft::$app->request->getQueryParam('q');
 // Fetch all orders that match the search query
 $orders = \craft\commerce\elements\Order::find()
     ->search($searchQuery)
+    ->all();
+```
+:::
+
+
+### `trashed`
+
+Narrows the query results to only orders that have been soft-deleted.
+
+
+
+
+
+::: code
+```twig
+{# Fetch trashed orders #}
+{% set orders = {twig-function}
+    .trashed()
+    .all() %}
+```
+
+```php
+// Fetch trashed orders
+$orders = \craft\commerce\elements\Order::find()
+    ->trashed()
     ->all();
 ```
 :::
