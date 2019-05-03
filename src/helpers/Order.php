@@ -28,7 +28,14 @@ class Order
             $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
             if (isset($lineItemsByKey[$key])) {
                 $lineItemsByKey[$key]->qty += $lineItem->qty;
-                $lineItemsByKey[$key]->note = $lineItemsByKey[$key]->note . ' - ' . $lineItem->note;
+                // If a note already exists, merge it.
+                if($lineItemsByKey[$key]->note && $lineItem->note)
+                {
+                    $lineItemsByKey[$key]->note = $lineItemsByKey[$key]->note . ' - ' . $lineItem->note;
+                }else{
+                    $lineItemsByKey[$key]->note = $lineItem->note;
+                }
+
             } else {
                 $lineItemsByKey[$key] = $lineItem;
             }
