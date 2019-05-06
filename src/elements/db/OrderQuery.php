@@ -49,6 +49,7 @@ class OrderQuery extends ElementQuery
 
     /**
      * @var string The order reference of the resulting order.
+     * @used-by reference()
      */
     public $reference;
 
@@ -143,6 +144,48 @@ class OrderQuery extends ElementQuery
             default:
                 parent::__set($name, $value);
         }
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ last-updated dates.
+     *
+     * @param string|DateTime $value The property value
+     * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
+     */
+    public function updatedAfter($value)
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+
+        if ($value instanceof DateTime) {
+            $value = $value->format(DateTime::W3C);
+        }
+
+        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
+        $this->dateUpdated[] = '>='.$value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ last-updated dates.
+     *
+     * @param string|DateTime $value The property value
+     * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
+     */
+    public function updatedBefore($value)
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+
+        if ($value instanceof DateTime) {
+            $value = $value->format(DateTime::W3C);
+        }
+
+        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
+        $this->dateUpdated[] = '<'.$value;
+
+        return $this;
     }
 
     /**
@@ -398,48 +441,6 @@ class OrderQuery extends ElementQuery
     public function expiryDate($value)
     {
         $this->expiryDate = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedAfter($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>=' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedBefore($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<' . $value;
-
         return $this;
     }
 
@@ -917,9 +918,10 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->hasTransactions) {
-            $this->subQuery->andWhere(['exists', (new Query())
-                ->from(['{{%commerce_transactions}} transactions'])
-                ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            $this->subQuery->andWhere([
+                'exists', (new Query())
+                    ->from(['{{%commerce_transactions}} transactions'])
+                    ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
             ]);
         }
 
