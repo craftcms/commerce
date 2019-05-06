@@ -92,4 +92,11 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
         return $this->_isCanceled;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function isInactive(): bool
+    {
+        return false;
+    }
 }

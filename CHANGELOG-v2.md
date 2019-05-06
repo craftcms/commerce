@@ -11,6 +11,9 @@ previous items in old carts retored to the current cart on login.
 ### Changed
 - A declined charge when starting a subscription will no longer create a subscription.
 
+### Fixed
+- Fixed a PHP error with Dummy gateway subscriptions.
+
 ## 2.1.4 - 2019-04-29
 
 ### Added
