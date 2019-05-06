@@ -90,7 +90,7 @@ class ProductQuery extends ElementQuery
     public $defaultWeight;
 
     /**
-     * @var float The default sku the resulting products must have.
+     * @var mixed The default sku the resulting products must have.
      */
     public $defaultSku;
 
