@@ -3,11 +3,15 @@
 ## Unreleased
 
 ### Added
+- Added the `mergePreviousCartsOnCustomerLogin` setting, which allows customers to have previous items in old carts restored to the current cart on login.
 - Added `craft\commerce\helpers\Order::mergeDuplicateLineItems().`
 - Added `craft\commerce\helpers\Order::mergeOrders().`
 
 ### Changed
 - A declined charge when starting a subscription will no longer create a subscription.
+
+### Fixed
+- Fixed a PHP error with Dummy gateway subscriptions.
 
 ## 2.1.4 - 2019-04-29
 

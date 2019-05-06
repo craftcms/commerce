@@ -1901,8 +1901,9 @@ class Order extends Element
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
 
             $count = (new Query())
-                ->where($criteriaStatus)
-                ->from(['{{%commerce_orders}}'])
+                ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
+                ->from(['{{%commerce_orders}} o'])
+                ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
                 ->count();
 
             $sources[] = [

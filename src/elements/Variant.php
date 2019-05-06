@@ -462,10 +462,6 @@ class Variant extends Purchasable
         $data['onSale'] = $this->getOnSale();
 
         $data['cpEditUrl'] = $this->getProduct() ? $this->getProduct()->getCpEditUrl() : [];
-
-        // Product Attributes
-        $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
-
         // Default Product custom field handles
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
@@ -518,7 +514,7 @@ class Variant extends Purchasable
 
         $data['fields'] = $variantDataEvent->fieldData;
 
-        return array_merge($this->getAttributes(), $data);
+        return $data;
     }
 
     /**

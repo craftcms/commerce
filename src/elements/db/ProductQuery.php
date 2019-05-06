@@ -45,19 +45,14 @@ class ProductQuery extends ElementQuery
     // =========================================================================
 
     /**
+     * @var bool Whether the product is available for purchase
+     */
+    public $availableForPurchase;
+
+    /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
     public $editable = false;
-
-    /**
-     * @var int|int[]|null The product type ID(s) that the resulting products must have.
-     */
-    public $typeId;
-
-    /**
-     * @var mixed The Post Date that the resulting products must have.
-     */
-    public $postDate;
 
     /**
      * @var mixed The Post Date that the resulting products must have.
@@ -90,7 +85,7 @@ class ProductQuery extends ElementQuery
     public $defaultWeight;
 
     /**
-     * @var float The default sku the resulting products must have.
+     * @var mixed The default sku the resulting products must have.
      */
     public $defaultSku;
 
@@ -100,9 +95,14 @@ class ProductQuery extends ElementQuery
     public $hasVariant;
 
     /**
-     * @var bool Whether the product is available for purchase
+     * @var mixed The Post Date that the resulting products must have.
      */
-    public $availableForPurchase;
+    public $postDate;
+
+    /**
+     * @var int|int[]|null The product type ID(s) that the resulting products must have.
+     */
+    public $typeId;
 
     /**
      * @inheritdoc
