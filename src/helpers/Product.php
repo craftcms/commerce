@@ -16,7 +16,7 @@ use craft\helpers\Localization as LocalizationHelper;
 use yii\web\HttpException;
 
 /**
- * Class CommerceVariantMatrixHelper
+ * Product helper
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

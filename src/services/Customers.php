@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
@@ -254,11 +255,21 @@ class Customers extends Component
      */
     public function loginHandler(UserEvent $event)
     {
-        // Remove the customer from session.
+        // Remove the old customer from the session.
         $this->forgetCustomer();
         /** @var User $user */
         $user = $event->identity;
         $this->consolidateOrdersToUser($user);
+
+        // Recover previous cart(s) of user
+        $previousOrder = null;
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+        $previousOrders = Order::find()->isCompleted(false)->user($user)->all();
+        foreach ($previousOrders as $previousOrder) {
+            if ($cart->id != $previousOrder->id) {
+                OrderHelper::mergeOrders($cart, $previousOrder);
+            }
+        }
     }
 
     /**
