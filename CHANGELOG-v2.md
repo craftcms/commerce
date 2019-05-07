@@ -3,15 +3,15 @@
 ## Unreleased
 
 ### Added
-- Added `craft\commerce\helpers\Order::mergeDuplicateLineItems().`
-- Added `craft\commerce\helpers\Order::mergeOrders().`
+- Added `craft\commerce\helpers\Order::mergeDuplicateLineItems()`.
+- Added `craft\commerce\helpers\Order::mergeOrders()`.
 
 ### Changed
 - Customers’ previous cart items are now merged into the active cart on login.
-- A declined charge when starting a subscription will no longer create a subscription.
 
 ### Fixed
-- Fixed a PHP error with Dummy gateway subscriptions.
+- Fixed a bug where Commerce would create a subscription even if the card was declined.
+- Fixed an error that could occur when creating a subscription using the Dummy gateway.
 
 ## 2.1.4 - 2019-04-29
 
