@@ -90,11 +90,6 @@ class Settings extends Model
     public $minimumTotalPriceStrategy = 'default';
 
     /**
-     * @var bool
-     */
-    public $mergePreviousCartsOnCustomerLogin = false;
-
-    /**
      * @var array
      */
     public $paymentCurrency;
