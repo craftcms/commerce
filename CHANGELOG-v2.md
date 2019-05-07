@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.5 - 2019-05-07
 
 ### Added
 - Added `craft\commerce\helpers\Order::mergeDuplicateLineItems()`.
