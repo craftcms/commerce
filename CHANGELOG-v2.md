@@ -1,8 +1,16 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+## Changed
+- Line item options are not automatically sorted anymore.
+
+## Fixed
+- Restored missing line item snapshot data. ([#846](https://github.com/craftcms/commerce/issues/846))
+
 ## 2.1.5.2 - 2019-05-08
 
-### Fixed
+## Fixed
 - Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
 - Fixed an error that could occur when a customer logged in. 
 - Fixed an error that occurred when saving a sale. ([#837](https://github.com/craftcms/commerce/issues/837))
