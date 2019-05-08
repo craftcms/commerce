@@ -283,7 +283,7 @@ class Product extends Element
             'title' => $this->title
         ];
 
-        return array_merge($this->getAttributes(), $data);
+        return array_merge($this->toArray(), $data);
     }
 
     /**

@@ -518,7 +518,7 @@ class Variant extends Purchasable
 
         $data['fields'] = $variantDataEvent->fieldData;
 
-        return $data;
+        return array_merge($this->toArray(), $data);
     }
 
     /**
