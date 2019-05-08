@@ -93,18 +93,12 @@ class SalesController extends BaseCpController
         $sale = new Sale();
 
         // Shared attributes
-        $fields = [
-            'id',
-            'name',
-            'description',
-            'apply',
-            'enabled'
-        ];
         $request = Craft::$app->getRequest();
-
-        foreach ($fields as $field) {
-            $sale->$field = $request->getBodyParam($field);
-        }
+        $sale->id = $request->getBodyParam('id');
+        $sale->name = $request->getBodyParam('name');
+        $sale->description = $request->getBodyParam('description');
+        $sale->apply = $request->getBodyParam('apply');
+        $sale->enabled = (bool)$request->getBodyParam('enabled');
 
         $dateFields = [
             'dateFrom',

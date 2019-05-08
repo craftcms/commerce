@@ -5,6 +5,7 @@
 ## Fixed
 - Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
 - Fixed a PHP error when a customer logs in. 
+- Fixed a SQL error that occurred when saving a sale. ([#837](https://github.com/craftcms/commerce/issues/837))
 
 ## 2.1.5.1 - 2019-05-07
 
