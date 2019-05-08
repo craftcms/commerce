@@ -452,7 +452,7 @@ class Payments extends Component
 
                 // Gather all post hidden data inputs.
                 foreach ($response->getRedirectData() as $key => $value) {
-                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false)) . "\n";
+                    $hiddenFields .= sprintf('<input type="hidden" name="%1$s" value="%2$s" />', htmlentities($key, ENT_QUOTES, 'UTF-8', false), htmlentities($value, ENT_QUOTES, 'UTF-8', false))."\n";
                 }
 
                 $variables['inputs'] = $hiddenFields;
@@ -494,7 +494,7 @@ class Payments extends Component
         $gateway = $parent->getGateway();
 
         try {
-            $response = $gateway->capture($child, $parent->reference);
+            $response = $gateway->capture($child, (string)$parent->reference);
             $this->_updateTransaction($child, $response);
         } catch (\Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
@@ -561,7 +561,7 @@ class Payments extends Component
     private function _saveTransaction($child)
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
-            throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
+            throw new TransactionException('Error saving transaction: '.implode(', ', $child->errors));
         }
     }
 

@@ -263,7 +263,7 @@ class Customers extends Component
 
         // Recover previous cart(s) of user
         $previousOrder = null;
-        $cart = Plugin::getInstance()->getCarts()->getCart();
+        $cart = Plugin::getInstance()->getCarts()->getCart(true);
         $previousOrders = Order::find()->isCompleted(false)->user($user)->all();
         foreach ($previousOrders as $previousOrder) {
             if ($cart->id != $previousOrder->id) {

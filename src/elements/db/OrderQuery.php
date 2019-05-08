@@ -855,7 +855,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email));
         }
 
-        if ($this->isCompleted) {
+        // Allow true ot false but not null
+        if ($this->isCompleted !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted));
         }
 
@@ -887,42 +888,54 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
         }
 
-        if ($this->isPaid) {
-            $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
-        }
-
-        if ($this->isUnpaid) {
-            $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
-        }
-
-        if ($this->hasPurchasables) {
-            $purchasableIds = [];
-
-            if (!is_array($this->hasPurchasables)) {
-                $this->hasPurchasables = [$this->hasPurchasables];
+        // Allow true ot false but not null
+        if ($this->isPaid !== null) {
+            if ($this->isPaid) {
+                $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
             }
+        }
 
-            foreach ($this->hasPurchasables as $purchasable) {
-                if ($purchasable instanceof PurchasableInterface) {
-                    $purchasableIds[] = $purchasable->getId();
-                } else if (is_numeric($purchasable)) {
-                    $purchasableIds[] = $purchasable;
+        // Allow true ot false but not null
+        if ($this->isPaid !== null) {
+            if ($this->isUnpaid) {
+                $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
+            }
+        }
+
+        // Allow true ot false but not null
+        if ($this->hasPurchasables !== null) {
+            if ($this->hasPurchasables) {
+                $purchasableIds = [];
+
+                if (!is_array($this->hasPurchasables)) {
+                    $this->hasPurchasables = [$this->hasPurchasables];
                 }
+
+                foreach ($this->hasPurchasables as $purchasable) {
+                    if ($purchasable instanceof PurchasableInterface) {
+                        $purchasableIds[] = $purchasable->getId();
+                    } else if (is_numeric($purchasable)) {
+                        $purchasableIds[] = $purchasable;
+                    }
+                }
+
+                // Remove any blank purchasable IDs (if any)
+                $purchasableIds = array_filter($purchasableIds);
+
+                $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
+                $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
             }
-
-            // Remove any blank purchasable IDs (if any)
-            $purchasableIds = array_filter($purchasableIds);
-
-            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
-        if ($this->hasTransactions) {
-            $this->subQuery->andWhere([
-                'exists', (new Query())
-                    ->from(['{{%commerce_transactions}} transactions'])
-                    ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
-            ]);
+        // Allow true ot false but not null
+        if ($this->hasPurchasables !== null) {
+            if ($this->hasTransactions) {
+                $this->subQuery->andWhere([
+                    'exists', (new Query())
+                        ->from(['{{%commerce_transactions}} transactions'])
+                        ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+                ]);
+            }
         }
 
         return parent::beforePrepare();

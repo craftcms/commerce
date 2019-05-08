@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.1.5.2 - 2019-05-08
+
+## Fixed
+- Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
+- Fixed an error that could occur when a customer logged in. 
+- Fixed an error that occurred when saving a sale. ([#837](https://github.com/craftcms/commerce/issues/837))
+
 ## 2.1.5.1 - 2019-05-07
 
 ## Fixed
