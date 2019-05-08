@@ -12,6 +12,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\db\Query;
 use craft\helpers\Json;
 use yii\base\Component;
@@ -121,8 +122,7 @@ class LineItems extends Component
      */
     public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
     {
-        ksort($options);
-        $signature = md5(Json::encode($options));
+        $signature = LineItemHelper::generateOptionsSignature($options);
 
         $result = $this->_createLineItemQuery()
             ->where([

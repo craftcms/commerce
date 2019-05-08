@@ -15,6 +15,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
@@ -190,8 +191,6 @@ class LineItem extends Model
             throw new InvalidArgumentException('Options must be an array.');
         }
 
-        ksort($options);
-
         $this->_options = $options;
     }
 
@@ -200,7 +199,7 @@ class LineItem extends Model
      */
     public function getOptionsSignature()
     {
-        return md5(Json::encode($this->_options));
+        return LineItemHelper::generateOptionsSignature($this->_options);
     }
 
 
