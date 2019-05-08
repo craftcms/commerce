@@ -163,6 +163,7 @@ class LineItem extends Model
      */
     public function setOrder(Order $order)
     {
+        $this->orderId = $order->id;
         $this->_order = $order;
     }
 

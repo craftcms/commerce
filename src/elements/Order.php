@@ -2129,6 +2129,7 @@ class Order extends Element
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
+            $lineItem->setOrder($this);
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
 
