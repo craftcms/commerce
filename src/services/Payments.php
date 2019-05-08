@@ -494,7 +494,7 @@ class Payments extends Component
         $gateway = $parent->getGateway();
 
         try {
-            $response = $gateway->capture($child, $parent->reference);
+            $response = $gateway->capture($child, (string)$parent->reference);
             $this->_updateTransaction($child, $response);
         } catch (\Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
