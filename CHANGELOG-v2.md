@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+## Fixed
+- Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
+
 ## 2.1.5.1 - 2019-05-07
 
 ## Fixed
