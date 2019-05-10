@@ -9,6 +9,7 @@
 - Restored missing line item snapshot data. ([#846](https://github.com/craftcms/commerce/issues/846))
 - Fixed an SQL error that occurred when saving a SKU that is too long. ([#853](https://github.com/craftcms/commerce/issues/853))
 - Fixed an SQL error that could occur when updating a trashed cart from the front-end. ([#854](https://github.com/craftcms/commerce/issues/854))
+- Fixed the line item quantity validators to caclulate correct quantity values. ([#855](https://github.com/craftcms/commerce/pull/855)) 
 
 ## 2.1.5.2 - 2019-05-08
 
