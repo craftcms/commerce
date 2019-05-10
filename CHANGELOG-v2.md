@@ -7,6 +7,7 @@
 
 ## Fixed
 - Restored missing line item snapshot data. ([#846](https://github.com/craftcms/commerce/issues/846))
+- Fixed an SQL error that occurred when saving a SKU that is too long. ([#853](https://github.com/craftcms/commerce/issues/853))
 
 ## 2.1.5.2 - 2019-05-08
 

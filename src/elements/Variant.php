@@ -239,7 +239,7 @@ class Variant extends Purchasable
     {
         $rules = parent::rules();
 
-        $rules[] = [['sku'], 'string'];
+        $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required'];
         $rules[] = [['price'], 'number'];
         $rules[] = [
