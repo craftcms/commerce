@@ -600,29 +600,17 @@ class Variant extends Purchasable
             return [];
         }
 
-        $qty = [];
-        foreach ($order->getLineItems() as $item) {
-            if (!isset($qty[$item->purchasableId])) {
-                $qty[$item->purchasableId] = 0;
-            }
-
-            // count new line items
-            if ($lineItem->id === null) {
-                $qty[$item->purchasableId] = $lineItem->qty;
-            } else {
-
-                if ($item->id == $lineItem->id) {
-                    $qty[$item->purchasableId] += $lineItem->qty;
-                } else {
-                    // count other line items with same purchasableId
-                    $qty[$item->purchasableId] += $item->qty;
+        $getQty = function(LineItem $lineItem) {
+            $qty = 0;
+            foreach ($lineItem->getOrder()->getLineItems() as $item) {
+                if ($item->id !== null && $item->id == $lineItem->id) {
+                    $qty += $lineItem->qty;
+                } elseif ($item->purchasableId == $lineItem->purchasableId) {
+                    $qty += $item->qty;
                 }
             }
-        }
-
-        if (!isset($qty[$lineItem->purchasableId])) {
-            $qty[$lineItem->purchasableId] = $lineItem->qty;
-        }
+            return $qty;
+        };
 
         return [
             // an inline validator defined as an anonymous function
@@ -634,24 +622,24 @@ class Variant extends Purchasable
             }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if (!$this->hasUnlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
+                'qty', function($attribute, $params, $validator) use ($lineItem, $getQty) {
+                if (!$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
                     $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if ($qty[$lineItem->purchasableId] < $this->minQty) {
+                'qty', function($attribute, $params, $validator) use ($lineItem, $getQty) {
+                if ($getQty($lineItem) < $this->minQty) {
                     $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
             }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if ($this->maxQty != 0 && $qty[$lineItem->purchasableId] > $this->maxQty) {
+                'qty', function($attribute, $params, $validator) use ($lineItem, $getQty) {
+                if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
                     $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                     $validator->addError($lineItem, $attribute, $error);
                 }
