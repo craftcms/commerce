@@ -896,7 +896,7 @@ class OrderQuery extends ElementQuery
         }
 
         // Allow true ot false but not null
-        if ($this->isPaid !== null) {
+        if ($this->isUnpaid !== null) {
             if ($this->isUnpaid) {
                 $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
             }
