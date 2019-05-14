@@ -56,7 +56,7 @@ class OrderAdjustments extends Component
     /**
      * Get all order adjusters.
      *
-     * @return AdjusterInterface[]
+     * @return string[]
      */
     public function getAdjusters(): array
     {

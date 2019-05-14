@@ -66,7 +66,7 @@ class GatewaysController extends BaseAdminController
             }
         }
 
-        /** @var string[] $allGatewayTypes */
+        /** @var string[]|GatewayInterface[] $allGatewayTypes */
         $allGatewayTypes = $gatewayService->getAllGatewayTypes();
 
         // Make sure the selected gateway class is in there

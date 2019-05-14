@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\OrderDeprecatedTrait;
@@ -827,7 +828,9 @@ class Order extends Element
         }
 
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this);
+            /** @var AdjusterInterface $adjuster */
+            $adjuster = new $adjuster();
+            $adjustments = $adjuster->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 

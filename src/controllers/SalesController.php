@@ -215,8 +215,11 @@ class SalesController extends BaseCpController
      */
     private function _populateVariables(&$variables)
     {
-        if ($variables['sale']->id) {
-            $variables['title'] = $variables['sale']->name;
+        /** @var Sale $sale */
+        $sale = $variables['sale'];
+
+        if ($sale->id) {
+            $variables['title'] = $sale->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new sale');
         }
@@ -236,7 +239,7 @@ class SalesController extends BaseCpController
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
             $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
         } else {
-            $categoryIds = $variables['sale']->getCategoryIds();
+            $categoryIds = $sale->getCategoryIds();
         }
 
         foreach ($categoryIds as $categoryId) {
@@ -264,7 +267,7 @@ class SalesController extends BaseCpController
                 }
             }
         } else {
-            $purchasableIds = $variables['sale']->getPurchasableIds();
+            $purchasableIds = $sale->getPurchasableIds();
         }
 
         foreach ($purchasableIds as $purchasableId) {

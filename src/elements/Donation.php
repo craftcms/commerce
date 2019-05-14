@@ -15,6 +15,7 @@ use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
+use yii\validators\Validator;
 
 /**
  * Donation purchasable.
@@ -187,7 +188,7 @@ class Donation extends Purchasable
         return [
             [
                 'purchasableId',
-                function($attribute, $params, $validator) use ($lineItem) {
+                function($attribute, $params, Validator $validator) use ($lineItem) {
                     $options = $lineItem->getOptions();
                     if (!isset($options['donationAmount'])) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
