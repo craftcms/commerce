@@ -29,7 +29,6 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use yii\base\Exception;
@@ -784,21 +783,15 @@ class Product extends Element
     public function afterRestore()
     {
         // Also restore any variants for this element
-        $elementsService = Craft::$app->getElements();
-        foreach (ElementHelper::supportedSitesForElement($this) as $siteInfo) {
-            $variants = Variant::find()
-                ->anyStatus()
-                ->siteId($siteInfo['siteId'])
-                ->productId($this->id)
-                ->trashed()
-                ->andWhere(['commerce_variants.deletedWithProduct' => true])
-                ->all();
+        $variants = Variant::find()
+            ->anyStatus()
+            ->siteId($this->siteId)
+            ->productId($this->id)
+            ->trashed()
+            ->andWhere(['commerce_variants.deletedWithProduct' => true])
+            ->all();
 
-            foreach ($variants as $variant) {
-                $elementsService->restoreElement($variant);
-            }
-        }
-
+        Craft::$app->getElements()->restoreElements($variants);
         $this->setVariants($variants);
 
         parent::afterRestore();
