@@ -553,14 +553,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
-     */
-    public function getOnSale(): bool
-    {
-        parent::getOnSale();
-    }
-
-    /**
      * @inheritdoc
      */
     public function getSku(): string
@@ -601,22 +593,6 @@ class Variant extends Purchasable
     {
         $isShippable = $this->getIsShippable();
         return $isShippable && $this->getProduct()->freeShipping;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsShippable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsTaxable(): bool
-    {
-        return true;
     }
 
     /**
