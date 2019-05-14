@@ -196,12 +196,8 @@ class CustomerAddressesController extends BaseFrontEndController
             return $this->asJson(['error' => $error]);
         }
 
-<<<<<<< HEAD
         Craft::$app->getSession()->setError($error);
-=======
-        Craft::$app->getUser()->setFlash('error', $error);
 
         return null;
->>>>>>> develop
     }
 }
