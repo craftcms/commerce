@@ -673,8 +673,9 @@ class Order extends Element
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
+        $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+
         try {
-            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
             $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
         } catch (\Throwable $exception) {
             Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
