@@ -12,12 +12,10 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
-use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 use yii\db\Exception;
 
 /**

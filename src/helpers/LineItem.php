@@ -2,7 +2,6 @@
 
 namespace craft\commerce\helpers;
 
-use Craft;
 use craft\helpers\Json;
 
 

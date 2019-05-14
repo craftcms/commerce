@@ -7,9 +7,7 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
-use craft\i18n\Locale;
 
 /**
  * Class Lite Shipping Settings

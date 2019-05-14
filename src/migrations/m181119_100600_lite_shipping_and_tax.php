@@ -7,11 +7,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\Json;
-use craft\helpers\MigrationHelper;
 
 /**
  * m181119_100600_lite_shipping_and_tax migration.
