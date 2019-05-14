@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\LiteSettings;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;

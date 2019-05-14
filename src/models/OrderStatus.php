@@ -58,7 +58,7 @@ class OrderStatus extends Model
     public $default;
 
     /**
-     * @var boo Whether the order status is archived.
+     * @var bool Whether the order status is archived.
      */
     public $isArchived = false;
 

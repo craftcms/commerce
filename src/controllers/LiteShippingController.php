@@ -8,10 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\LiteSettings;
 use craft\commerce\models\LiteShippingSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
+use yii\base\Exception;
 use yii\web\Response;
 
 /**
@@ -77,7 +77,7 @@ class LiteShippingController extends BaseStoreSettingsController
         $shippingRuleSaved = Plugin::getInstance()->getShippingRules()->saveLiteShippingRule($shippingRule, false);
 
         if (!$shippingMethodSaved || !$shippingRuleSaved) {
-            throw new \yii\base\Exception('Could not save internal shipping method or rule for lite shipping');
+            throw new Exception('Could not save internal shipping method or rule for lite shipping');
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
