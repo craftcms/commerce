@@ -127,6 +127,8 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         Craft::$app->getUrlManager()->setRouteParams([
             'shippingCategory' => $shippingCategory
         ]);
+
+        return null;
     }
 
     /**
