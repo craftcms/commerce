@@ -24,6 +24,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
@@ -313,7 +314,7 @@ class Variant extends Purchasable
             ->one();
 
         if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
+            throw new InvalidConfigException('Invalid product ID: '.$this->productId);
         }
 
         return $this->_product = $product;
@@ -438,7 +439,7 @@ class Variant extends Purchasable
      */
     public function getUrl(): string
     {
-        return $this->product->url . '?variant=' . $this->id;
+        return $this->product->url.'?variant='.$this->id;
     }
 
     /**
@@ -459,12 +460,8 @@ class Variant extends Purchasable
     public function getSnapshot(): array
     {
         $data = [];
-        $data['onSale'] = $this->getOnSale();
-
+        $data['onSale'] = (bool)$this->getOnSale();
         $data['cpEditUrl'] = $this->getCpEditUrl();
-
-        // Product Attributes
-        $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
         // Default Product custom field handles
         $productFields = [];
@@ -478,19 +475,41 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
         }
 
-        // Capture specified Product field data
-        $productFieldData = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues($productFieldsEvent->fields) : [];
-        $productDataEvent = new CustomizeProductSnapshotDataEvent([
-            'product' => $this->getProduct(),
-            'fieldData' => $productFieldData
-        ]);
+        // Product Attributes
+        if ($product = $this->getProduct()) {
+            $productAttributes = $product->attributes();
+
+            // Remove custom fields
+            if (($fieldLayout = $product->getFieldLayout()) !== null) {
+                foreach ($fieldLayout->getFields() as $field) {
+                    ArrayHelper::removeValue($productAttributes, $field->handle);
+                }
+            }
+
+            // Add back the custom fields they want
+            foreach ($productFieldsEvent->fields as $field) {
+                $productAttributes[] = $field;
+            }
+
+            $data['product'] = $this->getProduct()->toArray($productAttributes, [], false);
+
+            $productDataEvent = new CustomizeProductSnapshotDataEvent([
+                'product' => $this->getProduct(),
+                'fieldData' => $data['product']
+            ]);
+        }else{
+            $productDataEvent = new CustomizeProductSnapshotDataEvent([
+                'product' => $this->getProduct(),
+                'fieldData' => []
+            ]);
+        }
 
         // Allow plugins to modify captured Product data
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
         }
 
-        $data['productFields'] = $productDataEvent->fieldData;
+        $data['product'] = $productDataEvent->fieldData;
 
         // Default Variant custom field handles
         $variantFields = [];
@@ -504,11 +523,25 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
         }
 
-        // Capture specified Variant field data
-        $variantFieldData = $this->getSerializedFieldValues($variantFieldsEvent->fields);
+        $variantAttributes = $this->attributes();
+
+        // Remove custom fields
+        if (($fieldLayout = $this->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                ArrayHelper::removeValue($variantAttributes, $field->handle);
+            }
+        }
+
+        // Add back the custom fields they want
+        foreach ($variantFieldsEvent->fields as $field) {
+            $variantAttributes[] = $field;
+        }
+
+        $variantData = $this->getProduct()->toArray($variantAttributes, [], false);
+
         $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
-            'variant' => $this,
-            'fieldData' => $variantFieldData
+            'product' => $this->getProduct(),
+            'fieldData' => $variantData
         ]);
 
         // Allow plugins to modify captured Variant data
@@ -516,9 +549,7 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
         }
 
-        $data['fields'] = $variantDataEvent->fieldData;
-
-        return array_merge($this->toArray(), $data);
+        return array_merge($variantDataEvent->fieldData, $data);
     }
 
     /**
@@ -739,7 +770,7 @@ class Variant extends Purchasable
             $record = VariantRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid variant ID: ' . $this->id);
+                throw new Exception('Invalid variant ID: '.$this->id);
             }
         } else {
             $record = new VariantRecord();
@@ -923,14 +954,14 @@ class Variant extends Purchasable
         // Check to see if any other purchasable has the same SKU and update this one before restore
         $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
             ->from('{{%commerce_purchasables}} p')
-            ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
+            ->leftJoin(Table::ELEMENTS.' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
             ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
             ->count();
 
         if ($found) {
             // Set new SKU in memory
-            $this->sku = $this->getSku() . '-1';
+            $this->sku = $this->getSku().'-1';
 
             // Update variant table with new SKU
             Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
@@ -1044,7 +1075,7 @@ class Variant extends Purchasable
             case 'weight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1054,7 +1085,7 @@ class Variant extends Purchasable
             case 'height':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';
