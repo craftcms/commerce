@@ -74,7 +74,7 @@ class TaxRates extends Component
         $allTaxRates = $this->getAllTaxRates();
         $taxRates = [];
 
-        /** @var \craft\commerce\models\TaxRate $rate */
+        /** @var TaxRate $rate */
         foreach ($allTaxRates as $rate) {
             if ($zone->id === $rate->taxZoneId) {
                 $taxRates[] = $rate;

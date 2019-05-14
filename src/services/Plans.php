@@ -24,8 +24,8 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
- * @property array|\craft\commerce\base\Plan[] $allEnabledPlans
- * @property array|\craft\commerce\base\Plan[] $allPlans
+ * @property array|Plan[] $allEnabledPlans
+ * @property array|Plan[] $allPlans
  */
 class Plans extends Component
 {

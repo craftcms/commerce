@@ -18,6 +18,7 @@ use craft\db\Query;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * Address service.
@@ -177,7 +178,7 @@ class Addresses extends Component
      * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
      * @throws \InvalidArgumentException if an address does not exist.
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function saveAddress(Address $addressModel, bool $runValidation = true): bool
     {
