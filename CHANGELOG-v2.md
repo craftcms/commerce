@@ -2,13 +2,13 @@
 
 ## 2.1.6 - 2019-05-14
 
-## Added
+### Added
 - Added `craft\commerce\elements\db\VariantQuery::minQty()` and `maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
 
-## Changed
+### Changed
 - Line item options are no longer forced to be sorted alphabetically by key.
 
-## Fixed
+### Fixed
 - Fixed a bug where product and variant snapshots were missing data. ([#846](https://github.com/craftcms/commerce/issues/846))
 - Fixed an SQL error that occurred when saving a SKU that was too long. ([#853](https://github.com/craftcms/commerce/issues/853))
 - Fixed an SQL error that could occur when attempting to update a soft-deleted cart. ([#854](https://github.com/craftcms/commerce/issues/854))
