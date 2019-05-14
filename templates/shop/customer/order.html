@@ -1,6 +1,11 @@
 {% extends 'shop/_layouts/main' %}
 
 {% set number = craft.app.request.param('number') %}
+
+{% if not number %}
+    {% redirect 'shop/customer' %}
+{% endif %}
+
 {% set order = craft.orders.number(number).one() %}
 
 {% if not order or order.isCompleted == false %}
