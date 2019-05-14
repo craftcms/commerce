@@ -102,16 +102,14 @@ class CustomerAddressesController extends BaseFrontEndController
                 $updatedCustomer = true;
             }
 
-            if ($updatedCustomer) {
-                if (!$customerService->saveCustomer($customer)) {
-                    $error = Craft::t('commerce', 'Unable to update primary address.');
-                    if (Craft::$app->getRequest()->getAcceptsJson()) {
-                        return $this->asJson(['error' => $error]);
-                    }
-                    Craft::$app->getSession()->setError($error);
-
-                    return null;
+            if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
+                $error = Craft::t('commerce', 'Unable to update primary address.');
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
+                    return $this->asJson(['error' => $error]);
                 }
+                Craft::$app->getSession()->setError($error);
+
+                return null;
             }
 
             // Refresh the cart, if this address was being used.
@@ -173,27 +171,23 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         // current customer is the owner of the address
-        if (in_array($id, $addressIds, false)) {
-            if (Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
-                if ($cart->shippingAddressId == $id) {
-                    $cart->shippingAddressId = null;
-                }
-
-                if ($cart->billingAddressId == $id) {
-                    $cart->billingAddressId = null;
-                }
-
-                Craft::$app->getElements()->saveElement($cart);
-
-                if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    return $this->asJson(['success' => true]);
-                }
-
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
-                return $this->redirectToPostedUrl();
-            } else {
-                $error = Craft::t('commerce', 'Could not delete address.');
+        if (in_array($id, $addressIds, false) && Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
+            if ($cart->shippingAddressId == $id) {
+                $cart->shippingAddressId = null;
             }
+
+            if ($cart->billingAddressId == $id) {
+                $cart->billingAddressId = null;
+            }
+
+            Craft::$app->getElements()->saveElement($cart);
+
+            if (Craft::$app->getRequest()->getAcceptsJson()) {
+                return $this->asJson(['success' => true]);
+            }
+
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
+            return $this->redirectToPostedUrl();
         } else {
             $error = Craft::t('commerce', 'Could not delete address.');
         }

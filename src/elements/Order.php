@@ -384,16 +384,13 @@ class Order extends Element
     {
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
-                    $this->setShippingAddress($address);
-                }
+            $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+            if ($hasPrimaryShippingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
+                $this->setShippingAddress($address);
             }
-
-            if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
-                    $this->setBillingAddress($address);
-                }
+            $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+            if ($hasPrimaryBillingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
+                $this->setBillingAddress($address);
             }
         }
 
@@ -755,17 +752,15 @@ class Order extends Element
         $lineItems = $this->getLineItems();
         $isNew = (bool)$lineItem->id;
 
-        if ($isNew) {
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-                $lineItemEvent = new LineItemEvent([
-                    'lineItem' => $lineItem,
-                    'isNew' => $isNew
-                ]);
-                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+        if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+            $lineItemEvent = new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => $isNew
+            ]);
+            $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
-                if (!$lineItemEvent->isValid) {
-                    return;
-                }
+            if (!$lineItemEvent->isValid) {
+                return;
             }
         }
 

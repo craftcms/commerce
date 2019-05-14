@@ -69,18 +69,17 @@ class PaymentsController extends BaseFrontEndController
         // Are we paying anonymously?
         $userSession = Craft::$app->getUser();
 
-        if (!$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders')) {
-            if ($order->getEmail() !== $request->getParam('email')) {
-                $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
+        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders');
+        if ($cartActiveAndHasPermission && $order->getEmail() !== $request->getParam('email')) {
+            $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
 
-                if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($error);
-                }
-
-                $session->setError($error);
-
-                return null;
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
             }
+
+            $session->setError($error);
+
+            return null;
         }
 
         if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
