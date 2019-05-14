@@ -223,7 +223,7 @@ class CartController extends BaseFrontEndController
                 }
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
-                if ($qty > 0) {
+                if ($purchasable['qty'] > 0) {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasable['id'], $purchasable['options']);
 
                     // New line items already have a qty of one.
