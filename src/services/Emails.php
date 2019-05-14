@@ -175,7 +175,7 @@ class Emails extends Component
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
 
-        $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
+        $configPath = self::CONFIG_EMAILS_KEY.'.'.$emailUid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNewEmail) {
@@ -248,7 +248,7 @@ class Emails extends Component
                 ]));
             }
 
-            Craft::$app->getProjectConfig()->remove(self::CONFIG_EMAILS_KEY . '.' . $email->uid);
+            Craft::$app->getProjectConfig()->remove(self::CONFIG_EMAILS_KEY.'.'.$email->uid);
         }
 
         return true;
@@ -308,7 +308,7 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
 
         $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
-        $nameOverride  = Plugin::getInstance()->getSettings()->emailSenderName;
+        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
         if ($emailOverride) {
             $newEmail->setFrom($emailOverride);
         }
@@ -469,11 +469,11 @@ class Emails extends Component
                 $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
                 $fileName = $view->renderObjectTemplate($filenameFormat, $order);
                 if (!$fileName) {
-                    $fileName = 'Order-' . $order->number;
+                    $fileName = 'Order-'.$order->number;
                 }
 
                 // Attachment information
-                $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
+                $options = ['fileName' => $fileName.'.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
@@ -646,7 +646,11 @@ class Emails extends Component
      */
     private function _getEmailRecord(string $uid): EmailRecord
     {
-        return EmailRecord::findOne(['uid' => $uid]) ?? new EmailRecord();
+        if ($email = EmailRecord::findOne(['uid' => $uid])) {
+            return $email;
+        }
+
+        return new EmailRecord();
     }
 
 }

@@ -175,7 +175,7 @@ class Donation extends Purchasable
             $lineItem->saleAmount = 0;
         }
 
-        return $lineItem->salePrice ?? 0;
+        return $lineItem->salePrice ?? 0.0;
     }
 
     /**

@@ -1702,7 +1702,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        return Craft::$app->getFields()->getLayoutByType(Order::class);
+        return Craft::$app->getFields()->getLayoutByType(__CLASS__);
     }
 
     /**

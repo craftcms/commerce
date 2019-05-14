@@ -30,6 +30,7 @@ use craft\events\ModelEvent;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
+use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -287,7 +288,7 @@ class Subscriptions extends Component
             foreach ($layoutData as $layoutUid => $layout) {
                 if (!empty($layout['tabs'])) {
                     foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
+                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY.'.'.$layoutUid.'.tabs.'.$tabUid.'.fields.'.$fieldUid);
                     }
                 }
             }
@@ -328,10 +329,14 @@ class Subscriptions extends Component
      * @return bool whether successfully expired subscription
      * @throws \Throwable if cannot expire subscription
      */
-    public function expireSubscription(Subscription $subscription, \DateTime $dateTime = null): bool
+    public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
     {
         $subscription->isExpired = true;
-        $subscription->dateExpired = $dateTime ?? Db::prepareDateForDb(new \DateTime());
+        $subscription->dateExpired = $dateTime;
+
+        if (!$subscription->dateExpired) {
+            $subscription->dateExpired = Db::prepareDateForDb(new DateTime());
+        }
 
         Craft::$app->getElements()->saveElement($subscription, false);
 
@@ -587,14 +592,14 @@ class Subscriptions extends Component
         if ($response->isCanceled() || $response->isScheduledForCancellation()) {
             if ($response->isScheduledForCancellation()) {
                 $subscription->isCanceled = true;
-                $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
+                $subscription->dateCanceled = Db::prepareDateForDb(new DateTime());
             }
 
             if ($response->isCanceled()) {
                 $subscription->isExpired = true;
                 $subscription->isCanceled = true;
-                $subscription->dateCanceled = Db::prepareDateForDb(new \DateTime());
-                $subscription->dateExpired = Db::prepareDateForDb(new \DateTime());
+                $subscription->dateCanceled = Db::prepareDateForDb(new DateTime());
+                $subscription->dateExpired = Db::prepareDateForDb(new DateTime());
             }
 
             $subscription->subscriptionData = $response->getData();
@@ -607,7 +612,7 @@ class Subscriptions extends Component
                     $this->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, new CancelSubscriptionEvent(compact('subscription', 'parameters')));
                 }
             } catch (\Throwable $exception) {
-                Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
+                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }

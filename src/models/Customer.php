@@ -33,7 +33,7 @@ class Customer extends Model
     // =========================================================================
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
     public $id;
 

@@ -52,7 +52,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
     public $id;
 
