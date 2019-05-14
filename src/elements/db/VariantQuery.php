@@ -97,6 +97,16 @@ class VariantQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
+    /**
+     * @var
+     */
+    public $minQty;
+
+    /**
+     * @var
+     */
+    public $maxQty;
+
     // Public Methods
     // =========================================================================
 
@@ -342,6 +352,46 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Narrows the query results based on the variants’ min quantity.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a minQty of 100.
+     * | `'>= 100'` | with a minQty of at least 100.
+     * | `'< 100'` | with a minQty of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function minQty($value)
+    {
+        $this->minQty = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ max quantity.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a maxQty of 100.
+     * | `'>= 100'` | with a maxQty of at least 100.
+     * | `'< 100'` | with a maxQty of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function maxQty($value)
+    {
+        $this->maxQty = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -398,6 +448,14 @@ class VariantQuery extends ElementQuery
 
         if ($this->isDefault) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault));
+        }
+
+        if ($this->minQty) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.minQty', $this->minQty));
+        }
+
+        if ($this->maxQty) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.maxQty', $this->maxQty));
         }
 
         if ($this->stock) {
