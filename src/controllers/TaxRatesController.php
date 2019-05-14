@@ -52,10 +52,7 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'taxRate' => $taxRate
-        ];
+        $variables = compact('id', 'taxRate');
 
         $plugin = Plugin::getInstance();
 

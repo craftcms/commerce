@@ -58,10 +58,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'discount' => $discount,
-        ];
+        $variables = compact('id', 'discount');
 
         if (!$variables['discount']) {
             if ($variables['id']) {

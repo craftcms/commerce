@@ -44,10 +44,7 @@ class ShippingZonesController extends BaseShippingSettingsController
      */
     public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'shippingZone' => $shippingZone
-        ];
+        $variables = compact('id', 'shippingZone');
 
         if (!$variables['shippingZone']) {
             if ($variables['id']) {

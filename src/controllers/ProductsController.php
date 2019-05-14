@@ -79,11 +79,7 @@ class ProductsController extends BaseCpController
      */
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
-        $variables = [
-            'productTypeHandle' => $productTypeHandle,
-            'productId' => $productId,
-            'product' => $product
-        ];
+        $variables = compact('productTypeHandle', 'productId', 'product');
 
         if ($siteHandle !== null) {
             $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);

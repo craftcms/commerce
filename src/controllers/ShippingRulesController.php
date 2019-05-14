@@ -46,11 +46,7 @@ class ShippingRulesController extends BaseShippingSettingsController
      */
     public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
-        $variables = [
-            'methodId' => $methodId,
-            'ruleId' => $ruleId,
-            'shippingRule' => $shippingRule,
-        ];
+        $variables = compact('methodId', 'ruleId', 'shippingRule');
 
         $plugin = Plugin::getInstance();
         $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId']);

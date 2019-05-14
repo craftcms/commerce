@@ -41,10 +41,7 @@ class EmailsController extends BaseAdminController
      */
     public function actionEdit(int $id = null, Email $email = null): Response
     {
-        $variables = [
-            'email' => $email,
-            'id' => $id
-        ];
+        $variables = compact('email', 'id');
 
         if (!$variables['email']) {
             if ($variables['id']) {

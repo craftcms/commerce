@@ -44,10 +44,7 @@ class ProductTypesController extends BaseAdminController
      */
     public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
     {
-        $variables = [
-            'productTypeId' => $productTypeId,
-            'productType' => $productType,
-        ];
+        $variables = compact('productTypeId', 'productType');
 
         $variables['brandNewProductType'] = false;
 

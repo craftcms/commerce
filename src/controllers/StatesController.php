@@ -41,10 +41,7 @@ class StatesController extends BaseStoreSettingsController
      */
     public function actionEdit(int $id = null, State $state = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'state' => $state
-        ];
+        $variables = compact('id', 'state');
         if (!$variables['state']) {
             if ($variables['id']) {
                 $variables['state'] = Plugin::getInstance()->getStates()->getStateById($variables['id']);

@@ -41,10 +41,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      */
     public function actionEdit(int $id = null, ShippingMethod $shippingMethod = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'shippingMethod' => $shippingMethod
-        ];
+        $variables = compact('id', 'shippingMethod');
 
         $variables['newMethod'] = false;
 

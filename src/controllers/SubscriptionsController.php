@@ -57,11 +57,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = [
-            'subscriptionId' => $subscriptionId,
-            'subscription' => $subscription,
-            'fieldLayout' => $fieldLayout
-        ];
+        $variables = compact('subscriptionId', 'subscription', 'fieldLayout');
 
         if (empty($variables['subscription'])) {
             $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();

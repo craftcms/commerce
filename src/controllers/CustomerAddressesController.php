@@ -36,7 +36,7 @@ class CustomerAddressesController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $addressId = Craft::$app->getRequest()->getBodyParam("address.id");
+        $addressId = Craft::$app->getRequest()->getBodyParam('address.id');
 
         $customerService = Plugin::getInstance()->getCustomers();
         $customerId = $customerService->getCustomerId();

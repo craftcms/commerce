@@ -41,10 +41,7 @@ class CustomersController extends BaseCpController
      */
     public function actionEdit(int $id = null, Customer $customer = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'customer' => $customer,
-        ];
+        $variables = compact('id', 'customer');
 
         if (!$variables['customer']) {
             $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['id']);

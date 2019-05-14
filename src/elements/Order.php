@@ -753,10 +753,7 @@ class Order extends Element
         $isNew = (bool)$lineItem->id;
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-            $lineItemEvent = new LineItemEvent([
-                'lineItem' => $lineItem,
-                'isNew' => $isNew
-            ]);
+            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {

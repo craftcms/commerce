@@ -46,10 +46,7 @@ class PlansController extends BaseAdminController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
-        $variables = [
-            'planId' => $planId,
-            'plan' => $plan,
-        ];
+        $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
 
