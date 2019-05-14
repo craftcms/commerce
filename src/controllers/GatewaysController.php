@@ -131,6 +131,7 @@ class GatewaysController extends BaseAdminController
 
         // If this is an existing gateway, populate with properties unchangeable by this action.
         if ($gatewayId) {
+            /** @var Gateway $savedGateway */
             $savedGateway = $gatewayService->getGatewayById($gatewayId);
             $config['uid'] = $savedGateway->uid;
             $config['sortOrder'] = $savedGateway->sortOrder;

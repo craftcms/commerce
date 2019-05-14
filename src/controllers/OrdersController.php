@@ -261,7 +261,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!$amount) {
-            $amount = $transaction->refundableAmount;
+            $amount = $transaction->getRefundableAmount();
         }
 
         if ($amount > $transaction->paymentAmount) {

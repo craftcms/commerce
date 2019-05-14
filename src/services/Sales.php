@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
@@ -323,6 +324,7 @@ class Sales extends Component
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
+        /** @var Purchasable $purchasable */
         $purchasableId = $purchasable->id;
         $saleId = $sale->id;
 

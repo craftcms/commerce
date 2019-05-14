@@ -63,6 +63,7 @@ class Customer extends Field
      */
     public function normalizeValue($value, ElementInterface $element = null)
     {
+        /** @var Element|null $element */
         if ($element && $element->id) {
             return Plugin::getInstance()->getCustomers()->getCustomerByUserId($element->id);
         }
