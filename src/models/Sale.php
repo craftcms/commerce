@@ -167,7 +167,6 @@ class Sale extends Model
             $number = rtrim($string, '0');
             $diff = strlen($string) - strlen($number);
             return Craft::$app->formatter->asPercent(-$this->applyAmount, 2 - $diff);
-            return Craft::$app->formatter->asPercent(-$this->applyAmount);
         }
 
         return Craft::$app->formatter->asPercent(0);
