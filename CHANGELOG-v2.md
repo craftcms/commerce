@@ -16,6 +16,7 @@
 - Fixed a bug where line item quantity validators weren’t checking for updated quantities. ([#855](https://github.com/craftcms/commerce/pull/855))
 - Fixed a bug where it wasn’t possible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
 - Fixed a JavaScript error that could occur on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
+- Fixed a bug where a Product’s 'Create discount...' element action did not create the discount with the variant condition populated.
 
 ## 2.1.5.2 - 2019-05-08
 

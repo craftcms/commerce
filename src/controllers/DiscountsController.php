@@ -261,7 +261,7 @@ class DiscountsController extends BaseCpController
 
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
@@ -276,7 +276,7 @@ class DiscountsController extends BaseCpController
         }
 
         $purchasables = [];
-        foreach ($variables['discount']->getPurchasableIds() as $purchasableId) {
+        foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
                 $class = \get_class($purchasable);
