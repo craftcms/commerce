@@ -7,14 +7,14 @@
 - Added `craft\commerce\elements\db\VariantQuery::maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
 
 ## Changed
-- Line item options are not automatically sorted anymore.
+- Line item options are no longer forced to be sorted alphabetically by key.
 
 ## Fixed
 - Restored missing line item snapshot data. ([#846](https://github.com/craftcms/commerce/issues/846))
 - Fixed an SQL error that occurred when saving a SKU that is too long. ([#853](https://github.com/craftcms/commerce/issues/853))
 - Fixed an SQL error that could occur when updating a trashed cart from the front-end. ([#854](https://github.com/craftcms/commerce/issues/854))
 - Fixed an SQL error that could occur when adding to cart after completing an order. ([#860](https://github.com/craftcms/commerce/issues/860))
-- Fixed the line item quantity validators to calculate correct quantity values. ([#855](https://github.com/craftcms/commerce/pull/855))
+- Fixed the line item quantity validators to correctly calculate quantity values. ([#855](https://github.com/craftcms/commerce/pull/855))
 - Fixed a bug where it was impossible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
 - Fixed a javascript error that could occur when retrieving orders on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
 
