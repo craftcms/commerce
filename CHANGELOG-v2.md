@@ -3,20 +3,19 @@
 ## Unreleased
 
 ## Added
-- Added `craft\commerce\elements\db\VariantQuery::minQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
-- Added `craft\commerce\elements\db\VariantQuery::maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
+- Added `craft\commerce\elements\db\VariantQuery::minQty()` and `maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
 
 ## Changed
 - Line item options are no longer forced to be sorted alphabetically by key.
 
 ## Fixed
-- Restored missing line item snapshot data. ([#846](https://github.com/craftcms/commerce/issues/846))
-- Fixed an SQL error that occurred when saving a SKU that is too long. ([#853](https://github.com/craftcms/commerce/issues/853))
-- Fixed an SQL error that could occur when updating a trashed cart from the front-end. ([#854](https://github.com/craftcms/commerce/issues/854))
-- Fixed an SQL error that could occur when adding to cart after completing an order. ([#860](https://github.com/craftcms/commerce/issues/860))
-- Fixed the line item quantity validators to correctly calculate quantity values. ([#855](https://github.com/craftcms/commerce/pull/855))
-- Fixed a bug where it was impossible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
-- Fixed a javascript error that could occur when retrieving orders on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
+- Fixed a bug where product and variant snapshots were missing data. ([#846](https://github.com/craftcms/commerce/issues/846))
+- Fixed an SQL error that occurred when saving a SKU that was too long. ([#853](https://github.com/craftcms/commerce/issues/853))
+- Fixed an SQL error that could occur when attempting to update a soft-deleted cart. ([#854](https://github.com/craftcms/commerce/issues/854))
+- Fixed an SQL error that could occur when attempting to add a line item to a completed order. ([#860](https://github.com/craftcms/commerce/issues/860))
+- Fixed a bug where line item quantity validators weren’t checking for updated quantities. ([#855](https://github.com/craftcms/commerce/pull/855))
+- Fixed a bug where it wasn’t possible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
+- Fixed a JavaScript error that could occur on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
 
 ## 2.1.5.2 - 2019-05-08
 
