@@ -60,3 +60,12 @@
 .detailHud code{
     font-family: Menlo, monospace;
 }
+
+.transaction-refund input[type="text"]{
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.transaction-refund a {
+  float: right;
+}

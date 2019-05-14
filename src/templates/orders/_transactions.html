@@ -12,24 +12,24 @@
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
-            <td style="padding-left: {{ level * 20 }}px;">{{ transaction.type|title }}</td>
-            <td class="transaction-status transaction-status-{{ transaction.status }}">
+            <td style="padding-left: {{ level * 20 }}px;" data-title="{{ transaction.type|title }}">{{ transaction.type|title }}</td>
+            <td class="transaction-status transaction-status-{{ transaction.status }}" data-title="{{ 'Status'|t('commerce') }}">
                 {{ transaction.status|title|t('commerce') }}
             </td>
-            <td>{{ transaction.amount|currency(transaction.currency) }}
+            <td data-title="{{ 'Amount'|t('commerce') }}">{{ transaction.amount|currency(transaction.currency) }}
                 <small class="light">({{ transaction.currency }})
                 </small>
             </td>
-            <td>{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
+            <td data-title="{{ 'Payment Amount'|t('commerce') }}">{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
                 <small class="light">
                     ({{ transaction.paymentCurrency }})
                 </small>
             </td>
-            <td>{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
-            <td>{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
+            <td data-title="{{ 'Gateway'|t('commerce') }}">{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
+            <td data-title="{{ 'Date'|t('commerce') }}">{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
             <td><span class="tableRowInfo" data-icon="info"
                       href="#"></span></td>
-            <td>
+            <td class="transaction-refund" data-title="{{ 'Info'|t('commerce') }}">
                 {% if currentUser.can('commerce-capturePayment') and transaction.canCapture() %}
                     <form method="post">
                         {{ csrfInput() }}
@@ -82,7 +82,7 @@
 
     {% if order.nestedTransactions|length %}
         {% from _self import transactionRow %}
-        <table class="data fullwidth">
+        <table class="data fullwidth collapsible">
             <thead>
             <tr>
                 <th scope="col">{{ 'Type'|t('commerce') }}</th>
