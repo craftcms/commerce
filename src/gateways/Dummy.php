@@ -8,7 +8,6 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\base\CancelSubscriptionHtml;
 use craft\commerce\base\Plan;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\base\SubscriptionGateway;

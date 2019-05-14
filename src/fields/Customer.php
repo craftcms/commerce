@@ -8,6 +8,7 @@
 namespace craft\commerce\fields;
 
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\Plugin;

@@ -10,6 +10,8 @@ namespace craft\commerce\plugin;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\commerce\models\Discount;
+use craft\commerce\models\PaymentCurrency;
 
 /**
  * Trait Deprecated Variables

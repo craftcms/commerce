@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
-use craft\commerce\models\LiteSettings;
 use craft\commerce\models\Settings as SettingsModel;
 use craft\commerce\models\Settings;
 use craft\commerce\models\TaxRate;
