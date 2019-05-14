@@ -58,7 +58,7 @@ class OrderAdjustment extends Model
     /**
      * @var mixed Adjuster options
      */
-    private $_sourceSnapshot;
+    private $_sourceSnapshot = [];
 
     /**
      * @var int Order ID
