@@ -17,7 +17,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property int $id
  * @property bool $included
- * @property int $lineItemId
+ * @property int|null $lineItemId
  * @property string $name
  * @property Order $order
  * @property int $orderId

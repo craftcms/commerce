@@ -57,11 +57,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = [
-            'subscriptionId' => $subscriptionId,
-            'subscription' => $subscription,
-            'fieldLayout' => $fieldLayout
-        ];
+        $variables = compact('subscriptionId', 'subscription', 'fieldLayout');
 
         if (empty($variables['subscription'])) {
             $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
@@ -100,6 +96,8 @@ class SubscriptionsController extends BaseController
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+
+        return null;
     }
 
     /**
@@ -241,7 +239,7 @@ class SubscriptionsController extends BaseController
             } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
-        } catch (SubscriptionException $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 

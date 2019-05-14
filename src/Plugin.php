@@ -182,13 +182,12 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
-            if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-                $ret['subnav']['products'] = [
-                    'label' => Craft::t('commerce', 'Products'),
-                    'url' => 'commerce/products'
-                ];
-            }
+        $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
+        if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+            $ret['subnav']['products'] = [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products'
+            ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {

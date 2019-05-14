@@ -254,7 +254,7 @@ class Gateways extends Component
             ];
         }
 
-        $configPath = self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid;
+        $configPath = self::CONFIG_GATEWAY_KEY.'.'.$gatewayUid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNewGateway) {
@@ -344,7 +344,7 @@ class Gateways extends Component
         foreach ($ids as $gatewayOrder => $gatewayId) {
             if (!empty($uidsByIds[$gatewayId])) {
                 $gatewayUid = $uidsByIds[$gatewayId];
-                $projectConfig->set(self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid . '.sortOrder', $gatewayOrder + 1);
+                $projectConfig->set(self::CONFIG_GATEWAY_KEY.'.'.$gatewayUid.'.sortOrder', $gatewayOrder + 1);
             }
         }
 
@@ -444,6 +444,10 @@ class Gateways extends Component
      */
     private function _getGatewayRecord(string $uid): GatewayRecord
     {
-        return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
+        if ($gateway = GatewayRecord::findOne(['uid' => $uid])) {
+            return $gateway;
+        }
+
+        return new GatewayRecord();
     }
 }

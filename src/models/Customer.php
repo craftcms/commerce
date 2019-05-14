@@ -33,7 +33,7 @@ class Customer extends Model
     // =========================================================================
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
     public $id;
 
@@ -171,7 +171,7 @@ class Customer extends Model
      */
     public function getOrders(): array
     {
-        return Order::find()->customer($this)->isCompleted(true)->all();
+        return Order::find()->customer($this)->isCompleted()->all();
     }
 
     /**

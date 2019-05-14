@@ -11,10 +11,8 @@ use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\records\Gateway as GatewayRecord;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\validators\UniqueValidator;
 
 /**
  * Class Gateway

@@ -9,9 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\helpers\UrlHelper;
-use craft\validators\UniqueValidator;
 
 /**
  * Order status model.

@@ -41,10 +41,7 @@ class CustomersController extends BaseCpController
      */
     public function actionEdit(int $id = null, Customer $customer = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'customer' => $customer,
-        ];
+        $variables = compact('id', 'customer');
 
         if (!$variables['customer']) {
             $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['id']);
@@ -83,5 +80,7 @@ class CustomersController extends BaseCpController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['customer' => $customer]);
+
+        return null;
     }
 }

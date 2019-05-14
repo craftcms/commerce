@@ -13,6 +13,7 @@ use craft\commerce\events\RegisterAddressRulesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DvK\Vat\Validator;
+use Exception;
 
 /**
  * Address Model
@@ -25,7 +26,7 @@ use DvK\Vat\Validator;
  * @property string $stateText
  * @property string $abbreviationText
  * @property int|string $stateValue
- * @property \DvK\Vat\Validator $vatValidator
+ * @property Validator $vatValidator
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -396,7 +397,7 @@ class Address extends Model
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;

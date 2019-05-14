@@ -27,7 +27,7 @@ For starting a subscription, the following example is a good start. A thing to n
     </div>
 
     {# Display only if the user does not have a payment soure saved #}
-    {# {{ plan.getGateway().getPaymentFormHtml()|raw }} #}
+    {# {{ plan.getGateway().getPaymentFormHtml({})|raw }} #}
 
     <button type="submit">{{ "Subscribe"|t('commerce') }}</button>
 </form>

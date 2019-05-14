@@ -44,10 +44,7 @@ class ShippingZonesController extends BaseShippingSettingsController
      */
     public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'shippingZone' => $shippingZone
-        ];
+        $variables = compact('id', 'shippingZone');
 
         if (!$variables['shippingZone']) {
             if ($variables['id']) {
@@ -112,29 +109,36 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone->setStates($states);
 
         // Save it
-        if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+        if (!$shippingZone->validate() || !Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
-                    'success' => true,
-                    'id' => $shippingZone->id,
-                    'name' => $shippingZone->name,
-                ]);
-            } else {
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping zone saved.'));
-                $this->redirectToPostedUrl($shippingZone);
-            }
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $this->asJson([
+                return $this->asJson([
                     'errors' => $shippingZone->getErrors()
                 ]);
-            } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping zone.'));
             }
+
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping zone.'));
+            Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
+
+            return null;
         }
+
+        // Success
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson([
+                'success' => true,
+                'id' => $shippingZone->id,
+                'name' => $shippingZone->name,
+            ]);
+        }
+
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping zone saved.'));
+        $this->redirectToPostedUrl($shippingZone);
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
+
+        return null;
     }
 
     /**

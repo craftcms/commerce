@@ -42,10 +42,7 @@ class TaxZonesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'taxZone' => $taxZone
-        ];
+        $variables = compact('id', 'taxZone');
 
         if (!$variables['taxZone']) {
             if ($variables['id']) {

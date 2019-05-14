@@ -213,7 +213,7 @@ class OrderStatuses extends Component
             ];
         }
 
-        $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
+        $configPath = self::CONFIG_STATUSES_KEY.'.'.$statusUid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNewStatus) {
@@ -260,7 +260,7 @@ class OrderStatuses extends Component
                 foreach ($data['emails'] as $emailUid) {
                     Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY.'.'.$emailUid);
                 }
-                
+
                 $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
 
                 foreach ($emailIds as $emailId) {
@@ -282,6 +282,7 @@ class OrderStatuses extends Component
 
     /**
      * Archive an order status by it's id.
+     *
      * @param int $id
      * @return bool
      * @throws \Throwable
@@ -343,7 +344,7 @@ class OrderStatuses extends Component
         // Loop through the volumes and prune the UID from field layouts.
         if (is_array($statuses)) {
             foreach ($statuses as $orderStatusUid => $orderStatus) {
-                $projectConfig->remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatusUid . '.emails.' . $emailUid);
+                $projectConfig->remove(self::CONFIG_STATUSES_KEY.'.'.$orderStatusUid.'.emails.'.$emailUid);
             }
         }
     }
@@ -434,7 +435,7 @@ class OrderStatuses extends Component
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
                 $statusUid = $uidsByIds[$statusId];
-                $projectConfig->set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $orderStatus + 1);
+                $projectConfig->set(self::CONFIG_STATUSES_KEY.'.'.$statusUid.'.sortOrder', $orderStatus + 1);
             }
         }
 
@@ -485,6 +486,10 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        return OrderStatusRecord::findOne(['uid' => $uid]) ?? new OrderStatusRecord();
+        if ($orderStatus = OrderStatusRecord::findOne(['uid' => $uid])) {
+            return $orderStatus;
+        }
+
+        return new OrderStatusRecord();
     }
 }

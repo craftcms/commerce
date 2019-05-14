@@ -8,7 +8,6 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
@@ -53,7 +52,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
     public $id;
 

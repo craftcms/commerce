@@ -47,10 +47,7 @@ class GatewaysController extends BaseAdminController
      */
     public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'gateway' => $gateway
-        ];
+        $variables = compact('id', 'gateway');
 
         $gatewayService = Plugin::getInstance()->getGateways();
 
@@ -155,7 +152,7 @@ class GatewaysController extends BaseAdminController
         }
 
         $session->setNotice(Craft::t('commerce', 'Gateway saved.'));
-        $this->redirectToPostedUrl($gateway);
+        return $this->redirectToPostedUrl($gateway);
     }
 
     /**

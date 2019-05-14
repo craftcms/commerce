@@ -94,15 +94,6 @@ class Donation extends Purchasable
 
     /**
      * @inheritdoc
-     * @return bool
-     */
-    public function getIsEditable(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
      */
     public function getCpEditUrl(): string
     {
@@ -115,15 +106,6 @@ class Donation extends Purchasable
     public function getUrl(): string
     {
         return '';
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getSnapshot(): array
-    {
-        return [];
     }
 
     /**
@@ -177,7 +159,7 @@ class Donation extends Purchasable
             $lineItem->saleAmount = 0;
         }
 
-        return $lineItem->salePrice ?? 0;
+        return $lineItem->salePrice ?? 0.0;
     }
 
     /**
@@ -242,36 +224,11 @@ class Donation extends Purchasable
         return parent::afterSave($isNew);
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasTitles(): bool
-    {
-        return false;
-    }
-
     /**
      * @inheritdoc
      */
     public static function isSelectable(): bool
     {
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function isLocalized(): bool
-    {
-        return false;
     }
 }

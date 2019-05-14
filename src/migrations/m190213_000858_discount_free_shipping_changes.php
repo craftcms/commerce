@@ -2,9 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 
 /**

@@ -44,10 +44,7 @@ class OrderStatusesController extends BaseAdminController
      */
     public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'orderStatus' => $orderStatus
-        ];
+        $variables = compact('id', 'orderStatus');
 
         if (!$variables['orderStatus']) {
             if ($variables['id']) {

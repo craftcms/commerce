@@ -59,10 +59,7 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'sale' => $sale
-        ];
+        $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
             if ($variables['id']) {

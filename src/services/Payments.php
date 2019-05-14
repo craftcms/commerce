@@ -166,6 +166,7 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
+     * @return void|null
      * @throws PaymentException if the payment was unsuccessful
      * @throws \Throwable if reasons
      */
@@ -229,7 +230,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return;
+                return null;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -478,6 +479,8 @@ class Payments extends Component
 
             $response->redirect();
         }
+
+        return null;
     }
 
     /**

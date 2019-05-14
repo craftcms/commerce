@@ -461,7 +461,7 @@ class Variant extends Purchasable
     public function getSnapshot(): array
     {
         $data = [];
-        $data['onSale'] = (bool)$this->getOnSale();
+        $data['onSale'] = $this->getOnSale();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Product custom field handles
@@ -554,14 +554,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
-     */
-    public function getOnSale(): bool
-    {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
-    }
-
-    /**
      * @inheritdoc
      */
     public function getSku(): string
@@ -602,22 +594,6 @@ class Variant extends Purchasable
     {
         $isShippable = $this->getIsShippable();
         return $isShippable && $this->getProduct()->freeShipping;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsShippable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsTaxable(): bool
-    {
-        return true;
     }
 
     /**

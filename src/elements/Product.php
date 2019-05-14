@@ -45,8 +45,8 @@ use yii\base\InvalidConfigException;
  * @property string $snapshot allow the variant to ask the product what data to snapshot
  * @property int $totalStock
  * @property bool $hasUnlimitedStock whether at least one variant has unlimited stock
- * @property \craft\commerce\elements\Variant $cheapestVariant
- * @property \craft\commerce\models\ProductType $type
+ * @property Variant $cheapestVariant
+ * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

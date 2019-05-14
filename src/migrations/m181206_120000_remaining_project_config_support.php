@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Orders;

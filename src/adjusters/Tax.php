@@ -26,7 +26,7 @@ use DvK\Vat\Validator;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
- * @property \DvK\Vat\Validator $vatValidator
+ * @property Validator $vatValidator
  */
 class Tax extends Component implements AdjusterInterface
 {

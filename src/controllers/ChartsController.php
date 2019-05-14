@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\Plugin;
 use craft\controllers\ElementIndexesController;
+use craft\elements\db\ElementQuery;
 use craft\helpers\ChartHelper;
 use craft\helpers\DateTimeHelper;
 use craft\i18n\Locale;
@@ -39,8 +40,8 @@ class ChartsController extends ElementIndexesController
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
 
-        $query = clone $this->getElementQuery()
-            ->search(null);
+        /** @var ElementQuery $query */
+        $query = clone $this->getElementQuery()->search(null);
 
         // Get the chart data table
         $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', 'sum', '[[commerce_orders.totalPrice]]', [

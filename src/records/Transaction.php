@@ -73,7 +73,7 @@ class Transaction extends ActiveRecord
      */
     public function getParent(): ActiveQueryInterface
     {
-        return $this->hasOne(Transaction::class, ['id' => 'parentId']);
+        return $this->hasOne(self::class, ['id' => 'parentId']);
     }
 
     /**
