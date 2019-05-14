@@ -31,6 +31,7 @@ use yii\base\InvalidConfigException;
  * @property string $description the description from the snapshot of the purchasable
  * @property float $discount
  * @property bool $onSale
+ * @property array $options
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -168,7 +169,9 @@ class LineItem extends Model
     }
 
     /**
-     * Gets the options for the line item.
+     * Returns the options for the line item.
+     *
+     * @return array
      */
     public function getOptions(): array
     {

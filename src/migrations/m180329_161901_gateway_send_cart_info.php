@@ -7,12 +7,6 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\eway\gateways\gateway as EwayGateway;
-use craft\commerce\multisafepay\gateways\gateway as MultiSafepayGateway;
-use craft\commerce\paypal\gateways\PayPalExpress;
-use craft\commerce\paypal\gateways\PayPalRest;
-use craft\commerce\sagepay\gateways\Direct;
-use craft\commerce\sagepay\gateways\Server;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\Json;
@@ -32,17 +26,17 @@ class m180329_161901_gateway_send_cart_info extends Migration
             ->from(['{{%commerce_gateways}}'])
             ->where([
                 'type' => [
-                    PayPalExpress::class,
-                    'craft\\commerce\\gateways\\PayPal_Express',
-                    PayPalRest::class,
-                    Direct::class,
-                    'craft\\commerce\\gateways\\SagePay_Direct',
-                    Server::class,
-                    'craft\\commerce\\gateways\\SagePay_Server',
-                    EwayGateway::class,
-                    'craft\\commerce\\gateways\\Eway_RapidDirect',
-                    MultiSafepayGateway::class,
-                    'craft\\commerce\\gateways\\MultiSafepay_Rest'
+                    'craft\commerce\eway\gateways\Gateway',
+                    'craft\commerce\gateways\Eway_RapidDirect',
+                    'craft\commerce\gateways\MultiSafepay_Rest',
+                    'craft\commerce\gateways\PayPal_Express',
+                    'craft\commerce\gateways\SagePay_Direct',
+                    'craft\commerce\gateways\SagePay_Server',
+                    'craft\commerce\multisafepay\gateways\Gateway',
+                    'craft\commerce\paypal\gateways\PayPalExpress',
+                    'craft\commerce\paypal\gateways\PayPalRest',
+                    'craft\commerce\sagepay\gateways\Direct',
+                    'craft\commerce\sagepay\gateways\Server',
                 ]
             ])
             ->all($this->db);

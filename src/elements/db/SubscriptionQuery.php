@@ -185,7 +185,7 @@ class SubscriptionQuery extends ElementQuery
                 ->where(Db::parseParam('username', $value))
                 ->column();
         } else {
-            $this->ownerId = null;
+            $this->userId = null;
         }
 
         return $this;

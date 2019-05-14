@@ -292,6 +292,7 @@ class ProductTypes extends Component
         if ($isNewProductType) {
             $productType->uid = StringHelper::UUID();
         } else {
+            /** @var ProductTypeRecord|null $existingProductTypeRecord */
             $existingProductTypeRecord = ProductTypeRecord::find()
                 ->where(['id' => $productType->id])
                 ->one();

@@ -49,7 +49,7 @@ class CustomerAddressesController extends BaseFrontEndController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['error' => $error]);
             }
-            Craft::$app->getUser()->setFlash('error', $error);
+            Craft::$app->getSession()->setError($error);
 
             return null;
         }
@@ -196,8 +196,12 @@ class CustomerAddressesController extends BaseFrontEndController
             return $this->asJson(['error' => $error]);
         }
 
+<<<<<<< HEAD
+        Craft::$app->getSession()->setError($error);
+=======
         Craft::$app->getUser()->setFlash('error', $error);
 
         return null;
+>>>>>>> develop
     }
 }

@@ -193,7 +193,7 @@ class CartController extends BaseFrontEndController
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
 
-            // Initally combine same purchasables
+            // Initially combine same purchasables
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
 

@@ -12,6 +12,12 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\commerce\models\Discount;
 use craft\commerce\models\PaymentCurrency;
+use craft\commerce\services\Carts;
+use craft\commerce\services\Countries;
+use craft\commerce\services\Customers;
+use craft\commerce\services\Discounts;
+use craft\commerce\services\PaymentCurrencies;
+use craft\commerce\services\States;
 
 /**
  * Trait Deprecated Variables
@@ -31,7 +37,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.availableShippingMethods', 'craft.commerce.availableShippingMethods has been deprecated. Use craft.commerce.shippingMethods.availableShippingMethods(cart) instead');
 
-        $cart = $this->getCarts()->getCart();
+        /** @var Carts $cartsService */
+        $cartsService = $this->getCarts();
+        $cart = $cartsService->getCart();
 
         return $cart->getAvailableShippingMethods();
     }
@@ -46,7 +54,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.cart', 'craft.commerce.cart has been deprecated. Use craft.commerce.carts.cart instead');
 
-        return $this->getCarts()->getCart();
+        /** @var Carts $cartsService */
+        $cartsService = $this->getCarts();
+        return $cartsService->getCart();
     }
 
     /**
@@ -59,7 +69,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.countriesList', 'craft.commerce.countriesList has been deprecated. Use craft.commerce.countries.allCountriesAsList instead');
 
-        return $this->getCountries()->getAllCountriesAsList();
+        /** @var Countries $countriesService */
+        $countriesService = $this->getCountries();
+        return $countriesService->getAllCountriesAsList();
     }
 
     /**
@@ -72,7 +84,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.customer', 'craft.commerce.customer has been deprecated. Use craft.commerce.customers.customer instead');
 
-        return $this->getCustomers()->getCustomer();
+        /** @var Customers $customersService */
+        $customersService = $this->getCustomers();
+        return $customersService->getCustomer();
     }
 
     /**
@@ -86,7 +100,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.discountByCode', 'craft.commerce.discountByCode has been deprecated. Use craft.commerce.discounts.discountByCode instead');
 
-        return $this->getDiscounts()->getDiscountByCode($code);
+        /** @var Discounts $discountsService */
+        $discountsService = $this->getDiscounts();
+        return $discountsService->getDiscountByCode($code);
     }
 
     /**
@@ -99,7 +115,9 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.primaryPaymentCurrency', 'craft.commerce.primaryPaymentCurrency has been deprecated. Use craft.commerce.paymentCurrencies.primaryPaymentCurrency instead');
 
-        return $this->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        /** @var PaymentCurrencies $paymentCurrenciesService */
+        $paymentCurrenciesService = $this->getPaymentCurrencies();
+        return $paymentCurrenciesService->getPrimaryPaymentCurrency();
     }
 
     /**
@@ -112,6 +130,8 @@ trait DeprecatedVariables
     {
         Craft::$app->getDeprecator()->log('craft.commerce.statesArray', 'craft.commerce.statesArray has been deprecated. Use craft.commerce.states.allStatesAsList instead');
 
-        return $this->getStates()->getAllStatesAsList();
+        /** @var States $statesService */
+        $statesService = $this->getStates();
+        return $statesService->getAllStatesAsList();
     }
 }

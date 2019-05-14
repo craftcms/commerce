@@ -15,6 +15,7 @@ use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
+use yii\validators\Validator;
 
 /**
  * Donation purchasable.
@@ -152,8 +153,9 @@ class Donation extends Purchasable
      */
     public function populateLineItem(LineItem $lineItem)
     {
-        if (isset($lineItem->options['donationAmount'])) {
-            $lineItem->price = $lineItem->options['donationAmount'];
+        $options = $lineItem->getOptions();
+        if (isset($options['donationAmount'])) {
+            $lineItem->price = $options['donationAmount'];
             $lineItem->saleAmount = 0;
         }
 
@@ -167,14 +169,16 @@ class Donation extends Purchasable
     {
         return [
             [
-                'purchasableId', function($attribute, $params, $validator) use ($lineItem) {
-                if (!isset($lineItem->options['donationAmount'])) {
-                    $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
+                'purchasableId',
+                function($attribute, $params, Validator $validator) use ($lineItem) {
+                    $options = $lineItem->getOptions();
+                    if (!isset($options['donationAmount'])) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
+                    }
+                    if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount'));
+                    }
                 }
-                if (isset($lineItem->options['donationAmount']) && !is_numeric($lineItem->options['donationAmount'])) {
-                    $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount'));
-                }
-            }
             ]
         ];
     }

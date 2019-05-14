@@ -18,6 +18,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\models\FieldLayout;
 use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -261,7 +262,7 @@ class OrdersController extends BaseCpController
         }
 
         if (!$amount) {
-            $amount = $transaction->refundableAmount;
+            $amount = $transaction->getRefundableAmount();
         }
 
         if ($amount > $transaction->paymentAmount) {
@@ -481,8 +482,10 @@ class OrdersController extends BaseCpController
      */
     private function _prepVariables(&$variables)
     {
+        /** @var Order $order */
+        $order = $variables['order'];
         // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/orders/' . $variables['order']->id;
+        $variables['baseCpEditUrl'] = 'commerce/orders/' . $order->id;
         // Set the "Continue Editing" URL
         $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 
@@ -495,14 +498,15 @@ class OrdersController extends BaseCpController
             'class' => null
         ];
 
+        /** @var FieldLayout $fieldLayout */
         $fieldLayout = $variables['fieldLayout'];
         foreach ($fieldLayout->getTabs() as $index => $tab) {
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
-            if ($variables['order']->hasErrors()) {
+            if ($order->hasErrors()) {
                 foreach ($tab->getFields() as $field) {
-                    if ($variables['order']->getErrors($field->handle)) {
+                    if ($order->getErrors($field->handle)) {
                         $hasErrors = true;
                         break;
                     }

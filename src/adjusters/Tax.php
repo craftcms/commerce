@@ -314,10 +314,10 @@ class Tax extends Component implements AdjusterInterface
     }
 
     /**
-     * @param $rate
+     * @param TaxRate $rate
      * @return OrderAdjustment
      */
-    private function _createAdjustment($rate): OrderAdjustment
+    private function _createAdjustment(TaxRate $rate): OrderAdjustment
     {
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;

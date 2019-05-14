@@ -31,7 +31,7 @@ use yii\db\Expression;
  *
  * @property array|Discount[] $allDiscounts
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 2.0y
  */
 class Discounts extends Component
 {

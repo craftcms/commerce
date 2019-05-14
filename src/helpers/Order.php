@@ -15,11 +15,11 @@ use yii\base\InvalidArgumentException;
 class Order
 {
     /**
-     * @param $order
+     * @param OrderElement $order
      *
      * @return bool Were line items merged?
      */
-    public static function mergeDuplicateLineItems($order)
+    public static function mergeDuplicateLineItems(OrderElement $order)
     {
         $lineItems = $order->getLineItems();
         // Ensure no duplicate line items exist, and if they do, combine them.
