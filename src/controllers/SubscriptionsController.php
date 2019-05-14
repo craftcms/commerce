@@ -100,6 +100,8 @@ class SubscriptionsController extends BaseController
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+
+        return null;
     }
 
     /**

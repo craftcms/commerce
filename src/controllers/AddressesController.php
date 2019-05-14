@@ -123,6 +123,8 @@ class AddressesController extends BaseCpController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+
+        return null;
     }
 
     /**

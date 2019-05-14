@@ -83,5 +83,7 @@ class CustomersController extends BaseCpController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['customer' => $customer]);
+
+        return null;
     }
 }

@@ -2071,6 +2071,8 @@ class Order extends Element
                 $previousAdjustment->delete();
             }
         }
+
+        return null;
     }
 
     /**

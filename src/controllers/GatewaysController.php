@@ -154,7 +154,7 @@ class GatewaysController extends BaseAdminController
         }
 
         $session->setNotice(Craft::t('commerce', 'Gateway saved.'));
-        $this->redirectToPostedUrl($gateway);
+        return $this->redirectToPostedUrl($gateway);
     }
 
     /**

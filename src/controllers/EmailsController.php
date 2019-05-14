@@ -100,6 +100,8 @@ class EmailsController extends BaseAdminController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['email' => $email]);
+
+        return null;
     }
 
     /**

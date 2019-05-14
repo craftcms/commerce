@@ -51,7 +51,7 @@ class CustomerAddressesController extends BaseFrontEndController
             }
             Craft::$app->getUser()->setFlash('error', $error);
 
-            return;
+            return null;
         }
 
         // If we make it past the ownership check, and there was actually an ID passed, look it up:
@@ -110,7 +110,7 @@ class CustomerAddressesController extends BaseFrontEndController
                     }
                     Craft::$app->getSession()->setError($error);
 
-                    return;
+                    return null;
                 }
             }
 
@@ -144,6 +144,8 @@ class CustomerAddressesController extends BaseFrontEndController
                 'address' => $address,
             ]);
         }
+
+        return null;
     }
 
     /**
@@ -201,5 +203,7 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         Craft::$app->getUser()->setFlash('error', $error);
+
+        return null;
     }
 }

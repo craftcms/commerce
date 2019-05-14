@@ -229,7 +229,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return;
+                return null;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -478,6 +478,8 @@ class Payments extends Component
 
             $response->redirect();
         }
+
+        return null;
     }
 
     /**
