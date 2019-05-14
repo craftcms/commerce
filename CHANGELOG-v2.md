@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## Added
+- Added `craft\commerce\elements\db\VariantQuery::minQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
+- Added `craft\commerce\elements\db\VariantQuery::maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
+
 ## Changed
 - Line item options are not automatically sorted anymore.
 
