@@ -313,14 +313,16 @@ class Plugin extends BasePlugin
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
-                'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                    'commerce-capturePayment' => [
-                      'label' => Craft::t('commerce', 'Capture Payment')
-                    ],
-                    'commerce-refundPayment' => [
-                      'label' => Craft::t('commerce', 'Refund Payment')
-                    ],
-                  ]],
+                'commerce-manageOrders' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                        'commerce-capturePayment' => [
+                            'label' => Craft::t('commerce', 'Capture Payment')
+                        ],
+                        'commerce-refundPayment' => [
+                            'label' => Craft::t('commerce', 'Refund Payment')
+                        ],
+                    ]
+                ],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
@@ -384,7 +386,7 @@ class Plugin extends BasePlugin
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
 
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $event) {
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
         });
     }

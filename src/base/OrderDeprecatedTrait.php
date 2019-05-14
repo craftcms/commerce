@@ -7,8 +7,8 @@ use Craft;
 trait OrderDeprecatedTrait
 {
     /**
-     * @deprecated
      * @return string
+     * @deprecated
      */
     public function getOrderLocale(): string
     {
@@ -18,8 +18,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalTax(): float
     {
@@ -29,8 +29,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalTaxIncluded(): float
     {
@@ -40,8 +40,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalDiscount(): float
     {
@@ -51,8 +51,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalShippingCost(): float
     {

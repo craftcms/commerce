@@ -280,7 +280,7 @@ class Product extends Element
      */
     public function getSnapshot(): array
     {
-       return [];
+        return [];
     }
 
     /**

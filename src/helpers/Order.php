@@ -29,13 +29,11 @@ class Order
             if (isset($lineItemsByKey[$key])) {
                 $lineItemsByKey[$key]->qty += $lineItem->qty;
                 // If a note already exists, merge it.
-                if($lineItemsByKey[$key]->note && $lineItem->note)
-                {
+                if ($lineItemsByKey[$key]->note && $lineItem->note) {
                     $lineItemsByKey[$key]->note = $lineItemsByKey[$key]->note . ' - ' . $lineItem->note;
-                }else{
+                } else {
                     $lineItemsByKey[$key]->note = $lineItem->note;
                 }
-
             } else {
                 $lineItemsByKey[$key] = $lineItem;
             }

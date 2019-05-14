@@ -140,7 +140,6 @@ trait Routes
 
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
-
         });
     }
 }

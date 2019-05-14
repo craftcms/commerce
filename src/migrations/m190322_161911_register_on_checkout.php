@@ -19,7 +19,7 @@ class m190322_161911_register_on_checkout extends Migration
      */
     public function safeUp()
     {
-            $this->addColumn('{{%commerce_orders}}', 'registerUserOnOrderComplete', $this->boolean());
+        $this->addColumn('{{%commerce_orders}}', 'registerUserOnOrderComplete', $this->boolean());
     }
 
     /**

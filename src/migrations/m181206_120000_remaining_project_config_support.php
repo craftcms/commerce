@@ -222,7 +222,7 @@ class m181206_120000_remaining_project_config_support extends Migration
             ->leftJoin('{{%commerce_emails}} emails', '[[emails.id]] = [[relations.emailId]]')
             ->all();
 
-        foreach($relationRows as $relationRow) {
+        foreach ($relationRows as $relationRow) {
             $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
         }
 

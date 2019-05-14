@@ -42,7 +42,6 @@ class m181119_100600_lite_shipping_and_tax extends Migration
 
         if (!$this->db->columnExists($taxRatesTable, 'isLite')) {
             $this->addColumn($taxRatesTable, 'isLite', $this->boolean());
-
         }
 
         if (!$this->db->columnExists($taxRatesTable, 'isEverywhere')) {

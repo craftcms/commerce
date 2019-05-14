@@ -215,8 +215,7 @@ class ProductsController extends BaseCpController
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
             $product->setScenario(Element::SCENARIO_LIVE);
-            foreach ($product->getVariants() as $variant)
-            {
+            foreach ($product->getVariants() as $variant) {
                 $variant->setScenario(Element::SCENARIO_LIVE);
             }
         }

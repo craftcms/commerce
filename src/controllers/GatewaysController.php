@@ -98,8 +98,8 @@ class GatewaysController extends BaseAdminController
     }
 
     /**
-     * @throws HttpException
      * @return Response|null
+     * @throws HttpException
      */
     public function actionSave()
     {

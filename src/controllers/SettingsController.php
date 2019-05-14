@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\Model;
 use craft\commerce\models\Settings;
 use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;

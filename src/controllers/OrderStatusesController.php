@@ -127,7 +127,7 @@ class OrderStatusesController extends BaseAdminController
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int) $orderStatusId)) {
+        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int)$orderStatusId)) {
             return $this->asJson(['success' => true]);
         }
 

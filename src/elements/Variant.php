@@ -15,7 +15,6 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
@@ -315,7 +314,7 @@ class Variant extends Purchasable
             ->one();
 
         if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: '.$this->productId);
+            throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
         }
 
         return $this->_product = $product;
@@ -440,7 +439,7 @@ class Variant extends Purchasable
      */
     public function getUrl(): string
     {
-        return $this->product->url.'?variant='.$this->id;
+        return $this->product->url . '?variant=' . $this->id;
     }
 
     /**
@@ -498,7 +497,7 @@ class Variant extends Purchasable
                 'product' => $this->getProduct(),
                 'fieldData' => $data['product']
             ]);
-        }else{
+        } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
                 'fieldData' => []
@@ -753,7 +752,7 @@ class Variant extends Purchasable
             $record = VariantRecord::findOne($this->id);
 
             if (!$record) {
-                throw new Exception('Invalid variant ID: '.$this->id);
+                throw new Exception('Invalid variant ID: ' . $this->id);
             }
         } else {
             $record = new VariantRecord();
@@ -937,14 +936,14 @@ class Variant extends Purchasable
         // Check to see if any other purchasable has the same SKU and update this one before restore
         $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
             ->from('{{%commerce_purchasables}} p')
-            ->leftJoin(Table::ELEMENTS.' e', '[[p.id]]=[[e.id]]')
+            ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
             ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
             ->count();
 
         if ($found) {
             // Set new SKU in memory
-            $this->sku = $this->getSku().'-1';
+            $this->sku = $this->getSku() . '-1';
 
             // Update variant table with new SKU
             Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
@@ -1058,7 +1057,7 @@ class Variant extends Purchasable
             case 'weight':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->weightUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                     }
 
                     return '';
@@ -1068,7 +1067,7 @@ class Variant extends Purchasable
             case 'height':
                 {
                     if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute).' '.Plugin::getInstance()->getSettings()->dimensionUnits;
+                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                     }
 
                     return '';

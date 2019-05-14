@@ -175,7 +175,7 @@ class Emails extends Component
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
 
-        $configPath = self::CONFIG_EMAILS_KEY.'.'.$emailUid;
+        $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNewEmail) {
@@ -248,7 +248,7 @@ class Emails extends Component
                 ]));
             }
 
-            Craft::$app->getProjectConfig()->remove(self::CONFIG_EMAILS_KEY.'.'.$email->uid);
+            Craft::$app->getProjectConfig()->remove(self::CONFIG_EMAILS_KEY . '.' . $email->uid);
         }
 
         return true;
@@ -469,11 +469,11 @@ class Emails extends Component
                 $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
                 $fileName = $view->renderObjectTemplate($filenameFormat, $order);
                 if (!$fileName) {
-                    $fileName = 'Order-'.$order->number;
+                    $fileName = 'Order-' . $order->number;
                 }
 
                 // Attachment information
-                $options = ['fileName' => $fileName.'.pdf', 'contentType' => 'application/pdf'];
+                $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [

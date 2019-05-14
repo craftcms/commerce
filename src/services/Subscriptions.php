@@ -288,7 +288,7 @@ class Subscriptions extends Component
             foreach ($layoutData as $layoutUid => $layout) {
                 if (!empty($layout['tabs'])) {
                     foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY.'.'.$layoutUid.'.tabs.'.$tabUid.'.fields.'.$fieldUid);
+                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
                     }
                 }
             }
@@ -612,7 +612,7 @@ class Subscriptions extends Component
                     $this->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, new CancelSubscriptionEvent(compact('subscription', 'parameters')));
                 }
             } catch (\Throwable $exception) {
-                Craft::warning('Failed to cancel subscription '.$subscription->reference.': '.$exception->getMessage());
+                Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
             }

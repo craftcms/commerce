@@ -183,7 +183,6 @@ class SubscriptionsController extends BaseController
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
-
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
         }

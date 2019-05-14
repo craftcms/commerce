@@ -154,7 +154,7 @@ class ProductTypes extends Component
             $allProductTypes = $this->getAllProductTypes();
 
             foreach ($allProductTypes as $productType) {
-                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:'.$productType->uid)) {
+                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid)) {
                     $this->_editableProductTypeIds[] = $productType->id;
                 }
             }
@@ -364,7 +364,7 @@ class ProductTypes extends Component
             ];
         }
 
-        $configPath = self::CONFIG_PRODUCTTYPES_KEY.'.'.$productType->uid;
+        $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productType->uid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNewProductType) {
@@ -634,7 +634,7 @@ class ProductTypes extends Component
     public function deleteProductTypeById(int $id): bool
     {
         $productType = $this->getProductTypeById($id);
-        Craft::$app->getProjectConfig()->remove(self::CONFIG_PRODUCTTYPES_KEY.'.'.$productType->uid);
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productType->uid);
         return true;
     }
 
@@ -710,7 +710,7 @@ class ProductTypes extends Component
         // Loop through the product types and prune the UID from field layouts.
         if (is_array($productTypes)) {
             foreach ($productTypes as $productTypeUid => $productType) {
-                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY.'.'.$productTypeUid.'.siteSettings.'.$siteUid);
+                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $siteUid);
             }
         }
     }
@@ -736,7 +736,7 @@ class ProductTypes extends Component
                     foreach ($productType['productFieldLayouts'] as $layoutUid => $layout) {
                         if (!empty($layout['tabs'])) {
                             foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY.'.'.$productTypeUid.'.productFieldLayouts.'.$layoutUid.'.tabs.'.$tabUid.'.fields.'.$fieldUid);
+                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.productFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
                             }
                         }
                     }
@@ -745,7 +745,7 @@ class ProductTypes extends Component
                     foreach ($productType['variantFieldLayouts'] as $layoutUid => $layout) {
                         if (!empty($layout['tabs'])) {
                             foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY.'.'.$productTypeUid.'.variantFieldLayouts.'.$layoutUid.'.tabs.'.$tabUid.'.fields.'.$fieldUid);
+                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.variantFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
                             }
                         }
                     }
@@ -853,7 +853,7 @@ class ProductTypes extends Component
                     'hasUrls' => $primarySiteSettings['hasUrls']
                 ];
 
-                Craft::$app->getProjectConfig()->set(self::CONFIG_PRODUCTTYPES_KEY.'.'.$primarySiteSettings['productTypeUid'].'.siteSettings.'.$event->site->uid, $newSiteSettings);
+                Craft::$app->getProjectConfig()->set(self::CONFIG_PRODUCTTYPES_KEY . '.' . $primarySiteSettings['productTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);
             }
         }
     }

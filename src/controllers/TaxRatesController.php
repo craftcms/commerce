@@ -113,7 +113,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxcategories/_fields',[
+            $view->renderTemplate('commerce/tax/taxcategories/_fields', [
                 'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
             ])
         );

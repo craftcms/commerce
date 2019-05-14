@@ -155,14 +155,14 @@ class OrderQuery extends ElementQuery
      */
     public function updatedAfter($value)
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
 
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>='.$value;
+        $this->dateUpdated[] = '>=' . $value;
 
         return $this;
     }
@@ -176,14 +176,14 @@ class OrderQuery extends ElementQuery
      */
     public function updatedBefore($value)
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
 
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<'.$value;
+        $this->dateUpdated[] = '<' . $value;
 
         return $this;
     }

@@ -634,10 +634,10 @@ class Order extends Element
     public function markAsComplete(): bool
     {
         // Use a mutex to make sure we check the order is not already complete due to a race condition.
-        $lockName = 'orderComplete:'.$this->id;
+        $lockName = 'orderComplete:' . $this->id;
         $mutex = Craft::$app->getMutex();
         if (!$mutex->acquire($lockName, 5)) {
-            throw new Exception('Unable to acquire a lock for completion of Order: '.$this->id);
+            throw new Exception('Unable to acquire a lock for completion of Order: ' . $this->id);
         }
 
         // Now that we have a lock, make sure this order is not already completed.
@@ -677,7 +677,7 @@ class Order extends Element
             $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
             $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
         } catch (\Throwable $exception) {
-            Craft::error('Unable to generate order completion reference for order ID: '.$this->id.', with format: '.$referenceTemplate.', error: '.$exception->getMessage());
+            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
             throw $exception;
         }
 
@@ -874,7 +874,7 @@ class Order extends Element
             $orderRecord = OrderRecord::findOne($this->id);
 
             if (!$orderRecord) {
-                throw new Exception('Invalid order ID: '.$this->id);
+                throw new Exception('Invalid order ID: ' . $this->id);
             }
         } else {
             $orderRecord = new OrderRecord();
@@ -1008,7 +1008,7 @@ class Order extends Element
      */
     public function getLink(): string
     {
-        return Template::raw("<a href='".$this->getCpEditUrl()."'>".($this->reference ?: $this->getShortNumber()).'</a>');
+        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . ($this->reference ?: $this->getShortNumber()) . '</a>');
     }
 
     /**
@@ -1016,7 +1016,7 @@ class Order extends Element
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/orders/'.$this->id);
+        return UrlHelper::cpUrl('commerce/orders/' . $this->id);
     }
 
     /**
@@ -1032,8 +1032,8 @@ class Order extends Element
         try {
             $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
             if ($pdf) {
-                $path = "commerce/downloads/pdf?number={$this->number}".($option ? "&option={$option}" : '');
-                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger.'/'.trim($path, '/');
+                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
                 $url = UrlHelper::siteUrl($path);
             }
         } catch (\Exception $exception) {
@@ -1124,15 +1124,15 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_PAID:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status green"></span> '.Craft::t('commerce', 'Paid').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
                 }
             case self::PAID_STATUS_PARTIAL:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status orange"></span> '.Craft::t('commerce', 'Partial').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
                 }
             case self::PAID_STATUS_UNPAID:
                 {
-                    return '<span class="commerceStatusLabel"><span class="status red"></span> '.Craft::t('commerce', 'Unpaid').'</span>';
+                    return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
                 }
         }
 
@@ -1862,7 +1862,7 @@ class Order extends Element
         $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
-            $key = 'orderStatus:'.$orderStatus->handle;
+            $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
 
             $count = (new Query())
@@ -1890,7 +1890,7 @@ class Order extends Element
         $edge = $edge->format(\DateTime::ATOM);
 
         $updatedAfter = [];
-        $updatedAfter[] = '>= '.$edge;
+        $updatedAfter[] = '>= ' . $edge;
 
         $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
         $sources[] = [
@@ -1900,7 +1900,7 @@ class Order extends Element
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
         ];
         $updatedBefore = [];
-        $updatedBefore[] = '< '.$edge;
+        $updatedBefore[] = '< ' . $edge;
 
         $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
         $sources[] = [

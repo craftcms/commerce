@@ -165,8 +165,8 @@ class Orders extends Component
     }
 
     /**
-     * @return array
      * @param Order $cart
+     * @return array
      * @deprecated 2.2 use `$order->toArray()` instead
      */
     public function cartArray($cart)
