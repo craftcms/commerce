@@ -28,16 +28,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     // =========================================================================
 
     /**
-     * @return Response
-     */
-    public function actionIndex(): Response
-    {
-        $methodsExist = Plugin::getInstance()->getShippingMethods()->ShippingMethodExists();
-        $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRules();
-        return $this->renderTemplate('commerce/shipping/shippingrules/index', compact('shippingRules', 'methodsExist'));
-    }
-
-    /**
      * @param int|null $methodId
      * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
