@@ -1725,59 +1725,31 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
                 {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-
-                    return '<span class="status"></span>';
+                    return $this->orderStatus->getLabelHtml() ?? '<span class="status"></span>';
                 }
             case 'shippingFullName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->getFullName() ?? '';
                 }
             case 'billingFullName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->getFullName();
-                    }
-
-                    return '';
+                    return $this->billingAddress->getFullName() ?? '';
                 }
             case 'shippingBusinessName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->businessName ?? '';
                 }
             case 'billingBusinessName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->businessName;
-                    }
-
-                    return '';
+                    return $this->billingAddress->businessName ?? '';
                 }
             case 'shippingMethodName':
                 {
-                    if ($this->shippingMethod) {
-                        return $this->shippingMethod->getName();
-                    }
-
-                    return '';
+                    return $this->shippingMethod->getName() ?? '';
                 }
             case 'gatewayName':
                 {
-                    if ($this->gateway) {
-                        return $this->gateway->name;
-                    }
-
-                    return '';
+                    return $this->gateway->name ?? '';
                 }
             case 'paidStatus':
                 {

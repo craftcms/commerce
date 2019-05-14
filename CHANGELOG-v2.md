@@ -11,6 +11,7 @@
 - Fixed an SQL error that could occur when updating a trashed cart from the front-end. ([#854](https://github.com/craftcms/commerce/issues/854))
 - Fixed the line item quantity validators to calculate correct quantity values. ([#855](https://github.com/craftcms/commerce/pull/855))
 - Fixed a bug where it was impossible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
+- Fixed a javascript error that could occur when retrieving orders on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
 
 ## 2.1.5.2 - 2019-05-08
 
