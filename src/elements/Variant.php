@@ -460,7 +460,7 @@ class Variant extends Purchasable
     public function getSnapshot(): array
     {
         $data = [];
-        $data['onSale'] = (bool)$this->getOnSale();
+        $data['onSale'] = $this->getOnSale();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Product custom field handles
@@ -557,7 +557,7 @@ class Variant extends Purchasable
      */
     public function getOnSale(): bool
     {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
+        parent::getOnSale();
     }
 
     /**
