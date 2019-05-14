@@ -247,10 +247,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         /** @var ShippingAddressZone $shippingZone */
-        if ($shippingZone) {
-            if (!Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
-                return false;
-            }
+        if ($shippingZone && !Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
+            return false;
         }
 
         // order qty rules are inclusive (min <= x <= max)

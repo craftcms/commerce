@@ -308,7 +308,7 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
 
         $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
-        $nameOverride  = Plugin::getInstance()->getSettings()->emailSenderName;
+        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
         if ($emailOverride) {
             $newEmail->setFrom($emailOverride);
         }
@@ -646,7 +646,11 @@ class Emails extends Component
      */
     private function _getEmailRecord(string $uid): EmailRecord
     {
-        return EmailRecord::findOne(['uid' => $uid]) ?? new EmailRecord();
+        if ($email = EmailRecord::findOne(['uid' => $uid])) {
+            return $email;
+        }
+
+        return new EmailRecord();
     }
 
 }

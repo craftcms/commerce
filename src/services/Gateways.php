@@ -444,6 +444,10 @@ class Gateways extends Component
      */
     private function _getGatewayRecord(string $uid): GatewayRecord
     {
-        return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
+        if ($gateway = GatewayRecord::findOne(['uid' => $uid])) {
+            return $gateway;
+        }
+
+        return new GatewayRecord();
     }
 }

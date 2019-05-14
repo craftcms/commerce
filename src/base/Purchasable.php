@@ -251,7 +251,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function afterSave(bool $isNew)
     {
-        $purchasable = PurchasableRecord::findOne($this->id) ?? new PurchasableRecord();
+
+        $purchasable = PurchasableRecord::findOne($this->id);
+
+        if (!$purchasable) {
+            $purchasable = new PurchasableRecord();
+        }
 
         $purchasable->sku = $this->getSku();
         $purchasable->price = $this->getPrice();

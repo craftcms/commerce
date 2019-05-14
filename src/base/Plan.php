@@ -21,7 +21,7 @@ use yii\base\InvalidConfigException;
  * Plan model
  *
  * @property GatewayInterface $gateway
- * @property \craft\elements\Entry|null $information
+ * @property Entry|null $information
  * @property int $subscriptionCount
  * @property User $user
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

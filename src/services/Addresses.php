@@ -12,12 +12,11 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
-use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * Address service.
@@ -177,7 +176,7 @@ class Addresses extends Component
      * @param bool $runValidation should we validate this address before saving.
      * @return bool Whether the address was saved successfully.
      * @throws \InvalidArgumentException if an address does not exist.
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function saveAddress(Address $addressModel, bool $runValidation = true): bool
     {
@@ -263,7 +262,7 @@ class Addresses extends Component
         // Get the Address model before deletion to pass to the Event.
         $address = $this->getAddressById($id);
 
-        $result = (bool) $addressRecord->delete();
+        $result = (bool)$addressRecord->delete();
 
         //Raise the afterDeleteAddress event
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_ADDRESS)) {

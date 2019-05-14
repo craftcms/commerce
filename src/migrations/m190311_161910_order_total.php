@@ -19,7 +19,7 @@ class m190311_161910_order_total extends Migration
      */
     public function safeUp()
     {
-            $this->addColumn('{{%commerce_orders}}', 'total', $this->decimal(14, 4)->defaultValue(0));
+        $this->addColumn('{{%commerce_orders}}', 'total', $this->decimal(14, 4)->defaultValue(0));
     }
 
     /**

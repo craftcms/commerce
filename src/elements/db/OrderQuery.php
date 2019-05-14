@@ -155,14 +155,14 @@ class OrderQuery extends ElementQuery
      */
     public function updatedAfter($value)
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
 
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>='.$value;
+        $this->dateUpdated[] = '>=' . $value;
 
         return $this;
     }
@@ -176,14 +176,14 @@ class OrderQuery extends ElementQuery
      */
     public function updatedBefore($value)
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__.' is deprecated. Use dateUpdated() instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
 
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
         }
 
         $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<'.$value;
+        $this->dateUpdated[] = '<' . $value;
 
         return $this;
     }
@@ -889,53 +889,45 @@ class OrderQuery extends ElementQuery
         }
 
         // Allow true ot false but not null
-        if ($this->isPaid !== null) {
-            if ($this->isPaid) {
-                $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
-            }
+        if (($this->isPaid !== null) && $this->isPaid) {
+            $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
         }
 
         // Allow true ot false but not null
-        if ($this->isPaid !== null) {
-            if ($this->isUnpaid) {
-                $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
-            }
+        if (($this->isUnpaid !== null) && $this->isUnpaid) {
+            $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
         }
 
         // Allow true ot false but not null
-        if ($this->hasPurchasables !== null) {
-            if ($this->hasPurchasables) {
-                $purchasableIds = [];
+        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
+            $purchasableIds = [];
 
-                if (!is_array($this->hasPurchasables)) {
-                    $this->hasPurchasables = [$this->hasPurchasables];
+            if (!is_array($this->hasPurchasables)) {
+                $this->hasPurchasables = [$this->hasPurchasables];
+            }
+
+            foreach ($this->hasPurchasables as $purchasable) {
+                if ($purchasable instanceof PurchasableInterface) {
+                    $purchasableIds[] = $purchasable->getId();
+                } else if (is_numeric($purchasable)) {
+                    $purchasableIds[] = $purchasable;
                 }
-
-                foreach ($this->hasPurchasables as $purchasable) {
-                    if ($purchasable instanceof PurchasableInterface) {
-                        $purchasableIds[] = $purchasable->getId();
-                    } else if (is_numeric($purchasable)) {
-                        $purchasableIds[] = $purchasable;
-                    }
-                }
-
-                // Remove any blank purchasable IDs (if any)
-                $purchasableIds = array_filter($purchasableIds);
-
-                $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-                $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
             }
+
+            // Remove any blank purchasable IDs (if any)
+            $purchasableIds = array_filter($purchasableIds);
+
+            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
+            $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
         // Allow true ot false but not null
-        if ($this->hasPurchasables !== null) {
-            if ($this->hasTransactions) {
-                $this->subQuery->andWhere([
-                    'exists', (new Query())
-                        ->from(['{{%commerce_transactions}} transactions'])
-                        ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
-                ]);
-            }
+        if (($this->hasPurchasables !== null) && $this->hasTransactions) {
+            $this->subQuery->andWhere([
+                'exists', (new Query())
+                    ->from(['{{%commerce_transactions}} transactions'])
+                    ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            ]);
         }
 
         return parent::beforePrepare();

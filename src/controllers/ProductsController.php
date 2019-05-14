@@ -79,11 +79,7 @@ class ProductsController extends BaseCpController
      */
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
-        $variables = [
-            'productTypeHandle' => $productTypeHandle,
-            'productId' => $productId,
-            'product' => $product
-        ];
+        $variables = compact('productTypeHandle', 'productId', 'product');
 
         if ($siteHandle !== null) {
             $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);
@@ -95,8 +91,11 @@ class ProductsController extends BaseCpController
 
         $this->_prepEditProductVariables($variables);
 
-        if (!empty($variables['product']->id)) {
-            $variables['title'] = $variables['product']->title;
+        /** @var Product $product */
+        $product = $variables['product'];
+
+        if (!empty($product->id)) {
+            $variables['title'] = $product->title;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new product');
         }
@@ -110,8 +109,8 @@ class ProductsController extends BaseCpController
 
         $this->_prepVariables($variables);
 
-        if ($variables['product']->getType()->hasVariants) {
-            $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($variables['product']);
+        if ($product->getType()->hasVariants) {
+            $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($product);
         } else {
             $this->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
         }
@@ -121,26 +120,26 @@ class ProductsController extends BaseCpController
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
                     'fields' => '#title-field, #fields > div > div > .field',
                     'extraFields' => '#details',
-                    'previewUrl' => $variables['product']->getUrl(),
+                    'previewUrl' => $product->getUrl(),
                     'previewAction' => Craft::$app->getSecurity()->hashData('commerce/products-preview/preview-product'),
                     'previewParams' => [
                         'typeId' => $variables['productType']->id,
-                        'productId' => $variables['product']->id,
-                        'siteId' => $variables['product']->siteId,
+                        'productId' => $product->id,
+                        'siteId' => $product->siteId,
                     ]
                 ]) . ');');
 
             $variables['showPreviewBtn'] = true;
 
             // Should we show the Share button too?
-            if ($variables['product']->id) {
+            if ($product->id) {
                 // If the product is enabled, use its main URL as its share URL.
-                if ($variables['product']->getStatus() == Product::STATUS_LIVE) {
-                    $variables['shareUrl'] = $variables['product']->getUrl();
+                if ($product->getStatus() == Product::STATUS_LIVE) {
+                    $variables['shareUrl'] = $product->getUrl();
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products-preview/share-product', [
-                        'productId' => $variables['product']->id,
-                        'siteId' => $variables['product']->siteId
+                        'productId' => $product->id,
+                        'siteId' => $product->siteId
                     ]);
                 }
             }
@@ -216,8 +215,7 @@ class ProductsController extends BaseCpController
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
             $product->setScenario(Element::SCENARIO_LIVE);
-            foreach ($product->getVariants() as $variant)
-            {
+            foreach ($product->getVariants() as $variant) {
                 $variant->setScenario(Element::SCENARIO_LIVE);
             }
         }

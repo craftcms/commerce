@@ -108,15 +108,14 @@ class m180417_161904_fix_purchasables extends Migration
         foreach ($elementsRows as $elementsRow) {
             if (isset($reflectionClassesByType[$elementsRow['type']])) {
                 $class = $reflectionClassesByType[$elementsRow['type']];
-                if ($class && $class->implementsInterface(PurchasableInterface::class)) {
-                    /** @var PurchasableInterface $element */
-                    if ($element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
-                        $row = [];
-                        $row['id'] = $element->getId();
-                        $row['price'] = $element->getPrice();
-                        $row['sku'] = $element->getSku();
-                        $this->insert('{{%commerce_purchasables}}', $row);
-                    }
+                $implementsClass = ($class && $class->implementsInterface(PurchasableInterface::class));
+                /** @var PurchasableInterface $element */
+                if ($implementsClass && $element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
+                    $row = [];
+                    $row['id'] = $element->getId();
+                    $row['price'] = $element->getPrice();
+                    $row['sku'] = $element->getSku();
+                    $this->insert('{{%commerce_purchasables}}', $row);
                 }
             }
         }

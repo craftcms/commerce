@@ -67,10 +67,8 @@ class Shipping extends Component implements AdjusterInterface
                 // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                 $hasFreeShippingFromDiscount = false;
                 foreach ($discounts as $discount) {
-                    if ($discount->hasFreeShippingForMatchingItems) {
-                        if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
-                            $hasFreeShippingFromDiscount = true;
-                        }
+                    if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
+                        $hasFreeShippingFromDiscount = true;
                     }
                 }
 

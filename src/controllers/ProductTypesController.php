@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
@@ -44,10 +45,7 @@ class ProductTypesController extends BaseAdminController
      */
     public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
     {
-        $variables = [
-            'productTypeId' => $productTypeId,
-            'productType' => $productType,
-        ];
+        $variables = compact('productTypeId', 'productType');
 
         $variables['brandNewProductType'] = false;
 
@@ -151,12 +149,15 @@ class ProductTypesController extends BaseAdminController
         // Set the product type field layout
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
         $fieldLayout->type = Product::class;
-        $productType->getBehavior('productFieldLayout')->setFieldLayout($fieldLayout);
+        /** @var FieldLayoutBehavior $behavior */
+        $behavior = $productType->getBehavior('productFieldLayout');
+        $behavior->setFieldLayout($fieldLayout);
 
         // Set the variant field layout
         $variantFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
         $variantFieldLayout->type = Variant::class;
-        $productType->getBehavior('variantFieldLayout')->setFieldLayout($variantFieldLayout);
+        $behavior = $productType->getBehavior('variantFieldLayout');
+        $behavior->setFieldLayout($variantFieldLayout);
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {

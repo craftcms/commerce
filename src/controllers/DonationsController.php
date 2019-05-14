@@ -56,7 +56,7 @@ class DonationsController extends BaseStoreSettingsController
             $donation = new Donation();
         }
 
-        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');;
+        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');
         $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {

@@ -292,6 +292,7 @@ class ProductTypes extends Component
         if ($isNewProductType) {
             $productType->uid = StringHelper::UUID();
         } else {
+            /** @var ProductTypeRecord|null $existingProductTypeRecord */
             $existingProductTypeRecord = ProductTypeRecord::find()
                 ->where(['id' => $productType->id])
                 ->one();
@@ -324,8 +325,7 @@ class ProductTypes extends Component
             'siteSettings' => []
         ];
 
-        $generateLayoutConfig = function (FieldLayout $fieldLayout): array
-        {
+        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
             $fieldLayoutConfig = $fieldLayout->getConfig();
 
             if ($fieldLayoutConfig) {
@@ -839,7 +839,8 @@ class ProductTypes extends Component
                     'productTypes.uid productTypeUid',
                     'producttypes_sites.uriFormat',
                     'producttypes_sites.template',
-                    'producttypes_sites.hasUrls'])
+                    'producttypes_sites.hasUrls'
+                ])
                 ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
                 ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
                 ->where(['siteId' => $event->oldPrimarySiteId])
@@ -904,6 +905,10 @@ class ProductTypes extends Component
      */
     private function _getProductTypeRecord(string $uid): ProductTypeRecord
     {
-        return ProductTypeRecord::findOne(['uid' => $uid]) ?? new ProductTypeRecord();
+        if ($productType = ProductTypeRecord::findOne(['uid' => $uid])) {
+            return $productType;
+        }
+
+        return new ProductTypeRecord();
     }
 }

@@ -224,11 +224,10 @@ class ProductType extends Model
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
-            } else {
-                if ($category instanceof ShippingCategory) {
-                    if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
-                        $categories[$category->id] = $category;
-                    }
+            } else if ($category instanceof ShippingCategory) {
+                // Make sure it exists
+                if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category->id)) {
+                    $categories[$category->id] = $category;
                 }
             }
         }
@@ -261,7 +260,8 @@ class ProductType extends Model
                 }
             } else {
                 if ($category instanceof TaxCategory) {
-                    if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category)) {
+                    // Make sure it exists.
+                    if ($category = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($category->id)) {
                         $categories[$category->id] = $category;
                     }
                 }

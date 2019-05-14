@@ -44,10 +44,7 @@ class OrderStatusesController extends BaseAdminController
      */
     public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'orderStatus' => $orderStatus
-        ];
+        $variables = compact('id', 'orderStatus');
 
         if (!$variables['orderStatus']) {
             if ($variables['id']) {
@@ -130,7 +127,7 @@ class OrderStatusesController extends BaseAdminController
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int) $orderStatusId)) {
+        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int)$orderStatusId)) {
             return $this->asJson(['success' => true]);
         }
 

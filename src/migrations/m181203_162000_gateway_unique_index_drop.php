@@ -9,7 +9,6 @@ namespace craft\commerce\migrations;
 
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
-use yii\db\Expression;
 
 /**
  * m181203_162000_gateway_unique_index_drop migration.
@@ -26,7 +25,6 @@ class m181203_162000_gateway_unique_index_drop extends Migration
 
         $this->createIndex(null, '{{%commerce_gateways}}', 'handle', false);
         $this->createIndex(null, '{{%commerce_gateways}}', 'isArchived', false);
-
     }
 
     /**

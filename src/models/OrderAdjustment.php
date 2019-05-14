@@ -15,6 +15,7 @@ use yii\base\InvalidArgumentException;
 
 /**
  * Order adjustment model.
+ *
  * @property array $sourceSnapshot
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -58,7 +59,7 @@ class OrderAdjustment extends Model
     /**
      * @var mixed Adjuster options
      */
-    private $_sourceSnapshot;
+    private $_sourceSnapshot = [];
 
     /**
      * @var int Order ID

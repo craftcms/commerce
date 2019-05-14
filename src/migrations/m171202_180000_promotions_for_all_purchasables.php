@@ -231,7 +231,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             }
         }
 
-        \Craft::$app->getCache()->set('commerce_sale_purchasables_001', Json::encode($newSalesPurchasables));
+        Craft::$app->getCache()->set('commerce_sale_purchasables_001', Json::encode($newSalesPurchasables));
 
         MigrationHelper::dropTable('{{%commerce_sale_products}}');
 
@@ -279,7 +279,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             }
         }
 
-        \Craft::$app->getCache()->set('commerce_discount_purchasables_001', Json::encode($newDiscountsPurchasables));
+        Craft::$app->getCache()->set('commerce_discount_purchasables_001', Json::encode($newDiscountsPurchasables));
 
         MigrationHelper::dropTable('{{%commerce_discount_products}}');
 
@@ -361,6 +361,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
         $settings = ['source' => 'group:' . $categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
 
+        /** @var Categories $field */
         $field = $fieldsService->createField([
             'type' => Categories::class,
             'id' => null,

@@ -46,10 +46,7 @@ class PlansController extends BaseAdminController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
-        $variables = [
-            'planId' => $planId,
-            'plan' => $plan,
-        ];
+        $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
 
@@ -116,11 +113,12 @@ class PlansController extends BaseAdminController
         $planService = Plugin::getInstance()->getPlans();
         $planId = $request->getParam('planId');
 
+        $plan = null;
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
 
-        if (empty($plan)) {
+        if (null === $plan) {
             $plan = $gateway->getPlanModel();
         }
 

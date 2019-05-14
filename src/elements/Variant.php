@@ -15,7 +15,6 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
@@ -24,9 +23,11 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
+use yii\validators\Validator;
 
 /**
  * Variant model.
@@ -239,7 +240,7 @@ class Variant extends Purchasable
     {
         $rules = parent::rules();
 
-        $rules[] = [['sku'], 'string'];
+        $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required'];
         $rules[] = [['price'], 'number'];
         $rules[] = [
@@ -261,9 +262,9 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function extraAttributes(): array
+    public function extraFields(): array
     {
-        $names = parent::extraAttributes();
+        $names = parent::extraFields();
         $names[] = 'product';
         return $names;
     }
@@ -460,11 +461,7 @@ class Variant extends Purchasable
     {
         $data = [];
         $data['onSale'] = $this->getOnSale();
-
         $data['cpEditUrl'] = $this->getCpEditUrl();
-
-        // Product Attributes
-        $data['product'] = $this->getProduct() ? $this->getProduct()->getSnapshot() : [];
 
         // Default Product custom field handles
         $productFields = [];
@@ -478,19 +475,41 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, $productFieldsEvent);
         }
 
-        // Capture specified Product field data
-        $productFieldData = $this->getProduct() ? $this->getProduct()->getSerializedFieldValues($productFieldsEvent->fields) : [];
-        $productDataEvent = new CustomizeProductSnapshotDataEvent([
-            'product' => $this->getProduct(),
-            'fieldData' => $productFieldData
-        ]);
+        // Product Attributes
+        if ($product = $this->getProduct()) {
+            $productAttributes = $product->attributes();
+
+            // Remove custom fields
+            if (($fieldLayout = $product->getFieldLayout()) !== null) {
+                foreach ($fieldLayout->getFields() as $field) {
+                    ArrayHelper::removeValue($productAttributes, $field->handle);
+                }
+            }
+
+            // Add back the custom fields they want
+            foreach ($productFieldsEvent->fields as $field) {
+                $productAttributes[] = $field;
+            }
+
+            $data['product'] = $this->getProduct()->toArray($productAttributes, [], false);
+
+            $productDataEvent = new CustomizeProductSnapshotDataEvent([
+                'product' => $this->getProduct(),
+                'fieldData' => $data['product']
+            ]);
+        } else {
+            $productDataEvent = new CustomizeProductSnapshotDataEvent([
+                'product' => $this->getProduct(),
+                'fieldData' => []
+            ]);
+        }
 
         // Allow plugins to modify captured Product data
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, $productDataEvent);
         }
 
-        $data['productFields'] = $productDataEvent->fieldData;
+        $data['product'] = $productDataEvent->fieldData;
 
         // Default Variant custom field handles
         $variantFields = [];
@@ -504,11 +523,25 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, $variantFieldsEvent);
         }
 
-        // Capture specified Variant field data
-        $variantFieldData = $this->getSerializedFieldValues($variantFieldsEvent->fields);
+        $variantAttributes = $this->attributes();
+
+        // Remove custom fields
+        if (($fieldLayout = $this->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                ArrayHelper::removeValue($variantAttributes, $field->handle);
+            }
+        }
+
+        // Add back the custom fields they want
+        foreach ($variantFieldsEvent->fields as $field) {
+            $variantAttributes[] = $field;
+        }
+
+        $variantData = $this->toArray($variantAttributes, [], false);
+
         $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
             'variant' => $this,
-            'fieldData' => $variantFieldData
+            'fieldData' => $variantData
         ]);
 
         // Allow plugins to modify captured Variant data
@@ -516,17 +549,7 @@ class Variant extends Purchasable
             $this->trigger(self::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, $variantDataEvent);
         }
 
-        $data['fields'] = $variantDataEvent->fieldData;
-
-        return array_merge($this->toArray(), $data);
-    }
-
-    /**
-     * @return bool
-     */
-    public function getOnSale(): bool
-    {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
+        return array_merge($variantDataEvent->fieldData, $data);
     }
 
     /**
@@ -575,22 +598,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getIsShippable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsTaxable(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getLineItemRules(LineItem $lineItem): array
     {
         $order = $lineItem->getOrder();
@@ -600,62 +607,56 @@ class Variant extends Purchasable
             return [];
         }
 
-        $qty = [];
-        foreach ($order->getLineItems() as $item) {
-            if (!isset($qty[$item->purchasableId])) {
-                $qty[$item->purchasableId] = 0;
-            }
-
-            // count new line items
-            if ($lineItem->id === null) {
-                $qty[$item->purchasableId] = $lineItem->qty;
-            } else {
-
-                if ($item->id == $lineItem->id) {
-                    $qty[$item->purchasableId] += $lineItem->qty;
-                } else {
-                    // count other line items with same purchasableId
-                    $qty[$item->purchasableId] += $item->qty;
+        $getQty = function(LineItem $lineItem) {
+            $qty = 0;
+            foreach ($lineItem->getOrder()->getLineItems() as $item) {
+                if ($item->id !== null && $item->id == $lineItem->id) {
+                    $qty += $lineItem->qty;
+                } elseif ($item->purchasableId == $lineItem->purchasableId) {
+                    $qty += $item->qty;
                 }
             }
-        }
-
-        if (!isset($qty[$lineItem->purchasableId])) {
-            $qty[$lineItem->purchasableId] = $lineItem->qty;
-        }
+            return $qty;
+        };
 
         return [
             // an inline validator defined as an anonymous function
             [
-                'purchasableId', function($attribute, $params, $validator) use ($lineItem) {
-                if ($lineItem->getPurchasable()->getStatus() != Element::STATUS_ENABLED) {
-                    $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
+                'purchasableId',
+                function($attribute, $params, Validator $validator) use ($lineItem) {
+                    /** @var Purchasable $purchasable */
+                    $purchasable = $lineItem->getPurchasable();
+                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
+                    }
                 }
-            }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if (!$this->hasUnlimitedStock && $qty[$lineItem->purchasableId] > $this->stock) {
-                    $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
-                    $validator->addError($lineItem, $attribute, $error);
+                'qty',
+                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
+                    if (!$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
+                        $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
                 }
-            }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if ($qty[$lineItem->purchasableId] < $this->minQty) {
-                    $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
-                    $validator->addError($lineItem, $attribute, $error);
+                'qty',
+                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
+                    if ($getQty($lineItem) < $this->minQty) {
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
                 }
-            }
             ],
             [
-                'qty', function($attribute, $params, $validator) use ($lineItem, $qty) {
-                if ($this->maxQty != 0 && $qty[$lineItem->purchasableId] > $this->maxQty) {
-                    $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
-                    $validator->addError($lineItem, $attribute, $error);
+                'qty',
+                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
+                    if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
                 }
-            }
             ]
         ];
     }

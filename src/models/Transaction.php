@@ -21,6 +21,7 @@ use DateTime;
  * @property Gateway $gateway
  * @property Order $order
  * @property Transaction $parent
+ * @property-read float $refundableAmount
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

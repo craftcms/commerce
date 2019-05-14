@@ -13,6 +13,7 @@ use craft\commerce\events\RegisterAddressRulesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DvK\Vat\Validator;
+use Exception;
 
 /**
  * Address Model
@@ -25,7 +26,7 @@ use DvK\Vat\Validator;
  * @property string $stateText
  * @property string $abbreviationText
  * @property int|string $stateValue
- * @property \DvK\Vat\Validator $vatValidator
+ * @property Validator $vatValidator
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -264,7 +265,7 @@ class Address extends Model
         }
 
         // Do we have a valid VAT ID in our cache?
-        $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:'.$this->businessTaxId);
+        $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->businessTaxId);
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validBusinessTaxId) {
@@ -272,12 +273,12 @@ class Address extends Model
         }
 
         if ($validBusinessTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:'.$this->businessTaxId, '1');
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->businessTaxId, '1');
         }
 
         // Clean up if the API returned false and the item was still in cache
         if (!$validBusinessTaxId) {
-            Craft::$app->getCache()->delete('commerce:validVatId:'.$this->businessTaxId);
+            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->businessTaxId);
             $this->addError('businessTaxId', Craft::t('commerce', 'Invalid Business Tax ID.'));
         }
     }
@@ -396,7 +397,7 @@ class Address extends Model
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;

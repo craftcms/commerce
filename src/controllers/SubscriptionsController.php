@@ -57,11 +57,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = [
-            'subscriptionId' => $subscriptionId,
-            'subscription' => $subscription,
-            'fieldLayout' => $fieldLayout
-        ];
+        $variables = compact('subscriptionId', 'subscription', 'fieldLayout');
 
         if (empty($variables['subscription'])) {
             $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
@@ -100,6 +96,8 @@ class SubscriptionsController extends BaseController
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+
+        return null;
     }
 
     /**
@@ -149,8 +147,6 @@ class SubscriptionsController extends BaseController
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
-        $error = false;
-
         try {
             /** @var SubscriptionGateway $gateway */
             $gateway = $plan->getGateway();
@@ -181,21 +177,18 @@ class SubscriptionsController extends BaseController
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
             } catch (\Throwable $exception) {
-                Craft::error($exception->getMessage(), 'commerce');
+                Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
-
         } catch (SubscriptionException $exception) {
-            $error = $exception->getMessage();
-        }
 
-        if ($error) {
             if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asErrorJson($exception->getMessage());
             }
 
-            $session->setError($error);
+            $session->setError($exception->getMessage());
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -241,7 +234,7 @@ class SubscriptionsController extends BaseController
             } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
-        } catch (SubscriptionException $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 

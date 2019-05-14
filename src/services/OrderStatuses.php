@@ -258,9 +258,9 @@ class OrderStatuses extends Component
 
             if (!empty($data['emails'])) {
                 foreach ($data['emails'] as $emailUid) {
-                    Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY.'.'.$emailUid);
+                    Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
-                
+
                 $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
 
                 foreach ($emailIds as $emailId) {
@@ -282,6 +282,7 @@ class OrderStatuses extends Component
 
     /**
      * Archive an order status by it's id.
+     *
      * @param int $id
      * @return bool
      * @throws \Throwable
@@ -485,6 +486,10 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        return OrderStatusRecord::findOne(['uid' => $uid]) ?? new OrderStatusRecord();
+        if ($orderStatus = OrderStatusRecord::findOne(['uid' => $uid])) {
+            return $orderStatus;
+        }
+
+        return new OrderStatusRecord();
     }
 }

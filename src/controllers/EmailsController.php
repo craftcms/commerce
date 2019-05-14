@@ -41,10 +41,7 @@ class EmailsController extends BaseAdminController
      */
     public function actionEdit(int $id = null, Email $email = null): Response
     {
-        $variables = [
-            'email' => $email,
-            'id' => $id
-        ];
+        $variables = compact('email', 'id');
 
         if (!$variables['email']) {
             if ($variables['id']) {
@@ -100,6 +97,8 @@ class EmailsController extends BaseAdminController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['email' => $email]);
+
+        return null;
     }
 
     /**

@@ -349,11 +349,13 @@ class Discount extends Model
                     'percentDiscount'
                 ], 'number', 'skipOnEmpty' => false
             ],
-            ['hasFreeShippingForOrder', function ($attribute, $params, $validator) {
+            [
+                'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                     $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
                 }
-            }],
+            }
+            ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
     }

@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use yii\base\Exception;
 use yii\web\HttpException;
@@ -191,27 +192,47 @@ class CartController extends BaseFrontEndController
 
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
+
+            // Initially combine same purchasables
+            $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
+
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
-                if (!$purchasableId) {
-                    continue;
-                }
                 $note = $request->getParam("purchasables.{$key}.note", '');
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
+                $purchasable = [];
+                $purchasable['id'] = $purchasableId;
+                $purchasable['options'] = $options;
+                $purchasable['note'] = $note;
+                $purchasable['qty'] = $qty;
+
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                if (isset($purchasablesByKey[$key])) {
+                    $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
+                } else {
+                    $purchasablesByKey[$key] = $purchasable;
+                }
+            }
+
+            foreach ($purchasablesByKey as $purchasable) {
+                if ($purchasable['id'] == null) {
+                    continue;
+                }
+
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
-                if ($qty > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+                if ($purchasable['qty'] > 0) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasable['id'], $purchasable['options']);
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
-                        $lineItem->qty += $qty;
+                        $lineItem->qty += $purchasable['qty'];
                     } else {
-                        $lineItem->qty = $qty;
+                        $lineItem->qty = $purchasable['qty'];
                     }
 
-                    $lineItem->note = $note;
+                    $lineItem->note = $purchasable['note'];
                     $this->_cart->addLineItem($lineItem);
                 }
             }

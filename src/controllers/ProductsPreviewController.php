@@ -188,8 +188,8 @@ class ProductsPreviewController extends Controller
      * Displays a product.
      *
      * @param Product $product
-     * @throws HttpException
      * @return Response
+     * @throws HttpException
      */
     private function _showProduct(Product $product): Response
     {

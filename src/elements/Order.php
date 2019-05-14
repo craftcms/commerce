@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\OrderDeprecatedTrait;
@@ -384,16 +385,13 @@ class Order extends Element
     {
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
-                    $this->setShippingAddress($address);
-                }
+            $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+            if ($hasPrimaryShippingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
+                $this->setShippingAddress($address);
             }
-
-            if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
-                    $this->setBillingAddress($address);
-                }
+            $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+            if ($hasPrimaryBillingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
+                $this->setBillingAddress($address);
             }
         }
 
@@ -675,8 +673,9 @@ class Order extends Element
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
+        $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+
         try {
-            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
             $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
         } catch (\Throwable $exception) {
             Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
@@ -755,17 +754,12 @@ class Order extends Element
         $lineItems = $this->getLineItems();
         $isNew = (bool)$lineItem->id;
 
-        if ($isNew) {
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-                $lineItemEvent = new LineItemEvent([
-                    'lineItem' => $lineItem,
-                    'isNew' => $isNew
-                ]);
-                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+        if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
+            $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
-                if (!$lineItemEvent->isValid) {
-                    return;
-                }
+            if (!$lineItemEvent->isValid) {
+                return;
             }
         }
 
@@ -827,7 +821,9 @@ class Order extends Element
         }
 
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this);
+            /** @var AdjusterInterface $adjuster */
+            $adjuster = new $adjuster();
+            $adjustments = $adjuster->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 
@@ -1530,6 +1526,8 @@ class Order extends Element
             return null;
         }
 
+        $gateway = null;
+
         // sources before gateways
         if ($this->paymentSourceId) {
             if ($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId)) {
@@ -1539,7 +1537,7 @@ class Order extends Element
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
-        if (empty($gateway)) {
+        if (null === $gateway) {
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
@@ -1564,7 +1562,7 @@ class Order extends Element
 
         if ($this->_paymentCurrency) {
             $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
-            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso, false)) {
                 throw new InvalidConfigException('Payment currency not allowed.');
             }
         }
@@ -1584,7 +1582,8 @@ class Order extends Element
      * Returns the order's selected payment source if any.
      *
      * @return PaymentSource|null
-     * @throws InvalidConfigException if the order is set to an invalid payment source
+     * @throws InvalidConfigException if the payment source is being set by a guest customer.
+     * @throws InvalidArgumentException if the order is set to an invalid payment source.
      */
     public function getPaymentSource()
     {
@@ -1706,7 +1705,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        return Craft::$app->getFields()->getLayoutByType(Order::class);
+        return Craft::$app->getFields()->getLayoutByType(self::class);
     }
 
     /**
@@ -1725,59 +1724,31 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
                 {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-
-                    return '<span class="status"></span>';
+                    return $this->orderStatus->getLabelHtml() ?? '<span class="status"></span>';
                 }
             case 'shippingFullName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->getFullName() ?? '';
                 }
             case 'billingFullName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->getFullName();
-                    }
-
-                    return '';
+                    return $this->billingAddress->getFullName() ?? '';
                 }
             case 'shippingBusinessName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->businessName ?? '';
                 }
             case 'billingBusinessName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->businessName;
-                    }
-
-                    return '';
+                    return $this->billingAddress->businessName ?? '';
                 }
             case 'shippingMethodName':
                 {
-                    if ($this->shippingMethod) {
-                        return $this->shippingMethod->getName();
-                    }
-
-                    return '';
+                    return $this->shippingMethod->getName() ?? '';
                 }
             case 'gatewayName':
                 {
-                    if ($this->gateway) {
-                        return $this->gateway->name;
-                    }
-
-                    return '';
+                    return $this->gateway->name ?? '';
                 }
             case 'paidStatus':
                 {
@@ -2099,6 +2070,8 @@ class Order extends Element
                 $previousAdjustment->delete();
             }
         }
+
+        return null;
     }
 
     /**

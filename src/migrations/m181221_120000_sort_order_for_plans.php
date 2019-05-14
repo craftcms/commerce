@@ -7,19 +7,8 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
-use craft\commerce\elements\Order;
-use craft\commerce\elements\Subscription;
-use craft\commerce\services\Emails;
-use craft\commerce\services\Orders;
-use craft\commerce\services\OrderStatuses;
-use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Subscriptions;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
 
 /**
  * m181221_120000_sort_order_for_plans migration.

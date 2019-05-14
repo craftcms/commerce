@@ -1,8 +1,27 @@
 # Release Notes for Craft Commerce 2.x
 
+## 2.1.6 - 2019-05-14
+
+## Added
+- Added `craft\commerce\elements\db\VariantQuery::minQty()` and `maxQty()`. ([#827](https://github.com/craftcms/commerce/pull/827))
+
+## Changed
+- Line item options are no longer forced to be sorted alphabetically by key.
+
+## Fixed
+- Fixed a bug where product and variant snapshots were missing data. ([#846](https://github.com/craftcms/commerce/issues/846))
+- Fixed an SQL error that occurred when saving a SKU that was too long. ([#853](https://github.com/craftcms/commerce/issues/853))
+- Fixed an SQL error that could occur when attempting to update a soft-deleted cart. ([#854](https://github.com/craftcms/commerce/issues/854))
+- Fixed an SQL error that could occur when attempting to add a line item to a completed order. ([#860](https://github.com/craftcms/commerce/issues/860))
+- Fixed a bug where line item quantity validators weren’t checking for updated quantities. ([#855](https://github.com/craftcms/commerce/pull/855))
+- Fixed a bug where it wasn’t possible to query for unpaid orders. ([#858](https://github.com/craftcms/commerce/pull/858))
+- Fixed a JavaScript error that could occur on the Order index page. ([#862](https://github.com/craftcms/commerce/pull/862))
+- Fixed a bug where the “Create discount…” product action wasn’t pre-populating discounts’ variant conditions.
+- Fixed a bug that could prevent a purchasable from being added to the cart when using multi-add.
+
 ## 2.1.5.2 - 2019-05-08
 
-### Fixed
+## Fixed
 - Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
 - Fixed an error that could occur when a customer logged in. 
 - Fixed an error that occurred when saving a sale. ([#837](https://github.com/craftcms/commerce/issues/837))
