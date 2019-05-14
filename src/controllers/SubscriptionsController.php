@@ -243,7 +243,7 @@ class SubscriptionsController extends BaseController
             } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
-        } catch (SubscriptionException $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 

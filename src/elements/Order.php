@@ -1584,7 +1584,8 @@ class Order extends Element
      * Returns the order's selected payment source if any.
      *
      * @return PaymentSource|null
-     * @throws InvalidConfigException if the order is set to an invalid payment source
+     * @throws InvalidConfigException if the payment source is being set by a guest customer.
+     * @throws InvalidArgumentException if the order is set to an invalid payment source.
      */
     public function getPaymentSource()
     {
