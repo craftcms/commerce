@@ -276,14 +276,11 @@ class Product extends Element
      * Allows the variant to ask the product what data to snapshot.
      *
      * @return array
+     * @deprecated as of 2.1.5.3 Not needed as products are not purchasables.
      */
     public function getSnapshot(): array
     {
-        $data = [
-            'title' => $this->title
-        ];
-
-        return array_merge($this->toArray(), $data);
+       return [];
     }
 
     /**
