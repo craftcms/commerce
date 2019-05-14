@@ -1522,6 +1522,8 @@ class Order extends Element
             return null;
         }
 
+        $gateway = null;
+
         // sources before gateways
         if ($this->paymentSourceId) {
             if ($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId)) {
@@ -1531,7 +1533,7 @@ class Order extends Element
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
-        if (empty($gateway)) {
+        if (null === $gateway) {
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
@@ -1556,7 +1558,7 @@ class Order extends Element
 
         if ($this->_paymentCurrency) {
             $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
-            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso, false)) {
                 throw new InvalidConfigException('Payment currency not allowed.');
             }
         }

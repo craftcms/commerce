@@ -113,11 +113,12 @@ class PlansController extends BaseAdminController
         $planService = Plugin::getInstance()->getPlans();
         $planId = $request->getParam('planId');
 
+        $plan = null;
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
 
-        if (empty($plan)) {
+        if (null === $plan) {
             $plan = $gateway->getPlanModel();
         }
 
