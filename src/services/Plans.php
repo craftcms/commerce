@@ -15,6 +15,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\Db;
+use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -291,7 +292,7 @@ class Plans extends Component
         }
 
         $plan->isArchived = true;
-        $plan->dateArchived = Db::prepareDateForDb(new \DateTime());
+        $plan->dateArchived = Db::prepareDateForDb(new DateTime());
 
         return $this->savePlan($plan);
     }

@@ -24,6 +24,7 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
 use craft\events\ModelEvent;
@@ -31,7 +32,9 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use DateTime;
+use Throwable;
 use yii\base\Component;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -325,9 +328,9 @@ class Subscriptions extends Component
      * Expire a subscription.
      *
      * @param Subscription $subscription subscription to expire
-     * @param \DateTime $dateTime expiry date time
+     * @param DateTime $dateTime expiry date time
      * @return bool whether successfully expired subscription
-     * @throws \Throwable if cannot expire subscription
+     * @throws Throwable if cannot expire subscription
      */
     public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
     {
@@ -439,9 +442,9 @@ class Subscriptions extends Component
      * @param Subscription $subscription
      * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function reactivateSubscription(Subscription $subscription): bool
     {
@@ -611,7 +614,7 @@ class Subscriptions extends Component
                 if ($this->hasEventHandlers(self::EVENT_AFTER_CANCEL_SUBSCRIPTION)) {
                     $this->trigger(self::EVENT_AFTER_CANCEL_SUBSCRIPTION, new CancelSubscriptionEvent(compact('subscription', 'parameters')));
                 }
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
@@ -626,9 +629,9 @@ class Subscriptions extends Component
      *
      * @param Subscription $subscription
      * @return bool
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function updateSubscription(Subscription $subscription): bool
     {
@@ -646,13 +649,13 @@ class Subscriptions extends Component
      *
      * @param Subscription $subscription
      * @param SubscriptionPayment $payment
-     * @param \DateTime $paidUntil
+     * @param DateTime $paidUntil
      * @return bool
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
-    public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, \DateTime $paidUntil): bool
+    public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, DateTime $paidUntil): bool
     {
 
         if ($this->hasEventHandlers(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT)) {

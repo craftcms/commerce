@@ -23,6 +23,8 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use Exception;
+use Throwable;
 use yii\base\Component;
 
 /**
@@ -168,7 +170,7 @@ class Payments extends Component
      * @param Transaction|null &$transaction the transaction
      * @return void|null
      * @throws PaymentException if the payment was unsuccessful
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
     {
@@ -239,7 +241,7 @@ class Payments extends Component
 
             // Success!
             $order->updateOrderPaidInformation();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
 
@@ -499,7 +501,7 @@ class Payments extends Component
         try {
             $response = $gateway->capture($child, (string)$parent->reference);
             $this->_updateTransaction($child, $response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
             $child->message = $e->getMessage();
             $this->_saveTransaction($child);
@@ -543,14 +545,14 @@ class Payments extends Component
             try {
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);
             }
 
             return $child;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new RefundException($exception->getMessage());
         }
     }

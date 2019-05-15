@@ -18,6 +18,8 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\db\Query;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -564,8 +566,8 @@ class Customers extends Component
      * @param Order $order
      * @return void
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     public function _createUserFromOrder(Order $order)
     {

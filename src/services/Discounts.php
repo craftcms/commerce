@@ -22,6 +22,7 @@ use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use DateTime;
+use function in_array;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\Expression;
@@ -309,7 +310,7 @@ class Discounts extends Component
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
-            if (!\in_array($purchasableId, $discount->getPurchasableIds(), true)) {
+            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
                 return false;
             }
         }
