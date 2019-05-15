@@ -11,15 +11,23 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
+use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\models\FieldLayout;
+use DateTime;
+use Throwable;
+use Twig_Error_Loader;
 use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -120,8 +128,8 @@ class OrdersController extends BaseCpController
      *
      * @return Response
      * @throws Exception
-     * @throws \Twig_Error_Loader
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Twig_Error_Loader
+     * @throws BadRequestHttpException
      */
     public function actionGetPaymentModal(): Response
     {
@@ -197,9 +205,9 @@ class OrdersController extends BaseCpController
      * Captures Transaction
      *
      * @return Response
-     * @throws \craft\commerce\errors\TransactionException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws TransactionException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionTransactionCapture(): Response
     {
@@ -235,8 +243,8 @@ class OrdersController extends BaseCpController
      * Refunds transaction.
      *
      * @return Response
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionTransactionRefund()
     {
@@ -306,10 +314,10 @@ class OrdersController extends BaseCpController
      *
      * @return Response
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\commerce\errors\OrderStatusException
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws OrderStatusException
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     public function actionCompleteOrder(): Response
     {
@@ -319,7 +327,7 @@ class OrdersController extends BaseCpController
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if ($order && !$order->isCompleted && $order->markAsComplete()) {
-            $date = new \DateTime($order->dateOrdered);
+            $date = new DateTime($order->dateOrdered);
             return $this->asJson(['success' => true, 'dateOrdered' => $date]);
         }
 
@@ -331,9 +339,9 @@ class OrdersController extends BaseCpController
      *
      * @return Response
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     public function actionUpdateOrderAddress()
     {
@@ -378,9 +386,9 @@ class OrdersController extends BaseCpController
      *
      * @return null|Response
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     public function actionUpdateStatus()
     {
@@ -411,10 +419,10 @@ class OrdersController extends BaseCpController
      *
      * @return null
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionSaveOrder()
     {

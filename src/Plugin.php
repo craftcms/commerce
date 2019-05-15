@@ -39,6 +39,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -442,11 +443,11 @@ class Plugin extends BasePlugin
      */
     private function _registerForeignKeysRestore()
     {
-        if (!class_exists(\craft\fixfks\controllers\RestoreController::class)) {
+        if (!class_exists(RestoreController::class)) {
             return;
         }
 
-        Event::on(\craft\fixfks\controllers\RestoreController::class, \craft\fixfks\controllers\RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
+        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
             // Add default FKs
             (new Install())->addForeignKeys();
         });

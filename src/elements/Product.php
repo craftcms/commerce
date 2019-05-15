@@ -31,6 +31,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
+use DateTime;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
@@ -63,12 +64,12 @@ class Product extends Element
     // =========================================================================
 
     /**
-     * @var \DateTime Post date
+     * @var DateTime Post date
      */
     public $postDate;
 
     /**
-     * @var \DateTime Expiry date
+     * @var DateTime Expiry date
      */
     public $expiryDate;
 
@@ -882,7 +883,7 @@ class Product extends Element
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
-            $this->postDate = new \DateTime();
+            $this->postDate = new DateTime();
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }

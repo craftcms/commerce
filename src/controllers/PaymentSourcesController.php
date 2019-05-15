@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
 use craft\errors\MissingComponentException;
+use Throwable;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -80,7 +81,7 @@ class PaymentSourcesController extends BaseFrontEndController
 
         try {
             $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
             $error = Craft::t('commerce', 'Could not create the payment source.');
 
@@ -111,7 +112,7 @@ class PaymentSourcesController extends BaseFrontEndController
      * Deletes a payment source.
      *
      * @return Response|null
-     * @throws \Throwable if failed to delete the payment source on the gateway
+     * @throws Throwable if failed to delete the payment source on the gateway
      * @throws BadRequestHttpException if user not logged in
      */
     public function actionDelete()

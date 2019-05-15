@@ -23,10 +23,10 @@ use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
-use function get_class;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use function get_class;
 
 /**
  * Gateway service.

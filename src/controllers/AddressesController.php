@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -62,8 +64,8 @@ class AddressesController extends BaseCpController
 
     /**
      * @return Response
-     * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {

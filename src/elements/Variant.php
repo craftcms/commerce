@@ -24,6 +24,7 @@ use craft\db\Query;
 use craft\db\Table;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
@@ -361,7 +362,7 @@ class Variant extends Purchasable
      * @param Product $product
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function updateTitle(Product $product)
     {
@@ -385,7 +386,7 @@ class Variant extends Purchasable
 
     /**
      * @param Product $product
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function updateSku(Product $product)
     {

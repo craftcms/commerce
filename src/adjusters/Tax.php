@@ -19,6 +19,8 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use DvK\Vat\Validator;
+use Exception;
+use function in_array;
 
 /**
  * Tax Adjustments
@@ -137,7 +139,7 @@ class Tax extends Component implements AdjusterInterface
             // before we return false (no taxes) remove the tax if it was included in the taxable amount.
             if ($taxRate->include) {
                 // Is this an order level tax rate?
-                if (\in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
+                if (in_array($taxRate->taxable, [TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE, TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING], false)) {
                     $orderTaxableAmount = 0;
 
                     if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
@@ -294,7 +296,7 @@ class Tax extends Component implements AdjusterInterface
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\services;
 
-use function count;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -18,6 +17,7 @@ use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use function count;
 
 /**
  * Cart service.

@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\Element;
+use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -21,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $currency
  * @property ActiveQueryInterface $customer
  * @property int $customerId
- * @property \DateTime $dateOrdered
- * @property \DateTime $datePaid
+ * @property DateTime $dateOrdered
+ * @property DateTime $datePaid
  * @property ActiveQueryInterface $discount
  * @property ActiveQueryInterface $element
  * @property string $email

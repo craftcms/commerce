@@ -11,9 +11,13 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * Class Cart Controller
@@ -51,7 +55,7 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws HttpException
-     * @throws \Throwable
+     * @throws Throwable
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionUpdateLineItem()
@@ -95,7 +99,7 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws NotFoundHttpException
-     * @throws \Throwable
+     * @throws Throwable
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveLineItem()
@@ -324,11 +328,11 @@ class CartController extends BaseFrontEndController
     // =========================================================================
 
     /**
-     * @return \yii\web\Response
+     * @return Response
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     private function _returnCart()
     {
@@ -377,8 +381,8 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws NotFoundHttpException
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     private function _getCart()
     {

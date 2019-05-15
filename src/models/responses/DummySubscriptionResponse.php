@@ -9,6 +9,8 @@ namespace craft\commerce\models\responses;
 
 use craft\commerce\base\SubscriptionResponseInterface;
 use craft\helpers\StringHelper;
+use DateInterval;
+use DateTime;
 
 /**
  * This is a dummy gateway request response.
@@ -71,9 +73,9 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
     /**
      * @inheritdoc
      */
-    public function getNextPaymentDate(): \DateTime
+    public function getNextPaymentDate(): DateTime
     {
-        return (new \DateTime())->add(new \DateInterval('P1Y'));
+        return (new DateTime())->add(new DateInterval('P1Y'));
     }
 
     /**

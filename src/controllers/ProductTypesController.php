@@ -14,6 +14,8 @@ use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
+use Throwable;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -96,8 +98,8 @@ class ProductTypesController extends BaseAdminController
 
     /**
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws BadRequestHttpException
      */
     public function actionSaveProductType()
     {
@@ -175,8 +177,8 @@ class ProductTypesController extends BaseAdminController
 
     /**
      * @return Response
-     * @throws \Throwable
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws BadRequestHttpException
      */
     public function actionDeleteProductType(): Response
     {

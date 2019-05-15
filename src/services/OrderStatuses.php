@@ -7,7 +7,6 @@
 
 namespace craft\commerce\services;
 
-use function count;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
@@ -27,6 +26,7 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
+use function count;
 
 /**
  * Order status service.

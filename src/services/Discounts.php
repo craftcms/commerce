@@ -22,10 +22,10 @@ use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use DateTime;
-use function in_array;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\Expression;
+use function in_array;
 
 /**
  * Discount service.

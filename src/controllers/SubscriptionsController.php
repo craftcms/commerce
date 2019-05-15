@@ -14,6 +14,7 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -73,7 +74,7 @@ class SubscriptionsController extends BaseController
      * @throws NotFoundHttpException if subscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function actionSave()
     {
@@ -176,7 +177,7 @@ class SubscriptionsController extends BaseController
                 $fieldValues = $request->getBodyParam($fieldsLocation, []);
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));

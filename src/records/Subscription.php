@@ -9,19 +9,20 @@ namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
 use craft\records\User;
+use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
  * Product type record.
  *
- * @property \DateTime $dateCanceled
- * @property \DateTime $dateExpired
+ * @property DateTime $dateCanceled
+ * @property DateTime $dateExpired
  * @property ActiveQueryInterface $gateway
  * @property int $gatewayId
  * @property int $id
  * @property bool $isCanceled
  * @property bool $isExpired
- * @property \DateTime $nextPaymentDate
+ * @property DateTime $nextPaymentDate
  * @property int $orderId
  * @property ActiveQueryInterface $plan
  * @property int $planId

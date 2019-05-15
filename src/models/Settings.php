@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ConfigHelper;
@@ -209,7 +210,7 @@ class Settings extends Model
      * @param string|null $siteHandle
      * @return string|null
      * @throws InvalidConfigException if the currency in the config file is not set up
-     * @throws \craft\commerce\errors\CurrencyException
+     * @throws CurrencyException
      */
     public function getPaymentCurrency(string $siteHandle = null)
     {

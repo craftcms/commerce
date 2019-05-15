@@ -21,12 +21,12 @@ use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use DateTime;
-use function get_class;
-use function in_array;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\StaleObjectException;
+use function get_class;
+use function in_array;
 
 /**
  * Sale service.

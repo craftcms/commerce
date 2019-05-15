@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 
 /**
  * Order status model.
@@ -61,7 +62,7 @@ class OrderStatus extends Model
     public $isArchived = false;
 
     /**
-     * @var \DateTime Archived Date
+     * @var DateTime Archived Date
      */
     public $dateArchived;
 
