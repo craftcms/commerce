@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Added
+- Added the `mergeLastCartOnLogin` config setting.
+
 ## 2.1.6 - 2019-05-14
 
 ### Added
