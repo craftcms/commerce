@@ -356,6 +356,36 @@ $variants = \craft\commerce\elements\Variant::find()
 :::
 
 
+### `maxQty`
+
+Narrows the query results based on the variants’ max quantity.
+
+Possible values include:
+
+| Value | Fetches variants…
+| - | -
+| `100` | with a maxQty of 100.
+| `'>= 100'` | with a maxQty of at least 100.
+| `'< 100'` | with a maxQty of less than 100.
+
+
+
+
+### `minQty`
+
+Narrows the query results based on the variants’ min quantity.
+
+Possible values include:
+
+| Value | Fetches variants…
+| - | -
+| `100` | with a minQty of 100.
+| `'>= 100'` | with a minQty of at least 100.
+| `'< 100'` | with a minQty of less than 100.
+
+
+
+
 ### `offset`
 
 Determines how many variants should be skipped in the results.
