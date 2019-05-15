@@ -43,6 +43,12 @@ The template path that this item points to must contain a form that submits itse
 
 Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inlined styles to reduce http requests.
 
+## `mergeLastCartOnLogin`
+
+Default: `true`
+
+When a user logs into their Craft account all line items in previous cart are merged with the current cart.
+
 ## `pdfPaperSize`
 
 Default: `letter`
