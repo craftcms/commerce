@@ -217,6 +217,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -244,6 +245,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -274,6 +277,7 @@ class SubscriptionsController extends BaseController
         $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscription = Subscription::find()->uid($subscriptionUid)->one();
@@ -317,6 +321,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -344,6 +350,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -387,6 +394,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
