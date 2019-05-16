@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use Throwable;
 use yii\base\Exception;
@@ -47,7 +48,14 @@ class OrderController extends Controller
             Craft::$app->getElements()->saveElement($order);
         }
 
-        return $this->asJson($order);
+
+        $data = [];
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        $data['meta'] = [];
+        $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
+        $data['order'] = $order->toArray(['*'],['billingAddress','shippingAddress']);
+        $data['orderStatuses'] = ArrayHelper::toArray($orderStatuses);
+        return $this->asJson($data);
     }
 
     /**
