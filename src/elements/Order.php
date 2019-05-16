@@ -800,11 +800,13 @@ class Order extends Element
      *
      * @throws Exception
      */
-    public function recalculate()
+    public function recalculate(bool $force = false)
     {
         // Check if the order needs to recalculated
-        if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
-            return;
+        if(!$force) {
+            if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
+                return;
+            }
         }
 
         //clear adjustments
