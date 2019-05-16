@@ -93,6 +93,7 @@ class OrderController extends Controller
                 $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
             }
 
+            $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
             $lineItem->setOptions($options);
