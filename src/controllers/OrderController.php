@@ -32,9 +32,12 @@ class OrderController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionGet($number = null)
+    public function actionGet()
     {
+
         $order = null;
+
+        $number = Craft::$app->getRequest()->getBodyParam('number');
 
         if ($number) {
             $order = Order::find()->number($number)->one();
@@ -86,5 +89,7 @@ class OrderController extends Controller
      */
     public function actionSave()
     {
+
+
     }
 }
