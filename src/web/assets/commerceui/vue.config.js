@@ -8,6 +8,9 @@ module.exports = {
             'axios': 'axios'
         },
     },
+    devServer: {
+        disableHostCheck: true
+    },
     chainWebpack: config => {
         // Remove the standard entry point
         config.entryPoints.delete('app')
