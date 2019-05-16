@@ -136,10 +136,24 @@
                     </tbody>
                 </table>
 
+                <hr>
+
+                <div>
+                    <label for="purchasableId">Purchasable ID</label>
+                    <div>
+                        <input type="text" class="text" id="purchasableId" v-model="purchasableId">
+                    </div>
+                </div>
+
+                <br />
+
+
+                <a href="#" class="btn submit" @click.prevent="addLineItem()">Add Line Item</a>
+
+                <hr>
+
                 <div class="buttons">
-                    <a href="#" class="btn submit" @click.prevent="addLineItem()">Add Line Item</a>
-                    <a href="#" class="btn" @click.prevent="save()">Recalculate</a>
-                    &nbsp;
+                    <a href="#" class="btn" @click.prevent="save(draft)" :disabled="loading">{{ loading ? "Recalculating…" : "Recalculate" }}</a>
                     &nbsp;
                     <div v-if="loading" class="spinner"></div>
                 </div>
@@ -164,7 +178,8 @@
         data() {
             return {
                 loading: false,
-                draft: null
+                draft: null,
+                purchasableId: 4,
             }
         },
 
@@ -176,40 +191,26 @@
 
         methods: {
             addLineItem() {
-                console.log('add line item')
-
                 //{ "id": "1", "price": "20.0000", "saleAmount": "0.0000", "salePrice": "20.0000", "weight": "0.0000", "length": "0.0000", "height": "0.0000", "width": "0.0000", "qty": "1", "note": "", "purchasableId": "4", "orderId": "13", "taxCategoryId": "1", "shippingCategoryId": "1", "adjustments": [], "description": "A New Toga", "options": { "giftWrapped": "no" }, "optionsSignature": "3e4afd673bf6ab55b4118b13d600b211", "onSale": false, "sku": "ANT-001", "total": 20 }
 
                 const lineItem = {
-                    id: "1",
-                    price: "20.0000",
-                    saleAmount: "0.0000",
-                    salePrice: "20.0000",
-                    weight: "0.0000",
-                    length: "0.0000",
-                    height: "0.0000",
-                    width: "0.0000",
-                    qty: "1",
-                    note: "",
-                    purchasableId: "4",
-                    orderId: "13",
-                    adjustments: [],
-                    description: "A New Toga",
-                    options: {giftWrapped: "no"},
-                    optionsSignature: "3e4afd673bf6ab55b4118b13d600b211",
-                    onSale: false,
-                    sku: "ANT-001",
-                    total: 20
+                    qty: "1", //
+                    note: "", // *
+                    orderId: this.orderId,
+                    purchasableId: this.purchasableId, //
+                    options: {giftWrapped: "no"}, // *
                 }
 
-                this.draft.order.lineItems.push(lineItem)
+                const draft = JSON.parse(JSON.stringify(this.draft))
 
-                this.save()
+                draft.order.lineItems.push(lineItem)
+
+                this.save(draft)
             },
 
             removeLineItem(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.save()
+                this.save(this.draft)
             },
 
             getOrder(orderId) {
@@ -225,14 +226,13 @@
                     })
             },
 
-            save() {
+            save(draft) {
                 this.loading = true
 
-                axios.post(Craft.getActionUrl('commerce/order/save'), this.draft)
+                axios.post(Craft.getActionUrl('commerce/order/save'), draft)
                     .then((response) => {
                         this.loading = false
-                        // this.draft = JSON.parse(JSON.stringify(response.data))
-                        console.log('success')
+                        this.draft = JSON.parse(JSON.stringify(response.data))
                     })
                     .catch(() => {
                         this.loading = false
