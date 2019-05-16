@@ -24,6 +24,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\models\FieldLayout;
+use craft\web\View;
 use DateTime;
 use Throwable;
 use Twig_Error_Loader;
@@ -121,6 +122,7 @@ class OrdersController extends BaseCpController
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
         Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
+        Craft::$app->getView()->registerJs('window.orderId = ' . $orderId . ';', View::POS_BEGIN);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
