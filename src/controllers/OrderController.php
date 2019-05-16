@@ -10,7 +10,11 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
 use craft\web\Controller;
+use Throwable;
+use yii\base\Exception;
+use yii\web\Response;
 
 /**
  * Class Order Editor Controller
@@ -26,7 +30,7 @@ class OrderController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionView($number = null)
+    public function actionGet($number = null)
     {
         $order = null;
 
@@ -44,5 +48,15 @@ class OrderController extends Controller
         }
 
         return $this->asJson($order);
+    }
+
+    /**
+     * @return Response
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     */
+    public function actionSave()
+    {
     }
 }
