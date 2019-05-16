@@ -34,12 +34,12 @@ class CommerceUiAsset extends AssetBundle
             VueAsset::class,
         ];
 
-        $this->js[] = 'js/chunk-vendors.js';
-        $this->js[] = 'js/order-details-app.js';
-        $this->js[] = 'js/order-meta-app.js';
+//        $this->js[] = 'js/chunk-vendors.js';
+//        $this->js[] = 'js/order-details-app.js';
+//        $this->js[] = 'js/order-meta-app.js';
 
-        //$this->js[] = 'http://localhost:8080/order-details-app.js';
-        //$this->js[] = 'http://localhost:8080/order-meta-app.js';
+        $this->js[] = 'http://localhost:8080/order-details-app.js';
+        $this->js[] = 'http://localhost:8080/order-meta-app.js';
 
         parent::init();
     }
