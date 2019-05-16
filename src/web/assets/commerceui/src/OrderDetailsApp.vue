@@ -136,10 +136,25 @@
                     </tbody>
                 </table>
 
+                <hr>
+
+                <div>
+                    <label for="purchasableId">Purchasable ID</label>
+                    <div>
+                        <input type="text" class="text" id="purchasableId" v-model="purchasableId">
+                    </div>
+                </div>
+
+                <br />
+
+
+                <a href="#" class="btn submit" @click.prevent="addLineItem()">Add Line Item</a>
+
+                <hr>
+
                 <div class="buttons">
-                    <a href="#" class="btn submit" @click.prevent="addLineItem()">Add Line Item</a>
-                    <a href="#" class="btn" @click.prevent="save()">Recalculate</a>
-                    &nbsp;
+
+                    <a href="#" class="btn" @click.prevent="save()" :disabled="loading">{{ loading ? "Recalculating…" : "Recalculate" }}</a>
                     &nbsp;
                     <div v-if="loading" class="spinner"></div>
                 </div>
@@ -164,7 +179,8 @@
         data() {
             return {
                 loading: false,
-                draft: null
+                draft: null,
+                purchasableId: 4,
             }
         },
 
