@@ -1,5 +1,6 @@
 module.exports = {
     filenameHashing: false,
+    publicPath: 'http://localhost:8080/',
     configureWebpack: {
         externals: {
             'vue': 'Vue',
@@ -9,6 +10,7 @@ module.exports = {
         },
     },
     devServer: {
+        headers: {"Access-Control-Allow-Origin": "*"},
         disableHostCheck: true
     },
     chainWebpack: config => {
