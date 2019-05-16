@@ -181,35 +181,23 @@
                 //{ "id": "1", "price": "20.0000", "saleAmount": "0.0000", "salePrice": "20.0000", "weight": "0.0000", "length": "0.0000", "height": "0.0000", "width": "0.0000", "qty": "1", "note": "", "purchasableId": "4", "orderId": "13", "taxCategoryId": "1", "shippingCategoryId": "1", "adjustments": [], "description": "A New Toga", "options": { "giftWrapped": "no" }, "optionsSignature": "3e4afd673bf6ab55b4118b13d600b211", "onSale": false, "sku": "ANT-001", "total": 20 }
 
                 const lineItem = {
-                    id: "1",
-                    price: "20.0000",
-                    saleAmount: "0.0000",
-                    salePrice: "20.0000",
-                    weight: "0.0000",
-                    length: "0.0000",
-                    height: "0.0000",
-                    width: "0.0000",
-                    qty: "1",
-                    note: "",
-                    purchasableId: "4",
-                    orderId: "13",
-                    adjustments: [],
-                    description: "A New Toga",
-                    options: {giftWrapped: "no"},
-                    optionsSignature: "3e4afd673bf6ab55b4118b13d600b211",
-                    onSale: false,
-                    sku: "ANT-001",
-                    total: 20
+                    qty: "1", //
+                    note: "", // *
+                    orderId: this.orderId,
+                    purchasableId: this.purchasableId, //
+                    options: {giftWrapped: "no"}, // *
                 }
 
-                this.draft.order.lineItems.push(lineItem)
+                const draft = JSON.parse(JSON.stringify(this.draft))
 
-                this.save()
+                draft.order.lineItems.push(lineItem)
+
+                this.save(draft)
             },
 
             removeLineItem(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.save()
+                this.save(this.draft)
             },
 
             getOrder(orderId) {
@@ -225,13 +213,13 @@
                     })
             },
 
-            save() {
+            save(draft) {
                 this.loading = true
 
-                axios.post(Craft.getActionUrl('commerce/order/save'), this.draft)
+                axios.post(Craft.getActionUrl('commerce/order/save'), draft)
                     .then((response) => {
                         this.loading = false
-                        // this.draft = JSON.parse(JSON.stringify(response.data))
+                        this.draft = JSON.parse(JSON.stringify(response.data))
                         console.log('success')
                     })
                     .catch(() => {
