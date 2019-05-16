@@ -113,6 +113,11 @@ class OrderQuery extends ElementQuery
      */
     public $hasTransactions;
 
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
+
     // Public Methods
     // =========================================================================
 
