@@ -141,21 +141,17 @@
                 </div>
             </template>
         </div>
-
-        <some-component />
     </div>
 </template>
 
 <script>
     import axios from 'axios'
-    import SomeComponent from './components/SomeComponent'
     import OrderAdjustment from './components/OrderAdjustment'
 
     export default {
         name: 'order-details-app',
 
         components: {
-            SomeComponent,
             OrderAdjustment,
         },
 
