@@ -81,7 +81,6 @@
 
                     <br />
 
-
                     <input type="submit" class="btn submit" value="Add Line Item" />
 
                     <div v-if="loading" class="spinner"></div>
