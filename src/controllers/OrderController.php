@@ -50,10 +50,12 @@ class OrderController extends Controller
 
 
         $data = [];
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+
+        // Add meta data
         $data['meta'] = [];
         $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
 
+        // Remove custom fields
         $orderAttributes = $order->attributes();
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getFields() as $field) {
@@ -62,10 +64,17 @@ class OrderController extends Controller
             }
         }
 
+        // Remove unneeded fields
         ArrayHelper::removeValue($orderAttributes, 'hasDescendants');
 
-        $data['order'] = $order->toArray($orderAttributes, ['billingAddress', 'shippingAddress']);
+        $extraFields = [
+            'billingAddress', 'shippingAddress'
+        ];
+        $data['order'] = $order->toArray($orderAttributes, $extraFields);
+
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         $data['orderStatuses'] = ArrayHelper::toArray($orderStatuses);
+
         return $this->asJson($data);
     }
 
