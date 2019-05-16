@@ -101,7 +101,7 @@
                     <template v-for="adjustment in draft.order.orderAdjustments">
                         <tr>
                             <td>
-                                <strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br>{{ adjustment.name|title }}
+                                <strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br>{{ adjustment.name }}
                                 <span class="info"><strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br> {{ adjustment.description }}</span>
                             </td>
                             <td></td>
