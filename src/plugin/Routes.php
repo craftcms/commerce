@@ -113,7 +113,6 @@ trait Routes
 
 
             // Taxes
-
             $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
             $event->rules['commerce/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
             $event->rules['commerce/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
@@ -135,7 +134,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
             // Customers
-
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });
