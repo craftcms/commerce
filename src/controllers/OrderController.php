@@ -37,7 +37,7 @@ class OrderController extends Controller
 
         $order = null;
 
-        $number = Craft::$app->getRequest()->getBodyParam('number');
+        $number = Craft::$app->getRequest()->getQueryParam('number');
 
         if ($number) {
             $order = Order::find()->number($number)->one();
