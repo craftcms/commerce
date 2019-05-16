@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -70,6 +71,19 @@ class ShippingCategories extends Component
 
         return $this->_shippingCategoriesById;
     }
+
+    /**
+     * Returns all Shipping category names, by ID.
+     *
+     * @return array
+     */
+    public function getAllShippingCategoriesAsList(): array
+    {
+        $categories = $this->getAllShippingCategories();
+
+        return ArrayHelper::map($categories, 'id', 'name');
+    }
+
 
     /**
      * Get a shipping category by its ID.

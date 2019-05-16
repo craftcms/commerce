@@ -122,7 +122,17 @@ class OrdersController extends BaseCpController
         $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
         $variables['orderStatusesJson'] = Json::encode($allStatuses);
         Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
-        Craft::$app->getView()->registerJs('window.orderId = ' . $orderId . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $orderId . ';', View::POS_BEGIN);
+
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)). ';', View::POS_BEGIN);
+
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
+        Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)). ';', View::POS_BEGIN);
+
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
+        Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)). ';', View::POS_BEGIN);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
