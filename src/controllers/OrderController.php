@@ -34,7 +34,6 @@ class OrderController extends Controller
 
     public function actionGet($orderId = null)
     {
-
         $order = null;
 
         if ($orderId) {

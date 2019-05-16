@@ -50,7 +50,6 @@ trait Routes
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
-            $event->rules['commerce/order/get/<id:\d+>'] = 'commerce/order/get';
 
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 
