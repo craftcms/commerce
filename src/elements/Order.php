@@ -827,7 +827,7 @@ class Order extends Element
         }
 
         if ($lineItemRemoved) {
-            $this->recalculate();
+            $this->recalculate($force);
             return;
         }
 
@@ -844,7 +844,7 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
                 $this->shippingMethodHandle = null;
-                $this->recalculate();
+                $this->recalculate($force);
 
                 return;
             }
