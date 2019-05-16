@@ -185,7 +185,7 @@
 
         computed: {
             orderId() {
-                return window.orderId
+                return window.orderEdit.orderId
             }
         },
 
