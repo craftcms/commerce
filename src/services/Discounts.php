@@ -25,13 +25,14 @@ use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\Expression;
+use function in_array;
 
 /**
  * Discount service.
  *
  * @property array|Discount[] $allDiscounts
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 2.0y
  */
 class Discounts extends Component
 {
@@ -309,7 +310,7 @@ class Discounts extends Component
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
-            if (!\in_array($purchasableId, $discount->getPurchasableIds(), true)) {
+            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
                 return false;
             }
         }

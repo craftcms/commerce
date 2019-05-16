@@ -9,6 +9,11 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
+use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
+use Throwable;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
@@ -39,11 +44,11 @@ class DonationsController extends BaseStoreSettingsController
 
     /**
      * @return Response
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
@@ -56,7 +61,7 @@ class DonationsController extends BaseStoreSettingsController
             $donation = new Donation();
         }
 
-        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');;
+        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');
         $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {

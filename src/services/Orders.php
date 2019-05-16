@@ -165,6 +165,7 @@ class Orders extends Component
     }
 
     /**
+     * @param Order $cart
      * @return array
      * @deprecated 2.2 use `$order->toArray()` instead
      */
@@ -188,6 +189,7 @@ class Orders extends Component
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
+        $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
         $data['paymentMethodId'] = $cart->gatewayId;

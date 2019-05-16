@@ -41,6 +41,8 @@ use craft\records\Element;
 use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
 use craft\records\Site;
+use Exception;
+use RuntimeException;
 
 /**
  * Installation Migration
@@ -1654,7 +1656,7 @@ class Install extends Migration
     /**
      * Add the default order settings.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function _defaultOrderSettings()
     {
@@ -1682,7 +1684,7 @@ class Install extends Migration
     /**
      * Set the default product types.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function _defaultProductTypes()
     {
@@ -1733,7 +1735,7 @@ class Install extends Migration
     /**
      * Add some default products.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function _defaultProducts()
     {
@@ -1753,7 +1755,7 @@ class Install extends Migration
             ->scalar();
 
         if (!$productTypeId || !$taxCategoryId || !$shippingCategoryId) {
-            throw new \RuntimeException('Cannot create the default products.');
+            throw new RuntimeException('Cannot create the default products.');
         }
 
         $products = [

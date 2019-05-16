@@ -3,12 +3,17 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
+use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
+/**
+ * @property Order $this
+ */
 trait OrderValidatorsTrait
 {
     /**
@@ -114,6 +119,7 @@ trait OrderValidatorsTrait
         OrderHelper::mergeDuplicateLineItems($this);
 
         foreach ($this->getLineItems() as $key => $lineItem) {
+            /** @var LineItem $lineItem */
             if (!$lineItem->validate()) {
                 $this->addModelErrors($lineItem, "lineItems.{$key}");
             }

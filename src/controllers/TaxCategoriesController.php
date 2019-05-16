@@ -87,10 +87,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         // Set the new product types
         $productTypes = [];
-        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId)
-        {
-            if($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId))
-            {
+        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId) {
+            if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
         }

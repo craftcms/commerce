@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * GatewayTrait
  *
@@ -44,7 +46,7 @@ trait GatewayTrait
     public $isArchived = false;
 
     /**
-     * @var \DateTime Archived Date
+     * @var DateTime Archived Date
      */
     public $dateArchived;
 

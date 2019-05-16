@@ -8,11 +8,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\LiteSettings;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
 use craft\i18n\Locale;
+use yii\base\Exception;
 use yii\web\Response;
 
 /**
@@ -89,7 +89,7 @@ class LiteTaxController extends BaseStoreSettingsController
         $taxSaved = Plugin::getInstance()->getTaxRates()->saveLiteTaxRate($taxRate, false);
 
         if (!$taxSaved) {
-            throw new \yii\base\Exception('Could not save internal tax rate for lite tax.');
+            throw new Exception('Could not save internal tax rate for lite tax.');
         }
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));

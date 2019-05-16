@@ -29,9 +29,9 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\ElementHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
+use DateTime;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
@@ -45,8 +45,8 @@ use yii\base\InvalidConfigException;
  * @property string $snapshot allow the variant to ask the product what data to snapshot
  * @property int $totalStock
  * @property bool $hasUnlimitedStock whether at least one variant has unlimited stock
- * @property \craft\commerce\elements\Variant $cheapestVariant
- * @property \craft\commerce\models\ProductType $type
+ * @property Variant $cheapestVariant
+ * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -64,12 +64,12 @@ class Product extends Element
     // =========================================================================
 
     /**
-     * @var \DateTime Post date
+     * @var DateTime Post date
      */
     public $postDate;
 
     /**
-     * @var \DateTime Expiry date
+     * @var DateTime Expiry date
      */
     public $expiryDate;
 
@@ -276,14 +276,11 @@ class Product extends Element
      * Allows the variant to ask the product what data to snapshot.
      *
      * @return array
+     * @deprecated as of 2.1.5.3 Not needed as products are not purchasables.
      */
     public function getSnapshot(): array
     {
-        $data = [
-            'title' => $this->title
-        ];
-
-        return array_merge($this->getAttributes(), $data);
+        return [];
     }
 
     /**
@@ -787,21 +784,15 @@ class Product extends Element
     public function afterRestore()
     {
         // Also restore any variants for this element
-        $elementsService = Craft::$app->getElements();
-        foreach (ElementHelper::supportedSitesForElement($this) as $siteInfo) {
-            $variants = Variant::find()
-                ->anyStatus()
-                ->siteId($siteInfo['siteId'])
-                ->productId($this->id)
-                ->trashed()
-                ->andWhere(['commerce_variants.deletedWithProduct' => true])
-                ->all();
+        $variants = Variant::find()
+            ->anyStatus()
+            ->siteId($this->siteId)
+            ->productId($this->id)
+            ->trashed()
+            ->andWhere(['commerce_variants.deletedWithProduct' => true])
+            ->all();
 
-            foreach ($variants as $variant) {
-                $elementsService->restoreElement($variant);
-            }
-        }
-
+        Craft::$app->getElements()->restoreElements($variants);
         $this->setVariants($variants);
 
         parent::afterRestore();
@@ -892,7 +883,7 @@ class Product extends Element
 
         if ($this->enabled && !$this->postDate) {
             // Default the post date to the current date/time
-            $this->postDate = new \DateTime();
+            $this->postDate = new DateTime();
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }

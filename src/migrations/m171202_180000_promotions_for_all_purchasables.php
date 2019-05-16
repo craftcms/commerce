@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\errors\CategoryGroupNotFoundException;
 use craft\fields\Categories;
 use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
@@ -24,6 +25,7 @@ use craft\models\CategoryGroup_SiteSettings;
 use craft\models\FieldGroup;
 use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
+use Throwable;
 
 /**
  * m171010_170000_stock_location
@@ -231,7 +233,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             }
         }
 
-        \Craft::$app->getCache()->set('commerce_sale_purchasables_001', Json::encode($newSalesPurchasables));
+        Craft::$app->getCache()->set('commerce_sale_purchasables_001', Json::encode($newSalesPurchasables));
 
         MigrationHelper::dropTable('{{%commerce_sale_products}}');
 
@@ -279,7 +281,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             }
         }
 
-        \Craft::$app->getCache()->set('commerce_discount_purchasables_001', Json::encode($newDiscountsPurchasables));
+        Craft::$app->getCache()->set('commerce_discount_purchasables_001', Json::encode($newDiscountsPurchasables));
 
         MigrationHelper::dropTable('{{%commerce_discount_products}}');
 
@@ -307,8 +309,8 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
     /**
      * @return bool|CategoryGroup
-     * @throws \Throwable
-     * @throws \craft\errors\CategoryGroupNotFoundException
+     * @throws Throwable
+     * @throws CategoryGroupNotFoundException
      */
     private function _createCategoryGroup()
     {
@@ -349,7 +351,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
      * @param $categoryGroup
      * @param $productTypes
      * @return $field
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function _createCategoryFieldsOnProducts($categoryGroup, array $productTypes)
     {
@@ -361,6 +363,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
         $settings = ['source' => 'group:' . $categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
 
+        /** @var Categories $field */
         $field = $fieldsService->createField([
             'type' => Categories::class,
             'id' => null,

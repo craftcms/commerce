@@ -43,8 +43,8 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             // chart explorer
             var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
                 $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-                $exportButton = $('<div class="btn menubtn export-menubtn">'+Craft.t('commerce', 'Export')+'</div>').appendTo($chartHeader),
-			    $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
+                $exportButton = $('<div class="btn menubtn export-menubtn">' + Craft.t('commerce', 'Export') + '</div>').appendTo($chartHeader),
+                $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $to = $('<span class="to light">to</span>').appendTo($dateRange),
@@ -158,7 +158,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
             if (requestData.source.includes('carts:')) {
                 this.$exportButton.addClass('hidden');
-            }else{
+            } else {
                 this.$exportButton.removeClass('hidden');
             }
 
@@ -170,7 +170,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
             Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
                 this.$spinner.addClass('hidden');
 
-                if (textStatus === 'success' && typeof(response.error) === 'undefined') {
+                if (textStatus === 'success' && typeof (response.error) === 'undefined') {
                     if (!this.chart) {
                         this.chart = new Craft.charts.Area(this.$chart);
                     }
@@ -187,11 +187,10 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                     this.chart.draw(chartDataTable, chartSettings);
 
                     this.$totalValue.html(response.totalHtml);
-                }
-                else {
+                } else {
                     var msg = Craft.t('commerce', 'An unknown error occurred.');
 
-                    if (typeof(response) !== 'undefined' && response && typeof(response.error) !== 'undefined') {
+                    if (typeof (response) !== 'undefined' && response && typeof (response.error) !== 'undefined') {
                         msg = response.error;
                     }
 

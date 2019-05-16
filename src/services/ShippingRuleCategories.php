@@ -7,6 +7,7 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
@@ -63,7 +64,7 @@ class ShippingRuleCategories extends Component
     public function createShippingRuleCategory(ShippingRuleCategory $model, bool $runValidation = true): bool
     {
         if ($runValidation && !$model->validate()) {
-            \Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
+            Craft::info('Shipping rule category not saved due to validation error.', __METHOD__);
 
             return false;
         }

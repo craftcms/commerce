@@ -19,6 +19,13 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
+use Exception;
+use function explode;
+use function get_class;
+use Throwable;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -59,10 +66,7 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'sale' => $sale
-        ];
+        $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
             if ($variables['id']) {
@@ -82,9 +86,9 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
@@ -93,18 +97,12 @@ class SalesController extends BaseCpController
         $sale = new Sale();
 
         // Shared attributes
-        $fields = [
-            'id',
-            'name',
-            'description',
-            'apply',
-            'enabled'
-        ];
         $request = Craft::$app->getRequest();
-
-        foreach ($fields as $field) {
-            $sale->$field = $request->getBodyParam($field);
-        }
+        $sale->id = $request->getBodyParam('id');
+        $sale->name = $request->getBodyParam('name');
+        $sale->description = $request->getBodyParam('description');
+        $sale->apply = $request->getBodyParam('apply');
+        $sale->enabled = (bool)$request->getBodyParam('enabled');
 
         $dateFields = [
             'dateFrom',
@@ -196,10 +194,10 @@ class SalesController extends BaseCpController
 
     /**
      * @return Response
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Exception
+     * @throws Throwable
+     * @throws StaleObjectException
+     * @throws BadRequestHttpException
      */
     public function actionDelete(): Response
     {
@@ -217,12 +215,15 @@ class SalesController extends BaseCpController
 
     /**
      * @param $variables
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function _populateVariables(&$variables)
     {
-        if ($variables['sale']->id) {
-            $variables['title'] = $variables['sale']->name;
+        /** @var Sale $sale */
+        $sale = $variables['sale'];
+
+        if ($sale->id) {
+            $variables['title'] = $sale->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new sale');
         }
@@ -240,9 +241,9 @@ class SalesController extends BaseCpController
         $categories = $categoryIds = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
-            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+            $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
         } else {
-            $categoryIds = $variables['sale']->getCategoryIds();
+            $categoryIds = $sale->getCategoryIds();
         }
 
         foreach ($categoryIds as $categoryId) {
@@ -257,7 +258,7 @@ class SalesController extends BaseCpController
         $purchasables = $purchasableIds = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
@@ -270,13 +271,13 @@ class SalesController extends BaseCpController
                 }
             }
         } else {
-            $purchasableIds = $variables['sale']->getPurchasableIds();
+            $purchasableIds = $sale->getPurchasableIds();
         }
 
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
-                $class = \get_class($purchasable);
+                $class = get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
                 $purchasables[$class][] = $purchasable;
             }

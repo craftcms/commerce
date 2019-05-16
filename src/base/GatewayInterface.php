@@ -13,6 +13,7 @@ use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\web\Response as WebResponse;
+use Throwable;
 
 /**
  * GatewayInterface defines the common interface to be implemented by gateway classes.
@@ -105,7 +106,7 @@ interface GatewayInterface extends SavableComponentInterface
      * Processes a webhook and return a response
      *
      * @return WebResponse
-     * @throws \Throwable if something goes wrong
+     * @throws Throwable if something goes wrong
      */
     public function processWebHook(): WebResponse;
 

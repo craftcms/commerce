@@ -28,6 +28,7 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -269,7 +270,7 @@ class ProductTypes extends Component
      * @param ProductType $productType The product type model.
      * @param bool $runValidation If validation should be ran.
      * @return bool Whether the product type was saved successfully.
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function saveProductType(ProductType $productType, bool $runValidation = true): bool
     {
@@ -292,6 +293,7 @@ class ProductTypes extends Component
         if ($isNewProductType) {
             $productType->uid = StringHelper::UUID();
         } else {
+            /** @var ProductTypeRecord|null $existingProductTypeRecord */
             $existingProductTypeRecord = ProductTypeRecord::find()
                 ->where(['id' => $productType->id])
                 ->one();
@@ -324,8 +326,7 @@ class ProductTypes extends Component
             'siteSettings' => []
         ];
 
-        $generateLayoutConfig = function (FieldLayout $fieldLayout): array
-        {
+        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
             $fieldLayoutConfig = $fieldLayout->getConfig();
 
             if ($fieldLayoutConfig) {
@@ -379,7 +380,7 @@ class ProductTypes extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedProductType(ConfigEvent $event)
     {
@@ -556,7 +557,7 @@ class ProductTypes extends Component
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -629,7 +630,7 @@ class ProductTypes extends Component
      *
      * @param int $id the product type's ID
      * @return bool Whether the product type was deleted successfully.
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function deleteProductTypeById(int $id): bool
     {
@@ -643,7 +644,7 @@ class ProductTypes extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleDeletedProductType(ConfigEvent $event)
     {
@@ -678,7 +679,7 @@ class ProductTypes extends Component
 
             $productTypeRecord->delete();
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
@@ -839,7 +840,8 @@ class ProductTypes extends Component
                     'productTypes.uid productTypeUid',
                     'producttypes_sites.uriFormat',
                     'producttypes_sites.template',
-                    'producttypes_sites.hasUrls'])
+                    'producttypes_sites.hasUrls'
+                ])
                 ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
                 ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
                 ->where(['siteId' => $event->oldPrimarySiteId])
@@ -904,6 +906,10 @@ class ProductTypes extends Component
      */
     private function _getProductTypeRecord(string $uid): ProductTypeRecord
     {
-        return ProductTypeRecord::findOne(['uid' => $uid]) ?? new ProductTypeRecord();
+        if ($productType = ProductTypeRecord::findOne(['uid' => $uid])) {
+            return $productType;
+        }
+
+        return new ProductTypeRecord();
     }
 }

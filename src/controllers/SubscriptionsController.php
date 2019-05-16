@@ -14,6 +14,7 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -57,11 +58,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = [
-            'subscriptionId' => $subscriptionId,
-            'subscription' => $subscription,
-            'fieldLayout' => $fieldLayout
-        ];
+        $variables = compact('subscriptionId', 'subscription', 'fieldLayout');
 
         if (empty($variables['subscription'])) {
             $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
@@ -77,7 +74,7 @@ class SubscriptionsController extends BaseController
      * @throws NotFoundHttpException if subscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function actionSave()
     {
@@ -100,6 +97,8 @@ class SubscriptionsController extends BaseController
         Craft::$app->getUrlManager()->setRouteParams([
             'subscriptions' => $subscription
         ]);
+
+        return null;
     }
 
     /**
@@ -149,8 +148,6 @@ class SubscriptionsController extends BaseController
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
 
-        $error = false;
-
         try {
             /** @var SubscriptionGateway $gateway */
             $gateway = $plan->getGateway();
@@ -180,22 +177,19 @@ class SubscriptionsController extends BaseController
                 $fieldValues = $request->getBodyParam($fieldsLocation, []);
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
-            } catch (\Throwable $exception) {
-                Craft::error($exception->getMessage(), 'commerce');
+            } catch (Throwable $exception) {
+                Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
-
         } catch (SubscriptionException $exception) {
-            $error = $exception->getMessage();
-        }
 
-        if ($error) {
             if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asErrorJson($exception->getMessage());
             }
 
-            $session->setError($error);
+            $session->setError($exception->getMessage());
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -224,6 +218,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -241,7 +236,7 @@ class SubscriptionsController extends BaseController
             } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
-        } catch (SubscriptionException $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 
@@ -251,6 +246,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -281,6 +278,7 @@ class SubscriptionsController extends BaseController
         $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscription = Subscription::find()->uid($subscriptionUid)->one();
@@ -324,6 +322,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -351,6 +351,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -394,6 +395,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {

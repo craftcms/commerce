@@ -19,11 +19,7 @@ use yii\db\Connection;
  * @method Donation|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @replace {element} donation
- * @replace {elements} donations
- * @replace {twig-method} craft.donations()
- * @replace {myElement} myDonation
- * @replace {element-class} \craft\commerce\elements\Donation
+ * @skip-docs
  */
 class DonationQuery extends ElementQuery
 {

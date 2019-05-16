@@ -39,6 +39,7 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -182,13 +183,12 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
-            if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-                $ret['subnav']['products'] = [
-                    'label' => Craft::t('commerce', 'Products'),
-                    'url' => 'commerce/products'
-                ];
-            }
+        $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
+        if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+            $ret['subnav']['products'] = [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products'
+            ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
@@ -314,14 +314,16 @@ class Plugin extends BasePlugin
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
-                'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                    'commerce-capturePayment' => [
-                      'label' => Craft::t('commerce', 'Capture Payment')
-                    ],
-                    'commerce-refundPayment' => [
-                      'label' => Craft::t('commerce', 'Refund Payment')
-                    ],
-                  ]],
+                'commerce-manageOrders' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                        'commerce-capturePayment' => [
+                            'label' => Craft::t('commerce', 'Capture Payment')
+                        ],
+                        'commerce-refundPayment' => [
+                            'label' => Craft::t('commerce', 'Refund Payment')
+                        ],
+                    ]
+                ],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
@@ -385,7 +387,7 @@ class Plugin extends BasePlugin
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
 
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $event) {
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
         });
     }
@@ -441,11 +443,11 @@ class Plugin extends BasePlugin
      */
     private function _registerForeignKeysRestore()
     {
-        if (!class_exists(\craft\fixfks\controllers\RestoreController::class)) {
+        if (!class_exists(RestoreController::class)) {
             return;
         }
 
-        Event::on(\craft\fixfks\controllers\RestoreController::class, \craft\fixfks\controllers\RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
+        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
             // Add default FKs
             (new Install())->addForeignKeys();
         });

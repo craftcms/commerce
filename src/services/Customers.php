@@ -18,6 +18,8 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\db\Query;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -262,9 +264,9 @@ class Customers extends Component
         $this->consolidateOrdersToUser($user);
 
         // Recover previous carts of user
-        if (Plugin::getInstance()->getSettings()->mergePreviousCartsOnCustomerLogin) {
+        if (Plugin::getInstance()->getSettings()->mergeLastCartOnLogin) {
             $previousOrder = null;
-            $cart = Plugin::getInstance()->getCarts()->getCart();
+            $cart = Plugin::getInstance()->getCarts()->getCart(true);
             $previousOrders = Order::find()->isCompleted(false)->user($user)->all();
             foreach ($previousOrders as $previousOrder) {
                 if ($cart->id != $previousOrder->id) {
@@ -564,8 +566,8 @@ class Customers extends Component
      * @param Order $order
      * @return void
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     public function _createUserFromOrder(Order $order)
     {

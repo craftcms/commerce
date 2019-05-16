@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\OrderDeprecatedTrait;
@@ -39,11 +40,15 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use DateInterval;
+use DateTime;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
@@ -240,12 +245,12 @@ class Order extends Element
     public $isCompleted = false;
 
     /**
-     * @var \DateTime Date ordered
+     * @var DateTime Date ordered
      */
     public $dateOrdered;
 
     /**
-     * @var \DateTime Date paid
+     * @var DateTime Date paid
      */
     public $datePaid;
 
@@ -384,16 +389,13 @@ class Order extends Element
     {
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            if (!$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
-                    $this->setShippingAddress($address);
-                }
+            $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+            if ($hasPrimaryShippingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
+                $this->setShippingAddress($address);
             }
-
-            if (!$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId) {
-                if (($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
-                    $this->setBillingAddress($address);
-                }
+            $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+            if ($hasPrimaryBillingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
+                $this->setBillingAddress($address);
             }
         }
 
@@ -570,7 +572,7 @@ class Order extends Element
         $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
 
         if ($justPaid) {
-            $this->datePaid = Db::prepareDateForDb(new \DateTime());
+            $this->datePaid = Db::prepareDateForDb(new DateTime());
         }
 
         // Lock for recalculation
@@ -635,8 +637,8 @@ class Order extends Element
      * @return bool
      * @throws OrderStatusException
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     public function markAsComplete(): bool
     {
@@ -670,7 +672,7 @@ class Order extends Element
         $mutex->release($lockName);
 
         $this->isCompleted = true;
-        $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
+        $this->dateOrdered = Db::prepareDateForDb(new DateTime());
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
         // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
@@ -680,10 +682,11 @@ class Order extends Element
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
+        $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+
         try {
-            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
             $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
             throw $exception;
         }
@@ -760,17 +763,12 @@ class Order extends Element
         $lineItems = $this->getLineItems();
         $isNew = (bool)$lineItem->id;
 
-        if ($isNew) {
-            if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-                $lineItemEvent = new LineItemEvent([
-                    'lineItem' => $lineItem,
-                    'isNew' => $isNew
-                ]);
-                $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
+        if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
+            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
+            $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
-                if (!$lineItemEvent->isValid) {
-                    return;
-                }
+            if (!$lineItemEvent->isValid) {
+                return;
             }
         }
 
@@ -832,7 +830,9 @@ class Order extends Element
         }
 
         foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            $adjustments = (new $adjuster)->adjust($this);
+            /** @var AdjusterInterface $adjuster */
+            $adjuster = new $adjuster();
+            $adjustments = $adjuster->adjust($this);
             $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
         }
 
@@ -1535,6 +1535,8 @@ class Order extends Element
             return null;
         }
 
+        $gateway = null;
+
         // sources before gateways
         if ($this->paymentSourceId) {
             if ($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceById($this->paymentSourceId)) {
@@ -1544,7 +1546,7 @@ class Order extends Element
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
-        if (empty($gateway)) {
+        if (null === $gateway) {
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
@@ -1569,7 +1571,7 @@ class Order extends Element
 
         if ($this->_paymentCurrency) {
             $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
-            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso)) {
+            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso, false)) {
                 throw new InvalidConfigException('Payment currency not allowed.');
             }
         }
@@ -1589,7 +1591,8 @@ class Order extends Element
      * Returns the order's selected payment source if any.
      *
      * @return PaymentSource|null
-     * @throws InvalidConfigException if the order is set to an invalid payment source
+     * @throws InvalidConfigException if the payment source is being set by a guest customer.
+     * @throws InvalidArgumentException if the order is set to an invalid payment source.
      */
     public function getPaymentSource()
     {
@@ -1711,7 +1714,7 @@ class Order extends Element
      */
     public function getFieldLayout()
     {
-        return Craft::$app->getFields()->getLayoutByType(Order::class);
+        return Craft::$app->getFields()->getLayoutByType(self::class);
     }
 
     /**
@@ -1730,59 +1733,31 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
                 {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-
-                    return '<span class="status"></span>';
+                    return $this->orderStatus->getLabelHtml() ?? '<span class="status"></span>';
                 }
             case 'shippingFullName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->getFullName() ?? '';
                 }
             case 'billingFullName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->getFullName();
-                    }
-
-                    return '';
+                    return $this->billingAddress->getFullName() ?? '';
                 }
             case 'shippingBusinessName':
                 {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-
-                    return '';
+                    return $this->getShippingAddress()->businessName ?? '';
                 }
             case 'billingBusinessName':
                 {
-                    if ($this->billingAddress) {
-                        return $this->billingAddress->businessName;
-                    }
-
-                    return '';
+                    return $this->billingAddress->businessName ?? '';
                 }
             case 'shippingMethodName':
                 {
-                    if ($this->shippingMethod) {
-                        return $this->shippingMethod->getName();
-                    }
-
-                    return '';
+                    return $this->shippingMethod->getName() ?? '';
                 }
             case 'gatewayName':
                 {
-                    if ($this->gateway) {
-                        return $this->gateway->name;
-                    }
-
-                    return '';
+                    return $this->gateway->name ?? '';
                 }
             case 'paidStatus':
                 {
@@ -1918,11 +1893,11 @@ class Order extends Element
 
         $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
-        $edge = new \DateTime();
-        $interval = new \DateInterval('PT1H');
+        $edge = new DateTime();
+        $interval = new DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
-        $edge = $edge->format(\DateTime::ATOM);
+        $edge = $edge->format(DateTime::ATOM);
 
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
@@ -2104,6 +2079,8 @@ class Order extends Element
                 $previousAdjustment->delete();
             }
         }
+
+        return null;
     }
 
     /**
@@ -2134,6 +2111,7 @@ class Order extends Element
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
+            $lineItem->setOrder($this);
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
 

@@ -42,10 +42,7 @@ class TaxZonesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'taxZone' => $taxZone
-        ];
+        $variables = compact('id', 'taxZone');
 
         if (!$variables['taxZone']) {
             if ($variables['id']) {
@@ -88,7 +85,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->default = (bool) Craft::$app->getRequest()->getBodyParam('default');
+        $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
 

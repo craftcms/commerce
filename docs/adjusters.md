@@ -50,7 +50,6 @@ Below is an example adjuster class that puts a $2 discount on each line item:
 ```php
 <?php 
 
-use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;

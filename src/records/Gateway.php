@@ -8,11 +8,12 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use DateTime;
 
 /**
  * Gateway record.
  *
- * @property \DateTime $dateArchived
+ * @property DateTime $dateArchived
  * @property bool $isFrontendEnabled
  * @property string $handle
  * @property int $id

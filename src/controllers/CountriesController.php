@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -42,10 +43,7 @@ class CountriesController extends BaseStoreSettingsController
      */
     public function actionEdit(int $id = null, Country $country = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'country' => $country,
-        ];
+        $variables = compact('id', 'country');
 
         if (!$variables['country']) {
             if ($variables['id']) {
@@ -109,7 +107,7 @@ class CountriesController extends BaseStoreSettingsController
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
             return $this->asJson(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->asErrorJson($e->getMessage());
         }
     }

@@ -9,6 +9,7 @@ namespace craft\commerce\models\subscriptions;
 
 use craft\base\Model;
 use craft\commerce\models\Currency;
+use DateTime;
 
 /**
  * Class SubscriptionPayment
@@ -29,7 +30,7 @@ class SubscriptionPayment extends Model
     public $paymentCurrency;
 
     /**
-     * @var \DateTime time of payment in UTC
+     * @var DateTime time of payment in UTC
      */
     public $paymentDate;
 

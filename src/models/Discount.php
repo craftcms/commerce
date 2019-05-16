@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
 
 /**
  * Discount model
@@ -71,12 +72,12 @@ class Discount extends Model
     public $totalUses = 0;
 
     /**
-     * @var \DateTime|null Date the discount is valid from
+     * @var DateTime|null Date the discount is valid from
      */
     public $dateFrom;
 
     /**
-     * @var \DateTime|null Date the discount is valid to
+     * @var DateTime|null Date the discount is valid to
      */
     public $dateTo;
 
@@ -161,12 +162,12 @@ class Discount extends Model
     public $sortOrder;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     public $dateCreated;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
     public $dateUpdated;
 
@@ -349,11 +350,13 @@ class Discount extends Model
                     'percentDiscount'
                 ], 'number', 'skipOnEmpty' => false
             ],
-            ['hasFreeShippingForOrder', function ($attribute, $params, $validator) {
+            [
+                'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                     $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
                 }
-            }],
+            }
+            ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
     }

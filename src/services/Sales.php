@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
@@ -19,8 +20,13 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use DateTime;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
+use function get_class;
+use function in_array;
 
 /**
  * Sale service.
@@ -239,7 +245,7 @@ class Sales extends Component
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
                 $id = $purchasable->getId();
-                if (\in_array($id, $purchasableIds, false)) {
+                if (in_array($id, $purchasableIds, false)) {
                     $sales[] = $sale;
                 }
             }
@@ -323,6 +329,7 @@ class Sales extends Component
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
+        /** @var Purchasable $purchasable */
         $purchasableId = $purchasable->id;
         $saleId = $sale->id;
 
@@ -347,7 +354,7 @@ class Sales extends Component
         }
 
         // Purchasable ID match
-        if (!$sale->allPurchasables && !\in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
+        if (!$sale->allPurchasables && !in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
             return false;
         }
 
@@ -387,7 +394,7 @@ class Sales extends Component
             }
         }
 
-        $date = new \DateTime();
+        $date = new DateTime();
 
         if ($order) {
             // Date we care about in the context of an order is the date the order was placed.
@@ -491,7 +498,7 @@ class Sales extends Component
                 $relation = new SalePurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-                $relation->purchasableType = \get_class($purchasable);
+                $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();
             }
@@ -528,8 +535,8 @@ class Sales extends Component
      * @param $id
      * @return bool
      * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteSaleById($id): bool
     {

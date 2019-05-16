@@ -16,6 +16,7 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use DateTime;
 
 /**
  * Discount Adjuster
@@ -132,7 +133,7 @@ class Discount extends Component implements AdjusterInterface
 
         $this->_discount = $discount;
 
-        $now = new \DateTime();
+        $now = new DateTime();
         $from = $this->_discount->dateFrom;
         $to = $this->_discount->dateTo;
         if (($from && $from > $now) || ($to && $to < $now)) {

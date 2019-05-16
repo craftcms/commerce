@@ -97,6 +97,16 @@ class VariantQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
+    /**
+     * @var
+     */
+    public $minQty;
+
+    /**
+     * @var
+     */
+    public $maxQty;
+
     // Public Methods
     // =========================================================================
 
@@ -342,6 +352,46 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * Narrows the query results based on the variants’ min quantity.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a minQty of 100.
+     * | `'>= 100'` | with a minQty of at least 100.
+     * | `'< 100'` | with a minQty of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function minQty($value)
+    {
+        $this->minQty = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ max quantity.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a maxQty of 100.
+     * | `'>= 100'` | with a maxQty of at least 100.
+     * | `'< 100'` | with a maxQty of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function maxQty($value)
+    {
+        $this->maxQty = $value;
+        return $this;
+    }
+
 
     // Protected Methods
     // =========================================================================
@@ -400,16 +450,24 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault));
         }
 
+        if ($this->minQty) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.minQty', $this->minQty));
+        }
+
+        if ($this->maxQty) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.maxQty', $this->maxQty));
+        }
+
         if ($this->stock) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
-        if (null !== $this->hasStock && (bool) $this->hasStock === true) {
+        if (null !== $this->hasStock && (bool)$this->hasStock === true) {
             $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.hasUnlimitedStock != 1)', 'commerce_variants.hasUnlimitedStock = 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
 
-        if (null !== $this->hasStock && (bool) $this->hasStock === false) {
+        if (null !== $this->hasStock && (bool)$this->hasStock === false) {
             $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.hasUnlimitedStock != 1'];
             $this->subQuery->andWhere($hasStockCondition);
         }
@@ -419,8 +477,7 @@ class VariantQuery extends ElementQuery
             // We can't just clone the query as it may be modifying the select statement etc (i.e in the product query‘s hasVariant param)
             // But we want to use the same conditions so that we improve performance over searching all variants
             $query = Variant::find();
-            foreach($this->criteriaAttributes() as $attribute)
-            {
+            foreach ($this->criteriaAttributes() as $attribute) {
                 $query->$attribute = $this->$attribute;
             }
 

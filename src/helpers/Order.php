@@ -4,7 +4,7 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\elements\Order as OrderElement;
-use http\Exception\InvalidArgumentException;
+use yii\base\InvalidArgumentException;
 
 /**
  * Order helper
@@ -15,11 +15,11 @@ use http\Exception\InvalidArgumentException;
 class Order
 {
     /**
-     * @param $order
+     * @param OrderElement $order
      *
      * @return bool Were line items merged?
      */
-    public static function mergeDuplicateLineItems($order)
+    public static function mergeDuplicateLineItems(OrderElement $order)
     {
         $lineItems = $order->getLineItems();
         // Ensure no duplicate line items exist, and if they do, combine them.
@@ -29,13 +29,11 @@ class Order
             if (isset($lineItemsByKey[$key])) {
                 $lineItemsByKey[$key]->qty += $lineItem->qty;
                 // If a note already exists, merge it.
-                if($lineItemsByKey[$key]->note && $lineItem->note)
-                {
+                if ($lineItemsByKey[$key]->note && $lineItem->note) {
                     $lineItemsByKey[$key]->note = $lineItemsByKey[$key]->note . ' - ' . $lineItem->note;
-                }else{
+                } else {
                     $lineItemsByKey[$key]->note = $lineItem->note;
                 }
-
             } else {
                 $lineItemsByKey[$key] = $lineItem;
             }

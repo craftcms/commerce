@@ -15,6 +15,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\Db;
+use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -24,8 +25,8 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
- * @property array|\craft\commerce\base\Plan[] $allEnabledPlans
- * @property array|\craft\commerce\base\Plan[] $allPlans
+ * @property array|Plan[] $allEnabledPlans
+ * @property array|Plan[] $allPlans
  */
 class Plans extends Component
 {
@@ -291,7 +292,7 @@ class Plans extends Component
         }
 
         $plan->isArchived = true;
-        $plan->dateArchived = Db::prepareDateForDb(new \DateTime());
+        $plan->dateArchived = Db::prepareDateForDb(new DateTime());
 
         return $this->savePlan($plan);
     }

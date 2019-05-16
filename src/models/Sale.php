@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 
 /**
  * Sale model.
@@ -45,12 +46,12 @@ class Sale extends Model
     public $description;
 
     /**
-     * @var \DateTime|null Date From
+     * @var DateTime|null Date From
      */
     public $dateFrom;
 
     /**
-     * @var \DateTime|null Date To
+     * @var DateTime|null Date To
      */
     public $dateTo;
 
@@ -167,7 +168,6 @@ class Sale extends Model
             $number = rtrim($string, '0');
             $diff = strlen($string) - strlen($number);
             return Craft::$app->formatter->asPercent(-$this->applyAmount, 2 - $diff);
-            return Craft::$app->formatter->asPercent(-$this->applyAmount);
         }
 
         return Craft::$app->formatter->asPercent(0);

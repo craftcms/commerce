@@ -23,6 +23,8 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use Exception;
+use Throwable;
 use yii\base\Component;
 
 /**
@@ -166,8 +168,9 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
+     * @return void|null
      * @throws PaymentException if the payment was unsuccessful
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
     {
@@ -229,7 +232,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return;
+                return null;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -238,7 +241,7 @@ class Payments extends Component
 
             // Success!
             $order->updateOrderPaidInformation();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $transaction->status = TransactionRecord::STATUS_FAILED;
             $transaction->message = $e->getMessage();
 
@@ -478,6 +481,8 @@ class Payments extends Component
 
             $response->redirect();
         }
+
+        return null;
     }
 
     /**
@@ -494,9 +499,9 @@ class Payments extends Component
         $gateway = $parent->getGateway();
 
         try {
-            $response = $gateway->capture($child, $parent->reference);
+            $response = $gateway->capture($child, (string)$parent->reference);
             $this->_updateTransaction($child, $response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $child->status = TransactionRecord::STATUS_FAILED;
             $child->message = $e->getMessage();
             $this->_saveTransaction($child);
@@ -540,14 +545,14 @@ class Payments extends Component
             try {
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);
             }
 
             return $child;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new RefundException($exception->getMessage());
         }
     }

@@ -42,10 +42,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
      */
     public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'currency' => $currency
-        ];
+        $variables = compact('id', 'currency');
 
         if (!$variables['currency']) {
             if ($variables['id']) {

@@ -8,6 +8,7 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
+use craft\db\Query;
 use craft\helpers\MigrationHelper;
 
 /**
@@ -20,7 +21,7 @@ class m180402_161904_order_addresses_relations extends Migration
      */
     public function safeUp()
     {
-        $rougueOnes = (new \craft\db\Query())
+        $rougueOnes = (new Query())
             ->select(['orders.billingAddressId'])
             ->from(['{{%commerce_orders}} orders'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[orders.billingAddressId]] = [[addresses.id]]')
@@ -32,7 +33,7 @@ class m180402_161904_order_addresses_relations extends Migration
             $this->update('{{%commerce_orders}}', ['billingAddressId' => null], ['billingAddressId' => $id]);
         }
 
-        $rougueTwos = (new \craft\db\Query())
+        $rougueTwos = (new Query())
             ->select(['orders.shippingAddressId'])
             ->from(['{{%commerce_orders}} orders'])
             ->leftJoin('{{%commerce_addresses}} addresses', '[[orders.shippingAddressId]] = [[addresses.id]]')

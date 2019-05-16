@@ -21,8 +21,12 @@ use craft\helpers\Assets;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
+use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Email service.
@@ -135,9 +139,9 @@ class Emails extends Component
      * @param bool $runValidation
      * @return bool
      * @throws Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\web\ServerErrorHttpException
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function saveEmail(Email $email, bool $runValidation = true): bool
     {
@@ -191,7 +195,7 @@ class Emails extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedEmail(ConfigEvent $event)
     {
@@ -216,7 +220,7 @@ class Emails extends Component
 
             $emailRecord->save(false);
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -308,7 +312,7 @@ class Emails extends Component
         $originalLanguage = Craft::$app->language;
 
         $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
-        $nameOverride  = Plugin::getInstance()->getSettings()->emailSenderName;
+        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
         if ($emailOverride) {
             $newEmail->setFrom($emailOverride);
         }
@@ -646,7 +650,11 @@ class Emails extends Component
      */
     private function _getEmailRecord(string $uid): EmailRecord
     {
-        return EmailRecord::findOne(['uid' => $uid]) ?? new EmailRecord();
+        if ($email = EmailRecord::findOne(['uid' => $uid])) {
+            return $email;
+        }
+
+        return new EmailRecord();
     }
 
 }

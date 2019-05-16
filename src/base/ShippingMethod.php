@@ -8,9 +8,10 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
-use craft\base\Model;
+
 /**
  * Base ShippingMethod
  *

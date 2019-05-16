@@ -15,6 +15,7 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\MigrationHelper;
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * m180417_161904_fix_purchasables migration.
@@ -98,7 +99,7 @@ class m180417_161904_fix_purchasables extends Migration
             if (!isset($reflectionClassesByType[$type])) {
                 try {
                     $reflectionClassesByType[$type] = new ReflectionClass($type);
-                } catch (\ReflectionException $e) {
+                } catch (ReflectionException $e) {
                     Craft::warning('Class: ' . $type . ' does not exist. Can not re-create purchasable records for elements of that type.');
                 }
             }
@@ -108,15 +109,14 @@ class m180417_161904_fix_purchasables extends Migration
         foreach ($elementsRows as $elementsRow) {
             if (isset($reflectionClassesByType[$elementsRow['type']])) {
                 $class = $reflectionClassesByType[$elementsRow['type']];
-                if ($class && $class->implementsInterface(PurchasableInterface::class)) {
-                    /** @var PurchasableInterface $element */
-                    if ($element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
-                        $row = [];
-                        $row['id'] = $element->getId();
-                        $row['price'] = $element->getPrice();
-                        $row['sku'] = $element->getSku();
-                        $this->insert('{{%commerce_purchasables}}', $row);
-                    }
+                $implementsClass = ($class && $class->implementsInterface(PurchasableInterface::class));
+                /** @var PurchasableInterface $element */
+                if ($implementsClass && $element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
+                    $row = [];
+                    $row['id'] = $element->getId();
+                    $row['price'] = $element->getPrice();
+                    $row['sku'] = $element->getSku();
+                    $this->insert('{{%commerce_purchasables}}', $row);
                 }
             }
         }

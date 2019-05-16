@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
+use DateTime;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
@@ -21,6 +22,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 
 /**
  * Reports service.
@@ -72,9 +74,9 @@ class Reports extends Component
         ];
 
         // Dont use `date(dateOrdered)` in sql to force comparison to whole day, instead just remove timestamp and shift end date.
-        $startDate = new \DateTime($startDate);
+        $startDate = new DateTime($startDate);
         $startDate->setTime(0, 0);
-        $endDate = new \DateTime($endDate);
+        $endDate = new DateTime($endDate);
         $endDate->modify('+1 day'); //so that we capture whole day of endDate
 
         $orderQuery = (new CraftQuery())
@@ -111,6 +113,8 @@ class Reports extends Component
             case 'ods':
                 $writer = new Ods($spreadsheet);
                 break;
+            default:
+                throw new BadRequestHttpException('Invalid export format: ' . $format);
         }
 
         // Prepare and write temp file to disk

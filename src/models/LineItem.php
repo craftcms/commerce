@@ -8,13 +8,13 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
@@ -31,6 +31,7 @@ use yii\base\InvalidConfigException;
  * @property string $description the description from the snapshot of the purchasable
  * @property float $discount
  * @property bool $onSale
+ * @property array $options
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -51,7 +52,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
     public $id;
 
@@ -163,11 +164,14 @@ class LineItem extends Model
      */
     public function setOrder(Order $order)
     {
+        $this->orderId = $order->id;
         $this->_order = $order;
     }
 
     /**
-     * Gets the options for the line item.
+     * Returns the options for the line item.
+     *
+     * @return array
      */
     public function getOptions(): array
     {
@@ -189,8 +193,6 @@ class LineItem extends Model
             throw new InvalidArgumentException('Options must be an array.');
         }
 
-        ksort($options);
-
         $this->_options = $options;
     }
 
@@ -199,7 +201,7 @@ class LineItem extends Model
      */
     public function getOptionsSignature()
     {
-        return md5(Json::encode($this->_options));
+        return LineItemHelper::generateOptionsSignature($this->_options);
     }
 
 
@@ -484,8 +486,8 @@ class LineItem extends Model
 
         foreach ($adjustments as $adjustment) {
             // Since the line item may not yet be saved and won't have an ID, we need to check the adjuster references this as it's line item.
-            $hasLineItemId = (bool) $adjustment->lineItemId;
-            $hasLineItem = (bool) $adjustment->getLineItem();
+            $hasLineItemId = (bool)$adjustment->lineItemId;
+            $hasLineItem = (bool)$adjustment->getLineItem();
 
             if (($hasLineItemId && $adjustment->lineItemId == $this->id) || ($hasLineItem && $adjustment->getLineItem() === $this)) {
                 $lineItemAdjustments[] = $adjustment;
@@ -530,8 +532,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getTax(): float
     {
@@ -541,8 +543,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getTaxIncluded(): float
     {
@@ -552,8 +554,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getShippingCost(): float
     {
@@ -563,8 +565,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getDiscount(): float
     {

@@ -10,6 +10,10 @@ namespace craft\commerce\web\twig;
 use Craft;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
+use Twig\Error\Error;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig_Error;
 
 /**
  * Class CommerceTwigExtension
@@ -17,7 +21,7 @@ use craft\commerce\Plugin;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Extension extends \Twig_Extension
+class Extension extends AbstractExtension
 {
     // Public Methods
     // =========================================================================
@@ -36,8 +40,8 @@ class Extension extends \Twig_Extension
     public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('json_encode_filtered', [$this, 'jsonEncodeFiltered']),
-            new \Twig_SimpleFilter('commerceCurrency', [$this, 'commerceCurrency']),
+            new TwigFilter('json_encode_filtered', [$this, 'jsonEncodeFiltered']),
+            new TwigFilter('commerceCurrency', [$this, 'commerceCurrency']),
 
         ];
     }
@@ -111,14 +115,14 @@ class Extension extends \Twig_Extension
 
     /**
      * @param $currency
-     * @throws \Twig_Error
+     * @throws Twig_Error
      */
     private function _validatePaymentCurrency($currency)
     {
         try {
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
         } catch (CurrencyException $exception) {
-            throw new \Twig_Error($exception->getMessage());
+            throw new Error($exception->getMessage());
         }
     }
 

@@ -29,6 +29,7 @@ class ProjectConfigData
 
     /**
      * Return a rebuilt project config array
+     *
      * @return array
      */
     public static function rebuildProjectConfig(): array
@@ -132,9 +133,9 @@ class ProjectConfigData
             }
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
-            $productTypeRow['hasDimensions'] =  (bool)$productTypeRow['hasDimensions'];
-            $productTypeRow['hasVariants'] =  (bool)$productTypeRow['hasVariants'];
-            $productTypeRow['hasVariantTitleField'] =  (bool)$productTypeRow['hasVariantTitleField'];
+            $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
+            $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
+            $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
 
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
@@ -240,7 +241,7 @@ class ProjectConfigData
             ->leftJoin('{{%commerce_emails}} emails', '[[emails.id]] = [[relations.emailId]]')
             ->all();
 
-        foreach($relationRows as $relationRow) {
+        foreach ($relationRows as $relationRow) {
             $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
         }
 
