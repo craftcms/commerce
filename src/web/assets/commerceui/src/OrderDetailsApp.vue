@@ -116,12 +116,12 @@
                     <td></td>
                     <td>
                         <template v-if="draftOrder.order.isPaid && draftOrder.order.totalPrice > 0">
-                            <div class="paidLogo"><span>{{ 'PAID'|t('commerce') }}</span></div>
+                            <div class="paidLogo"><span>{{ 'PAID' }}</span></div>
                         </template>
                     </td>
                     <td></td>
                     <td></td>
-                    <td><h2>{{ "Total Price"|t('commerce') }}</h2></td>
+                    <td><h2>{{ "Total Price" }}</h2></td>
                     <td>
                         <h2 class="right">{{ draftOrder.order.totalPrice }}</h2>
                     </td>
