@@ -20,68 +20,15 @@
                     </thead>
                     <tbody>
                     <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
-                        <tr class="infoRow">
-                            <td>
-                                <span class="description">{{ lineItem.description }}</span>
-
-                                <br><span class="code">{{ lineItem.sku }}</span>
-
-                                <template v-if="lineItem.options.length">
-                                    <a class="fieldtoggle first last" :data-target="'info-' + lineItem.id">{{ "Options" }}</a>
-                                    <span :id="'info-' + lineItem.id" class="hidden">
-                                    <template v-for="(key, option) in lineItem.options">
-                                        {{key}}:
-
-                                        <template v-if="Array.isArray(option)">
-                                            <code>{{ option }}</code>
-                                        </template>
-
-                                        <template v-else>{{ option }}</template>
-                                        <br>
-                                    </template>
-                                </span>
-                                </template>
-                            </td>
-                            <td data-title="Note">
-                                <template v-if="lineItem.note">
-                                    <span class="info">{{ lineItem.note }}</span>
-                                </template>
-                                <textarea :value="lineItem.note" class="text"></textarea>
-                            </td>
-                            <td data-title="Price">
-                                {{ lineItem.salePrice }}
-                            </td>
-                            <td data-title="Qty">
-                                <input type="text" class="text" size="3" v-model="lineItem.qty" @input="saveOrder(draft)" />
-                            </td>
-                            <td></td>
-                            <td data-title="Sub-total">
-                                <span class="right">{{ lineItem.subtotal }}</span>
-                            </td>
-                            <td>
-                                <span class="tableRowInfo" data-icon="info" href="#"></span>
-                            </td>
-                            <td>
-                                <a href="#" @click.prevent="lineItemRemove(lineItemKey)">Remove</a>
-                            </td>
-                        </tr>
+                        <line-item
+                                :draft="draft"
+                                :line-item="lineItem"
+                                :line-item-key="lineItemKey"
+                                @quantityChange="saveOrder(draft)"
+                                @remove="lineItemRemove(lineItemKey)"></line-item>
 
                         <template v-for="adjustment in lineItem.adjustments">
-                            <tr>
-                                <td></td>
-                                <td>
-                                    <strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br>{{ adjustment.name }}
-                                    <span class="info"><strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br> {{ adjustment.description }}</span>
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                    <span class="right">{{ adjustment.amount }}</span>
-                                </td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            <line-item-adjustment :adjustment="adjustment"></line-item-adjustment>
                         </template>
                     </template>
 
@@ -147,12 +94,16 @@
 <script>
     import axios from 'axios'
     import OrderAdjustment from './components/OrderAdjustment'
+    import LineItem from './components/LineItem'
+    import LineItemAdjustment from './components/LineItemAdjustment'
 
     export default {
         name: 'order-details-app',
 
         components: {
             OrderAdjustment,
+            LineItem,
+            LineItemAdjustment,
         },
 
         data() {
