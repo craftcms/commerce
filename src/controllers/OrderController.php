@@ -17,7 +17,7 @@ use craft\helpers\Json;
 use craft\web\Controller;
 use Throwable;
 use yii\base\Exception;
-use yii\web\Response;
+use craft\web\Response;
 
 /**
  * Class Order Editor Controller
@@ -35,11 +35,14 @@ class OrderController extends Controller
 
     public function actionGet($orderId = null)
     {
-        $order = null;
+        // The response
+        $data = [];
 
-        if ($orderId) {
-            $order = Order::find()->id($orderId)->one();
+        if (!$orderId) {
+            return $this->asErrorJson(Craft::t('commerce', 'Missing order ID'));
         }
+
+        $order = Order::find()->id($orderId)->one();
 
         if (!$order) {
             $order = new Order([
@@ -49,12 +52,52 @@ class OrderController extends Controller
             Craft::$app->getElements()->saveElement($order);
         }
 
+        $this->_addOrderToData($order, $data);
+        $this->_addMetaToData($data);
 
-        $data = [];
+        return $this->asJson($data);
+    }
 
+    /**
+     * @return Response
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     */
+    public function actionSave()
+    {
+        $data = Craft::$app->getRequest()->getRawBody();
+        $data = Json::decodeIfJson($data);
+
+        if (!isset($data['order']['id'])) {
+            return $this->asErrorJson(Craft::t('commerce', 'Missing order.'));
+        }
+
+        $order = Order::find()->id($data['order']['id'])->one();
+
+        if (!$order) {
+            return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $data['order']['id']]));
+        }
+
+        return $this->asJson($data);
+    }
+
+    /**
+     * @param array $data
+     */
+    private function _addMetaToData(array &$data)
+    {
         // Add meta data
         $data['meta'] = [];
         $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
+    }
+
+    /**
+     * @param Order $order
+     * @param array $data
+     */
+    private function _addOrderToData(Order $order, array &$data)
+    {
 
         // Remove custom fields
         $orderAttributes = $order->attributes();
@@ -81,33 +124,7 @@ class OrderController extends Controller
         $extraFields = [
             'billingAddress', 'shippingAddress'
         ];
+
         $data['order'] = $order->toArray($orderAttributes, $extraFields);
-
-        // Move this data be populated in the twig template as json
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-        $data['orderStatuses'] = ArrayHelper::toArray($orderStatuses);
-
-        return $this->asJson($data);
-    }
-
-    /**
-     * @return Response
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws Exception
-     */
-    public function actionSave()
-    {
-        $data = Craft::$app->getRequest()->getRawBody();
-        $data = Json::decodeIfJson($data);
-
-        if(!isset($data['order']))
-        {
-            return $this->asErrorJson('Missing order');
-        }
-
-        $order = $data['order'];
-
-        return $this->asJson($data);
     }
 }
