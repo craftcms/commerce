@@ -52,7 +52,7 @@
                                 {{ lineItem.salePrice }}
                             </td>
                             <td data-title="Qty">
-                                <input type="text" class="text" size="3" v-model="lineItem.qty" />
+                                <input type="text" class="text" size="3" v-model="lineItem.qty" @input="saveOrder(draft)" />
                             </td>
                             <td></td>
                             <td data-title="Sub-total">
