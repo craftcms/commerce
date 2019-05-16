@@ -139,20 +139,18 @@
                 <hr>
 
                 <div>
-                    <label for="purchasableId">Purchasable ID</label>
                     <div>
-                        <input type="text" class="text" id="purchasableId" v-model="purchasableId">
+                        <label for="purchasableId">Purchasable ID</label>
+                        <div>
+                            <input type="text" class="text" id="purchasableId" v-model="purchasableId">
+                        </div>
                     </div>
-                </div>
 
-                <br />
+                    <br />
 
 
-                <a href="#" class="btn submit" @click.prevent="lineItemAdd()">Add Line Item</a>
+                    <a href="#" class="btn submit" @click.prevent="lineItemAdd()">Add Line Item</a>
 
-                <hr>
-
-                <div class="buttons">
                     <div v-if="loading" class="spinner"></div>
                 </div>
             </template>
