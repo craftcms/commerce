@@ -17,7 +17,7 @@ use craft\helpers\Json;
 use craft\web\Controller;
 use Throwable;
 use yii\base\Exception;
-use craft\web\Response;
+use yii\web\Response;
 
 /**
  * Class Order Editor Controller
@@ -78,6 +78,32 @@ class OrderController extends Controller
         if (!$order) {
             return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $data['order']['id']]));
         }
+
+        $lineItems = [];
+        foreach ($data['lineItems'] as $lineItem) {
+            $lineItemId =  $lineItem['id'] ?? null;
+            $note = $lineItem['note'] ?? '';
+            $purchasableId = $lineItem['purchasableId'];
+            $options = $lineItem['options'] ?? [];
+            $qty = $lineItem['qty'] ?? 1;
+
+            $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+
+            if (!$lineItem){
+                $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+            }
+
+            $lineItem->qty = $qty;
+            $lineItem->note = $note;
+            $lineItem->setOptions($options);
+
+            if ($qty !== null || $qty == 0) {
+                $lineItems[] = $lineItem;
+            }
+        }
+
+        $order->setLineItems($lineItems);
+        $order->recalculate();
 
         return $this->asJson($data);
     }
