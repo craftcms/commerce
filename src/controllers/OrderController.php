@@ -105,6 +105,8 @@ class OrderController extends Controller
         $order->setLineItems($lineItems);
         $order->recalculate();
 
+        $this->_addOrderToData($order, $data);
+
         return $this->asJson($data);
     }
 
