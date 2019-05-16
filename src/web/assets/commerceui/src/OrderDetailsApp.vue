@@ -99,21 +99,7 @@
                     </tr>
 
                     <template v-for="adjustment in draft.order.orderAdjustments">
-                        <tr>
-                            <td>
-                                <strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br>{{ adjustment.name }}
-                                <span class="info"><strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br> {{ adjustment.description }}</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                <span class="right">{{ adjustment.amount }}</span>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        <order-adjustment :adjustment="adjustment"></order-adjustment>
                     </template>
 
                     <tr>
@@ -163,12 +149,14 @@
 <script>
     import axios from 'axios'
     import SomeComponent from './components/SomeComponent'
+    import OrderAdjustment from './components/OrderAdjustment'
 
     export default {
         name: 'order-details-app',
 
         components: {
-            SomeComponent
+            SomeComponent,
+            OrderAdjustment,
         },
 
         data() {
