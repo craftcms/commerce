@@ -245,7 +245,7 @@ class LineItem extends Model
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
@@ -262,13 +262,20 @@ class LineItem extends Model
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields(): array
+    {
+        return parent::fields();
+    }
+
+    /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'order',
-            'purchasable',
             'shippingCategory',
             'taxCategory',
         ];
