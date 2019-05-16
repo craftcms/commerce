@@ -62,7 +62,7 @@
                                 <span class="tableRowInfo" data-icon="info" href="#"></span>
                             </td>
                             <td>
-                                <a href="#" @click.prevent="removeLineItem(lineItemKey)">Remove</a>
+                                <a href="#" @click.prevent="lineItemRemove(lineItemKey)">Remove</a>
                             </td>
                         </tr>
 
@@ -148,13 +148,11 @@
                 <br />
 
 
-                <a href="#" class="btn submit" @click.prevent="addLineItem()">Add Line Item</a>
+                <a href="#" class="btn submit" @click.prevent="lineItemAdd()">Add Line Item</a>
 
                 <hr>
 
                 <div class="buttons">
-                    <a href="#" class="btn" @click.prevent="save(draft)" :disabled="loading">{{ loading ? "Recalculating…" : "Recalculate" }}</a>
-                    &nbsp;
                     <div v-if="loading" class="spinner"></div>
                 </div>
             </template>
@@ -190,27 +188,25 @@
         },
 
         methods: {
-            addLineItem() {
-                //{ "id": "1", "price": "20.0000", "saleAmount": "0.0000", "salePrice": "20.0000", "weight": "0.0000", "length": "0.0000", "height": "0.0000", "width": "0.0000", "qty": "1", "note": "", "purchasableId": "4", "orderId": "13", "taxCategoryId": "1", "shippingCategoryId": "1", "adjustments": [], "description": "A New Toga", "options": { "giftWrapped": "no" }, "optionsSignature": "3e4afd673bf6ab55b4118b13d600b211", "onSale": false, "sku": "ANT-001", "total": 20 }
-
+            lineItemAdd() {
                 const lineItem = {
-                    qty: "1", //
-                    note: "", // *
+                    qty: "1",
+                    note: "",
                     orderId: this.orderId,
-                    purchasableId: this.purchasableId, //
-                    options: {giftWrapped: "no"}, // *
+                    purchasableId: this.purchasableId,
+                    options: {giftWrapped: "no"},
                 }
 
                 const draft = JSON.parse(JSON.stringify(this.draft))
 
                 draft.order.lineItems.push(lineItem)
 
-                this.save(draft)
+                this.saveOrder(draft)
             },
 
-            removeLineItem(lineItemKey) {
+            lineItemRemove(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.save(this.draft)
+                this.saveOrder(this.draft)
             },
 
             getOrder(orderId) {
@@ -226,7 +222,7 @@
                     })
             },
 
-            save(draft) {
+            saveOrder(draft) {
                 this.loading = true
 
                 axios.post(Craft.getActionUrl('commerce/order/save'), draft)
