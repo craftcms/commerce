@@ -32,15 +32,13 @@ class OrderController extends Controller
     // Public Methods
     // =========================================================================
 
-    public function actionGet()
+    public function actionGet($orderId = null)
     {
 
         $order = null;
 
-        $number = Craft::$app->getRequest()->getQueryParam('number');
-
-        if ($number) {
-            $order = Order::find()->number($number)->one();
+        if ($orderId) {
+            $order = Order::find()->id($orderId)->one();
         }
 
         if (!$order) {
@@ -89,7 +87,6 @@ class OrderController extends Controller
      */
     public function actionSave()
     {
-
 
     }
 }
