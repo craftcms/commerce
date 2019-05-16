@@ -399,6 +399,11 @@ class Order extends Element
             }
         }
 
+        if (!$this->orderLanguage)
+        {
+            $this->orderLanguage = Craft::$app->language;
+        }
+
         return parent::init();
     }
 
