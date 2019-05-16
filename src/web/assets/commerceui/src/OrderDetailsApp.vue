@@ -71,7 +71,7 @@
 
                 <hr>
 
-                <div>
+                <form @submit.prevent="lineItemAdd()">
                     <div>
                         <label for="purchasableId">Purchasable ID</label>
                         <div>
@@ -82,10 +82,10 @@
                     <br />
 
 
-                    <a href="#" class="btn submit" @click.prevent="lineItemAdd()">Add Line Item</a>
+                    <input type="submit" class="btn submit" value="Add Line Item" />
 
                     <div v-if="loading" class="spinner"></div>
-                </div>
+                </form>
             </template>
         </div>
     </div>
