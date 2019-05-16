@@ -80,7 +80,7 @@ class OrderController extends Controller
         }
 
         $lineItems = [];
-        foreach ($data['lineItems'] as $lineItem) {
+        foreach ($data['order']['lineItems'] as $lineItem) {
             $lineItemId =  $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
             $purchasableId = $lineItem['purchasableId'];
