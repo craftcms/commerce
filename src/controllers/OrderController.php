@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
@@ -35,8 +36,7 @@ class OrderController extends Controller
     {
         $order = null;
 
-        if($number)
-        {
+        if ($number) {
             $order = Order::find()->number($number)->one();
         }
 
@@ -53,7 +53,18 @@ class OrderController extends Controller
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         $data['meta'] = [];
         $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
-        $data['order'] = $order->toArray(['*'],['billingAddress','shippingAddress']);
+
+        $orderAttributes = $order->attributes();
+        if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                /** @var Field $field */
+                ArrayHelper::removeValue($orderAttributes, $field->handle);
+            }
+        }
+
+        ArrayHelper::removeValue($orderAttributes, 'hasDescendants');
+
+        $data['order'] = $order->toArray($orderAttributes, ['billingAddress', 'shippingAddress']);
         $data['orderStatuses'] = ArrayHelper::toArray($orderStatuses);
         return $this->asJson($data);
     }
