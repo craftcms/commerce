@@ -153,8 +153,6 @@
                 <hr>
 
                 <div class="buttons">
-                    <a href="#" class="btn" @click.prevent="save(draft)" :disabled="loading">{{ loading ? "Recalculating…" : "Recalculate" }}</a>
-                    &nbsp;
                     <div v-if="loading" class="spinner"></div>
                 </div>
             </template>
