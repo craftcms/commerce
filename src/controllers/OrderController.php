@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\web\Controller;
 use Throwable;
 use yii\base\Exception;
@@ -66,12 +67,23 @@ class OrderController extends Controller
 
         // Remove unneeded fields
         ArrayHelper::removeValue($orderAttributes, 'hasDescendants');
+        ArrayHelper::removeValue($orderAttributes, 'makePrimaryShippingAddress');
+        ArrayHelper::removeValue($orderAttributes, 'shippingSameAsBilling');
+        ArrayHelper::removeValue($orderAttributes, 'billingSameAsShipping');
+        ArrayHelper::removeValue($orderAttributes, 'registerUserOnOrderComplete');
+        ArrayHelper::removeValue($orderAttributes, 'tempId');
+        ArrayHelper::removeValue($orderAttributes, 'resaving');
+        ArrayHelper::removeValue($orderAttributes, 'duplicateOf');
+        ArrayHelper::removeValue($orderAttributes, 'totalDescendants');
+        ArrayHelper::removeValue($orderAttributes, 'fieldLayoutId');
+        ArrayHelper::removeValue($orderAttributes, 'contentId');
 
         $extraFields = [
             'billingAddress', 'shippingAddress'
         ];
         $data['order'] = $order->toArray($orderAttributes, $extraFields);
 
+        // Move this data be populated in the twig template as json
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         $data['orderStatuses'] = ArrayHelper::toArray($orderStatuses);
 
@@ -86,6 +98,16 @@ class OrderController extends Controller
      */
     public function actionSave()
     {
+        $data = Craft::$app->getRequest()->getRawBody();
+        $data = Json::decodeIfJson($data);
 
+        if(!isset($data['order']))
+        {
+            return $this->asErrorJson('Missing order');
+        }
+
+        $order = $data['order'];
+
+        return $this->asJson($data);
     }
 }
