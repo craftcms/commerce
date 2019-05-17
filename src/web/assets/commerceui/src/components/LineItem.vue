@@ -1,9 +1,12 @@
 <template>
     <tr class="infoRow">
         <td>
-            <span class="description">{{ lineItem.description }} ({{ lineItem.purchasableId }})</span>
-
-            <br><span class="code">{{ lineItem.sku }}</span>
+            <p class="description">
+                {{ lineItem.description }}<br>
+                <strong>Purchasable ID:</strong> {{ lineItem.purchasableId }}<br>
+                <strong>Line Item ID:</strong> {{ lineItem.id }}<br>
+                <strong>SKU:</strong> {{ lineItem.sku }}<br>
+            </p>
 
             <template v-if="lineItem.options.length">
                 <a class="fieldtoggle first last" :data-target="'info-' + lineItem.id">{{ "Options" }}</a>
