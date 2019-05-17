@@ -153,9 +153,19 @@ class OrderController extends Controller
         ArrayHelper::removeValue($orderAttributes, 'fieldLayoutId');
         ArrayHelper::removeValue($orderAttributes, 'contentId');
 
-        $extraFields = [
-            'billingAddress', 'shippingAddress'
-        ];
+        $extraFields = [];
+        $extraFields[] = 'adjustments';
+        $extraFields[] = 'billingAddress';
+        $extraFields[] = 'customer';
+        $extraFields[] = 'gateway';
+        $extraFields[] = 'histories';
+        $extraFields[] = 'nestedTransactions';
+        $extraFields[] = 'orderStatus';
+        $extraFields[] = 'pdfUrl';
+        $extraFields[] = 'shippingAddress';
+        $extraFields[] = 'shippingMethod';
+        $extraFields[] = 'shippingMethodId';
+        $extraFields[] = 'transactions';
 
         $data['order'] = $order->toArray($orderAttributes, $extraFields);
     }

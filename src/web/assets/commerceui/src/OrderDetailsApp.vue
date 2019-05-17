@@ -73,9 +73,13 @@
 
                 <form @submit.prevent="lineItemAdd()">
                     <div>
-                        <label for="purchasableId">Purchasable ID</label>
+                        <label for="selectedPurchasableId">Purchasable</label>
                         <div>
-                            <input type="text" class="text" id="purchasableId" v-model="purchasableId">
+                            <select v-model="selectedPurchasableId">
+                                <option v-for="option in purchasables" v-bind:value="option.value">
+                                    {{ option.text }}
+                                </option>
+                            </select>
                         </div>
                     </div>
 
@@ -109,13 +113,16 @@
             return {
                 loading: false,
                 draft: null,
-                purchasableId: 4,
+                selectedPurchasableId: 4
             }
         },
 
         computed: {
             orderId() {
                 return window.orderEdit.orderId
+            },
+            purchasables() {
+                return window.orderEdit.purchasableIds
             }
         },
 
@@ -125,7 +132,7 @@
                     qty: "1",
                     note: "",
                     orderId: this.orderId,
-                    purchasableId: this.purchasableId,
+                    purchasableId: this.selectedPurchasableId,
                     options: {giftWrapped: "no"},
                 }
 
