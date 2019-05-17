@@ -81,7 +81,7 @@ class OrderController extends Controller
 
         $lineItems = [];
         foreach ($data['order']['lineItems'] as $lineItem) {
-            $lineItemId =  $lineItem['id'] ?? null;
+            $lineItemId = $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
             $purchasableId = $lineItem['purchasableId'];
             $options = $lineItem['options'] ?? [];
@@ -89,7 +89,7 @@ class OrderController extends Controller
 
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
-            if (!$lineItem){
+            if (!$lineItem) {
                 $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
             }
 
@@ -105,7 +105,7 @@ class OrderController extends Controller
 
         $order->setLineItems($lineItems);
 
-        if ($order->validate()){
+        if ($order->validate()) {
             $order->recalculate(true);
         }
 
@@ -153,20 +153,13 @@ class OrderController extends Controller
         ArrayHelper::removeValue($orderAttributes, 'fieldLayoutId');
         ArrayHelper::removeValue($orderAttributes, 'contentId');
 
-        $extraFields = [];
-        $extraFields[] = 'adjustments';
-        $extraFields[] = 'billingAddress';
-        $extraFields[] = 'customer';
-        $extraFields[] = 'gateway';
-        $extraFields[] = 'histories';
-        $extraFields[] = 'nestedTransactions';
-        $extraFields[] = 'orderStatus';
-        $extraFields[] = 'pdfUrl';
-        $extraFields[] = 'shippingAddress';
-        $extraFields[] = 'shippingMethod';
-        $extraFields[] = 'shippingMethodId';
-        $extraFields[] = 'transactions';
-
+        $extraFields = $order->extraFields();
         $data['order'] = $order->toArray($orderAttributes, $extraFields);
+
+        if ($order->hasErrors()) {
+            $data['order']['errors'] = $order->getErrors();
+            $data['errors'] = [];
+            $data['errors']['order'] = Craft::t('commerce', 'The order is not in valid state.');
+        }
     }
 }
