@@ -9,7 +9,7 @@
         <td></td>
         <td></td>
         <td>
-            <span class="right">{{ adjustment.amount }}</span>
+            <span class="right">{{ adjustment.amount|currency }}</span>
         </td>
         <td></td>
         <td></td>

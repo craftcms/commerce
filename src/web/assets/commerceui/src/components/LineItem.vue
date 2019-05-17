@@ -31,18 +31,18 @@
             <textarea :value="lineItem.note" class="text"></textarea>
         </td>
         <td data-title="Price">
-            {{ lineItem.salePrice }}
+            {{ lineItem.salePrice|currency }}
         </td>
         <td data-title="Qty">
             <input type="text" class="text" size="3" v-model="lineItem.qty" @input="$emit('quantityChange')" />
         </td>
         <td></td>
         <td data-title="Sub-total">
-            <span class="right">{{ lineItem.subtotal }}</span>
+            <span class="right">{{ lineItem.subtotal|currency }}</span>
         </td>
         <td>
             SubTotal:{{ lineItem.subTotal }}<br>
-            Total (with adjustments):{{ lineItem.total }}<br>
+            Total (with adjustments):{{ lineItem.total|currency }}<br>
         </td>
         <td>
             <a href="#" @click.prevent="$emit('remove')">Remove</a>

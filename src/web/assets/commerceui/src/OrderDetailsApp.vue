@@ -39,7 +39,7 @@
                         <td></td>
                         <td><strong>{{ "Items Total (with adjustments)" }}</strong></td>
                         <td>
-                            <span class="right">{{ draft.order.itemTotal }}</span>
+                            <span class="right">{{ draft.order.itemTotal|currency }}</span>
                         </td>
                         <td></td>
                         <td></td>
@@ -60,7 +60,7 @@
                         <td></td>
                         <td><h2>{{ "Total Price" }}</h2></td>
                         <td>
-                            <h2 class="right">{{ draft.order.totalPrice }}</h2>
+                            <h2 class="right">{{ draft.order.totalPrice|currency }}</h2>
                         </td>
                         <td></td>
                         <td></td>
