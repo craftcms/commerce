@@ -1405,7 +1405,7 @@ class Order extends Element
         $orderAdjustments = [];
 
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId == null && $adjustment->orderId == $this->id) {
+            if (!$adjustment->getLineItem() && $adjustment->orderId == $this->id) {
                 $orderAdjustments[] = $adjustment;
             }
         }
