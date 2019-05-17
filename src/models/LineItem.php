@@ -274,7 +274,7 @@ class LineItem extends Model
             $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
                 $attribute = substr($attribute, 0, -10);
                 if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency);
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
                 }
 
                 return $model->$attribute;

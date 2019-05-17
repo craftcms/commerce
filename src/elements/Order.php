@@ -42,7 +42,6 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -400,8 +399,7 @@ class Order extends Element
             }
         }
 
-        if (!$this->orderLanguage)
-        {
+        if (!$this->orderLanguage) {
             $this->orderLanguage = Craft::$app->language;
         }
 
@@ -517,10 +515,10 @@ class Order extends Element
         $fields = parent::fields();
 
         foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attribute = substr($attribute, 0, -10);
                 if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency);
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
                 }
 
                 return $model->$attribute;
@@ -848,7 +846,7 @@ class Order extends Element
     public function recalculate(bool $force = false)
     {
         // Check if the order needs to recalculated
-        if(!$force) {
+        if (!$force) {
             if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
                 return;
             }
