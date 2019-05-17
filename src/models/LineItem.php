@@ -266,7 +266,11 @@ class LineItem extends Model
      */
     public function fields(): array
     {
-        return parent::fields();
+        $fields = parent::fields();
+
+        $fields[] = 'subTotal';
+
+        return $fields;
     }
 
     /**

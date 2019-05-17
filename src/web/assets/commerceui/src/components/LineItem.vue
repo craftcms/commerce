@@ -1,7 +1,7 @@
 <template>
     <tr class="infoRow">
         <td>
-            <span class="description">{{ lineItem.description }}</span>
+            <span class="description">{{ lineItem.description }} ({{ lineItem.purchasableId }})</span>
 
             <br><span class="code">{{ lineItem.sku }}</span>
 
@@ -38,7 +38,8 @@
             <span class="right">{{ lineItem.subtotal }}</span>
         </td>
         <td>
-            <span class="tableRowInfo" data-icon="info" href="#"></span>
+            SubTotal:{{ lineItem.subTotal }}<br>
+            Total (with adjustments):{{ lineItem.total }}<br>
         </td>
         <td>
             <a href="#" @click.prevent="$emit('remove')">Remove</a>
