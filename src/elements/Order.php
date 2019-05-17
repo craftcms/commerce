@@ -464,25 +464,6 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function currencyAttributes(): array
-    {
-        $attributes = [];
-        $attributes[] = 'adjustmentSubtotal';
-        $attributes[] = 'adjustmentsTotal';
-        $attributes[] = 'itemSubtotal';
-        $attributes[] = 'itemTotal';
-        $attributes[] = 'outstandingBalance';
-        $attributes[] = 'totalPaid';
-        $attributes[] = 'total';
-        $attributes[] = 'totalPrice';
-        $attributes[] = 'totalSaleAmount';
-        $attributes[] = 'totalTaxablePrice';
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function attributes()
     {
         $names = parent::attributes();
@@ -505,6 +486,27 @@ class Order extends Element
         $names[] = 'totalTaxablePrice';
         $names[] = 'totalWeight';
         return $names;
+    }
+
+    /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'adjustmentSubtotal';
+        $attributes[] = 'adjustmentsTotal';
+        $attributes[] = 'itemSubtotal';
+        $attributes[] = 'itemTotal';
+        $attributes[] = 'outstandingBalance';
+        $attributes[] = 'totalPaid';
+        $attributes[] = 'total';
+        $attributes[] = 'totalPrice';
+        $attributes[] = 'totalSaleAmount';
+        $attributes[] = 'totalTaxablePrice';
+        return $attributes;
     }
 
     /**

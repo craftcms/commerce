@@ -270,6 +270,17 @@ class LineItem extends Model
 
         $fields[] = 'subTotal';
 
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+                if (!empty($model->$attribute)) {
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency);
+                }
+
+                return $model->$attribute;
+            };
+        }
+
         return $fields;
     }
 
@@ -283,6 +294,23 @@ class LineItem extends Model
             'shippingCategory',
             'taxCategory',
         ];
+    }
+
+    /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'price';
+        $attributes[] = 'saleAmount';
+        $attributes[] = 'salePrice';
+        $attributes[] = 'subTotal';
+        $attributes[] = 'total';
+
+        return $attributes;
     }
 
     /**
