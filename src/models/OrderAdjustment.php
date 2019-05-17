@@ -171,5 +171,6 @@ class OrderAdjustment extends Model
     public function setOrder(Order $order)
     {
         $this->_order = $order;
+        $this->orderId = $order->id;
     }
 }
