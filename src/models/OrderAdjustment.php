@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -103,6 +104,39 @@ class OrderAdjustment extends Model
         $attributes[] = 'sourceSnapshot';
 
         return $attributes;
+    }
+
+    /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'amount';
+        return $attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+                if (!empty($model->$attribute)) {
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        return $fields;
     }
 
     /**
