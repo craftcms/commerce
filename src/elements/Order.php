@@ -42,6 +42,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -463,6 +464,25 @@ class Order extends Element
     /**
      * @inheritdoc
      */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'adjustmentSubtotal';
+        $attributes[] = 'adjustmentsTotal';
+        $attributes[] = 'itemSubtotal';
+        $attributes[] = 'itemTotal';
+        $attributes[] = 'outstandingBalance';
+        $attributes[] = 'totalPaid';
+        $attributes[] = 'total';
+        $attributes[] = 'totalPrice';
+        $attributes[] = 'totalSaleAmount';
+        $attributes[] = 'totalTaxablePrice';
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function attributes()
     {
         $names = parent::attributes();
@@ -485,6 +505,27 @@ class Order extends Element
         $names[] = 'totalTaxablePrice';
         $names[] = 'totalWeight';
         return $names;
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+                if (!empty($model->$attribute)) {
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency);
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        return $fields;
     }
 
     /**

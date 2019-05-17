@@ -132,29 +132,30 @@ class OrderController extends Controller
     {
 
         // Remove custom fields
-        $orderAttributes = $order->attributes();
+        $orderFields = array_keys($order->fields());
+
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getFields() as $field) {
                 /** @var Field $field */
-                ArrayHelper::removeValue($orderAttributes, $field->handle);
+                ArrayHelper::removeValue($orderFields, $field->handle);
             }
         }
 
         // Remove unneeded fields
-        ArrayHelper::removeValue($orderAttributes, 'hasDescendants');
-        ArrayHelper::removeValue($orderAttributes, 'makePrimaryShippingAddress');
-        ArrayHelper::removeValue($orderAttributes, 'shippingSameAsBilling');
-        ArrayHelper::removeValue($orderAttributes, 'billingSameAsShipping');
-        ArrayHelper::removeValue($orderAttributes, 'registerUserOnOrderComplete');
-        ArrayHelper::removeValue($orderAttributes, 'tempId');
-        ArrayHelper::removeValue($orderAttributes, 'resaving');
-        ArrayHelper::removeValue($orderAttributes, 'duplicateOf');
-        ArrayHelper::removeValue($orderAttributes, 'totalDescendants');
-        ArrayHelper::removeValue($orderAttributes, 'fieldLayoutId');
-        ArrayHelper::removeValue($orderAttributes, 'contentId');
+        ArrayHelper::removeValue($orderFields, 'hasDescendants');
+        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
+        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
+        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
+        ArrayHelper::removeValue($orderFields, 'registerUserOnOrderComplete');
+        ArrayHelper::removeValue($orderFields, 'tempId');
+        ArrayHelper::removeValue($orderFields, 'resaving');
+        ArrayHelper::removeValue($orderFields, 'duplicateOf');
+        ArrayHelper::removeValue($orderFields, 'totalDescendants');
+        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
+        ArrayHelper::removeValue($orderFields, 'contentId');
 
         $extraFields = $order->extraFields();
-        $data['order'] = $order->toArray($orderAttributes, $extraFields);
+        $data['order'] = $order->toArray($orderFields, $extraFields);
 
         if ($order->hasErrors()) {
             $data['order']['errors'] = $order->getErrors();
