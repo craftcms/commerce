@@ -469,6 +469,8 @@ class Order extends Element
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'email';
+        $names[] = 'isPaid';
+        $names[] = 'paidStatus';
         $names[] = 'itemSubtotal';
         $names[] = 'itemTotal';
         $names[] = 'lineItems';
