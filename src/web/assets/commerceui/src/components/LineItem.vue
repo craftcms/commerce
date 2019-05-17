@@ -1,12 +1,16 @@
 <template>
     <tr class="infoRow">
         <td>
-            <p class="description">
-                {{ lineItem.description }}<br>
-                <strong>Purchasable ID:</strong> {{ lineItem.purchasableId }}<br>
-                <strong>Line Item ID:</strong> {{ lineItem.id }}<br>
+            <div>
+                <strong>Description:</strong>{{ lineItem.description }}<br>
                 <strong>SKU:</strong> {{ lineItem.sku }}<br>
-            </p>
+                <strong title="Ben, get category name from window.orderEdit.shippingCategories)">Shipping Category:</strong> {{ lineItem.shippingCategoryId }}<br>
+                <strong title="Ben, get category name from window.orderEdit.taxCategories)">Tax Category:</strong> {{ lineItem.taxCategoryId }}<br>
+                <template v-if="lineItem.onSale">
+                    <strong>Original Price: </strong><strike>{{ lineItem.price }}</strike><br>
+                    <strong>Sale Amount Off: </strong>{{ lineItem.saleAmount }}<br>
+                </template>
+            </div>
 
             <template v-if="lineItem.options.length">
                 <a class="fieldtoggle first last" :data-target="'info-' + lineItem.id">{{ "Options" }}</a>
@@ -38,11 +42,9 @@
         </td>
         <td></td>
         <td data-title="Sub-total">
-            <span class="right">{{ lineItem.subTotalAsCurrency }}</span>
+            <span class="right">{{ lineItem.subtotalAsCurrency }}</span>
         </td>
         <td>
-            SubTotal:{{ lineItem.subTotal }}<br>
-            Total (with adjustments):{{ lineItem.totalAsCurrency }}<br>
         </td>
         <td>
             <a href="#" @click.prevent="$emit('remove')">Remove</a>

@@ -1,8 +1,10 @@
 <template>
     <tr>
         <td>
-            <strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br>{{ adjustment.name }}
-            <span class="info"><strong>{{ adjustment.type }} {{ "Adjustment" }}</strong><br> {{ adjustment.description }}</span>
+            <strong>Adjustment Type: </strong>{{ adjustment.type }}<br>
+            <strong>Name: </strong>{{ adjustment.name }}<br>
+            <strong>Description: </strong>{{ adjustment.description }}<br>
+            <strong>Included: </strong>{{ adjustment.included }}<br>
         </td>
         <td></td>
         <td></td>
