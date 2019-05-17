@@ -268,8 +268,6 @@ class LineItem extends Model
     {
         $fields = parent::fields();
 
-        $fields[] = 'subTotal';
-
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
                 $attribute = substr($attribute, 0, -10);
@@ -307,7 +305,7 @@ class LineItem extends Model
         $attributes[] = 'price';
         $attributes[] = 'saleAmount';
         $attributes[] = 'salePrice';
-        $attributes[] = 'subTotal';
+        $attributes[] = 'subtotal';
         $attributes[] = 'total';
 
         return $attributes;
