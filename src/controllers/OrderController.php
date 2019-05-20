@@ -141,19 +141,6 @@ class OrderController extends Controller
             }
         }
 
-        // Remove unneeded fields
-        ArrayHelper::removeValue($orderFields, 'hasDescendants');
-        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
-        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
-        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
-        ArrayHelper::removeValue($orderFields, 'registerUserOnOrderComplete');
-        ArrayHelper::removeValue($orderFields, 'tempId');
-        ArrayHelper::removeValue($orderFields, 'resaving');
-        ArrayHelper::removeValue($orderFields, 'duplicateOf');
-        ArrayHelper::removeValue($orderFields, 'totalDescendants');
-        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
-        ArrayHelper::removeValue($orderFields, 'contentId');
-
         $extraFields = $order->extraFields();
         $data['order'] = $order->toArray($orderFields, $extraFields);
 

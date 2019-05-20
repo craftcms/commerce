@@ -525,6 +525,18 @@ class Order extends Element
             };
         }
 
+        // Remove unneeded fields
+        ArrayHelper::removeValue($fields, 'hasDescendants');
+        ArrayHelper::removeValue($fields, 'makePrimaryShippingAddress');
+        ArrayHelper::removeValue($fields, 'shippingSameAsBilling');
+        ArrayHelper::removeValue($fields, 'billingSameAsShipping');
+        ArrayHelper::removeValue($fields, 'tempId');
+        ArrayHelper::removeValue($fields, 'resaving');
+        ArrayHelper::removeValue($fields, 'duplicateOf');
+        ArrayHelper::removeValue($fields, 'totalDescendants');
+        ArrayHelper::removeValue($fields, 'fieldLayoutId');
+        ArrayHelper::removeValue($fields, 'contentId');
+
         return $fields;
     }
 
@@ -544,7 +556,6 @@ class Order extends Element
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
-        $names[] = 'shippingMethodId';
         $names[] = 'transactions';
         return $names;
     }
