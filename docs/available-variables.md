@@ -62,7 +62,7 @@ Returns an array of <api:craft\commerce\models\State> objects.
 
 ```twig
 <select>
-{% for states in craft.commerce.countries %}
+{% for state in craft.commerce.states %}
     <option value="{{ state.id }}">{{ state.name }}</option>
 {% endfor %}
 </select>
