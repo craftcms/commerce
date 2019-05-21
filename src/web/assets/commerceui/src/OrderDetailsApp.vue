@@ -1,6 +1,35 @@
 <template>
     <div>
-        <div class="order-details pane">
+        <div>
+            <template v-if="!editing">
+                <a class="btn" @click.prevent="editing = true">Edit</a>
+            </template>
+
+            <template v-else>
+
+                <div class="line-item-flex">
+                    <div>
+                        <a class="btn" @click.prevent="editing = false">Cancel</a>
+                    </div>
+
+                    <div class="line-item-flex-grow text-right">
+                        <div>
+                            Recalculate whole order
+                            <input type="radio" value="auto" v-model="recalculateMode" />
+                        </div>
+
+                        <div>
+                            Manually edit
+                            <input type="radio" value="manual" v-model="recalculateMode" />
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <hr>
+
+        <div class="order-details">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>
@@ -16,6 +45,7 @@
                             :draft="draft"
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
+                            :editing="editing"
                             @quantityChange="saveOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
@@ -30,7 +60,13 @@
 
                     <div class="line-item-flex-grow">
                         <template v-for="adjustment in draft.order.orderAdjustments">
-                            <order-adjustment :adjustment="adjustment"></order-adjustment>
+                            <order-adjustment :editing="editing" :adjustment="adjustment"></order-adjustment>
+                        </template>
+
+                        <template v-if="editing">
+                            <div>
+                                <a href="#">Add an adjustment</a>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -87,9 +123,11 @@
 
         data() {
             return {
+                editing: false,
                 loading: false,
                 draft: null,
-                selectedPurchasableId: 4
+                selectedPurchasableId: 4,
+                recalculateMode: 'auto',
             }
         },
 

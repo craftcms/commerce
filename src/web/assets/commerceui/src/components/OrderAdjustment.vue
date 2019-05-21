@@ -4,8 +4,11 @@
             <div>
                 {{adjustment.name}}
                 ({{adjustment.type}})
-
                 {{adjustment.description}}
+
+                <template v-if="editing">
+                    <a href="#">Remove</a>
+                </template>
             </div>
         </div>
         <div class="line-item-flex-grow text-right">
@@ -24,6 +27,9 @@
         props: {
             adjustment: {
                 type: Object,
+            },
+            editing: {
+                type: Boolean,
             },
         }
     }

@@ -13,16 +13,22 @@
                             <h3>{{ lineItem.description }}</h3>
                         </div>
                         <div class="line-item-flex-grow">
-                            <template v-if="lineItem.onSale">
-                                <div>
-                                    <strong>Original Price: </strong><strike>{{ lineItem.price }}</strike><br>
-                                    <strong>Sale Amount Off: </strong>{{ lineItem.saleAmount }}<br>
-                                </div>
-                            </template>
+                            <ul>
+                                <template v-if="lineItem.onSale">
+                                    <li><span class="light">Original Price</span> <strike>{{ lineItem.price }}</strike></li>
+                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmount }}</li>
+                                </template>
+                                <li>
+                                    <span class="light">Sale Price</span>
+                                    <template v-if="!editing">
+                                        {{ lineItem.salePriceAsCurrency }}
+                                    </template>
+                                    <template v-else>
+                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
+                                    </template>
+                                </li>
+                            </ul>
 
-                            <div>
-                                {{ lineItem.salePriceAsCurrency }}
-                            </div>
                         </div>
                         <div class="line-item-flex-grow">
                             <div>
@@ -54,10 +60,14 @@
                 </div>
                 <div class="line-item-block">
                     <h3>Note</h3>
-                    <template v-if="lineItem.note">
-                        <span class="info">{{ lineItem.note }}</span>
+                    <template v-if="!editing">
+                        <template v-if="lineItem.note">
+                            <span class="info">{{ lineItem.note }}</span>
+                        </template>
                     </template>
-                    <textarea :value="lineItem.note" class="text"></textarea>
+                    <template v-else>
+                        <textarea :value="lineItem.note" class="text"></textarea>
+                    </template>
                 </div>
 
                 <div class="line-item-block">
@@ -73,8 +83,11 @@
                                         <div>
                                             {{adjustment.name}}
                                             ({{adjustment.type}})
-
                                             {{adjustment.description}}
+
+                                            <template v-if="editing">
+                                                <a href="#">Remove</a>
+                                            </template>
                                         </div>
                                     </div>
                                     <div class="line-item-flex-grow text-right">
@@ -87,6 +100,12 @@
                                     </div>
                                 </div>
                             </template>
+
+                            <template v-if="editing">
+                                <div>
+                                    <a href="#">Add an adjustment</a>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -94,8 +113,8 @@
                 <div class="line-item-block">
                     <h3>Shipping &amp; Tax</h3>
                     <div>
-                        <strong>Shipping Category:</strong> {{ lineItem.shippingCategoryId }}<br>
-                        <strong>Tax Category:</strong> {{ lineItem.taxCategoryId }}<br>
+                        <strong>Shipping Category:</strong> {{shippingCategory}}<br>
+                        <strong>Tax Category:</strong> {{taxCategory}}<br>
                     </div>
                 </div>
 
@@ -122,6 +141,35 @@
             draft: {
                 type: Object,
             },
+            editing: {
+                type: Boolean,
+            },
+        },
+
+        computed: {
+            shippingCategory() {
+                if (!this.lineItem.shippingCategoryId) {
+                    return null
+                }
+
+                if (typeof window.orderEdit.shippingCategories[this.lineItem.shippingCategoryId] === 'undefined') {
+                    return this.lineItem.shippingCategoryId
+                }
+
+                return window.orderEdit.shippingCategories[this.lineItem.shippingCategoryId]
+            },
+
+            taxCategory() {
+                if (!this.lineItem.taxCategoryId) {
+                    return null
+                }
+
+                if (typeof window.orderEdit.taxCategories[this.lineItem.taxCategoryId] === 'undefined') {
+                    return this.lineItem.taxCategoryId
+                }
+
+                return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
+            }
         }
     }
 </script>
