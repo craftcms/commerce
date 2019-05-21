@@ -23,7 +23,6 @@
                 <hr />
 
                 <!-- Order Adjustments -->
-
                 <div class="line-item-flex">
                     <div class="line-item-flex">
                         <h3>Adjustments</h3>
