@@ -14,7 +14,7 @@ Should the amount passed to this filter be converted to the exchange rate of the
 
 ### format (bool) default: `true`
 
-Should the amount passed to this filter be converted to the exchange rate of the payment currency iso passed
+Should the amount passed to this filter be formatted according to the payment currency iso passed. This will add the payment currency symbol to the amount and apply the corresponding thousands and decimal separators.
 
 ### stripZeros (bool) default: `false`
 
