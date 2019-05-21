@@ -5,69 +5,44 @@
                 <div class="spinner"></div>
             </template>
             <template v-else>
-                <table id="" class="data fullwidth collapsible">
-                    <thead>
-                    <tr>
-                        <th scope="col">Item</th>
-                        <th scope="col">Note</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
-                        <line-item
-                                :draft="draft"
-                                :line-item="lineItem"
-                                :line-item-key="lineItemKey"
-                                @quantityChange="saveOrder(draft)"
-                                @remove="lineItemRemove(lineItemKey)"></line-item>
+                <!-- Is Paid -->
+                <template v-if="draft.order.isPaid && draft.order.totalPrice > 0">
+                    <div class="paidLogo"><span>{{ 'PAID' }}</span></div>
+                </template>
 
-                        <template v-for="adjustment in lineItem.adjustments">
-                            <line-item-adjustment :adjustment="adjustment"></line-item-adjustment>
+                <!-- Line Items -->
+                <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
+                    <line-item
+                            :draft="draft"
+                            :line-item="lineItem"
+                            :line-item-key="lineItemKey"
+                            @quantityChange="saveOrder(draft)"
+                            @remove="lineItemRemove(lineItemKey)"></line-item>
+                </template>
+
+                <hr />
+
+                <!-- Order Adjustments -->
+
+                <div class="line-item-flex">
+                    <div class="line-item-flex">
+                        <h3>Adjustments</h3>
+                    </div>
+
+                    <div class="line-item-flex-grow">
+                        <template v-for="adjustment in draft.order.orderAdjustments">
+                            <order-adjustment :adjustment="adjustment"></order-adjustment>
                         </template>
-                    </template>
+                    </div>
+                </div>
 
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><strong>{{ "Items Total (with adjustments)" }}</strong></td>
-                        <td>
-                            <span class="right">{{ draft.order.itemTotalAsCurrency }}</span>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                <hr />
 
-                    <template v-for="adjustment in draft.order.orderAdjustments">
-                        <order-adjustment :adjustment="adjustment"></order-adjustment>
-                    </template>
-
-                    <tr>
-                        <td></td>
-                        <td>
-                            <template v-if="draft.order.isPaid && draft.order.totalPrice > 0">
-                                <div class="paidLogo"><span>{{ 'PAID' }}</span></div>
-                            </template>
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td><h2>{{ "Total Price" }}</h2></td>
-                        <td>
-                            <h2 class="right">{{ draft.order.totalPriceAsCurrency }}</h2>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-
-                    </tbody>
-                </table>
+                <!-- Total Price -->
+                <div class="text-right">
+                    <h2>{{ "Total Price" }}</h2>
+                    <h2>{{ draft.order.totalPriceAsCurrency }}</h2>
+                </div>
 
                 <hr>
 
@@ -94,11 +69,14 @@
     </div>
 </template>
 
+<style lang="scss">
+    @import './sass/order-details.scss';
+</style>
+
 <script>
     import axios from 'axios'
     import OrderAdjustment from './components/OrderAdjustment'
     import LineItem from './components/LineItem'
-    import LineItemAdjustment from './components/LineItemAdjustment'
 
     export default {
         name: 'order-details-app',
@@ -106,7 +84,6 @@
         components: {
             OrderAdjustment,
             LineItem,
-            LineItemAdjustment,
         },
 
         data() {

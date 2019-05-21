@@ -1,21 +1,22 @@
 <template>
-    <tr>
-        <td>
-            <strong>Adjustment Type: </strong>{{ adjustment.type }}<br>
-            <strong>Name: </strong>{{ adjustment.name }}<br>
-            <strong>Description: </strong>{{ adjustment.description }}<br>
-            <strong>Included: </strong>{{ adjustment.included }}<br>
-        </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>
-            <span class="right">{{ adjustment.amountAsCurrency }}</span>
-        </td>
-        <td></td>
-        <td></td>
-    </tr>
+    <div class="line-item-flex">
+        <div class="line-item-flex-grow">
+            <div>
+                {{adjustment.name}}
+                ({{adjustment.type}})
+
+                {{adjustment.description}}
+            </div>
+        </div>
+        <div class="line-item-flex-grow text-right">
+            <template v-if="adjustment.included">
+                <div class="light">{{adjustment.amountAsCurrency}} included</div>
+            </template>
+            <template v-else>
+                {{adjustment.amountAsCurrency}}
+            </template>
+        </div>
+    </div>
 </template>
 
 <script>

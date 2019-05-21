@@ -1,0 +1,24 @@
+.line-item {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.line-item-flex {
+  display: flex;
+}
+
+.line-item-flex-grow {
+  flex-grow: 1;
+}
+
+.line-item-block {
+  margin-left: 150px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.text-right {
+  text-align: right;
+}
