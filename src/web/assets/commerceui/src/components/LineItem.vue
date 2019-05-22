@@ -32,7 +32,12 @@
                         <div class="order-flex-grow">
                             <div>
                                 <label class="light" for="quantity">Quantity</label>
-                                <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onQuantityChange" />
+                                <template v-if="!editing">
+                                    {{ lineItem.qty }}
+                                </template>
+                                <template v-else>
+                                    <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onQuantityChange" />
+                                </template>
                             </div>
                         </div>
                         <div class="order-flex-grow text-right">
@@ -132,7 +137,7 @@
                                         </div>
                                     </div>
                                     <div class="order-flex-grow text-right">
-                                        <template v-if="adjustment.included !== '0'">
+                                        <template v-if="adjustment.included !== '0' && adjustment.included !== false">
                                             <div class="light">{{adjustment.amountAsCurrency}} included</div>
                                         </template>
                                         <template v-else>

@@ -3,13 +3,14 @@
         <div>
             <template v-if="!editing">
                 <a class="btn" @click.prevent="editing = true">Edit</a>
+                <div v-if="loading" class="spinner"></div>
             </template>
 
             <template v-else>
-
                 <div class="order-flex">
                     <div>
                         <a class="btn" @click.prevent="editing = false">Cancel</a>
+                        <div v-if="loading" class="spinner"></div>
                     </div>
 
                     <div class="order-flex-grow text-right">
