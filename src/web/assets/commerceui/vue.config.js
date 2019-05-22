@@ -11,6 +11,7 @@ module.exports = {
     },
     devServer: {
         headers: {"Access-Control-Allow-Origin": "*"},
+        public: 'http://localhost:8080/',
         disableHostCheck: true
     },
     chainWebpack: config => {
