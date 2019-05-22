@@ -104,7 +104,7 @@
                                         </div>
                                     </div>
                                     <div class="order-flex-grow text-right">
-                                        <template v-if="adjustment.included">
+                                        <template v-if="adjustment.included !== '0'">
                                             <div class="light">{{adjustment.amountAsCurrency}} included</div>
                                         </template>
                                         <template v-else>
