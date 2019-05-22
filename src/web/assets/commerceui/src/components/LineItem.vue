@@ -2,7 +2,6 @@
     <div class="line-item">
         <div class="order-flex">
             <div class="light">
-                <strong>SKU</strong>
                 <div><code>{{ lineItem.sku }}</code></div>
             </div>
 
