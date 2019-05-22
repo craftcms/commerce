@@ -35,7 +35,7 @@
                                 <input type="text" class="text" size="3" v-model="lineItem.qty" @input="$emit('quantityChange')" />
                             </div>
                         </div>
-                        <div class="order-flex-grow">
+                        <div class="order-flex-grow text-right">
                             {{lineItem.subtotalAsCurrency}}
                         </div>
                     </div>
