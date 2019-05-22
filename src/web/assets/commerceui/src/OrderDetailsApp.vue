@@ -9,7 +9,7 @@
             <template v-else>
                 <div class="order-flex">
                     <div>
-                        <a class="btn" @click.prevent="editing = false">Cancel</a>
+                        <a class="btn" @click.prevent="cancel()">Cancel</a>
                         <div v-if="loading" class="spinner"></div>
                     </div>
 
@@ -127,6 +127,7 @@
             return {
                 editing: false,
                 loading: false,
+                originalDraft: null,
                 draft: null,
                 selectedPurchasableId: 4,
                 recalculateMode: 'auto',
@@ -166,10 +167,14 @@
 
             getOrder(orderId) {
                 this.loading = true
-                axios.get(Craft.getActionUrl('commerce/order/get', {orderId}))
+                return axios.get(Craft.getActionUrl('commerce/order/get', {orderId}))
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
+
+                        if (!this.originalDraft) {
+                            this.originalDraft = JSON.parse(JSON.stringify(this.draft))
+                        }
                     })
                     .catch(() => {
                         this.loading = false
@@ -189,6 +194,11 @@
                         this.loading = false
                         console.log('error')
                     })
+            },
+
+            cancel() {
+                this.editing = false
+                this.draft = JSON.parse(JSON.stringify(this.originalDraft))
             }
         },
 
