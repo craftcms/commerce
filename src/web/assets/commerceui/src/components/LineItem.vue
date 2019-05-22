@@ -49,18 +49,21 @@
 
                         <div class="order-grow">
                             <template v-if="Object.keys(lineItem.options).length">
-                                <div :id="'info-' + lineItem.id">
+                                <ul :id="'info-' + lineItem.id">
                                     <template v-for="(option, key) in lineItem.options">
-                                        {{key}}:
+                                        <li>
+                                            <code>
+                                                {{key}}:
 
-                                        <template v-if="Array.isArray(option)">
-                                            <code>{{ option }}</code>
-                                        </template>
+                                                <template v-if="Array.isArray(option)">
+                                                    <code>{{ option }}</code>
+                                                </template>
 
-                                        <template v-else>{{ option }}</template>
-                                        <br>
+                                                <template v-else>{{ option }}</template>
+                                            </code>
+                                        </li>
                                     </template>
-                                </div>
+                                </ul>
                             </template>
                         </div>
                     </div>
