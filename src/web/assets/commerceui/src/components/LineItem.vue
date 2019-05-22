@@ -19,7 +19,7 @@
                                     <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmount }}</li>
                                 </template>
                                 <li>
-                                    <span class="light">Sale Price</span>
+                                    <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="!editing">
                                         {{ lineItem.salePriceAsCurrency }}
                                     </template>
@@ -32,6 +32,7 @@
                         </div>
                         <div class="order-flex-grow">
                             <div>
+                                <label class="light" for="quantity">Quantity</label>
                                 <input type="text" class="text" size="3" v-model="lineItem.qty" @input="$emit('quantityChange')" />
                             </div>
                         </div>
