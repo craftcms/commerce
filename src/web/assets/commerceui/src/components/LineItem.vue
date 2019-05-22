@@ -141,7 +141,9 @@
                     <div>
                         <strong>{{ lineItem.subtotalAsCurrency }}</strong>
                     </div>
-                    <div><a href="#" @click.prevent="$emit('remove')">Remove</a></div>
+                    <div v-if="editing">
+                        <a href="#" @click.prevent="$emit('remove')">Remove</a>
+                    </div>
                 </div>
             </div>
         </div>
