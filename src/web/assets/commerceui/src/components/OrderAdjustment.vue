@@ -3,7 +3,7 @@
         <div class="order-flex-grow">
             <div>
                 {{adjustment.name}}
-                ({{adjustment.type}})
+                <span class="light">({{adjustment.type}})</span>
                 {{adjustment.description}}
 
                 <template v-if="editing">
