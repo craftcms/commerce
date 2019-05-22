@@ -46,6 +46,7 @@
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
                             :editing="editing"
+                            @noteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>

@@ -32,7 +32,7 @@
                         <div class="order-flex-grow">
                             <div>
                                 <label class="light" for="quantity">Quantity</label>
-                                <input type="text" class="text" size="3" v-model="lineItem.qty" @input="$emit('quantityChange')" />
+                                <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onQuantityChange" />
                             </div>
                         </div>
                         <div class="order-flex-grow text-right">
@@ -81,16 +81,26 @@
                         <div class="order-flex order-flex-grow order-margin-wrapper">
                             <div class="order-flex-grow order-margin">
                                 <template v-if="!editing">
-                                    <span class="light">{{ lineItem.note ? lineItem.note : 'No customer note.' }}</span>
+                                    <template v-if="lineItem.note">
+                                        {{lineItem.note}}
+                                    </template>
+                                    <template v-else>
+                                        <span class="light">{{ 'No customer note.' }}</span>
+                                    </template>
                                 </template>
                                 <template v-else>
                                     <label for="note">Customer Note</label>
-                                    <textarea :value="lineItem.note" class="text fullwidth"></textarea>
+                                    <textarea v-model="lineItem.note" class="text fullwidth" @input="onNoteChange"></textarea>
                                 </template>
                             </div>
                             <div class="order-flex-grow order-margin">
                                 <template v-if="!editing">
-                                    <span class="light">{{ lineItem.note ? lineItem.note : 'No admin note.' }}</span>
+                                    <template v-if="lineItem.note">
+                                        {{lineItem.note}}
+                                    </template>
+                                    <template v-else>
+                                        <span class="light">{{ 'No admin note.' }}</span>
+                                    </template>
                                 </template>
                                 <template v-else>
                                     <label for="note">Admin Note</label>
@@ -169,6 +179,8 @@
 </template>
 
 <script>
+    import {debounce} from 'debounce'
+
     export default {
         props: {
             lineItem: {
@@ -217,8 +229,21 @@
             }
         },
 
+        methods: {
+            onNoteChange() {
+                this.$emit('noteChange')
+            },
+
+            onQuantityChange() {
+                this.$emit('quantityChange')
+            }
+        },
+
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
+
+            this.onNoteChange = debounce(this.onNoteChange, 1000)
+            this.onQuantityChange = debounce(this.onQuantityChange, 1000)
         }
     }
 </script>

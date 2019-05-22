@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "debounce": "^1.2.0",
     "vue": "^2.6.6"
   },
   "devDependencies": {
