@@ -77,26 +77,28 @@
                     <h2>{{ draft.order.totalPriceAsCurrency }}</h2>
                 </div>
 
-                <hr>
+                <template v-if="editing">
+                    <hr>
 
-                <form @submit.prevent="lineItemAdd()">
-                    <div>
-                        <label for="selectedPurchasableId">Purchasable</label>
+                    <form @submit.prevent="lineItemAdd()">
                         <div>
-                            <select v-model="selectedPurchasableId">
-                                <option v-for="option in purchasables" v-bind:value="option.value">
-                                    {{ option.text }}
-                                </option>
-                            </select>
+                            <label for="selectedPurchasableId">Purchasable</label>
+                            <div>
+                                <select v-model="selectedPurchasableId">
+                                    <option v-for="option in purchasables" v-bind:value="option.value">
+                                        {{ option.text }}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    <br />
+                        <br />
 
-                    <input type="submit" class="btn submit" value="Add Line Item" />
+                        <input type="submit" class="btn submit" value="Add Line Item" />
 
-                    <div v-if="loading" class="spinner"></div>
-                </form>
+                        <div v-if="loading" class="spinner"></div>
+                    </form>
+                </template>
             </template>
         </div>
     </div>
