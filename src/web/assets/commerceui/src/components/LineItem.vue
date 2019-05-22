@@ -157,7 +157,7 @@
 
                 <div class="order-indented-block text-right">
                     <div>
-                        <strong>{{ lineItem.subtotalAsCurrency }}</strong>
+                        <strong>{{ lineItem.totalAsCurrency }}</strong>
                     </div>
                     <div v-if="editing">
                         <a href="#" @click.prevent="$emit('remove')">Remove</a>
