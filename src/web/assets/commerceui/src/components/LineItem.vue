@@ -46,23 +46,28 @@
                             <h3>Options</h3>
                         </div>
 
-                        <div class="order-grow">
-                            <template v-if="Object.keys(lineItem.options).length">
-                                <ul :id="'info-' + lineItem.id">
-                                    <template v-for="(option, key) in lineItem.options">
-                                        <li>
-                                            <code>
-                                                {{key}}:
+                        <div class="order-flex-grow">
+                            <template v-if="!editing">
+                                <template v-if="Object.keys(lineItem.options).length">
+                                    <ul :id="'info-' + lineItem.id">
+                                        <template v-for="(option, key) in lineItem.options">
+                                            <li>
+                                                <code>
+                                                    {{key}}:
 
-                                                <template v-if="Array.isArray(option)">
-                                                    <code>{{ option }}</code>
-                                                </template>
+                                                    <template v-if="Array.isArray(option)">
+                                                        <code>{{ option }}</code>
+                                                    </template>
 
-                                                <template v-else>{{ option }}</template>
-                                            </code>
-                                        </li>
-                                    </template>
-                                </ul>
+                                                    <template v-else>{{ option }}</template>
+                                                </code>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <textarea class="text fullwidth" rows="4" v-model="options"></textarea>
                             </template>
                         </div>
                     </div>
@@ -180,6 +185,12 @@
             },
         },
 
+        data() {
+            return {
+                options: null,
+            }
+        },
+
         computed: {
             shippingCategory() {
                 if (!this.lineItem.shippingCategoryId) {
@@ -204,6 +215,10 @@
 
                 return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
             }
+        },
+
+        mounted() {
+            this.options = JSON.stringify(this.lineItem.options, null, '\t')
         }
     }
 </script>
