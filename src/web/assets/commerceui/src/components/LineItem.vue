@@ -1,18 +1,18 @@
 <template>
     <div class="line-item">
-        <div class="line-item-flex">
+        <div class="order-flex">
             <div class="light">
                 <strong>SKU</strong>
                 <div><code>{{ lineItem.sku }}</code></div>
             </div>
 
-            <div class="line-item-flex-grow">
-                <div class="line-item-block">
-                    <div class="line-item-flex">
-                        <div class="line-item-flex-grow">
+            <div class="order-flex-grow">
+                <div class="order-indented-block">
+                    <div class="order-flex">
+                        <div class="order-block-title">
                             <h3>{{ lineItem.description }}</h3>
                         </div>
-                        <div class="line-item-flex-grow">
+                        <div class="order-flex-grow">
                             <ul>
                                 <template v-if="lineItem.onSale">
                                     <li><span class="light">Original Price</span> <strike>{{ lineItem.price }}</strike></li>
@@ -30,59 +30,72 @@
                             </ul>
 
                         </div>
-                        <div class="line-item-flex-grow">
+                        <div class="order-flex-grow">
                             <div>
                                 <input type="text" class="text" size="3" v-model="lineItem.qty" @input="$emit('quantityChange')" />
                             </div>
                         </div>
-                        <div class="line-item-flex-grow">
+                        <div class="order-flex-grow">
                             {{lineItem.subtotalAsCurrency}}
                         </div>
                     </div>
                 </div>
-                <div class="line-item-block">
-                    <h3>Options</h3>
+                <div class="order-indented-block">
+                    <div class="order-flex">
+                        <div class="order-block-title">
+                            <h3>Options</h3>
+                        </div>
 
-                    <template v-if="Object.keys(lineItem.options).length">
-                        <div :id="'info-' + lineItem.id">
-                            <template v-for="(option, key) in lineItem.options">
-                                {{key}}:
+                        <div class="order-grow">
+                            <template v-if="Object.keys(lineItem.options).length">
+                                <div :id="'info-' + lineItem.id">
+                                    <template v-for="(option, key) in lineItem.options">
+                                        {{key}}:
 
-                                <template v-if="Array.isArray(option)">
-                                    <code>{{ option }}</code>
-                                </template>
+                                        <template v-if="Array.isArray(option)">
+                                            <code>{{ option }}</code>
+                                        </template>
 
-                                <template v-else>{{ option }}</template>
-                                <br>
+                                        <template v-else>{{ option }}</template>
+                                        <br>
+                                    </template>
+                                </div>
                             </template>
                         </div>
-                    </template>
+                    </div>
                 </div>
-                <div class="line-item-block">
-                    <h3>Note</h3>
-                    <template v-if="!editing">
-                        <template v-if="lineItem.note">
-                            <span class="info">{{ lineItem.note }}</span>
-                        </template>
-                    </template>
-                    <template v-else>
-                        <textarea :value="lineItem.note" class="text"></textarea>
-                    </template>
+                <div class="order-indented-block">
+                    <div class="order-flex">
+                        <div class="order-block-title">
+                            <h3>Note</h3>
+                        </div>
+
+                        <div>
+                            <template v-if="!editing">
+                                <template v-if="lineItem.note">
+                                    <span class="info">{{ lineItem.note }}</span>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <textarea :value="lineItem.note" class="text"></textarea>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="line-item-block">
-                    <div class="line-item-flex">
-                        <div class="line-item-flex">
+                <div class="order-indented-block">
+                    <div class="order-flex">
+                        <div class="order-block-title">
                             <h3>Adjustments</h3>
                         </div>
 
-                        <div class="line-item-flex-grow">
+                        <div class="order-flex-grow">
                             <template v-for="adjustment in lineItem.adjustments">
-                                <div class="line-item-flex">
-                                    <div class="line-item-flex-grow">
+                                <div class="order-flex">
+                                    <div class="order-flex-grow">
                                         <div>
                                             {{adjustment.name}}
-                                            ({{adjustment.type}})
+                                            <span class="light">({{adjustment.type}})</span>
                                             {{adjustment.description}}
 
                                             <template v-if="editing">
@@ -90,7 +103,7 @@
                                             </template>
                                         </div>
                                     </div>
-                                    <div class="line-item-flex-grow text-right">
+                                    <div class="order-flex-grow text-right">
                                         <template v-if="adjustment.included">
                                             <div class="light">{{adjustment.amountAsCurrency}} included</div>
                                         </template>
@@ -110,15 +123,21 @@
                     </div>
                 </div>
 
-                <div class="line-item-block">
-                    <h3>Shipping &amp; Tax</h3>
-                    <div>
-                        <strong>Shipping Category:</strong> {{shippingCategory}}<br>
-                        <strong>Tax Category:</strong> {{taxCategory}}<br>
+                <div class="order-indented-block">
+                    <div class="order-flex">
+                        <div class="order-block-title">
+                            <h3>Shipping &amp; Tax</h3>
+                        </div>
+                        <div>
+                            <div>
+                                <strong>Shipping Category:</strong> {{shippingCategory}}<br>
+                                <strong>Tax Category:</strong> {{taxCategory}}<br>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="line-item-block text-right">
+                <div class="order-indented-block text-right">
                     <div>
                         <strong>{{ lineItem.subtotalAsCurrency }}</strong>
                     </div>

@@ -2,21 +2,32 @@
   border-bottom: 1px solid #eee;
   padding-bottom: 20px;
   margin-bottom: 20px;
+
+  .order-indented-block:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
 }
 
-.line-item-flex {
+.order-flex {
   display: flex;
 }
 
-.line-item-flex-grow {
+.order-flex-grow {
   flex-grow: 1;
 }
 
-.line-item-block {
+.order-indented-block {
   margin-left: 150px;
   border-bottom: 1px solid #eee;
   padding-bottom: 20px;
   margin-bottom: 20px;
+}
+
+.order-block-title {
+  margin-right: 20px;
+  width: 30%;
 }
 
 .text-right {

@@ -7,12 +7,12 @@
 
             <template v-else>
 
-                <div class="line-item-flex">
+                <div class="order-flex">
                     <div>
                         <a class="btn" @click.prevent="editing = false">Cancel</a>
                     </div>
 
-                    <div class="line-item-flex-grow text-right">
+                    <div class="order-flex-grow text-right">
                         <div>
                             Recalculate whole order
                             <input type="radio" value="auto" v-model="recalculateMode" />
@@ -50,15 +50,13 @@
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 
-                <hr />
-
                 <!-- Order Adjustments -->
-                <div class="line-item-flex">
-                    <div class="line-item-flex">
+                <div class="order-flex">
+                    <div class="order-block-title">
                         <h3>Adjustments</h3>
                     </div>
 
-                    <div class="line-item-flex-grow">
+                    <div class="order-flex-grow">
                         <template v-for="adjustment in draft.order.orderAdjustments">
                             <order-adjustment :editing="editing" :adjustment="adjustment"></order-adjustment>
                         </template>

@@ -1,6 +1,6 @@
 <template>
-    <div class="line-item-flex">
-        <div class="line-item-flex-grow">
+    <div class="order-flex">
+        <div class="order-flex-grow">
             <div>
                 {{adjustment.name}}
                 ({{adjustment.type}})
@@ -11,7 +11,7 @@
                 </template>
             </div>
         </div>
-        <div class="line-item-flex-grow text-right">
+        <div class="order-flex-grow text-right">
             <template v-if="adjustment.included">
                 <div class="light">{{adjustment.amountAsCurrency}} included</div>
             </template>
