@@ -74,15 +74,25 @@
                             <h3>Note</h3>
                         </div>
 
-                        <div>
-                            <template v-if="!editing">
-                                <template v-if="lineItem.note">
-                                    <span class="info">{{ lineItem.note }}</span>
+                        <div class="order-flex order-flex-grow order-margin-wrapper">
+                            <div class="order-flex-grow order-margin">
+                                <template v-if="!editing">
+                                    <span class="light">{{ lineItem.note ? lineItem.note : 'No customer note.' }}</span>
                                 </template>
-                            </template>
-                            <template v-else>
-                                <textarea :value="lineItem.note" class="text"></textarea>
-                            </template>
+                                <template v-else>
+                                    <label for="note">Customer Note</label>
+                                    <textarea :value="lineItem.note" class="text fullwidth"></textarea>
+                                </template>
+                            </div>
+                            <div class="order-flex-grow order-margin">
+                                <template v-if="!editing">
+                                    <span class="light">{{ lineItem.note ? lineItem.note : 'No admin note.' }}</span>
+                                </template>
+                                <template v-else>
+                                    <label for="note">Admin Note</label>
+                                    <textarea :value="lineItem.note" class="text fullwidth"></textarea>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
