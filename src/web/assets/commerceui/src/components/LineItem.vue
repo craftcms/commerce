@@ -19,11 +19,11 @@
                                 </template>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
-                                    <template v-if="!editing">
-                                        {{ lineItem.salePriceAsCurrency }}
+                                    <template v-if="editing && recalculateMode === 'manual'">
+                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
                                     </template>
                                     <template v-else>
-                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
+                                        {{ lineItem.salePriceAsCurrency }}
                                     </template>
                                 </li>
                             </ul>
