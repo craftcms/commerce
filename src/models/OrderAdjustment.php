@@ -17,6 +17,8 @@ use yii\base\InvalidArgumentException;
 /**
  * Order adjustment model.
  *
+ * @property Order|null $order
+ * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -88,7 +90,7 @@ class OrderAdjustment extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required']
@@ -98,7 +100,7 @@ class OrderAdjustment extends Model
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $attributes = parent::attributes();
         $attributes[] = 'sourceSnapshot';
