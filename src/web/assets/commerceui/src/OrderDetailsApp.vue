@@ -15,13 +15,13 @@
 
                     <div class="order-flex-grow text-right">
                         <div>
-                            Recalculate whole order
-                            <input type="radio" value="auto" v-model="recalculateMode" />
+                            <label for="recalculate-auto">Recalculate whole order</label> &nbsp;
+                            <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" />
                         </div>
 
                         <div>
-                            Manually edit
-                            <input type="radio" value="manual" v-model="recalculateMode" />
+                            <label for="recalculate-manual">Manually edit</label> &nbsp;
+                            <input id="recalculate-manual" type="radio" value="manual" v-model="recalculateMode" />
                         </div>
                     </div>
                 </div>
