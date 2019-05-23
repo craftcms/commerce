@@ -14,7 +14,7 @@
                             </template>
                             <template v-else>
                                 <label for="selectedPurchasableId" class="hidden">Purchasable</label>
-                                <div>
+                                <div class="select">
                                     <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
                                         <option v-for="option in purchasables" v-bind:value="option.value">
                                             {{ option.text }}
@@ -23,13 +23,12 @@
                                 </div>
                             </template>
 
-                            <br />
-                            <div>
+                            <small>
                                 <ul>
-                                    <li>{{shippingCategory}} <span class="light">(Shipping)</span></li>
+                                    <li>{{shippingCategory}} <span class="light"><small>(Shipping)</small></span></li>
                                     <li>{{taxCategory}} <span class="light">(Tax)</span></li>
                                 </ul>
-                            </div>
+                            </small>
                         </div>
                         <div class="order-flex-grow">
                             <ul>

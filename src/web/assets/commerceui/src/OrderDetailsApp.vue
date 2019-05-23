@@ -93,12 +93,14 @@
                     <form @submit.prevent="lineItemAdd()">
                         <div>
                             <label for="selectedPurchasableId">Purchasable</label>
-                            <div>
-                                <select v-model="selectedPurchasableId">
-                                    <option v-for="option in purchasables" v-bind:value="option.value">
-                                        {{ option.text }}
-                                    </option>
-                                </select>
+                            <div class="input">
+                                <div class="select">
+                                    <select v-model="selectedPurchasableId">
+                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                            {{ option.text }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
