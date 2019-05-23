@@ -48,6 +48,7 @@
                             :line-item-key="lineItemKey"
                             :editing="editing"
                             :recalculate-mode="recalculateMode"
+                            @purchasableChange="saveOrder(draft)"
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"

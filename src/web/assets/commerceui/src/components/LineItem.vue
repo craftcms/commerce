@@ -9,7 +9,20 @@
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
-                            <h3>{{ lineItem.description }}</h3>
+
+                            <template v-if="!editing">
+                                <h3>{{ lineItem.description }}</h3>
+                            </template>
+                            <template v-else>
+                                <label for="selectedPurchasableId">Purchasable</label>
+                                <div>
+                                    <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
+                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                            {{ option.text }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </template>
                         </div>
                         <div class="order-flex-grow">
                             <ul>
@@ -240,6 +253,10 @@
                 }
 
                 return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
+            },
+
+            purchasables() {
+                return window.orderEdit.purchasableIds
             }
         },
 
@@ -251,6 +268,10 @@
             onOptionsChange() {
                 this.lineItem.options = JSON.parse(this.options);
                 this.$emit('noteChange')
+            },
+
+            onPurchasableChange() {
+                this.$emit('purchasableChange')
             },
 
             onQuantityChange() {
