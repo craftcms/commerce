@@ -9,7 +9,6 @@
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
-
                             <template v-if="!editing">
                                 <h3>{{ lineItem.description }}</h3>
                             </template>
@@ -23,6 +22,14 @@
                                     </select>
                                 </div>
                             </template>
+
+                            <br />
+                            <div>
+                                <ul>
+                                    <li>{{shippingCategory}} <span class="light">(Shipping)</span></li>
+                                    <li>{{taxCategory}} <span class="light">(Tax)</span></li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="order-flex-grow">
                             <ul>
@@ -165,20 +172,6 @@
                                     <a href="#">Add an adjustment</a>
                                 </div>
                             </template>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <h3>Shipping &amp; Tax</h3>
-                        </div>
-                        <div>
-                            <div>
-                                <strong>Shipping Category:</strong> {{shippingCategory}}<br>
-                                <strong>Tax Category:</strong> {{taxCategory}}<br>
-                            </div>
                         </div>
                     </div>
                 </div>
