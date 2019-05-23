@@ -72,7 +72,7 @@
                                 </template>
                             </template>
                             <template v-else>
-                                <textarea class="text fullwidth" rows="4" v-model="options"></textarea>
+                                <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
                             </template>
                         </div>
                     </div>
@@ -185,8 +185,13 @@
 
 <script>
     import {debounce} from 'debounce'
+    import PrismEditor from 'vue-prism-editor'
 
     export default {
+        components: {
+            PrismEditor
+        },
+
         props: {
             lineItem: {
                 type: Object,
@@ -205,6 +210,7 @@
         data() {
             return {
                 options: null,
+                code: 'const a = b',
             }
         },
 
@@ -239,8 +245,19 @@
                 this.$emit('noteChange')
             },
 
+            onOptionsChange() {
+                this.lineItem.options = JSON.parse(this.options);
+                this.$emit('noteChange')
+            },
+
             onQuantityChange() {
                 this.$emit('quantityChange')
+            }
+        },
+
+        watch: {
+            lineItem() {
+                this.options = JSON.stringify(this.lineItem.options, null, '\t')
             }
         },
 
@@ -248,7 +265,8 @@
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
 
             this.onNoteChange = debounce(this.onNoteChange, 1000)
+            this.onOptionsChange = debounce(this.onOptionsChange, 1000)
             this.onQuantityChange = debounce(this.onQuantityChange, 1000)
-        }
+        },
     }
 </script>

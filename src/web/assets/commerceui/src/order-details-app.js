@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import App from './OrderDetailsApp'
+// import 'prismjs'
+import 'prismjs/themes/prism.css'
 
 Vue.config.productionTip = false
 

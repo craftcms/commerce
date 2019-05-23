@@ -10,7 +10,9 @@
   "dependencies": {
     "axios": "^0.18.0",
     "debounce": "^1.2.0",
-    "vue": "^2.6.6"
+    "prismjs": "^1.16.0",
+    "vue": "^2.6.6",
+    "vue-prism-editor": "^0.2.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.3",
