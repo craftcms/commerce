@@ -13,7 +13,7 @@
                                 <h3>{{ lineItem.description }}</h3>
                             </template>
                             <template v-else>
-                                <label for="selectedPurchasableId">Purchasable</label>
+                                <label for="selectedPurchasableId" class="hidden">Purchasable</label>
                                 <div>
                                     <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
                                         <option v-for="option in purchasables" v-bind:value="option.value">
