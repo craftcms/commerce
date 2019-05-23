@@ -37,6 +37,9 @@ class CommerceUiAsset extends AssetBundle
 //        $this->js[] = 'js/chunk-vendors.js';
 //        $this->js[] = 'js/order-details-app.js';
 //        $this->js[] = 'js/order-meta-app.js';
+//
+//        $this->css[] = 'css/chunk-vendors.css';
+//        $this->css[] = 'css/order-details-app.css';
 
         $this->js[] = 'http://localhost:8080/order-details-app.js';
         $this->js[] = 'http://localhost:8080/order-meta-app.js';
