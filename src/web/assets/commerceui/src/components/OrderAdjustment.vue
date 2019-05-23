@@ -7,7 +7,7 @@
                 {{adjustment.description}}
 
                 <template v-if="editing">
-                    <a href="#">Remove</a>
+                    <a @click="$emit('remove')">Remove</a>
                 </template>
             </div>
         </div>

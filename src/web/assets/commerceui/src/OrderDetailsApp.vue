@@ -60,8 +60,12 @@
                     </div>
 
                     <div class="order-flex-grow">
-                        <template v-for="adjustment in draft.order.orderAdjustments">
-                            <order-adjustment :editing="editing" :adjustment="adjustment"></order-adjustment>
+                        <template v-for="adjustment, adjustmentKey in draft.order.orderAdjustments">
+                            <order-adjustment
+                                    :editing="editing"
+                                    :adjustment="adjustment"
+                                    :adjustmentKey="adjustmentKey"
+                                    @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
                         </template>
 
                         <template v-if="editing">
@@ -200,6 +204,10 @@
             cancel() {
                 this.editing = false
                 this.draft = JSON.parse(JSON.stringify(this.originalDraft))
+            },
+
+            removeAdjustment(key) {
+                this.$delete(this.draft.order.orderAdjustments, key)
             }
         },
 
