@@ -131,7 +131,7 @@
                                             <span class="light">({{adjustment.type}})</span>
                                             {{adjustment.description}}
 
-                                            <template v-if="editing">
+                                            <template v-if="editing && recalculateMode === 'manual'">
                                                 <a href="#">Remove</a>
                                             </template>
                                         </div>
@@ -147,7 +147,7 @@
                                 </div>
                             </template>
 
-                            <template v-if="editing">
+                            <template v-if="editing && recalculateMode === 'manual'">
                                 <div>
                                     <a href="#">Add an adjustment</a>
                                 </div>
@@ -204,6 +204,9 @@
             },
             editing: {
                 type: Boolean,
+            },
+            recalculateMode: {
+                type: String,
             },
         },
 

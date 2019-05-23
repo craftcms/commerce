@@ -47,6 +47,7 @@
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
                             :editing="editing"
+                            :recalculate-mode="recalculateMode"
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
@@ -65,10 +66,11 @@
                                     :editing="editing"
                                     :adjustment="adjustment"
                                     :adjustmentKey="adjustmentKey"
+                                    :recalculate-mode="recalculateMode"
                                     @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
                         </template>
 
-                        <template v-if="editing">
+                        <template v-if="editing && recalculateMode === 'manual'">
                             <div>
                                 <a href="#">Add an adjustment</a>
                             </div>
@@ -208,6 +210,7 @@
 
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
+                this.saveOrder(this.draft)
             }
         },
 
