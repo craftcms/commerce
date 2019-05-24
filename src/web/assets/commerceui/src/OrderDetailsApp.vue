@@ -214,9 +214,18 @@
                             this.originalDraft = JSON.parse(JSON.stringify(this.draft))
                         }
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         this.loading = false
-                        console.log('error')
+
+                        let errorMsg = 'Couldn’t get order.'
+
+                        if (error.response.data.error) {
+                            errorMsg = error.response.data.error
+                        }
+
+                        Craft.cp.displayError(errorMsg);
+
+                        console.error(errorMsg, error.response)
                     })
             },
 
@@ -228,9 +237,18 @@
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         this.loading = false
-                        console.log('error')
+
+                        let errorMsg = 'Couldn’t recalculate order.'
+                        
+                        if (error.response.data.error) {
+                            errorMsg = error.response.data.error
+                        }
+
+                        Craft.cp.displayError(errorMsg);
+
+                        console.error(errorMsg, error.response)
                     })
             },
 
