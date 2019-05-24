@@ -236,6 +236,8 @@
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
+
+                        Craft.cp.displayNotice('Order recalculated.');
                     })
                     .catch((error) => {
                         this.loading = false
