@@ -52,3 +52,20 @@
     padding: 0;
   }
 }
+
+.order-recalculate-modes {
+  margin-left: 20px;
+
+  .order-recalculate-mode {
+    margin: 0 10px;
+
+    .input {
+      margin-right: 10px;
+    }
+
+    .instructions {
+      color: #888;
+      font-size: 0.9em;
+    }
+  }
+}

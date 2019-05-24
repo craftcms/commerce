@@ -13,15 +13,35 @@
                         <div v-if="loading" class="spinner"></div>
                     </div>
 
-                    <div class="order-flex-grow text-right">
-                        <div>
-                            <label for="recalculate-auto">Recalculate whole order</label> &nbsp;
-                            <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" />
+                    <div class="order-recalculate-modes order-flex-grow order-flex">
+                        <div class="order-recalculate-mode order-flex">
+                            <div class="input">
+                                <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" />
+                            </div>
+                            <div>
+                                <label for="recalculate-auto">
+                                    <strong>Recalculate whole order</strong>
+
+                                    <div class="instructions">
+                                        In this mode, the order will auto-calculate sales and adjustments like tax and shipping based on the items in the order and the configuration of the system.
+                                    </div>
+                                </label>
+                            </div>
                         </div>
 
-                        <div>
-                            <label for="recalculate-manual">Manually edit</label> &nbsp;
-                            <input id="recalculate-manual" type="radio" value="manual" v-model="recalculateMode" />
+                        <div class="order-recalculate-mode order-flex">
+                            <div class="input">
+                                <input id="recalculate-manual" type="radio" value="manual" v-model="recalculateMode" />
+                            </div>
+                            <div>
+                                <label for="recalculate-manual">
+                                    <strong>Manually edit</strong>
+
+                                    <div class="instructions">
+                                        In this mode, the order can be edited manually including all line item prices and adjustments. No adjustments like discounts and shipping will be calculated for you.
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
