@@ -16,7 +16,7 @@
                     <div class="order-recalculate-modes order-flex-grow order-flex">
                         <div class="order-recalculate-mode order-flex">
                             <div class="input">
-                                <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" />
+                                <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" @click="confirmAutoCalculation" />
                             </div>
                             <div>
                                 <label for="recalculate-auto">
@@ -174,6 +174,14 @@
         },
 
         methods: {
+            confirmAutoCalculation(ev) {
+                const ret = confirm("Are you sure you want to switch to recalculate whole order? You will loose all of your manual adjustments.");
+
+                if (!ret) {
+                    ev.preventDefault()
+                }
+            },
+
             lineItemAdd() {
                 const lineItem = {
                     qty: "1",
