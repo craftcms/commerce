@@ -22,8 +22,12 @@
   flex-grow: 1;
 }
 
+.order-row-title {
+  min-width: 200px;
+}
+
 .order-indented-block {
-  margin-left: 150px;
+  // margin-left: 150px;
   border-bottom: 1px solid #eee;
   padding-bottom: 20px;
   margin-bottom: 20px;
@@ -54,7 +58,7 @@
 }
 
 .order-recalculate-modes {
-  margin-left: 20px;
+  margin: 0 -10px;
 
   .order-recalculate-mode {
     margin: 0 10px;

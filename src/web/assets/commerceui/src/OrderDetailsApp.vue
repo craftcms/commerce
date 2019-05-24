@@ -8,7 +8,7 @@
 
             <template v-else>
                 <div class="order-flex">
-                    <div>
+                    <div class="order-row-title">
                         <a class="btn" @click.prevent="cancel()">Cancel</a>
                         <div v-if="loading" class="spinner"></div>
                     </div>
