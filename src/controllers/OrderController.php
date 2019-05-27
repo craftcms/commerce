@@ -99,6 +99,7 @@ class OrderController extends Controller
             }
 
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
+                $lineItem->setPurchasable($purchasable);
                 if ($order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
                     $lineItem->refreshFromPurchasable();
                 }
