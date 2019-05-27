@@ -832,7 +832,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
-            'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
@@ -846,6 +845,11 @@ class OrderQuery extends ElementQuery
 
         // TODO: remove after next breakpoint
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
+        if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
+            $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
+        }
+
         if ($commerce && version_compare($commerce['version'], '2.2', '>=')) {
             $this->query->addSelect(['commerce_products.recalculationMode']);
         }
