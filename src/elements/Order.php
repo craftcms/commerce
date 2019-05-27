@@ -51,13 +51,14 @@ use DateTime;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
+use yii\log\Logger;
 
 /**
  * Order or Cart model.
  *
  * @property OrderAdjustment[] $adjustments
- * @property bool $shouldRecalculateAdjustments
  * @property string $email the email for this order
  * @property LineItem[] $lineItems
  * @property Address $billingAddress
@@ -111,6 +112,10 @@ class Order extends Element
     const PAID_STATUS_PAID = 'paid';
     const PAID_STATUS_PARTIAL = 'partial';
     const PAID_STATUS_UNPAID = 'unpaid';
+
+    const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
+    const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
+    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
 
     /**
      * @event \yii\base\Event This event is raised before a line item has been added to the order
@@ -340,6 +345,11 @@ class Order extends Element
     public $registerUserOnOrderComplete;
 
     /**
+     * @var string
+     */
+    public $recalculationMode;
+
+    /**
      * @var Address
      */
     private $_shippingAddress;
@@ -374,11 +384,6 @@ class Order extends Element
      */
     private $_email;
 
-    /**
-     * @var bool Should the order recalculate?
-     */
-    private $_recalculate = true;
-
     // Public Methods
     // =========================================================================
 
@@ -399,8 +404,16 @@ class Order extends Element
             }
         }
 
-        if (!$this->orderLanguage) {
+        if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
+        }
+
+        if ($this->recalculationMode === null) {
+            if ($this->isCompleted) {
+                $this->recalculationMode = self::RECALCULATION_MODE_NONE;
+            } else {
+                $this->recalculationMode = self::RECALCULATION_MODE_ALL;
+            }
         }
 
         return parent::init();
@@ -630,8 +643,8 @@ class Order extends Element
         }
 
         // Lock for recalculation
-        $originalShouldRecalculate = $this->getShouldRecalculateAdjustments();
-        $this->setShouldRecalculateAdjustments(false);
+        $originalRecalculationMode = $this->recalculationMode;
+        $this->recalculationMode = self::RECALCULATION_MODE_NONE;
 
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
@@ -650,7 +663,7 @@ class Order extends Element
         }
 
         // restore recalculation lock state
-        $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
+        $this->recalculationMode = $originalRecalculationMode;
     }
 
     /**
@@ -667,22 +680,6 @@ class Order extends Element
         $includedTaxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
-    }
-
-    /**
-     * @return bool
-     */
-    public function getShouldRecalculateAdjustments(): bool
-    {
-        return $this->_recalculate;
-    }
-
-    /**
-     * @param bool $value
-     */
-    public function setShouldRecalculateAdjustments(bool $value)
-    {
-        $this->_recalculate = $value;
     }
 
     /**
@@ -850,55 +847,62 @@ class Order extends Element
     }
 
     /**
-     * Regenerates all adjusters and update line item and order totals.
+     * Regenerates all adjusters and updates line items, depending on the current recalculationMode
      *
      * @throws Exception
      */
-    public function recalculate(bool $force = false)
+    public function recalculate()
     {
-        // Check if the order needs to recalculated
-        if (!$force) {
-            if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
+
+        if (!$this->id) {
+            throw new InvalidCallException('Do not recalculate an order that has not been saved');
+        }
+
+        if ($this->hasErrors()) {
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            return;
+        }
+
+        if ($this->recalculationMode == self::RECALCULATION_MODE_ALL) {
+
+            $lineItemRemoved = false;
+            foreach ($this->getLineItems() as $item) {
+                if (!$item->refreshFromPurchasable()) {
+                    $this->removeLineItem($item);
+                    $lineItemRemoved = true;
+                }
+            }
+
+            // This is run in a validation, but need to run again incase the options
+            // data was changed on population of the line item by a plugin.
+            if (OrderHelper::mergeDuplicateLineItems($this)) {
+                $lineItemRemoved = true;
+            }
+
+            if ($lineItemRemoved) {
+                $this->recalculate();
                 return;
             }
         }
 
-        //clear adjustments
-        $this->setAdjustments([]);
+        if ($this->recalculationMode == self::RECALCULATION_MODE_ALL || $this->recalculationMode == self::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
+            //clear adjustments
+            $this->setAdjustments([]);
 
-        $lineItemRemoved = false;
-        foreach ($this->getLineItems() as $item) {
-            if (!$item->refreshFromPurchasable()) {
-                $this->removeLineItem($item);
-                $lineItemRemoved = true;
+            foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+                /** @var AdjusterInterface $adjuster */
+                $adjuster = new $adjuster();
+                $adjustments = $adjuster->adjust($this);
+                $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
             }
         }
-
-        // This is run in a validation, but need to run again incase the options
-        // data was changed on population of the line item by a plugin.
-        if (OrderHelper::mergeDuplicateLineItems($this)) {
-            $lineItemRemoved = true;
-        }
-
-        if ($lineItemRemoved) {
-            $this->recalculate($force);
-            return;
-        }
-
-        foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            /** @var AdjusterInterface $adjuster */
-            $adjuster = new $adjuster();
-            $adjustments = $adjuster->adjust($this);
-            $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
-        }
-
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = $this->getAvailableShippingMethods();
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
                 $this->shippingMethodHandle = null;
-                $this->recalculate($force);
+                $this->recalculate();
 
                 return;
             }
@@ -974,6 +978,7 @@ class Order extends Element
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
+        $orderRecord->calculationMode = $this->calculationMode;
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];

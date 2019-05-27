@@ -196,6 +196,7 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = $lineItem->note;
+        $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
@@ -273,9 +274,9 @@ class LineItems extends Component
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-        $lineItem->setPurchasable($purchasable);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
+            $lineItem->setPurchasable($purchasable);
             $lineItem->populateFromPurchasable($purchasable);
         } else {
             throw new InvalidArgumentException('Invalid purchasable ID');
@@ -332,7 +333,8 @@ class LineItems extends Component
                 'purchasableId',
                 'orderId',
                 'taxCategoryId',
-                'shippingCategoryId'
+                'shippingCategoryId',
+                'lineItemStatusId'
             ])
             ->from(['{{%commerce_lineitems}} lineItems']);
     }

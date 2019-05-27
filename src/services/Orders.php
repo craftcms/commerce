@@ -205,6 +205,7 @@ class Orders extends Component
         $data['totalWeight'] = $cart->getTotalWeight();
         $data['total'] = $cart->getTotal();
         $data['totalPrice'] = $cart->getTotalPrice();
+        $data['recalculationMode'] = $cart->recalculationMode;
 
         $availableShippingMethods = $cart->getAvailableShippingMethods();
         $data['availableShippingMethods'] = [];

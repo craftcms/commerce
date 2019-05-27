@@ -3,6 +3,8 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\elements\Order;
+use yii\base\InvalidConfigException;
 
 trait OrderDeprecatedTrait
 {
@@ -59,5 +61,41 @@ trait OrderDeprecatedTrait
         Craft::$app->getDeprecator()->log('Order::getTotalShippingCost()', 'Order::getTotalShippingCost() has been deprecated. Use Order::getAdjustmentsTotalByType("shipping") instead.');
 
         return $this->getAdjustmentsTotalByType('shipping');
+    }
+
+    /**
+     * @param bool $value
+     * @throws \craft\errors\DeprecationException
+     * @deprecated as of 2.2
+     */
+    public function setShouldRecalculateAdjustments(bool $value)
+    {
+        Craft::$app->getDeprecator()->log('Order::setShouldRecalculateAdjustments()', 'Order::setShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
+
+        if ($value) {
+            $this->recalculationMode = Order::RECALCULATION_MODE_ALL;
+        } else {
+            $this->recalculationMode = Order::RECALCULATION_MODE_NONE;
+        }
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @deprecated as of 2.2
+     */
+    public function getShouldRecalculateAdjustments(): bool
+    {
+        Craft::$app->getDeprecator()->log('Order::getShouldRecalculateAdjustments()', 'Order::getShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
+
+        if ($this->recalculationMode == Order::RECALCULATION_MODE_ALL) {
+            return true;
+        }
+
+        if ($this->recalculationMode == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
+            throw new InvalidConfigException('Order::getShouldRecalculateAdjustments() has been deprecated.');
+        }
+
+        return false;
     }
 }

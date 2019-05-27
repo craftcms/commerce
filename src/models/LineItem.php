@@ -17,6 +17,7 @@ use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
@@ -117,6 +118,11 @@ class LineItem extends Model
     public $orderId;
 
     /**
+     * @var int Line Item Status ID
+     */
+    public $lineItemStatusId;
+
+    /**
      * @var int Tax category ID
      */
     public $taxCategoryId;
@@ -137,6 +143,11 @@ class LineItem extends Model
     private $_order;
 
     /**
+     * @var LineItemStatus Line item status
+     */
+    private $_lineItemStatus;
+
+    /**
      * @var
      */
     private $_options = [];
@@ -149,10 +160,9 @@ class LineItem extends Model
      */
     public function getOrder()
     {
-        /** @var Orders $orderService */
-        $orderService = Plugin::getInstance()->getOrders();
-
         if (null === $this->_order && null !== $this->orderId) {
+            /** @var Orders $orderService */
+            $orderService = Plugin::getInstance()->getOrders();
             $this->_order = $orderService->getOrderById($this->orderId);
         }
 
@@ -166,6 +176,20 @@ class LineItem extends Model
     {
         $this->orderId = $order->id;
         $this->_order = $order;
+    }
+
+    /**
+     * @return LineItemStatus|null
+     */
+    public function getLineItemStatus()
+    {
+        if (null === $this->_lineItemStatus && null !== $this->lineItemStatusId) {
+            /** @var LineItemStatuses $lineItemStatus */
+            $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
+            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
+        }
+
+        return $this->_lineItemStatus;
     }
 
     /**
@@ -204,6 +228,13 @@ class LineItem extends Model
         return LineItemHelper::generateOptionsSignature($this->_options);
     }
 
+    /**
+     * @return float Sale Price
+     */
+    public function getSalePrice()
+    {
+        return CurrencyHelper::round($this->saleAmount + $this->price);
+    }
 
     /**
      * @return array
@@ -269,7 +300,7 @@ class LineItem extends Model
         $fields = parent::fields();
 
         foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute.'AsCurrency'] = function($model, $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attribute = substr($attribute, 0, -10);
                 if (!empty($model->$attribute)) {
                     return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
@@ -291,6 +322,7 @@ class LineItem extends Model
             'order',
             'shippingCategory',
             'taxCategory',
+            'lineItemStatus'
         ];
     }
 
@@ -441,13 +473,6 @@ class LineItem extends Model
                 'isNew' => !$this->id
             ]));
         }
-
-        // If a plugin used the above event and changed the price of the product or
-        // its saleAmount we need to ensure the salePrice works calculates correctly and is rounded
-        $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);
-
-        // salePrice can not be negative
-        $this->salePrice = max($this->salePrice, 0);
     }
 
     /**

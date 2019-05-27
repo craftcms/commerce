@@ -26,6 +26,7 @@ use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
@@ -90,7 +91,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.1.06';
+    public $schemaVersion = '2.2';
 
     /**
      * @inheritdoc
@@ -381,6 +382,11 @@ class Plugin extends BasePlugin
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleArchivedOrderStatus']);
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
+
+        $lineItemStatusService = $this->getLineItemStatuses();
+        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedOrderStatus'])
+            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
+            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleArchivedLineItemStatus']);
 
         $emailService = $this->getEmails();
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])

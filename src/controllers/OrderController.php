@@ -106,7 +106,7 @@ class OrderController extends Controller
         $order->setLineItems($lineItems);
 
         if ($order->validate()) {
-            $order->recalculate(true);
+            $order->recalculate();
         }
 
         $this->_addOrderToData($order, $data);

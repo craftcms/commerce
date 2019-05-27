@@ -844,6 +844,12 @@ class OrderQuery extends ElementQuery
             'commerce_orders.dateUpdated'
         ]);
 
+        // TODO: remove after next breakpoint
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '2.2', '>=')) {
+            $this->query->addSelect(['commerce_products.recalculationMode']);
+        }
+
         if ($this->number) {
             if (is_string($this->number)) {
                 $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
