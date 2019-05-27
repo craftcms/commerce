@@ -83,6 +83,8 @@ class OrderController extends Controller
         $order->recalculationMode = $data['order']['recalculationMode'];
 
         $lineItems = [];
+        $adjustments = [];
+
         foreach ($data['order']['lineItems'] as $lineItem) {
             $lineItemId = $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
@@ -92,41 +94,76 @@ class OrderController extends Controller
             $options = $lineItem['options'] ?? [];
             $qty = $lineItem['qty'] ?? 1;
 
-            $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+            $lineItemModel = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
-            if (!$lineItem) {
-                $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+            if (!$lineItemModel) {
+                $lineItemModel = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
             }
 
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
-                $lineItem->setPurchasable($purchasable);
+                $lineItemModel->setPurchasable($purchasable);
                 if ($order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
-                    $lineItem->refreshFromPurchasable();
+                    $lineItemModel->refreshFromPurchasable();
                 }
             }
 
-            $lineItem->purchasableId = $purchasableId;
-            $lineItem->qty = $qty;
-            $lineItem->note = $note;
-            $lineItem->adminNote = $adminNote;
-            $lineItem->lineItemStatusId = $lineItemStatusId;
+            $lineItemModel->purchasableId = $purchasableId;
+            $lineItemModel->qty = $qty;
+            $lineItemModel->note = $note;
+            $lineItemModel->adminNote = $adminNote;
+            $lineItemModel->lineItemStatusId = $lineItemStatusId;
 
             if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
-                $lineItem->salePrice = $lineItem['salePrice'];
+                $lineItemModel->salePrice = $lineItemModel['salePrice'];
             }
 
-            $lineItem->setOptions($options);
+            $lineItemModel->setOptions($options);
 
             if ($qty !== null || $qty == 0) {
-                $lineItems[] = $lineItem;
+                $lineItems[] = $lineItemModel;
             }
+
+            if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
+
+                foreach ($lineItem['adjustments'] as $adjustment) {
+                    $amount = $adjustment['amount'];
+                    $id = $adjustment['id'];
+                    $type = $adjustment['type'];
+                    $name = $adjustment['name'];
+                    $description = $adjustment['name'];
+                    $included = $adjustment['included'];
+
+                    $adjustment = null;
+                    if ($id) {
+                        $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
+                    }
+                    if($adjustment === null)
+                    {
+                        $adjustment = new OrderAdjustment();
+                    }
+
+                    $adjustment->setOrder($order);
+                    $adjustment->setLineItem($lineItemModel);
+                    $adjustment->amount = $amount;
+                    $adjustment->type = $type;
+                    $adjustment->name = $name;
+                    $adjustment->description = $description;
+                    $adjustment->included = $included;
+
+                    $adjustments[] = $adjustment;
+                }
+
+                $order->setAdjustments($adjustments);
+            }
+
+
         }
 
         $order->setLineItems($lineItems);
 
         if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
-            $adjustments = [];
-            foreach ($data['order']['adjustments'] as $adjustment) {
+
+            foreach ($data['order']['orderAdjustments'] as $adjustment) {
                 $amount = $adjustment['amount'];
                 $id = $adjustment['id'];
                 $type = $adjustment['type'];
@@ -143,6 +180,7 @@ class OrderController extends Controller
                     $adjustment = new OrderAdjustment();
                 }
 
+                $adjustment->setOrder($order);
                 $adjustment->amount = $amount;
                 $adjustment->type = $type;
                 $adjustment->name = $name;
