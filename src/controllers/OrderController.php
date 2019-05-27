@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Order;
+use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -79,11 +80,14 @@ class OrderController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $data['order']['id']]));
         }
 
+        $order->recalculationMode = $data['order']['recalculationMode'];
+
         $lineItems = [];
         foreach ($data['order']['lineItems'] as $lineItem) {
             $lineItemId = $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
             $purchasableId = $lineItem['purchasableId'];
+            $lineItemStatusId = $lineItem['lineItemStatusId'];
             $options = $lineItem['options'] ?? [];
             $qty = $lineItem['qty'] ?? 1;
 
@@ -96,6 +100,12 @@ class OrderController extends Controller
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
+            $lineItem->lineItemStatusId = $lineItemStatusId;
+
+            if($order->recalculationMode == Order::RECALCULATION_MODE_NONE){
+                $lineItem->salePrice = $lineItem['salePrice'];
+            }
+
             $lineItem->setOptions($options);
 
             if ($qty !== null || $qty == 0) {
@@ -105,7 +115,34 @@ class OrderController extends Controller
 
         $order->setLineItems($lineItems);
 
-        if ($order->validate()) {
+        if($order->recalculationMode == Order::RECALCULATION_MODE_NONE){
+            $adjustments = [];
+            foreach ($data['order']['adjustments'] as $adjustment) {
+                $amount = $adjustment['amount'];
+                $id = $adjustment['id'];
+                $type = $adjustment['type'];
+                $name = $adjustment['name'];
+                $description = $adjustment['name'];
+                $included = $adjustment['included'];
+
+                if(!$adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id))
+                {
+                    $adjustment = new OrderAdjustment();
+                }
+
+                $adjustment->amount = $amount;
+                $adjustment->type = $type;
+                $adjustment->name = $name;
+                $adjustment->description = $description;
+                $adjustment->included = $included;
+
+                $adjustments[] = $adjustment;
+            }
+
+            $order->setAdjustments($adjustments);
+        }
+
+        if ($order->validate() && $order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
             $order->recalculate();
         }
 
