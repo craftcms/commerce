@@ -128,8 +128,8 @@
                             </div>
                             <div class="order-flex-grow order-margin">
                                 <template v-if="!editing">
-                                    <template v-if="lineItem.note">
-                                        {{lineItem.note}}
+                                    <template v-if="lineItem.adminNote">
+                                        {{lineItem.adminNote}}
                                     </template>
                                     <template v-else>
                                         <span class="light">{{ 'No admin note.' }}</span>
@@ -137,7 +137,7 @@
                                 </template>
                                 <template v-else>
                                     <label for="note">Admin Note</label>
-                                    <textarea :value="lineItem.note" class="text fullwidth"></textarea>
+                                    <textarea v-model="lineItem.adminNote" class="text fullwidth" @input="onAdminNoteChange"></textarea>
                                 </template>
                             </div>
                         </div>
@@ -270,6 +270,10 @@
                 this.$emit('noteChange')
             },
 
+            onAdminNoteChange() {
+                this.$emit('adminNoteChange')
+            },
+
             onOptionsChange() {
                 this.lineItem.options = JSON.parse(this.options);
                 this.$emit('noteChange')
@@ -297,6 +301,7 @@
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
 
             this.onNoteChange = debounce(this.onNoteChange, 1000)
+            this.onAdminNoteChange = debounce(this.onAdminNoteChange, 1000)
             this.onOptionsChange = debounce(this.onOptionsChange, 1000)
             this.onQuantityChange = debounce(this.onQuantityChange, 1000)
         },

@@ -72,6 +72,7 @@
                             @purchasableChange="saveOrder(draft)"
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
+                            @adminNoteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
                             @lineItemStatusChange="saveOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
