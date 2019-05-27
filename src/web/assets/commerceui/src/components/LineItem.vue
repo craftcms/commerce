@@ -22,12 +22,12 @@
                                     </select>
                                 </div>
                             </template>
-
+                            <br>
                             <div class="select">
                                 <select v-model="lineItem.lineItemStatusId" @change="onLineItemStatusChange">
                                     <option :value="null">None</option>
                                     <option v-for="(status, key) in lineItemStatuses" :key="'line-item-status-'+key" :value="status.id">
-                                        {{ status.name }}
+                                        {{ status.name }} ({{ status.color }})
                                     </option>
                                 </select>
                             </div>
