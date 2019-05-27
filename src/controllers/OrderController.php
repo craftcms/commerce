@@ -134,7 +134,12 @@ class OrderController extends Controller
                 $description = $adjustment['name'];
                 $included = $adjustment['included'];
 
-                if (!$adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id)) {
+                $adjustment = null;
+                if ($id) {
+                    $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
+                }
+                if($adjustment === null)
+                {
                     $adjustment = new OrderAdjustment();
                 }
 
