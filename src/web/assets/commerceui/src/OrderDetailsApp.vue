@@ -63,6 +63,7 @@
                 <!-- Line Items -->
                 <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
                     <line-item
+                            :key="lineItemKey"
                             :draft="draft"
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
@@ -82,8 +83,9 @@
                     </div>
 
                     <div class="order-flex-grow">
-                        <template v-for="adjustment, adjustmentKey in draft.order.orderAdjustments">
+                        <template v-for="(adjustment, adjustmentKey) in draft.order.orderAdjustments">
                             <order-adjustment
+                                    :key="adjustmentKey"
                                     :editing="editing"
                                     :adjustment="adjustment"
                                     :adjustmentKey="adjustmentKey"
@@ -116,7 +118,7 @@
                             <div class="input">
                                 <div class="select">
                                     <select v-model="selectedPurchasableId">
-                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                        <option v-for="(option, key) in purchasables" :key="key" :value="option.value">
                                             {{ option.text }}
                                         </option>
                                     </select>
@@ -141,6 +143,8 @@
 </style>
 
 <script>
+    /* globals Craft */
+
     import axios from 'axios'
     import OrderAdjustment from './components/OrderAdjustment'
     import LineItem from './components/LineItem'
@@ -225,7 +229,7 @@
 
                         Craft.cp.displayError(errorMsg);
 
-                        console.error(errorMsg, error.response)
+                        throw errorMsg + ': '+ error.response
                     })
             },
 
@@ -250,7 +254,7 @@
 
                         Craft.cp.displayError(errorMsg);
 
-                        console.error(errorMsg, error.response)
+                        throw errorMsg + ': '+ error.response
                     })
             },
 
