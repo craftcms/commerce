@@ -23,7 +23,7 @@
                                 </div>
                             </template>
 
-                            <div>
+                            <div class="select">
                                 <select v-model="lineItem.lineItemStatusId" @change="onLineItemStatusChange">
                                     <option :value="null">None</option>
                                     <option v-for="(status, key) in lineItemStatuses" :key="'line-item-status-'+key" :value="status.id">
