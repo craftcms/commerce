@@ -98,13 +98,19 @@ class OrderController extends Controller
                 $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
             }
 
+            if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
+                if ($order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
+                    $lineItem->refreshFromPurchasable();
+                }
+            }
+
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
             $lineItem->adminNote = $adminNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
 
-            if($order->recalculationMode == Order::RECALCULATION_MODE_NONE){
+            if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
                 $lineItem->salePrice = $lineItem['salePrice'];
             }
 
@@ -117,7 +123,7 @@ class OrderController extends Controller
 
         $order->setLineItems($lineItems);
 
-        if($order->recalculationMode == Order::RECALCULATION_MODE_NONE){
+        if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
             $adjustments = [];
             foreach ($data['order']['adjustments'] as $adjustment) {
                 $amount = $adjustment['amount'];
@@ -127,8 +133,7 @@ class OrderController extends Controller
                 $description = $adjustment['name'];
                 $included = $adjustment['included'];
 
-                if(!$adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id))
-                {
+                if (!$adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id)) {
                     $adjustment = new OrderAdjustment();
                 }
 
