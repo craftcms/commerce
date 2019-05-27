@@ -16,10 +16,10 @@
                     <div class="order-recalculate-modes order-flex-grow order-flex">
                         <div class="order-recalculate-mode order-flex">
                             <div class="input">
-                                <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" @click="confirmAutoCalculation" />
+                                <input id="recalculate-all" type="radio" value="all" v-model="draft.order.recalculationMode" @click="confirmAutoCalculation" @change="recalculationModeChange" />
                             </div>
                             <div>
-                                <label for="recalculate-auto">
+                                <label for="recalculate-all">
                                     <strong>Recalculate whole order</strong>
 
                                     <div class="instructions">
@@ -31,10 +31,10 @@
 
                         <div class="order-recalculate-mode order-flex">
                             <div class="input">
-                                <input id="recalculate-manual" type="radio" value="manual" v-model="recalculateMode" />
+                                <input id="recalculate-none" type="radio" value="none" v-model="draft.order.recalculationMode" @change="recalculationModeChange" />
                             </div>
                             <div>
-                                <label for="recalculate-manual">
+                                <label for="recalculate-none">
                                     <strong>Manually edit</strong>
 
                                     <div class="instructions">
@@ -93,7 +93,7 @@
                                     @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
                         </template>
 
-                        <template v-if="editing && recalculateMode === 'manual'">
+                        <template v-if="editing && recalculateMode === 'none'">
                             <div>
                                 <a href="#">Add an adjustment</a>
                             </div>
@@ -164,7 +164,7 @@
                 originalDraft: null,
                 draft: null,
                 selectedPurchasableId: 4,
-                recalculateMode: 'auto',
+                recalculateMode: 'all',
             }
         },
 
@@ -184,6 +184,10 @@
                 if (!ret) {
                     ev.preventDefault()
                 }
+            },
+
+            recalculationModeChange() {
+                this.saveOrder(this.draft)
             },
 
             lineItemAdd() {
