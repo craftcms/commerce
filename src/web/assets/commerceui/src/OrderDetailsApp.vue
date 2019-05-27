@@ -75,6 +75,7 @@
                             @adminNoteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
                             @lineItemStatusChange="saveOrder(draft)"
+                            @salePriceChange="saveOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 
