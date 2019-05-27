@@ -130,7 +130,7 @@ class OrderController extends Controller
                     $id = $adjustment['id'];
                     $type = $adjustment['type'];
                     $name = $adjustment['name'];
-                    $description = $adjustment['name'];
+                    $description = $adjustment['description'];
                     $included = $adjustment['included'];
 
                     $adjustment = null;
@@ -168,7 +168,7 @@ class OrderController extends Controller
                 $id = $adjustment['id'];
                 $type = $adjustment['type'];
                 $name = $adjustment['name'];
-                $description = $adjustment['name'];
+                $description = $adjustment['description'];
                 $included = $adjustment['included'];
 
                 $adjustment = null;
