@@ -6,6 +6,11 @@
     <h2>{{ "Line Item Statuses"|t('commerce') }}</h2>
     <p>{{ "Define the statuses that can be set on line items."|t('commerce') }}</p>
 
+    <div id="no-product-types"{% if lineItemStatuses|length %} class="hidden"{% endif %}>
+        <p>{{ "No line item statuses exist yet."|t('commerce') }}</p>
+    </div>
+
+    {% if lineItemStatuses|length %}
     <table id="line-item-statuses" class="data fullwidth collapsible">
         <thead>
         <tr>
@@ -37,6 +42,7 @@
 
         </tbody>
     </table>
+    {% endif %}
 
     <div class="buttons">
         <a href="{{ url('commerce/settings/lineitemstatuses/new') }}"

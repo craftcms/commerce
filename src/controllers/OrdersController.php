@@ -131,6 +131,9 @@ class OrdersController extends BaseCpController
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)). ';', View::POS_BEGIN);
 
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(ArrayHelper::toArray($lineItemStatuses)). ';', View::POS_BEGIN);
+
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)). ';', View::POS_BEGIN);
 
@@ -144,7 +147,6 @@ class OrdersController extends BaseCpController
             $purchasableIds[] = ['text' => $variant->title, 'value' => $variant->id];
         }
         Craft::$app->getView()->registerJs('window.orderEdit.purchasableIds = ' . Json::encode(ArrayHelper::toArray($purchasableIds)). ';', View::POS_BEGIN);
-
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
