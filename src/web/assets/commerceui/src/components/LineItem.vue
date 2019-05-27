@@ -16,12 +16,16 @@
                                 <label for="selectedPurchasableId" class="hidden">Purchasable</label>
                                 <div class="select">
                                     <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
-                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                        <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.value">
                                             {{ option.text }}
                                         </option>
                                     </select>
                                 </div>
                             </template>
+
+                            <div>
+                                [Line Item Status Dropdown]
+                            </div>
 
                             <small>
                                 <ul>
@@ -75,7 +79,7 @@
                                 <template v-if="Object.keys(lineItem.options).length">
                                     <ul :id="'info-' + lineItem.id">
                                         <template v-for="(option, key) in lineItem.options">
-                                            <li>
+                                            <li :key="'option-'+key">
                                                 <code>
                                                     {{key}}:
 
@@ -142,8 +146,8 @@
                         </div>
 
                         <div class="order-flex-grow">
-                            <template v-for="adjustment in lineItem.adjustments">
-                                <div class="order-flex">
+                            <template v-for="(adjustment, key) in lineItem.adjustments">
+                                <div class="order-flex" :key="'adjustment-'+key">
                                     <div class="order-flex-grow">
                                         <div>
                                             {{adjustment.name}}
