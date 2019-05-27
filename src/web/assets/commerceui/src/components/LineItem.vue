@@ -48,7 +48,7 @@
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="editing && recalculationMode === 'none'">
-                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
+                                        <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onSalePriceChange">
                                     </template>
                                     <template v-else>
                                         {{ lineItem.salePriceAsCurrency }}
@@ -288,7 +288,10 @@
             },
             onLineItemStatusChange() {
                 this.$emit('lineItemStatusChange')
-            }
+            },
+            onSalePriceChange() {
+                this.$emit('salePriceChange')
+            },
         },
 
         watch: {
