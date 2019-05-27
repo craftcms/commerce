@@ -978,7 +978,7 @@ class Order extends Element
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
-        $orderRecord->calculationMode = $this->calculationMode;
+        $orderRecord->recalculationMode = $this->recalculationMode;
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
