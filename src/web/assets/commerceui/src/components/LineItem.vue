@@ -47,7 +47,7 @@
                                 </template>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
-                                    <template v-if="editing && recalculationMode === 'manual'">
+                                    <template v-if="editing && recalculationMode === 'none'">
                                         <input type="text" class="text" size="10" :value="lineItem.salePrice">
                                     </template>
                                     <template v-else>
@@ -159,7 +159,7 @@
                                             <span class="light">({{adjustment.type}})</span>
                                             {{adjustment.description}}
 
-                                            <template v-if="editing && recalculationMode === 'manual'">
+                                            <template v-if="editing && recalculationMode === 'none'">
                                                 <a href="#">Remove</a>
                                             </template>
                                         </div>
@@ -175,7 +175,7 @@
                                 </div>
                             </template>
 
-                            <template v-if="editing && recalculationMode === 'manual'">
+                            <template v-if="editing && recalculationMode === 'none'">
                                 <div>
                                     <a href="#">Add an adjustment</a>
                                 </div>
