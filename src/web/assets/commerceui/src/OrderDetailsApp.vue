@@ -13,8 +13,8 @@
                         <div v-if="loading" class="spinner"></div>
                     </div>
 
-                    <div class="order-recalculate-modes order-flex-grow order-flex">
-                        <div class="order-recalculate-mode order-flex">
+                    <div class="order-recalculation-modes order-flex-grow order-flex">
+                        <div class="order-recalculation-mode order-flex">
                             <div class="input">
                                 <input id="recalculate-all" type="radio" value="all" v-model="draft.order.recalculationMode" @click="confirmAutoCalculation" @change="recalculationModeChange" />
                             </div>
@@ -29,7 +29,7 @@
                             </div>
                         </div>
 
-                        <div class="order-recalculate-mode order-flex">
+                        <div class="order-recalculation-mode order-flex">
                             <div class="input">
                                 <input id="recalculate-none" type="radio" value="none" v-model="draft.order.recalculationMode" @change="recalculationModeChange" />
                             </div>
@@ -68,7 +68,7 @@
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
                             :editing="editing"
-                            :recalculate-mode="recalculateMode"
+                            :recalculation-mode="recalculationMode"
                             @purchasableChange="saveOrder(draft)"
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
@@ -90,11 +90,11 @@
                                     :editing="editing"
                                     :adjustment="adjustment"
                                     :adjustmentKey="adjustmentKey"
-                                    :recalculate-mode="recalculateMode"
+                                    :recalculation-mode="recalculationMode"
                                     @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
                         </template>
 
-                        <template v-if="editing && recalculateMode === 'none'">
+                        <template v-if="editing && recalculationMode === 'none'">
                             <div>
                                 <a href="#">Add an adjustment</a>
                             </div>
@@ -165,7 +165,6 @@
                 originalDraft: null,
                 draft: null,
                 selectedPurchasableId: 4,
-                recalculateMode: 'all',
             }
         },
 
