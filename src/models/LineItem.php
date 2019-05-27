@@ -108,6 +108,11 @@ class LineItem extends Model
     public $note;
 
     /**
+     * @var string Admin Note
+     */
+    public $adminNote;
+
+    /**
      * @var int Purchasable ID
      */
     public $purchasableId;

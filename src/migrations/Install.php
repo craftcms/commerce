@@ -14,7 +14,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\models\LineItemStatus as LineItemStatusModel;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
@@ -292,6 +291,7 @@ class Install extends Migration
             'total' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
+            'adminNote' => $this->text(),
             'snapshot' => $this->longText(),
             'lineItemStatusId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),

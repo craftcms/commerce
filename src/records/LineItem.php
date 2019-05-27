@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property float $length
  * @property string $note
+ * @property string $adminNote
  * @property mixed $options
  * @property string $optionsSignature
  * @property Order $order

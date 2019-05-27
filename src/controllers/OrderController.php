@@ -86,6 +86,7 @@ class OrderController extends Controller
         foreach ($data['order']['lineItems'] as $lineItem) {
             $lineItemId = $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
+            $adminNote = $lineItem['adminNote'] ?? '';
             $purchasableId = $lineItem['purchasableId'];
             $lineItemStatusId = $lineItem['lineItemStatusId'];
             $options = $lineItem['options'] ?? [];
@@ -100,6 +101,7 @@ class OrderController extends Controller
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
+            $lineItem->adminNote = $adminNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
 
             if($order->recalculationMode == Order::RECALCULATION_MODE_NONE){
