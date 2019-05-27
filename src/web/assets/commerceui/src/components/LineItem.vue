@@ -1,7 +1,7 @@
 <template>
     <div class="line-item">
         <div class="order-flex">
-            <div class="light">
+            <div class="order-row-title light">
                 <div><code>{{ lineItem.sku }}</code></div>
             </div>
 
@@ -9,7 +9,26 @@
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
-                            <h3>{{ lineItem.description }}</h3>
+                            <template v-if="!editing">
+                                <h3>{{ lineItem.description }}</h3>
+                            </template>
+                            <template v-else>
+                                <label for="selectedPurchasableId" class="hidden">Purchasable</label>
+                                <div class="select">
+                                    <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
+                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                            {{ option.text }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </template>
+
+                            <small>
+                                <ul>
+                                    <li>{{shippingCategory}} <span class="light"><small>(Shipping)</small></span></li>
+                                    <li>{{taxCategory}} <span class="light">(Tax)</span></li>
+                                </ul>
+                            </small>
                         </div>
                         <div class="order-flex-grow">
                             <ul>
@@ -19,11 +38,11 @@
                                 </template>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
-                                    <template v-if="!editing">
-                                        {{ lineItem.salePriceAsCurrency }}
+                                    <template v-if="editing && recalculateMode === 'manual'">
+                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
                                     </template>
                                     <template v-else>
-                                        <input type="text" class="text" size="10" :value="lineItem.salePrice">
+                                        {{ lineItem.salePriceAsCurrency }}
                                     </template>
                                 </li>
                             </ul>
@@ -131,7 +150,7 @@
                                             <span class="light">({{adjustment.type}})</span>
                                             {{adjustment.description}}
 
-                                            <template v-if="editing">
+                                            <template v-if="editing && recalculateMode === 'manual'">
                                                 <a href="#">Remove</a>
                                             </template>
                                         </div>
@@ -147,25 +166,11 @@
                                 </div>
                             </template>
 
-                            <template v-if="editing">
+                            <template v-if="editing && recalculateMode === 'manual'">
                                 <div>
                                     <a href="#">Add an adjustment</a>
                                 </div>
                             </template>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <h3>Shipping &amp; Tax</h3>
-                        </div>
-                        <div>
-                            <div>
-                                <strong>Shipping Category:</strong> {{shippingCategory}}<br>
-                                <strong>Tax Category:</strong> {{taxCategory}}<br>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -205,6 +210,9 @@
             editing: {
                 type: Boolean,
             },
+            recalculateMode: {
+                type: String,
+            },
         },
 
         data() {
@@ -237,6 +245,10 @@
                 }
 
                 return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
+            },
+
+            purchasables() {
+                return window.orderEdit.purchasableIds
             }
         },
 
@@ -248,6 +260,10 @@
             onOptionsChange() {
                 this.lineItem.options = JSON.parse(this.options);
                 this.$emit('noteChange')
+            },
+
+            onPurchasableChange() {
+                this.$emit('purchasableChange')
             },
 
             onQuantityChange() {

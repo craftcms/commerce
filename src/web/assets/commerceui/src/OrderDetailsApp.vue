@@ -8,20 +8,40 @@
 
             <template v-else>
                 <div class="order-flex">
-                    <div>
+                    <div class="order-row-title">
                         <a class="btn" @click.prevent="cancel()">Cancel</a>
                         <div v-if="loading" class="spinner"></div>
                     </div>
 
-                    <div class="order-flex-grow text-right">
-                        <div>
-                            Recalculate whole order
-                            <input type="radio" value="auto" v-model="recalculateMode" />
+                    <div class="order-recalculate-modes order-flex-grow order-flex">
+                        <div class="order-recalculate-mode order-flex">
+                            <div class="input">
+                                <input id="recalculate-auto" type="radio" value="auto" v-model="recalculateMode" @click="confirmAutoCalculation" />
+                            </div>
+                            <div>
+                                <label for="recalculate-auto">
+                                    <strong>Recalculate whole order</strong>
+
+                                    <div class="instructions">
+                                        In this mode, the order will auto-calculate sales and adjustments like tax and shipping based on the items in the order and the configuration of the system.
+                                    </div>
+                                </label>
+                            </div>
                         </div>
 
-                        <div>
-                            Manually edit
-                            <input type="radio" value="manual" v-model="recalculateMode" />
+                        <div class="order-recalculate-mode order-flex">
+                            <div class="input">
+                                <input id="recalculate-manual" type="radio" value="manual" v-model="recalculateMode" />
+                            </div>
+                            <div>
+                                <label for="recalculate-manual">
+                                    <strong>Manually edit</strong>
+
+                                    <div class="instructions">
+                                        In this mode, the order can be edited manually including all line item prices and adjustments. No adjustments like discounts and shipping will be calculated for you.
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -47,6 +67,8 @@
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
                             :editing="editing"
+                            :recalculate-mode="recalculateMode"
+                            @purchasableChange="saveOrder(draft)"
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
@@ -60,11 +82,16 @@
                     </div>
 
                     <div class="order-flex-grow">
-                        <template v-for="adjustment in draft.order.orderAdjustments">
-                            <order-adjustment :editing="editing" :adjustment="adjustment"></order-adjustment>
+                        <template v-for="adjustment, adjustmentKey in draft.order.orderAdjustments">
+                            <order-adjustment
+                                    :editing="editing"
+                                    :adjustment="adjustment"
+                                    :adjustmentKey="adjustmentKey"
+                                    :recalculate-mode="recalculateMode"
+                                    @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
                         </template>
 
-                        <template v-if="editing">
+                        <template v-if="editing && recalculateMode === 'manual'">
                             <div>
                                 <a href="#">Add an adjustment</a>
                             </div>
@@ -86,12 +113,14 @@
                     <form @submit.prevent="lineItemAdd()">
                         <div>
                             <label for="selectedPurchasableId">Purchasable</label>
-                            <div>
-                                <select v-model="selectedPurchasableId">
-                                    <option v-for="option in purchasables" v-bind:value="option.value">
-                                        {{ option.text }}
-                                    </option>
-                                </select>
+                            <div class="input">
+                                <div class="select">
+                                    <select v-model="selectedPurchasableId">
+                                        <option v-for="option in purchasables" v-bind:value="option.value">
+                                            {{ option.text }}
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -145,6 +174,14 @@
         },
 
         methods: {
+            confirmAutoCalculation(ev) {
+                const ret = confirm("Are you sure you want to switch to recalculate whole order? You will loose all of your manual adjustments.");
+
+                if (!ret) {
+                    ev.preventDefault()
+                }
+            },
+
             lineItemAdd() {
                 const lineItem = {
                     qty: "1",
@@ -177,9 +214,18 @@
                             this.originalDraft = JSON.parse(JSON.stringify(this.draft))
                         }
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         this.loading = false
-                        console.log('error')
+
+                        let errorMsg = 'Couldn’t get order.'
+
+                        if (error.response.data.error) {
+                            errorMsg = error.response.data.error
+                        }
+
+                        Craft.cp.displayError(errorMsg);
+
+                        console.error(errorMsg, error.response)
                     })
             },
 
@@ -190,16 +236,32 @@
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
+
+                        Craft.cp.displayNotice('Order recalculated.');
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         this.loading = false
-                        console.log('error')
+
+                        let errorMsg = 'Couldn’t recalculate order.'
+                        
+                        if (error.response.data.error) {
+                            errorMsg = error.response.data.error
+                        }
+
+                        Craft.cp.displayError(errorMsg);
+
+                        console.error(errorMsg, error.response)
                     })
             },
 
             cancel() {
                 this.editing = false
                 this.draft = JSON.parse(JSON.stringify(this.originalDraft))
+            },
+
+            removeAdjustment(key) {
+                this.$delete(this.draft.order.orderAdjustments, key)
+                this.saveOrder(this.draft)
             }
         },
 

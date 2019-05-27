@@ -22,8 +22,12 @@
   flex-grow: 1;
 }
 
+.order-row-title {
+  min-width: 200px;
+}
+
 .order-indented-block {
-  margin-left: 150px;
+  // margin-left: 150px;
   border-bottom: 1px solid #eee;
   padding-bottom: 20px;
   margin-bottom: 20px;
@@ -50,5 +54,22 @@
     background: transparent;
     border: 0;
     padding: 0;
+  }
+}
+
+.order-recalculate-modes {
+  margin: 0 -10px;
+
+  .order-recalculate-mode {
+    margin: 0 10px;
+
+    .input {
+      margin-right: 10px;
+    }
+
+    .instructions {
+      color: #888;
+      font-size: 0.9em;
+    }
   }
 }
