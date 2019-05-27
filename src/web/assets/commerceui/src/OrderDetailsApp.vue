@@ -73,6 +73,7 @@
                             @optionsChange="saveOrder(draft)"
                             @noteChange="saveOrder(draft)"
                             @quantityChange="saveOrder(draft)"
+                            @lineItemStatusChange="saveOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 

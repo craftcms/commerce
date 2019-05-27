@@ -24,7 +24,12 @@
                             </template>
 
                             <div>
-                                [Line Item Status Dropdown]
+                                <select v-model="lineItem.lineItemStatusId" @change="onLineItemStatusChange">
+                                    <option :value="null">None</option>
+                                    <option v-for="(status, key) in lineItemStatuses" :key="'line-item-status-'+key" :value="status.id">
+                                        {{ status.name }}
+                                    </option>
+                                </select>
                             </div>
 
                             <small>
@@ -253,6 +258,10 @@
 
             purchasables() {
                 return window.orderEdit.purchasableIds
+            },
+
+            lineItemStatuses() {
+                return window.orderEdit.lineItemStatuses
             }
         },
 
@@ -272,6 +281,9 @@
 
             onQuantityChange() {
                 this.$emit('quantityChange')
+            },
+            onLineItemStatusChange() {
+                this.$emit('lineItemStatusChange')
             }
         },
 
