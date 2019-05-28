@@ -181,12 +181,37 @@
                                 <div class="order-flex" :key="'adjustment-'+key">
                                     <div class="order-flex-grow">
                                         <div>
-                                            {{adjustment.name}}
-                                            <span class="light">({{adjustment.type}})</span>
-                                            {{adjustment.description}}
+                                            <template v-if="editing">
+                                                <div>
+                                                    <label>Type</label>
+                                                    <select v-model="adjustment.type">
+                                                        <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
+                                                            {{adjustmentOption.label}}
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label>Name</label>
+                                                    <input type="text" v-model="adjustment.name" @input="$emit('adjustmentChange')" />
+                                                </div>
+                                                <div>
+                                                    <label>Description</label>
+                                                    <input type="text" v-model="adjustment.description" @input="$emit('adjustmentChange')" />
+                                                </div>
+                                                <div>
+                                                    <label>Amount</label>
+                                                    <input type="text" v-model="adjustment.amount" @input="$emit('adjustmentChange')" />
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                {{adjustment.name}}
+                                                <span class="light">({{adjustment.type}})</span>
+                                                {{adjustment.description}}
+                                            </template>
 
                                             <template v-if="editing && recalculationMode === 'none'">
-                                                <a href="#">Remove</a>
+                                                <a @click.prevent="removeAdjustment(key)">Remove</a>
+                                                <hr>
                                             </template>
                                         </div>
                                     </div>
@@ -203,7 +228,7 @@
 
                             <template v-if="editing && recalculationMode === 'none'">
                                 <div>
-                                    <a href="#">Add an adjustment</a>
+                                    <a @click.prevent="addAdjustment()">Add an adjustment</a>
                                 </div>
                             </template>
                         </div>
@@ -254,6 +279,20 @@
             return {
                 options: null,
                 code: 'const a = b',
+                adjustmentOptions: [
+                    {
+                        label: 'Tax',
+                        value: 'tax',
+                    },
+                    {
+                        label: 'Discount',
+                        value: 'discount',
+                    },
+                    {
+                        label: 'Shipping',
+                        value: 'shipping',
+                    },
+                ],
             }
         },
 
@@ -340,7 +379,25 @@
                 }
 
                 this.onLineItemStatusChange()
-            }
+            },
+
+            removeAdjustment(key) {
+                this.$delete(this.lineItem.adjustments, key)
+                this.$emit('adjustmentChange')
+            },
+
+            addAdjustment() {
+                const adjustment = {
+                    type: 'tax',
+                    name: '',
+                    description: '',
+                    amount: '',
+                    orderId: this.draft.order.id,
+                }
+
+                this.lineItem.adjustments.push(adjustment)
+                this.$emit('adjustmentChange')
+            },
         },
 
         watch: {
