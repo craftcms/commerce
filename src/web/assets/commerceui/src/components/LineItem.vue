@@ -67,10 +67,6 @@
                         </div>
                         <div class="order-flex-grow">
                             <ul>
-                                <template v-if="lineItem.onSale">
-                                    <li><span class="light">Original Price</span> <strike>{{ lineItem.price }}</strike></li>
-                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmount }}</li>
-                                </template>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="editing && recalculationMode === 'none'">
@@ -80,6 +76,10 @@
                                         {{ lineItem.salePriceAsCurrency }}
                                     </template>
                                 </li>
+                                <template v-if="lineItem.onSale">
+                                    <li><span class="light">Original Price</span> <strike>{{ lineItem.price }}</strike></li>
+                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmount }}</li>
+                                </template>
                             </ul>
 
                         </div>
