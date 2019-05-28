@@ -37,5 +37,8 @@
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://docs.craftcms.com/commerce/v2/"
+  },
+  "require-dev": {
+    "codeception/codeception": "^3.0"
   }
 }
