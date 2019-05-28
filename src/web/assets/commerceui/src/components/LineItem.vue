@@ -388,10 +388,12 @@
 
             addAdjustment() {
                 const adjustment = {
+                    id: null,
                     type: 'tax',
                     name: '',
                     description: '',
-                    amount: '',
+                    amount: '0.0000',
+                    included: '0',
                     orderId: this.draft.order.id,
                 }
 
