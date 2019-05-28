@@ -48,6 +48,7 @@
                             @quantityChange="recalculateOrder(draft)"
                             @lineItemStatusChange="recalculateOrder(draft)"
                             @salePriceChange="recalculateOrder(draft)"
+                            @adjustmentChange="recalculateOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 
