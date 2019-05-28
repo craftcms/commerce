@@ -85,6 +85,7 @@ class OrderController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'Missing order.'));
         }
 
+        /** @var Order $order */
         $order = Order::find()->id($data['order']['id'])->one();
 
         if (!$order) {
@@ -125,7 +126,7 @@ class OrderController extends Controller
             $lineItemModel->lineItemStatusId = $lineItemStatusId;
 
             if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
-                $lineItemModel->salePrice = $lineItemModel['salePrice'];
+                $lineItemModel->salePrice = $lineItem['salePrice'];
             }
 
             $lineItemModel->setOptions($options);
@@ -207,6 +208,8 @@ class OrderController extends Controller
         if ($order->validate() && $order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
             $order->recalculate();
         }
+
+        $order->recalculationMode = 'none';
 
         $this->_addOrderToData($order, $data);
 
