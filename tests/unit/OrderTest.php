@@ -32,8 +32,6 @@ class OrderTest extends Unit
         $lineItem->salePrice = 10;
         $this->assertEquals($lineItem->getSubtotal(),  20);
 
-
-
         $this->order->setLineItems([$lineItem]);
         $this->assertEquals($this->order->totalPrice,  20);
 
