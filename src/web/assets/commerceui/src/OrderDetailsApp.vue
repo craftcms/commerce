@@ -161,11 +161,15 @@
 
             lineItemAdd() {
                 const lineItem = {
+                    id: null,
+                    lineItemStatusId: null,
+                    salePrice: '0.0000',
                     qty: "1",
                     note: "",
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasableId,
                     options: {giftWrapped: "no"},
+                    adjustments: [],
                 }
 
                 const draft = JSON.parse(JSON.stringify(this.draft))
