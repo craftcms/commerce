@@ -127,6 +127,7 @@ class OrderController extends Controller
 
             if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
                 $lineItemModel->salePrice = $lineItem['salePrice'];
+                $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
             }
 
             $lineItemModel->setOptions($options);
