@@ -17,7 +17,10 @@ modules:
             entryScript: 'index.php'
             projectConfig: {}
             migrations: []
-            plugins: []
+            plugins:
+                commerce:
+                    class: '\craft\commerce\Plugin'
+                    handle: commerce
             cleanup: true
             transaction: true
             dbSetup: {clean: true, setupCraft: true}

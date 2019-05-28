@@ -12,6 +12,6 @@ define('CRAFT_MIGRATIONS_PATH', __DIR__ . '/_craft/migrations');
 define('CRAFT_TRANSLATIONS_PATH', __DIR__ . '/_craft/translations');
 define('CRAFT_VENDOR_PATH', dirname(__DIR__).'/vendor');
 
-
+$devMode = true;
 
 TestSetup::configureCraft();
