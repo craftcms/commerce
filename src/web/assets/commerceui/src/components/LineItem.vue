@@ -192,15 +192,15 @@
                                                 </div>
                                                 <div>
                                                     <label>Name</label>
-                                                    <input type="text" v-model="adjustment.name" @input="$emit('adjustmentChange')" />
+                                                    <input type="text" v-model="adjustment.name" @input="onAdjustmentChange" />
                                                 </div>
                                                 <div>
                                                     <label>Description</label>
-                                                    <input type="text" v-model="adjustment.description" @input="$emit('adjustmentChange')" />
+                                                    <input type="text" v-model="adjustment.description" @input="onAdjustmentChange" />
                                                 </div>
                                                 <div>
                                                     <label>Amount</label>
-                                                    <input type="text" v-model="adjustment.amount" @input="$emit('adjustmentChange')" />
+                                                    <input type="text" v-model="adjustment.amount" @input="onAdjustmentChange" />
                                                 </div>
                                             </template>
                                             <template v-else>
@@ -400,6 +400,10 @@
                 this.lineItem.adjustments.push(adjustment)
                 this.$emit('adjustmentChange')
             },
+
+            onAdjustmentChange() {
+                this.$emit('adjustmentChange')
+            },
         },
 
         watch: {
@@ -415,6 +419,8 @@
             this.onAdminNoteChange = debounce(this.onAdminNoteChange, 1000)
             this.onOptionsChange = debounce(this.onOptionsChange, 1000)
             this.onQuantityChange = debounce(this.onQuantityChange, 1000)
+            this.onAdjustmentChange = debounce(this.onAdjustmentChange, 1000)
+            this.onSalePriceChange = debounce(this.onSalePriceChange, 1000)
 
             new Garnish.MenuBtn(this.$refs.lineItemStatus, {
                 onOptionSelect: this.onSelectStatus
