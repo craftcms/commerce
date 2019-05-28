@@ -168,7 +168,7 @@ return [
     'Date Ordered' => 'Bestelldatum',
     'Date Paid' => 'Bezahldatum',
     'Date Range' => 'Datumsbereich',
-    'Date Updated' => 'Aktualisierüngsdatüm',
+    'Date Updated' => 'Aktualisierungsdatum',
     'Date when the discount will be finished. Leave blank for unlimited end date' => 'Datum, zu dem die Rabattaktion beendet sein wird. Keine Eingabe bei unbefristeter Aktion.',
     'Date when the sale will be finished. Leave blank for unlimited end date' => 'Datum, an dem die Aktion beendet wird. Keine Eingabe, wenn die Aktion unbefristet läuft',
     'Default' => 'Standard',
@@ -795,5 +795,7 @@ return [
     'Attempted Payments' => 'Versuchte Zahlungen',
     'By default the PDF template path is the \'Order PDF Template\' in the general commerce config, but can choose a different template for this email\'s PDF.' => 'Standardmäßig lautet der Pfad der PDF-Vorlage in der General-Commerce-Konfiguration \'PDF-Vorlage bestellen\', Sie können aber auch eine andere Vorlage für die PDF-Datei dieser E-Mail wählen.',
     'This email should render the order PDF template and include it as an attachment.' => 'Diese E-Mail sollte die Bestell-PDF-Vorlage darstellen und diese als Anhang beinhalten.',
-    'Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable.' => 'Kauffähige Felder für diesen Verkauf. Lassen Sie alle kauffähigen Felder leer.'
+    'Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable.' => 'Kauffähige Felder für diesen Verkauf. Lassen Sie alle kauffähigen Felder leer.',
+    'to' => 'bis',
+    'Total Revenue' => 'Gesamteinnahmen'
 ];
