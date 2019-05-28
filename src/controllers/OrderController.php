@@ -24,7 +24,7 @@ use yii\web\Response;
  * Class Order Editor Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 2.2
  */
 class OrderController extends Controller
 {
