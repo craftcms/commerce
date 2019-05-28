@@ -13,36 +13,8 @@
                         <div v-if="loading" class="spinner"></div>
                     </div>
 
-                    <div class="order-recalculation-modes order-flex-grow order-flex">
-                        <div class="order-recalculation-mode order-flex">
-                            <div class="input">
-                                <input id="recalculate-all" type="radio" value="all" v-model="draft.order.recalculationMode" @click="confirmAutoCalculation" @change="recalculationModeChange" />
-                            </div>
-                            <div>
-                                <label for="recalculate-all">
-                                    <strong>Recalculate whole order</strong>
-
-                                    <div class="instructions">
-                                        In this mode, the order will auto-calculate sales and adjustments like tax and shipping based on the items in the order and the configuration of the system.
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="order-recalculation-mode order-flex">
-                            <div class="input">
-                                <input id="recalculate-none" type="radio" value="none" v-model="draft.order.recalculationMode" @change="recalculationModeChange" />
-                            </div>
-                            <div>
-                                <label for="recalculate-none">
-                                    <strong>Manually edit</strong>
-
-                                    <div class="instructions">
-                                        In this mode, the order can be edited manually including all line item prices and adjustments. No adjustments like discounts and shipping will be calculated for you.
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="order-flex-grow text-right">
+                        <a class="btn" @click.prevent="recalculate()">Recalculate</a>
                     </div>
                 </div>
             </template>
@@ -180,16 +152,10 @@
         },
 
         methods: {
-            confirmAutoCalculation(ev) {
-                const ret = confirm("Are you sure you want to switch to recalculate whole order? You will loose all of your manual adjustments.");
-
-                if (!ret) {
-                    ev.preventDefault()
-                }
-            },
-
-            recalculationModeChange() {
-                this.recalculateOrder(this.draft)
+            recalculate() {
+                const draft = JSON.parse(JSON.stringify(this.draft))
+                draft.order.recalculationMode = 'all'
+                this.recalculateOrder(draft)
             },
 
             lineItemAdd() {
