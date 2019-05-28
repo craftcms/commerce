@@ -69,13 +69,13 @@
                             :line-item-key="lineItemKey"
                             :editing="editing"
                             :recalculation-mode="draft.order.recalculationMode"
-                            @purchasableChange="saveOrder(draft)"
-                            @optionsChange="saveOrder(draft)"
-                            @noteChange="saveOrder(draft)"
-                            @adminNoteChange="saveOrder(draft)"
-                            @quantityChange="saveOrder(draft)"
-                            @lineItemStatusChange="saveOrder(draft)"
-                            @salePriceChange="saveOrder(draft)"
+                            @purchasableChange="recalculateOrder(draft)"
+                            @optionsChange="recalculateOrder(draft)"
+                            @noteChange="recalculateOrder(draft)"
+                            @adminNoteChange="recalculateOrder(draft)"
+                            @quantityChange="recalculateOrder(draft)"
+                            @lineItemStatusChange="recalculateOrder(draft)"
+                            @salePriceChange="recalculateOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 
@@ -189,7 +189,7 @@
             },
 
             recalculationModeChange() {
-                this.saveOrder(this.draft)
+                this.recalculateOrder(this.draft)
             },
 
             lineItemAdd() {
@@ -205,12 +205,12 @@
 
                 draft.order.lineItems.push(lineItem)
 
-                this.saveOrder(draft)
+                this.recalculateOrder(draft)
             },
 
             lineItemRemove(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.saveOrder(this.draft)
+                this.recalculateOrder(this.draft)
             },
 
             getOrder(orderId) {
@@ -239,10 +239,10 @@
                     })
             },
 
-            saveOrder(draft) {
+            recalculateOrder(draft) {
                 this.loading = true
 
-                axios.post(Craft.getActionUrl('commerce/order/save'), draft)
+                axios.post(Craft.getActionUrl('commerce/order/recalculate'), draft)
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
@@ -253,7 +253,7 @@
                         this.loading = false
 
                         let errorMsg = 'Couldn’t recalculate order.'
-                        
+
                         if (error.response.data.error) {
                             errorMsg = error.response.data.error
                         }
@@ -271,7 +271,7 @@
 
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
-                this.saveOrder(this.draft)
+                this.recalculateOrder(this.draft)
             }
         },
 

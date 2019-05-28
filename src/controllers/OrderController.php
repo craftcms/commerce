@@ -67,6 +67,17 @@ class OrderController extends Controller
      */
     public function actionSave()
     {
+
+    }
+
+    /**
+     * @return Response
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     */
+    public function actionRecalculate()
+    {
         $data = Craft::$app->getRequest()->getRawBody();
         $data = Json::decodeIfJson($data);
 
