@@ -102,7 +102,7 @@ class OrderController extends Controller
             $note = $lineItem['note'] ?? '';
             $adminNote = $lineItem['adminNote'] ?? '';
             $purchasableId = $lineItem['purchasableId'];
-            $lineItemStatusId = $lineItem['lineItemStatusId'];
+            $lineItemStatusId = $lineItem['lineItemStatusId'] ?? null;
             $options = $lineItem['options'] ?? [];
             $qty = $lineItem['qty'] ?? 1;
 
@@ -126,8 +126,13 @@ class OrderController extends Controller
             $lineItemModel->lineItemStatusId = $lineItemStatusId;
 
             if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
-                $lineItemModel->salePrice = $lineItem['salePrice'];
-                $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
+                if(!$lineItemModel->id){
+                    $lineItemModel->salePrice = $lineItemModel->price;
+                    $lineItemModel->saleAmount = $lineItemModel->price;
+                }else{
+                    $lineItemModel->salePrice = $lineItem['salePrice'];
+                    $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
+                }
             }
 
             $lineItemModel->setOptions($options);
