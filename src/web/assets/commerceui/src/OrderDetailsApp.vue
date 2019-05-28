@@ -9,8 +9,11 @@
             <template v-else>
                 <div class="order-flex">
                     <div class="order-row-title">
-                        <a class="btn" @click.prevent="cancel()">Cancel</a>
-                        <div v-if="loading" class="spinner"></div>
+                        <div class="buttons">
+                            <a class="btn" @click.prevent="cancel()">Cancel</a>
+                            <a class="btn submit" @click.prevent="save()">Save</a>
+                            <div v-if="loading" class="spinner"></div>
+                        </div>
                     </div>
 
                     <div class="order-flex-grow text-right">
@@ -232,6 +235,20 @@
                         Craft.cp.displayError(errorMsg);
 
                         throw errorMsg + ': '+ error.response
+                    })
+            },
+
+            save() {
+                this.loading = true
+
+                axios.post(Craft.getActionUrl('commerce/order/save'), this.draft)
+                    .then((response) => {
+                        this.loading = false
+                        Craft.cp.displayNotice('Success.');
+                    })
+                    .catch((error) => {
+                        this.loading = false
+                        Craft.cp.displayError('Error.');
                     })
             },
 
