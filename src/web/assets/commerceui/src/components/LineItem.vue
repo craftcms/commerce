@@ -15,7 +15,7 @@
                             <template v-else>
                                 <label for="selectedPurchasableId" class="hidden">Purchasable</label>
                                 <div class="select">
-                                    <select v-model="lineItem.purchasableId" @change="onPurchasableChange">
+                                    <select v-model="lineItem.purchasableId" @change="onChange">
                                         <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.value">
                                             {{ option.text }}
                                         </option>
@@ -70,7 +70,7 @@
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="editing && recalculationMode === 'none'">
-                                        <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onSalePriceChange">
+                                        <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
                                     </template>
                                     <template v-else>
                                         {{ lineItem.salePriceAsCurrency }}
@@ -90,7 +90,7 @@
                                     {{ lineItem.qty }}
                                 </template>
                                 <template v-else>
-                                    <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onQuantityChange" />
+                                    <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
                                 </template>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                                 </template>
                                 <template v-else>
                                     <label for="note">Customer Note</label>
-                                    <textarea v-model="lineItem.note" class="text fullwidth" @input="onNoteChange"></textarea>
+                                    <textarea v-model="lineItem.note" class="text fullwidth" @input="onChange"></textarea>
                                 </template>
                             </div>
                             <div class="order-flex-grow order-margin">
@@ -163,7 +163,7 @@
                                 </template>
                                 <template v-else>
                                     <label for="note">Admin Note</label>
-                                    <textarea v-model="lineItem.adminNote" class="text fullwidth" @input="onAdminNoteChange"></textarea>
+                                    <textarea v-model="lineItem.adminNote" class="text fullwidth" @input="onChange"></textarea>
                                 </template>
                             </div>
                         </div>
@@ -192,15 +192,15 @@
                                                 </div>
                                                 <div>
                                                     <label>Name</label>
-                                                    <input type="text" v-model="adjustment.name" @input="onAdjustmentChange" />
+                                                    <input type="text" v-model="adjustment.name" @input="onChange" />
                                                 </div>
                                                 <div>
                                                     <label>Description</label>
-                                                    <input type="text" v-model="adjustment.description" @input="onAdjustmentChange" />
+                                                    <input type="text" v-model="adjustment.description" @input="onChange" />
                                                 </div>
                                                 <div>
                                                     <label>Amount</label>
-                                                    <input type="text" v-model="adjustment.amount" @input="onAdjustmentChange" />
+                                                    <input type="text" v-model="adjustment.amount" @input="onChange" />
                                                 </div>
                                             </template>
                                             <template v-else>
@@ -344,31 +344,9 @@
         },
 
         methods: {
-            onNoteChange() {
-                this.$emit('noteChange')
-            },
-
-            onAdminNoteChange() {
-                this.$emit('adminNoteChange')
-            },
-
             onOptionsChange() {
                 this.lineItem.options = JSON.parse(this.options);
-                this.$emit('noteChange')
-            },
-
-            onPurchasableChange() {
-                this.$emit('purchasableChange')
-            },
-
-            onQuantityChange() {
-                this.$emit('quantityChange')
-            },
-            onLineItemStatusChange() {
-                this.$emit('lineItemStatusChange')
-            },
-            onSalePriceChange() {
-                this.$emit('salePriceChange')
+                this.$emit('change')
             },
 
             onSelectStatus(status) {
@@ -378,12 +356,12 @@
                     this.lineItem.lineItemStatusId = status.dataset.id
                 }
 
-                this.onLineItemStatusChange()
+                this.$emit('change')
             },
 
             removeAdjustment(key) {
                 this.$delete(this.lineItem.adjustments, key)
-                this.$emit('adjustmentChange')
+                this.$emit('change')
             },
 
             addAdjustment() {
@@ -398,11 +376,11 @@
                 }
 
                 this.lineItem.adjustments.push(adjustment)
-                this.$emit('adjustmentChange')
+                this.$emit('change')
             },
 
-            onAdjustmentChange() {
-                this.$emit('adjustmentChange')
+            onChange() {
+                this.$emit('change')
             },
         },
 
@@ -415,12 +393,8 @@
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
 
-            this.onNoteChange = debounce(this.onNoteChange, 1000)
-            this.onAdminNoteChange = debounce(this.onAdminNoteChange, 1000)
+            this.onChange = debounce(this.onChange, 1000)
             this.onOptionsChange = debounce(this.onOptionsChange, 1000)
-            this.onQuantityChange = debounce(this.onQuantityChange, 1000)
-            this.onAdjustmentChange = debounce(this.onAdjustmentChange, 1000)
-            this.onSalePriceChange = debounce(this.onSalePriceChange, 1000)
 
             new Garnish.MenuBtn(this.$refs.lineItemStatus, {
                 onOptionSelect: this.onSelectStatus
