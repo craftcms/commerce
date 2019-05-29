@@ -55,21 +55,13 @@
                     </div>
 
                     <div class="order-flex-grow">
-                        <template v-for="(adjustment, adjustmentKey) in draft.order.orderAdjustments">
-                            <order-adjustment
-                                    :key="adjustmentKey"
-                                    :editing="editing"
-                                    :adjustment="adjustment"
-                                    :adjustmentKey="adjustmentKey"
-                                    :recalculation-mode="draft.order.recalculationMode"
-                                    @remove="removeAdjustment(adjustmentKey)"></order-adjustment>
-                        </template>
-
-                        <template v-if="editing && draft.order.recalculationMode === 'none'">
-                            <div>
-                                <a href="#">Add an adjustment</a>
-                            </div>
-                        </template>
+                        <adjustments
+                                :adjustments="draft.order.orderAdjustments"
+                                :draft="draft"
+                                :editing="editing"
+                                :recalculationMode="draft.order.recalculationMode"
+                                @change="recalculateOrder(draft)"
+                        ></adjustments>
                     </div>
                 </div>
 
@@ -118,15 +110,15 @@
     /* globals Craft */
 
     import axios from 'axios'
-    import OrderAdjustment from './components/OrderAdjustment'
     import LineItem from './components/LineItem'
+    import Adjustments from './components/Adjustments'
 
     export default {
         name: 'order-details-app',
 
         components: {
-            OrderAdjustment,
             LineItem,
+            Adjustments,
         },
 
         data() {

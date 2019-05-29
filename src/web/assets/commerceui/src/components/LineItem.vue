@@ -177,22 +177,13 @@
                         </div>
 
                         <div class="order-flex-grow">
-                            <template v-for="(adjustment, key) in lineItem.adjustments">
-                                <line-item-adjustment
-                                        :adjustment="adjustment"
-                                        :adjustment-key="key"
-                                        :editing="editing"
-                                        :recalculation-mode="recalculationMode"
-                                        :line-item="lineItem"
-                                        @change="onChange"
-                                ></line-item-adjustment>
-                            </template>
-
-                            <template v-if="editing && recalculationMode === 'none'">
-                                <div>
-                                    <a @click.prevent="addAdjustment()">Add an adjustment</a>
-                                </div>
-                            </template>
+                            <adjustments
+                                    :adjustments="lineItem.adjustments"
+                                    :draft="draft"
+                                    :editing="editing"
+                                    :recalculationMode="recalculationMode"
+                                    @change="onChange"
+                            ></adjustments>
                         </div>
                     </div>
                 </div>
@@ -213,12 +204,12 @@
 <script>
     import {debounce} from 'debounce'
     import PrismEditor from 'vue-prism-editor'
-    import LineItemAdjustment from './LineItemAdjustment'
+    import Adjustments from './Adjustments'
 
     export default {
         components: {
             PrismEditor,
-            LineItemAdjustment
+            Adjustments
         },
 
         props: {
@@ -305,21 +296,6 @@
                     this.lineItem.lineItemStatusId = status.dataset.id
                 }
 
-                this.$emit('change')
-            },
-
-            addAdjustment() {
-                const adjustment = {
-                    id: null,
-                    type: 'tax',
-                    name: '',
-                    description: '',
-                    amount: '0.0000',
-                    included: '0',
-                    orderId: this.draft.order.id,
-                }
-
-                this.lineItem.adjustments.push(adjustment)
                 this.$emit('change')
             },
 

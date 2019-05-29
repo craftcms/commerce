@@ -1,5 +1,5 @@
 <template>
-    <div class="order-flex" :key="'adjustment-'+adjustmentKey">
+    <div class="order-flex">
         <div class="order-flex-grow">
             <div>
                 <template v-if="editing">
@@ -35,7 +35,7 @@
                 </template>
 
                 <template v-if="editing && recalculationMode === 'none'">
-                    <a @click.prevent="removeAdjustment(adjustmentKey)">Remove</a>
+                    <a @click.prevent="$emit('remove')">Remove</a>
                     <hr>
                 </template>
             </div>
@@ -54,9 +54,6 @@
 <script>
     export default {
         props: {
-            adjustmentKey: {
-                type: Number,
-            },
             adjustment: {
                 type: Object,
             },
@@ -66,8 +63,8 @@
             recalculationMode: {
                 type: String,
             },
-            lineItem: {
-                type: Object
+            adjustments: {
+                type: Array
             }
         },
 
@@ -104,12 +101,5 @@
                 }
             },
         },
-
-        methods: {
-            removeAdjustment(key) {
-                this.$delete(this.lineItem.adjustments, key)
-                this.$emit('change')
-            },
-        }
     }
 </script>
