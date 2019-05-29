@@ -6,7 +6,7 @@
                 <span class="light">({{adjustment.type}})</span>
                 {{adjustment.description}}
 
-                <template v-if="editing && recalculateMode === 'none'">
+                <template v-if="editing && recalculationMode === 'none'">
                     <a @click="$emit('remove')">Remove</a>
                 </template>
             </div>
@@ -33,7 +33,7 @@
             editing: {
                 type: Boolean,
             },
-            recalculateMode: {
+            recalculationMode: {
                 type: String,
             },
         }
