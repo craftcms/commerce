@@ -178,52 +178,13 @@
 
                         <div class="order-flex-grow">
                             <template v-for="(adjustment, key) in lineItem.adjustments">
-                                <div class="order-flex" :key="'adjustment-'+key">
-                                    <div class="order-flex-grow">
-                                        <div>
-                                            <template v-if="editing">
-                                                <div>
-                                                    <label>Type</label>
-                                                    <select v-model="adjustment.type">
-                                                        <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
-                                                            {{adjustmentOption.label}}
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label>Name</label>
-                                                    <input type="text" v-model="adjustment.name" @input="onChange" />
-                                                </div>
-                                                <div>
-                                                    <label>Description</label>
-                                                    <input type="text" v-model="adjustment.description" @input="onChange" />
-                                                </div>
-                                                <div>
-                                                    <label>Amount</label>
-                                                    <input type="text" v-model="adjustment.amount" @input="onChange" />
-                                                </div>
-                                            </template>
-                                            <template v-else>
-                                                {{adjustment.name}}
-                                                <span class="light">({{adjustment.type}})</span>
-                                                {{adjustment.description}}
-                                            </template>
-
-                                            <template v-if="editing && recalculationMode === 'none'">
-                                                <a @click.prevent="removeAdjustment(key)">Remove</a>
-                                                <hr>
-                                            </template>
-                                        </div>
-                                    </div>
-                                    <div class="order-flex-grow text-right">
-                                        <template v-if="adjustment.included !== '0' && adjustment.included !== false">
-                                            <div class="light">{{adjustment.amountAsCurrency}} included</div>
-                                        </template>
-                                        <template v-else>
-                                            {{adjustment.amountAsCurrency}}
-                                        </template>
-                                    </div>
-                                </div>
+                                <line-item-adjustment
+                                        :adjustment="adjustment"
+                                        :adjustment-key="key"
+                                        :editing="editing"
+                                        :recalculation-mode="recalculationMode"
+                                        @change="onChange"
+                                ></line-item-adjustment>
                             </template>
 
                             <template v-if="editing && recalculationMode === 'none'">
@@ -251,10 +212,12 @@
 <script>
     import {debounce} from 'debounce'
     import PrismEditor from 'vue-prism-editor'
+    import LineItemAdjustment from './LineItemAdjustment'
 
     export default {
         components: {
-            PrismEditor
+            PrismEditor,
+            LineItemAdjustment
         },
 
         props: {
@@ -278,20 +241,6 @@
         data() {
             return {
                 options: null,
-                adjustmentOptions: [
-                    {
-                        label: 'Tax',
-                        value: 'tax',
-                    },
-                    {
-                        label: 'Discount',
-                        value: 'discount',
-                    },
-                    {
-                        label: 'Shipping',
-                        value: 'shipping',
-                    },
-                ],
             }
         },
 
