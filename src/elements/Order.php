@@ -348,7 +348,7 @@ class Order extends Element
     /**
      * @var string
      */
-    public $_recalculationMode;
+    private $_recalculationMode;
 
     /**
      * @var Address

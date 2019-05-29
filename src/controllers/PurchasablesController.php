@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use craft\db\Query;
 use craft\web\Controller;
 use yii\db\conditions\LikeCondition;
+use Craft;
 
 /**
  * Class Purchasables Controller
@@ -33,7 +34,7 @@ class PurchasablesController extends Controller
 
         if (is_numeric($query)) {
             $result = (new Query())
-                ->select(['*'])
+                ->select(['id','price','description','sku'])
                 ->from('{{%commerce_purchasables}}')
                 ->where(['id' => $query])
                 ->all();
@@ -45,13 +46,14 @@ class PurchasablesController extends Controller
             return $this->asJson($result);
         }
 
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $result = (new Query())
-            ->select(['*'])
+            ->select(['id','price','description','sku'])
             ->from('{{%commerce_purchasables}}')
             ->where(['or',
-                new LikeCondition('description', 'LIKE', '%'.$query.'%'),
-                new LikeCondition('SKU', 'LIKE', '%'.$query.'%'),
-                ])
+                [$likeOperator, 'description', $query],
+                [$likeOperator, 'SKU', $query]
+            ])
             ->all();
 
         if (!$result) {

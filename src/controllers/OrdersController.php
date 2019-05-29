@@ -141,7 +141,6 @@ class OrdersController extends BaseCpController
 
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
-
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
 

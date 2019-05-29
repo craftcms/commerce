@@ -12,10 +12,10 @@ use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\web\Controller;
+use JsonSchema\Validator;
 use Throwable;
 use yii\base\Exception;
 use yii\web\Response;
@@ -39,17 +39,6 @@ class OrderController extends Controller
 
     // Public Methods
     // =========================================================================
-    public function beforeAction($action)
-    {
-        if (!parent::beforeAction($action)) {
-            return false;
-        }
-
-        $data = Craft::$app->getRequest()->getRawBody();
-        $this->_responseData = Json::decodeIfJson($data);
-
-        return true;
-    }
 
     public function actionGet($orderId = null)
     {
@@ -68,7 +57,6 @@ class OrderController extends Controller
         }
 
         $this->_addOrderToData();
-        $this->_addMetaToData();
 
         return $this->asJson($this->_responseData);
     }
@@ -80,6 +68,11 @@ class OrderController extends Controller
      */
     public function actionSave()
     {
+        $data = Craft::$app->getRequest()->getRawBody();
+        $this->_responseData = Json::decodeIfJson($data);
+
+        $this->_validateJson(Json::decodeIfJson($data, false));
+
         $this->_processOrder();
         $this->_setLineItemsAndAdjustments();
 
@@ -105,6 +98,23 @@ class OrderController extends Controller
      */
     public function actionRecalculate()
     {
+        $data = Craft::$app->getRequest()->getRawBody();
+        $this->_responseData = Json::decodeIfJson($data);
+
+        $errors = $this->_validateJson(Json::decodeIfJson($data, false));
+
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                $attribute = preg_replace('/lineItems\[(\d*)]./', 'lineItems.$1.', $error['property']);
+                $attribute = preg_replace('/adjustments\[(\d*)]./', 'adjustments.$1.', $attribute);
+
+                $this->_responseData['order']['errors'][$attribute] = $error['message'];
+                $this->_responseData['error'] = Craft::t('commerce', 'Errors found on the order.');
+            }
+
+            return $this->asJson($this->_responseData);
+        }
+
         $this->_processOrder();
         $this->_setLineItemsAndAdjustments();
 
@@ -124,22 +134,14 @@ class OrderController extends Controller
     }
 
     /**
-     *
-     */
-    private function _addMetaToData()
-    {
-        // Add meta data
-        $data['meta'] = [];
-        $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
-    }
-
-    /**
      * @param Order $order
      */
     private function _addOrderToData()
     {
         // Remove custom fields
         $orderFields = array_keys($this->_order->fields());
+
+        sort($orderFields);
 
         // Remove unneeded fields
         ArrayHelper::removeValue($orderFields, 'hasDescendants');
@@ -152,6 +154,12 @@ class OrderController extends Controller
         ArrayHelper::removeValue($orderFields, 'totalDescendants');
         ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
         ArrayHelper::removeValue($orderFields, 'contentId');
+        ArrayHelper::removeValue($orderFields, 'trashed');
+        ArrayHelper::removeValue($orderFields, 'structureId');
+        ArrayHelper::removeValue($orderFields, 'url');
+        ArrayHelper::removeValue($orderFields, 'ref');
+        ArrayHelper::removeValue($orderFields, 'title');
+        ArrayHelper::removeValue($orderFields, 'slug');
 
         if ($this->_order::hasContent() && ($fieldLayout = $this->_order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getFields() as $field) {
@@ -160,15 +168,13 @@ class OrderController extends Controller
             }
         }
 
-        $extraFields = $this->_order->extraFields();
-        $extraFields[] = 'lineItems.snapshot';
-
+        $extraFields = ['lineItems.snapshot'];
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
 
         if ($this->_order->hasErrors()) {
             $data['order']['errors'] = $this->_order->getErrors();
             $data['errors'] = [];
-            $data['errors']['order'] = Craft::t('commerce', 'The order is not in valid state.');
+            $data['errors']['order'] = Craft::t('commerce', 'The order is not valid.');
         }
     }
 
@@ -223,12 +229,11 @@ class OrderController extends Controller
 
             if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
                 $lineItemModel->salePrice = $lineItem['salePrice'];
-                $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
             }
 
             $lineItemModel->setOptions($options);
 
-            if ($qty !== null &&  $qty > 0) {
+            if ($qty !== null && $qty > 0) {
                 $lineItems[] = $lineItemModel;
             }
 
@@ -295,5 +300,18 @@ class OrderController extends Controller
 
             $this->_order->setAdjustments($adjustments);
         }
+    }
+
+    private function _validateJson($data)
+    {
+        $schemaJson = Json::decode(file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'schemas' . DIRECTORY_SEPARATOR . 'order-edit.json'));
+        $validator = new Validator();
+        $validator->validate($data, $schemaJson);
+
+        if (!$validator->isValid()) {
+            return $validator->getErrors();
+        }
+
+        return [];
     }
 }
