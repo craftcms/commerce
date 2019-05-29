@@ -885,6 +885,10 @@ class Order extends Element
             return;
         }
 
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_NONE) {
+            return;
+        }
+
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
 
             $lineItemRemoved = false;

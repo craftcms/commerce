@@ -31,73 +31,155 @@ class OrderController extends Controller
     public $enableCsrfValidation = false;
     public $allowAnonymous = true;
 
+    private $_responseData;
+    /**
+     * @var Order
+     */
+    private $_order;
+
     // Public Methods
     // =========================================================================
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        $data = Craft::$app->getRequest()->getRawBody();
+        $this->_responseData = Json::decodeIfJson($data);
+
+        return true;
+    }
 
     public function actionGet($orderId = null)
     {
-        // The response
-        $data = [];
-
         if (!$orderId) {
             return $this->asErrorJson(Craft::t('commerce', 'Missing order ID'));
         }
 
-        $order = Order::find()->id($orderId)->one();
+        $this->_order = Order::find()->id($orderId)->one();
 
-        if (!$order) {
-            $order = new Order([
+        if (!$this->_order) {
+            $this->_order = new Order([
                 'number' => Plugin::getInstance()->getCarts()->generateCartNumber()
             ]);
 
-            Craft::$app->getElements()->saveElement($order);
+            Craft::$app->getElements()->saveElement($this->_order);
         }
 
-        $this->_addOrderToData($order, $data);
-        $this->_addMetaToData($data);
+        $this->_addOrderToData();
+        $this->_addMetaToData();
 
-        return $this->asJson($data);
+        return $this->asJson($this->_responseData);
     }
 
     /**
      * @return Response
      * @throws Throwable
-     * @throws ElementNotFoundException
      * @throws Exception
      */
     public function actionSave()
     {
+        $this->_processOrder();
+        $this->_setLineItemsAndAdjustments();
 
+        if ($this->_order->validate()) {
+            Craft::$app->getElements()->saveElement($this->_order);
+        }
+
+        // Set the recalculation mode for the response.
+        $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+        if (!$this->_order->isCompleted) {
+            $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+        }
+
+        $this->_addOrderToData();
+
+        return $this->asJson($this->_responseData);
     }
 
     /**
      * @return Response
      * @throws Throwable
-     * @throws ElementNotFoundException
      * @throws Exception
      */
     public function actionRecalculate()
     {
-        $data = Craft::$app->getRequest()->getRawBody();
-        $data = Json::decodeIfJson($data);
+        $this->_processOrder();
+        $this->_setLineItemsAndAdjustments();
 
-        if (!isset($data['order']['id'])) {
+        if ($this->_order->validate() && $this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+            $this->_order->recalculate(); // dont save just recalc
+        }
+
+        // Set the recalculation mode for the response.
+        $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+        if (!$this->_order->isCompleted) {
+            $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+        }
+
+        $this->_addOrderToData();
+
+        return $this->asJson($this->_responseData);
+    }
+
+    /**
+     *
+     */
+    private function _addMetaToData()
+    {
+        // Add meta data
+        $data['meta'] = [];
+        $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
+    }
+
+    /**
+     * @param Order $order
+     */
+    private function _addOrderToData()
+    {
+        // Remove custom fields
+        $orderFields = array_keys($this->_order->fields());
+
+        if ($this->_order::hasContent() && ($fieldLayout = $this->_order->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                /** @var Field $field */
+                ArrayHelper::removeValue($orderFields, $field->handle);
+            }
+        }
+
+        $extraFields = $this->_order->extraFields();
+        $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
+
+        if ($this->_order->hasErrors()) {
+            $data['order']['errors'] = $this->_order->getErrors();
+            $data['errors'] = [];
+            $data['errors']['order'] = Craft::t('commerce', 'The order is not in valid state.');
+        }
+    }
+
+    private function _processOrder()
+    {
+        if (!isset($this->_responseData['order']['id'])) {
             return $this->asErrorJson(Craft::t('commerce', 'Missing order.'));
         }
 
         /** @var Order $order */
-        $order = Order::find()->id($data['order']['id'])->one();
+        $this->_order = Order::find()->id($this->_responseData['order']['id'])->one();
 
-        if (!$order) {
-            return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $data['order']['id']]));
+        if (!$this->_order) {
+            return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $this->_responseData['order']['id']]));
         }
 
-        $order->setRecalculationMode($data['order']['recalculationMode']);
+        $this->_order->setRecalculationMode($this->_responseData['order']['recalculationMode']);
+    }
 
+    private function _setLineItemsAndAdjustments()
+    {
         $lineItems = [];
         $adjustments = [];
 
-        foreach ($data['order']['lineItems'] as $lineItem) {
+        foreach ($this->_responseData['order']['lineItems'] as $lineItem) {
             $lineItemId = $lineItem['id'] ?? null;
             $note = $lineItem['note'] ?? '';
             $adminNote = $lineItem['adminNote'] ?? '';
@@ -109,12 +191,12 @@ class OrderController extends Controller
             $lineItemModel = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             if (!$lineItemModel) {
-                $lineItemModel = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                $lineItemModel = Plugin::getInstance()->getLineItems()->createLineItem($this->_order->id, $purchasableId, $options, $qty, $note);
             }
 
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
                 $lineItemModel->setPurchasable($purchasable);
-                if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+                if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
                     $lineItemModel->refreshFromPurchasable();
                 }
             }
@@ -125,18 +207,18 @@ class OrderController extends Controller
             $lineItemModel->adminNote = $adminNote;
             $lineItemModel->lineItemStatusId = $lineItemStatusId;
 
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+            if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
                 $lineItemModel->salePrice = $lineItem['salePrice'];
                 $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
             }
 
             $lineItemModel->setOptions($options);
 
-            if ($qty !== null || $qty == 0) {
+            if ($qty !== null &&  $qty > 0) {
                 $lineItems[] = $lineItemModel;
             }
 
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+            if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
                 foreach ($lineItem['adjustments'] as $adjustment) {
                     $amount = $adjustment['amount'];
@@ -150,12 +232,11 @@ class OrderController extends Controller
                     if ($id) {
                         $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
                     }
-                    if($adjustment === null)
-                    {
+                    if ($adjustment === null) {
                         $adjustment = new OrderAdjustment();
                     }
 
-                    $adjustment->setOrder($order);
+                    $adjustment->setOrder($this->_order);
                     $adjustment->setLineItem($lineItemModel);
                     $adjustment->amount = $amount;
                     $adjustment->type = $type;
@@ -165,18 +246,14 @@ class OrderController extends Controller
 
                     $adjustments[] = $adjustment;
                 }
-
-                $order->setAdjustments($adjustments);
             }
-
-
         }
 
-        $order->setLineItems($lineItems);
+        $this->_order->setLineItems($lineItems);
 
-        if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+        if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
-            foreach ($data['order']['orderAdjustments'] as $adjustment) {
+            foreach ($this->_responseData['order']['orderAdjustments'] as $adjustment) {
                 $amount = $adjustment['amount'];
                 $id = $adjustment['id'];
                 $type = $adjustment['type'];
@@ -188,12 +265,11 @@ class OrderController extends Controller
                 if ($id) {
                     $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
                 }
-                if($adjustment === null)
-                {
+                if ($adjustment === null) {
                     $adjustment = new OrderAdjustment();
                 }
 
-                $adjustment->setOrder($order);
+                $adjustment->setOrder($this->_order);
                 $adjustment->amount = $amount;
                 $adjustment->type = $type;
                 $adjustment->name = $name;
@@ -203,54 +279,7 @@ class OrderController extends Controller
                 $adjustments[] = $adjustment;
             }
 
-            $order->setAdjustments($adjustments);
-        }
-
-        if ($order->validate() && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
-            $order->recalculate();
-        }
-
-        $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
-
-        $this->_addOrderToData($order, $data);
-
-        return $this->asJson($data);
-    }
-
-    /**
-     * @param array $data
-     */
-    private function _addMetaToData(array &$data)
-    {
-        // Add meta data
-        $data['meta'] = [];
-        $data['meta']['edition'] = Plugin::getInstance()->is(Plugin::EDITION_LITE) ? Plugin::EDITION_LITE : Plugin::EDITION_PRO;
-    }
-
-    /**
-     * @param Order $order
-     * @param array $data
-     */
-    private function _addOrderToData(Order $order, array &$data)
-    {
-
-        // Remove custom fields
-        $orderFields = array_keys($order->fields());
-
-        if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
-                /** @var Field $field */
-                ArrayHelper::removeValue($orderFields, $field->handle);
-            }
-        }
-
-        $extraFields = $order->extraFields();
-        $data['order'] = $order->toArray($orderFields, $extraFields);
-
-        if ($order->hasErrors()) {
-            $data['order']['errors'] = $order->getErrors();
-            $data['errors'] = [];
-            $data['errors']['order'] = Craft::t('commerce', 'The order is not in valid state.');
+            $this->_order->setAdjustments($adjustments);
         }
     }
 }
