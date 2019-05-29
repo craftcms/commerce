@@ -66,6 +66,9 @@
             recalculationMode: {
                 type: String,
             },
+            lineItem: {
+                type: Object
+            }
         },
 
         data() {
@@ -100,7 +103,13 @@
                     this.adjustment.included = (newValue ? '1' : '0')
                 }
             },
+        },
 
+        methods: {
+            removeAdjustment(key) {
+                this.$delete(this.lineItem.adjustments, key)
+                this.$emit('change')
+            },
         }
     }
 </script>

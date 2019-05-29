@@ -183,6 +183,7 @@
                                         :adjustment-key="key"
                                         :editing="editing"
                                         :recalculation-mode="recalculationMode"
+                                        :line-item="lineItem"
                                         @change="onChange"
                                 ></line-item-adjustment>
                             </template>
@@ -304,11 +305,6 @@
                     this.lineItem.lineItemStatusId = status.dataset.id
                 }
 
-                this.$emit('change')
-            },
-
-            removeAdjustment(key) {
-                this.$delete(this.lineItem.adjustments, key)
                 this.$emit('change')
             },
 
