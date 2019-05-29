@@ -44,14 +44,7 @@
                             :line-item-key="lineItemKey"
                             :editing="editing"
                             :recalculation-mode="draft.order.recalculationMode"
-                            @purchasableChange="recalculateOrder(draft)"
-                            @optionsChange="recalculateOrder(draft)"
-                            @noteChange="recalculateOrder(draft)"
-                            @adminNoteChange="recalculateOrder(draft)"
-                            @quantityChange="recalculateOrder(draft)"
-                            @lineItemStatusChange="recalculateOrder(draft)"
-                            @salePriceChange="recalculateOrder(draft)"
-                            @adjustmentChange="recalculateOrder(draft)"
+                            @change="recalculateOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
                 </template>
 
