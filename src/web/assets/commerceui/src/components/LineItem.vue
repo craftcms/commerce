@@ -278,7 +278,6 @@
         data() {
             return {
                 options: null,
-                code: 'const a = b',
                 adjustmentOptions: [
                     {
                         label: 'Tax',
