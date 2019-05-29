@@ -65,6 +65,7 @@ use yii\log\Logger;
  * @property Address $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
+ * @property string $recalculationMode the mode of recalculation.
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -347,7 +348,7 @@ class Order extends Element
     /**
      * @var string
      */
-    public $recalculationMode;
+    public $_recalculationMode;
 
     /**
      * @var Address
@@ -408,11 +409,11 @@ class Order extends Element
             $this->orderLanguage = Craft::$app->language;
         }
 
-        if ($this->recalculationMode === null) {
+        if ($this->_recalculationMode === null) {
             if ($this->isCompleted) {
-                $this->recalculationMode = self::RECALCULATION_MODE_NONE;
+                $this->setRecalculationMode(self::RECALCULATION_MODE_NONE);
             } else {
-                $this->recalculationMode = self::RECALCULATION_MODE_ALL;
+                $this->setRecalculationMode(self::RECALCULATION_MODE_ALL);
             }
         }
 
@@ -478,6 +479,7 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
+        $names[] = 'recalculationMode';
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'email';
@@ -643,8 +645,8 @@ class Order extends Element
         }
 
         // Lock for recalculation
-        $originalRecalculationMode = $this->recalculationMode;
-        $this->recalculationMode = self::RECALCULATION_MODE_NONE;
+        $originalRecalculationMode = $this->getRecalculationMode();
+        $this->setRecalculationMode(self::RECALCULATION_MODE_NONE);
 
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
@@ -663,7 +665,7 @@ class Order extends Element
         }
 
         // restore recalculation lock state
-        $this->recalculationMode = $originalRecalculationMode;
+        $this->setRecalculationMode($originalRecalculationMode);
     }
 
     /**
@@ -847,6 +849,26 @@ class Order extends Element
     }
 
     /**
+     * Gets the recalculation mode of the order
+     *
+     * @return string
+     */
+    public function getRecalculationMode(): string
+    {
+        return $this->_recalculationMode;
+    }
+
+    /**
+     * Sets the recalculation mode of the order
+     *
+     * @param $value
+     */
+    public function setRecalculationMode($value)
+    {
+        $this->_recalculationMode = $value;
+    }
+
+    /**
      * Regenerates all adjusters and updates line items, depending on the current recalculationMode
      *
      * @throws Exception
@@ -863,7 +885,7 @@ class Order extends Element
             return;
         }
 
-        if ($this->recalculationMode == self::RECALCULATION_MODE_ALL) {
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
 
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
@@ -885,7 +907,7 @@ class Order extends Element
             }
         }
 
-        if ($this->recalculationMode == self::RECALCULATION_MODE_ALL || $this->recalculationMode == self::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL || $this->getRecalculationMode() == self::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
             //clear adjustments
             $this->setAdjustments([]);
 
@@ -978,7 +1000,7 @@ class Order extends Element
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
-        $orderRecord->recalculationMode = $this->recalculationMode;
+        $orderRecord->recalculationMode = $this->getRecalculationMode();
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];

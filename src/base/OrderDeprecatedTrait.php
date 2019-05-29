@@ -73,9 +73,9 @@ trait OrderDeprecatedTrait
         Craft::$app->getDeprecator()->log('Order::setShouldRecalculateAdjustments()', 'Order::setShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
 
         if ($value) {
-            $this->recalculationMode = Order::RECALCULATION_MODE_ALL;
+            $this->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         } else {
-            $this->recalculationMode = Order::RECALCULATION_MODE_NONE;
+            $this->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
         }
     }
 
@@ -88,11 +88,11 @@ trait OrderDeprecatedTrait
     {
         Craft::$app->getDeprecator()->log('Order::getShouldRecalculateAdjustments()', 'Order::getShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
 
-        if ($this->recalculationMode == Order::RECALCULATION_MODE_ALL) {
+        if ($this->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
             return true;
         }
 
-        if ($this->recalculationMode == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
+        if ($this->getRecalculationMode() == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
             throw new InvalidConfigException('Order::getShouldRecalculateAdjustments() has been deprecated.');
         }
 

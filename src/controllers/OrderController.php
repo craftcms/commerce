@@ -92,7 +92,7 @@ class OrderController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'No order found with ID: {id}', ['id' => $data['order']['id']]));
         }
 
-        $order->recalculationMode = $data['order']['recalculationMode'];
+        $order->setRecalculationMode($data['order']['recalculationMode']);
 
         $lineItems = [];
         $adjustments = [];
@@ -114,7 +114,7 @@ class OrderController extends Controller
 
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
                 $lineItemModel->setPurchasable($purchasable);
-                if ($order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
+                if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
                     $lineItemModel->refreshFromPurchasable();
                 }
             }
@@ -125,7 +125,7 @@ class OrderController extends Controller
             $lineItemModel->adminNote = $adminNote;
             $lineItemModel->lineItemStatusId = $lineItemStatusId;
 
-            if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
                 $lineItemModel->salePrice = $lineItem['salePrice'];
                 $lineItemModel->saleAmount = $lineItem['salePrice'] - $lineItemModel->price;
             }
@@ -136,7 +136,7 @@ class OrderController extends Controller
                 $lineItems[] = $lineItemModel;
             }
 
-            if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
                 foreach ($lineItem['adjustments'] as $adjustment) {
                     $amount = $adjustment['amount'];
@@ -174,7 +174,7 @@ class OrderController extends Controller
 
         $order->setLineItems($lineItems);
 
-        if ($order->recalculationMode == Order::RECALCULATION_MODE_NONE) {
+        if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
             foreach ($data['order']['orderAdjustments'] as $adjustment) {
                 $amount = $adjustment['amount'];
@@ -206,11 +206,11 @@ class OrderController extends Controller
             $order->setAdjustments($adjustments);
         }
 
-        if ($order->validate() && $order->recalculationMode == Order::RECALCULATION_MODE_ALL) {
+        if ($order->validate() && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
             $order->recalculate();
         }
 
-        $order->recalculationMode = 'none';
+        $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         $this->_addOrderToData($order, $data);
 
