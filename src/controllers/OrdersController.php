@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Variant;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
@@ -129,24 +128,19 @@ class OrdersController extends BaseCpController
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $orderId . ';', View::POS_BEGIN);
 
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)). ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
 
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
-        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(ArrayHelper::toArray($lineItemStatuses)). ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(ArrayHelper::toArray($lineItemStatuses)) . ';', View::POS_BEGIN);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
-        Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)). ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
-        Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)). ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
 
-        $purchasables = Variant::find()->all();
-        $purchasableIds = [];
-        foreach ($purchasables as $variant)
-        {
-            $purchasableIds[] = ['text' => $variant->title, 'value' => $variant->id];
-        }
-        Craft::$app->getView()->registerJs('window.orderEdit.purchasableIds = ' . Json::encode(ArrayHelper::toArray($purchasableIds)). ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
+
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
