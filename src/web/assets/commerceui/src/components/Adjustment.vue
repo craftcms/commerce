@@ -32,6 +32,17 @@
                     {{adjustment.name}}
                     <span class="light">({{adjustment.type}})</span>
                     {{adjustment.description}}
+                    <div>
+                        <template v-if="!showSnapshot">
+                            <a @click.prevent="showSnapshot = true">Show snapshot</a>
+                        </template>
+                        <template v-else>
+                            <a @click.prevent="showSnapshot = false">Hide snapshot</a>
+                            <div>
+                                <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
+                            </div>
+                        </template>
+                    </div>
                 </template>
 
                 <template v-if="editing && recalculationMode === 'none'">
@@ -70,6 +81,7 @@
 
         data() {
             return {
+                showSnapshot: false,
                 adjustmentOptions: [
                     {
                         label: 'Tax',
