@@ -18,6 +18,12 @@ Customers can only add and remove addresses from the front-end while they are lo
 
 See <api:craft\commerce\models\Address> to learn about the fields available on an address.
 
+## Get a specific address belonging to the current customer by its id
+
+```twig
+{% set address = craft.commerce.customer.getAddressById(id) %}
+```
+
 ## Updating or creating a new customer address
 
 ```twig
