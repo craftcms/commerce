@@ -327,7 +327,8 @@ class LineItem extends Model
             'order',
             'shippingCategory',
             'taxCategory',
-            'lineItemStatus'
+            'lineItemStatus',
+            'snapshot'
         ];
     }
 

@@ -141,6 +141,18 @@ class OrderController extends Controller
         // Remove custom fields
         $orderFields = array_keys($this->_order->fields());
 
+        // Remove unneeded fields
+        ArrayHelper::removeValue($orderFields, 'hasDescendants');
+        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
+        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
+        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
+        ArrayHelper::removeValue($orderFields, 'tempId');
+        ArrayHelper::removeValue($orderFields, 'resaving');
+        ArrayHelper::removeValue($orderFields, 'duplicateOf');
+        ArrayHelper::removeValue($orderFields, 'totalDescendants');
+        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
+        ArrayHelper::removeValue($orderFields, 'contentId');
+
         if ($this->_order::hasContent() && ($fieldLayout = $this->_order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getFields() as $field) {
                 /** @var Field $field */
@@ -149,6 +161,8 @@ class OrderController extends Controller
         }
 
         $extraFields = $this->_order->extraFields();
+        $extraFields[] = 'lineItems.snapshot';
+
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
 
         if ($this->_order->hasErrors()) {
