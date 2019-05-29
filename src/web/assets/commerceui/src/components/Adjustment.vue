@@ -1,5 +1,5 @@
 <template>
-    <div class="order-flex" :key="'adjustment-'+adjustmentKey">
+    <div class="order-flex">
         <div class="order-flex-grow">
             <div>
                 <template v-if="editing">
@@ -32,10 +32,21 @@
                     {{adjustment.name}}
                     <span class="light">({{adjustment.type}})</span>
                     {{adjustment.description}}
+                    <div>
+                        <template v-if="!showSnapshot">
+                            <a @click.prevent="showSnapshot = true">Show snapshot</a>
+                        </template>
+                        <template v-else>
+                            <a @click.prevent="showSnapshot = false">Hide snapshot</a>
+                            <div>
+                                <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
+                            </div>
+                        </template>
+                    </div>
                 </template>
 
                 <template v-if="editing && recalculationMode === 'none'">
-                    <a @click.prevent="removeAdjustment(adjustmentKey)">Remove</a>
+                    <a @click.prevent="$emit('remove')">Remove</a>
                     <hr>
                 </template>
             </div>
@@ -54,9 +65,6 @@
 <script>
     export default {
         props: {
-            adjustmentKey: {
-                type: Number,
-            },
             adjustment: {
                 type: Object,
             },
@@ -66,13 +74,14 @@
             recalculationMode: {
                 type: String,
             },
-            lineItem: {
-                type: Object
+            adjustments: {
+                type: Array
             }
         },
 
         data() {
             return {
+                showSnapshot: false,
                 adjustmentOptions: [
                     {
                         label: 'Tax',
@@ -104,12 +113,5 @@
                 }
             },
         },
-
-        methods: {
-            removeAdjustment(key) {
-                this.$delete(this.lineItem.adjustments, key)
-                this.$emit('change')
-            },
-        }
     }
 </script>
