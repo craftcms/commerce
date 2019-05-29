@@ -28,10 +28,6 @@ class PurchasablesController extends Controller
 
     public function actionSearch($query = null)
     {
-        if ($query === null) {
-            return $this->asJson([]);
-        }
-
         if (is_numeric($query)) {
             $result = (new Query())
                 ->select(['id','price','description','sku'])
@@ -47,14 +43,18 @@ class PurchasablesController extends Controller
         }
 
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $result = (new Query())
+        $sqlQuery = (new Query())
             ->select(['id','price','description','sku'])
-            ->from('{{%commerce_purchasables}}')
-            ->where(['or',
+            ->from('{{%commerce_purchasables}}');
+
+        if ($query) {
+            $sqlQuery->where(['or',
                 [$likeOperator, 'description', $query],
                 [$likeOperator, 'SKU', $query]
-            ])
-            ->all();
+            ]);
+        }
+
+        $result = $sqlQuery->all();
 
         if (!$result) {
             return $this->asJson([]);

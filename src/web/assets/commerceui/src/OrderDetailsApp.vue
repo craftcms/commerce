@@ -23,6 +23,17 @@
             </template>
         </div>
 
+        <template v-if="editing">
+            <hr>
+
+            <add-line-item
+                    :order-id="orderId"
+                    :draft="draft"
+                    :loading="loading"
+                    @change="recalculateOrder(draft)"
+            ></add-line-item>
+        </template>
+
         <hr>
 
         <div class="order-details">
@@ -76,26 +87,12 @@
                 <template v-if="editing">
                     <hr>
 
-                    <form @submit.prevent="lineItemAdd()">
-                        <div>
-                            <label for="selectedPurchasableId">Purchasable</label>
-                            <div class="input">
-                                <div class="select">
-                                    <select v-model="selectedPurchasableId">
-                                        <option v-for="(option, key) in purchasables" :key="key" :value="option.value">
-                                            {{ option.text }}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <br />
-
-                        <input type="submit" class="btn submit" value="Add Line Item" />
-
-                        <div v-if="loading" class="spinner"></div>
-                    </form>
+                    <add-line-item
+                            :order-id="orderId"
+                            :draft="draft"
+                            :loading="loading"
+                            @change="recalculateOrder(draft)"
+                    ></add-line-item>
                 </template>
             </template>
         </div>
@@ -112,6 +109,7 @@
     import axios from 'axios'
     import LineItem from './components/LineItem'
     import Adjustments from './components/Adjustments'
+    import AddLineItem from './components/AddLineItem'
 
     export default {
         name: 'order-details-app',
@@ -119,6 +117,7 @@
         components: {
             LineItem,
             Adjustments,
+            AddLineItem
         },
 
         data() {
@@ -127,7 +126,6 @@
                 loading: false,
                 originalDraft: null,
                 draft: null,
-                selectedPurchasableId: 4,
             }
         },
 
@@ -135,35 +133,12 @@
             orderId() {
                 return window.orderEdit.orderId
             },
-            purchasables() {
-                return window.orderEdit.purchasableIds
-            }
         },
 
         methods: {
             recalculate() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.recalculationMode = 'all'
-                this.recalculateOrder(draft)
-            },
-
-            lineItemAdd() {
-                const lineItem = {
-                    id: null,
-                    lineItemStatusId: null,
-                    salePrice: '0.0000',
-                    qty: "1",
-                    note: "",
-                    orderId: this.orderId,
-                    purchasableId: this.selectedPurchasableId,
-                    options: {giftWrapped: "no"},
-                    adjustments: [],
-                }
-
-                const draft = JSON.parse(JSON.stringify(this.draft))
-
-                draft.order.lineItems.push(lineItem)
-
                 this.recalculateOrder(draft)
             },
 
@@ -250,6 +225,11 @@
 
         mounted() {
             this.getOrder(this.orderId)
+
+            axios.get(Craft.getActionUrl('commerce/purchasables/search', {orderId: this.orderId}))
+                .then((response) => {
+                    this.$root.purchasables = response.data
+                })
         }
 
     }

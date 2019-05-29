@@ -16,8 +16,8 @@
                                 <label for="selectedPurchasableId" class="hidden">Purchasable</label>
                                 <div class="select">
                                     <select v-model="lineItem.purchasableId" @change="onChange">
-                                        <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.value">
-                                            {{ option.text }}
+                                        <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.id">
+                                            {{ option.sku }}
                                         </option>
                                     </select>
                                 </div>
@@ -275,7 +275,7 @@
             },
 
             purchasables() {
-                return window.orderEdit.purchasableIds
+                return this.$root.purchasables
             },
 
             lineItemStatuses() {
