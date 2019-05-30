@@ -17,7 +17,7 @@
                                 <div class="select">
                                     <select v-model="lineItem.purchasableId" @change="onChange">
                                         <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.id">
-                                            {{ option.sku }} - {{ option.priceAsCurrency}}
+                                            {{ option.sku }} - {{ option.priceAsCurrency}} - {{ option.description }}
                                         </option>
                                     </select>
                                 </div>
