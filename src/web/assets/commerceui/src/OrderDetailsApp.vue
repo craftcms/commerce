@@ -110,7 +110,9 @@
 <script>
     /* globals Craft */
 
-    import axios from 'axios'
+    import orderApi from './api/order'
+    import purchasablesApi from './api/purchasables'
+
     import LineItem from './components/LineItem'
     import Adjustments from './components/Adjustments'
     import AddLineItem from './components/AddLineItem'
@@ -153,7 +155,7 @@
 
             getOrder(orderId) {
                 this.loading = true
-                return axios.get(Craft.getActionUrl('commerce/order/get', {orderId}))
+                return orderApi.get(orderId)
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
@@ -211,7 +213,7 @@
 
                 // recalculate
 
-                axios.post(Craft.getActionUrl('commerce/order/recalculate'), draft)
+                orderApi.recalculate(draft)
                     .then((response) => {
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
@@ -263,7 +265,7 @@
             save() {
                 this.loading = true
 
-                axios.post(Craft.getActionUrl('commerce/order/save'), this.draft)
+                orderApi.save(this.draft)
                     .then((response) => {
                         this.loading = false
                         Craft.cp.displayNotice('Success.');
@@ -288,7 +290,7 @@
         mounted() {
             this.getOrder(this.orderId)
 
-            axios.get(Craft.getActionUrl('commerce/purchasables/search', {orderId: this.orderId}))
+            purchasablesApi.search(this.orderId)
                 .then((response) => {
                     this.$root.purchasables = response.data
                 })

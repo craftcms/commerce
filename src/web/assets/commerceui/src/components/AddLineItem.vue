@@ -26,7 +26,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import VSelect from 'vue-select'
 
     export default {
