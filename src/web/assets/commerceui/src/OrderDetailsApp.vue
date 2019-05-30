@@ -180,7 +180,9 @@
             recalculateOrder(draft) {
                 this.loading = true
 
+
                 // make sure values have the right type
+
                 draft.order.id = this.parseInputValue('int', draft.order.id)
 
                 draft.order.lineItems.forEach((lineItem, lineItemKey) => {
