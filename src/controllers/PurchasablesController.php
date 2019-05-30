@@ -7,10 +7,11 @@
 
 namespace craft\commerce\controllers;
 
+use Craft;
+use craft\commerce\helpers\Currency;
+use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\web\Controller;
-use yii\db\conditions\LikeCondition;
-use Craft;
 
 /**
  * Class Purchasables Controller
@@ -28,38 +29,46 @@ class PurchasablesController extends Controller
 
     public function actionSearch($query = null)
     {
-        if (is_numeric($query)) {
-            $result = (new Query())
-                ->select(['id','price','description','sku'])
-                ->from('{{%commerce_purchasables}}')
-                ->where(['id' => $query])
-                ->all();
+        // Prepare purchasables query
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select(['id', 'price', 'description', 'sku'])
+            ->from('{{%commerce_purchasables}}');
 
+        // Are they searching for a purchasable ID?
+        if (is_numeric($query)) {
+            $result = $sqlQuery->where(['id' => $query])->all();
             if (!$result) {
                 return $this->asJson([]);
             }
-
             return $this->asJson($result);
         }
 
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $sqlQuery = (new Query())
-            ->select(['id','price','description','sku'])
-            ->from('{{%commerce_purchasables}}');
-
+        // Are they searching for a SKU or purchasable description?
         if ($query) {
-            $sqlQuery->where(['or',
+            $sqlQuery->where([
+                'or',
                 [$likeOperator, 'description', $query],
                 [$likeOperator, 'SKU', $query]
             ]);
         }
 
-        $result = $sqlQuery->all();
+        $result = $sqlQuery->limit(3)->all();
 
         if (!$result) {
             return $this->asJson([]);
         }
 
-        return $this->asJson($result);
+        $purchasables = [];
+
+        // Add the currency formatted price
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        foreach($result as $row)
+        {
+            $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+            $purchasables[] = $row;
+        }
+
+        return $this->asJson($purchasables);
     }
 }
