@@ -181,6 +181,11 @@
                         this.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
 
+                        if (response.data.error) {
+                            Craft.cp.displayError(response.data.error);
+                            return
+                        }
+
                         Craft.cp.displayNotice('Order recalculated.');
                     })
                     .catch((error) => {
