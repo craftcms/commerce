@@ -9,6 +9,7 @@
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
+                            <!-- Description -->
                             <template v-if="!editing">
                                 <h3>{{ lineItem.description }}</h3>
                             </template>
@@ -24,6 +25,7 @@
                                 <input-error :draft="draft" :error-key="'order.lineItems.'+lineItemKey+'.purchasableId'"></input-error>
                             </template>
 
+                            <!-- Status -->
                             <div>
                                 <a class="btn menubtn" ref="lineItemStatus">
                                     <template v-if="lineItemStatus.color">
@@ -59,6 +61,7 @@
 
                             <br />
 
+                            <!-- Shipping & Tax -->
                             <small>
                                 <ul>
                                     <li>
@@ -68,6 +71,21 @@
                                     <li>{{taxCategory}} <span class="light">(Tax)</span></li>
                                 </ul>
                             </small>
+
+                            <br />
+
+                            <!-- Snapshot -->
+                            <div>
+                                <template v-if="!showSnapshot">
+                                    <a @click.prevent="showSnapshot = true">Show snapshot</a>
+                                </template>
+                                <template v-else>
+                                    <a @click.prevent="showSnapshot = false">Hide snapshot</a>
+                                    <div>
+                                        <pre><code>{{lineItem.snapshot}}</code></pre>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                         <div class="order-flex-grow">
                             <ul>
@@ -242,6 +260,7 @@
         data() {
             return {
                 options: null,
+                showSnapshot: false,
             }
         },
 
