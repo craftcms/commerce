@@ -6,6 +6,7 @@
 - Fixed an SQL error that occurred when upgrading Commerce. ([#829](https://github.com/craftcms/commerce/issues/829))
 - Fixed an bug that could stop more that one sale being applied to a purchasable. ([#839](https://github.com/craftcms/commerce/issues/839)) 
 - Fixed a SQL error when saving a line item with emoji in the note.([#886](https://github.com/craftcms/commerce/issues/886)) 
+- Fixed an error on the order index page when viewing carts with certain columns enabled. ([#876](https://github.com/craftcms/commerce/issues/876)) 
 
 ## 2.1.6.1 - 2019-05-14
 
