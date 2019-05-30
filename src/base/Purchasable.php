@@ -261,6 +261,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $purchasable->sku = $this->getSku();
         $purchasable->price = $this->getPrice();
         $purchasable->id = $this->id;
+        $purchasable->description = $this->getDescription();
 
         $purchasable->save(false);
 

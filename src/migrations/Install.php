@@ -512,6 +512,7 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'sku' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull(),
+            'description' => $$this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
