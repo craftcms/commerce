@@ -220,6 +220,7 @@
 
                         if (response.data.error) {
                             Craft.cp.displayError(response.data.error);
+                            console.log(response.data.order.errors);
                             return
                         }
 
@@ -266,7 +267,7 @@
                 if (this.loading) {
                     return false
                 }
-                
+
                 this.loading = true
 
                 orderApi.save(this.draft)
