@@ -266,7 +266,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
-            [['note'], StringValidator::class, 'disallowMb4' => true],
+            [['note','adminNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {
