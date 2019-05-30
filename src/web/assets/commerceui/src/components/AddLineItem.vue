@@ -1,6 +1,21 @@
 <template>
     <form @submit.prevent="lineItemAdd()">
-        <v-select label="sku" v-model="selectedPurchasable" :options="$root.purchasables"></v-select>
+        <v-select label="sku" v-model="selectedPurchasable" :options="$root.purchasables">
+            <template slot="option" slot-scope="option">
+                <div class="purchasable-select-option">
+                    <div class="description">
+                        <template v-if="option.description">
+                            {{option.description}}
+                        </template>
+                        <template v-else>
+                            <em>No description</em>
+                        </template>
+                    </div>
+                    <div class="sku">{{ option.sku }}</div>
+                    <div class="price">{{ option.priceAsCurrency }}</div>
+                </div>
+            </template>
+        </v-select>
 
         <br />
 
@@ -11,7 +26,6 @@
 </template>
 
 <script>
-    import axios from 'axios'
     import VSelect from 'vue-select'
 
     export default {
@@ -59,3 +73,23 @@
         },
     }
 </script>
+
+<style lang="scss">
+    .purchasable-select-option {
+        display: flex;
+
+        .description {
+            flex-grow: 1;
+        }
+        
+        .sku {
+            color: #888;
+            margin-right: 20px;
+        }
+
+        .price {
+            width: 10%;
+            text-align: right;
+        }
+    }
+</style>
