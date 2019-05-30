@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -81,7 +82,7 @@ class CartController extends BaseFrontEndController
             $lineItem->qty = $qty;
         }
 
-        if ($note = $request->getParam('note')) {
+        if ($note = LitEmoji::unicodeToShortcode($request->getParam('note'))) {
             $lineItem->note = $note;
         }
 
@@ -176,7 +177,7 @@ class CartController extends BaseFrontEndController
 
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
-            $note = $request->getParam('note', '');
+            $note = LitEmoji::unicodeToShortcode($request->getParam('note', ''));
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
@@ -202,7 +203,7 @@ class CartController extends BaseFrontEndController
             foreach ($purchasables as $key => $purchasable) {
 
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
-                $note = $request->getParam("purchasables.{$key}.note", '');
+                $note = LitEmoji::unicodeToShortcode($request->getParam("purchasables.{$key}.note", ''));
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
@@ -246,7 +247,7 @@ class CartController extends BaseFrontEndController
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
                 $lineItemId = $key;
-                $note = $request->getParam("lineItems.{$key}.note");
+                $note = LitEmoji::unicodeToShortcode($request->getParam("lineItems.{$key}.note"));
                 $options = $request->getParam("lineItems.{$key}.options");
                 $qty = $request->getParam("lineItems.{$key}.qty");
                 $removeLine = $request->getParam("lineItems.{$key}.remove");
