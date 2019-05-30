@@ -100,8 +100,8 @@
                                     </template>
                                 </li>
                                 <template v-if="lineItem.onSale">
-                                    <li><span class="light">Original Price</span> <strike>{{ lineItem.price }}</strike></li>
-                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmount }}</li>
+                                    <li><span class="light">Original Price</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
+                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmountAsCurrency }}</li>
                                 </template>
                             </ul>
 
