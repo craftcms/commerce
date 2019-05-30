@@ -11,7 +11,7 @@
                     <div class="order-row-title">
                         <div class="buttons">
                             <a class="btn" @click.prevent="cancel()">Cancel</a>
-                            <a class="btn submit" @click.prevent="save()">Save</a>
+                            <a class="btn submit" :class="{disabled: loading}" @click.prevent="save()">Save</a>
                             <div v-if="loading" class="spinner"></div>
                         </div>
                     </div>
@@ -263,6 +263,10 @@
             },
 
             save() {
+                if (this.loading) {
+                    return false
+                }
+                
                 this.loading = true
 
                 orderApi.save(this.draft)
