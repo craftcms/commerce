@@ -2,6 +2,8 @@
     <div>
         <template v-for="(adjustment, key) in adjustments">
             <adjustment
+                    :error-prefix="errorPrefix"
+                    :draft="draft"
                     :key="key"
                     :adjustment="adjustment"
                     :adjustment-key="key"
@@ -40,6 +42,9 @@
                 type: Boolean,
             },
             recalculationMode: {
+                type: String,
+            },
+            errorPrefix: {
                 type: String,
             },
         },

@@ -22,10 +22,12 @@
                     <div>
                         <label>Amount</label>
                         <input type="text" v-model="adjustment.amount" @input="$emit('change')" />
+                        <input-error :draft="draft" :error-key="errorPrefix+adjustmentKey+'.amount'"></input-error>
                     </div>
                     <div>
                         <label>Included</label>
                         <input type="checkbox" v-model="included" @input="$emit('change')" />
+                        <input-error :draft="draft" :error-key="errorPrefix+adjustmentKey+'.included'"></input-error>
                     </div>
                 </template>
                 <template v-else>
@@ -63,10 +65,22 @@
 </template>
 
 <script>
+    import InputError from './InputError'
+
     export default {
+        components: {
+            InputError,
+        },
+
         props: {
             adjustment: {
                 type: Object,
+            },
+            adjustmentKey: {
+                type: Number,
+            },
+            lineItemKey: {
+                type: Number,
             },
             editing: {
                 type: Boolean,
@@ -76,6 +90,12 @@
             },
             adjustments: {
                 type: Array
+            },
+            draft: {
+                type: Object,
+            },
+            errorPrefix: {
+                type: String,
             }
         },
 
