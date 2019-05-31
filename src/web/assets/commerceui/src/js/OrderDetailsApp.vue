@@ -31,7 +31,7 @@
             <add-line-item
                     :disabled="!$root.canAddLineItem"
                     :order-id="$root.orderId"
-                    @change="recalculateOrder(draft)"
+                    @change="$root.recalculateOrder(draft)"
             ></add-line-item>
         </template>
 
@@ -56,7 +56,7 @@
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
                             :recalculation-mode="draft.order.recalculationMode"
-                            @change="recalculateOrder(draft)"
+                            @change="$root.recalculateOrder(draft)"
                             @remove="removeLineItem(lineItemKey)"></line-item>
                 </template>
 
@@ -71,7 +71,7 @@
                                 :adjustments="draft.order.orderAdjustments"
                                 :draft="draft"
                                 :recalculationMode="draft.order.recalculationMode"
-                                @change="recalculateOrder(draft)"
+                                @change="$root.recalculateOrder(draft)"
                         ></adjustments>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                     <add-line-item
                             :disabled="!$root.canAddLineItem"
                             :order-id="$root.orderId"
-                            @change="recalculateOrder(draft)"
+                            @change="$root.recalculateOrder(draft)"
                     ></add-line-item>
                 </template>
             </template>
@@ -149,7 +149,7 @@
             autoRecalculate() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.recalculationMode = 'all'
-                this.recalculateOrder(draft)
+                this.$root.recalculateOrder(draft)
             },
 
             cancel() {
@@ -157,97 +157,14 @@
                 this.draft = JSON.parse(JSON.stringify(this.originalDraft))
             },
 
-            parseInputValue(type, value) {
-                let parsedValue = null
-
-                switch (type) {
-                    case 'int':
-                        parsedValue = parseInt(value)
-                        break;
-                    case 'float':
-                        parsedValue = parseFloat(value)
-                        break;
-                    case 'bool':
-                        parsedValue = !!value
-                        break;
-                }
-
-                if (isNaN(parsedValue)) {
-                    return value
-                }
-
-                return parsedValue
-            },
-
-            recalculateOrder(draft) {
-                this.$root.loading = true
-
-
-                // make sure values have the right type
-
-                draft.order.id = this.parseInputValue('int', draft.order.id)
-
-                draft.order.lineItems.forEach((lineItem, lineItemKey) => {
-                    draft.order.lineItems[lineItemKey].id = this.parseInputValue('int', lineItem.id)
-                    draft.order.lineItems[lineItemKey].purchasableId = this.parseInputValue('int', lineItem.purchasableId)
-                    draft.order.lineItems[lineItemKey].shippingCategoryId = this.parseInputValue('int', lineItem.shippingCategoryId)
-                    draft.order.lineItems[lineItemKey].salePrice = this.parseInputValue('float', lineItem.salePrice)
-                    draft.order.lineItems[lineItemKey].qty = this.parseInputValue('int', lineItem.qty)
-
-                    lineItem.adjustments.forEach((adjustment, adjustmentKey) => {
-                        draft.order.lineItems[lineItemKey].adjustments[adjustmentKey].id = this.parseInputValue('int', adjustment.id)
-                        draft.order.lineItems[lineItemKey].adjustments[adjustmentKey].amount = this.parseInputValue('float', adjustment.amount)
-                        draft.order.lineItems[lineItemKey].adjustments[adjustmentKey].included = this.parseInputValue('bool', adjustment.included)
-                        draft.order.lineItems[lineItemKey].adjustments[adjustmentKey].orderId = this.parseInputValue('int', adjustment.orderId)
-                        draft.order.lineItems[lineItemKey].adjustments[adjustmentKey].lineItemId = this.parseInputValue('int', adjustment.lineItemId)
-                    })
-                })
-
-                draft.order.orderAdjustments.forEach((adjustment, adjustmentKey) => {
-                    draft.order.orderAdjustments[adjustmentKey].id = this.parseInputValue('int', adjustment.id)
-                    draft.order.orderAdjustments[adjustmentKey].amount = this.parseInputValue('float', adjustment.amount)
-                    draft.order.orderAdjustments[adjustmentKey].included = this.parseInputValue('bool', adjustment.included)
-                    draft.order.orderAdjustments[adjustmentKey].orderId = this.parseInputValue('int', adjustment.orderId)
-                })
-
-
-                // recalculate
-
-                orderApi.recalculate(draft)
-                    .then((response) => {
-                        this.$root.loading = false
-                        this.draft = JSON.parse(JSON.stringify(response.data))
-
-                        if (response.data.error) {
-                            this.$root.displayError(response.data.error);
-                            return
-                        }
-
-                        this.$root.displayNotice('Order recalculated.');
-                    })
-                    .catch((error) => {
-                        this.$root.loading = false
-
-                        let errorMsg = 'Couldn’t recalculate order.'
-
-                        if (error.response.data.error) {
-                            errorMsg = error.response.data.error
-                        }
-
-                        this.$root.displayError(errorMsg);
-
-                        throw errorMsg + ': '+ error.response
-                    })
-            },
-
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
-                this.recalculateOrder(this.draft)
+                this.$root.recalculateOrder(this.draft)
             },
 
             removeLineItem(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.recalculateOrder(this.draft)
+                this.$root.recalculateOrder(this.draft)
             },
 
             save() {
