@@ -209,7 +209,11 @@ class LineItem extends Model
             return $options;
         };
 
-        $this->_options = $cleanEmojiValues($options);
+        if (Craft::$app->getDb()->getSupportsMb4()) {
+            $this->_options = $options;
+        } else {
+            $this->_options = $cleanEmojiValues($options);
+        }
     }
 
     /**
