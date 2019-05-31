@@ -3,10 +3,8 @@
         <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
             <line-item
                     :key="lineItemKey"
-                    :draft="draft"
                     :line-item="lineItem"
                     :line-item-key="lineItemKey"
-                    :recalculation-mode="draft.order.recalculationMode"
                     @change="$root.recalculateOrder(draft)"
                     @remove="removeLineItem(lineItemKey)"></line-item>
         </template>
@@ -20,7 +18,7 @@
         components: {
             LineItem
         },
-        
+
         computed: {
             draft: {
                 get() {

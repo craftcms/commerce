@@ -47,7 +47,7 @@
                     </div>
                 </template>
 
-                <template v-if="$root.editing && recalculationMode === 'none'">
+                <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
                     <a @click.prevent="$emit('remove')">Remove</a>
                     <hr>
                 </template>
@@ -81,9 +81,6 @@
             },
             lineItemKey: {
                 type: Number,
-            },
-            recalculationMode: {
-                type: String,
             },
             adjustments: {
                 type: Array

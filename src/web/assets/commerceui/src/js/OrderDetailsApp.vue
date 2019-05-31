@@ -60,8 +60,6 @@
                     <div class="order-flex-grow">
                         <adjustments
                                 :adjustments="draft.order.orderAdjustments"
-                                :draft="draft"
-                                :recalculationMode="draft.order.recalculationMode"
                                 @change="$root.recalculateOrder(draft)"
                         ></adjustments>
                     </div>

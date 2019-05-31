@@ -91,7 +91,7 @@
                             <ul>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
-                                    <template v-if="$root.editing && recalculationMode === 'none'">
+                                    <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
                                         <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
                                         <input-error :error-key="'order.lineItems.'+lineItemKey+'.salePrice'"></input-error>
                                     </template>
@@ -204,7 +204,6 @@
                             <adjustments
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="lineItem.adjustments"
-                                    :recalculationMode="recalculationMode"
                                     @change="onChange"
                             ></adjustments>
                         </div>
@@ -244,9 +243,6 @@
             lineItemKey: {
                 type: Number,
             },
-            recalculationMode: {
-                type: String,
-            },
         },
 
         data() {
@@ -270,6 +266,7 @@
 
                 return {id: "0", name: "None", color: null}
             },
+
             shippingCategory() {
                 if (!this.lineItem.shippingCategoryId) {
                     return null
