@@ -82,6 +82,7 @@
                     salePrice: '0.0000',
                     qty: "1",
                     note: "",
+                    adminNote: "",
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,
