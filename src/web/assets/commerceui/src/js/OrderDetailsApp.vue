@@ -18,7 +18,7 @@
                     </div>
 
                     <div class="order-flex-grow text-right">
-                        <a class="btn" @click.prevent="recalculate()">Recalculate</a>
+                        <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
                     </div>
                 </div>
             </template>
@@ -57,7 +57,7 @@
                             :line-item-key="lineItemKey"
                             :recalculation-mode="draft.order.recalculationMode"
                             @change="recalculateOrder(draft)"
-                            @remove="lineItemRemove(lineItemKey)"></line-item>
+                            @remove="removeLineItem(lineItemKey)"></line-item>
                 </template>
 
                 <!-- Order Adjustments -->
@@ -111,7 +111,6 @@
     /* globals Craft */
 
     import orderApi from './api/order'
-    import purchasablesApi from './api/purchasables'
 
     import LineItem from './components/LineItem'
     import Adjustments from './components/Adjustments'
@@ -147,41 +146,37 @@
         },
 
         methods: {
-            recalculate() {
+            autoRecalculate() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.recalculationMode = 'all'
                 this.recalculateOrder(draft)
             },
 
-            lineItemRemove(lineItemKey) {
-                this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.recalculateOrder(this.draft)
+            cancel() {
+                this.$root.editing = false
+                this.draft = JSON.parse(JSON.stringify(this.originalDraft))
             },
 
-            getOrder(orderId) {
-                this.$root.loading = true
-                return orderApi.get(orderId)
-                    .then((response) => {
-                        this.$root.loading = false
-                        this.draft = JSON.parse(JSON.stringify(response.data))
+            parseInputValue(type, value) {
+                let parsedValue = null
 
-                        if (!this.originalDraft) {
-                            this.originalDraft = JSON.parse(JSON.stringify(this.draft))
-                        }
-                    })
-                    .catch((error) => {
-                        this.$root.loading = false
+                switch (type) {
+                    case 'int':
+                        parsedValue = parseInt(value)
+                        break;
+                    case 'float':
+                        parsedValue = parseFloat(value)
+                        break;
+                    case 'bool':
+                        parsedValue = !!value
+                        break;
+                }
 
-                        let errorMsg = 'Couldn’t get order.'
+                if (isNaN(parsedValue)) {
+                    return value
+                }
 
-                        if (error.response.data.error) {
-                            errorMsg = error.response.data.error
-                        }
-
-                        this.$root.displayError(errorMsg);
-
-                        throw errorMsg + ': '+ error.response
-                    })
+                return parsedValue
             },
 
             recalculateOrder(draft) {
@@ -246,26 +241,14 @@
                     })
             },
 
-            parseInputValue(type, value) {
-                let parsedValue = null
+            removeAdjustment(key) {
+                this.$delete(this.draft.order.orderAdjustments, key)
+                this.recalculateOrder(this.draft)
+            },
 
-                switch (type) {
-                    case 'int':
-                        parsedValue = parseInt(value)
-                        break;
-                    case 'float':
-                        parsedValue = parseFloat(value)
-                        break;
-                    case 'bool':
-                        parsedValue = !!value
-                        break;
-                }
-
-                if (isNaN(parsedValue)) {
-                    return value
-                }
-
-                return parsedValue
+            removeLineItem(lineItemKey) {
+                this.$delete(this.draft.order.lineItems, lineItemKey)
+                this.recalculateOrder(this.draft)
             },
 
             save() {
@@ -286,25 +269,6 @@
                         this.$root.displayError('Error.');
                     })
             },
-
-            cancel() {
-                this.$root.editing = false
-                this.draft = JSON.parse(JSON.stringify(this.originalDraft))
-            },
-
-            removeAdjustment(key) {
-                this.$delete(this.draft.order.orderAdjustments, key)
-                this.recalculateOrder(this.draft)
-            },
         },
-
-        mounted() {
-            this.getOrder(this.$root.orderId)
-
-            purchasablesApi.search(this.$root.orderId)
-                .then((response) => {
-                    this.$root.purchasables = response.data
-                })
-        }
     }
 </script>
