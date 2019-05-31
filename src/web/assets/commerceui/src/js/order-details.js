@@ -14,7 +14,8 @@ new Vue({
 
     data() {
         return {
-            loading: false,
+            recalculateLoading: false,
+            saveLoading: false,
             editing: false,
             draft: null,
             originalDraft: null,
@@ -74,10 +75,10 @@ new Vue({
         },
 
         getOrder(orderId) {
-            this.loading = true
+            this.recalculateLoading = true
             return orderApi.get(orderId)
                 .then((response) => {
-                    this.loading = false
+                    this.recalculateLoading = false
                     this.draft = JSON.parse(JSON.stringify(response.data))
 
                     if (!this.originalDraft) {
@@ -85,7 +86,7 @@ new Vue({
                     }
                 })
                 .catch((error) => {
-                    this.loading = false
+                    this.recalculateLoading = false
 
                     let errorMsg = 'Couldn’t get order.'
 
@@ -122,7 +123,7 @@ new Vue({
         },
 
         recalculateOrder(draft) {
-            this.loading = true
+            this.recalculateLoading = true
 
 
             // make sure values have the right type
@@ -157,7 +158,7 @@ new Vue({
 
             orderApi.recalculate(draft)
                 .then((response) => {
-                    this.loading = false
+                    this.recalculateLoading = false
                     this.draft = JSON.parse(JSON.stringify(response.data))
 
                     if (response.data.error) {
@@ -168,7 +169,7 @@ new Vue({
                     this.displayNotice('Order recalculated.');
                 })
                 .catch((error) => {
-                    this.loading = false
+                    this.recalculateLoading = false
 
                     let errorMsg = 'Couldn’t recalculate order.'
 

@@ -4,7 +4,6 @@
         <div>
             <template v-if="!$root.editing">
                 <a class="btn" @click.prevent="$root.editing = true">Edit</a>
-                <div v-if="$root.loading" class="spinner"></div>
             </template>
 
             <template v-else>
@@ -12,12 +11,13 @@
                     <div class="order-row-title">
                         <div class="buttons">
                             <a class="btn" @click.prevent="cancel()">Cancel</a>
-                            <a class="btn submit" :class="{disabled: $root.loading}" @click.prevent="save()">Save</a>
-                            <div v-if="$root.loading" class="spinner"></div>
+                            <a class="btn submit" :class="{disabled: $root.recalculateLoading}" @click.prevent="save()">Save</a>
+                            <div v-if="$root.saveLoading" class="spinner"></div>
                         </div>
                     </div>
 
                     <div class="order-flex-grow text-right">
+                        <div v-if="$root.recalculateLoading" class="spinner"></div>
                         <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
                     </div>
                 </div>
@@ -139,20 +139,20 @@
             },
 
             save() {
-                if (this.$root.loading) {
+                if (this.$root.saveLoading) {
                     return false
                 }
 
-                this.$root.loading = true
+                this.$root.saveLoading = true
 
                 orderApi.save(this.draft)
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
-                        this.$root.loading = false
+                        this.$root.saveLoading = false
                         this.$root.displayNotice('Order saved.');
                     })
                     .catch((error) => {
-                        this.$root.loading = false
+                        this.$root.saveLoading = false
                         this.$root.displayError('Couldn’t save order.');
                     })
             },
