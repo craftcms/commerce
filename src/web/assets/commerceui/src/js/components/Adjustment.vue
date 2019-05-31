@@ -2,7 +2,7 @@
     <div class="order-flex">
         <div class="order-flex-grow">
             <div>
-                <template v-if="editing">
+                <template v-if="$root.editing">
                     <div>
                         <label>Type</label>
                         <select v-model="adjustment.type">
@@ -47,7 +47,7 @@
                     </div>
                 </template>
 
-                <template v-if="editing && recalculationMode === 'none'">
+                <template v-if="$root.editing && recalculationMode === 'none'">
                     <a @click.prevent="$emit('remove')">Remove</a>
                     <hr>
                 </template>
@@ -81,9 +81,6 @@
             },
             lineItemKey: {
                 type: Number,
-            },
-            editing: {
-                type: Boolean,
             },
             recalculationMode: {
                 type: String,

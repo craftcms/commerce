@@ -10,7 +10,7 @@
                     <div class="order-flex">
                         <div class="order-block-title">
                             <!-- Description -->
-                            <template v-if="!editing">
+                            <template v-if="!$root.editing">
                                 <h3>{{ lineItem.description }}</h3>
                             </template>
                             <template v-else>
@@ -91,7 +91,7 @@
                             <ul>
                                 <li>
                                     <label class="light" for="salePrice">Sale Price</label>
-                                    <template v-if="editing && recalculationMode === 'none'">
+                                    <template v-if="$root.editing && recalculationMode === 'none'">
                                         <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
                                         <input-error :error-key="'order.lineItems.'+lineItemKey+'.salePrice'"></input-error>
                                     </template>
@@ -109,7 +109,7 @@
                         <div class="order-flex-grow">
                             <div>
                                 <label class="light" for="quantity">Quantity</label>
-                                <template v-if="!editing">
+                                <template v-if="!$root.editing">
                                     {{ lineItem.qty }}
                                 </template>
                                 <template v-else>
@@ -130,7 +130,7 @@
                         </div>
 
                         <div class="order-flex-grow">
-                            <template v-if="!editing">
+                            <template v-if="!$root.editing">
                                 <template v-if="Object.keys(lineItem.options).length">
                                     <ul :id="'info-' + lineItem.id">
                                         <template v-for="(option, key) in lineItem.options">
@@ -163,7 +163,7 @@
 
                         <div class="order-flex order-flex-grow order-margin-wrapper">
                             <div class="order-flex-grow order-margin">
-                                <template v-if="!editing">
+                                <template v-if="!$root.editing">
                                     <template v-if="lineItem.note">
                                         {{lineItem.note}}
                                     </template>
@@ -177,7 +177,7 @@
                                 </template>
                             </div>
                             <div class="order-flex-grow order-margin">
-                                <template v-if="!editing">
+                                <template v-if="!$root.editing">
                                     <template v-if="lineItem.adminNote">
                                         {{lineItem.adminNote}}
                                     </template>
@@ -204,7 +204,6 @@
                             <adjustments
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="lineItem.adjustments"
-                                    :editing="editing"
                                     :recalculationMode="recalculationMode"
                                     @change="onChange"
                             ></adjustments>
@@ -216,7 +215,7 @@
                     <div>
                         <strong>{{ lineItem.totalAsCurrency }}</strong>
                     </div>
-                    <div v-if="editing">
+                    <div v-if="$root.editing">
                         <a href="#" @click.prevent="$emit('remove')">Remove</a>
                     </div>
                 </div>
@@ -244,9 +243,6 @@
             },
             lineItemKey: {
                 type: Number,
-            },
-            editing: {
-                type: Boolean,
             },
             recalculationMode: {
                 type: String,

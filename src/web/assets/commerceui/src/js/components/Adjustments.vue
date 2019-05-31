@@ -6,7 +6,6 @@
                     :key="key"
                     :adjustment="adjustment"
                     :adjustment-key="key"
-                    :editing="editing"
                     :recalculation-mode="recalculationMode"
                     :adjustments="adjustments"
                     @change="$emit('change')"
@@ -14,7 +13,7 @@
             ></adjustment>
         </template>
 
-        <template v-if="editing && recalculationMode === 'none'">
+        <template v-if="$root.editing && recalculationMode === 'none'">
             <div>
                 <a @click.prevent="addAdjustment()">Add an adjustment</a>
             </div>
@@ -33,9 +32,6 @@
         props: {
             adjustments: {
                 type: Array,
-            },
-            editing: {
-                type: Boolean,
             },
             recalculationMode: {
                 type: String,

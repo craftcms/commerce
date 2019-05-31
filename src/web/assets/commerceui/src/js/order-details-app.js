@@ -11,6 +11,7 @@ new Vue({
   data() {
     return {
       loading: false,
+      editing: false,
       draft: null,
       originalDraft: null,
       purchasables: []

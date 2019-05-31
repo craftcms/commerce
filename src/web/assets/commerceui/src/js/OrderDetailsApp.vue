@@ -2,8 +2,8 @@
     <div>
         <!-- Header -->
         <div>
-            <template v-if="!editing">
-                <a class="btn" @click.prevent="editing = true">Edit</a>
+            <template v-if="!$root.editing">
+                <a class="btn" @click.prevent="$root.editing = true">Edit</a>
                 <div v-if="$root.loading" class="spinner"></div>
             </template>
 
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Add line item -->
-        <template v-if="editing">
+        <template v-if="$root.editing">
             <hr>
 
             <add-line-item
@@ -55,7 +55,6 @@
                             :draft="draft"
                             :line-item="lineItem"
                             :line-item-key="lineItemKey"
-                            :editing="editing"
                             :recalculation-mode="draft.order.recalculationMode"
                             @change="recalculateOrder(draft)"
                             @remove="lineItemRemove(lineItemKey)"></line-item>
@@ -71,7 +70,6 @@
                         <adjustments
                                 :adjustments="draft.order.orderAdjustments"
                                 :draft="draft"
-                                :editing="editing"
                                 :recalculationMode="draft.order.recalculationMode"
                                 @change="recalculateOrder(draft)"
                         ></adjustments>
@@ -86,7 +84,7 @@
                     <h2>{{ draft.order.totalPriceAsCurrency }}</h2>
                 </div>
 
-                <template v-if="editing">
+                <template v-if="$root.editing">
                     <hr>
 
                     <add-line-item
@@ -126,12 +124,6 @@
             LineItem,
             Adjustments,
             AddLineItem
-        },
-
-        data() {
-            return {
-                editing: false,
-            }
         },
 
         computed: {
@@ -296,7 +288,7 @@
             },
 
             cancel() {
-                this.editing = false
+                this.$root.editing = false
                 this.draft = JSON.parse(JSON.stringify(this.originalDraft))
             },
 
