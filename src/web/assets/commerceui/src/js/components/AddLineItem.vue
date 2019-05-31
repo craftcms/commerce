@@ -1,7 +1,7 @@
 <template>
     <div>
         <template v-if="!showForm">
-            <a @click.prevent="showForm = true">Add Line Item</a>
+            <a @click.prevent="showForm = true">Add a line item</a>
         </template>
         <template v-else>
             <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
@@ -30,7 +30,7 @@
                 
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: disabled}" :disabled="disabled" value="Cancel" @click="showForm = false" />
-                    <input type="submit" class="btn submit" :class="{disabled: disabled}" :disabled="disabled" value="Add Line Item" />
+                    <input type="submit" class="btn submit" :class="{disabled: disabled}" :disabled="disabled" value="Add" />
                 </div>
 
                 <div v-if="$root.loading" class="spinner"></div>
