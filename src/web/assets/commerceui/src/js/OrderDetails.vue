@@ -149,11 +149,11 @@
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.$root.loading = false
-                        this.$root.displayNotice('Success.');
+                        this.$root.displayNotice('Order saved.');
                     })
                     .catch((error) => {
                         this.$root.loading = false
-                        this.$root.displayError('Error.');
+                        this.$root.displayError('Couldn’t save order.');
                     })
             },
         },
