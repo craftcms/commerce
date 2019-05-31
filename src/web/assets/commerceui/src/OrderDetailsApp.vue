@@ -286,6 +286,7 @@
 
                 orderApi.save(this.draft)
                     .then((response) => {
+                        this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.loading = false
                         Craft.cp.displayNotice('Success.');
                     })
