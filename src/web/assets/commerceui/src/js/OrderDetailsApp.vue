@@ -1,5 +1,6 @@
 <template>
     <div>
+        <!-- Header -->
         <div>
             <template v-if="!editing">
                 <a class="btn" @click.prevent="editing = true">Edit</a>
@@ -23,6 +24,7 @@
             </template>
         </div>
 
+        <!-- Add line item -->
         <template v-if="editing">
             <hr>
 
@@ -36,6 +38,7 @@
 
         <hr>
 
+        <!-- Order details -->
         <div class="order-details">
             <template v-if="!draft">
                 <div class="spinner"></div>
@@ -97,6 +100,7 @@
             </template>
         </div>
 
+        <!-- Errors -->
         <template v-if="draft && draft.order.errors">
             <pre>{{draft.order.errors}}</pre>
         </template>
