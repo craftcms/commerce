@@ -5,10 +5,4 @@ Vue.config.productionTip = false
 
 new Vue({
   render: h => h(App),
-
-  data() {
-    return {
-      purchasables: []
-    }
-  }
 }).$mount('#order-meta-app')
