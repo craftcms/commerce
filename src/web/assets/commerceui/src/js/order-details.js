@@ -27,6 +27,22 @@ new Vue({
             return window.orderEdit.edition
         },
 
+        canAddLineItem() {
+            if (!this.maxLineItems) {
+                return true
+            }
+
+            if (this.draft.order.lineItems.length < this.maxLineItems) {
+                return true
+            }
+
+            return false
+        },
+
+        lineItemStatuses() {
+            return window.orderEdit.lineItemStatuses
+        },
+
         maxLineItems() {
             if (this.edition === 'lite') {
                 return 1
@@ -39,16 +55,12 @@ new Vue({
             return window.orderEdit.orderId
         },
 
-        canAddLineItem() {
-            if (!this.maxLineItems) {
-                return true
-            }
+        taxCategories() {
+            return window.orderEdit.taxCategories
+        },
 
-            if (this.draft.order.lineItems.length < this.maxLineItems) {
-                return true
-            }
-
-            return false
+        shippingCategories() {
+            return window.orderEdit.shippingCategories
         }
     },
 

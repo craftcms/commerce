@@ -32,7 +32,7 @@
                                                 None
                                             </a>
                                         </li>
-                                        <li v-for="(status) in lineItemStatuses">
+                                        <li v-for="(status) in $root.lineItemStatuses">
                                             <a
                                                     :data-id="status.id"
                                                     :data-color="status.color"
@@ -259,11 +259,11 @@
                     return null
                 }
 
-                if (typeof window.orderEdit.shippingCategories[this.lineItem.shippingCategoryId] === 'undefined') {
+                if (typeof this.$root.shippingCategories[this.lineItem.shippingCategoryId] === 'undefined') {
                     return this.lineItem.shippingCategoryId
                 }
 
-                return window.orderEdit.shippingCategories[this.lineItem.shippingCategoryId]
+                return this.$root.shippingCategories[this.lineItem.shippingCategoryId]
             },
 
             taxCategory() {
@@ -271,16 +271,12 @@
                     return null
                 }
 
-                if (typeof window.orderEdit.taxCategories[this.lineItem.taxCategoryId] === 'undefined') {
+                if (typeof this.$root.taxCategories[this.lineItem.taxCategoryId] === 'undefined') {
                     return this.lineItem.taxCategoryId
                 }
 
-                return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
+                return this.$root.taxCategories[this.lineItem.taxCategoryId]
             },
-
-            lineItemStatuses() {
-                return window.orderEdit.lineItemStatuses
-            }
         },
 
         methods: {
