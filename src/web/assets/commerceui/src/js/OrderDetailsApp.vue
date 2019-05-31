@@ -132,12 +132,28 @@
             return {
                 editing: false,
                 loading: false,
-                originalDraft: null,
-                draft: null,
             }
         },
 
         computed: {
+            draft: {
+                get() {
+                    return this.$root.draft
+                },
+                set(newVal) {
+                    this.$root.draft = newVal
+                }
+            },
+
+            originalDraft: {
+                get() {
+                    return this.$root.draft
+                },
+                set(newVal) {
+                    this.$root.draft = newVal
+                }
+            },
+
             orderId() {
                 return window.orderEdit.orderId
             },
@@ -315,6 +331,5 @@
                     this.$root.purchasables = response.data
                 })
         }
-
     }
 </script>

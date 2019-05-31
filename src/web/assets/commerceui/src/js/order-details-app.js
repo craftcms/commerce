@@ -10,6 +10,8 @@ new Vue({
 
   data() {
     return {
+      draft: null,
+      originalDraft: null,
       purchasables: []
     }
   },
