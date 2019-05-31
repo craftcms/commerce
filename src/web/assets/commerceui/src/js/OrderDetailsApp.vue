@@ -49,16 +49,7 @@
                 </template>
 
                 <!-- Line Items -->
-                <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
-                    <line-item
-                            :key="lineItemKey"
-                            :draft="draft"
-                            :line-item="lineItem"
-                            :line-item-key="lineItemKey"
-                            :recalculation-mode="draft.order.recalculationMode"
-                            @change="$root.recalculateOrder(draft)"
-                            @remove="removeLineItem(lineItemKey)"></line-item>
-                </template>
+                <line-items></line-items>
 
                 <!-- Order Adjustments -->
                 <div class="order-flex">
@@ -112,7 +103,7 @@
 
     import orderApi from './api/order'
 
-    import LineItem from './components/LineItem'
+    import LineItems from './components/LineItems'
     import Adjustments from './components/Adjustments'
     import AddLineItem from './components/AddLineItem'
 
@@ -120,9 +111,9 @@
         name: 'order-details-app',
 
         components: {
-            LineItem,
             Adjustments,
-            AddLineItem
+            AddLineItem,
+            LineItems
         },
 
         computed: {
@@ -159,11 +150,6 @@
 
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
-                this.$root.recalculateOrder(this.draft)
-            },
-
-            removeLineItem(lineItemKey) {
-                this.$delete(this.draft.order.lineItems, lineItemKey)
                 this.$root.recalculateOrder(this.draft)
             },
 
