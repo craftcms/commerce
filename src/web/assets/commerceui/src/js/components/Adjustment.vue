@@ -3,28 +3,30 @@
         <div class="order-flex-grow">
             <div>
                 <template v-if="$root.editing">
-                    <div>
+                    <div class="adjustment-field">
                         <label>Type</label>
-                        <select v-model="adjustment.type">
-                            <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
-                                {{adjustmentOption.label}}
-                            </option>
-                        </select>
+                        <div class="select">
+                            <select v-model="adjustment.type">
+                                <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
+                                    {{adjustmentOption.label}}
+                                </option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
+                    <div class="adjustment-field">
                         <label>Name</label>
-                        <input type="text" v-model="adjustment.name" @input="$emit('change')" />
+                        <input type="text" class="text" v-model="adjustment.name" @input="$emit('change')" />
                     </div>
-                    <div>
+                    <div class="adjustment-field">
                         <label>Description</label>
-                        <input type="text" v-model="adjustment.description" @input="$emit('change')" />
+                        <input type="text" class="text" v-model="adjustment.description" @input="$emit('change')" />
                     </div>
-                    <div>
+                    <div class="adjustment-field">
                         <label>Amount</label>
-                        <input type="text" v-model="adjustment.amount" @input="$emit('change')" />
+                        <input type="text" class="text" v-model="adjustment.amount" @input="$emit('change')" />
                         <input-error :error-key="errorPrefix+adjustmentKey+'.amount'"></input-error>
                     </div>
-                    <div>
+                    <div class="adjustment-field">
                         <label>Included</label>
                         <input type="checkbox" v-model="included" @input="$emit('change')" />
                         <input-error :error-key="errorPrefix+adjustmentKey+'.included'"></input-error>
@@ -126,3 +128,15 @@
         },
     }
 </script>
+
+<style lang="scss" scoped>
+    .adjustment-field {
+        display: flex;
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            width: 120px;
+        }
+    }
+</style>
