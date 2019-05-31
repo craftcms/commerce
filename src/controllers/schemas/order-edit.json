@@ -246,8 +246,8 @@
                     },
                     "lineItemId": {
                       "$id": "#/properties/order/properties/lineItems/items/properties/adjustments/items/properties/lineItemId",
-                      "type": "integer",
-                      "title": "The Lineitemid Schema",
+                      "type": ["null","integer"],
+                      "title": "The Line Item ID Schema",
                       "default": "",
                       "examples": [
                         "1"
