@@ -1,34 +1,42 @@
 <template>
-    <form @submit.prevent="lineItemAdd()">
-        <v-select
-                label="sku"
-                v-model="selectedPurchasable"
-                :options="$root.purchasables"
-                :disabled="disabled"
-                :filterable="false"
-                @search="onSearch">
-            <template slot="option" slot-scope="option">
-                <div class="purchasable-select-option">
-                    <div class="description">
-                        <template v-if="option.description">
-                            {{option.description}}
-                        </template>
-                        <template v-else>
-                            <em>No description</em>
-                        </template>
-                    </div>
-                    <div class="sku">{{ option.sku }}</div>
-                    <div class="price">{{ option.priceAsCurrency }}</div>
+    <div>
+        <template v-if="!showForm">
+            <a @click.prevent="showForm = true">Add Line Item</a>
+        </template>
+        <template v-else>
+            <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
+                <v-select
+                        label="sku"
+                        v-model="selectedPurchasable"
+                        :options="$root.purchasables"
+                        :disabled="disabled"
+                        :filterable="false"
+                        @search="onSearch">
+                    <template slot="option" slot-scope="option">
+                        <div class="purchasable-select-option">
+                            <div class="description">
+                                <template v-if="option.description">
+                                    {{option.description}}
+                                </template>
+                                <template v-else>
+                                    <em>No description</em>
+                                </template>
+                            </div>
+                            <div class="sku">{{ option.sku }}</div>
+                            <div class="price">{{ option.priceAsCurrency }}</div>
+                        </div>
+                    </template>
+                </v-select>
+                
+                <div class="buttons">
+                    <input type="button" class="btn" :class="{disabled: disabled}" :disabled="disabled" value="Cancel" @click="showForm = false" />
+                    <input type="submit" class="btn submit" :class="{disabled: disabled}" :disabled="disabled" value="Add Line Item" />
                 </div>
-            </template>
-        </v-select>
 
-        <br />
-
-        <input type="submit" class="btn submit" :class="{disabled: disabled}" value="Add Line Item" :disabled="disabled" />
-
-        <div v-if="$root.loading" class="spinner"></div>
-    </form>
+                <div v-if="$root.loading" class="spinner"></div>
+            </form>
+        </template>
+    </div>
 </template>
 
 <script>
@@ -40,6 +48,7 @@
         components: {
             VSelect,
         },
+
         props: {
             orderId: {
                 type: Number,
@@ -52,8 +61,8 @@
 
         data() {
             return {
+                showForm: false,
                 selectedPurchasable: null,
-                vselectSelected: null,
             }
         },
 
@@ -100,6 +109,10 @@
 </script>
 
 <style lang="scss">
+    .add-line-item-form {
+        max-width: 300px;
+    }
+
     .purchasable-select-option {
         display: flex;
 
