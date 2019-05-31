@@ -41,9 +41,6 @@
             VSelect,
         },
         props: {
-            draft: {
-                type: Object,
-            },
             loading: {
                 type: Boolean,
             },
@@ -69,7 +66,7 @@
                     return true
                 }
 
-                if (this.draft.order.lineItems.length < this.$root.maxLineItems) {
+                if (this.$root.draft.order.lineItems.length < this.$root.maxLineItems) {
                     return true
                 }
 
@@ -98,7 +95,7 @@
                     adjustments: [],
                 }
 
-                this.draft.order.lineItems.push(lineItem)
+                this.$root.draft.order.lineItems.push(lineItem)
 
                 this.$emit('change')
             },

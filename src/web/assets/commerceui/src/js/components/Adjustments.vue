@@ -3,7 +3,6 @@
         <template v-for="(adjustment, key) in adjustments">
             <adjustment
                     :error-prefix="errorPrefix"
-                    :draft="draft"
                     :key="key"
                     :adjustment="adjustment"
                     :adjustment-key="key"
@@ -35,9 +34,6 @@
             adjustments: {
                 type: Array,
             },
-            draft: {
-                type: Object,
-            },
             editing: {
                 type: Boolean,
             },
@@ -58,7 +54,7 @@
                     description: '',
                     amount: '0.0000',
                     included: '0',
-                    orderId: this.draft.order.id,
+                    orderId: this.$root.draft.order.id,
                 }
 
                 this.adjustments.push(adjustment)

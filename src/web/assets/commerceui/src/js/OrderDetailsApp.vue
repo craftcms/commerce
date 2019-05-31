@@ -29,7 +29,6 @@
             <add-line-item
                     :disabled="!canAddLineItem"
                     :order-id="orderId"
-                    :draft="draft"
                     :loading="loading"
                     @change="recalculateOrder(draft)"
             ></add-line-item>
@@ -91,7 +90,6 @@
                     <add-line-item
                             :disabled="!canAddLineItem"
                             :order-id="orderId"
-                            :draft="draft"
                             :loading="loading"
                             @change="recalculateOrder(draft)"
                     ></add-line-item>

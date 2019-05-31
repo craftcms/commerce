@@ -22,7 +22,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <input-error :draft="draft" :error-key="'order.lineItems.'+lineItemKey+'.purchasableId'"></input-error>
+                                <input-error :error-key="'order.lineItems.'+lineItemKey+'.purchasableId'"></input-error>
                             </template>
 
                             <!-- Status -->
@@ -66,7 +66,7 @@
                                 <ul>
                                     <li>
                                         {{shippingCategory}} <span class="light"><small>(Shipping)</small></span>
-                                        <input-error :draft="draft" :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
+                                        <input-error :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
                                     </li>
                                     <li>{{taxCategory}} <span class="light">(Tax)</span></li>
                                 </ul>
@@ -93,7 +93,7 @@
                                     <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="editing && recalculationMode === 'none'">
                                         <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
-                                        <input-error :draft="draft" :error-key="'order.lineItems.'+lineItemKey+'.salePrice'"></input-error>
+                                        <input-error :error-key="'order.lineItems.'+lineItemKey+'.salePrice'"></input-error>
                                     </template>
                                     <template v-else>
                                         {{ lineItem.salePriceAsCurrency }}
@@ -114,7 +114,7 @@
                                 </template>
                                 <template v-else>
                                     <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
-                                    <input-error :draft="draft" :error-key="'order.lineItems.'+lineItemKey+'.qty'"></input-error>
+                                    <input-error :error-key="'order.lineItems.'+lineItemKey+'.qty'"></input-error>
                                 </template>
                             </div>
                         </div>
@@ -204,7 +204,6 @@
                             <adjustments
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="lineItem.adjustments"
-                                    :draft="draft"
                                     :editing="editing"
                                     :recalculationMode="recalculationMode"
                                     @change="onChange"
@@ -245,9 +244,6 @@
             },
             lineItemKey: {
                 type: Number,
-            },
-            draft: {
-                type: Object,
             },
             editing: {
                 type: Boolean,
