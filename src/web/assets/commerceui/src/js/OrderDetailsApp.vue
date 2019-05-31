@@ -106,7 +106,7 @@
 </template>
 
 <style lang="scss">
-    @import './sass/order-details.scss';
+    @import '../sass/order-details.scss';
 </style>
 
 <script>
