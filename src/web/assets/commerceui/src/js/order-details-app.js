@@ -44,5 +44,14 @@ new Vue({
 
       return false
     }
+  },
+
+  methods: {
+    displayError(msg) {
+      Craft.cp.displayError(msg)
+    },
+    displayNotice(msg) {
+      Craft.cp.displayNotice(msg)
+    },
   }
 }).$mount('#order-details-app')

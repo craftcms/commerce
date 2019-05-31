@@ -185,7 +185,7 @@
                             errorMsg = error.response.data.error
                         }
 
-                        Craft.cp.displayError(errorMsg);
+                        this.$root.displayError(errorMsg);
 
                         throw errorMsg + ': '+ error.response
                     })
@@ -231,12 +231,12 @@
                         this.draft = JSON.parse(JSON.stringify(response.data))
 
                         if (response.data.error) {
-                            Craft.cp.displayError(response.data.error);
+                            this.$root.displayError(response.data.error);
                             console.log(response.data.order.errors);
                             return
                         }
 
-                        Craft.cp.displayNotice('Order recalculated.');
+                        this.$root.displayNotice('Order recalculated.');
                     })
                     .catch((error) => {
                         this.loading = false
@@ -247,7 +247,7 @@
                             errorMsg = error.response.data.error
                         }
 
-                        Craft.cp.displayError(errorMsg);
+                        this.$root.displayError(errorMsg);
 
                         throw errorMsg + ': '+ error.response
                     })
@@ -286,11 +286,11 @@
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.loading = false
-                        Craft.cp.displayNotice('Success.');
+                        this.$root.displayNotice('Success.');
                     })
                     .catch((error) => {
                         this.loading = false
-                        Craft.cp.displayError('Error.');
+                        this.$root.displayError('Error.');
                     })
             },
 
