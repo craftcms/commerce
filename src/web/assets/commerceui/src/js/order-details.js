@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import App from './OrderDetailsApp'
+import App from './OrderDetails'
 // import 'prismjs'
 import 'prismjs/themes/prism.css'
 import orderApi from './api/order'

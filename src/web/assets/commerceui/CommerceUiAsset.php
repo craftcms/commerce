@@ -35,14 +35,14 @@ class CommerceUiAsset extends AssetBundle
         ];
 
 //        $this->js[] = 'js/chunk-vendors.js';
-//        $this->js[] = 'js/order-details-app.js';
-//        $this->js[] = 'js/order-meta-app.js';
+//        $this->js[] = 'js/order-details.js';
+//        $this->js[] = 'js/order-meta.js';
 //
 //        $this->css[] = 'css/chunk-vendors.css';
-//        $this->css[] = 'css/order-details-app.css';
+//        $this->css[] = 'css/order-details.css';
 
-        $this->js[] = 'http://localhost:8080/order-details-app.js';
-        $this->js[] = 'http://localhost:8080/order-meta-app.js';
+        $this->js[] = 'http://localhost:8080/order-details.js';
+        $this->js[] = 'http://localhost:8080/order-meta.js';
 
         parent::init();
     }

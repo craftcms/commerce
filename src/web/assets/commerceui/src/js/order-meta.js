@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import App from './OrderMetaApp'
+import App from './OrderMeta'
 
 Vue.config.productionTip = false
 
