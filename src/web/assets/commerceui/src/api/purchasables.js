@@ -3,8 +3,16 @@
 import axios from 'axios'
 
 export default {
-    search(orderId) {
-        return axios.get(Craft.getActionUrl('commerce/purchasables/search', {orderId}), {
+    search(orderId, query) {
+        const data = {
+            orderId
+        }
+
+        if (typeof query !== 'undefined') {
+            data.query = query
+        }
+        
+        return axios.get(Craft.getActionUrl('commerce/purchasables/search', data), {
             headers: {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }

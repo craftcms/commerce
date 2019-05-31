@@ -1,6 +1,12 @@
 <template>
     <form @submit.prevent="lineItemAdd()">
-        <v-select label="sku" v-model="selectedPurchasable" :options="$root.purchasables" :disabled="disabled">
+        <v-select
+                label="sku"
+                v-model="selectedPurchasable"
+                :options="$root.purchasables"
+                :disabled="disabled"
+                :filterable="false"
+                @search="onSearch">
             <template slot="option" slot-scope="option">
                 <div class="purchasable-select-option">
                     <div class="description">
@@ -26,7 +32,9 @@
 </template>
 
 <script>
+    import {debounce} from 'debounce'
     import VSelect from 'vue-select'
+    import purchasablesApi from '../api/purchasables'
 
     export default {
         components: {
@@ -94,6 +102,19 @@
 
                 this.$emit('change')
             },
+
+            onSearch(search, loading) {
+                loading(true);
+                this.search(loading, search, this);
+            },
+
+            search: debounce((loading, search, vm) => {
+                purchasablesApi.search(vm.orderId, escape(search))
+                    .then((response) => {
+                        vm.$root.purchasables = JSON.parse(JSON.stringify(response.data))
+                        loading(false)
+                    })
+            }, 350)
         },
     }
 </script>
