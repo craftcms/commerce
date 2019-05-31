@@ -220,7 +220,6 @@
 
                         if (response.data.error) {
                             this.$root.displayError(response.data.error);
-                            console.log(response.data.order.errors);
                             return
                         }
 
