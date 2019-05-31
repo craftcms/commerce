@@ -27,7 +27,7 @@
 
         <input type="submit" class="btn submit" :class="{disabled: disabled}" value="Add Line Item" :disabled="disabled" />
 
-        <div v-if="loading" class="spinner"></div>
+        <div v-if="$root.loading" class="spinner"></div>
     </form>
 </template>
 
@@ -41,9 +41,6 @@
             VSelect,
         },
         props: {
-            loading: {
-                type: Boolean,
-            },
             orderId: {
                 type: Number,
             },

@@ -4,7 +4,7 @@
         <div>
             <template v-if="!editing">
                 <a class="btn" @click.prevent="editing = true">Edit</a>
-                <div v-if="loading" class="spinner"></div>
+                <div v-if="$root.loading" class="spinner"></div>
             </template>
 
             <template v-else>
@@ -12,8 +12,8 @@
                     <div class="order-row-title">
                         <div class="buttons">
                             <a class="btn" @click.prevent="cancel()">Cancel</a>
-                            <a class="btn submit" :class="{disabled: loading}" @click.prevent="save()">Save</a>
-                            <div v-if="loading" class="spinner"></div>
+                            <a class="btn submit" :class="{disabled: $root.loading}" @click.prevent="save()">Save</a>
+                            <div v-if="$root.loading" class="spinner"></div>
                         </div>
                     </div>
 
@@ -31,7 +31,6 @@
             <add-line-item
                     :disabled="!$root.canAddLineItem"
                     :order-id="$root.orderId"
-                    :loading="loading"
                     @change="recalculateOrder(draft)"
             ></add-line-item>
         </template>
@@ -93,7 +92,6 @@
                     <add-line-item
                             :disabled="!$root.canAddLineItem"
                             :order-id="$root.orderId"
-                            :loading="loading"
                             @change="recalculateOrder(draft)"
                     ></add-line-item>
                 </template>
@@ -133,7 +131,6 @@
         data() {
             return {
                 editing: false,
-                loading: false,
             }
         },
 
@@ -170,10 +167,10 @@
             },
 
             getOrder(orderId) {
-                this.loading = true
+                this.$root.loading = true
                 return orderApi.get(orderId)
                     .then((response) => {
-                        this.loading = false
+                        this.$root.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
 
                         if (!this.originalDraft) {
@@ -181,7 +178,7 @@
                         }
                     })
                     .catch((error) => {
-                        this.loading = false
+                        this.$root.loading = false
 
                         let errorMsg = 'Couldn’t get order.'
 
@@ -196,7 +193,7 @@
             },
 
             recalculateOrder(draft) {
-                this.loading = true
+                this.$root.loading = true
 
 
                 // make sure values have the right type
@@ -231,7 +228,7 @@
 
                 orderApi.recalculate(draft)
                     .then((response) => {
-                        this.loading = false
+                        this.$root.loading = false
                         this.draft = JSON.parse(JSON.stringify(response.data))
 
                         if (response.data.error) {
@@ -243,7 +240,7 @@
                         this.$root.displayNotice('Order recalculated.');
                     })
                     .catch((error) => {
-                        this.loading = false
+                        this.$root.loading = false
 
                         let errorMsg = 'Couldn’t recalculate order.'
 
@@ -280,20 +277,20 @@
             },
 
             save() {
-                if (this.loading) {
+                if (this.$root.loading) {
                     return false
                 }
 
-                this.loading = true
+                this.$root.loading = true
 
                 orderApi.save(this.draft)
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
-                        this.loading = false
+                        this.$root.loading = false
                         this.$root.displayNotice('Success.');
                     })
                     .catch((error) => {
-                        this.loading = false
+                        this.$root.loading = false
                         this.$root.displayError('Error.');
                     })
             },
