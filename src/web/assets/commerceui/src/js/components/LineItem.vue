@@ -10,20 +10,7 @@
                     <div class="order-flex">
                         <div class="order-block-title">
                             <!-- Description -->
-                            <template v-if="!$root.editing">
-                                <h3>{{ lineItem.description }}</h3>
-                            </template>
-                            <template v-else>
-                                <label for="selectedPurchasableId" class="hidden">Purchasable</label>
-                                <div class="select">
-                                    <select v-model="lineItem.purchasableId" @change="onChange">
-                                        <option v-for="(option, key) in purchasables" :key="'purchasable-'+key" :value="option.id">
-                                            {{ option.sku }} - {{ option.priceAsCurrency}} - {{ option.description }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <input-error :error-key="'order.lineItems.'+lineItemKey+'.purchasableId'"></input-error>
-                            </template>
+                            <h3>{{ lineItem.description }}</h3>
 
                             <!-- Status -->
                             <div>
@@ -289,10 +276,6 @@
                 }
 
                 return window.orderEdit.taxCategories[this.lineItem.taxCategoryId]
-            },
-
-            purchasables() {
-                return this.$root.purchasables
             },
 
             lineItemStatuses() {
