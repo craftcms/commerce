@@ -60,23 +60,9 @@
             }
         },
 
-        computed: {
-            canAddLineItem() {
-                if (!this.$root.maxLineItems) {
-                    return true
-                }
-
-                if (this.$root.draft.order.lineItems.length < this.$root.maxLineItems) {
-                    return true
-                }
-
-                return false
-            }
-        },
-
         methods: {
             lineItemAdd() {
-                if (!this.canAddLineItem) {
+                if (!this.$root.canAddLineItem) {
                     Craft.cp.displayError('You are not allowed to add a line item.');
                     return
                 }

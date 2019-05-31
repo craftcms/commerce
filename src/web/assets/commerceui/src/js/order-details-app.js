@@ -32,5 +32,17 @@ new Vue({
     orderId() {
       return window.orderEdit.orderId
     },
+
+    canAddLineItem() {
+      if (!this.maxLineItems) {
+        return true
+      }
+
+      if (this.draft.order.lineItems.length < this.maxLineItems) {
+        return true
+      }
+
+      return false
+    }
   }
 }).$mount('#order-details-app')

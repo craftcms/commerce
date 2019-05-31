@@ -27,7 +27,7 @@
             <hr>
 
             <add-line-item
-                    :disabled="!canAddLineItem"
+                    :disabled="!$root.canAddLineItem"
                     :order-id="$root.orderId"
                     :loading="loading"
                     @change="recalculateOrder(draft)"
@@ -88,7 +88,7 @@
                     <hr>
 
                     <add-line-item
-                            :disabled="!canAddLineItem"
+                            :disabled="!$root.canAddLineItem"
                             :order-id="$root.orderId"
                             :loading="loading"
                             @change="recalculateOrder(draft)"
@@ -151,18 +151,6 @@
                     this.$root.draft = newVal
                 }
             },
-
-            canAddLineItem() {
-                if (!this.$root.maxLineItems) {
-                    return true
-                }
-
-                if (this.draft.order.lineItems.length < this.$root.maxLineItems) {
-                    return true
-                }
-
-                return false
-            }
         },
 
         methods: {
