@@ -97,8 +97,6 @@
 </style>
 
 <script>
-    /* globals Craft */
-
     import orderApi from './api/order'
 
     import LineItems from './components/LineItems'
