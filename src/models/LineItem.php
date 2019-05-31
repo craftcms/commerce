@@ -22,6 +22,7 @@ use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\validators\StringValidator;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -265,6 +266,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
+            [['note','adminNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {

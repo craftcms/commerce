@@ -222,10 +222,10 @@ class Sales extends Component
 
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
-            }
-
-            if ($sale->stopProcessing) {
-                break;
+                    
+                if ($sale->stopProcessing) {
+                    break;
+                }
             }
         }
 

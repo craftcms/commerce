@@ -234,6 +234,7 @@
 
                         if (response.data.error) {
                             Craft.cp.displayError(response.data.error);
+                            console.log(response.data.order.errors);
                             return
                         }
 
