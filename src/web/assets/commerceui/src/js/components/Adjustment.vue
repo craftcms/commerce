@@ -113,14 +113,14 @@
         computed: {
             included: {
                 get() {
-                    if (this.adjustment.included === '1') {
+                    if (this.adjustment.included === true || this.adjustment === '1') {
                         return true
                     }
 
                     return false
                 },
                 set(newValue) {
-                    this.adjustment.included = (newValue ? '1' : '0')
+                    this.adjustment.included = newValue
                 }
             },
         },
