@@ -13,4 +13,17 @@ new Vue({
       purchasables: []
     }
   },
+
+  computed: {
+    edition() {
+      return window.orderEdit.edition
+    },
+    maxLineItems() {
+      if (this.edition === 'lite') {
+        return 1
+      }
+
+      return null
+    },
+  }
 }).$mount('#order-details-app')

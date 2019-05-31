@@ -27,6 +27,7 @@
             <hr>
 
             <add-line-item
+                    :disabled="!canAddLineItem"
                     :order-id="orderId"
                     :draft="draft"
                     :loading="loading"
@@ -88,6 +89,7 @@
                     <hr>
 
                     <add-line-item
+                            :disabled="!canAddLineItem"
                             :order-id="orderId"
                             :draft="draft"
                             :loading="loading"
@@ -139,6 +141,18 @@
             orderId() {
                 return window.orderEdit.orderId
             },
+
+            canAddLineItem() {
+                if (!this.$root.maxLineItems) {
+                    return true
+                }
+
+                if (this.draft.order.lineItems.length < this.$root.maxLineItems) {
+                    return true
+                }
+
+                return false
+            }
         },
 
         methods: {
@@ -266,7 +280,7 @@
                 if (this.loading) {
                     return false
                 }
-                
+
                 this.loading = true
 
                 orderApi.save(this.draft)
@@ -288,7 +302,7 @@
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
                 this.recalculateOrder(this.draft)
-            }
+            },
         },
 
         mounted() {
