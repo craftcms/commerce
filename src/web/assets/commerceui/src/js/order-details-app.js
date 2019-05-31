@@ -3,6 +3,7 @@ import App from './OrderDetailsApp'
 // import 'prismjs'
 import 'prismjs/themes/prism.css'
 import orderApi from './api/order'
+import purchasablesApi from './api/purchasables'
 
 Vue.config.productionTip = false
 
