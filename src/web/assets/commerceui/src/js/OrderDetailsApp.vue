@@ -28,7 +28,7 @@
 
             <add-line-item
                     :disabled="!canAddLineItem"
-                    :order-id="orderId"
+                    :order-id="$root.orderId"
                     :loading="loading"
                     @change="recalculateOrder(draft)"
             ></add-line-item>
@@ -89,7 +89,7 @@
 
                     <add-line-item
                             :disabled="!canAddLineItem"
-                            :order-id="orderId"
+                            :order-id="$root.orderId"
                             :loading="loading"
                             @change="recalculateOrder(draft)"
                     ></add-line-item>
@@ -150,10 +150,6 @@
                 set(newVal) {
                     this.$root.draft = newVal
                 }
-            },
-
-            orderId() {
-                return window.orderEdit.orderId
             },
 
             canAddLineItem() {
@@ -322,9 +318,9 @@
         },
 
         mounted() {
-            this.getOrder(this.orderId)
+            this.getOrder(this.$root.orderId)
 
-            purchasablesApi.search(this.orderId)
+            purchasablesApi.search(this.$root.orderId)
                 .then((response) => {
                     this.$root.purchasables = response.data
                 })

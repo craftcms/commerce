@@ -20,12 +20,17 @@ new Vue({
     edition() {
       return window.orderEdit.edition
     },
+
     maxLineItems() {
       if (this.edition === 'lite') {
         return 1
       }
 
       return null
+    },
+
+    orderId() {
+      return window.orderEdit.orderId
     },
   }
 }).$mount('#order-details-app')
