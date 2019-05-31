@@ -172,9 +172,8 @@ class OrderController extends Controller
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
 
         if ($this->_order->hasErrors()) {
-            $data['order']['errors'] = $this->_order->getErrors();
-            $data['errors'] = [];
-            $data['errors']['order'] = Craft::t('commerce', 'The order is not valid.');
+            $this->_responseData['order']['errors'] = $this->_order->getErrors();
+            $this->_responseData['error'] = Craft::t('commerce', 'The order is not valid.');
         }
     }
 
