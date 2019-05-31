@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from './OrderMetaApp'
 
 Vue.config.productionTip = false
 
 new Vue({
   render: h => h(App),
-}).$mount('#app')
+}).$mount('#order-meta-app')

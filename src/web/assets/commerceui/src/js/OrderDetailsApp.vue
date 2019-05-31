@@ -27,6 +27,7 @@
             <hr>
 
             <add-line-item
+                    :disabled="!canAddLineItem"
                     :order-id="orderId"
                     :draft="draft"
                     :loading="loading"
@@ -88,6 +89,7 @@
                     <hr>
 
                     <add-line-item
+                            :disabled="!canAddLineItem"
                             :order-id="orderId"
                             :draft="draft"
                             :loading="loading"
@@ -104,7 +106,7 @@
 </template>
 
 <style lang="scss">
-    @import './sass/order-details.scss';
+    @import '../sass/order-details.scss';
 </style>
 
 <script>
@@ -139,6 +141,18 @@
             orderId() {
                 return window.orderEdit.orderId
             },
+
+            canAddLineItem() {
+                if (!this.$root.maxLineItems) {
+                    return true
+                }
+
+                if (this.draft.order.lineItems.length < this.$root.maxLineItems) {
+                    return true
+                }
+
+                return false
+            }
         },
 
         methods: {
@@ -272,6 +286,7 @@
 
                 orderApi.save(this.draft)
                     .then((response) => {
+                        this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.loading = false
                         Craft.cp.displayNotice('Success.');
                     })
@@ -289,7 +304,7 @@
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
                 this.recalculateOrder(this.draft)
-            }
+            },
         },
 
         mounted() {
