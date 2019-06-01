@@ -7,6 +7,7 @@
 
 namespace craftcommerce\tests\unit;
 
+use Codeception\Stub;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -151,6 +152,75 @@ class DiscountsTest extends Unit
             false,
             'Discount use has reached its limit'
         );
+    }
+
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function testCouponWithUseLimitAndNoUserOnClient()
+    {
+        $this->updateOrderCoupon([
+            'perUserLimit' => '1'
+        ]);
+
+        $this->orderCouponAvailableTest(
+            ['couponCode' => 'discount_1', 'customerId' => '1001'],
+            false,
+            'Discount is limited to use by registered users only.'
+        );
+    }
+
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function testCouponPerUserLimit()
+    {
+        $this->updateOrderCoupon([
+            'perUserLimit' => '1'
+        ]);
+
+        \Craft::$app->getDb()->createCommand()
+            ->insert('{{%commerce_customer_discountuses}}', [
+                'customerId' => '1000',
+                'discountId' => '1000',
+                'uses' => '1',
+            ])->execute();
+
+        $this->orderCouponAvailableTest(
+            ['couponCode' => 'discount_1', 'customerId' => '1000'],
+            false,
+            'This coupon limited to 1 uses.'
+        );
+    }
+
+    /**
+     * @todo Replace stub with fixture data.
+     * @throws \yii\db\Exception
+     */
+    public function testCouponPerEmailLimit()
+    {
+        $this->updateOrderCoupon([
+            'perEmailLimit' => '1'
+        ]);
+
+        \Craft::$app->getDb()->createCommand()
+            ->insert('{{%commerce_email_discountuses}}', [
+                'email' => 'testing@craftcommerce.com',
+                'discountId' => '1000',
+                'uses' => '1'
+            ])->execute();
+
+
+        $order = Stub::construct(
+            Order::class,
+            [['couponCode' => 'discount_1', 'customerId' => '1000']],
+            ['getEmail' => 'testing@craftcommerce.com']
+        );
+
+        $explanation = '';
+        $result = $this->discounts->orderCouponAvailable($order, $explanation);
+        $this->assertFalse($result);
+        $this->assertSame('This coupon limited to 1 uses.', $explanation);
     }
 
     // Protected methods
