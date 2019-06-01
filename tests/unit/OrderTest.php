@@ -26,7 +26,6 @@ class OrderTest extends Unit
 
     public function testOrderSumming()
     {
-
         $lineItem = new LineItem();
         $lineItem->qty = 2;
         $lineItem->salePrice = 10;
@@ -34,6 +33,5 @@ class OrderTest extends Unit
 
         $this->order->setLineItems([$lineItem]);
         $this->assertEquals($this->order->totalPrice,  20);
-
     }
 }
