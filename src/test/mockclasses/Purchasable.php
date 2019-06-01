@@ -10,7 +10,7 @@ namespace craft\commerce\test\mockclasses;
 use craft\commerce\base\Purchasable as BasePurchasable;
 
 /**
- * DiscountsTest
+ * Purchasable
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
