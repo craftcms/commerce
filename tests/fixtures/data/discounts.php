@@ -17,5 +17,6 @@ return [
         'percentDiscount' => '15.25',
         'enabled' => true,
         'allGroups' => true,
+        'percentageOffSubject' => 'original'
     ]
 ];
