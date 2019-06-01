@@ -9,5 +9,9 @@ return [
     [
         'id' => '1000',
         'userId' => '1',
+    ],
+    [
+        'id' => '1001',
+        'userId' => null,
     ]
 ];

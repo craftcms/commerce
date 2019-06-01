@@ -7,6 +7,7 @@
 
 return [
     [
+        'id' => '1000',
         'name' => 'Discount 1',
         'code' => 'discount_1',
         'perUserLimit' => '1',
