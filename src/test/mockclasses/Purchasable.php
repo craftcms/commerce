@@ -21,6 +21,16 @@ class Purchasable extends BasePurchasable
     // Public methods
     // =========================================================================
 
+    public $isPromotable = true;
+
+    /**
+     * @return bool
+     */
+    public function getIsPromotable(): bool
+    {
+        return $this->isPromotable;
+    }
+
     /**
      * @return float
      */
