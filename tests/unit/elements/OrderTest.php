@@ -56,6 +56,8 @@ class OrderTest extends Unit
      */
     protected function _before()
     {
+        parent::_before();
+
         $this->order = new Order();
     }
 }
