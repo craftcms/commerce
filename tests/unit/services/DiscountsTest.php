@@ -16,12 +16,12 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craftcommerce\tests\fixtures\CustomerFixture;
 use craftcommerce\tests\fixtures\DiscountsFixture;
 use UnitTester;
 use DateTime;
 use DateInterval;
+use Craft;
 
 /**
  * DiscountsTest
@@ -184,7 +184,7 @@ class DiscountsTest extends Unit
             'perUserLimit' => '1'
         ]);
 
-        \Craft::$app->getDb()->createCommand()
+        Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_customer_discountuses}}', [
                 'customerId' => '1000',
                 'discountId' => '1000',
@@ -208,7 +208,7 @@ class DiscountsTest extends Unit
             'perEmailLimit' => '1'
         ]);
 
-        \Craft::$app->getDb()->createCommand()
+        Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_email_discountuses}}', [
                 'email' => 'testing@craftcommerce.com',
                 'discountId' => '1000',
@@ -381,7 +381,7 @@ class DiscountsTest extends Unit
      */
     protected function updateOrderCoupon(array $data)
     {
-        \Craft::$app->getDb()->createCommand()
+        Craft::$app->getDb()->createCommand()
             ->update(
                 '{{%commerce_discounts}}',
                 $data,
