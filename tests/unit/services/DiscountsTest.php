@@ -26,6 +26,9 @@ use DateInterval;
  */
 class DiscountsTest extends Unit
 {
+    // Properties
+    // =========================================================================
+
     /**
      * @var UnitTester
      */
@@ -35,6 +38,9 @@ class DiscountsTest extends Unit
      * @var Discounts $discounts
      */
     protected $discounts;
+
+    // Public methods
+    // =========================================================================
 
     /**
      * @return array
@@ -51,8 +57,12 @@ class DiscountsTest extends Unit
         ];
     }
 
+    // Tests
+    // =========================================================================
 
-
+    /**
+     *
+     */
     public function testOrderCouponAvailableWithInvalidCoupon()
     {
         $this->orderCouponAvailableTest(
@@ -62,6 +72,9 @@ class DiscountsTest extends Unit
         );
     }
 
+    /**
+     *
+     */
     public function testSuccessOrderCouponAvailable()
     {
         $this->orderCouponAvailableTest(
@@ -71,6 +84,9 @@ class DiscountsTest extends Unit
         );
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testExistingCouponNotEnabled()
     {
         // Set it to be disabled
@@ -85,6 +101,9 @@ class DiscountsTest extends Unit
         );
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testOrderCouponExpired()
     {
         // Invalidate the coupon.... It's valid untill sometime in the past.
@@ -99,6 +118,9 @@ class DiscountsTest extends Unit
         );
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testOrderCouponNotYetValid()
     {
         // Set the coupon to start in two days from now.
@@ -115,6 +137,9 @@ class DiscountsTest extends Unit
         );
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testCouponThatHasBeenUsedTooMuch()
     {
         $this->updateOrderCoupon([
@@ -128,6 +153,13 @@ class DiscountsTest extends Unit
         );
     }
 
+    // Protected methods
+    // =========================================================================
+
+    /**
+     * @param array $data
+     * @throws \yii\db\Exception
+     */
     protected function updateOrderCoupon(array $data)
     {
         \Craft::$app->getDb()->createCommand()
@@ -138,6 +170,11 @@ class DiscountsTest extends Unit
             )->execute();
     }
 
+    /**
+     * @param array $orderConfig
+     * @param bool $desiredResult
+     * @param string $desiredExplanation
+     */
     protected function orderCouponAvailableTest(array $orderConfig, bool $desiredResult, string $desiredExplanation = '')
     {
         $order = new Order($orderConfig);
@@ -148,6 +185,9 @@ class DiscountsTest extends Unit
         $this->assertSame($desiredExplanation, $explanation);
     }
 
+    /**
+     *
+     */
     protected function _before()
     {
         parent::_before();
