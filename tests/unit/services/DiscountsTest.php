@@ -10,8 +10,13 @@ namespace craftcommerce\tests\unit;
 use Codeception\Stub;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
+use craft\commerce\models\Discount;
+use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
+use craft\commerce\test\mockclasses\Purchasable;
+use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craftcommerce\tests\fixtures\CustomerFixture;
 use craftcommerce\tests\fixtures\DiscountsFixture;
 use UnitTester;
@@ -223,8 +228,152 @@ class DiscountsTest extends Unit
         $this->assertSame('This coupon limited to 1 uses.', $explanation);
     }
 
+    /**
+     *
+     */
+    public function testLineItemMatchingSuccess()
+    {
+        $this->matchLineItems(
+            ['couponCode' => null],
+            ['qty' => 2, 'salePrice' => 10],
+            ['code' => null],
+            [],
+            true
+        );
+    }
+
+    /**
+     *
+     */
+    public function testLineItemMatchingSaleFail()
+    {
+        $this->matchLineItems(
+            ['couponCode' => null],
+            ['qty' => 2, 'price' => 15, 'salePrice' => 10],
+            ['code' => null, 'excludeOnSale' => true],
+            [],
+            false
+        );
+    }
+
+    /**
+     *
+     */
+    public function testLineItemMatchingIfNotPromotable()
+    {
+        $this->matchLineItems(
+            ['couponCode' => null],
+            ['qty' => 2, 'price' => 15],
+            ['code' => null],
+            ['isPromotable' => false],
+            false
+        );
+    }
+
+    // @todo: Test the lineItemMatching category and purchasableIds based features. Aswell as see coverage to see
+    // @todo: if everything is covered.
+
+
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function testOrderCompleteHandler()
+    {
+        $this->updateOrderCoupon([
+            'totalUseLimit' => '2',
+            'totalUses' => '2',
+            'perUserLimit' => '1',
+            'perEmailLimit' => '1'
+        ]);
+
+        $order = new Order(['couponCode' => 'discount_1', 'customerId' => '1000']);
+
+        $this->discounts->orderCompleteHandler($order);
+
+        // Get thew new Total uses.
+        $totalUses = (new Query())
+            ->select('totalUses')
+            ->from('{{%commerce_discounts}}')
+            ->where(['code' => 'discount_1'])
+            ->scalar();
+        $this->assertSame(3, $totalUses);
+
+        // Get the Customer Discount Uses
+        $customerUses = (new Query())
+            ->select('*')
+            ->from('{{%commerce_customer_discountuses}}')
+            ->where(['customerId' => '1000', 'discountId' => '1000', 'uses' => '1'])
+            ->one();
+        $this->assertNotNull($customerUses);
+
+
+        // Get the Email Discount Uses
+        $customerEmail = $order->getCustomer()->getUser()->email;
+        $customerUses = (new Query())
+            ->select('*')
+            ->from('{{%commerce_email_discountuses}}')
+            ->where(['email' => $customerEmail, 'discountId' => '1000', 'uses' => '1'])
+            ->one();
+        $this->assertNotNull($customerUses);
+    }
+
+    /**
+     *
+     */
+    public function testVoidIfNoCouponCode()
+    {
+        $order = new Order(['couponCode' => null]);
+        $this->assertNull(
+            $this->discounts->orderCompleteHandler($order)
+        );
+    }
+
+    /**
+     *
+     */
+    public function testVoidIfInvalidCouponCode()
+    {
+        $order = new Order(['couponCode' => 'i_dont_exist_as_coupon']);
+        $this->assertNull(
+            $this->discounts->orderCompleteHandler($order)
+        );
+    }
+
     // Protected methods
     // =========================================================================
+
+    protected function matchLineItems(
+        array $orderConfig,
+        array $lineItemConfig,
+        array $discountConfig,
+        array $purchasableConfig,
+        bool $desiredResult
+    ) {
+        $order = new Order($orderConfig);
+        $lineItem = new LineItem($lineItemConfig);
+        $lineItem->setOrder($order);
+
+        $lineItem->setPurchasable(
+            new Purchasable($purchasableConfig)
+        );
+
+        $discount = new Discount($discountConfig);
+
+
+        $this->assertSame(
+            $desiredResult,
+            $this->discounts->matchLineItem($lineItem, $discount)
+        );
+    }
+
+    /**
+     * @param int $discountId
+     * @return Discount
+     */
+    protected function getDiscountById(int $discountId) : Discount
+    {
+        return Plugin::getInstance()->discounts->getDiscountById($discountId);
+    }
 
     /**
      * @param array $data
