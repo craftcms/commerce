@@ -270,7 +270,7 @@ class DiscountsTest extends Unit
         );
     }
 
-    // @todo: Test the lineItemMatching category and purchasableIds based features. Aswell as see coverage to see
+    // @todo: Test the lineItemMatching category and purchasableIds based features. As well as see coverage to see
     // @todo: if everything is covered.
 
 
@@ -291,7 +291,7 @@ class DiscountsTest extends Unit
         $this->discounts->orderCompleteHandler($order);
 
         // Get thew new Total uses.
-        $totalUses = (new Query())
+        $totalUses = (int)(new Query())
             ->select('totalUses')
             ->from('{{%commerce_discounts}}')
             ->where(['code' => 'discount_1'])
