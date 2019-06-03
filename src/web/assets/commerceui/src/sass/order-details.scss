@@ -75,3 +75,24 @@
     }
   }
 }
+
+.adjustment-field {
+  display: flex;
+  margin-bottom: 20px;
+
+  .order-field {
+    display: flex;
+
+    .order-field-head {
+      width: 120px;
+
+      label {
+        display: block;
+      }
+    }
+  }
+}
+
+.order-opacity-50 {
+  opacity: .5;
+}

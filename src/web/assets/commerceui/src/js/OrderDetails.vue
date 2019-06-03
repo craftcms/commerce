@@ -27,7 +27,7 @@
         <hr>
 
         <!-- Order details -->
-        <div class="order-details">
+        <div class="order-details" :class="{'order-opacity-50': $root.recalculateLoading || $root.saveLoading}">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>
@@ -145,7 +145,9 @@
 
                 this.$root.saveLoading = true
 
-                orderApi.save(this.draft)
+                const data = this.$root.buildDraftData(this.draft)
+
+                orderApi.save(data)
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.$root.saveLoading = false
