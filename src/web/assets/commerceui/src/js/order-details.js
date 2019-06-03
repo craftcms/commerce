@@ -183,6 +183,14 @@ new Vue({
                     throw errorMsg + ': '+ error.response
                 })
         },
+
+        getErrors(errorKey) {
+            if (this.draft && this.draft.order.errors && this.draft.order.errors[errorKey]) {
+                return [this.draft.order.errors[errorKey]]
+            }
+
+            return []
+        },
     },
 
     mounted() {
