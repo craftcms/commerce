@@ -60,10 +60,10 @@
 
         methods: {
             onSelectStatus(status) {
-                if (status.dataset.id === '0') {
+                if (status.dataset.id === 0) {
                     this.lineItem.lineItemStatusId = null
                 } else {
-                    this.lineItem.lineItemStatusId = status.dataset.id
+                    this.lineItem.lineItemStatusId = parseInt(status.dataset.id)
                 }
                 
                 this.$emit('change')
