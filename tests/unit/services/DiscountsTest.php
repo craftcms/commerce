@@ -22,6 +22,8 @@ use UnitTester;
 use DateTime;
 use DateInterval;
 use Craft;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * DiscountsTest
@@ -91,7 +93,7 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testExistingCouponNotEnabled()
     {
@@ -108,11 +110,11 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testOrderCouponExpired()
     {
-        // Invalidate the coupon.... It's valid untill sometime in the past.
+        // Invalidate the coupon.... It's valid until sometime in the past.
         $this->updateOrderCoupon([
             'dateTo' => '2019-05-01 10:21:33'
         ]);
@@ -125,7 +127,7 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testOrderCouponNotYetValid()
     {
@@ -144,7 +146,7 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testCouponThatHasBeenUsedTooMuch()
     {
@@ -160,7 +162,7 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testCouponWithUseLimitAndNoUserOnClient()
     {
@@ -176,7 +178,7 @@ class DiscountsTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function testCouponPerUserLimit()
     {
@@ -200,7 +202,8 @@ class DiscountsTest extends Unit
 
     /**
      * @todo Replace stub with fixture data.
-     * @throws \yii\db\Exception
+     *
+     * @throws Exception
      */
     public function testCouponPerEmailLimit()
     {
@@ -215,7 +218,7 @@ class DiscountsTest extends Unit
                 'uses' => '1'
             ])->execute();
 
-
+        /** @var Order $order */
         $order = Stub::construct(
             Order::class,
             [['couponCode' => 'discount_1', 'customerId' => '1000']],
@@ -275,7 +278,8 @@ class DiscountsTest extends Unit
 
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     public function testOrderCompleteHandler()
     {
@@ -296,6 +300,7 @@ class DiscountsTest extends Unit
             ->from('{{%commerce_discounts}}')
             ->where(['code' => 'discount_1'])
             ->scalar();
+
         $this->assertSame(3, $totalUses);
 
         // Get the Customer Discount Uses
@@ -304,6 +309,7 @@ class DiscountsTest extends Unit
             ->from('{{%commerce_customer_discountuses}}')
             ->where(['customerId' => '1000', 'discountId' => '1000', 'uses' => '1'])
             ->one();
+
         $this->assertNotNull($customerUses);
 
 
@@ -314,6 +320,7 @@ class DiscountsTest extends Unit
             ->from('{{%commerce_email_discountuses}}')
             ->where(['email' => $customerEmail, 'discountId' => '1000', 'uses' => '1'])
             ->one();
+
         $this->assertNotNull($customerUses);
     }
 
@@ -359,7 +366,6 @@ class DiscountsTest extends Unit
 
         $discount = new Discount($discountConfig);
 
-
         $this->assertSame(
             $desiredResult,
             $this->discounts->matchLineItem($lineItem, $discount)
@@ -368,6 +374,7 @@ class DiscountsTest extends Unit
 
     /**
      * @param int $discountId
+     *
      * @return Discount
      */
     protected function getDiscountById(int $discountId) : Discount
@@ -377,7 +384,7 @@ class DiscountsTest extends Unit
 
     /**
      * @param array $data
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     protected function updateOrderCoupon(array $data)
     {

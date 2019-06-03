@@ -34,9 +34,15 @@ class OrderTest extends Unit
      */
     protected $order;
 
+    // Public Methods
+    // =========================================================================
+
     // Tests
     // =========================================================================
 
+    /**
+     *
+     */
     public function testOrderSumming()
     {
         $lineItem = new LineItem();
