@@ -145,7 +145,9 @@
 
                 this.$root.saveLoading = true
 
-                orderApi.save(this.draft)
+                const data = this.$root.buildDraftData(this.draft)
+
+                orderApi.save(data)
                     .then((response) => {
                         this.originalDraft = JSON.parse(JSON.stringify(response.data))
                         this.$root.saveLoading = false

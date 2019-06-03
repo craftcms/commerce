@@ -122,12 +122,10 @@ new Vue({
             return parsedValue
         },
 
-        recalculateOrder(draft) {
-            this.recalculateLoading = true
-
-
-            // build draft data to be sent and make sure values have the right type
-
+        /**
+         * Builds draft data and makes sure values have the right type.
+         **/
+        buildDraftData(draft) {
             const draftData = {
                 order: {
                     recalculationMode: draft.order.recalculationMode,
@@ -176,10 +174,17 @@ new Vue({
                 draftData.order.orderAdjustments[adjustmentKey].type = adjustment.type
             })
 
+            return draftData;
+        },
+
+        recalculateOrder(draft) {
+            this.recalculateLoading = true
+
+            const data = this.buildDraftData(draft)
 
             // Recalculate
 
-            orderApi.recalculate(draftData)
+            orderApi.recalculate(data)
                 .then((response) => {
                     this.recalculateLoading = false
                     this.draft = JSON.parse(JSON.stringify(response.data))
