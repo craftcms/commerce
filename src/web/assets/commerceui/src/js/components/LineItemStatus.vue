@@ -44,7 +44,7 @@
 
         computed: {
             lineItemStatus() {
-                if (this.lineItem.lineItemStatusId !== '0') {
+                if (this.lineItem.lineItemStatusId !== 0) {
                     for (let lineItemStatusesKey in this.$root.lineItemStatuses) {
                         const lineItemStatus = this.$root.lineItemStatuses[lineItemStatusesKey]
 
@@ -54,7 +54,7 @@
                     }
                 }
 
-                return {id: "0", name: "None", color: null}
+                return {id: 0, name: "None", color: null}
             },
         },
 

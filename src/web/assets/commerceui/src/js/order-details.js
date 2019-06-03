@@ -41,7 +41,13 @@ new Vue({
         },
 
         lineItemStatuses() {
-            return window.orderEdit.lineItemStatuses
+            const statuses = window.orderEdit.lineItemStatuses
+
+            for (let key in statuses) {
+                statuses[key].id = parseInt(statuses[key].id)
+            }
+
+            return statuses
         },
 
         maxLineItems() {
