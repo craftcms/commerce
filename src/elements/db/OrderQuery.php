@@ -931,7 +931,7 @@ class OrderQuery extends ElementQuery
         }
 
         // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasTransactions) {
+        if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
                 'exists', (new Query())
                     ->from(['{{%commerce_transactions}} transactions'])

@@ -21,6 +21,8 @@ use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\validators\StringValidator;
+use LitEmoji\LitEmoji;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -193,7 +195,25 @@ class LineItem extends Model
             throw new InvalidArgumentException('Options must be an array.');
         }
 
-        $this->_options = $options;
+        $cleanEmojiValues = static function(&$options) use (&$cleanEmojiValues) {
+            foreach ($options as $key => $value) {
+                if (is_array($value)) {
+                    $cleanEmojiValues($options[$key]);
+                } else {
+                    if (is_string($value)) {
+                        $options[$key] = LitEmoji::unicodeToShortcode($value);
+                    }
+                }
+            }
+
+            return $options;
+        };
+
+        if (Craft::$app->getDb()->getSupportsMb4()) {
+            $this->_options = $options;
+        } else {
+            $this->_options = $cleanEmojiValues($options);
+        }
     }
 
     /**
@@ -229,6 +249,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
+            [['note'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {
