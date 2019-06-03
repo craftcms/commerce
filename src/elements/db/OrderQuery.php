@@ -347,7 +347,7 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateCompleted(">= #{aWeekAgo}")
+     *     .dateOrdered(">= #{aWeekAgo}")
      *     .all() %}
      * ```
      *
@@ -356,7 +356,7 @@ class OrderQuery extends ElementQuery
      * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
      *
      * ${elements-var} = {php-method}
-     *     ->dateCompleted(">= {$aWeekAgo}")
+     *     ->dateOrdered(">= {$aWeekAgo}")
      *     ->all();
      * ```
      *
