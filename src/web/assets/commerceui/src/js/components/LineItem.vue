@@ -46,12 +46,13 @@
                         <div class="order-flex-grow">
                             <ul>
                                 <li>
-                                    <label class="light" for="salePrice">Sale Price</label>
                                     <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
-                                        <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
-                                        <input-error :error-key="'order.lineItems.'+lineItemKey+'.salePrice'"></input-error>
+                                        <field label="Sale Price" :errors="$root.getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
+                                            <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
+                                        </field>
                                     </template>
                                     <template v-else>
+                                        <label class="light" for="salePrice">Sale Price</label>
                                         {{ lineItem.salePriceAsCurrency }}
                                     </template>
                                 </li>
@@ -64,13 +65,14 @@
                         </div>
                         <div class="order-flex-grow">
                             <div>
-                                <label class="light" for="quantity">Quantity</label>
                                 <template v-if="!$root.editing">
+                                    <label class="light" for="quantity">Quantity</label>
                                     {{ lineItem.qty }}
                                 </template>
                                 <template v-else>
-                                    <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
-                                    <input-error :error-key="'order.lineItems.'+lineItemKey+'.qty'"></input-error>
+                                    <field label="Quantity" :errors="$root.getErrors('order.lineItems.'+lineItemKey+'.qty')">
+                                        <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
+                                    </field>
                                 </template>
                             </div>
                         </div>
@@ -185,6 +187,7 @@
     import Adjustments from './Adjustments'
     import InputError from './InputError'
     import LineItemStatus from './LineItemStatus'
+    import Field from './Field'
 
     export default {
         components: {
@@ -192,6 +195,7 @@
             Adjustments,
             InputError,
             LineItemStatus,
+            Field,
         },
 
         props: {
