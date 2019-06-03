@@ -20,11 +20,8 @@ module.exports = {
 
         // Add new entry points
         config
-            .entry('order-details')
-            .add('./src/js/order-details.js')
-            .end()
-            .entry('order-meta')
-            .add('./src/js/order-meta.js')
+            .entry('app')
+            .add('./src/js/app.js')
             .end()
     }
 }
