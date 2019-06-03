@@ -27,7 +27,7 @@
         <hr>
 
         <!-- Order details -->
-        <div class="order-details">
+        <div class="order-details" :class="{'order-opacity-50': $root.recalculateLoading || $root.saveLoading}">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>
