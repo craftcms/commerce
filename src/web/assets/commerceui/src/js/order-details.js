@@ -87,6 +87,11 @@ new Vue({
                     this.recalculateLoading = false
                     this.draft = JSON.parse(JSON.stringify(response.data))
 
+                    // Todo: Temporary fix, controllers should return IDs as strings instead
+                    this.draft.order.lineItems.forEach((lineItem, lineItemKey) => {
+                        this.draft.order.lineItems[lineItemKey].lineItemStatusId = this.parseInputValue('int', lineItem.lineItemStatusId)
+                    })
+
                     if (!this.originalDraft) {
                         this.originalDraft = JSON.parse(JSON.stringify(this.draft))
                     }
