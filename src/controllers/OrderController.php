@@ -71,7 +71,19 @@ class OrderController extends Controller
         $data = Craft::$app->getRequest()->getRawBody();
         $this->_responseData = Json::decodeIfJson($data);
 
-        $this->_validateJson(Json::decodeIfJson($data, false));
+        // Are there any json data schema errors
+        $errors = $this->_validateJson(Json::decodeIfJson($data, false));
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                $attribute = preg_replace('/lineItems\[(\d*)]./', 'lineItems.$1.', $error['property']);
+                $attribute = preg_replace('/adjustments\[(\d*)]./', 'adjustments.$1.', $attribute);
+                $attribute = preg_replace('/orderAdjustments\[(\d*)]./', 'orderAdjustments.$1.', $attribute);
+                $this->_responseData['order']['errors'][$attribute] = $error['message'];
+                $this->_responseData['error'] = Craft::t('commerce', 'Errors found on the order.');
+            }
+
+            return $this->asJson($this->_responseData);
+        }
 
         $this->_processOrder();
         $this->_setLineItemsAndAdjustments();
