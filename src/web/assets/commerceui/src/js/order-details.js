@@ -131,6 +131,7 @@ new Vue({
             draft.order.id = this.parseInputValue('int', draft.order.id)
 
             draft.order.lineItems.forEach((lineItem, lineItemKey) => {
+                draft.order.lineItems[lineItemKey].lineItemStatusId = this.parseInputValue('int', lineItem.lineItemStatusId)
                 draft.order.lineItems[lineItemKey].id = this.parseInputValue('int', lineItem.id)
                 draft.order.lineItems[lineItemKey].purchasableId = this.parseInputValue('int', lineItem.purchasableId)
                 draft.order.lineItems[lineItemKey].shippingCategoryId = this.parseInputValue('int', lineItem.shippingCategoryId)
