@@ -1,8 +1,34 @@
 <template>
     <div class="line-item">
         <div class="order-flex">
-            <div class="order-row-title light">
-                <div><code>{{ lineItem.sku }}</code></div>
+            <div class="order-row-title">
+                <div class="light"><code>{{ lineItem.sku }}</code></div>
+
+                <br />
+
+                <!-- Shipping & Tax -->
+                <small>
+                    <ul>
+                        <li>
+                            {{shippingCategory}} <span class="light"><small>(Shipping)</small></span>
+                            <input-error :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
+                        </li>
+                        <li>{{taxCategory}} <span class="light">(Tax)</span></li>
+                    </ul>
+                </small>
+
+                <!-- Snapshot -->
+                <div>
+                    <template v-if="!showSnapshot">
+                        <a @click.prevent="showSnapshot = true">Snapshot <i data-icon="downangle"></i></a>
+                    </template>
+                    <template v-else>
+                        <a @click.prevent="showSnapshot = false">Hide snapshot <i data-icon="upangle"></i></a>
+                        <div>
+                            <pre><code>{{lineItem.snapshot}}</code></pre>
+                        </div>
+                    </template>
+                </div>
             </div>
 
             <div class="order-flex-grow">
@@ -14,34 +40,6 @@
 
                             <!-- Status -->
                             <line-item-status :line-item="lineItem"></line-item-status>
-
-                            <br />
-
-                            <!-- Shipping & Tax -->
-                            <small>
-                                <ul>
-                                    <li>
-                                        {{shippingCategory}} <span class="light"><small>(Shipping)</small></span>
-                                        <input-error :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
-                                    </li>
-                                    <li>{{taxCategory}} <span class="light">(Tax)</span></li>
-                                </ul>
-                            </small>
-
-                            <br />
-
-                            <!-- Snapshot -->
-                            <div>
-                                <template v-if="!showSnapshot">
-                                    <a @click.prevent="showSnapshot = true">Show snapshot</a>
-                                </template>
-                                <template v-else>
-                                    <a @click.prevent="showSnapshot = false">Hide snapshot</a>
-                                    <div>
-                                        <pre><code>{{lineItem.snapshot}}</code></pre>
-                                    </div>
-                                </template>
-                            </div>
                         </div>
                         <div class="order-flex-grow">
                             <ul>

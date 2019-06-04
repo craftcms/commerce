@@ -41,10 +41,10 @@
                     {{adjustment.description}}
                     <div>
                         <template v-if="!showSnapshot">
-                            <a @click.prevent="showSnapshot = true">Show snapshot</a>
+                            <a @click.prevent="showSnapshot = true">Snapshot <i data-icon="downangle"></i></a>
                         </template>
                         <template v-else>
-                            <a @click.prevent="showSnapshot = false">Hide snapshot</a>
+                            <a @click.prevent="showSnapshot = false">Hide snapshot <i data-icon="upangle"></i></a>
                             <div>
                                 <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
                             </div>
