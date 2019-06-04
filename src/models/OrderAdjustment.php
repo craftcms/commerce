@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order adjustment model.
@@ -86,6 +87,26 @@ class OrderAdjustment extends Model
 
     // Public Methods
     // =========================================================================
+
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'attributeTypes' => [
+                    'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'inlcuded' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                    'type' => AttributeTypecastBehavior::TYPE_STRING,
+                    'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'name' => AttributeTypecastBehavior::TYPE_STRING,
+                    'description' => AttributeTypecastBehavior::TYPE_STRING
+                ]
+            ]
+        ];
+    }
+
 
     /**
      * @inheritdoc

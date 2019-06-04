@@ -100,7 +100,9 @@ class OrderAdjustments extends Component
         }
 
         $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-        return new OrderAdjustment($row);
+        $adjustment = new OrderAdjustment($row);
+        $adjustment->typecastAttributes();
+        return $adjustment;
     }
 
     /**
