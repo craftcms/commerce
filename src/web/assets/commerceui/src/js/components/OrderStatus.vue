@@ -10,6 +10,7 @@
 
             {{orderStatus.name}}
         </a>
+
         <div class="menu">
             <ul class="padded" role="listbox">
                 <li v-for="(status) in $root.orderStatuses">
@@ -60,7 +61,7 @@
                     this.order.orderStatusId = parseInt(status.dataset.id)
                 }
 
-                this.$emit('change')
+                this.$root.save()
             },
         },
 

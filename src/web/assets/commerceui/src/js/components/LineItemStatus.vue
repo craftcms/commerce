@@ -65,7 +65,7 @@
                 } else {
                     this.lineItem.lineItemStatusId = parseInt(status.dataset.id)
                 }
-                
+
                 this.$emit('change')
             },
         },
