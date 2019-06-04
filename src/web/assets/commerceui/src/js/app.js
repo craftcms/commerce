@@ -64,16 +64,6 @@ window.OrderDetailsApp = new Vue({
             return statuses
         },
 
-        orderStatuses() {
-            const statuses = window.orderEdit.orderStatuses
-
-            for (let key in statuses) {
-                statuses[key].id = parseInt(statuses[key].id)
-            }
-
-            return statuses
-        },
-
         maxLineItems() {
             if (this.edition === 'lite') {
                 return 1
@@ -312,7 +302,17 @@ window.OrderMetaApp = new Vue({
     computed: {
         draft() {
             return window.OrderDetailsApp.draft
-        }
+        },
+
+        orderStatuses() {
+            const statuses = window.orderEdit.orderStatuses
+
+            for (let key in statuses) {
+                statuses[key].id = parseInt(statuses[key].id)
+            }
+
+            return statuses
+        },
     },
 
     methods: {
