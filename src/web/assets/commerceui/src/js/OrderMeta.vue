@@ -7,11 +7,16 @@
                     <label id="reference-label" for="slug">Reference</label>
                 </div>
                 <div class="input ltr">
-                    <input class="text fullwidth" type="text" id="reference"
-                           name="reference"
-                           v-model="$root.draft.order.reference" autocomplete="off"
-                           autocorrect="off" autocapitalize="off"
-                           placeholder="Enter reference">
+                    <input
+                            class="text fullwidth"
+                            type="text"
+                            id="reference"
+                            name="reference"
+                            v-model="$root.draft.order.reference"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            placeholder="Enter reference" />
                 </div>
             </div>
 
@@ -20,10 +25,16 @@
                     <label id="couponCode-label" for="slug">Coupon Code</label>
                 </div>
                 <div class="input ltr">
-                    <input class="text fullwidth" type="text" id="couponCode"
-                           name="couponCode" value="" autocomplete="off"
-                           autocorrect="off" autocapitalize="off"
-                           placeholder="Enter coupon code">
+                    <input
+                            class="text fullwidth"
+                            type="text"
+                            id="couponCode"
+                            name="couponCode"
+                            value=""
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            placeholder="Enter coupon code" />
                 </div>
             </div>
 
