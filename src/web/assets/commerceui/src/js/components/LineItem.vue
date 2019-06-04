@@ -79,6 +79,8 @@
                         </div>
                     </div>
                 </div>
+
+                <template v-if="Object.keys(lineItem.options).length || $root.editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -111,6 +113,9 @@
                         </div>
                     </div>
                 </div>
+                </template>
+
+                <template v-if="lineItem.note || lineItem.adminNote || $root.editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -149,7 +154,9 @@
                         </div>
                     </div>
                 </div>
+                </template>
 
+                <template v-if="lineItem.adjustments.length || $root.editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -165,6 +172,7 @@
                         </div>
                     </div>
                 </div>
+                </template>
 
                 <div class="order-indented-block text-right">
                     <div>
