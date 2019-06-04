@@ -9,7 +9,7 @@
                         label="sku"
                         v-model="selectedPurchasable"
                         :options="$root.purchasables"
-                        :disabled="disabled"
+                        :disabled="formDisabled"
                         :filterable="false"
                         @search="onSearch">
                     <template slot="option" slot-scope="option">
@@ -29,8 +29,8 @@
                 </v-select>
                 
                 <div class="buttons">
-                    <input type="button" class="btn" :class="{disabled: disabled}" :disabled="disabled" value="Cancel" @click="showForm = false" />
-                    <input type="submit" class="btn submit" :class="{disabled: disabled}" :disabled="disabled" value="Add" />
+                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" value="Cancel" @click="showForm = false" />
+                    <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" value="Add" />
                 </div>
 
                 <div v-if="$root.loading" class="spinner"></div>
@@ -53,16 +53,26 @@
             orderId: {
                 type: Number,
             },
-            disabled: {
-                type: Boolean,
-                default: false,
-            }
         },
 
         data() {
             return {
                 showForm: false,
                 selectedPurchasable: null,
+            }
+        },
+
+        computed: {
+            formDisabled() {
+                return !this.$root.canAddLineItem
+            },
+
+            submitDisabled() {
+                if (!this.$root.canAddLineItem || !this.selectedPurchasable) {
+                    return true
+                }
+
+                return false
             }
         },
 

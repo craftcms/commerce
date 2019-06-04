@@ -66,7 +66,6 @@
                     <hr>
 
                     <add-line-item
-                            :disabled="!$root.canAddLineItem"
                             :order-id="$root.orderId"
                             @change="$root.recalculateOrder(draft)"
                     ></add-line-item>
