@@ -1,5 +1,8 @@
 <template>
     <div>
+        <template v-if="$root.draft">
+            {{$root.draft.order.reference}}
+        </template>
         <!-- Header -->
         <div class="text-right">
             <div v-if="$root.recalculateLoading" class="spinner"></div>

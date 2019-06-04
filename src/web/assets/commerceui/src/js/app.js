@@ -311,15 +311,42 @@ window.OrderDetailsApp = new Vue({
 window.OrderMetaApp = new Vue({
     render: h => h(OrderMeta),
 
-    data() {
-        return {
-            draft: null,
+    // data() {
+    //     return {
+    //         draft: null,
+    //     }
+    // },
+    //
+    // watch: {
+    //     draft(newVal) {
+    //         window.OrderDetailsApp.draft = JSON.parse(JSON.stringify(newVal))
+    //     }
+    // },
+
+    computed: {
+        draft: {
+            get() {
+                return window.OrderDetailsApp.draft
+            },
+            set(newVal) {
+                window.OrderDetailsApp.draft = newVal
+            }
         }
     },
 
-    mounted() {
-        EventBus.$on('afterGetOrder', (draft) => {
-            this.draft = draft
-        });
+    methods: {
+        save() {
+            return window.OrderDetailsApp.save()
+        }
     }
+
+    // mounted() {
+    //     // Get a copy of the initial draft from the order details app
+    //     this.draft = window.OrderDetailsApp.draft
+    //
+    //     // Update local draft when draft changes in the order details app
+    //     EventBus.$on('afterGetOrder', (draft) => {
+    //         this.draft = JSON.parse(JSON.stringify(draft))
+    //     });
+    // }
 }).$mount('#order-meta-app')
