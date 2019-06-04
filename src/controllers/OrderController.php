@@ -28,7 +28,6 @@ use yii\web\Response;
  */
 class OrderController extends Controller
 {
-    public $enableCsrfValidation = false;
     public $allowAnonymous = true;
 
     private $_responseData;
