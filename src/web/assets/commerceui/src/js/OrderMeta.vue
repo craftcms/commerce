@@ -7,7 +7,6 @@
                     <label id="reference-label" for="slug">Reference</label>
                 </div>
                 <div class="input ltr">
-                    {{$root.draft.order.reference}}
                     <input class="text fullwidth" type="text" id="reference"
                            name="reference"
                            v-model="$root.draft.order.reference" autocomplete="off"
