@@ -3,15 +3,15 @@
         <!-- Header -->
         <div>
             <template v-if="!$root.editing">
-                <a class="btn" @click.prevent="$root.editing = true">Edit</a>
+                <a class="btn" @click.prevent="$root.edit()">Edit</a>
             </template>
 
             <template v-else>
                 <div class="order-flex">
                     <div class="order-row-title">
                         <div class="buttons">
-                            <a class="btn" @click.prevent="cancel()">Cancel</a>
-                            <a class="btn submit" :class="{disabled: $root.recalculateLoading}" @click.prevent="save()">Save</a>
+                            <a class="btn" @click.prevent="$root.cancel()">Cancel</a>
+                            <a class="btn submit" :class="{disabled: $root.recalculateLoading}" @click.prevent="$root.save()">Save</a>
                             <div v-if="$root.saveLoading" class="spinner"></div>
                         </div>
                     </div>
@@ -110,15 +110,6 @@
                     this.$root.draft = newVal
                 }
             },
-
-            originalDraft: {
-                get() {
-                    return this.$root.draft
-                },
-                set(newVal) {
-                    this.$root.draft = newVal
-                }
-            },
         },
 
         methods: {
@@ -128,35 +119,9 @@
                 this.$root.recalculateOrder(draft)
             },
 
-            cancel() {
-                this.$root.editing = false
-                this.draft = JSON.parse(JSON.stringify(this.originalDraft))
-            },
-
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
                 this.$root.recalculateOrder(this.draft)
-            },
-
-            save() {
-                if (this.$root.saveLoading) {
-                    return false
-                }
-
-                this.$root.saveLoading = true
-
-                const data = this.$root.buildDraftData(this.draft)
-
-                orderApi.save(data)
-                    .then((response) => {
-                        this.originalDraft = JSON.parse(JSON.stringify(response.data))
-                        this.$root.saveLoading = false
-                        this.$root.displayNotice('Order saved.');
-                    })
-                    .catch((error) => {
-                        this.$root.saveLoading = false
-                        this.$root.displayError('Couldn’t save order.');
-                    })
             },
         },
     }

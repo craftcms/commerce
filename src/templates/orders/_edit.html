@@ -26,6 +26,12 @@
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders') }}
 
+    <div class="order-actions">
+        <input id="order-edit-btn" type="button" class="btn" value="{{ 'Edit'|t('app') }}" />
+        <input id="order-cancel-btn" type="button" class="btn hidden" value="{{ 'Cancel'|t('app') }}" />
+        <input id="order-save-btn" type="button" class="btn submit hidden" value="{{ 'Save'|t('app') }}" />
+    </div>
+
     <div class="btngroup">
         <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
 
@@ -75,19 +81,53 @@
     window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
 
     $(document).ready(function () {
-    {% if paymentForm is defined and paymentForm %}
-        new Craft.Commerce.OrderEdit({
-            orderId: {{ orderId|e('js') }},
-            paymentForm: {
-                errors: {{ paymentForm.errors|json_encode|raw }},
-                attributes: {{ paymentForm.attributes|json_encode|raw }}
-            }
-        });
-    {% endif %}
+        {% if paymentForm is defined and paymentForm %}
+            new Craft.Commerce.OrderEdit({
+                orderId: {{ orderId|e('js') }},
+                paymentForm: {
+                    errors: {{ paymentForm.errors|json_encode|raw }},
+                    attributes: {{ paymentForm.attributes|json_encode|raw }}
+                }
+            });
+        {% endif %}
 
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });
+
+        var $orderEditBtn = $('#order-edit-btn');
+        var $orderCancelBtn = $('#order-cancel-btn');
+        var $orderSaveBtn = $('#order-save-btn');
+
+        if (OrderDetailsApp.editing) {
+            $orderEditBtn.addClass('hidden')
+            $orderCancelBtn.removeClass('hidden')
+            $orderSaveBtn.removeClass('hidden')
+        }
+
+        $orderEditBtn.on('click', function() {
+            OrderDetailsApp.edit()
+        });
+
+        $orderCancelBtn.on('click', function() {
+            OrderDetailsApp.cancel()
+        });
+
+        $orderSaveBtn.on('click', function() {
+            OrderDetailsApp.save()
+        });
+
+        OrderDetailsApp.$on('onEditingChange', function(editing) {
+            if (editing) {
+                $orderEditBtn.addClass('hidden')
+                $orderCancelBtn.removeClass('hidden')
+                $orderSaveBtn.removeClass('hidden')
+            } else {
+                $orderEditBtn.removeClass('hidden')
+                $orderCancelBtn.addClass('hidden')
+                $orderSaveBtn.addClass('hidden')
+            }
+        })
     });
 {% endjs %}
 

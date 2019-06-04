@@ -14,7 +14,7 @@ Vue.config.productionTip = false
 // Order details
 // =========================================================================
 
-new Vue({
+window.OrderDetailsApp = new Vue({
     render: h => h(App),
 
     data() {
@@ -25,6 +25,12 @@ new Vue({
             draft: null,
             originalDraft: null,
             purchasables: []
+        }
+    },
+
+    watch: {
+        editing() {
+            this.$emit('onEditingChange', this.editing)
         }
     },
 
@@ -85,6 +91,36 @@ new Vue({
             Craft.cp.displayNotice(msg)
         },
 
+        edit() {
+            this.editing = true
+        },
+
+        cancel() {
+            this.editing = false
+            this.draft = JSON.parse(JSON.stringify(this.originalDraft))
+        },
+
+        save() {
+            if (this.saveLoading) {
+                return false
+            }
+
+            this.saveLoading = true
+
+            const data = this.buildDraftData(this.draft)
+
+            orderApi.save(data)
+                .then((response) => {
+                    this.originalDraft = JSON.parse(JSON.stringify(response.data))
+                    this.saveLoading = false
+                    this.displayNotice('Order saved.');
+                })
+                .catch((error) => {
+                    this.saveLoading = false
+                    this.displayError('Couldn’t save order.');
+                })
+        },
+        
         getOrder(orderId) {
             this.recalculateLoading = true
             return orderApi.get(orderId)
@@ -259,7 +295,7 @@ new Vue({
 // Order meta
 // =========================================================================
 
-new Vue({
+window.OrderMetaApp = new Vue({
     render: h => h(OrderMeta),
 
     data() {
