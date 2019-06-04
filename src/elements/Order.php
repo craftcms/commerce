@@ -540,6 +540,11 @@ class Order extends Element
             };
         }
 
+        $fields['paidStatusHtml'] = function($model, $attribute){
+            /** @var Order $model */
+            return $model->getPaidStatusHtml();
+        };
+
         return $fields;
     }
 
@@ -723,13 +728,15 @@ class Order extends Element
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
-        $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+        if($this->reference == null) {
+            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
 
-        try {
-            $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
-        } catch (Throwable $exception) {
-            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
-            throw $exception;
+            try {
+                $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+            } catch (Throwable $exception) {
+                Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
+                throw $exception;
+            }
         }
 
         // Raising the 'beforeCompleteOrder' event

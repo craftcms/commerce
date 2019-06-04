@@ -64,6 +64,16 @@ window.OrderDetailsApp = new Vue({
             return statuses
         },
 
+        orderStatuses() {
+            const statuses = window.orderEdit.orderStatuses
+
+            for (let key in statuses) {
+                statuses[key].id = parseInt(statuses[key].id)
+            }
+
+            return statuses
+        },
+
         maxLineItems() {
             if (this.edition === 'lite') {
                 return 1
@@ -123,7 +133,7 @@ window.OrderDetailsApp = new Vue({
                     this.displayError('Couldn’t save order.');
                 })
         },
-        
+
         getOrder(orderId) {
             this.recalculateLoading = true
             return orderApi.get(orderId)
