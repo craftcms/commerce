@@ -31,6 +31,9 @@ window.OrderDetailsApp = new Vue({
     watch: {
         editing() {
             this.$emit('onEditingChange', this.editing)
+        },
+        saveLoading() {
+            this.$emit('onSaveLoadingChange', this.saveLoading)
         }
     },
 

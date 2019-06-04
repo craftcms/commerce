@@ -27,9 +27,37 @@
     {{ redirectInput('commerce/orders') }}
 
     <div class="order-actions">
-        <input id="order-edit-btn" type="button" class="btn" value="{{ 'Edit'|t('app') }}" />
-        <input id="order-cancel-btn" type="button" class="btn hidden" value="{{ 'Cancel'|t('app') }}" />
-        <input id="order-save-btn" type="button" class="btn submit hidden" value="{{ 'Save'|t('app') }}" />
+        <div class="order-flex">
+            <div>
+                <div id="order-save-spinner" class="spinner hidden"></div>
+                <input id="order-edit-btn" type="button" class="btn" value="{{ 'Edit'|t('app') }}" />
+                <input id="order-cancel-btn" type="button" class="btn hidden" value="{{ 'Cancel'|t('app') }}" />
+            </div>
+
+            <div id="order-save" class="btngroup hidden">
+                <input id="order-save-btn" type="button" class="btn submit" value="{{ 'Update Order'|t('app') }}" />
+
+                <div class="btn submit menubtn"></div>
+                <div class="menu">
+                    <ul>
+                        <li><a class="formsubmit"
+                               data-redirect="{{ continueEditingUrl|hash }}">
+                                {{ forms.optionShortcutLabel('S') }}
+                                {{ "Save and return to orders"|t('app') }}
+                            </a></li>
+                    </ul>
+
+                    <hr>
+                    <ul>
+                        <li><a class="formsubmit error"
+                               data-action="commerce/orders/delete-order"
+                               data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
+                               data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="btngroup">
@@ -53,7 +81,6 @@
                        data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
                 </li>
             </ul>
-
         </div>
     </div>
 {% endblock %}
@@ -95,37 +122,47 @@
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });
 
-        var $orderEditBtn = $('#order-edit-btn');
-        var $orderCancelBtn = $('#order-cancel-btn');
-        var $orderSaveBtn = $('#order-save-btn');
+        var $editBtn = $('#order-edit-btn');
+        var $cancelBtn = $('#order-cancel-btn');
+        var $save = $('#order-save');
+        var $saveBtn = $('#order-save-btn');
+        var $saveSpinner = $('#order-save-spinner');
 
         if (OrderDetailsApp.editing) {
-            $orderEditBtn.addClass('hidden')
-            $orderCancelBtn.removeClass('hidden')
-            $orderSaveBtn.removeClass('hidden')
+            $editBtn.addClass('hidden')
+            $cancelBtn.removeClass('hidden')
+            $save.removeClass('hidden')
         }
 
-        $orderEditBtn.on('click', function() {
+        $editBtn.on('click', function() {
             OrderDetailsApp.edit()
         });
 
-        $orderCancelBtn.on('click', function() {
+        $cancelBtn.on('click', function() {
             OrderDetailsApp.cancel()
         });
 
-        $orderSaveBtn.on('click', function() {
+        $saveBtn.on('click', function() {
             OrderDetailsApp.save()
         });
 
         OrderDetailsApp.$on('onEditingChange', function(editing) {
             if (editing) {
-                $orderEditBtn.addClass('hidden')
-                $orderCancelBtn.removeClass('hidden')
-                $orderSaveBtn.removeClass('hidden')
+                $editBtn.addClass('hidden')
+                $cancelBtn.removeClass('hidden')
+                $save.removeClass('hidden')
             } else {
-                $orderEditBtn.removeClass('hidden')
-                $orderCancelBtn.addClass('hidden')
-                $orderSaveBtn.addClass('hidden')
+                $editBtn.removeClass('hidden')
+                $cancelBtn.addClass('hidden')
+                $save.addClass('hidden')
+            }
+        })
+
+        OrderDetailsApp.$on('onSaveLoadingChange', function(loading) {
+            if (loading) {
+                $saveSpinner.removeClass('hidden')
+            } else {
+                $saveSpinner.addClass('hidden')
             }
         })
     });

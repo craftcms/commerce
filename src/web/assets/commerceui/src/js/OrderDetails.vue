@@ -1,27 +1,9 @@
 <template>
     <div>
         <!-- Header -->
-        <div>
-            <template v-if="!$root.editing">
-                <a class="btn" @click.prevent="$root.edit()">Edit</a>
-            </template>
-
-            <template v-else>
-                <div class="order-flex">
-                    <div class="order-row-title">
-                        <div class="buttons">
-                            <a class="btn" @click.prevent="$root.cancel()">Cancel</a>
-                            <a class="btn submit" :class="{disabled: $root.recalculateLoading}" @click.prevent="$root.save()">Save</a>
-                            <div v-if="$root.saveLoading" class="spinner"></div>
-                        </div>
-                    </div>
-
-                    <div class="order-flex-grow text-right">
-                        <div v-if="$root.recalculateLoading" class="spinner"></div>
-                        <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
-                    </div>
-                </div>
-            </template>
+        <div class="text-right">
+            <div v-if="$root.recalculateLoading" class="spinner"></div>
+            <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
         </div>
 
         <hr>
