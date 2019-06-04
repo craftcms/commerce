@@ -26,6 +26,7 @@ use craft\validators\StringValidator;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Line Item model representing a line item on an order.
@@ -162,6 +163,32 @@ class LineItem extends Model
     // Public Methods
     // =========================================================================
 
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'attributeTypes' => [
+                    'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'note' => AttributeTypecastBehavior::TYPE_STRING,
+                    'adminNote' => AttributeTypecastBehavior::TYPE_STRING,
+                    'width' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'height' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'length' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
+                    'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                    'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
+                ]
+            ]
+        ];
+    }
+
     /**
      * @return Order|null
      */
@@ -285,7 +312,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
-            [['note','adminNote'], StringValidator::class, 'disallowMb4' => true],
+            [['note', 'adminNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {

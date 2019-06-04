@@ -103,7 +103,9 @@ class LineItems extends Component
 
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $this->_lineItemsByOrderId[$orderId][] = new LineItem($result);
+                $lineItem = new LineItem($result);
+                $lineItem->typecastAttributes();
+                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
 
@@ -135,6 +137,7 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
         } else {
             $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
@@ -250,7 +253,13 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
-        return $result ? new LineItem($result) : null;
+        if ($result) {
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            return $lineItem;
+        }
+
+        return null;
     }
 
     /**
