@@ -310,13 +310,8 @@ window.OrderMetaApp = new Vue({
     render: h => h(OrderMeta),
 
     computed: {
-        draft: {
-            get() {
-                return window.OrderDetailsApp.draft
-            },
-            set(newVal) {
-                window.OrderDetailsApp.draft = newVal
-            }
+        draft() {
+            return window.OrderDetailsApp.draft
         }
     },
 

@@ -11,7 +11,7 @@
                            name="reference"
                            v-model="$root.draft.order.reference" autocomplete="off"
                            autocorrect="off" autocapitalize="off"
-                           placeholder="Enter reference" @input="onDraftChange">
+                           placeholder="Enter reference">
                 </div>
             </div>
 
@@ -86,19 +86,13 @@
         name: 'order-meta-app',
 
         components: {
-            OrderStatus
+            OrderStatus,
         },
 
         methods: {
             someAction() {
                 EventBus.$emit('someAction')
             },
-
-            onDraftChange() {
-                // Refresh whole draft object for reactivity
-                this.$root.draft = JSON.parse(JSON.stringify(this.$root.draft))
-                this.$root.save()
-            }
         },
     }
 </script>
