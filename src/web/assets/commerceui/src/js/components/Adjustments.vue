@@ -13,7 +13,7 @@
         </template>
 
         <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
-            <div>
+            <div class="adjustment-actions">
                 <a @click.prevent="addAdjustment()">Add an adjustment</a>
             </div>
         </template>

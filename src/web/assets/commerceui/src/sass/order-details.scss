@@ -76,23 +76,6 @@
   }
 }
 
-.adjustment-field {
-  display: flex;
-  margin-bottom: 20px;
-
-  .order-field {
-    display: flex;
-
-    .order-field-head {
-      width: 120px;
-
-      label {
-        display: block;
-      }
-    }
-  }
-}
-
 .order-opacity-50 {
   opacity: .5;
 }
@@ -103,4 +86,18 @@
   #order-save {
     margin-left: 7px;
   }
+}
+
+.adjustment {
+  border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+
+  .meta {
+    & > .field:last-child {
+      border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+    }
+  }
+}
+
+.adjustment-actions {
+  padding: 14px 0;
 }

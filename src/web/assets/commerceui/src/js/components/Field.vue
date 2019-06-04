@@ -1,24 +1,24 @@
 <template>
-    <div :id="'field-' + id" class="order-field">
-        <div class="order-field-head">
-            <label v-if="label" :for="id" class="light">{{label}}</label>
+    <div :id="'field-' + id" class="order-field field">
+        <div class="heading">
+            <label v-if="label" :for="id" class="light" :class="{required: required}">{{label}}</label>
 
             <div v-if="instructions" class="instructions">
                 <p>{{ instructions }}</p>
             </div>
         </div>
 
-        <div class="order-field-content">
+        <div class="input">
             <slot></slot>
-
-            <template v-if="errors">
-                <ul class="errors">
-                    <li v-for="(error, key) in errors">
-                        {{error}}
-                    </li>
-                </ul>
-            </template>
         </div>
+
+        <template v-if="errors && errors.length > 0">
+            <ul class="errors">
+                <li v-for="(error, key) in errors">
+                    {{error}}
+                </li>
+            </ul>
+        </template>
     </div>
 </template>
 
@@ -42,6 +42,11 @@
             label: {
                 type: String,
                 default: null,
+            },
+            required: {
+                type: Boolean,
+                default: false,
+                default: false,
             },
         },
     }

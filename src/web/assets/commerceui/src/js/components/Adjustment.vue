@@ -1,10 +1,10 @@
 <template>
-    <div class="order-flex">
+    <div class="adjustment order-flex">
         <div class="order-flex-grow">
             <div>
                 <template v-if="$root.editing">
-                    <div class="adjustment-field">
-                        <field label="Type">
+                    <div class="meta">
+                        <field label="Type" :required="true">
                             <div class="select">
                                 <select v-model="adjustment.type">
                                     <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
@@ -13,25 +13,24 @@
                                 </select>
                             </div>
                         </field>
-                    </div>
-                    <div class="adjustment-field">
+
                         <field label="Name">
                             <input type="text" class="text" v-model="adjustment.name" @input="$emit('change')" />
                         </field>
-                    </div>
-                    <div class="adjustment-field">
+
                         <field label="Description">
                             <input type="text" class="text" v-model="adjustment.description" @input="$emit('change')" />
                         </field>
-                    </div>
-                    <div class="adjustment-field">
-                        <field label="Amount" :errors="$root.getErrors(errorPrefix+adjustmentKey+'.amount')">
-                            <input type="text" class="text" :class="{error: $root.getErrors(errorPrefix+adjustmentKey+'.amount').length}" v-model="adjustment.amount" @input="$emit('change')" />
-                        </field>
-                    </div>
-                    <div class="adjustment-field">
-                        <field label="Included" :errors="$root.getErrors(errorPrefix+adjustmentKey+'.included')">
-                            <input type="checkbox" v-model="included" @input="$emit('change')" />
+
+                        <field label="Amount" :required="true" :errors="[...$root.getErrors(errorPrefix+adjustmentKey+'.amount'), ...$root.getErrors(errorPrefix+adjustmentKey+'.included')]">
+                            <div class="flex">
+                                <div class="textwrapper">
+                                    <input type="text" class="text" :class="{error: $root.getErrors(errorPrefix+adjustmentKey+'.amount').length}" v-model="adjustment.amount" @input="$emit('change')" />
+                                </div>
+                                <div class="nowrap">
+                                    <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" @input="$emit('change')" /> <label :for="_uid + '-included'">Included</label>
+                                </div>
+                            </div>
                         </field>
                     </div>
                 </template>
@@ -53,8 +52,9 @@
                 </template>
 
                 <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
-                    <a @click.prevent="$emit('remove')">Remove</a>
-                    <hr>
+                    <div class="adjustment-actions">
+                        <a @click.prevent="$emit('remove')">Remove</a>
+                    </div>
                 </template>
             </div>
         </div>
