@@ -87,11 +87,6 @@
             ...mapActions([
                 'recalculateOrder',
             ]),
-
-            removeAdjustment(key) {
-                this.$delete(this.draft.order.orderAdjustments, key)
-                this.recalculateOrder(this.draft)
-            },
         },
     }
 </script>

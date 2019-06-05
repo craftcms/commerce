@@ -216,6 +216,14 @@ export default new Vuex.Store({
                     throw errorMsg + ': '+ error.response
                 })
         },
+
+        removeOrderAdjustment({state}, key) {
+            const draft = state.draft;
+            
+            delete draft.order.orderAdjustments[key]
+
+            dispatch('recalculateOrder', draft)
+        },
     },
 
     mutations: {
