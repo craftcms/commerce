@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\base\Field;
+use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
@@ -196,6 +197,9 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * @return Response
+     */
     private function _processOrder()
     {
         if (!isset($this->_responseData['order']['id'])) {
@@ -232,6 +236,7 @@ class OrderController extends Controller
                 $lineItemModel = Plugin::getInstance()->getLineItems()->createLineItem($this->_order->id, $purchasableId, $options, $qty, $note);
             }
 
+            /** @var Purchasable $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
                 $lineItemModel->setPurchasable($purchasable);
                 if ($this->_order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
