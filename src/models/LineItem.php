@@ -163,7 +163,7 @@ class LineItem extends Model
     // Public Methods
     // =========================================================================
 
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'typecast' => [

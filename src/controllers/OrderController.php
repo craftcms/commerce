@@ -48,11 +48,7 @@ class OrderController extends Controller
         $this->_order = Order::find()->id($orderId)->one();
 
         if (!$this->_order) {
-            $this->_order = new Order([
-                'number' => Plugin::getInstance()->getCarts()->generateCartNumber()
-            ]);
-
-            Craft::$app->getElements()->saveElement($this->_order);
+            return $this->asErrorJson(Craft::t('commerce', 'No order found.'));
         }
 
         $this->_addOrderToData();
@@ -178,6 +174,9 @@ class OrderController extends Controller
                 ArrayHelper::removeValue($orderFields, $field->handle);
             }
         }
+
+        // Typecast order attributes
+        $this->_order->typeCastAttributes();
 
         $extraFields = ['lineItems.snapshot'];
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
