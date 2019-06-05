@@ -38,7 +38,30 @@
                 </div>
             </div>
 
-            <order-status :order="$root.draft.order"></order-status>
+            <template v-if="!$root.draft.order.isCompleted">
+                <div class="field" id="isCompleted-field">
+                    <div class="heading">
+                        <label id="isCompleted-label" for="slug">Status</label>
+                    </div>
+                    <div class="input ltr">
+                        <div class="buttons">
+                            <input type="button" class="btn" value="Complete Order" />
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template v-if="$root.draft.order.isCompleted">
+            <div class="field" id="orderStatus-field">
+                <div class="heading">
+                    <label id="orderStatus-label" for="slug">Status</label>
+                </div>
+                <div class="input ltr">
+                    <order-status :order="$root.draft.order"></order-status>
+                </div>
+            </div>
+            </template>
+
         </div>
 
         <div class="meta read-only">
@@ -56,6 +79,14 @@
                 <h5 class="heading">Number</h5>
                 <p class="value">{{$root.draft.order.number}}</p>
             </div>
+
+            <template v-if="$root.draft.order.isCompleted">
+                <div class="data">
+                    <h5 class="heading">Date Completed</h5>
+                    <span class="value"
+                          v-html="$root.draft.order.dateOrdered"></span>
+                </div>
+            </template>
 
             <div class="data">
                 <h5 class="heading">Paid Status</h5>
