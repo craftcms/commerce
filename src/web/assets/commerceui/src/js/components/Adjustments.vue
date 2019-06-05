@@ -12,7 +12,7 @@
             ></adjustment>
         </template>
 
-        <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
+        <template v-if="editing && draft.order.recalculationMode === 'none'">
             <div class="adjustment-actions">
                 <a @click.prevent="addAdjustment()">Add an adjustment</a>
             </div>
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex'
     import Adjustment from './Adjustment'
 
     export default {
@@ -37,6 +38,13 @@
             },
         },
 
+
+        computed: {
+            ...mapState({
+                draft: state => state.draft,
+                editing: state => state.editing,
+            }),
+        },
         methods: {
             addAdjustment() {
                 const adjustment = {
@@ -46,7 +54,7 @@
                     description: '',
                     amount: '0.0000',
                     included: '0',
-                    orderId: this.$root.draft.order.id,
+                    orderId: this.draft.order.id,
                 }
 
                 this.adjustments.push(adjustment)

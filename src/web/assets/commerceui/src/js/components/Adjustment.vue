@@ -2,7 +2,7 @@
     <div class="adjustment order-flex">
         <div class="order-flex-grow">
             <div>
-                <template v-if="$root.editing">
+                <template v-if="editing">
                     <div class="meta">
                         <field label="Type" :required="true">
                             <div class="select">
@@ -22,10 +22,10 @@
                             <input type="text" class="text" v-model="adjustment.description" @input="$emit('change')" />
                         </field>
 
-                        <field label="Amount" :required="true" :errors="[...$root.getErrors(errorPrefix+adjustmentKey+'.amount'), ...$root.getErrors(errorPrefix+adjustmentKey+'.included')]">
+                        <field label="Amount" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]">
                             <div class="flex">
                                 <div class="textwrapper">
-                                    <input type="text" class="text" :class="{error: $root.getErrors(errorPrefix+adjustmentKey+'.amount').length}" v-model="adjustment.amount" @input="$emit('change')" />
+                                    <input type="text" class="text" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" v-model="adjustment.amount" @input="$emit('change')" />
                                 </div>
                                 <div class="nowrap">
                                     <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" @input="$emit('change')" /> <label :for="_uid + '-included'">Included</label>
@@ -51,7 +51,7 @@
                     </div>
                 </template>
 
-                <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
+                <template v-if="editing && draft.order.recalculationMode === 'none'">
                     <div class="adjustment-actions">
                         <a @click.prevent="$emit('remove')">Remove</a>
                     </div>
@@ -70,6 +70,7 @@
 </template>
 
 <script>
+    import {mapState, mapGetters} from 'vuex'
     import Field from './Field'
 
     export default {
@@ -116,6 +117,15 @@
         },
 
         computed: {
+            ...mapState({
+                draft: state => state.draft,
+                editing: state => state.editing,
+            }),
+
+            ...mapGetters([
+                'getErrors',
+            ]),
+
             included: {
                 get() {
                     if (this.adjustment.included === true || this.adjustment === '1') {

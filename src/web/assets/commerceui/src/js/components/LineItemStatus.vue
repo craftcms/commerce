@@ -18,7 +18,7 @@
                         None
                     </a>
                 </li>
-                <li v-for="(status) in $root.lineItemStatuses">
+                <li v-for="(status) in lineItemStatuses">
                     <a
                             :data-id="status.id"
                             :data-color="status.color"
@@ -36,6 +36,8 @@
 <script>
     /* global Garnish */
 
+    import {mapGetters} from 'vuex'
+
     export default {
 
         props: {
@@ -45,10 +47,14 @@
         },
 
         computed: {
+            ...mapGetters([
+                'lineItemStatuses',
+            ]),
+
             lineItemStatus() {
                 if (this.lineItem.lineItemStatusId !== 0) {
-                    for (let lineItemStatusesKey in this.$root.lineItemStatuses) {
-                        const lineItemStatus = this.$root.lineItemStatuses[lineItemStatusesKey]
+                    for (let lineItemStatusesKey in this.lineItemStatuses) {
+                        const lineItemStatus = this.lineItemStatuses[lineItemStatusesKey]
 
                         if (lineItemStatus.id === this.lineItem.lineItemStatusId) {
                             return lineItemStatus

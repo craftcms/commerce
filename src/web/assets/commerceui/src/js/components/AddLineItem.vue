@@ -8,7 +8,7 @@
                 <v-select
                         label="sku"
                         v-model="selectedPurchasable"
-                        :options="$root.purchasables"
+                        :options="purchasables"
                         :disabled="formDisabled"
                         :filterable="false"
                         @search="onSearch">
@@ -33,13 +33,14 @@
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" value="Add" />
                 </div>
 
-                <div v-if="$root.loading" class="spinner"></div>
+                <div v-if="recalculateLoading" class="spinner"></div>
             </form>
         </template>
     </div>
 </template>
 
 <script>
+    import {mapState, mapGetters, mapActions} from 'vuex'
     import {debounce} from 'debounce'
     import VSelect from 'vue-select'
     import purchasablesApi from '../api/purchasables'
@@ -63,12 +64,24 @@
         },
 
         computed: {
+
+            ...mapState({
+                draft: state => state.draft,
+                purchasables: state => state.purchasables,
+                recalculateLoading: state => state.recalculateLoading,
+            }),
+
+            ...mapGetters([
+                'getErrors',
+                'canAddLineItem',
+            ]),
+
             formDisabled() {
-                return !this.$root.canAddLineItem
+                return !this.canAddLineItem
             },
 
             submitDisabled() {
-                if (!this.$root.canAddLineItem || !this.selectedPurchasable) {
+                if (!this.canAddLineItem || !this.selectedPurchasable) {
                     return true
                 }
 
@@ -77,9 +90,13 @@
         },
 
         methods: {
+            ...mapActions([
+                'displayError',
+            ]),
+
             lineItemAdd() {
-                if (!this.$root.canAddLineItem) {
-                    this.$root.displayError('You are not allowed to add a line item.');
+                if (!this.canAddLineItem) {
+                    this.displayError('You are not allowed to add a line item.');
                     return
                 }
 
@@ -97,7 +114,7 @@
                     adjustments: [],
                 }
 
-                this.$root.draft.order.lineItems.push(lineItem)
+                this.draft.order.lineItems.push(lineItem)
 
                 this.$emit('change')
             },
@@ -110,7 +127,7 @@
             search: debounce((loading, search, vm) => {
                 purchasablesApi.search(vm.orderId, escape(search))
                     .then((response) => {
-                        vm.$root.purchasables = JSON.parse(JSON.stringify(response.data))
+                        vm.purchasables = JSON.parse(JSON.stringify(response.data))
                         loading(false)
                     })
             }, 350)

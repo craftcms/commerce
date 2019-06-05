@@ -44,8 +44,8 @@
                         <div class="order-flex-grow">
                             <ul>
                                 <li>
-                                    <template v-if="$root.editing && $root.draft.order.recalculationMode === 'none'">
-                                        <field label="Sale Price" :errors="$root.getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
+                                    <template v-if="editing && draft.order.recalculationMode === 'none'">
+                                        <field label="Sale Price" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
                                             <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
                                         </field>
                                     </template>
@@ -63,12 +63,12 @@
                         </div>
                         <div class="order-flex-grow">
                             <div>
-                                <template v-if="!$root.editing">
+                                <template v-if="!editing">
                                     <label class="light" for="quantity">Quantity</label>
                                     {{ lineItem.qty }}
                                 </template>
                                 <template v-else>
-                                    <field label="Quantity" :errors="$root.getErrors('order.lineItems.'+lineItemKey+'.qty')">
+                                    <field label="Quantity" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">
                                         <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
                                     </field>
                                 </template>
@@ -80,7 +80,7 @@
                     </div>
                 </div>
 
-                <template v-if="Object.keys(lineItem.options).length || $root.editing">
+                <template v-if="Object.keys(lineItem.options).length || editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -88,7 +88,7 @@
                         </div>
 
                         <div class="order-flex-grow">
-                            <template v-if="!$root.editing">
+                            <template v-if="!editing">
                                 <template v-if="Object.keys(lineItem.options).length">
                                     <ul :id="'info-' + lineItem.id">
                                         <template v-for="(option, key) in lineItem.options">
@@ -115,7 +115,7 @@
                 </div>
                 </template>
 
-                <template v-if="lineItem.note || lineItem.adminNote || $root.editing">
+                <template v-if="lineItem.note || lineItem.adminNote || editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -124,7 +124,7 @@
 
                         <div class="order-flex order-flex-grow order-margin-wrapper">
                             <div class="order-flex-grow order-margin">
-                                <template v-if="!$root.editing">
+                                <template v-if="!editing">
                                     <template v-if="lineItem.note">
                                         {{lineItem.note}}
                                     </template>
@@ -138,7 +138,7 @@
                                 </template>
                             </div>
                             <div class="order-flex-grow order-margin">
-                                <template v-if="!$root.editing">
+                                <template v-if="!editing">
                                     <template v-if="lineItem.adminNote">
                                         {{lineItem.adminNote}}
                                     </template>
@@ -156,7 +156,7 @@
                 </div>
                 </template>
 
-                <template v-if="lineItem.adjustments.length || $root.editing">
+                <template v-if="lineItem.adjustments.length || editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -178,7 +178,7 @@
                     <div>
                         <strong>{{ lineItem.totalAsCurrency }}</strong>
                     </div>
-                    <div v-if="$root.editing">
+                    <div v-if="editing">
                         <a href="#" @click.prevent="$emit('remove')">Remove</a>
                     </div>
                 </div>
@@ -188,6 +188,7 @@
 </template>
 
 <script>
+    import {mapState, mapGetters} from 'vuex'
     import {debounce} from 'debounce'
     import PrismEditor from 'vue-prism-editor'
     import Adjustments from './Adjustments'
@@ -221,16 +222,27 @@
         },
 
         computed: {
+            ...mapState({
+                draft: state => state.draft,
+                editing: state => state.editing,
+            }),
+
+            ...mapGetters([
+                'getErrors',
+                'shippingCategories',
+                'taxCategories',
+            ]),
+
             shippingCategory() {
                 if (!this.lineItem.shippingCategoryId) {
                     return null
                 }
 
-                if (typeof this.$root.shippingCategories[this.lineItem.shippingCategoryId] === 'undefined') {
+                if (typeof this.shippingCategories[this.lineItem.shippingCategoryId] === 'undefined') {
                     return this.lineItem.shippingCategoryId
                 }
 
-                return this.$root.shippingCategories[this.lineItem.shippingCategoryId]
+                return this.shippingCategories[this.lineItem.shippingCategoryId]
             },
 
             taxCategory() {
@@ -238,11 +250,11 @@
                     return null
                 }
 
-                if (typeof this.$root.taxCategories[this.lineItem.taxCategoryId] === 'undefined') {
+                if (typeof this.taxCategories[this.lineItem.taxCategoryId] === 'undefined') {
                     return this.lineItem.taxCategoryId
                 }
 
-                return this.$root.taxCategories[this.lineItem.taxCategoryId]
+                return this.taxCategories[this.lineItem.taxCategoryId]
             },
         },
 
@@ -268,6 +280,6 @@
 
             this.onChange = debounce(this.onChange, 1000)
             this.onOptionsChange = debounce(this.onOptionsChange, 1000)
-        },
+        }
     }
 </script>

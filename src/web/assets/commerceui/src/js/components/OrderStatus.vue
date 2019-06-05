@@ -13,7 +13,7 @@
 
         <div class="menu">
             <ul class="padded" role="listbox">
-                <li v-for="(status) in $root.orderStatuses">
+                <li v-for="(status) in orderStatuses">
                     <a
                             :data-id="status.id"
                             :data-color="status.color"
@@ -31,6 +31,8 @@
 <script>
     /* global Garnish */
 
+    import {mapGetters} from 'vuex'
+
     export default {
 
         props: {
@@ -40,10 +42,14 @@
         },
 
         computed: {
+            ...mapGetters([
+                'orderStatuses',
+            ]),
+
             orderStatus() {
                 if (this.order.orderStatusId !== 0) {
-                    for (let orderStatusesKey in this.$root.orderStatuses) {
-                        const orderStatus = this.$root.orderStatuses[orderStatusesKey]
+                    for (let orderStatusesKey in this.orderStatuses) {
+                        const orderStatus = this.orderStatuses[orderStatusesKey]
 
                         if (orderStatus.id === this.order.orderStatusId) {
                             return orderStatus
@@ -63,7 +69,7 @@
                     this.order.orderStatusId = parseInt(status.dataset.id)
                 }
 
-                this.$root.save()
+                // Todo: recalculate
             },
         },
 

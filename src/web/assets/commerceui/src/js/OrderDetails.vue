@@ -1,19 +1,19 @@
 <template>
     <div>
-        <template v-if="$root.draft">
-            {{$root.draft.order.reference}}
+        <template v-if="draft">
+            {{draft.order.reference}}
         </template>
 
         <!-- Header -->
         <div class="text-right">
-            <div v-if="$root.recalculateLoading" class="spinner"></div>
+            <div v-if="recalculateLoading" class="spinner"></div>
             <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
         </div>
 
         <hr>
 
         <!-- Order details -->
-        <div class="order-details" :class="{'order-opacity-50': $root.recalculateLoading || $root.saveLoading}">
+        <div class="order-details" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>
@@ -35,7 +35,7 @@
                     <div class="order-flex-grow">
                         <adjustments
                                 :adjustments="draft.order.orderAdjustments"
-                                @change="$root.recalculateOrder(draft)"
+                                @change="recalculateOrder(draft)"
                         ></adjustments>
                     </div>
                 </div>
@@ -48,12 +48,12 @@
                     <h2>{{ draft.order.totalPriceAsCurrency }}</h2>
                 </div>
 
-                <template v-if="$root.editing">
+                <template v-if="editing">
                     <hr>
 
                     <add-line-item
-                            :order-id="$root.orderId"
-                            @change="$root.recalculateOrder(draft)"
+                            :order-id="orderId"
+                            @change="recalculateOrder(draft)"
                     ></add-line-item>
                 </template>
             </template>
@@ -71,8 +71,7 @@
 </style>
 
 <script>
-    import orderApi from './api/order'
-
+    import {mapState, mapActions} from 'vuex'
     import LineItems from './components/LineItems'
     import Adjustments from './components/Adjustments'
     import AddLineItem from './components/AddLineItem'
@@ -87,26 +86,29 @@
         },
 
         computed: {
-            draft: {
-                get() {
-                    return this.$root.draft
-                },
-                set(newVal) {
-                    this.$root.draft = newVal
-                }
-            },
+            ...mapState({
+                draft: state => state.draft,
+                recalculateLoading: state => state.recalculateLoading,
+                saveLoading: state => state.saveLoading,
+                orderId: state => state.orderId,
+                editing: state => state.editing,
+            }),
         },
 
         methods: {
+            ...mapActions([
+                'recalculateOrder',
+            ]),
+
             autoRecalculate() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.recalculationMode = 'all'
-                this.$root.recalculateOrder(draft)
+                this.recalculateOrder(draft)
             },
 
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)
-                this.$root.recalculateOrder(this.draft)
+                this.recalculateOrder(this.draft)
             },
         },
     }

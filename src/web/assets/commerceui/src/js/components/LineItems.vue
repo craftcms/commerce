@@ -1,17 +1,18 @@
 <template>
-    <div>
+    <div v-if="draft && draft.order">
         <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
             <line-item
                     :key="lineItemKey"
                     :line-item="lineItem"
                     :line-item-key="lineItemKey"
-                    @change="$root.recalculateOrder(draft)"
+                    @change="recalculateOrder(draft)"
                     @remove="removeLineItem(lineItemKey)"></line-item>
         </template>
     </div>
 </template>
 
 <script>
+    import {mapState, mapActions} from 'vuex'
     import LineItem from './LineItem'
 
     export default {
@@ -20,21 +21,20 @@
         },
 
         computed: {
-            draft: {
-                get() {
-                    return this.$root.draft
-                },
-                set(newVal) {
-                    this.$root.draft = newVal
-                }
-            },
+            ...mapState({
+                draft: state => state.draft,
+            }),
         },
 
         methods: {
+            ...mapActions([
+                'recalculateOrder',
+            ]),
+
             removeLineItem(lineItemKey) {
                 this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.$root.recalculateOrder(this.draft)
+                this.recalculateOrder(this.draft)
             },
-        }
+        },
     }
 </script>
