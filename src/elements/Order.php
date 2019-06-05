@@ -53,6 +53,7 @@ use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\log\Logger;
 
 /**
@@ -420,6 +421,39 @@ class Order extends Element
         return parent::init();
     }
 
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'number' => AttributeTypecastBehavior::TYPE_STRING,
+                'reference' => AttributeTypecastBehavior::TYPE_STRING,
+                'couponCode' => AttributeTypecastBehavior::TYPE_STRING,
+                'isCompleted' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'gatewayId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lastIp' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderLanguage' => AttributeTypecastBehavior::TYPE_STRING,
+                'message' => AttributeTypecastBehavior::TYPE_STRING,
+                'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'makePrimaryBillingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingSameAsBilling' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
+                'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ]
+        ];
+
+        return $behaviors;
+    }
+
     /**
      * @return null|string
      */
@@ -540,7 +574,7 @@ class Order extends Element
             };
         }
 
-        $fields['paidStatusHtml'] = function($model, $attribute){
+        $fields['paidStatusHtml'] = function($model, $attribute) {
             /** @var Order $model */
             return $model->getPaidStatusHtml();
         };
@@ -728,7 +762,7 @@ class Order extends Element
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
-        if($this->reference == null) {
+        if ($this->reference == null) {
             $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
 
             try {

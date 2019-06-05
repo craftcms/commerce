@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
@@ -48,11 +49,7 @@ class OrderController extends Controller
         $this->_order = Order::find()->id($orderId)->one();
 
         if (!$this->_order) {
-            $this->_order = new Order([
-                'number' => Plugin::getInstance()->getCarts()->generateCartNumber()
-            ]);
-
-            Craft::$app->getElements()->saveElement($this->_order);
+            return $this->asErrorJson(Craft::t('commerce', 'No order found.'));
         }
 
         $this->_addOrderToData();
@@ -86,6 +83,9 @@ class OrderController extends Controller
 
         $this->_processOrder();
         $this->_setLineItemsAndAdjustments();
+
+        $this->_order->setScenario(Element::SCENARIO_LIVE);
+        $this->_order->setFieldValuesFromRequest('fields');
 
         if ($this->_order->validate()) {
             Craft::$app->getElements()->saveElement($this->_order);
@@ -177,6 +177,14 @@ class OrderController extends Controller
                 /** @var Field $field */
                 ArrayHelper::removeValue($orderFields, $field->handle);
             }
+        }
+
+        // Typecast order attributes
+        $this->_order->typeCastAttributes();
+
+        // Always recalculate if order is a cart
+        if (!$this->_order->isCompleted) {
+            $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         }
 
         $extraFields = ['lineItems.snapshot'];
@@ -323,5 +331,19 @@ class OrderController extends Controller
         }
 
         return [];
+    }
+
+    private function _setOrderFromPost(): Order
+    {
+        $orderId = Craft::$app->getRequest()->getBodyParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
+        }
+
+
+
+        return $order;
     }
 }

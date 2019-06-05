@@ -139,6 +139,9 @@ class OrdersController extends BaseCpController
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
 
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        Craft::$app->getView()->registerJs('window.orderEdit.shippingMethods = ' . Json::encode(ArrayHelper::toArray($shippingMethods)) . ';', View::POS_BEGIN);
+
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);

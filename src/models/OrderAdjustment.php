@@ -88,23 +88,25 @@ class OrderAdjustment extends Model
     // Public Methods
     // =========================================================================
 
-    public function behaviors()
+    public function behaviors(): array
     {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'attributeTypes' => [
-                    'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'type' => AttributeTypecastBehavior::TYPE_STRING,
-                    'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'name' => AttributeTypecastBehavior::TYPE_STRING,
-                    'description' => AttributeTypecastBehavior::TYPE_STRING
-                ]
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'type' => AttributeTypecastBehavior::TYPE_STRING,
+                'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'name' => AttributeTypecastBehavior::TYPE_STRING,
+                'description' => AttributeTypecastBehavior::TYPE_STRING
             ]
         ];
+
+        return $behaviors;
     }
 
 
