@@ -15,19 +15,7 @@
                 <line-items></line-items>
 
                 <!-- Order Adjustments -->
-                <div class="order-flex">
-                    <div class="order-block-title">
-                        <h3>Adjustments</h3>
-                    </div>
-
-                    <div class="order-flex-grow">
-                        <adjustments
-                                :adjustments="draft.order.orderAdjustments"
-                                @removeAdjustment="removeOrderAdjustment"
-                                @change="recalculateOrder(draft)"
-                        ></adjustments>
-                    </div>
-                </div>
+                <order-adjustments></order-adjustments>
 
                 <hr />
 
@@ -62,16 +50,16 @@
 <script>
     import {mapState, mapActions} from 'vuex'
     import LineItems from './components/LineItems'
-    import Adjustments from './components/Adjustments'
     import AddLineItem from './components/AddLineItem'
+    import OrderAdjustments from './components/OrderAdjustments'
 
     export default {
         name: 'order-details-app',
 
         components: {
-            Adjustments,
             AddLineItem,
-            LineItems
+            LineItems,
+            OrderAdjustments
         },
 
         computed: {
@@ -87,7 +75,6 @@
         methods: {
             ...mapActions([
                 'recalculateOrder',
-                'removeOrderAdjustment',
             ]),
         },
     }
