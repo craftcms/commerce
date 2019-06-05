@@ -1,29 +1,17 @@
 <template>
     <div v-if="draft">
-        <!-- Order details -->
         <div class="order-details" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>
             <template v-else>
-                <!-- Is Paid -->
-                <template v-if="draft.order.isPaid && draft.order.totalPrice > 0">
-                    <div class="paidLogo"><span>{{ 'PAID' }}</span></div>
-                </template>
-
-                <!-- Line Items -->
+                <is-paid :is-paid="isPaid"></is-paid>
                 <line-items></line-items>
-
-                <!-- Order Adjustments -->
                 <order-adjustments></order-adjustments>
 
                 <hr />
 
-                <!-- Total Price -->
-                <div class="text-right">
-                    <h2>{{ "Total Price" }}</h2>
-                    <h2>{{ draft.order.totalPriceAsCurrency }}</h2>
-                </div>
+                <total :order="draft.order"></total>
 
                 <template v-if="editing">
                     <hr>
@@ -34,12 +22,11 @@
                     ></add-line-item>
                 </template>
             </template>
-        </div>
 
-        <!-- Errors -->
-        <template v-if="draft.order.errors">
-            <pre>{{draft.order.errors}}</pre>
-        </template>
+            <template v-if="draft.order.errors">
+                <pre>{{draft.order.errors}}</pre>
+            </template>
+        </div>
     </div>
 </template>
 
@@ -52,6 +39,8 @@
     import LineItems from './components/LineItems'
     import AddLineItem from './components/AddLineItem'
     import OrderAdjustments from './components/OrderAdjustments'
+    import IsPaid from './components/IsPaid'
+    import Total from './components/Total'
 
     export default {
         name: 'order-details-app',
@@ -59,7 +48,9 @@
         components: {
             AddLineItem,
             LineItems,
-            OrderAdjustments
+            OrderAdjustments,
+            IsPaid,
+            Total,
         },
 
         computed: {
@@ -70,6 +61,10 @@
                 orderId: state => state.orderId,
                 editing: state => state.editing,
             }),
+
+            isPaid() {
+                return this.draft.order.isPaid && this.draft.order.totalPrice > 0
+            }
         },
 
         methods: {
