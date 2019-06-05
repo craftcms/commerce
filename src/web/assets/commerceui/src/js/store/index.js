@@ -217,9 +217,9 @@ export default new Vuex.Store({
                 })
         },
 
-        removeOrderAdjustment({state}, key) {
+        removeOrderAdjustment({state, dispatch}, key) {
             const draft = state.draft;
-            
+
             delete draft.order.orderAdjustments[key]
 
             dispatch('recalculateOrder', draft)

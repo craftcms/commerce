@@ -23,6 +23,7 @@
                     <div class="order-flex-grow">
                         <adjustments
                                 :adjustments="draft.order.orderAdjustments"
+                                @removeAdjustment="removeOrderAdjustment"
                                 @change="recalculateOrder(draft)"
                         ></adjustments>
                     </div>
@@ -86,6 +87,7 @@
         methods: {
             ...mapActions([
                 'recalculateOrder',
+                'removeOrderAdjustment',
             ]),
         },
     }

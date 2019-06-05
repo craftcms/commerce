@@ -8,7 +8,7 @@
                     :adjustment-key="key"
                     :adjustments="adjustments"
                     @change="$emit('change')"
-                    @remove="removeAdjustment(key)"
+                    @remove="$emit('removeAdjustment', key)"
             ></adjustment>
         </template>
 
@@ -59,11 +59,6 @@
                 }
 
                 this.adjustments.push(adjustment)
-                this.$emit('change')
-            },
-
-            removeAdjustment(key) {
-                this.$delete(this.adjustments, key)
                 this.$emit('change')
             },
         }
