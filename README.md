@@ -1,11 +1,10 @@
 <p align="center"><img src="./src/icon.svg" width="100" height="100" alt="Craft Commerce icon"></p>
 
-![Build](https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=Build&link=https://travis-ci.com/craftcms/commerce)
-![Code Coverage](https://img.shields.io/codecov/c/github/craftcms/commerce/feature/tests.svg?label=Code%20Coverage&link=https://codecov.io/gh/craftcms/commerce)
-![Packagist Downloads](https://img.shields.io/packagist/dt/craftcms/commerce.svg?label=Packagist%20Downloads&link=https://packagist.org/packages/craftcms/commerce)
-![Latest Stable Release](https://img.shields.io/github/tag/craftcms/commerce.svg?label=Latest%20Stable%20Release&link=https://github.com/craftcms/commerce/releases)
-![Commit Activity](https://img.shields.io/github/commit-activity/m/craftcms/commerce.svg?label=Commit%20Activity&link=https://github.com/craftcms/commerce/commits/develop)
-![Discord](https://img.shields.io/discord/456442477667418113.svg?label=Discord&link=https://craftcms.com/discord)
+<p align="center">
+<a href="https://travis-ci.com/craftcms/commerce"><img src="https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=build" alt="Build Status"></a>
+<a href="https://packagist.org/packages/craftcms/commerce"><img src="https://img.shields.io/packagist/dt/craftcms/commerce.svg?label=downloads" alt="Total Packagist Downloads"></a>
+<a href="https://github.com/craftcms/commerce/releases"><img src="https://img.shields.io/github/tag/craftcms/commerce.svg?label=stable" alt="Latest Stable Version"></a>
+</p>
 
 <h1 align="center">Craft Commerce</h1>
 
