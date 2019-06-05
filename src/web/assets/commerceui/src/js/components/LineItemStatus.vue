@@ -34,6 +34,8 @@
 </template>
 
 <script>
+    /* global Garnish */
+
     export default {
 
         props: {
