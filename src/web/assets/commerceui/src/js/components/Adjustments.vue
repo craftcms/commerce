@@ -45,6 +45,7 @@
                 editing: state => state.editing,
             }),
         },
+
         methods: {
             addAdjustment() {
                 const adjustment = {

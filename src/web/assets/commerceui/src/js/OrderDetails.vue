@@ -1,9 +1,5 @@
 <template>
-    <div>
-        <template v-if="draft">
-            {{draft.order.reference}}
-        </template>
-
+    <div v-if="draft">
         <!-- Header -->
         <div class="text-right">
             <div v-if="recalculateLoading" class="spinner"></div>
@@ -60,7 +56,7 @@
         </div>
 
         <!-- Errors -->
-        <template v-if="draft && draft.order.errors">
+        <template v-if="draft.order.errors">
             <pre>{{draft.order.errors}}</pre>
         </template>
     </div>

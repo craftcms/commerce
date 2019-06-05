@@ -1,5 +1,5 @@
 <template>
-    <div v-if="draft && draft.order">
+    <div>
         <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
             <line-item
                     :key="lineItemKey"

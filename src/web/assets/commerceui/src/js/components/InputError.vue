@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="draft && draft.order.errors && draft.order.errors[errorKey]" class="error">
+        <div v-if="draft.order.errors && draft.order.errors[errorKey]" class="error">
             {{draft.order.errors[errorKey]}}
         </div>
     </div>

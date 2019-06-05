@@ -5,10 +5,19 @@ import App from './OrderDetails'
 // import 'prismjs'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
+import OrderActions from './OrderActions'
 import store from './store'
 
 Vue.config.productionTip = false
 
+
+// Order actions
+// =========================================================================
+
+window.OrderActionsApp = new Vue({
+    render: h => h(OrderActions),
+    store,
+}).$mount('#order-actions-app')
 
 // Order details
 // =========================================================================

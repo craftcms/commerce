@@ -76,7 +76,7 @@ export default new Vuex.Store({
 
         getErrors({state}) {
             return (errorKey) => {
-                if (state.draft && state.draft.order.errors && state.draft.order.errors[errorKey]) {
+                if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {
                     return [state.draft.order.errors[errorKey]]
                 }
 
@@ -213,6 +213,10 @@ export default new Vuex.Store({
     },
 
     mutations: {
+        updateEditing(state, editing) {
+            state.editing = editing
+        },
+
         updateDraft(state, draft) {
             state.draft = draft
         },
