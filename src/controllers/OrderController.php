@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
@@ -82,6 +83,9 @@ class OrderController extends Controller
 
         $this->_processOrder();
         $this->_setLineItemsAndAdjustments();
+
+        $this->_order->setScenario(Element::SCENARIO_LIVE);
+        $this->_order->setFieldValuesFromRequest('fields');
 
         if ($this->_order->validate()) {
             Craft::$app->getElements()->saveElement($this->_order);
@@ -322,5 +326,19 @@ class OrderController extends Controller
         }
 
         return [];
+    }
+
+    private function _setOrderFromPost(): Order
+    {
+        $orderId = Craft::$app->getRequest()->getBodyParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
+        }
+
+
+
+        return $order;
     }
 }

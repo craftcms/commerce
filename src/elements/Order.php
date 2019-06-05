@@ -423,33 +423,35 @@ class Order extends Element
 
     public function behaviors(): array
     {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'attributeTypes' => [
-                    'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'number' => AttributeTypecastBehavior::TYPE_STRING,
-                    'reference' => AttributeTypecastBehavior::TYPE_STRING,
-                    'couponCode' => AttributeTypecastBehavior::TYPE_STRING,
-                    'isCompleted' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'gatewayId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'lastIp' => AttributeTypecastBehavior::TYPE_STRING,
-                    'orderLanguage' => AttributeTypecastBehavior::TYPE_STRING,
-                    'message' => AttributeTypecastBehavior::TYPE_STRING,
-                    'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
-                    'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
-                    'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'makePrimaryBillingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'shippingSameAsBilling' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                    'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
-                    'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                ]
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'number' => AttributeTypecastBehavior::TYPE_STRING,
+                'reference' => AttributeTypecastBehavior::TYPE_STRING,
+                'couponCode' => AttributeTypecastBehavior::TYPE_STRING,
+                'isCompleted' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'gatewayId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lastIp' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderLanguage' => AttributeTypecastBehavior::TYPE_STRING,
+                'message' => AttributeTypecastBehavior::TYPE_STRING,
+                'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'makePrimaryBillingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingSameAsBilling' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
+                'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
             ]
         ];
+
+        return $behaviors;
     }
 
     /**

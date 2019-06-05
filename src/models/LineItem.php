@@ -165,28 +165,30 @@ class LineItem extends Model
 
     public function behaviors(): array
     {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'attributeTypes' => [
-                    'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'note' => AttributeTypecastBehavior::TYPE_STRING,
-                    'adminNote' => AttributeTypecastBehavior::TYPE_STRING,
-                    'width' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'height' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'length' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
-                    'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
-                    'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
-                ]
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'note' => AttributeTypecastBehavior::TYPE_STRING,
+                'adminNote' => AttributeTypecastBehavior::TYPE_STRING,
+                'width' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'height' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'length' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
             ]
         ];
+
+        return $behaviors;
     }
 
     /**
