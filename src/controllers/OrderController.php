@@ -182,6 +182,11 @@ class OrderController extends Controller
         // Typecast order attributes
         $this->_order->typeCastAttributes();
 
+        // Always recalculate if order is a cart
+        if (!$this->_order->isCompleted) {
+            $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+        }
+
         $extraFields = ['lineItems.snapshot'];
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
 
