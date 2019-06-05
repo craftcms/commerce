@@ -6,7 +6,6 @@ import App from './OrderDetails'
 import 'prismjs/themes/prism.css'
 import orderApi from './api/order'
 import purchasablesApi from './api/purchasables'
-import { EventBus } from './event-bus.js';
 import OrderMeta from './OrderMeta'
 
 Vue.config.productionTip = false
@@ -276,19 +275,12 @@ window.OrderDetailsApp = new Vue({
     },
 
     mounted() {
-        this.$emit('app-mounted')
-
         this.getOrder(this.orderId)
 
         purchasablesApi.search(this.orderId)
             .then((response) => {
                 this.purchasables = response.data
             })
-
-        EventBus.$on('someAction', () => {
-            console.log('Some action triggered!')
-        });
-
     }
 }).$mount('#order-details-app')
 

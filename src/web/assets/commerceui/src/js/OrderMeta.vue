@@ -90,7 +90,6 @@
 </template>
 
 <script>
-    import {EventBus} from './event-bus.js';
     import OrderStatus from './components/OrderStatus'
 
     export default {
@@ -98,12 +97,6 @@
 
         components: {
             OrderStatus,
-        },
-
-        methods: {
-            someAction() {
-                EventBus.$emit('someAction')
-            },
         },
     }
 </script>
