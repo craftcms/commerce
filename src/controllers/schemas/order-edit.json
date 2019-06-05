@@ -29,6 +29,36 @@
           ],
           "pattern": "^(.*)$"
         },
+        "couponCode": {
+          "$id": "#/properties/order/properties/couponCode",
+          "type": ["null","string"],
+          "title": "The coupon code Schema",
+          "default": "",
+          "examples": [
+            "NUFIE-4829"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "reference": {
+          "$id": "#/properties/order/properties/reference",
+          "type": ["null","string"],
+          "title": "The reference Schema",
+          "default": "",
+          "examples": [
+            "ORDER-001"
+          ],
+          "pattern": "^(.*)$"
+        },
+        "isCompleted": {
+          "$id": "#/properties/order/properties/isCompleted",
+          "type": ["bool"],
+          "title": "The is completed Schema",
+          "default": "",
+          "examples": [
+            true
+          ],
+          "pattern": "^(.*)$"
+        },
         "recalculationMode": {
           "$id": "#/properties/order/properties/recalculationMode",
           "type": "string",
