@@ -27,37 +27,7 @@
     {{ redirectInput('commerce/orders') }}
 
     <div class="order-actions">
-        <div class="order-flex">
-            <div>
-                <div id="order-save-spinner" class="spinner hidden"></div>
-                <input id="order-edit-btn" type="button" class="btn" value="{{ 'Edit'|t('app') }}" />
-                <input id="order-cancel-btn" type="button" class="btn hidden" value="{{ 'Cancel'|t('app') }}" />
-            </div>
-
-            <div id="order-save" class="btngroup hidden">
-                <input id="order-save-btn" type="button" class="btn submit" value="{{ 'Update Order'|t('app') }}" />
-
-                <div class="btn submit menubtn"></div>
-                <div class="menu">
-                    <ul>
-                        <li><a class="formsubmit"
-                               data-redirect="{{ continueEditingUrl|hash }}">
-                                {{ forms.optionShortcutLabel('S') }}
-                                {{ "Save and return to orders"|t('app') }}
-                            </a></li>
-                    </ul>
-
-                    <hr>
-                    <ul>
-                        <li><a class="formsubmit error"
-                               data-action="commerce/orders/delete-order"
-                               data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
-                               data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        <div id="order-actions-app"></div>
     </div>
 
     <div class="btngroup">
@@ -122,50 +92,50 @@
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });
-
+{#
         var $editBtn = $('#order-edit-btn');
         var $cancelBtn = $('#order-cancel-btn');
         var $save = $('#order-save');
         var $saveBtn = $('#order-save-btn');
         var $saveSpinner = $('#order-save-spinner');
 
-        if (OrderDetailsApp.editing) {
+        if (OrderStore.state.editing) {
             $editBtn.addClass('hidden')
             $cancelBtn.removeClass('hidden')
             $save.removeClass('hidden')
         }
 
         $editBtn.on('click', function() {
-            OrderDetailsApp.edit()
+            OrderStore.dispatch('edit')
         });
 
         $cancelBtn.on('click', function() {
-            OrderDetailsApp.cancel()
+            OrderStore.dispatch('cancel')
         });
 
         $saveBtn.on('click', function() {
-            OrderDetailsApp.save()
-        });
+            OrderStore.dispatch('save')
+        });#}
 
-        OrderDetailsApp.$on('onEditingChange', function(editing) {
-            if (editing) {
-                $editBtn.addClass('hidden')
-                $cancelBtn.removeClass('hidden')
-                $save.removeClass('hidden')
-            } else {
-                $editBtn.removeClass('hidden')
-                $cancelBtn.addClass('hidden')
-                $save.addClass('hidden')
-            }
-        })
+{#        OrderDetailsApp.$on('onEditingChange', function(editing) {#}
+{#            if (editing) {#}
+{#                $editBtn.addClass('hidden')#}
+{#                $cancelBtn.removeClass('hidden')#}
+{#                $save.removeClass('hidden')#}
+{#            } else {#}
+{#                $editBtn.removeClass('hidden')#}
+{#                $cancelBtn.addClass('hidden')#}
+{#                $save.addClass('hidden')#}
+{#            }#}
+{#        })#}
 
-        OrderDetailsApp.$on('onSaveLoadingChange', function(loading) {
-            if (loading) {
-                $saveSpinner.removeClass('hidden')
-            } else {
-                $saveSpinner.addClass('hidden')
-            }
-        })
+{#        OrderDetailsApp.$on('onSaveLoadingChange', function(loading) {#}
+{#            if (loading) {#}
+{#                $saveSpinner.removeClass('hidden')#}
+{#            } else {#}
+{#                $saveSpinner.addClass('hidden')#}
+{#            }#}
+{#        })#}
     });
 {% endjs %}
 

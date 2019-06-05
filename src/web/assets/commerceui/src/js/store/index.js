@@ -76,7 +76,7 @@ export default new Vuex.Store({
 
         getErrors({state}) {
             return (errorKey) => {
-                if (state.draft && state.draft.order.errors && state.draft.order.errors[errorKey]) {
+                if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {
                     return [state.draft.order.errors[errorKey]]
                 }
 
@@ -174,6 +174,12 @@ export default new Vuex.Store({
                 })
         },
 
+        autoRecalculate({state, dispatch}) {
+            const draft = JSON.parse(JSON.stringify(state.draft))
+            draft.order.recalculationMode = 'all'
+            dispatch('recalculateOrder', draft)
+        },
+
         recalculateOrder({state, dispatch, commit}, draft) {
             commit('updateRecalculateLoading', true)
 
@@ -210,9 +216,21 @@ export default new Vuex.Store({
                     throw errorMsg + ': '+ error.response
                 })
         },
+
+        removeOrderAdjustment({state, dispatch}, key) {
+            const draft = state.draft;
+
+            delete draft.order.orderAdjustments[key]
+
+            dispatch('recalculateOrder', draft)
+        },
     },
 
     mutations: {
+        updateEditing(state, editing) {
+            state.editing = editing
+        },
+
         updateDraft(state, draft) {
             state.draft = draft
         },

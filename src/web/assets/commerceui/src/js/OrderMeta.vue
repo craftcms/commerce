@@ -45,7 +45,6 @@
                 <div class="input ltr">
                     <div class="buttons">
                         <input type="checkbox" :disabled="draft.order.isCompleted" v-model="draft.order.isCompleted">
-
                     </div>
                 </div>
             </div>
@@ -60,7 +59,6 @@
                     </div>
                 </div>
             </template>
-
         </div>
 
         <div class="meta read-only">
