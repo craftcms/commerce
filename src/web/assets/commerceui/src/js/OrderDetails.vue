@@ -1,13 +1,5 @@
 <template>
     <div v-if="draft">
-        <!-- Header -->
-        <div class="text-right">
-            <div v-if="recalculateLoading" class="spinner"></div>
-            <a class="btn" @click.prevent="autoRecalculate()">Recalculate</a>
-        </div>
-
-        <hr>
-
         <!-- Order details -->
         <div class="order-details" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
             <template v-if="!draft">
@@ -95,12 +87,6 @@
             ...mapActions([
                 'recalculateOrder',
             ]),
-
-            autoRecalculate() {
-                const draft = JSON.parse(JSON.stringify(this.draft))
-                draft.order.recalculationMode = 'all'
-                this.recalculateOrder(draft)
-            },
 
             removeAdjustment(key) {
                 this.$delete(this.draft.order.orderAdjustments, key)

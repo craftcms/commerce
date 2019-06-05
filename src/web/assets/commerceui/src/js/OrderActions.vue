@@ -1,6 +1,11 @@
 <template>
     <div class="order-flex">
         <div>
+            <div v-if="recalculateLoading" class="spinner"></div>
+            <a class="btn recalculate-btn" @click.prevent="autoRecalculate()">Recalculate</a>
+        </div>
+
+        <div>
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
 
             <template v-if="!editing">
@@ -63,6 +68,7 @@
             ...mapActions([
                 'edit',
                 'cancel',
+                'autoRecalculate',
             ]),
 
             onSelectStatus() {
