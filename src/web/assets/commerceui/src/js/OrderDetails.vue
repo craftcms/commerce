@@ -141,13 +141,9 @@
                 this.recalculate()
             },
 
-            recalculate() {
+            recalculate: debounce(function() {
                 this.recalculateOrder()
-            },
+            }, 1000)
         },
-
-        mounted() {
-            this.recalculate = debounce(this.recalculate, 1000)
-        }
     }
 </script>
