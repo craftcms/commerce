@@ -51,7 +51,7 @@
         },
         "isCompleted": {
           "$id": "#/properties/order/properties/isCompleted",
-          "type": ["bool"],
+          "type": ["boolean"],
           "title": "The is completed Schema",
           "default": "",
           "examples": [
