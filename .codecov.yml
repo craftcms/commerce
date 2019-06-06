@@ -3,9 +3,15 @@ codecov:
     require_ci_to_pass: yes
 
 coverage:
-  precision: 2
+  range: 20..100
   round: down
-  range: "20...100"
+  precision: 2
+  status:
+    project:
+      default:
+        target: auto
+        threshold: null
+        base: auto
 
   notify:
     slack:
