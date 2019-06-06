@@ -151,8 +151,8 @@
 <script>
     import {debounce} from 'debounce'
     import {mapState, mapActions} from 'vuex'
-    import OrderStatus from './components/OrderStatus'
-    import ShippingMethod from './components/ShippingMethod'
+    import OrderStatus from './components/meta/OrderStatus'
+    import ShippingMethod from './components/meta/ShippingMethod'
 
     export default {
         name: 'order-meta-app',

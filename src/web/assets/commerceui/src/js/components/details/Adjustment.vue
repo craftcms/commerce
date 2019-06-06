@@ -73,7 +73,7 @@
 <script>
     import {debounce} from 'debounce'
     import {mapGetters} from 'vuex'
-    import Field from './Field'
+    import Field from '../Field'
 
     export default {
         components: {

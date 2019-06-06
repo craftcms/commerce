@@ -45,11 +45,11 @@
 
 <script>
     import {mapState, mapActions} from 'vuex'
-    import LineItems from './components/LineItems'
-    import AddLineItem from './components/AddLineItem'
-    import OrderAdjustments from './components/OrderAdjustments'
-    import IsPaid from './components/IsPaid'
-    import Total from './components/Total'
+    import LineItems from './components/details/LineItems'
+    import AddLineItem from './components/details/AddLineItem'
+    import OrderAdjustments from './components/details/OrderAdjustments'
+    import IsPaid from './components/details/IsPaid'
+    import Total from './components/details/Total'
 
     export default {
         name: 'order-details-app',

@@ -196,9 +196,9 @@
     import {debounce} from 'debounce'
     import PrismEditor from 'vue-prism-editor'
     import Adjustments from './Adjustments'
-    import InputError from './InputError'
+    import InputError from '../InputError'
     import LineItemStatus from './LineItemStatus'
-    import Field from './Field'
+    import Field from '../Field'
 
     export default {
         components: {
