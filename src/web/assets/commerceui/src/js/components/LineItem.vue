@@ -190,7 +190,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters} from 'vuex'
     import {debounce} from 'debounce'
     import PrismEditor from 'vue-prism-editor'
     import Adjustments from './Adjustments'
@@ -230,10 +230,6 @@
         },
 
         computed: {
-            ...mapState({
-                draft: state => state.draft,
-            }),
-
             ...mapGetters([
                 'getErrors',
                 'shippingCategories',
