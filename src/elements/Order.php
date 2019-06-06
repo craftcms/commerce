@@ -1859,13 +1859,13 @@ class Order extends Element
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
-                return $this->billingAddress->getFullName() ?? '';
+                return $this->billingAddress->fullName ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
-                return $this->shippingAddress->getFullName() ?? '';
+                return $this->shippingAddress->fullName ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
