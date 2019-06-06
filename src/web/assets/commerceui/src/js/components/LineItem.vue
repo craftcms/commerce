@@ -169,7 +169,6 @@
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="adjustments"
                                     :recalculation-mode="recalculationMode"
-
                                     @addAdjustment="addAdjustment"
                                     @updateAdjustment="updateAdjustment"
                                     @removeAdjustment="removeAdjustment"
@@ -340,7 +339,7 @@
                 this.$emit('updateLineItem', lineItem)
             },
 
-            updateAdjustment(adjustment, key) {
+            updateAdjustment({adjustment, key}) {
                 const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                 lineItem.adjustments[key] = adjustment
                 this.$emit('updateLineItem', lineItem)
