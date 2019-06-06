@@ -6,8 +6,22 @@
             </template>
             <template v-else>
                 <is-paid :is-paid="isPaid"></is-paid>
-                <line-items :line-items="lineItems" :editing="editing" :recalculation-mode="recalculationMode" @updateLineItems="updateLineItems" @change="recalculateOrder(draft)"></line-items>
-                <order-adjustments :adjustments="orderAdjustments" :editing="editing" :recalculation-mode="recalculationMode" @updateOrderAdjustments="updateOrderAdjustments" @change="recalculateOrder(draft)"></order-adjustments>
+
+                <line-items
+                        :line-items="lineItems"
+                        :editing="editing"
+                        :recalculation-mode="recalculationMode"
+                        @updateLineItems="updateLineItems"
+                        @change="recalculateOrder(draft)"
+                ></line-items>
+
+                <order-adjustments
+                        :adjustments="orderAdjustments"
+                        :editing="editing"
+                        :recalculation-mode="recalculationMode"
+                        @updateOrderAdjustments="updateOrderAdjustments"
+                        @change="recalculateOrder(draft)"
+                ></order-adjustments>
 
                 <hr />
 
