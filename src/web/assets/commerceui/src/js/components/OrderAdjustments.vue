@@ -6,7 +6,8 @@
 
         <div class="order-flex-grow">
             <adjustments
-                    :adjustments="draft.order.orderAdjustments"
+                    :adjustments="orderAdjustments"
+                    @updateAdjustments="updateAdjustments"
                     @removeAdjustment="removeOrderAdjustment"
                     @change="recalculateOrder(draft)"
             ></adjustments>
@@ -24,6 +25,19 @@
         },
 
         computed: {
+            orderAdjustments: {
+                get() {
+                    return JSON.parse(JSON.stringify(this.draft.order.orderAdjustments))
+                },
+
+                set(adjustments) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.orderAdjustments = adjustments
+                    this.$store.commit('updateDraft', draft)
+                    this.recalculateOrder(this.draft)
+                }
+            },
+
             ...mapState({
                 draft: state => state.draft,
             }),
@@ -34,7 +48,10 @@
                 'recalculateOrder',
                 'removeOrderAdjustment',
             ]),
-        },
 
+            updateAdjustments(adjustments) {
+                this.orderAdjustments = adjustments
+            }
+        },
     }
 </script>

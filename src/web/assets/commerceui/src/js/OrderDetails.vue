@@ -6,7 +6,7 @@
             </template>
             <template v-else>
                 <is-paid :is-paid="isPaid"></is-paid>
-                <line-items></line-items>
+                <line-items @updateLineItems="updateLineItems"></line-items>
                 <order-adjustments></order-adjustments>
 
                 <hr />
@@ -55,22 +55,41 @@
 
         computed: {
             ...mapState({
-                draft: state => state.draft,
+                // draft: state => state.draft,
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
                 orderId: state => state.orderId,
                 editing: state => state.editing,
             }),
 
+
+            draft: {
+                get() {
+                    return JSON.parse(JSON.stringify(this.$store.state.draft))
+                },
+
+                set(newVal) {
+                    const draft = JSON.parse(JSON.stringify(newVal));
+                    this.$store.commit('updateDraft', draft)
+                }
+            },
+
             isPaid() {
                 return this.draft.order.isPaid && this.draft.order.totalPrice > 0
-            }
+            },
         },
 
         methods: {
             ...mapActions([
                 'recalculateOrder',
             ]),
+
+            updateLineItems(lineItems) {
+                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
+                draft.order.lineItems = lineItems
+                this.draft = draft
+                this.recalculateOrder(this.draft)
+            }
         },
     }
 </script>

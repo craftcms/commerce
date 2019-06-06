@@ -5,6 +5,7 @@
                     :key="lineItemKey"
                     :line-item="lineItem"
                     :line-item-key="lineItemKey"
+                    @updateLineItem="updateLineItem($event, lineItemKey)"
                     @change="recalculateOrder(draft)"
                     @remove="removeLineItem(lineItemKey)"></line-item>
         </template>
@@ -35,6 +36,12 @@
                 this.$delete(this.draft.order.lineItems, lineItemKey)
                 this.recalculateOrder(this.draft)
             },
+
+            updateLineItem(lineItem, lineItemKey) {
+                const lineItems = JSON.parse(JSON.stringify(this.draft.order.lineItems))
+                lineItems[lineItemKey] = lineItem
+                this.$emit('updateLineItems', lineItems)
+            }
         },
     }
 </script>

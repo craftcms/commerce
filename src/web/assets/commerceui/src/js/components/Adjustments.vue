@@ -6,7 +6,7 @@
                     :key="key"
                     :adjustment="adjustment"
                     :adjustment-key="key"
-                    :adjustments="adjustments"
+                    @updateAdjustment="updateAdjustment($event, key)"
                     @change="$emit('change')"
                     @remove="$emit('removeAdjustment', key)"
             ></adjustment>
@@ -38,7 +38,6 @@
             },
         },
 
-
         computed: {
             ...mapState({
                 draft: state => state.draft,
@@ -61,6 +60,12 @@
                 this.adjustments.push(adjustment)
                 this.$emit('change')
             },
+
+            updateAdjustment(adjustment, adjustmentKey) {
+                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                adjustments[adjustmentKey] = adjustment
+                this.$emit('updateAdjustments', adjustments)
+            }
         }
     }
 </script>

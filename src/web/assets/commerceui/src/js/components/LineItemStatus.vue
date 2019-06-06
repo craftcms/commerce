@@ -51,12 +51,21 @@
                 'lineItemStatuses',
             ]),
 
+            lineItemStatusId: {
+                get() {
+                    return this.lineItem.lineItemStatusId
+                },
+                set(val) {
+                    this.$emit('change', val)
+                }
+            },
+
             lineItemStatus() {
-                if (this.lineItem.lineItemStatusId !== 0) {
+                if (this.lineItemStatusId !== 0) {
                     for (let lineItemStatusesKey in this.lineItemStatuses) {
                         const lineItemStatus = this.lineItemStatuses[lineItemStatusesKey]
 
-                        if (lineItemStatus.id === this.lineItem.lineItemStatusId) {
+                        if (lineItemStatus.id === this.lineItemStatusId) {
                             return lineItemStatus
                         }
                     }
@@ -68,13 +77,13 @@
 
         methods: {
             onSelectStatus(status) {
-                if (status.dataset.id === 0) {
-                    this.lineItem.lineItemStatusId = null
-                } else {
-                    this.lineItem.lineItemStatusId = parseInt(status.dataset.id)
-                }
+                const id = status.dataset.id
 
-                this.$emit('change')
+                if (status.dataset.id == 0) {
+                    this.lineItemStatusId = null
+                } else {
+                    this.lineItemStatusId = parseInt(id)
+                }
             },
         },
 

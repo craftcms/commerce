@@ -6,7 +6,7 @@
                     <div class="meta">
                         <field label="Type" :required="true">
                             <div class="select">
-                                <select v-model="adjustment.type">
+                                <select v-model="type">
                                     <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
                                         {{adjustmentOption.label}}
                                     </option>
@@ -15,29 +15,30 @@
                         </field>
 
                         <field label="Name">
-                            <input type="text" class="text" v-model="adjustment.name" @input="$emit('change')" />
+                            <input type="text" class="text" v-model="name" />
+
                         </field>
 
                         <field label="Description">
-                            <input type="text" class="text" v-model="adjustment.description" @input="$emit('change')" />
+                            <input type="text" class="text" v-model="description" />
                         </field>
 
                         <field label="Amount" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]">
                             <div class="flex">
                                 <div class="textwrapper">
-                                    <input type="text" class="text" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" v-model="adjustment.amount" @input="$emit('change')" />
+                                    <input type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
                                 </div>
                                 <div class="nowrap">
-                                    <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" @input="$emit('change')" /> <label :for="_uid + '-included'">Included</label>
+                                    <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" /> <label :for="_uid + '-included'">Included</label>
                                 </div>
                             </div>
                         </field>
                     </div>
                 </template>
                 <template v-else>
-                    {{adjustment.name}}
-                    <span class="light">({{adjustment.type}})</span>
-                    {{adjustment.description}}
+                    {{name}}
+                    <span class="light">({{type}})</span>
+                    {{description}}
                     <div>
                         <template v-if="!showSnapshot">
                             <a @click.prevent="showSnapshot = true">Snapshot <i data-icon="downangle"></i></a>
@@ -85,12 +86,6 @@
             adjustmentKey: {
                 type: Number,
             },
-            lineItemKey: {
-                type: Number,
-            },
-            adjustments: {
-                type: Array
-            },
             errorPrefix: {
                 type: String,
             }
@@ -126,16 +121,66 @@
                 'getErrors',
             ]),
 
+            type: {
+                get() {
+                    return this.adjustment.type
+                },
+
+                set(value) {
+                    const adjustment = this.adjustment
+                    adjustment.type = value
+                    this.$emit('updateAdjustment', adjustment)
+                }
+            },
+
+            name: {
+                get() {
+                    return this.adjustment.name
+                },
+
+                set(value) {
+                    const adjustment = this.adjustment
+                    adjustment.name = value
+                    this.$emit('updateAdjustment', adjustment)
+                }
+            },
+
+            description: {
+                get() {
+                    return this.adjustment.description
+                },
+
+                set(value) {
+                    const adjustment = this.adjustment
+                    adjustment.description = value
+                    this.$emit('updateAdjustment', adjustment)
+                }
+            },
+
+            amount: {
+                get() {
+                    return this.adjustment.amount
+                },
+
+                set(value) {
+                    const adjustment = this.adjustment
+                    adjustment.amount = value
+                    this.$emit('updateAdjustment', adjustment)
+                }
+            },
+
             included: {
                 get() {
-                    if (this.adjustment.included === true || this.adjustment === '1') {
+                    if (this.adjustment.included === true || this.adjustment.included === '1') {
                         return true
                     }
 
                     return false
                 },
-                set(newValue) {
-                    this.adjustment.included = newValue
+                set(value) {
+                    const adjustment = this.adjustment
+                    adjustment.included = value
+                    this.$emit('updateAdjustment', adjustment)
                 }
             },
         },

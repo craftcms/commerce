@@ -39,14 +39,14 @@
                             <h3>{{ lineItem.description }}</h3>
 
                             <!-- Status -->
-                            <line-item-status :line-item="lineItem"></line-item-status>
+                            <line-item-status :line-item="lineItem" @change="updateLineItemStatusId"></line-item-status>
                         </div>
                         <div class="order-flex-grow">
                             <ul>
                                 <li>
                                     <template v-if="editing && draft.order.recalculationMode === 'none'">
                                         <field label="Sale Price" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
-                                            <input type="text" class="text" size="10" v-model="lineItem.salePrice" @input="onChange">
+                                            <input type="text" class="text" size="10" v-model="salePrice" />
                                         </field>
                                     </template>
                                     <template v-else>
@@ -69,7 +69,7 @@
                                 </template>
                                 <template v-else>
                                     <field label="Quantity" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">
-                                        <input type="text" class="text" size="3" v-model="lineItem.qty" @input="onChange" />
+                                        <input type="text" class="text" size="3" v-model="qty" />
                                     </field>
                                 </template>
                             </div>
@@ -115,7 +115,7 @@
                 </div>
                 </template>
 
-                <template v-if="lineItem.note || lineItem.adminNote || editing">
+                <template v-if="note || adminNote || editing">
                 <div class="order-indented-block">
                     <div class="order-flex">
                         <div class="order-block-title">
@@ -125,8 +125,8 @@
                         <div class="order-flex order-flex-grow order-margin-wrapper">
                             <div class="order-flex-grow order-margin">
                                 <template v-if="!editing">
-                                    <template v-if="lineItem.note">
-                                        {{lineItem.note}}
+                                    <template v-if="note">
+                                        {{note}}
                                     </template>
                                     <template v-else>
                                         <span class="light">{{ 'No customer note.' }}</span>
@@ -134,13 +134,13 @@
                                 </template>
                                 <template v-else>
                                     <label for="note">Customer Note</label>
-                                    <textarea v-model="lineItem.note" class="text fullwidth" @input="onChange"></textarea>
+                                    <textarea v-model="note" class="text fullwidth"></textarea>
                                 </template>
                             </div>
                             <div class="order-flex-grow order-margin">
                                 <template v-if="!editing">
-                                    <template v-if="lineItem.adminNote">
-                                        {{lineItem.adminNote}}
+                                    <template v-if="adminNote">
+                                        {{adminNote}}
                                     </template>
                                     <template v-else>
                                         <span class="light">{{ 'No admin note.' }}</span>
@@ -148,7 +148,7 @@
                                 </template>
                                 <template v-else>
                                     <label for="note">Admin Note</label>
-                                    <textarea v-model="lineItem.adminNote" class="text fullwidth" @input="onChange"></textarea>
+                                    <textarea v-model="adminNote" class="text fullwidth"></textarea>
                                 </template>
                             </div>
                         </div>
@@ -166,8 +166,8 @@
                         <div class="order-flex-grow">
                             <adjustments
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
-                                    :adjustments="lineItem.adjustments"
-                                    @change="onChange"
+                                    :adjustments="adjustments"
+                                    @updateAdjustments="updateAdjustments"
                             ></adjustments>
                         </div>
                     </div>
@@ -233,6 +233,54 @@
                 'taxCategories',
             ]),
 
+            salePrice: {
+                get() {
+                    return this.lineItem.salePrice
+                },
+                set(val) {
+                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    lineItem.salePrice = val
+                    this.$emit('updateLineItem', lineItem)
+                }
+            },
+
+            qty: {
+                get() {
+                    return this.lineItem.qty
+                },
+                set(val) {
+                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    lineItem.qty = val
+                    this.$emit('updateLineItem', lineItem)
+                }
+            },
+
+            note: {
+                get() {
+                    return this.lineItem.note
+                },
+                set(val) {
+                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    lineItem.note = val
+                    this.$emit('updateLineItem', lineItem)
+                }
+            },
+
+            adminNote: {
+                get() {
+                    return this.lineItem.adminNote
+                },
+                set(val) {
+                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    lineItem.adminNote = val
+                    this.$emit('updateLineItem', lineItem)
+                }
+            },
+
+            adjustments() {
+                return JSON.parse(JSON.stringify(this.lineItem.adjustments))
+            },
+
             shippingCategory() {
                 if (!this.lineItem.shippingCategoryId) {
                     return null
@@ -260,13 +308,27 @@
 
         methods: {
             onOptionsChange() {
-                this.lineItem.options = JSON.parse(this.options);
-                this.$emit('change')
+                const options = JSON.parse(this.options);
+                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                lineItem.options = options
+                this.$emit('updateLineItem', lineItem)
             },
 
             onChange() {
                 this.$emit('change')
             },
+
+            updateAdjustments(adjustments) {
+                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                lineItem.adjustments = adjustments
+                this.$emit('updateLineItem', lineItem)
+            },
+
+            updateLineItemStatusId(lineItemStatusId) {
+                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                lineItem.lineItemStatusId = lineItemStatusId
+                this.$emit('updateLineItem', lineItem)
+            }
         },
 
         watch: {
