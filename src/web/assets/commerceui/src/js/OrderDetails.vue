@@ -6,7 +6,7 @@
             </template>
             <template v-else>
                 <is-paid :is-paid="isPaid"></is-paid>
-                <line-items :editing="editing" :recalculation-mode="recalculationMode" @updateLineItems="updateLineItems"></line-items>
+                <line-items :line-items="lineItems" :editing="editing" :recalculation-mode="recalculationMode" @updateLineItems="updateLineItems" @change="recalculateOrder(draft)"></line-items>
                 <order-adjustments :editing="editing" :recalculation-mode="recalculationMode"></order-adjustments>
 
                 <hr />
@@ -64,6 +64,19 @@
 
             recalculationMode() {
               return this.draft.order.recalculationMode
+            },
+
+            lineItems: {
+                get() {
+                    return this.draft.order.lineItems
+                },
+
+                set(adjustments) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.lineItems = adjustments
+                    this.$store.commit('updateDraft', draft)
+                    this.recalculateOrder(this.draft)
+                }
             },
 
             draft: {

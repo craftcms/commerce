@@ -1,6 +1,6 @@
 <template>
     <div>
-        <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
+        <template v-for="(lineItem, lineItemKey) in lineItems">
             <line-item
                     :recalculation-mode="recalculationMode"
                     :key="lineItemKey"
@@ -8,7 +8,7 @@
                     :line-item-key="lineItemKey"
                     :editing="editing"
                     @updateLineItem="updateLineItem($event, lineItemKey)"
-                    @change="recalculateOrder(draft)"
+                    @change="$emit('change')"
                     @remove="removeLineItem(lineItemKey)"></line-item>
         </template>
     </div>
@@ -30,14 +30,11 @@
             editing: {
                 type: Boolean,
             },
+            lineItems: {
+                type: Array,
+            },
         },
-
-        computed: {
-            ...mapState({
-                draft: state => state.draft,
-            }),
-        },
-
+        
         methods: {
             ...mapActions([
                 'recalculateOrder',
@@ -45,7 +42,7 @@
             ]),
 
             updateLineItem(lineItem, lineItemKey) {
-                const lineItems = JSON.parse(JSON.stringify(this.draft.order.lineItems))
+                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
                 lineItems[lineItemKey] = lineItem
                 this.$emit('updateLineItems', lineItems)
             }
