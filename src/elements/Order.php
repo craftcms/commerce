@@ -588,6 +588,7 @@ class Order extends Element
     public function extraFields()
     {
         $names = parent::extraFields();
+        $names[] = 'availableShippingMethods';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
         $names[] = 'customer';
