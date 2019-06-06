@@ -185,7 +185,7 @@ export default new Vuex.Store({
 
             const data = utils.buildDraftData(state.draft)
 
-            
+
             // Recalculate
 
             orderApi.recalculate(data)

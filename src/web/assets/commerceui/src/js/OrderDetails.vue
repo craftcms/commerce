@@ -44,6 +44,7 @@
 </style>
 
 <script>
+    import {debounce} from 'debounce'
     import {mapState, mapActions} from 'vuex'
     import LineItems from './components/LineItems'
     import AddLineItem from './components/AddLineItem'
@@ -83,7 +84,7 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.lineItems = lineItems
                     this.$store.commit('updateDraft', draft)
-                    this.recalculateOrder()
+                    this.recalculate()
                 }
             },
 
@@ -96,7 +97,7 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.orderAdjustments = adjustments
                     this.$store.commit('updateDraft', draft)
-                    this.recalculateOrder()
+                    this.recalculate()
                 }
             },
 
@@ -125,22 +126,30 @@
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems = lineItems
                 this.draft = draft
-                this.recalculateOrder()
+                this.recalculate()
             },
 
             updateOrderAdjustments(orderAdjustments) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.orderAdjustments = orderAdjustments
                 this.draft = draft
-                this.recalculateOrder()
+                this.recalculate()
             },
 
             addLineItem(lineItem) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems.push(lineItem)
                 this.draft = draft
+                this.recalculate()
+            },
+
+            recalculate() {
                 this.recalculateOrder()
             },
         },
+
+        mounted() {
+            this.recalculate = debounce(this.recalculate, 1000)
+        }
     }
 </script>
