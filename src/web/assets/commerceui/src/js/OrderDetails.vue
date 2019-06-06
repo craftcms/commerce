@@ -140,7 +140,7 @@
                 draft.order.lineItems.push(lineItem)
                 this.draft = draft
                 this.recalculateOrder(this.draft)
-            }
+            },
         },
     }
 </script>

@@ -8,7 +8,7 @@
                     :line-item-key="lineItemKey"
                     :editing="editing"
                     @updateLineItem="updateLineItem($event, lineItemKey)"
-                    @remove="removeLineItem(lineItemKey)"></line-item>
+                    @removeLineItem="removeLineItem(lineItemKey)"></line-item>
         </template>
     </div>
 </template>
@@ -35,13 +35,15 @@
         },
 
         methods: {
-            ...mapActions([
-                'removeLineItem',
-            ]),
-
             updateLineItem(lineItem, lineItemKey) {
                 const lineItems = JSON.parse(JSON.stringify(this.lineItems))
                 lineItems[lineItemKey] = lineItem
+                this.$emit('updateLineItems', lineItems)
+            },
+
+            removeLineItem(key) {
+                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                lineItems.splice(key, 1)
                 this.$emit('updateLineItems', lineItems)
             }
         },
