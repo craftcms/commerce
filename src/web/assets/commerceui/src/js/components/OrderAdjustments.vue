@@ -40,7 +40,6 @@
 
         methods: {
             ...mapActions([
-                'recalculateOrder',
                 'addOrderAdjustment',
                 'updateOrderAdjustment',
                 'removeOrderAdjustment',

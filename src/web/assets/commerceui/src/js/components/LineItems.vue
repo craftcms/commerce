@@ -8,7 +8,6 @@
                     :line-item-key="lineItemKey"
                     :editing="editing"
                     @updateLineItem="updateLineItem($event, lineItemKey)"
-                    @change="$emit('change')"
                     @remove="removeLineItem(lineItemKey)"></line-item>
         </template>
     </div>

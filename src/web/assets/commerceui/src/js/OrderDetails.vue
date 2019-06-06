@@ -12,7 +12,6 @@
                         :editing="editing"
                         :recalculation-mode="recalculationMode"
                         @updateLineItems="updateLineItems"
-                        @change="recalculateOrder(draft)"
                 ></line-items>
 
                 <order-adjustments
@@ -28,10 +27,7 @@
                 <template v-if="editing">
                     <hr>
 
-                    <add-line-item
-                            :order-id="orderId"
-                            @change="recalculateOrder(draft)"
-                    ></add-line-item>
+                    <add-line-item :order-id="orderId"></add-line-item>
                 </template>
             </template>
 
