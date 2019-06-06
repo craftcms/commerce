@@ -217,6 +217,29 @@ export default new Vuex.Store({
                 })
         },
 
+        addLineItem({state, commit, dispatch, getters}, purchasable) {
+            const lineItem = {
+                id: null,
+                lineItemStatusId: null,
+                salePrice: '0.0000',
+                qty: "1",
+                note: "",
+                adminNote: "",
+                orderId: getters.orderId,
+                purchasableId: purchasable.id,
+                sku: purchasable.sku,
+                options: {giftWrapped: "no"},
+                adjustments: [],
+            }
+
+            const draft = JSON.parse(JSON.stringify(state.draft))
+
+            draft.order.lineItems.push(lineItem)
+
+            commit('updateDraft', draft)
+            dispatch('recalculateOrder', draft)
+        },
+
         removeLineItem({state, commit, dispatch}, lineItemKey) {
             const draft = JSON.parse(JSON.stringify(state.draft))
 

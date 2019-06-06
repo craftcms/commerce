@@ -99,6 +99,7 @@
         methods: {
             ...mapActions([
                 'displayError',
+                'addLineItem',
             ]),
 
             lineItemAdd() {
@@ -107,21 +108,7 @@
                     return
                 }
 
-                const lineItem = {
-                    id: null,
-                    lineItemStatusId: null,
-                    salePrice: '0.0000',
-                    qty: "1",
-                    note: "",
-                    adminNote: "",
-                    orderId: this.orderId,
-                    purchasableId: this.selectedPurchasable.id,
-                    sku: this.selectedPurchasable.sku,
-                    options: {giftWrapped: "no"},
-                    adjustments: [],
-                }
-
-                this.draft.order.lineItems.push(lineItem)
+                this.addLineItem(this.selectedPurchasable)
 
                 this.$emit('change')
             },
