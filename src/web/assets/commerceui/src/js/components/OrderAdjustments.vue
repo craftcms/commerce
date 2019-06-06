@@ -7,18 +7,18 @@
         <div class="order-flex-grow">
             <adjustments
                     :editing="editing"
-                    :adjustments="orderAdjustments"
+                    :adjustments="adjustments"
                     :recalculation-mode="recalculationMode"
                     @updateAdjustments="updateAdjustments"
                     @removeAdjustment="removeOrderAdjustment"
-                    @change="recalculateOrder(draft)"
+                    @change="$emit('change')"
             ></adjustments>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapActions} from 'vuex'
     import Adjustments from './Adjustments'
 
     export default {
@@ -33,25 +33,9 @@
             editing: {
                 type: Boolean,
             },
-        },
-
-        computed: {
-            orderAdjustments: {
-                get() {
-                    return JSON.parse(JSON.stringify(this.draft.order.orderAdjustments))
-                },
-
-                set(adjustments) {
-                    const draft = JSON.parse(JSON.stringify(this.draft))
-                    draft.order.orderAdjustments = adjustments
-                    this.$store.commit('updateDraft', draft)
-                    this.recalculateOrder(this.draft)
-                }
+            adjustments: {
+                type: Array,
             },
-
-            ...mapState({
-                draft: state => state.draft,
-            }),
         },
 
         methods: {
@@ -61,7 +45,7 @@
             ]),
 
             updateAdjustments(adjustments) {
-                this.orderAdjustments = adjustments
+                this.$emit('updateOrderAdjustments', adjustments)
             }
         },
     }

@@ -7,7 +7,7 @@
             <template v-else>
                 <is-paid :is-paid="isPaid"></is-paid>
                 <line-items :line-items="lineItems" :editing="editing" :recalculation-mode="recalculationMode" @updateLineItems="updateLineItems" @change="recalculateOrder(draft)"></line-items>
-                <order-adjustments :editing="editing" :recalculation-mode="recalculationMode"></order-adjustments>
+                <order-adjustments :adjustments="orderAdjustments" :editing="editing" :recalculation-mode="recalculationMode" @updateOrderAdjustments="updateOrderAdjustments" @change="recalculateOrder(draft)"></order-adjustments>
 
                 <hr />
 
@@ -71,9 +71,22 @@
                     return this.draft.order.lineItems
                 },
 
+                set(lineItems) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.lineItems = lineItems
+                    this.$store.commit('updateDraft', draft)
+                    this.recalculateOrder(this.draft)
+                }
+            },
+
+            orderAdjustments: {
+                get() {
+                    return this.draft.order.orderAdjustments
+                },
+
                 set(adjustments) {
                     const draft = JSON.parse(JSON.stringify(this.draft))
-                    draft.order.lineItems = adjustments
+                    draft.order.orderAdjustments = adjustments
                     this.$store.commit('updateDraft', draft)
                     this.recalculateOrder(this.draft)
                 }
@@ -105,7 +118,14 @@
                 draft.order.lineItems = lineItems
                 this.draft = draft
                 this.recalculateOrder(this.draft)
-            }
+            },
+
+            updateOrderAdjustment @change=recalculateOrder(draft)s(orderAdjustments) {
+                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
+                draft.order.orderAdjustments = orderAdjustments
+                this.draft = draft
+                this.recalculateOrder(this.draft)
+            },
         },
     }
 </script>
