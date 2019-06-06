@@ -249,6 +249,25 @@ export default new Vuex.Store({
             dispatch('recalculateOrder', draft)
         },
 
+        addOrderAdjustment({state, commit, dispatch, getters}) {
+            const adjustment = {
+                id: null,
+                type: 'tax',
+                name: '',
+                description: '',
+                amount: '0.0000',
+                included: '0',
+                orderId: getters.orderId,
+            }
+
+            const draft = JSON.parse(JSON.stringify(state.draft))
+
+            draft.order.orderAdjustments.push(adjustment)
+
+            commit('updateDraft', draft)
+            dispatch('recalculateOrder', draft)
+        },
+
         updateOrderAdjustment({state, commit, dispatch}, {adjustment, key}) {
             const draft = state.draft;
 

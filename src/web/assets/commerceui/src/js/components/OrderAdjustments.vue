@@ -9,6 +9,7 @@
                     :editing="editing"
                     :adjustments="adjustments"
                     :recalculation-mode="recalculationMode"
+                    @addAdjustment="addOrderAdjustment"
                     @updateAdjustment="updateOrderAdjustment"
                     @removeAdjustment="removeOrderAdjustment"
             ></adjustments>
@@ -40,6 +41,7 @@
         methods: {
             ...mapActions([
                 'recalculateOrder',
+                'addOrderAdjustment',
                 'updateOrderAdjustment',
                 'removeOrderAdjustment',
             ]),

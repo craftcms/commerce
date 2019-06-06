@@ -15,7 +15,7 @@
 
         <template v-if="editing && recalculationMode === 'none'">
             <div class="adjustment-actions">
-                <a @click.prevent="addAdjustment()">Add an adjustment</a>
+                <a @click.prevent="$emit('addAdjustment')">Add an adjustment</a>
             </div>
         </template>
     </div>
@@ -46,22 +46,5 @@
                 type: Boolean,
             }
         },
-
-        methods: {
-            addAdjustment() {
-                const adjustment = {
-                    id: null,
-                    type: 'tax',
-                    name: '',
-                    description: '',
-                    amount: '0.0000',
-                    included: '0',
-                    orderId: this.orderId,
-                }
-
-                this.adjustments.push(adjustment)
-                this.$emit('change')
-            },
-        }
     }
 </script>
