@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import {mapActions} from 'vuex'
+    import {mapGetters, mapActions} from 'vuex'
     import Adjustments from './Adjustments'
 
     export default {
@@ -38,12 +38,42 @@
             },
         },
 
-        methods: {
-            ...mapActions([
-                'addOrderAdjustment',
-                'updateOrderAdjustment',
-                'removeOrderAdjustment',
+        computed: {
+            ...mapGetters([
+                'orderId',
             ]),
+        },
+
+        methods: {
+            addOrderAdjustment() {
+                const adjustment = {
+                    id: null,
+                    type: 'tax',
+                    name: '',
+                    description: '',
+                    amount: '0.0000',
+                    included: '0',
+                    orderId: this.orderId,
+                }
+
+                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+
+                adjustments.push(adjustment)
+
+                this.$emit('updateOrderAdjustments', adjustments)
+            },
+
+            updateOrderAdjustment(adjustment, key) {
+                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                adjustments[key] = adjustment
+                this.$emit('updateOrderAdjustments', adjustments)
+            },
+
+            removeOrderAdjustment(key) {
+                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                adjustments.splice(key, 1)
+                this.$emit('updateOrderAdjustments', adjustments)
+            },
         },
     }
 </script>
