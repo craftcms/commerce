@@ -22,6 +22,7 @@ use craft\web\Controller;
 use JsonSchema\Validator;
 use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\Response;
 
 /**
@@ -350,10 +351,14 @@ class OrderController extends Controller
         }
 
 
-
         return $order;
     }
 
+    /**
+     * @param null $query
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionPurchasableSearch($query = null)
     {
         // Prepare purchasables query
@@ -390,10 +395,9 @@ class OrderController extends Controller
 
         // Add the currency formatted price
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        foreach($result as $row)
-        {
+        foreach ($result as $row) {
             /** @var PurchasableInterface $purchasable */
-            if($purchasable = Craft::$app->getElements()->getElementById($row['id'])){
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
                 $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 $row['isAvailable'] = $purchasable->getIsAvailable();
                 $purchasables[] = $row;
@@ -401,5 +405,55 @@ class OrderController extends Controller
         }
 
         return $this->asJson($purchasables);
+    }
+
+    /**
+     * @param null $query
+     * @return Response
+     */
+    public function actionCustomerSearch($query = null)
+    {
+        $limit = 30;
+
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select(['[[customers.id]]', '[[customers.email]]'])
+            ->from('{{%commerce_customers}} customers');
+
+        // Are they searching for a purchasable ID?
+        $results = [];
+        if (is_numeric($query)) {
+            $result = $sqlQuery->where(['id' => $query])->one();
+            if ($result) {
+                $results[] = $result;
+            }
+        }
+
+        // Are they searching for a SKU or purchasable description?
+        if (!is_numeric($query)) {
+            if ($query) {
+                $sqlQuery->where([
+                    'or',
+                    [$likeOperator, 'email', $query]
+                ]);
+            }
+            $results = $sqlQuery->limit($limit)->all();
+        }
+
+        if(empty($results))
+        {
+            $results = $sqlQuery->limit($limit)->all();
+        }
+
+        $customers = [];
+        foreach ($results as $row) {
+            $totalOrders =(new Query())->select('count(*)')->from('{{%commerce_orders}}')->where(['customerId' => $row['id'], 'isCompleted' => true]);
+            $customer['totalOrders'] = $totalOrders;
+            $customer['id'] = $row['id'];
+            $customer['email'] = $row['email'];
+            $customers[] = $customer;
+        }
+
+        return $this->asJson($customers);
     }
 }
