@@ -5,6 +5,7 @@ export default {
     buildDraftData(draft) {
         const draftData = {
             order: {
+                reference: draft.order.reference,
                 recalculationMode: draft.order.recalculationMode,
                 lineItems: [],
                 orderAdjustments: [],
