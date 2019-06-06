@@ -177,13 +177,13 @@ export default new Vuex.Store({
         autoRecalculate({state, dispatch}) {
             const draft = JSON.parse(JSON.stringify(state.draft))
             draft.order.recalculationMode = 'all'
-            dispatch('recalculateOrder')
+            dispatch('recalculateOrder', draft)
         },
 
-        recalculateOrder({state, dispatch, commit}) {
+        recalculateOrder({state, dispatch, commit}, draft) {
             commit('updateRecalculateLoading', true)
 
-            const data = utils.buildDraftData(state.draft)
+            const data = utils.buildDraftData(draft)
 
 
             // Recalculate
