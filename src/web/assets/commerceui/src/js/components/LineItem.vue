@@ -169,7 +169,10 @@
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="adjustments"
                                     :recalculation-mode="recalculationMode"
-                                    @updateAdjustments="updateAdjustments"
+
+                                    @addAdjustment="addAdjustment"
+                                    @updateAdjustment="updateAdjustment"
+                                    @removeAdjustment="removeAdjustment"
                             ></adjustments>
                         </div>
                     </div>
@@ -234,6 +237,7 @@
                 'getErrors',
                 'shippingCategories',
                 'taxCategories',
+                'orderId',
             ]),
 
             salePrice: {
@@ -321,9 +325,34 @@
                 this.$emit('change')
             },
 
-            updateAdjustments(adjustments) {
+            addAdjustment() {
+                const adjustment = {
+                    id: null,
+                    type: 'tax',
+                    name: '',
+                    description: '',
+                    amount: '0.0000',
+                    included: '0',
+                    orderId: this.orderId,
+                    lineItemId: this.lineItem.id
+                }
+
                 const lineItem = JSON.parse(JSON.stringify(this.lineItem))
-                lineItem.adjustments = adjustments
+
+                lineItem.adjustments.push(adjustment)
+
+                this.$emit('updateLineItem', lineItem)
+            },
+
+            updateAdjustment(adjustment, key) {
+                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                lineItem.adjustments[key] = adjustment
+                this.$emit('updateLineItem', lineItem)
+            },
+
+            removeAdjustment(key) {
+                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                lineItem.adjustments.splice(key, 1)
                 this.$emit('updateLineItem', lineItem)
             },
 
