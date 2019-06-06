@@ -52,12 +52,6 @@
             VSelect,
         },
 
-        props: {
-            orderId: {
-                type: Number,
-            },
-        },
-
         data() {
             return {
                 showForm: false,
@@ -75,6 +69,7 @@
             ...mapGetters([
                 'getErrors',
                 'canAddLineItem',
+                'orderId',
             ]),
 
             formDisabled() {
@@ -98,7 +93,6 @@
         methods: {
             ...mapActions([
                 'displayError',
-                'addLineItem',
             ]),
 
             lineItemAdd() {
@@ -108,6 +102,24 @@
                 }
 
                 this.addLineItem(this.selectedPurchasable)
+            },
+
+            addLineItem() {
+                const lineItem = {
+                    id: null,
+                    lineItemStatusId: null,
+                    salePrice: '0.0000',
+                    qty: "1",
+                    note: "",
+                    adminNote: "",
+                    orderId: this.orderId,
+                    purchasableId: this.selectedPurchasable.id,
+                    sku: this.selectedPurchasable.sku,
+                    options: {giftWrapped: "no"},
+                    adjustments: [],
+                }
+
+                this.$emit('addLineItem', lineItem)
             },
 
             onSearch(search, loading) {

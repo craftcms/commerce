@@ -28,7 +28,7 @@
                 <template v-if="editing">
                     <hr>
 
-                    <add-line-item :order-id="orderId"></add-line-item>
+                    <add-line-item @addLineItem="addLineItem"></add-line-item>
                 </template>
             </template>
 
@@ -67,7 +67,6 @@
                 // draft: state => state.draft,
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
-                orderId: state => state.orderId,
                 editing: state => state.editing,
             }),
 
@@ -135,6 +134,13 @@
                 this.draft = draft
                 this.recalculateOrder(this.draft)
             },
+
+            addLineItem(lineItem) {
+                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
+                draft.order.lineItems.push(lineItem)
+                this.draft = draft
+                this.recalculateOrder(this.draft)
+            }
         },
     }
 </script>
