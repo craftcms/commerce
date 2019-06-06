@@ -278,7 +278,7 @@ export default new Vuex.Store({
         },
 
         removeOrderAdjustment({state, commit, dispatch}, key) {
-            const draft = state.draft;
+            const draft = JSON.parse(JSON.stringify(state.draft))
 
             draft.order.orderAdjustments.splice(key, 1)
 
