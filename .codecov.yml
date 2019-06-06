@@ -4,14 +4,13 @@ codecov:
 
 coverage:
   range: 20..100
-  round: down
-  precision: 2
-  status:
-    project:
-      default:
-        target: auto
-        threshold: null
-        base: auto
+    round: down
+    precision: 2
+    status:
+      project:
+        default:
+          threshold: .1
+          base: pr
 
   notify:
     slack:
@@ -25,11 +24,6 @@ coverage:
         paths: null
         message: "Coverage {{changed}} for {{owner}}/{{repo}}"
 
-  status:
-    project: yes
-    patch: yes
-    changes: no
-
 parsers:
   gcov:
     branch_detection:
@@ -38,7 +32,15 @@ parsers:
       method: no
       macro: no
 
-comment:
-  layout: "header, diff"
-  behavior: default
-  require_changes: no
+comment: off
+
+ignore:
+  - "src/etc"
+  - "src/migrations"
+  - "src/templates"
+  - "src/translations"
+  - "src/web/assets"
+  - "docs"
+  - "templates"
+  - "tests"
+  - "vendor"

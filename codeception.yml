@@ -7,6 +7,20 @@ paths:
     envs: tests/_envs
 settings:
     bootstrap: _bootstrap.php
+coverage:
+    enabled: true
+    include:
+        - src/*
+    exclude:
+        - src/etc/*
+        - src/migrations/*
+        - src/templates/*
+        - src/translations/*
+        - src/web/assets/*
+        - docs/*
+        - templates/*
+        - tests/*
+        - vendor/*
 params:
     - tests/.env
 modules:
