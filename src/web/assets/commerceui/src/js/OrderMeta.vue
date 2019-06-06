@@ -7,16 +7,21 @@
                     <label id="reference-label" for="slug">Reference</label>
                 </div>
                 <div class="input ltr">
-                    <input
-                            class="text fullwidth"
-                            type="text"
-                            id="reference"
-                            name="reference"
-                            v-model="reference"
-                            autocomplete="off"
-                            autocorrect="off"
-                            autocapitalize="off"
-                            placeholder="Enter reference" />
+                    <template v-if="!editing">
+                        {{reference}}
+                    </template>
+                    <template v-else>
+                        <input
+                                class="text fullwidth"
+                                type="text"
+                                id="reference"
+                                name="reference"
+                                v-model="reference"
+                                autocomplete="off"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                placeholder="Enter reference" />
+                    </template>
                 </div>
             </div>
 
@@ -25,16 +30,21 @@
                     <label id="couponCode-label" for="slug">Coupon Code</label>
                 </div>
                 <div class="input ltr">
-                    <input
-                            class="text fullwidth"
-                            type="text"
-                            id="couponCode"
-                            name="couponCode"
-                            v-model="couponCode"
-                            autocomplete="off"
-                            autocorrect="off"
-                            autocapitalize="off"
-                            placeholder="Enter coupon code" />
+                    <template v-if="!editing">
+                        {{couponCode}}
+                    </template>
+                    <template v-else>
+                        <input
+                                class="text fullwidth"
+                                type="text"
+                                id="couponCode"
+                                name="couponCode"
+                                v-model="couponCode"
+                                autocomplete="off"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                placeholder="Enter coupon code" />
+                    </template>
                 </div>
             </div>
 
@@ -48,7 +58,12 @@
                             Yes
                         </template>
                         <template v-else>
-                            <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
+                            <template v-if="!editing">
+                                No
+                            </template>
+                            <template v-else>
+                                <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
+                            </template>
                         </template>
                     </div>
                 </div>
@@ -137,6 +152,7 @@
         computed: {
             ...mapState({
                 draft: state => state.draft,
+                editing: state => state.editing,
             }),
 
             reference: {
