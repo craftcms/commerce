@@ -12,7 +12,7 @@
                             type="text"
                             id="reference"
                             name="reference"
-                            v-model="draft.order.reference"
+                            v-model="reference"
                             autocomplete="off"
                             autocorrect="off"
                             autocapitalize="off"
@@ -30,7 +30,7 @@
                             type="text"
                             id="couponCode"
                             name="couponCode"
-                            value=""
+                            v-model="couponCode"
                             autocomplete="off"
                             autocorrect="off"
                             autocapitalize="off"
@@ -118,7 +118,8 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+    import {debounce} from 'debounce'
+    import {mapState, mapActions} from 'vuex'
     import OrderStatus from './components/OrderStatus'
 
     export default {
@@ -132,6 +133,34 @@
             ...mapState({
                 draft: state => state.draft,
             }),
+
+            reference: {
+                get() {
+                    return this.draft.order.reference
+                },
+                set: debounce(function(value) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.reference = value
+                    this.recalculateOrder(draft)
+                }, 1000)
+            },
+
+            couponCode: {
+                get() {
+                    return this.draft.order.couponCode
+                },
+                set: debounce(function(value) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.couponCode = value
+                    this.recalculateOrder(draft)
+                }, 1000)
+            }
+        },
+
+        methods: {
+            ...mapActions([
+                'recalculateOrder',
+            ]),
         }
     }
 </script>
