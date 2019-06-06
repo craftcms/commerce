@@ -130,7 +130,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.type = value
-                    this.$emit('change', adjustment)
+                    this.$emit('update', adjustment)
                 }
             },
 
@@ -142,7 +142,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.name = value
-                    this.$emit('change', adjustment)
+                    this.$emit('update', adjustment)
                 }
             },
 
@@ -154,7 +154,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.description = value
-                    this.$emit('change', adjustment)
+                    this.$emit('update', adjustment)
                 }
             },
 
@@ -166,7 +166,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.amount = value
-                    this.$emit('change', adjustment)
+                    this.$emit('update', adjustment)
                 }
             },
 
@@ -181,7 +181,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.included = value
-                    this.$emit('change', adjustment)
+                    this.$emit('update', adjustment)
                 }
             },
         },

@@ -8,7 +8,7 @@
                     :adjustment-key="key"
                     :recalculation-mode="recalculationMode"
                     :editing="editing"
-                    @change="updateAdjustment($event, key)"
+                    @update="updateAdjustment($event, key)"
                     @remove="$emit('removeAdjustment', key)"
             ></adjustment>
         </template>
