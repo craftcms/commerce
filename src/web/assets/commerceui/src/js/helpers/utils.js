@@ -6,6 +6,7 @@ export default {
         const draftData = {
             order: {
                 reference: draft.order.reference,
+                couponCode: draft.order.couponCode,
                 recalculationMode: draft.order.recalculationMode,
                 lineItems: [],
                 orderAdjustments: [],

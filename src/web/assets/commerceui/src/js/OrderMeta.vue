@@ -30,7 +30,7 @@
                             type="text"
                             id="couponCode"
                             name="couponCode"
-                            value=""
+                            v-model="couponCode"
                             autocomplete="off"
                             autocorrect="off"
                             autocapitalize="off"
@@ -141,6 +141,17 @@
                 set: debounce(function(value) {
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.reference = value
+                    this.recalculateOrder(draft)
+                }, 1000)
+            },
+
+            couponCode: {
+                get() {
+                    return this.draft.order.couponCode
+                },
+                set: debounce(function(value) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order.couponCode = value
                     this.recalculateOrder(draft)
                 }, 1000)
             }
