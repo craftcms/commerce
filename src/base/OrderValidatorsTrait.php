@@ -131,7 +131,7 @@ trait OrderValidatorsTrait
      */
     public function validateCouponCode($attribute)
     {
-        if (!$this->isCompleted && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
+        if ($this->recalculationMode == Order::RECALCULATION_MODE_ALL && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
             $this->addError($attribute, $explanation);
         }
     }
