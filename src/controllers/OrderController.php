@@ -191,8 +191,9 @@ class OrderController extends Controller
             $this->_order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         }
 
-        $extraFields = ['lineItems.snapshot'];
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
         $this->_responseData['order'] = $this->_order->toArray($orderFields, $extraFields);
+        $this->_order->toArray($orderFields, $extraFields);
 
         if ($this->_order->hasErrors()) {
             $this->_responseData['order']['errors'] = $this->_order->getErrors();
