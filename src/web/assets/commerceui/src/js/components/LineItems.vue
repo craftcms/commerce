@@ -36,7 +36,6 @@
 
         methods: {
             ...mapActions([
-                'recalculateOrder',
                 'removeLineItem',
             ]),
 
