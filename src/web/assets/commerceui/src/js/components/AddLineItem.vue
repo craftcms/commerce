@@ -109,8 +109,6 @@
                 }
 
                 this.addLineItem(this.selectedPurchasable)
-
-                this.$emit('change')
             },
 
             onSearch(search, loading) {
