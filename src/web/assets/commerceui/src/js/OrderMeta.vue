@@ -44,7 +44,12 @@
                 </div>
                 <div class="input ltr">
                     <div class="buttons">
-                        <input type="checkbox" :disabled="draft.order.isCompleted" v-model="draft.order.isCompleted">
+                        <template v-if="draft.order.isCompleted">
+                            Yes
+                        </template>
+                        <template v-else>
+                            <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
+                        </template>
                     </div>
                 </div>
             </div>
@@ -161,6 +166,12 @@
             ...mapActions([
                 'recalculateOrder',
             ]),
+
+            markAsCompleted() {
+                const draft = JSON.parse(JSON.stringify(this.draft))
+                draft.order.isCompleted = true
+                this.recalculateOrder(draft)
+            }
         }
     }
 </script>

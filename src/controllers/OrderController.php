@@ -221,7 +221,7 @@ class OrderController extends Controller
         $this->_order->reference = $this->_responseData['order']['reference'];
         $this->_order->couponCode = $this->_responseData['order']['couponCode'];
 //        $this->_order->shippingMethodHandle = $this->_responseData['order']['shippingMethodHandle'];
-//        $this->_order->isCompleted = $this->_responseData['order']['isCompleted'];
+        $this->_order->isCompleted = $this->_responseData['order']['isCompleted'];
 //        $this->_order->orderStatusId = $this->_responseData['order']['orderStatusId'];
 //        $this->_order->message = $this->_responseData['order']['message'];
     }

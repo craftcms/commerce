@@ -5,6 +5,7 @@ export default {
     buildDraftData(draft) {
         const draftData = {
             order: {
+                isCompleted: draft.order.isCompleted,
                 reference: draft.order.reference,
                 couponCode: draft.order.couponCode,
                 recalculationMode: draft.order.recalculationMode,
