@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
@@ -379,7 +380,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $result = $sqlQuery->limit(3)->all();
+        $result = $sqlQuery->limit(30)->all();
 
         if (!$result) {
             return $this->asJson([]);
@@ -391,8 +392,12 @@ class OrderController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         foreach($result as $row)
         {
-            $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-            $purchasables[] = $row;
+            /** @var PurchasableInterface $purchasable */
+            if($purchasable = Craft::$app->getElements()->getElementById($row['id'])){
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $purchasables[] = $row;
+            }
         }
 
         return $this->asJson($purchasables);

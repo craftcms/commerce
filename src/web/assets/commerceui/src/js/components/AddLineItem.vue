@@ -13,10 +13,12 @@
                         :filterable="false"
                         @search="onSearch">
                     <template slot="option" slot-scope="option">
-                        <div class="purchasable-select-option">
+                        <div class="purchasable-select-option" v-bind:class="{ notAvailable: !option.isAvailable }">
                             <div class="description">
                                 <template v-if="option.description">
-                                    {{option.description}}
+                                    <template v-if="option.description.length<20">{{option.description}}</template>
+                                    <template v-if="option.description.length>=20">{{option.description.substring(0,20)+".." }}</template>
+                                    <template v-if="!option.isAvailable"> (Not available)</template>
                                 </template>
                                 <template v-else>
                                     <em>No description</em>
@@ -27,7 +29,7 @@
                         </div>
                     </template>
                 </v-select>
-                
+
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" value="Cancel" @click="showForm = false" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" value="Add" />
@@ -137,7 +139,7 @@
 
 <style lang="scss">
     .add-line-item-form {
-        max-width: 300px;
+        max-width: 500px;
     }
 
     .purchasable-select-option {
@@ -146,10 +148,14 @@
         .description {
             flex-grow: 1;
         }
-        
+
         .sku {
             color: #888;
             margin-right: 20px;
+        }
+
+        &.notAvailable{
+            color: red;
         }
 
         .price {
