@@ -1,9 +1,11 @@
 <template>
     <div class="order-flex">
+        <template v-if="editing">
         <div>
             <div v-if="recalculateLoading" class="spinner"></div>
-            <a class="btn recalculate-btn" @click.prevent="autoRecalculate()">Recalculate</a>
+            <a class="btn recalculate-btn" @click.prevent="autoRecalculate()">Recalculate Order</a>
         </div>
+        </template>
 
         <div>
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
