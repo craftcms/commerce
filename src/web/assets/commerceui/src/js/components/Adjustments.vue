@@ -8,7 +8,7 @@
                     :adjustment-key="key"
                     :recalculation-mode="recalculationMode"
                     :editing="editing"
-                    @update="updateAdjustment($event, key)"
+                    @update="$emit('updateAdjustment', {adjustment: $event, key})"
                     @remove="$emit('removeAdjustment', key)"
             ></adjustment>
         </template>
@@ -62,12 +62,6 @@
                 this.adjustments.push(adjustment)
                 this.$emit('change')
             },
-
-            updateAdjustment(adjustment, adjustmentKey) {
-                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
-                adjustments[adjustmentKey] = adjustment
-                this.$emit('updateAdjustments', adjustments)
-            }
         }
     }
 </script>

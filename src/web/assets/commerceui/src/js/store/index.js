@@ -249,6 +249,15 @@ export default new Vuex.Store({
             dispatch('recalculateOrder', draft)
         },
 
+        updateOrderAdjustment({state, commit, dispatch}, {adjustment, key}) {
+            const draft = state.draft;
+
+            draft.order.orderAdjustments[key] = adjustment
+
+            commit('updateDraft', draft)
+            dispatch('recalculateOrder', draft)
+        },
+
         removeOrderAdjustment({state, commit, dispatch}, key) {
             const draft = state.draft;
 

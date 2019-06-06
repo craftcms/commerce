@@ -19,8 +19,6 @@
                         :adjustments="orderAdjustments"
                         :editing="editing"
                         :recalculation-mode="recalculationMode"
-                        @updateOrderAdjustments="updateOrderAdjustments"
-                        @change="recalculateOrder(draft)"
                 ></order-adjustments>
 
                 <hr />

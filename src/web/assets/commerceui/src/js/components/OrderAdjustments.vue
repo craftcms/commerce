@@ -9,9 +9,8 @@
                     :editing="editing"
                     :adjustments="adjustments"
                     :recalculation-mode="recalculationMode"
-                    @updateAdjustments="updateAdjustments"
+                    @updateAdjustment="updateOrderAdjustment"
                     @removeAdjustment="removeOrderAdjustment"
-                    @change="$emit('change')"
             ></adjustments>
         </div>
     </div>
@@ -41,12 +40,9 @@
         methods: {
             ...mapActions([
                 'recalculateOrder',
+                'updateOrderAdjustment',
                 'removeOrderAdjustment',
             ]),
-
-            updateAdjustments(adjustments) {
-                this.$emit('updateOrderAdjustments', adjustments)
-            }
         },
     }
 </script>
