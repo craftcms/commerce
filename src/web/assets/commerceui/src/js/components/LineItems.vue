@@ -15,7 +15,7 @@
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapActions} from 'vuex'
     import LineItem from './LineItem'
 
     export default {
@@ -34,7 +34,7 @@
                 type: Array,
             },
         },
-        
+
         methods: {
             ...mapActions([
                 'recalculateOrder',
