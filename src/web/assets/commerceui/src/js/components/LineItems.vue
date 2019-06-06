@@ -41,12 +41,8 @@
         methods: {
             ...mapActions([
                 'recalculateOrder',
+                'removeLineItem',
             ]),
-
-            removeLineItem(lineItemKey) {
-                this.$delete(this.draft.order.lineItems, lineItemKey)
-                this.recalculateOrder(this.draft)
-            },
 
             updateLineItem(lineItem, lineItemKey) {
                 const lineItems = JSON.parse(JSON.stringify(this.draft.order.lineItems))

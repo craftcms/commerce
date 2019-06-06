@@ -340,7 +340,9 @@
 
         watch: {
             lineItem() {
-                this.options = JSON.stringify(this.lineItem.options, null, '\t')
+                if (this.lineItem) {
+                    this.options = JSON.stringify(this.lineItem.options, null, '\t')
+                }
             }
         },
 
