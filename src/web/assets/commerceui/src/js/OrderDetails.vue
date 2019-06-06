@@ -83,7 +83,7 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.lineItems = lineItems
                     this.$store.commit('updateDraft', draft)
-                    this.recalculateOrder(this.draft)
+                    this.recalculateOrder()
                 }
             },
 
@@ -96,7 +96,7 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.orderAdjustments = adjustments
                     this.$store.commit('updateDraft', draft)
-                    this.recalculateOrder(this.draft)
+                    this.recalculateOrder()
                 }
             },
 
@@ -125,21 +125,21 @@
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems = lineItems
                 this.draft = draft
-                this.recalculateOrder(this.draft)
+                this.recalculateOrder()
             },
 
             updateOrderAdjustments(orderAdjustments) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.orderAdjustments = orderAdjustments
                 this.draft = draft
-                this.recalculateOrder(this.draft)
+                this.recalculateOrder()
             },
 
             addLineItem(lineItem) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems.push(lineItem)
                 this.draft = draft
-                this.recalculateOrder(this.draft)
+                this.recalculateOrder()
             },
         },
     }
