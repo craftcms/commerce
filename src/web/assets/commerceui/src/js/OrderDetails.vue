@@ -44,7 +44,6 @@
 </style>
 
 <script>
-    import {debounce} from 'debounce'
     import {mapState, mapActions} from 'vuex'
     import LineItems from './components/LineItems'
     import AddLineItem from './components/AddLineItem'
@@ -139,9 +138,9 @@
                 this.recalculate(draft)
             },
 
-            recalculate: debounce(function(draft) {
+            recalculate(draft) {
                 this.recalculateOrder(draft)
-            }, 1000)
+            }
         },
     }
 </script>
