@@ -68,7 +68,6 @@
         computed: {
 
             ...mapState({
-                draft: state => state.draft,
                 purchasables: state => state.purchasables,
                 recalculateLoading: state => state.recalculateLoading,
             }),

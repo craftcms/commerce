@@ -321,10 +321,6 @@
                 this.$emit('updateLineItem', lineItem)
             },
 
-            onChange() {
-                this.$emit('change')
-            },
-
             addAdjustment() {
                 const adjustment = {
                     id: null,
@@ -374,7 +370,6 @@
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
 
-            this.onChange = debounce(this.onChange, 1000)
             this.onOptionsChange = debounce(this.onOptionsChange, 1000)
         }
     }
