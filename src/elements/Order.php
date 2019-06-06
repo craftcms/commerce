@@ -1835,10 +1835,12 @@ class Order extends Element
         return [
             'billingFirstName',
             'billingLastName',
+            'billingFullName',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
+            'shippingFullName',
             'shortNumber',
             'transactionReference',
             'username',
@@ -1856,10 +1858,14 @@ class Order extends Element
                 return $this->billingAddress->firstName ?? '';
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
+            case 'billingFullName':
+                return $this->billingAddress->getFullName() ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
+            case 'shippingFullName':
+                return $this->shippingAddress->getFullName() ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
