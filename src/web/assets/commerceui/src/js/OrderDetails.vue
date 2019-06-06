@@ -134,7 +134,7 @@
                 this.recalculateOrder(this.draft)
             },
 
-            updateOrderAdjustment @change=recalculateOrder(draft)s(orderAdjustments) {
+            updateOrderAdjustments(orderAdjustments) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.orderAdjustments = orderAdjustments
                 this.draft = draft
