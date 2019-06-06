@@ -65,7 +65,6 @@
 
         computed: {
             ...mapState({
-                // draft: state => state.draft,
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
                 editing: state => state.editing,
@@ -122,6 +121,12 @@
                 'recalculateOrder',
             ]),
 
+            addLineItem(lineItem) {
+                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                lineItems.push(lineItem)
+                this.updateLineItems(lineItems)
+            },
+
             updateLineItems(lineItems) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems = lineItems
@@ -132,13 +137,6 @@
             updateOrderAdjustments(orderAdjustments) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.orderAdjustments = orderAdjustments
-                this.draft = draft
-                this.recalculate()
-            },
-
-            addLineItem(lineItem) {
-                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
-                draft.order.lineItems.push(lineItem)
                 this.draft = draft
                 this.recalculate()
             },

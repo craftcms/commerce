@@ -41,6 +41,13 @@
                 this.$emit('updateLineItems', lineItems)
             },
 
+            addLineItem(lineItem) {
+                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
+                draft.order.lineItems.push(lineItem)
+                this.draft = draft
+                this.recalculate()
+            },
+
             removeLineItem(key) {
                 const lineItems = JSON.parse(JSON.stringify(this.lineItems))
                 lineItems.splice(key, 1)
