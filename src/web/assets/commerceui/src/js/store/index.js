@@ -216,15 +216,6 @@ export default new Vuex.Store({
                     throw errorMsg + ': '+ error.response
                 })
         },
-
-        removeLineItem({state, commit, dispatch}, lineItemKey) {
-            const draft = JSON.parse(JSON.stringify(state.draft))
-
-            draft.order.lineItems.splice(lineItemKey, 1)
-
-            commit('updateDraft', draft)
-            dispatch('recalculateOrder', draft)
-        },
     },
 
     mutations: {
