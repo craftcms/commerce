@@ -87,6 +87,11 @@
                     return true
                 }
 
+                if(this.selectedPurchasable.isAvailable == false)
+                {
+                    return true;
+                }
+
                 return false
             }
         },
