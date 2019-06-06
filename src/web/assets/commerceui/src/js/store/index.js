@@ -84,7 +84,7 @@ export default new Vuex.Store({
             return statuses
         },
 
-        getErrors({state}) {
+        getErrors(state) {
             return (errorKey) => {
                 if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {
                     return [state.draft.order.errors[errorKey]]
