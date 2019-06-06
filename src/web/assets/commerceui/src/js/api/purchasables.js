@@ -11,8 +11,8 @@ export default {
         if (typeof query !== 'undefined') {
             data.query = query
         }
-        
-        return axios.get(Craft.getActionUrl('commerce/purchasables/search', data), {
+
+        return axios.get(Craft.getActionUrl('commerce/order/purchasable-search', data), {
             headers: {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }
