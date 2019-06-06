@@ -434,8 +434,7 @@ class OrderController extends Controller
             if ($query) {
                 $sqlQuery->where([
                     'or',
-                    [$likeOperator, 'email', $query],
-                    [$likeOperator, 'SKU', $query]
+                    [$likeOperator, 'email', $query]
                 ]);
             }
             $results = $sqlQuery->limit($limit)->all();
