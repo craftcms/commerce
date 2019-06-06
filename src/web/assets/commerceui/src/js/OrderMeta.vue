@@ -75,7 +75,7 @@
                         <label id="orderStatus-label" for="slug">Status</label>
                     </div>
                     <div class="input ltr">
-                        <order-status :order="draft.order"></order-status>
+                        <order-status :order="order" @updateOrder="updateOrder"></order-status>
                     </div>
                 </div>
             </template>
@@ -175,6 +175,16 @@
                     draft.order.couponCode = value
                     this.recalculateOrder(draft)
                 }, 1000)
+            },
+            order: {
+                get() {
+                    return this.draft.order
+                },
+                set(value) {
+                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    draft.order = value
+                    this.recalculateOrder(draft)
+                }
             }
         },
 
@@ -186,6 +196,12 @@
             markAsCompleted() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.isCompleted = true
+                this.recalculateOrder(draft)
+            },
+
+            updateOrder(order) {
+                const draft = JSON.parse(JSON.stringify(this.draft))
+                draft.order = order
                 this.recalculateOrder(draft)
             }
         }

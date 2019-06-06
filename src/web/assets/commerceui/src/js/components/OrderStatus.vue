@@ -34,7 +34,6 @@
     import {mapGetters} from 'vuex'
 
     export default {
-
         props: {
             order: {
                 type: Object,
@@ -47,11 +46,11 @@
             ]),
 
             orderStatus() {
-                if (this.order.orderStatusId !== 0) {
+                if (this.orderStatusId !== 0) {
                     for (let orderStatusesKey in this.orderStatuses) {
                         const orderStatus = this.orderStatuses[orderStatusesKey]
 
-                        if (orderStatus.id === this.order.orderStatusId) {
+                        if (orderStatus.id === this.orderStatusId) {
                             return orderStatus
                         }
                     }
@@ -59,17 +58,26 @@
 
                 return {id: 0, name: "None", color: null}
             },
+
+            orderStatusId: {
+                get() {
+                    return this.order.orderStatusId
+                },
+                set(value) {
+                    const order = JSON.parse(JSON.stringify(this.order))
+                    order.orderStatusId = value
+                    this.$emit('updateOrder', order)
+                }
+            }
         },
 
         methods: {
             onSelectStatus(status) {
                 if (status.dataset.id === 0) {
-                    this.order.orderStatusId = null
+                    this.orderStatusId = null
                 } else {
-                    this.order.orderStatusId = parseInt(status.dataset.id)
+                    this.orderStatusId = parseInt(status.dataset.id)
                 }
-
-                // Todo: recalculate
             },
         },
 
