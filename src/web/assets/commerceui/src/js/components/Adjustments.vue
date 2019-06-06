@@ -6,13 +6,14 @@
                     :key="key"
                     :adjustment="adjustment"
                     :adjustment-key="key"
-                    @updateAdjustment="updateAdjustment($event, key)"
-                    @change="$emit('change')"
+                    :recalculation-mode="recalculationMode"
+                    :editing="editing"
+                    @change="updateAdjustment($event, key)"
                     @remove="$emit('removeAdjustment', key)"
             ></adjustment>
         </template>
 
-        <template v-if="editing && draft.order.recalculationMode === 'none'">
+        <template v-if="editing && recalculationMode === 'none'">
             <div class="adjustment-actions">
                 <a @click.prevent="addAdjustment()">Add an adjustment</a>
             </div>
@@ -21,7 +22,6 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
     import Adjustment from './Adjustment'
 
     export default {
@@ -36,13 +36,15 @@
             errorPrefix: {
                 type: String,
             },
-        },
-
-        computed: {
-            ...mapState({
-                draft: state => state.draft,
-                editing: state => state.editing,
-            }),
+            recalculationMode: {
+                type: String,
+            },
+            orderId: {
+                type: Number,
+            },
+            editing: {
+                type: Boolean,
+            }
         },
 
         methods: {
@@ -54,7 +56,7 @@
                     description: '',
                     amount: '0.0000',
                     included: '0',
-                    orderId: this.draft.order.id,
+                    orderId: this.orderId,
                 }
 
                 this.adjustments.push(adjustment)

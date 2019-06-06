@@ -44,7 +44,7 @@
                         <div class="order-flex-grow">
                             <ul>
                                 <li>
-                                    <template v-if="editing && draft.order.recalculationMode === 'none'">
+                                    <template v-if="editing && recalculationMode === 'none'">
                                         <field label="Sale Price" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
                                             <input type="text" class="text" size="10" v-model="salePrice" />
                                         </field>
@@ -165,8 +165,10 @@
 
                         <div class="order-flex-grow">
                             <adjustments
+                                    :editing="editing"
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="adjustments"
+                                    :recalculation-mode="recalculationMode"
                                     @updateAdjustments="updateAdjustments"
                             ></adjustments>
                         </div>
@@ -212,6 +214,12 @@
             lineItemKey: {
                 type: Number,
             },
+            recalculationMode: {
+                type: String,
+            },
+            editing: {
+                type: Boolean,
+            },
         },
 
         data() {
@@ -224,7 +232,6 @@
         computed: {
             ...mapState({
                 draft: state => state.draft,
-                editing: state => state.editing,
             }),
 
             ...mapGetters([

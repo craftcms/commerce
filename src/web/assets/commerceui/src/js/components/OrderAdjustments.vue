@@ -6,7 +6,9 @@
 
         <div class="order-flex-grow">
             <adjustments
+                    :editing="editing"
                     :adjustments="orderAdjustments"
+                    :recalculation-mode="recalculationMode"
                     @updateAdjustments="updateAdjustments"
                     @removeAdjustment="removeOrderAdjustment"
                     @change="recalculateOrder(draft)"
@@ -22,6 +24,15 @@
     export default {
         components: {
             Adjustments,
+        },
+
+        props: {
+            recalculationMode: {
+                type: String,
+            },
+            editing: {
+                type: Boolean,
+            },
         },
 
         computed: {

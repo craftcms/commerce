@@ -2,9 +2,11 @@
     <div>
         <template v-for="(lineItem, lineItemKey) in draft.order.lineItems">
             <line-item
+                    :recalculation-mode="recalculationMode"
                     :key="lineItemKey"
                     :line-item="lineItem"
                     :line-item-key="lineItemKey"
+                    :editing="editing"
                     @updateLineItem="updateLineItem($event, lineItemKey)"
                     @change="recalculateOrder(draft)"
                     @remove="removeLineItem(lineItemKey)"></line-item>
@@ -19,6 +21,15 @@
     export default {
         components: {
             LineItem
+        },
+
+        props: {
+            recalculationMode: {
+                type: String,
+            },
+            editing: {
+                type: Boolean,
+            },
         },
 
         computed: {

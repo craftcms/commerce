@@ -6,8 +6,8 @@
             </template>
             <template v-else>
                 <is-paid :is-paid="isPaid"></is-paid>
-                <line-items @updateLineItems="updateLineItems"></line-items>
-                <order-adjustments></order-adjustments>
+                <line-items :editing="editing" :recalculation-mode="recalculationMode" @updateLineItems="updateLineItems"></line-items>
+                <order-adjustments :editing="editing" :recalculation-mode="recalculationMode"></order-adjustments>
 
                 <hr />
 
@@ -62,6 +62,9 @@
                 editing: state => state.editing,
             }),
 
+            recalculationMode() {
+              return this.draft.order.recalculationMode
+            },
 
             draft: {
                 get() {

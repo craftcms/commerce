@@ -52,7 +52,7 @@
                     </div>
                 </template>
 
-                <template v-if="editing && draft.order.recalculationMode === 'none'">
+                <template v-if="editing && recalculationMode === 'none'">
                     <div class="adjustment-actions">
                         <a @click.prevent="$emit('remove')">Remove</a>
                     </div>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters} from 'vuex'
     import Field from './Field'
 
     export default {
@@ -88,6 +88,12 @@
             },
             errorPrefix: {
                 type: String,
+            },
+            recalculationMode: {
+                type: String,
+            },
+            editing: {
+                type: Boolean,
             }
         },
 
@@ -112,11 +118,6 @@
         },
 
         computed: {
-            ...mapState({
-                draft: state => state.draft,
-                editing: state => state.editing,
-            }),
-
             ...mapGetters([
                 'getErrors',
             ]),
@@ -129,7 +130,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.type = value
-                    this.$emit('updateAdjustment', adjustment)
+                    this.$emit('change', adjustment)
                 }
             },
 
@@ -141,7 +142,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.name = value
-                    this.$emit('updateAdjustment', adjustment)
+                    this.$emit('change', adjustment)
                 }
             },
 
@@ -153,7 +154,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.description = value
-                    this.$emit('updateAdjustment', adjustment)
+                    this.$emit('change', adjustment)
                 }
             },
 
@@ -165,7 +166,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.amount = value
-                    this.$emit('updateAdjustment', adjustment)
+                    this.$emit('change', adjustment)
                 }
             },
 
@@ -180,7 +181,7 @@
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.included = value
-                    this.$emit('updateAdjustment', adjustment)
+                    this.$emit('change', adjustment)
                 }
             },
         },
