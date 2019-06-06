@@ -79,6 +79,17 @@
                     </div>
                 </div>
             </template>
+
+
+            <div class="field" id="shippingMethod-field">
+                <div class="heading">
+                    <label id="shippingMethod-label" for="slug">Shipping Method</label>
+                </div>
+                <div class="input ltr">
+                    <shipping-method :order="order" @updateOrder="updateOrder"></shipping-method>
+                </div>
+            </div>
+
         </div>
 
         <div class="meta read-only">
@@ -141,12 +152,14 @@
     import {debounce} from 'debounce'
     import {mapState, mapActions} from 'vuex'
     import OrderStatus from './components/OrderStatus'
+    import ShippingMethod from './components/ShippingMethod'
 
     export default {
         name: 'order-meta-app',
 
         components: {
             OrderStatus,
+            ShippingMethod,
         },
 
         computed: {
