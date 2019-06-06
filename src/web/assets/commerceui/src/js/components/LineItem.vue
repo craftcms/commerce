@@ -169,7 +169,6 @@
                                     :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
                                     :adjustments="adjustments"
                                     :recalculation-mode="recalculationMode"
-
                                     @addAdjustment="addAdjustment"
                                     @updateAdjustment="updateAdjustment"
                                     @removeAdjustment="removeAdjustment"
@@ -244,44 +243,44 @@
                 get() {
                     return this.lineItem.salePrice
                 },
-                set(val) {
+                set: debounce(function(val) {
                     const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                     lineItem.salePrice = val
                     this.$emit('updateLineItem', lineItem)
-                }
+                }, 1000)
             },
 
             qty: {
                 get() {
                     return this.lineItem.qty
                 },
-                set(val) {
+                set: debounce(function(val) {
                     const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                     lineItem.qty = val
                     this.$emit('updateLineItem', lineItem)
-                }
+                }, 1000)
             },
 
             note: {
                 get() {
                     return this.lineItem.note
                 },
-                set(val) {
+                set: debounce(function(val) {
                     const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                     lineItem.note = val
                     this.$emit('updateLineItem', lineItem)
-                }
+                }, 1000)
             },
 
             adminNote: {
                 get() {
                     return this.lineItem.adminNote
                 },
-                set(val) {
+                set: debounce(function(val) {
                     const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                     lineItem.adminNote = val
                     this.$emit('updateLineItem', lineItem)
-                }
+                }, 1000)
             },
 
             adjustments() {
@@ -340,7 +339,7 @@
                 this.$emit('updateLineItem', lineItem)
             },
 
-            updateAdjustment(adjustment, key) {
+            updateAdjustment({adjustment, key}) {
                 const lineItem = JSON.parse(JSON.stringify(this.lineItem))
                 lineItem.adjustments[key] = adjustment
                 this.$emit('updateLineItem', lineItem)

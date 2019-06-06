@@ -71,6 +71,7 @@
 </template>
 
 <script>
+    import {debounce} from 'debounce'
     import {mapGetters} from 'vuex'
     import Field from './Field'
 
@@ -139,11 +140,11 @@
                     return this.adjustment.name
                 },
 
-                set(value) {
+                set: debounce(function(value) {
                     const adjustment = this.adjustment
                     adjustment.name = value
                     this.$emit('update', adjustment)
-                }
+                }, 1000)
             },
 
             description: {
@@ -151,11 +152,11 @@
                     return this.adjustment.description
                 },
 
-                set(value) {
+                set: debounce(function(value) {
                     const adjustment = this.adjustment
                     adjustment.description = value
                     this.$emit('update', adjustment)
-                }
+                }, 1000)
             },
 
             amount: {
@@ -163,11 +164,11 @@
                     return this.adjustment.amount
                 },
 
-                set(value) {
+                set: debounce(function(value) {
                     const adjustment = this.adjustment
                     adjustment.amount = value
                     this.$emit('update', adjustment)
-                }
+                }, 1000)
             },
 
             included: {

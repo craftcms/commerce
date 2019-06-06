@@ -44,7 +44,6 @@
 </style>
 
 <script>
-    import {debounce} from 'debounce'
     import {mapState, mapActions} from 'vuex'
     import LineItems from './components/LineItems'
     import AddLineItem from './components/AddLineItem'
@@ -130,20 +129,18 @@
             updateLineItems(lineItems) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems = lineItems
-                this.draft = draft
-                this.recalculate()
+                this.recalculate(draft)
             },
 
             updateOrderAdjustments(orderAdjustments) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.orderAdjustments = orderAdjustments
-                this.draft = draft
-                this.recalculate()
+                this.recalculate(draft)
             },
 
-            recalculate: debounce(function() {
-                this.recalculateOrder()
-            }, 1000)
+            recalculate(draft) {
+                this.recalculateOrder(draft)
+            }
         },
     }
 </script>

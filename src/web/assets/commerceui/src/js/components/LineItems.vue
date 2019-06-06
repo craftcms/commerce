@@ -42,10 +42,9 @@
             },
 
             addLineItem(lineItem) {
-                const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
-                draft.order.lineItems.push(lineItem)
-                this.draft = draft
-                this.recalculate()
+                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                lineItems.push(lineItem)
+                this.$emit('updateLineItems')
             },
 
             removeLineItem(key) {
