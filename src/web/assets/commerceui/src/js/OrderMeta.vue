@@ -4,7 +4,7 @@
 
             <div class="field" id="reference-field">
                 <div class="heading">
-                    <label id="reference-label" for="slug">Reference</label>
+                    <label id="reference-label" for="reference">Reference</label>
                 </div>
                 <div class="input ltr">
                     <template v-if="!editing">
@@ -27,7 +27,7 @@
 
             <div class="field" id="couponCode-field">
                 <div class="heading">
-                    <label id="couponCode-label" for="slug">Coupon Code</label>
+                    <label id="couponCode-label" for="couponCode">Coupon Code</label>
                 </div>
                 <div class="input ltr">
                     <template v-if="!editing">
@@ -50,7 +50,7 @@
 
             <div class="field" id="isCompleted-field">
                 <div class="heading">
-                    <label id="isCompleted-label" for="slug">Completed</label>
+                    <label id="isCompleted-label" for="isCompleted">Completed</label>
                 </div>
                 <div class="input ltr">
                     <div class="buttons">
@@ -72,7 +72,7 @@
             <template v-if="draft.order.isCompleted">
                 <div class="field" id="orderStatus-field">
                     <div class="heading">
-                        <label id="orderStatus-label" for="slug">Status</label>
+                        <label id="orderStatus-label" for="status">Status</label>
                     </div>
                     <div class="input ltr">
                         <order-status :order="order" @updateOrder="updateOrder"></order-status>
@@ -87,6 +87,15 @@
                 </div>
                 <div class="input ltr">
                     <shipping-method :order="order" @updateOrder="updateOrder"></shipping-method>
+                </div>
+            </div>
+
+            <div class="field" id="customer-field">
+                <div class="heading">
+                    <label id="customer-label" for="customer">Customer</label>
+                </div>
+                <div class="input ltr">
+                    <customer :order="order" @updateOrder="updateOrder"></customer>
                 </div>
             </div>
 
@@ -153,6 +162,7 @@
     import {mapState, mapActions} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
+    import Customer from './components/meta/Customer'
 
     export default {
         name: 'order-meta-app',
@@ -160,6 +170,7 @@
         components: {
             OrderStatus,
             ShippingMethod,
+            Customer,
         },
 
         computed: {
