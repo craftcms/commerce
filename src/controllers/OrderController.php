@@ -447,14 +447,13 @@ class OrderController extends Controller
             $results = $sqlQuery->limit($limit)->all();
         }
 
-        if(empty($results))
-        {
+        if (empty($results)) {
             $results = $sqlQuery->limit($limit)->all();
         }
 
         $customers = [];
         foreach ($results as $row) {
-            $totalOrders =(new Query())->select('count(*)')->from('{{%commerce_orders}}')->where(['customerId' => $row['id'], 'isCompleted' => true]);
+            $totalOrders = (new Query())->select('count(*)')->from('{{%commerce_orders}}')->where(['customerId' => $row['id'], 'isCompleted' => true]);
             $customer['totalOrders'] = $totalOrders;
             $customer['id'] = $row['id'];
             $customer['email'] = $row['email'];
