@@ -81,69 +81,8 @@
                 </div>
 
                 <line-item-options :line-item="lineItem" :editing="editing" @updateOptions="updateOptions"></line-item-options>
-
-                <template v-if="note || adminNote || editing">
-                        <div class="order-indented-block">
-                            <div class="order-flex">
-                                <div class="order-block-title">
-                                    <h3>Note</h3>
-                                </div>
-
-                                <div class="order-flex order-flex-grow order-margin-wrapper">
-                                    <div class="order-flex-grow order-margin">
-                                        <template v-if="!editing">
-                                            <template v-if="note">
-                                                {{note}}
-                                            </template>
-                                            <template v-else>
-                                                <span class="light">{{ 'No customer note.' }}</span>
-                                            </template>
-                                        </template>
-                                        <template v-else>
-                                            <label for="note">Customer Note</label>
-                                            <textarea v-model="note" class="text fullwidth"></textarea>
-                                        </template>
-                                    </div>
-                                    <div class="order-flex-grow order-margin">
-                                        <template v-if="!editing">
-                                            <template v-if="adminNote">
-                                                {{adminNote}}
-                                            </template>
-                                            <template v-else>
-                                                <span class="light">{{ 'No admin note.' }}</span>
-                                            </template>
-                                        </template>
-                                        <template v-else>
-                                            <label for="note">Admin Note</label>
-                                            <textarea v-model="adminNote" class="text fullwidth"></textarea>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </template>
-
-                <template v-if="lineItem.adjustments.length || editing">
-                    <div class="order-indented-block">
-                        <div class="order-flex">
-                            <div class="order-block-title">
-                                <h3>Adjustments</h3>
-                            </div>
-
-                            <div class="order-flex-grow">
-                                <adjustments
-                                        :editing="editing"
-                                        :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
-                                        :adjustments="adjustments"
-                                        :recalculation-mode="recalculationMode"
-                                        @addAdjustment="addAdjustment"
-                                        @updateAdjustment="updateAdjustment"
-                                        @removeAdjustment="removeAdjustment"
-                                ></adjustments>
-                            </div>
-                        </div>
-                    </div>
-                </template>
+                <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
+                <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
 
                 <div class="order-indented-block text-right">
                     <div>
@@ -163,17 +102,19 @@
     import {debounce} from 'debounce'
     import InputError from '../InputError'
     import Field from '../Field'
-    import Adjustments from './Adjustments'
     import LineItemStatus from './LineItemStatus'
     import LineItemOptions from './LineItemOptions'
+    import LineItemNotes from './LineItemNotes'
+    import LineItemAdjustments from './LineItemAdjustments'
 
     export default {
         components: {
             InputError,
             Field,
-            Adjustments,
             LineItemStatus,
             LineItemOptions,
+            LineItemNotes,
+            LineItemAdjustments,
         },
 
         props: {
@@ -227,32 +168,6 @@
                 }, 1000)
             },
 
-            note: {
-                get() {
-                    return this.lineItem.note
-                },
-                set: debounce(function(val) {
-                    const lineItem = this.lineItem
-                    lineItem.note = val
-                    this.$emit('updateLineItem', lineItem)
-                }, 1000)
-            },
-
-            adminNote: {
-                get() {
-                    return this.lineItem.adminNote
-                },
-                set: debounce(function(val) {
-                    const lineItem = this.lineItem
-                    lineItem.adminNote = val
-                    this.$emit('updateLineItem', lineItem)
-                }, 1000)
-            },
-
-            adjustments() {
-                return this.lineItem.adjustments
-            },
-
             shippingCategory() {
                 if (!this.lineItem.shippingCategoryId) {
                     return null
@@ -279,37 +194,6 @@
         },
 
         methods: {
-            addAdjustment() {
-                const adjustment = {
-                    id: null,
-                    type: 'tax',
-                    name: '',
-                    description: '',
-                    amount: '0.0000',
-                    included: '0',
-                    orderId: this.orderId,
-                    lineItemId: this.lineItem.id
-                }
-
-                const lineItem = this.lineItem
-
-                lineItem.adjustments.push(adjustment)
-
-                this.$emit('updateLineItem', lineItem)
-            },
-
-            updateAdjustment({adjustment, key}) {
-                const lineItem = this.lineItem
-                lineItem.adjustments[key] = adjustment
-                this.$emit('updateLineItem', lineItem)
-            },
-
-            removeAdjustment(key) {
-                const lineItem = this.lineItem
-                lineItem.adjustments.splice(key, 1)
-                this.$emit('updateLineItem', lineItem)
-            },
-
             updateLineItemStatusId(lineItemStatusId) {
                 const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
