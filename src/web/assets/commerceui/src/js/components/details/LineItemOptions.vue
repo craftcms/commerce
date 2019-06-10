@@ -34,7 +34,7 @@
 </template>
 
 <script>
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
     import PrismEditor from 'vue-prism-editor'
 
     export default {

@@ -163,7 +163,7 @@
 </template>
 
 <script>
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
     import {mapState, mapActions} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'

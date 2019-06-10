@@ -41,7 +41,7 @@
 
 <script>
     import {mapState, mapGetters, mapActions} from 'vuex'
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
     import VSelect from 'vue-select'
     import purchasablesApi from '../../api/purchasables'
 

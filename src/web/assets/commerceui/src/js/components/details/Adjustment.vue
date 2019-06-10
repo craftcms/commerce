@@ -71,7 +71,7 @@
 </template>
 
 <script>
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
     import {mapGetters} from 'vuex'
     import Field from '../Field'
 

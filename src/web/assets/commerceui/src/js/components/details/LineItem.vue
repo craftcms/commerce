@@ -99,7 +99,7 @@
 
 <script>
     import {mapGetters} from 'vuex'
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
     import InputError from '../InputError'
     import Field from '../Field'
     import LineItemStatus from './LineItemStatus'

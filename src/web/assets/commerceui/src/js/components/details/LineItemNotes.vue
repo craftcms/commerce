@@ -40,7 +40,7 @@
 </template>
 
 <script>
-    import {debounce} from 'debounce'
+    import debounce from 'lodash.debounce'
 
     export default {
         props: {
