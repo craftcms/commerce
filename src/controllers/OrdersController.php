@@ -23,6 +23,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\View;
 use DateTime;
@@ -116,15 +117,11 @@ class OrdersController extends BaseCpController
             }
         }
 
-
-        $variables['continueEditingUrl'] = 'commerce/orders/{id}';
-
-        $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
-        $variables['orderStatusesJson'] = Json::encode($allStatuses);
-
         // New order edit global data
         Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
+
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $orderId . ';', View::POS_BEGIN);
 
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
@@ -143,6 +140,14 @@ class OrdersController extends BaseCpController
         Craft::$app->getView()->registerJs('window.orderEdit.shippingMethods = ' . Json::encode(ArrayHelper::toArray($shippingMethods)) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+
+        $pdfUrls = [
+            'Download PDF' => $variables['order']->getPdfUrl()
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = '.Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
