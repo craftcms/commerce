@@ -34,8 +34,6 @@
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" value="Cancel" @click="showForm = false" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" value="Add" />
                 </div>
-
-                <div v-if="recalculateLoading" class="spinner"></div>
             </form>
         </template>
     </div>
@@ -63,7 +61,6 @@
 
             ...mapState({
                 purchasables: state => state.purchasables,
-                recalculateLoading: state => state.recalculateLoading,
             }),
 
             ...mapGetters([

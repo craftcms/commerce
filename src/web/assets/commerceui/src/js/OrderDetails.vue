@@ -5,8 +5,6 @@
                 <div class="spinner"></div>
             </template>
             <template v-else>
-                <is-paid :is-paid="isPaid"></is-paid>
-
                 <line-items
                         :line-items="lineItems"
                         :editing="editing"
@@ -32,9 +30,9 @@
 
                     <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
                         <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
-                        <div class="spinner" :class="{invisible: !recalculateLoading}"></div>
                     </div>
 
+                    <div v-if="recalculateLoading" class="spinner"></div>
                 </template>
             </template>
 
@@ -54,7 +52,6 @@
     import LineItems from './components/details/LineItems'
     import AddLineItem from './components/details/AddLineItem'
     import OrderAdjustments from './components/details/OrderAdjustments'
-    import IsPaid from './components/details/IsPaid'
     import Total from './components/details/Total'
 
     export default {
@@ -64,7 +61,6 @@
             AddLineItem,
             LineItems,
             OrderAdjustments,
-            IsPaid,
             Total,
         },
 
@@ -114,10 +110,6 @@
                 set(draft) {
                     this.$store.commit('updateDraft', draft)
                 }
-            },
-
-            isPaid() {
-                return this.draft.order.isPaid && this.draft.order.totalPrice > 0
             },
         },
 
