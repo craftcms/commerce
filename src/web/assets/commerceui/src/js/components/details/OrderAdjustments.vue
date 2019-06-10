@@ -56,7 +56,7 @@
                     orderId: this.orderId,
                 }
 
-                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                const adjustments = this.adjustments
 
                 adjustments.push(adjustment)
 
@@ -64,13 +64,13 @@
             },
 
             updateOrderAdjustment(adjustment, key) {
-                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                const adjustments = this.adjustments
                 adjustments[key] = adjustment
                 this.$emit('updateOrderAdjustments', adjustments)
             },
 
             removeOrderAdjustment(key) {
-                const adjustments = JSON.parse(JSON.stringify(this.adjustments))
+                const adjustments = this.adjustments
                 adjustments.splice(key, 1)
                 this.$emit('updateOrderAdjustments', adjustments)
             },

@@ -244,7 +244,7 @@
                     return this.lineItem.salePrice
                 },
                 set: debounce(function(val) {
-                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    const lineItem = this.lineItem
                     lineItem.salePrice = val
                     this.$emit('updateLineItem', lineItem)
                 }, 1000)
@@ -255,7 +255,7 @@
                     return this.lineItem.qty
                 },
                 set: debounce(function(val) {
-                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    const lineItem = this.lineItem
                     lineItem.qty = val
                     this.$emit('updateLineItem', lineItem)
                 }, 1000)
@@ -266,7 +266,7 @@
                     return this.lineItem.note
                 },
                 set: debounce(function(val) {
-                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    const lineItem = this.lineItem
                     lineItem.note = val
                     this.$emit('updateLineItem', lineItem)
                 }, 1000)
@@ -277,14 +277,14 @@
                     return this.lineItem.adminNote
                 },
                 set: debounce(function(val) {
-                    const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                    const lineItem = this.lineItem
                     lineItem.adminNote = val
                     this.$emit('updateLineItem', lineItem)
                 }, 1000)
             },
 
             adjustments() {
-                return JSON.parse(JSON.stringify(this.lineItem.adjustments))
+                return this.lineItem.adjustments
             },
 
             shippingCategory() {
@@ -315,7 +315,7 @@
         methods: {
             onOptionsChange() {
                 const options = JSON.parse(this.options);
-                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
             },
@@ -332,7 +332,7 @@
                     lineItemId: this.lineItem.id
                 }
 
-                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                const lineItem = this.lineItem
 
                 lineItem.adjustments.push(adjustment)
 
@@ -340,19 +340,19 @@
             },
 
             updateAdjustment({adjustment, key}) {
-                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                const lineItem = this.lineItem
                 lineItem.adjustments[key] = adjustment
                 this.$emit('updateLineItem', lineItem)
             },
 
             removeAdjustment(key) {
-                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                const lineItem = this.lineItem
                 lineItem.adjustments.splice(key, 1)
                 this.$emit('updateLineItem', lineItem)
             },
 
             updateLineItemStatusId(lineItemStatusId) {
-                const lineItem = JSON.parse(JSON.stringify(this.lineItem))
+                const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
                 this.$emit('updateLineItem', lineItem)
             }

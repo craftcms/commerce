@@ -55,7 +55,7 @@
                     return this.order.customerId
                 },
                 set(value) {
-                    const order = JSON.parse(JSON.stringify(this.order))
+                    const order = this.order
                     order.customerId = value
                     this.$emit('updateOrder', order)
                 }

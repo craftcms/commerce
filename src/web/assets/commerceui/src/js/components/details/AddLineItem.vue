@@ -130,7 +130,7 @@
             search: debounce((loading, search, vm) => {
                 purchasablesApi.search(vm.orderId, escape(search))
                     .then((response) => {
-                        vm.purchasables = JSON.parse(JSON.stringify(response.data))
+                        vm.purchasables = response.data
                         loading(false)
                     })
             }, 350)

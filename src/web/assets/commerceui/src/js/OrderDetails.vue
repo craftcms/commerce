@@ -79,7 +79,7 @@
                 },
 
                 set(lineItems) {
-                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    const draft = this.draft
                     draft.order.lineItems = lineItems
                     this.$store.commit('updateDraft', draft)
                     this.recalculate()
@@ -92,7 +92,7 @@
                 },
 
                 set(adjustments) {
-                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    const draft = this.draft
                     draft.order.orderAdjustments = adjustments
                     this.$store.commit('updateDraft', draft)
                     this.recalculate()
@@ -104,8 +104,7 @@
                     return JSON.parse(JSON.stringify(this.$store.state.draft))
                 },
 
-                set(newVal) {
-                    const draft = JSON.parse(JSON.stringify(newVal));
+                set(draft) {
                     this.$store.commit('updateDraft', draft)
                 }
             },
@@ -121,7 +120,7 @@
             ]),
 
             addLineItem(lineItem) {
-                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                const lineItems = this.lineItems
                 lineItems.push(lineItem)
                 this.updateLineItems(lineItems)
             },

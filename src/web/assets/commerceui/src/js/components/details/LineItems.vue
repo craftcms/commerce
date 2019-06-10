@@ -36,19 +36,19 @@
 
         methods: {
             updateLineItem(lineItem, lineItemKey) {
-                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                const lineItems = this.lineItems
                 lineItems[lineItemKey] = lineItem
                 this.$emit('updateLineItems', lineItems)
             },
 
             addLineItem(lineItem) {
-                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                const lineItems = this.lineItems
                 lineItems.push(lineItem)
                 this.$emit('updateLineItems')
             },
 
             removeLineItem(key) {
-                const lineItems = JSON.parse(JSON.stringify(this.lineItems))
+                const lineItems = this.lineItems
                 lineItems.splice(key, 1)
                 this.$emit('updateLineItems', lineItems)
             }

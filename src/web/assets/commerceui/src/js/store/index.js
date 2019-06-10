@@ -110,7 +110,7 @@ export default new Vuex.Store({
 
         cancel({state, commit}) {
             commit('updateEditing', false)
-            const draft = JSON.parse(JSON.stringify(state.originalDraft))
+            const draft = state.originalDraft
             commit('updateDraft', draft)
         },
 
@@ -125,7 +125,7 @@ export default new Vuex.Store({
 
             orderApi.save(data)
                 .then((response) => {
-                    const originalDraft = JSON.parse(JSON.stringify(response.data))
+                    const originalDraft = response.data
                     commit('updateOriginalDraft', originalDraft)
                     commit('updateSaveLoading', false)
                     dispatch('displayNotice', 'Order saved.');
@@ -146,7 +146,7 @@ export default new Vuex.Store({
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
-                    const draft = JSON.parse(JSON.stringify(response.data))
+                    const draft = response.data
 
                     // Todo: Temporary fix, controllers should return IDs as strings instead
                     draft.order.lineItems.forEach((lineItem, lineItemKey) => {
@@ -154,7 +154,7 @@ export default new Vuex.Store({
                     })
 
                     if (!state.originalDraft) {
-                        const originalDraft = JSON.parse(JSON.stringify(draft))
+                        const originalDraft = draft
                         commit('updateOriginalDraft', originalDraft)
                     }
 
@@ -185,7 +185,7 @@ export default new Vuex.Store({
         },
 
         autoRecalculate({state, dispatch}) {
-            const draft = JSON.parse(JSON.stringify(state.draft))
+            const draft = state.draft
             draft.order.recalculationMode = 'all'
             dispatch('recalculateOrder', draft)
         },
@@ -202,7 +202,7 @@ export default new Vuex.Store({
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
-                    const draft = JSON.parse(JSON.stringify(response.data))
+                    const draft = response.data
                     commit('updateDraft', draft)
 
 

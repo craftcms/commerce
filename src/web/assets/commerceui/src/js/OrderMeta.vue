@@ -205,7 +205,7 @@
                     return this.draft.order
                 },
                 set(value) {
-                    const draft = JSON.parse(JSON.stringify(this.draft))
+                    const draft = this.draft
                     draft.order = value
                     this.recalculateOrder(draft)
                 }

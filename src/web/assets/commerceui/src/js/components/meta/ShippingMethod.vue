@@ -55,7 +55,7 @@
                     return this.order.shippingMethodHandle
                 },
                 set(value) {
-                    const order = JSON.parse(JSON.stringify(this.order))
+                    const order = this.order
                     order.shippingMethodHandle = value
                     this.$emit('updateOrder', order)
                 }
