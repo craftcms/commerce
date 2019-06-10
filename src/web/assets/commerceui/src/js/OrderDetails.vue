@@ -29,6 +29,12 @@
                     <hr>
 
                     <add-line-item @addLineItem="addLineItem"></add-line-item>
+
+                    <div class="recalculate-action">
+                        <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
+                        <div class="spinner" :class="{invisible: !recalculateLoading}"></div>
+                    </div>
+
                 </template>
             </template>
 
@@ -139,6 +145,14 @@
 
             recalculate(draft) {
                 this.recalculateOrder(draft)
+            },
+
+            autoRecalculate() {
+                const message = "Do you really want to auto recalculate?"
+
+                if (window.confirm(message)) {
+                    this.$store.dispatch('autoRecalculate')
+                }
             }
         },
     }

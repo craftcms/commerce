@@ -1,12 +1,5 @@
 <template>
     <div class="order-flex">
-        <template v-if="editing">
-        <div>
-            <div v-if="recalculateLoading" class="spinner"></div>
-            <a class="btn recalculate-btn" @click.prevent="autoRecalculate()">Recalculate Order</a>
-        </div>
-        </template>
-
         <div>
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
 
@@ -59,7 +52,6 @@
         computed: {
             ...mapState({
                 draft: state => state.draft,
-                recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
                 orderId: state => state.orderId,
                 editing: state => state.editing,

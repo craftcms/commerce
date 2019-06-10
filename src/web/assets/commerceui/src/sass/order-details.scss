@@ -104,6 +104,21 @@
   padding: 14px 0;
 }
 
-.recalculate-btn {
-  margin-right: 14px;
+.recalculate-action {
+  margin-top: 14px;
+  align-items: center;
+
+  .spinner {
+    position: relative;
+    top: 6px;
+    left: 10px;
+
+    &.invisible {
+      visibility: hidden;
+    }
+  }
+
+  .recalculate-btn {
+    display: inline-block;
+  }
 }
