@@ -30,7 +30,7 @@
 
                     <add-line-item @addLineItem="addLineItem"></add-line-item>
 
-                    <div class="recalculate-action">
+                    <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
                         <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
                     </div>
 
@@ -73,6 +73,7 @@
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
                 editing: state => state.editing,
+                originalDraft: state => state.originalDraft
             }),
 
             recalculationMode() {

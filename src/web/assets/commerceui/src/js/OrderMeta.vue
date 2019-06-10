@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <div class="field" id="couponCode-field">
+            <div class="field" id="couponCode-field" v-if="draft.order.recalculationMode === 'all'">
                 <div class="heading">
                     <label id="couponCode-label" for="couponCode">Coupon Code</label>
                 </div>
