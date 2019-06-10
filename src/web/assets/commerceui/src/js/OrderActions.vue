@@ -13,7 +13,7 @@
 
         <template v-if="editing">
             <div id="order-save" class="btngroup">
-                <input id="order-save-btn" type="button" class="btn submit" value="Update Order" />
+                <input id="order-save-btn" type="button" class="btn submit" value="Update Order" @click="save()" />
 
                 <div class="btn submit menubtn" ref="updateMenuBtn"></div>
                 <div class="menu">
@@ -63,6 +63,7 @@
                 'edit',
                 'cancel',
                 'autoRecalculate',
+                'save',
             ]),
 
             onSelectStatus() {
