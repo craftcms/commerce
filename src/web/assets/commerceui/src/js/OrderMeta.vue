@@ -1,16 +1,11 @@
 <template>
     <div v-if="draft">
-        <div id="settings" class="meta">
-
+        <div id="settings" class="meta" v-if="editing">
             <div class="field" id="reference-field">
                 <div class="heading">
                     <label id="reference-label" for="reference">Reference</label>
                 </div>
                 <div class="input ltr">
-                    <template v-if="!editing">
-                        {{reference}}
-                    </template>
-                    <template v-else>
                         <input
                                 class="text fullwidth"
                                 type="text"
@@ -21,7 +16,6 @@
                                 autocorrect="off"
                                 autocapitalize="off"
                                 placeholder="Enter reference" />
-                    </template>
                 </div>
             </div>
 
@@ -30,10 +24,6 @@
                     <label id="couponCode-label" for="couponCode">Coupon Code</label>
                 </div>
                 <div class="input ltr">
-                    <template v-if="!editing">
-                        {{couponCode}}
-                    </template>
-                    <template v-else>
                         <input
                                 class="text fullwidth"
                                 type="text"
@@ -44,27 +34,16 @@
                                 autocorrect="off"
                                 autocapitalize="off"
                                 placeholder="Enter coupon code" />
-                    </template>
                 </div>
             </div>
 
-            <div class="field" id="isCompleted-field">
+            <div class="field" id="isCompleted-field"  v-if="!draft.order.isCompleted">
                 <div class="heading">
                     <label id="isCompleted-label" for="isCompleted">Completed</label>
                 </div>
                 <div class="input ltr">
                     <div class="buttons">
-                        <template v-if="draft.order.isCompleted">
-                            Yes
-                        </template>
-                        <template v-else>
-                            <template v-if="!editing">
-                                No
-                            </template>
-                            <template v-else>
-                                <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
-                            </template>
-                        </template>
+                            <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
                     </div>
                 </div>
             </div>
@@ -99,9 +78,15 @@
                 </div>
             </div>
 
-        </div>
+            </div>
 
-        <div class="meta read-only">
+
+        <div id="meta" class="meta read-only">
+            <div class="data" v-if="!editing">
+                <h5 class="heading">Reference</h5>
+                <p class="value">{{draft.order.reference}}</p>
+            </div>
+
             <div class="data">
                 <h5 class="heading">ID</h5>
                 <p class="value">{{draft.order.id}}</p>
@@ -117,7 +102,12 @@
                 <p class="value">{{draft.order.number}}</p>
             </div>
 
-            <template v-if="draft.order.isCompleted">
+            <div class="data" v-if="!editing">
+                <h5 class="heading">Customer</h5>
+                <p class="value" v-html="draft.order.customerLinkHtml"></p>
+            </div>
+
+            <template v-if="draft.order.isCompleted && !editing">
                 <div class="data">
                     <h5 class="heading">Date Completed</h5>
                     <span class="value"
@@ -133,7 +123,7 @@
 
             <div class="data">
                 <h5 class="heading">Paid Amount</h5>
-                <span class="value">{{draft.order.datePaid}}</span>
+                <span class="value">{{draft.order.totalPaidAsCurrency}}</span>
             </div>
 
             <template v-if="draft.order.datePaid">
@@ -152,8 +142,8 @@
                 <h5 class="heading">IP Address</h5>
                 <span class="value">{{draft.order.lastIp}}</span>
             </div>
-        </div>
 
+        </div>
     </div>
 </template>
 

@@ -573,11 +573,8 @@ class Order extends Element
                 return $model->$attribute;
             };
         }
-
-        $fields['paidStatusHtml'] = function($model, $attribute) {
-            /** @var Order $model */
-            return $model->getPaidStatusHtml();
-        };
+        $fields['paidStatusHtml'] = 'paidStatusHtml';
+        $fields['customerLinkHtml'] = 'customerLinkHtml';
 
         return $fields;
     }
@@ -1239,6 +1236,29 @@ class Order extends Element
         }
 
         return self::PAID_STATUS_UNPAID;
+    }
+
+    /**
+     * Customer represented as HTML
+     *
+     * @return string
+     */
+    public function getCustomerLinkHtml(): string
+    {
+        if ($this->getUser()) {
+            return '<span><a href="' . $this->getUser()->getCpEditUrl() . '">' . $this->getUser()->email . '</a></span>';
+        }
+
+        // TODO change this to the link to the customer edit screen when we have customer management
+        if (!$this->getUser() && $this->getCustomer()) {
+            return '<span>' . $this->email . '</span>';
+        }
+
+        if ($this->getCustomer() && $this->email) {
+            return '<span>' . $this->email . '</span>';
+        }
+
+        return '';
     }
 
     /**
