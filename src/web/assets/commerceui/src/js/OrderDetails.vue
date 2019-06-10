@@ -32,9 +32,9 @@
 
                     <div class="recalculate-action">
                         <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
-                        <div class="spinner" :class="{invisible: !recalculateLoading}"></div>
                     </div>
 
+                    <div v-if="recalculateLoading" class="spinner"></div>
                 </template>
             </template>
 
