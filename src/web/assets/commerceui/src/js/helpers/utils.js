@@ -10,6 +10,7 @@ export default {
                 reference: draft.order.reference,
                 couponCode: draft.order.couponCode,
                 recalculationMode: draft.order.recalculationMode,
+                shippingMethodHandle: draft.order.shippingMethodHandle,
                 lineItems: [],
                 orderAdjustments: [],
             }
