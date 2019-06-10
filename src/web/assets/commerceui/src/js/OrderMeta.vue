@@ -109,9 +109,14 @@
 
             <template v-if="draft.order.isCompleted && !editing">
                 <div class="data">
-                    <h5 class="heading">Date Completed</h5>
+                    <h5 class="heading">Status</h5>
                     <span class="value"
-                          v-html="draft.order.dateOrdered"></span>
+                          v-html="draft.order.orderStatusHtml"></span>
+                </div>
+
+                <div class="data">
+                    <h5 class="heading">Date Completed</h5>
+                    <span class="value">{{draft.order.dateOrdered}}</span>
                 </div>
             </template>
 
@@ -132,6 +137,16 @@
                     <span class="value">{{draft.order.datePaid}}</span>
                 </div>
             </template>
+
+            <div class="data" v-if="!editing">
+                <h5 class="heading">Shipping Method</h5>
+                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
+            </div>
+
+            <div class="data" v-if="draft.order.couponCode && !editing">
+                <h5 class="heading">Coupon Code</h5>
+                <span class="value code">{{draft.order.couponCode}}</span>
+            </div>
 
             <div class="data">
                 <h5 class="heading">Last Updated</h5>

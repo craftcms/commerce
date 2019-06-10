@@ -575,6 +575,7 @@ class Order extends Element
         }
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
+        $fields['orderStatusHtml'] = 'orderStatusHtml';
 
         return $fields;
     }
@@ -1256,6 +1257,18 @@ class Order extends Element
 
         if ($this->getCustomer() && $this->email) {
             return '<span>' . $this->email . '</span>';
+        }
+
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderStatusHtml(): string
+    {
+        if ($status = $this->getOrderStatus()) {
+            return '<span class="commerceStatusLabel"><span class="status ' . $status->color . '"></span> ' . $status->name . '</span>';
         }
 
         return '';
