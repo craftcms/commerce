@@ -223,7 +223,7 @@ class OrderController extends Controller
         $this->_order->isCompleted = $this->_responseData['order']['isCompleted'];
         $this->_order->orderStatusId = $this->_responseData['order']['orderStatusId'];
 //        $this->_order->message = $this->_responseData['order']['message'];
-//        $this->_order->shippingMethodHandle = $this->_responseData['order']['shippingMethodHandle'];
+        $this->_order->shippingMethodHandle = $this->_responseData['order']['shippingMethodHandle'];
     }
 
     private function _setLineItemsAndAdjustments()

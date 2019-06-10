@@ -10,6 +10,7 @@
                     <a
                             :data-id="shippingMethod.id"
                             :data-name="shippingMethod.name"
+                            :data-handle="shippingMethod.handle"
                             :class="{sel: shippingMethod.id === shippingMethod.value}">
                         {{shippingMethod.name}}
                     </a>
@@ -55,7 +56,7 @@
                     return this.order.shippingMethodHandle
                 },
                 set(value) {
-                    const order = this.order
+                    const order = JSON.parse(JSON.stringify(this.order))
                     order.shippingMethodHandle = value
                     this.$emit('updateOrder', order)
                 }
