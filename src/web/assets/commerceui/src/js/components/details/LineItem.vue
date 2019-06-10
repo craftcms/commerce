@@ -39,7 +39,7 @@
                             <h3>{{ lineItem.description }}</h3>
 
                             <!-- Status -->
-                            <line-item-status :line-item="lineItem" @change="updateLineItemStatusId"></line-item-status>
+                            <line-item-status :line-item="lineItem" :editing="editing" @change="updateLineItemStatusId"></line-item-status>
                         </div>
                         <div class="order-flex-grow">
                             <ul>

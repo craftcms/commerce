@@ -1,5 +1,6 @@
 <template>
     <div>
+        <template v-if="editing">
         <a class="btn menubtn" ref="lineItemStatus">
             <template v-if="lineItemStatus.color">
                 <span class="status" :class="{[lineItemStatus.color]: true}"></span>
@@ -30,6 +31,18 @@
                 </li>
             </ul>
         </div>
+        </template>
+
+        <template v-else>
+            <template v-if="lineItemStatus.color">
+                <span class="status" :class="{[lineItemStatus.color]: true}"></span>
+            </template>
+            <template v-else>
+                <span class="status"></span>
+            </template>
+
+            {{lineItemStatus.name}}
+        </template>
     </div>
 </template>
 
@@ -43,6 +56,9 @@
         props: {
             lineItem: {
                 type: Object,
+            },
+            editing: {
+                type: Boolean,
             },
         },
 
