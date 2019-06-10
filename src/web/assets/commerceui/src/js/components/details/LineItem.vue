@@ -80,102 +80,69 @@
                     </div>
                 </div>
 
-                <template v-if="Object.keys(lineItem.options).length || editing">
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <h3>Options</h3>
-                        </div>
-
-                        <div class="order-flex-grow">
-                            <template v-if="!editing">
-                                <template v-if="Object.keys(lineItem.options).length">
-                                    <ul :id="'info-' + lineItem.id">
-                                        <template v-for="(option, key) in lineItem.options">
-                                            <li :key="'option-'+key">
-                                                <code>
-                                                    {{key}}:
-
-                                                    <template v-if="Array.isArray(option)">
-                                                        <code>{{ option }}</code>
-                                                    </template>
-
-                                                    <template v-else>{{ option }}</template>
-                                                </code>
-                                            </li>
-                                        </template>
-                                    </ul>
-                                </template>
-                            </template>
-                            <template v-else>
-                                <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-                </template>
+                <line-item-options :line-item="lineItem" :editing="editing" @updateOptions="updateOptions"></line-item-options>
 
                 <template v-if="note || adminNote || editing">
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <h3>Note</h3>
-                        </div>
+                        <div class="order-indented-block">
+                            <div class="order-flex">
+                                <div class="order-block-title">
+                                    <h3>Note</h3>
+                                </div>
 
-                        <div class="order-flex order-flex-grow order-margin-wrapper">
-                            <div class="order-flex-grow order-margin">
-                                <template v-if="!editing">
-                                    <template v-if="note">
-                                        {{note}}
-                                    </template>
-                                    <template v-else>
-                                        <span class="light">{{ 'No customer note.' }}</span>
-                                    </template>
-                                </template>
-                                <template v-else>
-                                    <label for="note">Customer Note</label>
-                                    <textarea v-model="note" class="text fullwidth"></textarea>
-                                </template>
-                            </div>
-                            <div class="order-flex-grow order-margin">
-                                <template v-if="!editing">
-                                    <template v-if="adminNote">
-                                        {{adminNote}}
-                                    </template>
-                                    <template v-else>
-                                        <span class="light">{{ 'No admin note.' }}</span>
-                                    </template>
-                                </template>
-                                <template v-else>
-                                    <label for="note">Admin Note</label>
-                                    <textarea v-model="adminNote" class="text fullwidth"></textarea>
-                                </template>
+                                <div class="order-flex order-flex-grow order-margin-wrapper">
+                                    <div class="order-flex-grow order-margin">
+                                        <template v-if="!editing">
+                                            <template v-if="note">
+                                                {{note}}
+                                            </template>
+                                            <template v-else>
+                                                <span class="light">{{ 'No customer note.' }}</span>
+                                            </template>
+                                        </template>
+                                        <template v-else>
+                                            <label for="note">Customer Note</label>
+                                            <textarea v-model="note" class="text fullwidth"></textarea>
+                                        </template>
+                                    </div>
+                                    <div class="order-flex-grow order-margin">
+                                        <template v-if="!editing">
+                                            <template v-if="adminNote">
+                                                {{adminNote}}
+                                            </template>
+                                            <template v-else>
+                                                <span class="light">{{ 'No admin note.' }}</span>
+                                            </template>
+                                        </template>
+                                        <template v-else>
+                                            <label for="note">Admin Note</label>
+                                            <textarea v-model="adminNote" class="text fullwidth"></textarea>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
                 </template>
 
                 <template v-if="lineItem.adjustments.length || editing">
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <h3>Adjustments</h3>
-                        </div>
+                    <div class="order-indented-block">
+                        <div class="order-flex">
+                            <div class="order-block-title">
+                                <h3>Adjustments</h3>
+                            </div>
 
-                        <div class="order-flex-grow">
-                            <adjustments
-                                    :editing="editing"
-                                    :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
-                                    :adjustments="adjustments"
-                                    :recalculation-mode="recalculationMode"
-                                    @addAdjustment="addAdjustment"
-                                    @updateAdjustment="updateAdjustment"
-                                    @removeAdjustment="removeAdjustment"
-                            ></adjustments>
+                            <div class="order-flex-grow">
+                                <adjustments
+                                        :editing="editing"
+                                        :error-prefix="'order.lineItems.'+lineItemKey+'.adjustments.'"
+                                        :adjustments="adjustments"
+                                        :recalculation-mode="recalculationMode"
+                                        @addAdjustment="addAdjustment"
+                                        @updateAdjustment="updateAdjustment"
+                                        @removeAdjustment="removeAdjustment"
+                                ></adjustments>
+                            </div>
                         </div>
                     </div>
-                </div>
                 </template>
 
                 <div class="order-indented-block text-right">
@@ -194,19 +161,19 @@
 <script>
     import {mapGetters} from 'vuex'
     import {debounce} from 'debounce'
-    import PrismEditor from 'vue-prism-editor'
-    import Adjustments from './Adjustments'
     import InputError from '../InputError'
-    import LineItemStatus from './LineItemStatus'
     import Field from '../Field'
+    import Adjustments from './Adjustments'
+    import LineItemStatus from './LineItemStatus'
+    import LineItemOptions from './LineItemOptions'
 
     export default {
         components: {
-            PrismEditor,
-            Adjustments,
             InputError,
-            LineItemStatus,
             Field,
+            Adjustments,
+            LineItemStatus,
+            LineItemOptions,
         },
 
         props: {
@@ -226,7 +193,6 @@
 
         data() {
             return {
-                options: null,
                 showSnapshot: false,
             }
         },
@@ -313,13 +279,6 @@
         },
 
         methods: {
-            onOptionsChange() {
-                const options = JSON.parse(this.options);
-                const lineItem = this.lineItem
-                lineItem.options = options
-                this.$emit('updateLineItem', lineItem)
-            },
-
             addAdjustment() {
                 const adjustment = {
                     id: null,
@@ -355,21 +314,13 @@
                 const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
                 this.$emit('updateLineItem', lineItem)
-            }
+            },
+
+            updateOptions(options) {
+                const lineItem = this.lineItem
+                lineItem.options = options
+                this.$emit('updateLineItem', lineItem)
+            },
         },
-
-        watch: {
-            lineItem() {
-                if (this.lineItem) {
-                    this.options = JSON.stringify(this.lineItem.options, null, '\t')
-                }
-            }
-        },
-
-        mounted() {
-            this.options = JSON.stringify(this.lineItem.options, null, '\t')
-
-            this.onOptionsChange = debounce(this.onOptionsChange, 1000)
-        }
     }
 </script>
