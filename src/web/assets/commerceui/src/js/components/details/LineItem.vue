@@ -80,7 +80,7 @@
                     </div>
                 </div>
 
-                <line-item-options :line-item="lineItem" :editing="editing" @updateOptions="updateOptions"></line-item-options>
+                <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
                 <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
                 <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
 
@@ -197,12 +197,6 @@
             updateLineItemStatusId(lineItemStatusId) {
                 const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
-                this.$emit('updateLineItem', lineItem)
-            },
-
-            updateOptions(options) {
-                const lineItem = this.lineItem
-                lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
             },
         },

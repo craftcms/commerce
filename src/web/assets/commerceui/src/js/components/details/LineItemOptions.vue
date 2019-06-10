@@ -68,7 +68,9 @@
         methods: {
             onOptionsChange() {
                 const options = JSON.parse(this.options);
-                this.$emit('updateOptions', options)
+                const lineItem = this.lineItem
+                lineItem.options = options
+                this.$emit('updateLineItem', lineItem)
             },
         },
 
