@@ -108,7 +108,7 @@
                 const lineItem = {
                     id: null,
                     lineItemStatusId: null,
-                    salePrice: '0.0000',
+                    salePrice: this.selectedPurchasable.price,
                     qty: "1",
                     note: "",
                     adminNote: "",
