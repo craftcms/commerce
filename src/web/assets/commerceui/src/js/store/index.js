@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import orderApi from '../api/order';
+import ordersApi from '../api/orders';
 import purchasablesApi from '../api/purchasables';
 import utils from '../helpers/utils'
 
@@ -18,6 +19,10 @@ export default new Vuex.Store({
     },
 
     getters: {
+        ordersIndexUrl() {
+            return window.orderEdit.ordersIndexUrl
+        },
+
         edition() {
             return window.orderEdit.edition
         },
@@ -161,7 +166,7 @@ export default new Vuex.Store({
 
                     const draft = response.data
 
-                    // Todo: Temporary fix, controllers should return IDs as strings instead
+                    // Todo: Temporary fix, controllers should return IDs as integers instead
                     draft.order.lineItems.forEach((lineItem, lineItemKey) => {
                         draft.order.lineItems[lineItemKey].lineItemStatusId = utils.parseInputValue('int', lineItem.lineItemStatusId)
                     })
@@ -185,6 +190,17 @@ export default new Vuex.Store({
                     dispatch('displayError', errorMsg);
 
                     throw errorMsg + ': ' + error.response
+                })
+        },
+
+        deleteOrder({getters, commit}) {
+            commit('updateRecalculateLoading', true)
+
+            const orderId = getters.orderId
+
+            return ordersApi.deleteOrder(orderId)
+                .then(() => {
+                    commit('updateRecalculateLoading', false)
                 })
         },
 

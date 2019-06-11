@@ -12,48 +12,23 @@
         </div>
 
         <template v-if="editing">
-            <div id="order-save" class="btngroup">
-                <input id="order-save-btn" type="button" class="btn submit" value="Update Order" @click="save()" />
-
-                <div class="btn submit menubtn" ref="updateMenuBtn"></div>
-                <div class="menu">
-                    <ul>
-                        <!--<li><a class="formsubmit"
-                               data-redirect="{{ continueEditingUrl|hash }}">
-                            {{ forms.optionShortcutLabel('S') }}
-                            {{ "Save and return to orders"|t('app') }}
-                        </a></li>-->
-                        <li><a class="formsubmit">Save and return to orders</a></li>
-                    </ul>
-
-                    <hr>
-                    <ul>
-                        <!--<li><a class="formsubmit error"
-                               data-action="commerce/orders/delete-order"
-                               data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
-                               data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
-                        </li>-->
-                        <li><a class="formsubmit error"
-                               data-action="commerce/orders/delete-order"
-                               data-confirm="Are you sure you want to delete this order?">Delete</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <update-order-btn></update-order-btn>
         </template>
     </div>
 </template>
 
 <script>
     import {mapState, mapActions} from 'vuex'
+    import UpdateOrderBtn from './components/actions/UpdateOrderBtn'
 
     export default {
+        components: {
+            UpdateOrderBtn
+        },
 
         computed: {
             ...mapState({
-                draft: state => state.draft,
                 saveLoading: state => state.saveLoading,
-                orderId: state => state.orderId,
                 editing: state => state.editing,
             }),
         },
@@ -62,19 +37,7 @@
             ...mapActions([
                 'edit',
                 'cancel',
-                'autoRecalculate',
-                'save',
             ]),
-
-            onSelectStatus() {
-                // do something
-            }
         },
-
-        mounted() {
-            new Garnish.MenuBtn(this.$refs.updateMenuBtn, {
-                onOptionSelect: this.onSelectStatus
-            })
-        }
     }
 </script>
