@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce 2.x
 
-## Unreleased
+## 2.1.7 - 2019-06-11
 
 ### Fixed
 - Fixed a SQL error that would occur when upgrading Commerce. ([#829](https://github.com/craftcms/commerce/issues/829))
