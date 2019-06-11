@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -106,7 +107,7 @@ class CountriesController extends BaseStoreSettingsController
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
             return $this->asJson(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->asErrorJson($e->getMessage());
         }
     }

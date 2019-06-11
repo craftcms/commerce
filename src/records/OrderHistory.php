@@ -8,6 +8,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -15,7 +16,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property Customer $customer
  * @property int $customerId
- * @property \DateTime $dateCreated
+ * @property DateTime $dateCreated
  * @property int $id
  * @property string $message
  * @property OrderStatus $newStatus

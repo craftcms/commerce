@@ -11,8 +11,13 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\errors\ElementNotFoundException;
+use DateInterval;
+use DateTime;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use function count;
 
 /**
  * Cart service.
@@ -46,8 +51,8 @@ class Carts extends Component
      * @param bool $forceSave Force the cart to save when requesting it.
      * @return Order
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     public function getCart($forceSave = false): Order
     {
@@ -128,7 +133,7 @@ class Carts extends Component
      *
      * @return int The number of carts purged from the database
      * @throws \Exception
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function purgeIncompleteCarts(): int
     {
@@ -150,7 +155,7 @@ class Carts extends Component
                 ->delete('{{%searchindex}}', ['elementId' => $cartIds])
                 ->execute();
 
-            return \count($cartIds);
+            return count($cartIds);
         }
 
         return 0;
@@ -196,8 +201,8 @@ class Carts extends Component
     private function _getCartsIdsToPurge(): array
     {
         $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
-        $edge = new \DateTime();
-        $interval = new \DateInterval($configInterval);
+        $edge = new DateTime();
+        $interval = new DateInterval($configInterval);
         $interval->invert = 1;
         $edge->add($interval);
 

@@ -8,6 +8,7 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
+use craft\db\Query;
 
 /**
  * m180402_161902_email_discount_usage migration.
@@ -29,7 +30,7 @@ class m180402_161902_email_discount_usage extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $couponUseByEmail = (new \craft\db\Query())
+        $couponUseByEmail = (new Query())
             ->select(['count(*) as uses', '[[orders.email]] as email', '[[discounts.id]] as discountId'])
             ->from(['{{%commerce_orders}} orders'])
             ->where(['not', ['couponCode' => null]])

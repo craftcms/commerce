@@ -18,6 +18,8 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
+use function explode;
+use function get_class;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -245,7 +247,7 @@ class DiscountsController extends BaseCpController
         $categories = $categoryIds = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
-            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+            $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
         } else {
             $categoryIds = $variables['discount']->getCategoryIds();
         }
@@ -279,7 +281,7 @@ class DiscountsController extends BaseCpController
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
-                $class = \get_class($purchasable);
+                $class = get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
                 $purchasables[$class][] = $purchasable;
             }

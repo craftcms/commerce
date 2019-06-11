@@ -10,7 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -152,9 +155,9 @@ class CustomerAddressesController extends BaseFrontEndController
      * @return Response
      * @throws Exception
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     public function actionDelete()
     {

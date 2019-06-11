@@ -9,8 +9,11 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use Throwable;
+use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
 
 /**
@@ -27,9 +30,9 @@ class DownloadsController extends BaseFrontEndController
     /**
      * @return Response
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\web\RangeNotSatisfiableHttpException
+     * @throws Throwable
+     * @throws Exception
+     * @throws RangeNotSatisfiableHttpException
      */
     public function actionPdf(): Response
     {

@@ -22,8 +22,11 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use DateTime;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use function get_class;
 
 /**
  * Gateway service.
@@ -246,7 +249,7 @@ class Gateways extends Component
             $configData = [
                 'name' => $gateway->name,
                 'handle' => $gateway->handle,
-                'type' => \get_class($gateway),
+                'type' => get_class($gateway),
                 'settings' => $gateway->getSettings(),
                 'sortOrder' => (int)($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
@@ -269,7 +272,7 @@ class Gateways extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedGateway(ConfigEvent $event)
     {
@@ -295,7 +298,7 @@ class Gateways extends Component
             $gatewayRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -306,7 +309,7 @@ class Gateways extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleArchivedGateway(ConfigEvent $event)
     {
@@ -317,13 +320,13 @@ class Gateways extends Component
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
 
             $gatewayRecord->isArchived = true;
-            $gatewayRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+            $gatewayRecord->dateArchived = Db::prepareDateForDb(new DateTime());
 
             // Save the volume
             $gatewayRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }

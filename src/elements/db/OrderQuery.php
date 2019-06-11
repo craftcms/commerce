@@ -113,6 +113,11 @@ class OrderQuery extends ElementQuery
      */
     public $hasTransactions;
 
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
+
     // Public Methods
     // =========================================================================
 
@@ -827,7 +832,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.lastIp',
             'commerce_orders.orderLanguage',
             'commerce_orders.message',
-            'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.returnUrl',
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
@@ -838,6 +842,11 @@ class OrderQuery extends ElementQuery
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated'
         ]);
+
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
+            $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
+        }
 
         if ($this->number) {
             if (is_string($this->number)) {
@@ -922,7 +931,7 @@ class OrderQuery extends ElementQuery
         }
 
         // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasTransactions) {
+        if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
                 'exists', (new Query())
                     ->from(['{{%commerce_transactions}} transactions'])

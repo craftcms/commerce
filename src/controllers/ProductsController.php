@@ -17,10 +17,16 @@ use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\commerce\web\assets\productindex\ProductIndexAsset;
+use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
+use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -48,7 +54,7 @@ class ProductsController extends BaseCpController
 
     /**
      * @return Response
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionProductIndex(): Response
     {
@@ -74,8 +80,8 @@ class ProductsController extends BaseCpController
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws NotFoundHttpException
-     * @throws \craft\errors\SiteNotFoundException
-     * @throws \yii\base\InvalidConfigException
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      */
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {
@@ -155,7 +161,7 @@ class ProductsController extends BaseCpController
      * Deletes a product.
      *
      * @throws Exception if you try to edit a non existing Id.
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function actionDeleteProduct()
     {
@@ -197,10 +203,10 @@ class ProductsController extends BaseCpController
      * @return Response|null
      * @throws Exception
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionSaveProduct()
     {
@@ -260,7 +266,7 @@ class ProductsController extends BaseCpController
     /**
      * @param Product $product
      * @throws HttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     protected function enforceProductPermissions(Product $product)
     {
@@ -272,7 +278,7 @@ class ProductsController extends BaseCpController
 
     /**
      * @param array $variables
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function _prepVariables(array &$variables)
     {
@@ -337,8 +343,8 @@ class ProductsController extends BaseCpController
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws NotFoundHttpException
-     * @throws \craft\errors\SiteNotFoundException
-     * @throws \yii\base\InvalidConfigException
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      */
     private function _prepEditProductVariables(array &$variables)
     {

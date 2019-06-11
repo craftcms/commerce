@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use Twig\Error\Error;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig_Error;
 
 /**
  * Class CommerceTwigExtension
@@ -114,7 +115,7 @@ class Extension extends AbstractExtension
 
     /**
      * @param $currency
-     * @throws \Twig_Error
+     * @throws Twig_Error
      */
     private function _validatePaymentCurrency($currency)
     {

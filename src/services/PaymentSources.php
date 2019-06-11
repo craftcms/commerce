@@ -16,6 +16,7 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -255,7 +256,7 @@ class PaymentSources extends Component
      *
      * @param int $id The ID
      * @return bool
-     * @throws \Throwable in case something went wrong when deleting.
+     * @throws Throwable in case something went wrong when deleting.
      */
     public function deletePaymentSourceById($id): bool
     {

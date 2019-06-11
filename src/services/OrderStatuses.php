@@ -19,8 +19,14 @@ use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use DateTime;
+use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
+use function count;
 
 /**
  * Order status service.
@@ -228,7 +234,7 @@ class OrderStatuses extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedOrderStatus(ConfigEvent $event)
     {
@@ -274,7 +280,7 @@ class OrderStatuses extends Component
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -285,14 +291,14 @@ class OrderStatuses extends Component
      *
      * @param int $id
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function archiveOrderStatusById(int $id): bool
     {
         $statuses = $this->getAllOrderStatuses();
         $status = $this->getOrderStatusById($id);
 
-        if (\count($statuses) >= 2 && $status) {
+        if (count($statuses) >= 2 && $status) {
             $status->isArchived = true;
             return $this->saveOrderStatus($status);
         }
@@ -306,7 +312,7 @@ class OrderStatuses extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleArchivedOrderStatus(ConfigEvent $event)
     {
@@ -317,13 +323,13 @@ class OrderStatuses extends Component
             $orderStatusRecord = $this->_getOrderStatusRecord($orderStatusUid);
 
             $orderStatusRecord->isArchived = true;
-            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new DateTime());
 
             // Save the volume
             $orderStatusRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -379,7 +385,7 @@ class OrderStatuses extends Component
     {
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && \count($status->emails)) {
+            if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
                     Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
                 }
@@ -422,9 +428,9 @@ class OrderStatuses extends Component
      * @param array $ids
      * @return bool
      * @throws Exception
-     * @throws \yii\base\ErrorException
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\web\ServerErrorHttpException
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function reorderOrderStatuses(array $ids): bool
     {

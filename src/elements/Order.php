@@ -40,11 +40,15 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use DateInterval;
+use DateTime;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
@@ -241,12 +245,12 @@ class Order extends Element
     public $isCompleted = false;
 
     /**
-     * @var \DateTime Date ordered
+     * @var DateTime Date ordered
      */
     public $dateOrdered;
 
     /**
-     * @var \DateTime Date paid
+     * @var DateTime Date paid
      */
     public $datePaid;
 
@@ -393,6 +397,11 @@ class Order extends Element
             if ($hasPrimaryBillingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
                 $this->setBillingAddress($address);
             }
+        }
+
+        if (!$this->orderLanguage)
+        {
+            $this->orderLanguage = Craft::$app->language;
         }
 
         return parent::init();
@@ -563,7 +572,7 @@ class Order extends Element
         $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
 
         if ($justPaid) {
-            $this->datePaid = Db::prepareDateForDb(new \DateTime());
+            $this->datePaid = Db::prepareDateForDb(new DateTime());
         }
 
         // Lock for recalculation
@@ -628,8 +637,8 @@ class Order extends Element
      * @return bool
      * @throws OrderStatusException
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     public function markAsComplete(): bool
     {
@@ -663,7 +672,7 @@ class Order extends Element
         $mutex->release($lockName);
 
         $this->isCompleted = true;
-        $this->dateOrdered = Db::prepareDateForDb(new \DateTime());
+        $this->dateOrdered = Db::prepareDateForDb(new DateTime());
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
         // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
@@ -677,7 +686,7 @@ class Order extends Element
 
         try {
             $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
             throw $exception;
         }
@@ -1724,31 +1733,52 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
                 {
-                    return $this->orderStatus->getLabelHtml() ?? '<span class="status"></span>';
+                    if ($this->orderStatus) {
+                        return $this->orderStatus->getLabelHtml();
+                    }
+                    return '<span class="status"></span>';
                 }
             case 'shippingFullName':
                 {
-                    return $this->getShippingAddress()->getFullName() ?? '';
+                    if ($this->getShippingAddress()) {
+                        return $this->getShippingAddress()->getFullName();
+                    }
+                    return '';
                 }
             case 'billingFullName':
                 {
-                    return $this->billingAddress->getFullName() ?? '';
+                    if ($this->getBillingAddress()) {
+                        return $this->getBillingAddress()->getFullName();
+                    }
+                    return '';
                 }
             case 'shippingBusinessName':
                 {
-                    return $this->getShippingAddress()->businessName ?? '';
+                    if ($this->getShippingAddress()) {
+                        return $this->getShippingAddress()->businessName;
+                    }
+                    return '';
                 }
             case 'billingBusinessName':
                 {
-                    return $this->billingAddress->businessName ?? '';
+                    if ($this->getBillingAddress()) {
+                        return $this->getBillingAddress()->businessName;
+                    }
+                    return '';
                 }
             case 'shippingMethodName':
                 {
-                    return $this->shippingMethod->getName() ?? '';
+                    if ($this->getShippingMethod()) {
+                        return $this->getShippingMethod()->name;
+                    }
+                    return '';
                 }
             case 'gatewayName':
                 {
-                    return $this->gateway->name ?? '';
+                    if ($this->getGateway()) {
+                        return $this->getGateway()->name;
+                    }
+                    return '';
                 }
             case 'paidStatus':
                 {
@@ -1884,11 +1914,11 @@ class Order extends Element
 
         $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
-        $edge = new \DateTime();
-        $interval = new \DateInterval('PT1H');
+        $edge = new DateTime();
+        $interval = new DateInterval('PT1H');
         $interval->invert = 1;
         $edge->add($interval);
-        $edge = $edge->format(\DateTime::ATOM);
+        $edge = $edge->format(DateTime::ATOM);
 
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;

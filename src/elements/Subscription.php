@@ -43,7 +43,7 @@ use yii\base\InvalidConfigException;
  * @property DateTime $trialExpires datetime of trial expiry
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @since 1.0
+ * @since 2.0
  */
 class Subscription extends Element
 {
