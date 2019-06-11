@@ -26,4 +26,20 @@ export default {
             }
         })
     },
+
+    purchasableSearch(orderId, query) {
+        const data = {
+            orderId
+        }
+
+        if (typeof query !== 'undefined') {
+            data.query = query
+        }
+
+        return axios.get(Craft.getActionUrl('commerce/order/purchasable-search', data), {
+            headers: {
+                [Craft.csrfTokenName]:  Craft.csrfTokenValue,
+            }
+        })
+    }
 }

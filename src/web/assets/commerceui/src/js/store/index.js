@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import orderApi from '../api/order';
 import ordersApi from '../api/orders';
-import purchasablesApi from '../api/purchasables';
 import utils from '../helpers/utils'
 
 Vue.use(Vuex)
@@ -207,7 +206,7 @@ export default new Vuex.Store({
         getPurchasables({commit, getters}) {
             const orderId = getters.orderId
 
-            return purchasablesApi.search(orderId)
+            return orderApi.purchasableSearch(orderId)
                 .then((response) => {
                     commit('updatePurchasables', response.data)
                 })

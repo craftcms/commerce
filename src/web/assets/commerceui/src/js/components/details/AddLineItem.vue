@@ -43,7 +43,7 @@
     import {mapState, mapGetters, mapActions} from 'vuex'
     import debounce from 'lodash.debounce'
     import VSelect from 'vue-select'
-    import purchasablesApi from '../../api/purchasables'
+    import orderApi from '../../api/order'
 
     export default {
         components: {
@@ -125,7 +125,7 @@
             },
 
             search: debounce((loading, search, vm) => {
-                purchasablesApi.search(vm.orderId, escape(search))
+                orderApi.purchasableSearch(vm.orderId, escape(search))
                     .then((response) => {
                         vm.purchasables = response.data
                         loading(false)
