@@ -9,8 +9,6 @@
                         <input
                                 class="text fullwidth"
                                 type="text"
-                                id="reference"
-                                name="reference"
                                 v-model="reference"
                                 autocomplete="off"
                                 autocorrect="off"
@@ -23,7 +21,6 @@
                 <input
                         class="text fullwidth"
                         type="text"
-                        name="couponCode"
                         v-model="couponCode"
                         autocomplete="off"
                         autocorrect="off"
