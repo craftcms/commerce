@@ -6,6 +6,7 @@ import App from './OrderDetails'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
+import OrderDownload from './OrderDownload'
 import store from './store'
 
 Vue.config.productionTip = false
@@ -18,6 +19,7 @@ window.OrderActionsApp = new Vue({
     render: h => h(OrderActions),
     store,
 }).$mount('#order-actions-app')
+
 
 // Order details
 // =========================================================================
@@ -40,3 +42,12 @@ window.OrderMetaApp = new Vue({
     render: h => h(OrderMeta),
     store,
 }).$mount('#order-meta-app')
+
+
+// Order download
+// =========================================================================
+
+window.OrderDownloadApp = new Vue({
+    render: h => h(OrderDownload),
+    store,
+}).$mount('#order-download-app')

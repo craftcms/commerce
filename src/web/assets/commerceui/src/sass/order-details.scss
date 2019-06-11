@@ -80,14 +80,6 @@
   opacity: .5;
 }
 
-.order-actions {
-  margin-right: 14px;
-
-  #order-save {
-    margin-left: 7px;
-  }
-}
-
 .adjustment {
   &:not(:last-child) {
     border-bottom: 1px solid rgba(0, 0, 20, 0.1);
@@ -120,5 +112,13 @@
 
   .recalculate-btn {
     display: inline-block;
+  }
+}
+
+/* Order Actions */
+
+#order-actions {
+  .btngroup {
+    margin-left: 7px;
   }
 }

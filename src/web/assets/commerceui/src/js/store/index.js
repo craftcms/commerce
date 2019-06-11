@@ -34,6 +34,19 @@ export default new Vuex.Store({
             return window.orderEdit.shippingCategories
         },
 
+        pdfUrls() {
+            const pdfUrls = []
+
+            for (let key in window.orderEdit.pdfUrls) {
+                pdfUrls.push({
+                    title: key,
+                    url: window.orderEdit.pdfUrls[key]
+                })
+            }
+
+            return pdfUrls
+        },
+
         maxLineItems(state, getters) {
             if (getters.edition === 'lite') {
                 return 1

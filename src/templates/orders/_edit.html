@@ -15,6 +15,7 @@
 {% hook "cp.commerce.order.edit" %}
 
 {% block actionButton %}
+    {#
     {% if order.isCompleted %}
     {% if pdfUrl %}
         <a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
@@ -25,8 +26,15 @@
     <input type="hidden" name="action" value="commerce/orders/save-order">
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders') }}
+    #}
+    
+    <div id="order-download">
+        <div id="order-download-app"></div>
+    </div>
 
-    <div class="order-actions">
+    <div class="flex-grow"></div>
+
+    <div id="order-actions">
         <div id="order-actions-app"></div>
     </div>
 {% endblock %}
