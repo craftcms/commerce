@@ -68,7 +68,7 @@
                     <label id="customer-label" for="customer">Customer</label>
                 </div>
                 <div class="input ltr">
-                    <customer :order="order" @updateOrder="updateOrder"></customer>
+                    <customer-select :order="order" @updateOrder="updateOrder"></customer-select>
                 </div>
             </div>
 
@@ -161,7 +161,7 @@
     import {mapState, mapGetters, mapActions} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
-    import Customer from './components/meta/Customer'
+    import CustomerSelect from './components/meta/CustomerSelect'
     import Field from './components/Field'
 
     export default {
@@ -170,7 +170,7 @@
         components: {
             OrderStatus,
             ShippingMethod,
-            Customer,
+            CustomerSelect,
             Field,
         },
 

@@ -14,7 +14,8 @@ export default new Vuex.Store({
         editing: false,
         draft: null,
         originalDraft: null,
-        purchasables: []
+        purchasables: [],
+        customers: [],
     },
 
     getters: {
@@ -212,6 +213,13 @@ export default new Vuex.Store({
                 })
         },
 
+        customerSearch({commit, getters}, query) {
+            return orderApi.customerSearch(query)
+                .then((response) => {
+                    commit('updateCustomers', response.data)
+                })
+        },
+
         autoRecalculate({state, dispatch}) {
             const draft = state.draft
             draft.order.recalculationMode = 'all'
@@ -272,6 +280,10 @@ export default new Vuex.Store({
 
         updatePurchasables(state, purchasables) {
             state.purchasables = purchasables
+        },
+
+        updateCustomers(state, customers) {
+            state.customers = customers
         },
 
         updateRecalculateLoading(state, recalculateLoading) {

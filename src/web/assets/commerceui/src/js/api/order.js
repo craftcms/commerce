@@ -41,5 +41,19 @@ export default {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }
         })
+    },
+
+    customerSearch(query) {
+        const data = {}
+
+        if (typeof query !== 'undefined') {
+            data.query = query
+        }
+
+        return axios.get(Craft.getActionUrl('commerce/order/customer-search', data), {
+            headers: {
+                [Craft.csrfTokenName]:  Craft.csrfTokenValue,
+            }
+        })
     }
 }
