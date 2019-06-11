@@ -432,7 +432,7 @@ class OrderController extends Controller
         // Are they searching for a purchasable ID?
         $results = [];
         if (is_numeric($query)) {
-            $result = $sqlQuery->where(['id' => $query])->one();
+            $result = $sqlQuery->where(['[[customers.id]]' => $query])->one();
             if ($result) {
                 $results[] = $result;
             }
@@ -441,25 +441,20 @@ class OrderController extends Controller
         // Are they searching for a SKU or purchasable description?
         if (!is_numeric($query)) {
             if ($query) {
-                $sqlQuery->where([
-                    'or',
+                $sqlQuery->where(
                     [$likeOperator, '[[orders.email]]', $query]
-                ]);
+                );
             }
             $results = $sqlQuery->limit($limit)->all();
         }
 
-        if (empty($results)) {
-            $results = $sqlQuery->limit($limit)->all();
+        foreach ($results as $key => $row)
+        {
+            if(!isset($row['customerId']) || $row['customerId'] === null)
+            {
+                unset($results[$key]);
+            }
         }
-
-//        $customers = [];
-//        foreach ($results as $row) {
-//            $customer['id'] = $row['id'];
-//            $customer['email'] = $row['email'];
-//            $customer['totalOrders'] = $row['totalOrders'];
-//            $customers[] = $customer;
-//        }
 
         return $this->asJson($results);
     }
