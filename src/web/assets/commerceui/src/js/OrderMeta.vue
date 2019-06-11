@@ -19,23 +19,17 @@
                 </div>
             </div>
 
-            <div class="field" id="couponCode-field">
-                <div class="heading">
-                    <label id="couponCode-label" for="couponCode">Coupon Code</label>
-                </div>
-                <div class="input ltr">
-                        <input
-                                class="text fullwidth"
-                                type="text"
-                                id="couponCode"
-                                name="couponCode"
-                                v-model="couponCode"
-                                autocomplete="off"
-                                autocorrect="off"
-                                autocapitalize="off"
-                                placeholder="Enter coupon code" />
-                </div>
-            </div>
+            <field label="Coupon Code" :errors="getErrors('couponCode')[0]">
+                <input
+                        class="text fullwidth"
+                        type="text"
+                        name="couponCode"
+                        v-model="couponCode"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        placeholder="Enter coupon code" />
+            </field>
 
             <div class="field" id="isCompleted-field"  v-if="!draft.order.isCompleted">
                 <div class="heading">
@@ -164,10 +158,11 @@
 
 <script>
     import debounce from 'lodash.debounce'
-    import {mapState, mapActions} from 'vuex'
+    import {mapState, mapGetters, mapActions} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
     import Customer from './components/meta/Customer'
+    import Field from './components/Field'
 
     export default {
         name: 'order-meta-app',
@@ -176,6 +171,7 @@
             OrderStatus,
             ShippingMethod,
             Customer,
+            Field,
         },
 
         computed: {
@@ -183,6 +179,10 @@
                 draft: state => state.draft,
                 editing: state => state.editing,
             }),
+
+            ...mapGetters([
+                'getErrors',
+            ]),
 
             reference: {
                 get() {
