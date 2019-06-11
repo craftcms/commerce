@@ -424,8 +424,10 @@ class OrderController extends Controller
 
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['[[customers.id]]', '[[customers.email]]'])
-            ->from('{{%commerce_customers}} customers');
+            ->select(['[[customers.id]] as customerId', '[[orders.email]] as email', 'count([[orders.id]]) as totalOrders','[[customers.userId]] as userId', '[[users.firstName]] as firstName','[[users.lastName]] as lastName'])
+            ->from('{{%commerce_customers}} customers')
+            ->leftJoin('{{%commerce_orders}} orders','[[customers.id]] = [[orders.customerId]]')
+            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]');
 
         // Are they searching for a purchasable ID?
         $results = [];
@@ -441,7 +443,7 @@ class OrderController extends Controller
             if ($query) {
                 $sqlQuery->where([
                     'or',
-                    [$likeOperator, 'email', $query]
+                    [$likeOperator, '[[orders.email]]', $query]
                 ]);
             }
             $results = $sqlQuery->limit($limit)->all();
@@ -451,15 +453,14 @@ class OrderController extends Controller
             $results = $sqlQuery->limit($limit)->all();
         }
 
-        $customers = [];
-        foreach ($results as $row) {
-            $totalOrders = (new Query())->select('count(*)')->from('{{%commerce_orders}}')->where(['customerId' => $row['id'], 'isCompleted' => true]);
-            $customer['totalOrders'] = $totalOrders;
-            $customer['id'] = $row['id'];
-            $customer['email'] = $row['email'];
-            $customers[] = $customer;
-        }
+//        $customers = [];
+//        foreach ($results as $row) {
+//            $customer['id'] = $row['id'];
+//            $customer['email'] = $row['email'];
+//            $customer['totalOrders'] = $row['totalOrders'];
+//            $customers[] = $customer;
+//        }
 
-        return $this->asJson($customers);
+        return $this->asJson($results);
     }
 }
