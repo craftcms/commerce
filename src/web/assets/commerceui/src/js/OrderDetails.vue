@@ -13,7 +13,7 @@
                             @updateLineItems="updateLineItems"
                     ></line-items>
 
-                    <template v-if="orderAdjustments.length > 0">
+                    <template v-if="orderAdjustments.length > 0 || editing">
                         <order-adjustments
                                 :adjustments="orderAdjustments"
                                 :editing="editing"
