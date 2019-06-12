@@ -171,11 +171,6 @@ export default new Vuex.Store({
 
                     const draft = response.data
 
-                    // Todo: Temporary fix, controllers should return IDs as integers instead
-                    draft.order.lineItems.forEach((lineItem, lineItemKey) => {
-                        draft.order.lineItems[lineItemKey].lineItemStatusId = utils.parseInputValue('int', lineItem.lineItemStatusId)
-                    })
-
                     if (!state.originalDraft) {
                         const originalDraft = draft
                         commit('updateOriginalDraft', originalDraft)
