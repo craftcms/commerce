@@ -27,6 +27,10 @@
                 </template>
                 <template v-else>
                     <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+
+                    <ul v-if="errors.length > 0" class="errors">
+                        <li v-for="error in errors">{{error}}</li>
+                    </ul>
                 </template>
             </div>
         </div>
@@ -54,6 +58,7 @@
         data() {
             return {
                 options: null,
+                errors: [],
             }
         },
 
@@ -67,17 +72,32 @@
 
         methods: {
             onOptionsChange() {
-                const options = JSON.parse(this.options);
+                this.errors = []
+                let jsonValid = true
+                let options = null
+
+                try {
+                    options = JSON.parse(this.options);
+                } catch(e) {
+                    jsonValid = false
+                }
+
+                if (jsonValid) {
+                    this.onOptionsChangeWithValidJson(options)
+                } else {
+                    this.errors = ['Invalid JSON']
+                }
+            },
+
+            onOptionsChangeWithValidJson: debounce(function(options) {
                 const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
-            },
+            }, 1000)
         },
 
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
-
-            this.onOptionsChange = debounce(this.onOptionsChange, 1000)
         }
     }
 </script>
