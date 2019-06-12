@@ -83,10 +83,15 @@ export default new Vuex.Store({
         },
 
         shippingMethods() {
-            const shippingMethods = window.orderEdit.shippingMethods
+            const shippingMethodsObject = window.orderEdit.shippingMethods
+            const shippingMethods = []
 
-            for (let key in shippingMethods) {
-                shippingMethods[key].id = parseInt(shippingMethods[key].id)
+            for (let key in shippingMethodsObject) {
+                const shippingMethod = shippingMethodsObject[key]
+
+                shippingMethod.id = parseInt(shippingMethod.id)
+
+                shippingMethods.push(shippingMethod)
             }
 
             return shippingMethods

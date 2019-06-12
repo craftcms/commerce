@@ -1,35 +1,42 @@
 <template>
     <div>
-        <a class="btn menubtn" ref="shippingMethod">
-            {{shippingMethod.name}}
-        </a>
-
-        <div class="menu">
-            <ul class="padded" role="listbox">
-                <li v-for="(shippingMethod) in shippingMethods">
-                    <a
-                            :data-id="shippingMethod.id"
-                            :data-name="shippingMethod.name"
-                            :data-handle="shippingMethod.handle"
-                            :class="{sel: shippingMethod.id === shippingMethod.value}">
-                        {{shippingMethod.name}}
-                    </a>
-                </li>
-            </ul>
-        </div>
+        <v-select
+                label="name"
+                v-model="selectedShippingMethod"
+                :options="shippingMethods"
+                :filterable="false"
+                @input="onChange"
+                @search="onSearch">
+            <template slot="option" slot-scope="option">
+                <div class="shipping-method-select-option">
+                    {{option.name}}
+                </div>
+            </template>
+        </v-select>
     </div>
 </template>
 
 <script>
     /* global Garnish */
-
-    import {mapGetters} from 'vuex'
+    import {mapState, mapGetters} from 'vuex'
+    import debounce from 'lodash.debounce'
+    import VSelect from 'vue-select'
 
     export default {
+        components: {
+            VSelect,
+        },
+
         props: {
             order: {
                 type: Object,
             },
+        },
+
+        data() {
+            return {
+                selectedShippingMethod: null,
+            }
         },
 
         computed: {
@@ -64,15 +71,27 @@
         },
 
         methods: {
-            onSelectShippingMethod(shippingMethod) {
-                this.shippingMethodHandle = shippingMethod.dataset.handle
+            onChange() {
+                this.shippingMethodHandle = this.selectedShippingMethod.handle
             },
+
+            onSearch(search, loading) {
+                loading(true);
+                this.search(loading, search, this);
+            },
+
+            search: debounce((loading, search, vm) => {
+                vm.$store.dispatch('customerSearch', search)
+                    .then(() => {
+                        loading(false)
+                    })
+            }, 350)
         },
 
         mounted() {
-            new Garnish.MenuBtn(this.$refs.shippingMethod, {
-                onOptionSelect: this.onSelectShippingMethod
-            })
+            const shippingMethod = this.shippingMethods.find(s => s.handle === this.order.shippingMethodHandle)
+            this.$store.commit('updateCustomers', [shippingMethod])
+            this.selectedShippingMethod = shippingMethod
         }
     }
 </script>
