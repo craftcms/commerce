@@ -12,14 +12,16 @@
                         @updateLineItems="updateLineItems"
                 ></line-items>
 
-                <order-adjustments
-                        :adjustments="orderAdjustments"
-                        :editing="editing"
-                        :recalculation-mode="recalculationMode"
-                        @updateOrderAdjustments="updateOrderAdjustments"
-                ></order-adjustments>
+                <template v-if="orderAdjustments.length > 0">
+                    <order-adjustments
+                            :adjustments="orderAdjustments"
+                            :editing="editing"
+                            :recalculation-mode="recalculationMode"
+                            @updateOrderAdjustments="updateOrderAdjustments"
+                    ></order-adjustments>
 
-                <hr />
+                    <hr />
+                </template>
 
                 <total :order="draft.order"></total>
 
