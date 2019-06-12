@@ -45,7 +45,7 @@
                         <label id="orderStatus-label" for="status">Status</label>
                     </div>
                     <div class="input ltr">
-                        <order-status :order="order" @updateOrder="updateOrder"></order-status>
+                        <order-status :originalOrderStatusId="originalDraft.order.orderStatusId" :order="order" @updateOrder="updateOrder"></order-status>
                     </div>
                 </div>
             </template>
@@ -174,6 +174,7 @@
         computed: {
             ...mapState({
                 draft: state => state.draft,
+                originalDraft: state => state.originalDraft,
                 editing: state => state.editing,
             }),
 
@@ -202,6 +203,7 @@
                     this.recalculateOrder(draft)
                 }, 1000)
             },
+
             order: {
                 get() {
                     return this.draft.order

@@ -12,6 +12,7 @@ export default {
                 couponCode: draft.order.couponCode,
                 recalculationMode: draft.order.recalculationMode,
                 shippingMethodHandle: draft.order.shippingMethodHandle,
+                message: draft.order.message,
                 lineItems: [],
                 orderAdjustments: [],
             }
