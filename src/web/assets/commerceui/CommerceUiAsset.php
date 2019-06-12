@@ -9,6 +9,7 @@ namespace craft\commerce\web\assets\commerceui;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
+use craft\web\assets\timepicker\TimepickerAsset;
 use craft\web\assets\vue\VueAsset;
 
 /**
@@ -32,6 +33,7 @@ class CommerceUiAsset extends AssetBundle
         $this->depends = [
             CpAsset::class,
             VueAsset::class,
+            TimepickerAsset::class,
         ];
 
 //        $this->js[] = 'js/chunk-vendors.js';

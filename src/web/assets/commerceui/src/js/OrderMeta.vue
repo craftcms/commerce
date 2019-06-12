@@ -3,17 +3,18 @@
         <div id="settings" class="meta" v-if="editing">
             <div class="field" id="reference-field">
                 <div class="heading">
-                    <label id="reference-label" for="reference">Reference</label>
+                    <label id="reference-label"
+                           for="reference">Reference</label>
                 </div>
                 <div class="input ltr">
-                        <input
-                                class="text fullwidth"
-                                type="text"
-                                v-model="reference"
-                                autocomplete="off"
-                                autocorrect="off"
-                                autocapitalize="off"
-                                placeholder="Enter reference" />
+                    <input
+                            class="text fullwidth"
+                            type="text"
+                            v-model="reference"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            placeholder="Enter reference"/>
                 </div>
             </div>
 
@@ -25,16 +26,24 @@
                         autocomplete="off"
                         autocorrect="off"
                         autocapitalize="off"
-                        placeholder="Enter coupon code" />
+                        placeholder="Enter coupon code"/>
             </field>
 
-            <div class="field" id="isCompleted-field"  v-if="!draft.order.isCompleted">
+            <field label="Date Paid">
+                <date-paid-input :date="draft.order.datePaid"></date-paid-input>
+            </field>
+
+            <div class="field" id="isCompleted-field"
+                 v-if="!draft.order.isCompleted">
                 <div class="heading">
-                    <label id="isCompleted-label" for="isCompleted">Completed</label>
+                    <label id="isCompleted-label"
+                           for="isCompleted">Completed</label>
                 </div>
                 <div class="input ltr">
                     <div class="buttons">
-                            <input type="button" class="btn small" value="Mark as completed" @click="markAsCompleted" />
+                        <input type="button" class="btn small"
+                               value="Mark as completed"
+                               @click="markAsCompleted"/>
                     </div>
                 </div>
             </div>
@@ -42,10 +51,14 @@
             <template v-if="draft.order.isCompleted">
                 <div class="field" id="orderStatus-field">
                     <div class="heading">
-                        <label id="orderStatus-label" for="status">Status</label>
+                        <label id="orderStatus-label"
+                               for="status">Status</label>
                     </div>
                     <div class="input ltr">
-                        <order-status :originalOrderStatusId="originalDraft.order.orderStatusId" :order="order" @updateOrder="updateOrder"></order-status>
+                        <order-status
+                                :originalOrderStatusId="originalDraft.order.orderStatusId"
+                                :order="order"
+                                @updateOrder="updateOrder"></order-status>
                     </div>
                 </div>
             </template>
@@ -53,10 +66,12 @@
 
             <div class="field" id="shippingMethod-field">
                 <div class="heading">
-                    <label id="shippingMethod-label" for="slug">Shipping Method</label>
+                    <label id="shippingMethod-label" for="slug">Shipping
+                        Method</label>
                 </div>
                 <div class="input ltr">
-                    <shipping-method :order="order" @updateOrder="updateOrder"></shipping-method>
+                    <shipping-method :order="order"
+                                     @updateOrder="updateOrder"></shipping-method>
                 </div>
             </div>
 
@@ -65,12 +80,11 @@
                     <label id="customer-label" for="customer">Customer</label>
                 </div>
                 <div class="input ltr">
-                    <customer-select :order="order" @updateOrder="updateOrder"></customer-select>
+                    <customer-select :order="order"
+                                     @updateOrder="updateOrder"></customer-select>
                 </div>
             </div>
-
-            </div>
-
+        </div>
 
         <div id="meta" class="meta read-only">
             <div class="data" v-if="!editing">
@@ -148,7 +162,6 @@
                 <h5 class="heading">IP Address</h5>
                 <span class="value">{{draft.order.lastIp}}</span>
             </div>
-
         </div>
     </div>
 </template>
@@ -159,6 +172,7 @@
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
     import CustomerSelect from './components/meta/CustomerSelect'
+    import DatePaidInput from './components/meta/DatePaidInput'
     import Field from './components/Field'
 
     export default {
@@ -168,6 +182,7 @@
             OrderStatus,
             ShippingMethod,
             CustomerSelect,
+            DatePaidInput,
             Field,
         },
 
