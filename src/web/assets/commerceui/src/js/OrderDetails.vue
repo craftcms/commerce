@@ -5,36 +5,42 @@
                 <div class="spinner"></div>
             </template>
             <template v-else>
-                <line-items
-                        :line-items="lineItems"
-                        :editing="editing"
-                        :recalculation-mode="recalculationMode"
-                        @updateLineItems="updateLineItems"
-                ></line-items>
-
-                <template v-if="orderAdjustments.length > 0">
-                    <order-adjustments
-                            :adjustments="orderAdjustments"
+                <template v-if="lineItems.length > 0">
+                    <line-items
+                            :line-items="lineItems"
                             :editing="editing"
                             :recalculation-mode="recalculationMode"
-                            @updateOrderAdjustments="updateOrderAdjustments"
-                    ></order-adjustments>
+                            @updateLineItems="updateLineItems"
+                    ></line-items>
 
-                    <hr />
+                    <template v-if="orderAdjustments.length > 0">
+                        <order-adjustments
+                                :adjustments="orderAdjustments"
+                                :editing="editing"
+                                :recalculation-mode="recalculationMode"
+                                @updateOrderAdjustments="updateOrderAdjustments"
+                        ></order-adjustments>
+
+                        <hr />
+                    </template>
+
+                    <total :order="draft.order"></total>
                 </template>
 
-                <total :order="draft.order"></total>
-
                 <template v-if="editing">
-                    <hr>
+                    <template v-if="lineItems.length > 0">
+                        <hr>
+                    </template>
 
                     <add-line-item @addLineItem="addLineItem"></add-line-item>
 
-                    <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
-                        <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
-                    </div>
+                    <template v-if="lineItems.length > 0">
+                        <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
+                            <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
+                        </div>
 
-                    <div v-if="recalculateLoading" class="spinner"></div>
+                        <div v-if="recalculateLoading" class="spinner"></div>
+                    </template>
                 </template>
             </template>
 

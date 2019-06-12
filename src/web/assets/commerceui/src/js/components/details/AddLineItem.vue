@@ -117,6 +117,8 @@
                 }
 
                 this.$emit('addLineItem', lineItem)
+                this.selectedPurchasable = null
+                this.showForm = false
             },
 
             onSearch(search, loading) {
