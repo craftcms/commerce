@@ -5,10 +5,17 @@
                 v-model="selectedCustomer"
                 :options="customers"
                 :filterable="false"
+                :create-option="createOption"
+                taggable
                 @search="onSearch">
             <template slot="option" slot-scope="option">
                 <div class="customer-select-option">
-                    {{option.email}}
+                    <template v-if="!option.customerId">
+                        Create “{{option.email}}”
+                    </template>
+                    <template v-else>
+                        {{option.email}}
+                    </template>
                 </div>
             </template>
         </v-select>
@@ -70,6 +77,10 @@
         },
 
         methods: {
+            createOption(searchText) {
+                return {customerId: null, email: searchText, totalOrders: 0, userId: null, firstName: null, lastName: null}
+            },
+
             onSearch(search, loading) {
                 loading(true);
                 this.search(loading, search, this);
@@ -84,7 +95,7 @@
         },
 
         mounted() {
-            const customer = {id: this.customerId, email: this.order.email}
+            const customer = {customerId: this.customerId, email: this.order.email}
             this.$store.commit('updateCustomers', [customer])
             this.selectedCustomer = customer
         }
