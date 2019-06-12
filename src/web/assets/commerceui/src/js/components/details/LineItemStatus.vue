@@ -1,36 +1,7 @@
 <template>
     <div>
         <template v-if="editing">
-        <a class="btn menubtn" ref="lineItemStatus">
-            <template v-if="lineItemStatus.color">
-                <span class="status" :class="{[lineItemStatus.color]: true}"></span>
-            </template>
-            <template v-else>
-                <span class="status"></span>
-            </template>
-
-            {{lineItemStatus.name}}
-        </a>
-        <div class="menu">
-            <ul class="padded" role="listbox">
-                <li>
-                    <a data-id="0" data-name="None">
-                        <span class="status"></span>
-                        None
-                    </a>
-                </li>
-                <li v-for="(status) in lineItemStatuses">
-                    <a
-                            :data-id="status.id"
-                            :data-color="status.color"
-                            :data-name="status.name"
-                            :class="{sel: lineItemStatus.id === status.value}">
-                        <span class="status" :class="{[status.color]: true}"></span>
-                        {{status.name}}
-                    </a>
-                </li>
-            </ul>
-        </div>
+            <line-item-status-input :lineItem="lineItem" :editing="editing" @change="$emit('change', $event)"></line-item-status-input>
         </template>
 
         <template v-else>
@@ -50,8 +21,12 @@
     /* global Garnish */
 
     import {mapGetters} from 'vuex'
+    import LineItemStatusInput from './LineItemStatusInput'
 
     export default {
+        components: {
+            LineItemStatusInput
+        },
 
         props: {
             lineItem: {
@@ -67,13 +42,8 @@
                 'lineItemStatuses',
             ]),
 
-            lineItemStatusId: {
-                get() {
-                    return this.lineItem.lineItemStatusId
-                },
-                set(val) {
-                    this.$emit('change', val)
-                }
+            lineItemStatusId() {
+                return this.lineItem.lineItemStatusId
             },
 
             lineItemStatus() {
@@ -90,23 +60,5 @@
                 return {id: 0, name: "None", color: null}
             },
         },
-
-        methods: {
-            onSelectStatus(status) {
-                const id = status.dataset.id
-
-                if (status.dataset.id == 0) {
-                    this.lineItemStatusId = null
-                } else {
-                    this.lineItemStatusId = parseInt(id)
-                }
-            },
-        },
-
-        mounted() {
-            new Garnish.MenuBtn(this.$refs.lineItemStatus, {
-                onOptionSelect: this.onSelectStatus
-            })
-        }
     }
 </script>
