@@ -8,18 +8,19 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
@@ -27,7 +28,6 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
-use JsonSchema\Validator;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -125,7 +125,7 @@ class OrderController extends Controller
 
         $order->setFieldValuesFromRequest('fields');
 
-        if(!Craft::$app->getElements()->saveElement($order)){
+        if (!Craft::$app->getElements()->saveElement($order)) {
             // Recalculation mode should always return to none, unless it is still a cart
             $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
             if (!$order->isCompleted) {
@@ -546,13 +546,38 @@ class OrderController extends Controller
      */
     private function _updateOrder(Order $order, $orderRequestData)
     {
+        $originalCustomerId = $order->customerId;
+
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
+        $order->email = $orderRequestData['order']['email'];
+        $order->customerId = $orderRequestData['order']['customerId'];
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
-        $order->message = 'Uncomment the message variable in the controller';//$orderRequestData['order']['message'];
+        $order->message = 'Uncomment the message variable in the controller'; //$orderRequestData['order']['message'];
+        //$order->dateOrdered = ?; //$orderRequestData['order']['dateOrdered'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        // New customer
+        if($order->customerId == null && $order->email)
+        {
+            $newCustomer = new Customer();
+            if(Plugin::getInstance()->getCustomers()->saveCustomer($newCustomer)){
+                $order->customerId = $newCustomer->id;
+            }
+        }
+
+        // Changing the customer should change the email, if that customer has a user account
+        if($originalCustomerId && $order->customerId && $order->customerId != $originalCustomerId)
+        {
+            $customer = Plugin::getInstance()->getCustomers()->getCustomerById($order->customerId);
+            if($customer && $customer->getUser())
+            {
+                $order->email = $customer->getUser()->email;
+            }
+        }
+
 
         $lineItems = [];
         $adjustments = [];
