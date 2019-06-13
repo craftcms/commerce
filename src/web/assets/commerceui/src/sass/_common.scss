@@ -22,3 +22,37 @@
 .order-margin {
   padding: 0 10px;
 }
+
+
+/* VSelect */
+
+.vs--searchable .vs__dropdown-toggle {
+  // background: red;
+}
+
+.vs__selected-options {
+  // background: blue;
+  min-width: 0;
+  flex-wrap: nowrap;
+
+  input {
+    // background: green;
+  }
+
+  .vs__selected {
+    min-width: 0;
+    // background: yellow;
+
+    & > div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.vs__spinner {
+  width: 10px;
+  height: 10px;
+  overflow: hidden;
+}
