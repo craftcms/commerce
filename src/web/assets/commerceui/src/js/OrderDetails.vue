@@ -52,7 +52,7 @@
 </template>
 
 <style lang="scss">
-    @import '../sass/order-details.scss';
+    @import '../sass/app';
 </style>
 
 <script>

@@ -1,7 +1,7 @@
 <template>
     <div class="line-item">
         <div class="order-flex">
-            <div class="order-row-title">
+            <div class="line-item-title">
                 <div class="light"><code>{{ lineItem.sku }}</code></div>
 
                 <br />
