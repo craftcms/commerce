@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce 2.x
 
+## Unreleased
+
+### Fixed
+- When calling toArray on an Order, the line items are no longer indexed incorrectly.
+
 ## 2.1.7 - 2019-06-11
 
 ### Fixed
