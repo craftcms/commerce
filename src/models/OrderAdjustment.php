@@ -116,7 +116,17 @@ class OrderAdjustment extends Model
     public function rules(): array
     {
         return [
-            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required']
+            [
+                [
+                    'type',
+                    'amount',
+                    'sourceSnapshot',
+                    'orderId'
+                ], 'required'
+            ],
+            [['amount'], 'number'],
+            [['orderId'], 'integer'],
+            [['lineItemId'], 'integer']
         ];
     }
 

@@ -14,6 +14,8 @@
 
 {% hook "cp.commerce.order.edit" %}
 
+{% block mainFormAttributes %}id="main-form" method="post" accept-charset="UTF-8" data-confirm-unload novalidate{% endblock %}
+
 {% block actionButton %}
     {#
     {% if order.isCompleted %}
@@ -23,7 +25,7 @@
     {% endif %}
     {% endif %}
 
-    <input type="hidden" name="action" value="commerce/orders/save-order">
+    <input type="hidden" name="action" value="commerce/order/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders') }}
     #}

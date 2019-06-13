@@ -306,7 +306,6 @@ class LineItem extends Model
                     'length',
                     'height',
                     'width',
-                    'total',
                     'qty',
                     'snapshot',
                     'taxCategoryId',
@@ -314,6 +313,8 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
+            [['shippingCategoryId','taxCategoryId'], 'integer'],
+            [['price','salePrice','saleAmount'], 'number'],
             [['note', 'adminNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
