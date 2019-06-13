@@ -313,8 +313,8 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
-            [['shippingCategoryId','taxCategoryId'], 'integer'],
-            [['price','salePrice','saleAmount'], 'number'],
+            [['shippingCategoryId', 'taxCategoryId'], 'integer'],
+            [['price', 'salePrice', 'saleAmount'], 'number'],
             [['note', 'adminNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
@@ -405,8 +405,15 @@ class LineItem extends Model
      */
     public function getSubtotal(): float
     {
-        // The subtotal should always be rounded.
-        return $this->qty * $this->salePrice;
+        // Even though we validate salePrice as numeric, we still need to
+        // stop any exceptions from occurring when displaying subtotal on an order/lineitems with errors.
+        if (!is_numeric($this->salePrice)) {
+            $salePrice = 0;
+        } else {
+            $salePrice = $this->salePrice;
+        }
+
+        return $this->qty * $salePrice;
     }
 
     /**

@@ -123,6 +123,8 @@ class OrderController extends Controller
 
         $this->_updateOrder($order, $orderRequestData);
 
+        $order->setFieldValuesFromRequest('fields');
+
         if(!Craft::$app->getElements()->saveElement($order)){
             // Recalculation mode should always return to none, unless it is still a cart
             $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
