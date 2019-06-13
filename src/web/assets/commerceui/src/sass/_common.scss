@@ -26,8 +26,22 @@
 
 /* VSelect */
 
-.vs--searchable .vs__dropdown-toggle {
-  // background: red;
+.v-select-btn {
+  display: flex;
+  min-width: 0;
+  padding: 0;
+
+  .v-select {
+    flex: 1;
+    min-width: 0;
+
+    .vs__dropdown-toggle {
+      // background: red;
+      border: 0;
+      border-radius: 0;
+      min-width: 0;
+    }
+  }
 }
 
 .vs__selected-options {

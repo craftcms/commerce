@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="v-select-btn btn">
         <v-select
                 ref="vSelect"
                 label="email"
