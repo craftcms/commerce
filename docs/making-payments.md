@@ -8,7 +8,7 @@ It is assumed that the payment gateway is set on the cart and that the `cart` va
 <form method="POST" class="form-horizontal">
     <input type="hidden" name="action" value="commerce/payments/pay"/>
     <input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
-    <input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
+    <input type="hidden" name="cancelUrl" value="{{ '/commerce/checkout/payment'|hash }}"/>
 
     {{ csrfInput() }}
 
@@ -28,7 +28,7 @@ This example assumes the availability of a `paymentForm` variable, as discussed 
 <form method="POST" class="form-horizontal">
     <input type="hidden" name="action" value="commerce/payments/pay"/>
     <input type="hidden" name="redirect" value="/commerce/customer/order?number={number}"/>
-    <input type="hidden" name="cancelUrl" value="/commerce/checkout/payment"/>
+    <input type="hidden" name="cancelUrl" value="{{ '/commerce/checkout/payment'|hash }}"/>
 
     {{ csrfInput() }}
 
