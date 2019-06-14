@@ -20,7 +20,6 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
-use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
@@ -560,20 +559,17 @@ class OrderController extends Controller
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
         // New customer
-        if($order->customerId == null && $order->email)
-        {
+        if ($order->customerId == null && $order->email) {
             $newCustomer = new Customer();
-            if(Plugin::getInstance()->getCustomers()->saveCustomer($newCustomer)){
+            if (Plugin::getInstance()->getCustomers()->saveCustomer($newCustomer)) {
                 $order->customerId = $newCustomer->id;
             }
         }
 
         // Changing the customer should change the email, if that customer has a user account
-        if($originalCustomerId && $order->customerId && $order->customerId != $originalCustomerId)
-        {
+        if ($originalCustomerId && $order->customerId && $order->customerId != $originalCustomerId) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerById($order->customerId);
-            if($customer && $customer->getUser())
-            {
+            if ($customer && $customer->getUser()) {
                 $order->email = $customer->getUser()->email;
             }
         }
