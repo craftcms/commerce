@@ -11,6 +11,12 @@
                 searchInputQuerySelector="[type=text]"
                 taggable
                 @search="onSearch" :components="{OpenIndicator}">
+            <template slot="selected-option" slot-scope="option">
+                <div @click="onOptionClick">
+                    {{option.email}}
+                </div>
+            </template>
+
             <template slot="option" slot-scope="option">
                 <div class="customer-select-option">
                     <template v-if="!option.customerId">
@@ -107,6 +113,15 @@
                         loading(false)
                     })
             }, 350),
+
+            onOptionClick() {
+                // Todo: Get rid of workaround once this issue is fixed
+                // https://github.com/sagalbot/vue-select/issues/882
+                if (!this.$refs.vSelect.open) {
+                    this.$refs.vSelect.open = true;
+                    this.$refs.vSelect.searchEl.focus();
+                }
+            }
         },
 
         mounted() {
