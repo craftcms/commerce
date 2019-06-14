@@ -69,7 +69,26 @@
 }
 
 .vs__spinner {
-  width: 10px;
-  height: 10px;
+  width: 24px;
+  height: 24px;
   overflow: hidden;
+}
+
+.vs__open-indicator {
+  width: 24px;
+}
+.vs--loading .vs__open-indicator {
+  display: none;
+}
+
+.spinner-wrapper {
+  position: relative;
+  width: 24px;
+  height: 100%;
+
+  .spinner {
+    position: absolute;
+    top: -5px;
+    right: -2px;
+  }
 }

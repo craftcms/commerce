@@ -6,9 +6,11 @@
                 v-model="selectedCustomer"
                 :options="customers"
                 :filterable="false"
+                :clearable="false"
                 :create-option="createOption"
+                searchInputQuerySelector="[type=text]"
                 taggable
-                @search="onSearch">
+                @search="onSearch" :components="{OpenIndicator}">
             <template slot="option" slot-scope="option">
                 <div class="customer-select-option">
                     <template v-if="!option.customerId">
@@ -19,6 +21,16 @@
                     </template>
                 </div>
             </template>
+
+            <template slot="spinner" slot-scope="spinner">
+                <div class="spinner-wrapper" v-if="spinner.loading">
+                    <div class="spinner"></div>
+                </div>
+            </template>
+
+            <template slot="search" slot-scope="{attributes, events}">
+                <input class="vs__search" type="text" v-bind="attributes" v-on="events">
+            </template>
         </v-select>
     </div>
 </template>
@@ -27,6 +39,7 @@
     import {mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import VSelect from 'vue-select'
+    import OpenIndicator from './OpenIndicator'
 
     export default {
         components: {
@@ -42,6 +55,7 @@
         data() {
             return {
                 selectedCustomer: null,
+                OpenIndicator
             }
         },
 
@@ -74,7 +88,7 @@
                     order.customerId = value
                     this.$emit('updateOrder', order)
                 }
-            }
+            },
         },
 
         methods: {
