@@ -7,6 +7,7 @@
 
 namespace craft\commerce\web\assets\commerceui;
 
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\assets\timepicker\TimepickerAsset;
@@ -31,6 +32,7 @@ class CommerceUiAsset extends AssetBundle
         $this->sourcePath = __DIR__ . '/dist/';
 
         $this->depends = [
+            CommerceCpAsset::class,
             CpAsset::class,
             VueAsset::class,
             TimepickerAsset::class,

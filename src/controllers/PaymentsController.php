@@ -346,6 +346,8 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionCompletePayment(): Response
     {
+        $this->enableCsrfValidation = false;
+
         $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($hash);

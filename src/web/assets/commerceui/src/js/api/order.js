@@ -3,7 +3,16 @@
 import axios from 'axios/index'
 
 export default {
-    get(orderId) {
+    get(orderId, checkPage) {
+        // If we have the order loaded into the page already return that data and save us a ajax trip
+        if(checkPage && window.orderEdit.data) {
+            return new Promise((resolve) => {
+                var response = {}
+                response.data = window.orderEdit.data
+                resolve(response)
+            });
+        }
+
         return axios.get(Craft.getActionUrl('commerce/order/get', {orderId}), {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
@@ -12,7 +21,7 @@ export default {
     },
 
     recalculate(draft) {
-        return axios.post(Craft.getActionUrl('commerce/order/recalculate'), draft, {
+        return axios.post(Craft.getActionUrl('commerce/order/refresh'), draft, {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }

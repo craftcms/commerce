@@ -51,19 +51,11 @@ class OrdersController extends BaseCpController
     public function init()
     {
         $this->requirePermission('commerce-manageOrders');
+
         parent::init();
     }
 
-    /**
-     * Index of orders
-     */
-    public function actionOrderIndex(): Response
-    {
-        // Remove all incomplete carts older than a certain date in config.
-        Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
 
-        return $this->renderTemplate('commerce/orders/_index');
-    }
 
     /**
      * @param int $orderId
@@ -156,9 +148,10 @@ class OrdersController extends BaseCpController
      * Returns Payment Modal
      *
      * @return Response
-     * @throws Exception
-     * @throws Twig_Error_Loader
      * @throws BadRequestHttpException
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function actionGetPaymentModal(): Response
     {
@@ -363,151 +356,8 @@ class OrdersController extends BaseCpController
         return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
     }
 
-    /**
-     * Updates an order address
-     *
-     * @return Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionUpdateOrderAddress()
-    {
-        $this->requireAcceptsJson();
 
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $addressId = Craft::$app->getRequest()->getParam('addressId');
-        $type = Craft::$app->getRequest()->getParam('addressType');
 
-        // Validate Address Type
-        if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
-        }
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        if (!$order) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad order ID.'));
-        }
-
-        // Return early if the address is already set.
-        if ($order->{$type . 'Id'} == $addressId) {
-            return $this->asJson(['success' => true]);
-        }
-
-        // Validate Address Id
-        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
-        if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
-        }
-
-        $order->{$type . 'Id'} = $address->id;
-
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
-        }
-
-        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
-    }
-
-    /**
-     * Updates the order status
-     *
-     * @return null|Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionUpdateStatus()
-    {
-        $this->requireAcceptsJson();
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $orderStatusId = Craft::$app->getRequest()->getParam('orderStatusId');
-        $message = Craft::$app->getRequest()->getParam('message');
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
-
-        if (!$order || !$orderStatus) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad Order or Status'));
-        }
-
-        $order->orderStatusId = $orderStatus->id;
-        $order->message = $message;
-
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
-        }
-
-        return null;
-    }
-
-    /**
-     * Saves the Order
-     *
-     * @return null
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
-     * @throws BadRequestHttpException
-     */
-    public function actionSaveOrder()
-    {
-        $this->requirePostRequest();
-
-        $order = $this->_setOrderFromPost();
-
-        $order->setScenario(Element::SCENARIO_LIVE);
-
-        if (!Craft::$app->getElements()->saveElement($order)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
-            Craft::$app->getUrlManager()->setRouteParams([
-                'order' => $order
-            ]);
-            return null;
-        }
-
-        return $this->redirectToPostedUrl($order);
-    }
-
-    /**
-     * Deletes an order.
-     *
-     * @return Response|null
-     * @throws Exception if you try to edit a non existing Id.
-     */
-    public function actionDeleteOrder()
-    {
-        $this->requirePostRequest();
-
-        $orderId = Craft::$app->getRequest()->getRequiredBodyParam('orderId');
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-
-        if (!$order) {
-            throw new Exception(Craft::t('commerce', 'No order exists with the ID “{id}”.',
-                ['id' => $orderId]));
-        }
-
-        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => false]);
-            }
-
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
-            Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
-
-            return null;
-        }
-
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
-        }
-
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-        return $this->redirect('commerce/orders');
-    }
 
     // Private Methods
     // =========================================================================
@@ -521,11 +371,6 @@ class OrdersController extends BaseCpController
     {
         /** @var Order $order */
         $order = $variables['order'];
-        // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/orders/' . $order->id;
-        // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
-
 
         $variables['tabs'] = [];
 
@@ -570,7 +415,6 @@ class OrdersController extends BaseCpController
         ];
 
         $variables['fullPageForm'] = true;
-        $variables['saveShortcutRedirect'] = $variables['continueEditingUrl'];
     }
 
     /**
