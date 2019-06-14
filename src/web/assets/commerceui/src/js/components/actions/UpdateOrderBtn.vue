@@ -57,7 +57,7 @@
                 if (window.confirm(message)) {
                     this.$store.dispatch('deleteOrder', this.orderId)
                         .then(() => {
-                            // this.returnToOrders()
+                            this.returnToOrders()
                         })
                 }
             },
