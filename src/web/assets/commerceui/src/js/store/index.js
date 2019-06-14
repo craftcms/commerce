@@ -137,29 +137,6 @@ export default new Vuex.Store({
             commit('updateDraft', draft)
         },
 
-        save({state, dispatch, commit}) {
-            if (state.saveLoading) {
-                return false
-            }
-
-            commit('updateSaveLoading', true)
-
-            const data = utils.buildDraftData(state.draft)
-
-            orderApi.save(data)
-                .then((response) => {
-                    const originalDraft = response.data
-                    commit('updateOriginalDraft', originalDraft)
-                    commit('updateSaveLoading', false)
-                    dispatch('displayNotice', 'Order saved.');
-
-                })
-                .catch((error) => {
-                    commit('updateSaveLoading', false)
-                    dispatch('displayError', 'Couldn’t save order.');
-                })
-        },
-
         getOrder({state, getters, commit}) {
             const orderId = getters.orderId
 

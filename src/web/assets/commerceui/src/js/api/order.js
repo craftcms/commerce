@@ -28,14 +28,6 @@ export default {
         })
     },
 
-    save(draft) {
-        return axios.post(Craft.getActionUrl('commerce/order/save'), draft, {
-            headers: {
-                'X-CSRF-Token':  Craft.csrfTokenValue,
-            }
-        })
-    },
-
     purchasableSearch(orderId, query) {
         const data = {
             orderId

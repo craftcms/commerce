@@ -5,6 +5,7 @@ export default {
     buildDraftData(draft) {
         const draftData = {
             order: {
+                email: draft.order.email,
                 customerId: draft.order.customerId,
                 orderStatusId: draft.order.orderStatusId,
                 isCompleted: draft.order.isCompleted,
