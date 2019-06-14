@@ -38,57 +38,79 @@
     flex: 1;
     min-width: 0;
 
+    &.vs--searching {
+      .vs__dropdown-toggle {
+        .vs__selected-options {
+          .vs__search,
+          .vs__search:focus {
+            padding: 6px 12px;
+          }
+        }
+      }
+    }
+
+    &.vs--loading {
+      .vs__open-indicator {
+        display: none;
+      }
+    }
+
     .vs__dropdown-toggle {
       // background: red;
       border: 0;
       border-radius: 0;
       min-width: 0;
+      padding: 0;
+
+      .vs__selected-options {
+        // background: blue;
+        min-width: 0;
+        flex-wrap: nowrap;
+        padding: 0;
+
+        .vs__search,
+        .vs__search:focus {
+          // background: green;
+          padding: 0;
+          margin: 0;
+          min-width: 0;
+        }
+
+        .vs__selected {
+          min-width: 0;
+          // background: yellow;
+          margin: 0;
+          padding: 6px 12px;
+          position: relative;
+          overflow: hidden;
+
+          & > div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
     }
-  }
-}
 
-.vs__selected-options {
-  // background: blue;
-  min-width: 0;
-  flex-wrap: nowrap;
+    .vs__actions {
+      .spinner-wrapper, .vs__spinner {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        overflow: hidden;
+        background: none;
 
-  input {
-    // background: green;
-  }
+        .spinner {
+          position: absolute;
+          top: -6px;
+          right: 0px;
+        }
+      }
 
-  .vs__selected {
-    min-width: 0;
-    // background: yellow;
-
-    & > div {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      .vs__open-indicator {
+        width: 24px;
+      }
     }
-  }
-}
-
-.vs__spinner {
-  width: 24px;
-  height: 24px;
-  overflow: hidden;
-}
-
-.vs__open-indicator {
-  width: 24px;
-}
-.vs--loading .vs__open-indicator {
-  display: none;
-}
-
-.spinner-wrapper {
-  position: relative;
-  width: 24px;
-  height: 100%;
-
-  .spinner {
-    position: absolute;
-    top: -5px;
-    right: -2px;
   }
 }
