@@ -20,13 +20,7 @@
 
             <hr>
             <ul>
-                <!--<li><a class="formsubmit error"
-                       data-action="commerce/orders/delete-order"
-                       data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
-                       data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
-                </li>-->
-                <li><a class="error" @click="deleteOrder()">Delete</a>
-                </li>
+                <li><a class="error" @click="deleteOrder()">Delete</a></li>
             </ul>
         </div>
     </div>
