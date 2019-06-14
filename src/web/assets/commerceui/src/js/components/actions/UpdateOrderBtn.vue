@@ -28,6 +28,9 @@
 </template>
 
 <script>
+    /* global Garnish */
+    /* global $ */
+
     import {mapState, mapGetters} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
     import utils from '../../helpers/utils'
