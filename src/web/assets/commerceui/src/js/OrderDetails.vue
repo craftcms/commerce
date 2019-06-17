@@ -149,7 +149,7 @@
             },
 
             autoRecalculate() {
-                const message = "Do you really want to auto recalculate?"
+                const message = "Do you really want to auto recalculate? This will reset all manual changes to the order."
 
                 if (window.confirm(message)) {
                     this.$store.dispatch('autoRecalculate')

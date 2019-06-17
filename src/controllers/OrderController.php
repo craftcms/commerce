@@ -21,6 +21,7 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
@@ -102,9 +103,9 @@ class OrderController extends Controller
     /**
      * @throws Exception
      * @throws Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
@@ -183,7 +184,6 @@ class OrderController extends Controller
      * and returns the order as json with any validation errors.
      *
      * @return Response
-     * @throws HttpException
      * @throws Exception
      */
     public function actionRefresh()
@@ -542,19 +542,19 @@ class OrderController extends Controller
     /**
      * @param Order $order
      * @param $orderRequestData
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     private function _updateOrder(Order $order, $orderRequestData)
     {
-        $originalCustomerId = $order->customerId;
-
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
-        $order->email = $orderRequestData['order']['email'];
+        $order->email = $orderRequestData['order']['email'] ?? '';
         $order->customerId = $orderRequestData['order']['customerId'];
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
-        $order->message = 'Uncomment the message variable in the controller'; //$orderRequestData['order']['message'];
+        $order->message = 'Uncomment this message in the controller'; //$orderRequestData['order']['message'];
         //$order->dateOrdered = ?; //$orderRequestData['order']['dateOrdered'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
@@ -565,15 +565,6 @@ class OrderController extends Controller
                 $order->customerId = $newCustomer->id;
             }
         }
-
-        // Changing the customer should change the email, if that customer has a user account
-        if ($originalCustomerId && $order->customerId && $order->customerId != $originalCustomerId) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerById($order->customerId);
-            if ($customer && $customer->getUser()) {
-                $order->email = $customer->getUser()->email;
-            }
-        }
-
 
         $lineItems = [];
         $adjustments = [];
