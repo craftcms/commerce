@@ -1,13 +1,22 @@
 <template>
-    <div>
+    <div class="v-select-btn">
         <v-select
+                ref="vSelect"
                 label="email"
                 v-model="selectedCustomer"
                 :options="customers"
                 :filterable="false"
+                :clearable="false"
                 :create-option="createOption"
+                searchInputQuerySelector="[type=text]"
                 taggable
-                @search="onSearch">
+                @search="onSearch" :components="{OpenIndicator}">
+            <template slot="selected-option" slot-scope="option">
+                <div @click="onOptionClick">
+                    {{option.email}}
+                </div>
+            </template>
+
             <template slot="option" slot-scope="option">
                 <div class="customer-select-option">
                     <template v-if="!option.customerId">
@@ -18,6 +27,16 @@
                     </template>
                 </div>
             </template>
+
+            <template slot="spinner" slot-scope="spinner">
+                <div class="spinner-wrapper" v-if="spinner.loading">
+                    <div class="spinner"></div>
+                </div>
+            </template>
+
+            <template slot="search" slot-scope="{attributes, events}">
+                <input class="vs__search" type="text" v-bind="attributes" v-on="events">
+            </template>
         </v-select>
     </div>
 </template>
@@ -26,6 +45,7 @@
     import {mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import VSelect from 'vue-select'
+    import OpenIndicator from './OpenIndicator'
 
     export default {
         components: {
@@ -41,6 +61,7 @@
         data() {
             return {
                 selectedCustomer: null,
+                OpenIndicator
             }
         },
 
@@ -73,11 +94,15 @@
                     order.customerId = value
                     this.$emit('updateOrder', order)
                 }
-            }
+            },
         },
 
         methods: {
             createOption(searchText) {
+                const order = JSON.parse(JSON.stringify(this.order))
+                order.email = searchText
+                this.$emit('updateOrder', order)
+
                 return {customerId: null, email: searchText, totalOrders: 0, userId: null, firstName: null, lastName: null}
             },
 
@@ -91,7 +116,16 @@
                     .then(() => {
                         loading(false)
                     })
-            }, 350)
+            }, 350),
+
+            onOptionClick() {
+                // Todo: Get rid of workaround once this issue is fixed
+                // https://github.com/sagalbot/vue-select/issues/882
+                if (!this.$refs.vSelect.open) {
+                    this.$refs.vSelect.open = true;
+                    this.$refs.vSelect.searchEl.focus();
+                }
+            }
         },
 
         mounted() {

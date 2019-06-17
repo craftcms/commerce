@@ -1,5 +1,6 @@
 <template>
     <div id="order-save" class="btngroup">
+        <input type="hidden" name="orderData" id="test" v-model="orderData">
         <input id="order-save-btn" type="button" class="btn submit" value="Update Order" @click="save()"/>
 
         <div class="btn submit menubtn" ref="updateMenuBtn"></div>
@@ -20,25 +21,35 @@
 
             <hr>
             <ul>
-                <!--<li><a class="formsubmit error"
-                       data-action="commerce/orders/delete-order"
-                       data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
-                       data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
-                </li>-->
-                <li><a class="error" @click="deleteOrder()">Delete</a>
-                </li>
+                <li><a class="error" @click="deleteOrder()">Delete</a></li>
             </ul>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapGetters, mapActions} from 'vuex'
-    import OptionShortcutLabel from './OptionShortcutLabel';
+    /* global Garnish */
+    /* global $ */
+
+    import {mapState, mapGetters} from 'vuex'
+    import OptionShortcutLabel from './OptionShortcutLabel'
+    import utils from '../../helpers/utils'
 
     export default {
         components: {OptionShortcutLabel},
+
+        data() {
+            return {
+                orderData: null,
+            }
+        },
+
         computed: {
+            ...mapState({
+                draft: state => state.draft,
+                saveLoading: state => state.saveLoading,
+            }),
+
             ...mapGetters([
                 'ordersIndexUrl',
                 'orderId',
@@ -46,9 +57,22 @@
         },
 
         methods: {
-            ...mapActions([
-                'save',
-            ]),
+            save() {
+                if (this.saveLoading) {
+                    return false
+                }
+
+                this.$store.commit('updateSaveLoading', true)
+
+                const data = utils.buildDraftData(this.draft)
+                const dataString = JSON.stringify(data)
+
+                this.orderData = dataString
+
+                this.$nextTick(() => {
+                    $('#main-form').submit()
+                })
+            },
 
             saveAndReturnToOrders() {
                 this.save()
@@ -63,7 +87,7 @@
                 if (window.confirm(message)) {
                     this.$store.dispatch('deleteOrder', this.orderId)
                         .then(() => {
-                            // this.returnToOrders()
+                            this.returnToOrders()
                         })
                 }
             },

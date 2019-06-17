@@ -1,3 +1,5 @@
+/* global Craft */
+
 import Vue from 'vue'
 import Vuex from 'vuex'
 import orderApi from '../api/order';
@@ -84,7 +86,7 @@ export default new Vuex.Store({
 
         shippingMethods() {
             const shippingMethodsObject = window.orderEdit.shippingMethods
-            const shippingMethods = []
+            const shippingMethods = []
 
             for (let key in shippingMethodsObject) {
                 const shippingMethod = shippingMethodsObject[key]
@@ -137,30 +139,7 @@ export default new Vuex.Store({
             commit('updateDraft', draft)
         },
 
-        save({state, dispatch, commit}) {
-            if (state.saveLoading) {
-                return false
-            }
-
-            commit('updateSaveLoading', true)
-
-            const data = utils.buildDraftData(state.draft)
-
-            orderApi.save(data)
-                .then((response) => {
-                    const originalDraft = response.data
-                    commit('updateOriginalDraft', originalDraft)
-                    commit('updateSaveLoading', false)
-                    dispatch('displayNotice', 'Order saved.');
-
-                })
-                .catch((error) => {
-                    commit('updateSaveLoading', false)
-                    dispatch('displayError', 'Couldn’t save order.');
-                })
-        },
-
-        getOrder({state, getters, commit}) {
+        getOrder({state, getters, commit, dispatch}) {
             const orderId = getters.orderId
 
             commit('updateRecalculateLoading', true)
@@ -213,7 +192,7 @@ export default new Vuex.Store({
                 })
         },
 
-        customerSearch({commit, getters}, query) {
+        customerSearch({commit}, query) {
             return orderApi.customerSearch(query)
                 .then((response) => {
                     commit('updateCustomers', response.data)
@@ -226,7 +205,7 @@ export default new Vuex.Store({
             dispatch('recalculateOrder', draft)
         },
 
-        recalculateOrder({state, dispatch, commit}, draft) {
+        recalculateOrder({dispatch, commit}, draft) {
             commit('updateRecalculateLoading', true)
 
             const data = utils.buildDraftData(draft)

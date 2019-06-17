@@ -1,3 +1,5 @@
+
+
 /* General */
 
 .order-flex {
@@ -21,4 +23,95 @@
 }
 .order-margin {
   padding: 0 10px;
+}
+
+
+/* VSelect */
+
+.v-select-btn {
+  @extend .btn;
+  display: flex;
+  min-width: 0;
+  padding: 0;
+
+  .v-select {
+    flex: 1;
+    min-width: 0;
+
+    &.vs--searching {
+      .vs__dropdown-toggle {
+        .vs__selected-options {
+          .vs__search,
+          .vs__search:focus {
+            padding: 6px 12px;
+          }
+        }
+      }
+    }
+
+    &.vs--loading {
+      .vs__open-indicator {
+        display: none;
+      }
+    }
+
+    .vs__dropdown-toggle {
+      // background: red;
+      border: 0;
+      border-radius: 0;
+      min-width: 0;
+      padding: 0;
+
+      .vs__selected-options {
+        // background: blue;
+        min-width: 0;
+        flex-wrap: nowrap;
+        padding: 0;
+
+        .vs__search,
+        .vs__search:focus {
+          // background: green;
+          padding: 0;
+          margin: 0;
+          min-width: 0;
+        }
+
+        .vs__selected {
+          min-width: 0;
+          // background: yellow;
+          margin: 0;
+          padding: 6px 12px;
+          padding-right: 0;
+          position: relative;
+          overflow: hidden;
+
+          & > div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+
+    .vs__actions {
+      .spinner-wrapper, .vs__spinner {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        overflow: hidden;
+        background: none;
+
+        .spinner {
+          position: absolute;
+          top: -6px;
+          right: 0px;
+        }
+      }
+
+      .vs__open-indicator {
+        width: 24px;
+      }
+    }
+  }
 }
