@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
@@ -125,6 +126,8 @@ class OrderController extends Controller
 
         $order->setFieldValuesFromRequest('fields');
 
+        $order->setScenario(Element::SCENARIO_LIVE);
+
         if (!Craft::$app->getElements()->saveElement($order)) {
             // Recalculation mode should always return to none, unless it is still a cart
             $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
@@ -137,6 +140,8 @@ class OrderController extends Controller
             Craft::$app->getUrlManager()->setRouteParams([
                 'order' => $order
             ]);
+
+            return null;
         }
 
         $this->redirectToPostedUrl();
