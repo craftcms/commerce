@@ -100,6 +100,7 @@
         methods: {
             createOption(searchText) {
                 const order = JSON.parse(JSON.stringify(this.order))
+                order.customerId = null
                 order.email = searchText
                 this.$emit('updateOrder', order)
 
