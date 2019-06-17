@@ -439,6 +439,7 @@ class OrderController extends Controller
         /** @var FieldLayout $fieldLayout */
         $fieldLayout = $variables['fieldLayout'];
         foreach ($fieldLayout->getTabs() as $index => $tab) {
+
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -451,10 +452,23 @@ class OrderController extends Controller
                 }
             }
 
+            $classes = [];
+            if($hasErrors){
+                $classes[] = 'errors';
+            }
+
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null
+                'url' => '#tab' . ($index+1),
+                'class' => implode(' ', $classes)
+            ];
+
+            // Add the static version of the custom fields.
+            $classes[] = 'static';
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab' . ($index+1).'Static',
+                'class' => implode(' ', $classes)
             ];
         }
 
