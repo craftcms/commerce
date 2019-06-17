@@ -42,10 +42,12 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\i18n\Locale;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -504,6 +506,7 @@ class Order extends Element
         $attributes = parent::datetimeAttributes();
         $attributes[] = 'datePaid';
         $attributes[] = 'dateOrdered';
+        $attributes[] = 'dateUpdated';
         return $attributes;
     }
 
@@ -566,6 +569,7 @@ class Order extends Element
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attribute = substr($attribute, 0, -10);
+
                 if (!empty($model->$attribute)) {
                     return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
                 }
@@ -573,6 +577,23 @@ class Order extends Element
                 return $model->$attribute;
             };
         }
+
+        foreach ($this->datetimeAttributes() as $attribute) {
+            $fields[$attribute] = function($model, $attribute) {
+                if (!empty($model->$attribute)) {
+
+                    $formatter = Craft::$app->getFormatter();
+
+                    return [
+                        'date' => $formatter->asDate($model->$attribute, Locale::LENGTH_SHORT),
+                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT)
+                    ];
+                }
+
+                return $model->$attribute;
+            };
+        }
+
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';

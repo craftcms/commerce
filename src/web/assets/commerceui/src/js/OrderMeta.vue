@@ -121,7 +121,7 @@
 
                 <div class="data">
                     <h5 class="heading">Date Completed</h5>
-                    <span class="value">{{draft.order.dateOrdered}}</span>
+                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
                 </div>
             </template>
 
@@ -139,7 +139,7 @@
             <template v-if="draft.order.datePaid">
                 <div class="data">
                     <h5 class="heading">Date Paid</h5>
-                    <span class="value">{{draft.order.datePaid}}</span>
+                    <span class="value">{{draft.order.datePaid.date}} {{draft.order.datePaid.time}}</span>
                 </div>
             </template>
 
@@ -155,7 +155,7 @@
 
             <div class="data">
                 <h5 class="heading">Last Updated</h5>
-                <span class="value">{{draft.order.dateUpdated}}</span>
+                <span class="value">{{draft.order.dateUpdated.date}} {{draft.order.dateUpdated.time}}</span>
             </div>
 
             <div class="data">
