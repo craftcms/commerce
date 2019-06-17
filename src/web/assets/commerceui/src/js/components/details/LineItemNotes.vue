@@ -2,7 +2,7 @@
     <div v-if="note || adminNote || editing" class="order-indented-block">
         <div class="order-flex">
             <div class="order-block-title">
-                <h3>Note</h3>
+                <h3>Notes</h3>
             </div>
 
             <div class="order-flex order-flex-grow order-margin-wrapper">

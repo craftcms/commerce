@@ -1,5 +1,5 @@
 <template>
-    <div class="order-indented-block">
+    <div v-if="editing || lineItem.adjustments.length" class="order-indented-block">
         <div class="order-flex">
             <div class="order-block-title">
                 <h3>Adjustments</h3>

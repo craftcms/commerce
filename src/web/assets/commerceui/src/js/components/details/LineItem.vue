@@ -82,9 +82,7 @@
 
                 <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
                 <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
-                <template v-if="editing || lineItem.adjustments.length">
                 <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
-                </template>
                 <div class="order-indented-block text-right">
                     <div>
                         <strong>{{ lineItem.totalAsCurrency }}</strong>
