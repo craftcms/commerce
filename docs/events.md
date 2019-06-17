@@ -6,7 +6,8 @@ Craft Commerce provides a multitude of events for extending its functionality.
 
 ### The `beforeCaptureVariantSnapshot` event
 
-Plugins can get notified before we capture a variant’s field data, and customize which fields are included.
+Plugins can get notified before we capture a variant’s field data, and customize which fields are included. We do not  
+include custom fields by default.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -15,7 +16,15 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, function(CustomizeVariantSnapshotFieldsEvent $e) {
     $variant = $e->variant;
     $fields = $e->fields;
-    // Modify fields, or set to `null` to capture all.
+    
+    // Add every custom field to the snapshot (huge amount of data and will increase your DB size
+    if (($fieldLayout = $variant->getFieldLayout()) !== null) {
+        foreach ($fieldLayout->getFields() as $field) {
+            $fields[] = $field->handle;
+        }
+    }
+    
+    $e->fields = $fields;
 });
 ```
 
@@ -36,7 +45,8 @@ Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, functio
 
 ### The `beforeCaptureProductSnapshot` event
 
-Plugins can get notified before we capture a product’s field data, and customize which fields are included.
+Plugins can get notified before we capture a product’s field data, and customize which fields are included. We do not  
+include custom fields by default.
 
 ```php
 use craft\commerce\elements\Variant;
@@ -45,7 +55,15 @@ use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
     $product = $e->product;
     $fields = $e->fields;
-    // Modify fields, or set to `null` to capture all.
+    
+    // Add every custom field to the snapshot (huge amount of data and will increase your DB size) Don't recommend.
+    if (($fieldLayout = $product->getFieldLayout()) !== null) {
+        foreach ($fieldLayout->getFields() as $field) {
+            $fields[] = $field->handle;
+        }
+    }
+    
+    $e->fields = $fields;
 });
 ```
 
@@ -60,7 +78,7 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
     $product = $e->product;
     $data = $e->fieldData;
-    // Modify or redact captured `$data`...
+    // Modify or redact captured `$data`
 });
 ```
 
