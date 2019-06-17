@@ -34,7 +34,7 @@
     export default {
         props: {
             date: {
-                type: String,
+                type: Object,
             }
         },
 
@@ -81,8 +81,8 @@
                 this.timeValue = event.target.value
             })
 
-            this.dateValue = date.date
-            this.timeValue = date.time
+            this.dateValue = this.date.date
+            this.timeValue = this.date.time
         }
     }
 </script>

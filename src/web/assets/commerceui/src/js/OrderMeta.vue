@@ -30,7 +30,7 @@
             </field>
 
             <field label="Date Paid">
-                <date-ordered-input :date="draft.order.datePaid"></date-ordered-input>
+                <date-ordered-input :date="draft.order.dateOrdered"></date-ordered-input>
             </field>
 
             <div class="field" id="isCompleted-field"
