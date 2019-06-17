@@ -559,7 +559,7 @@ class OrderController extends Controller
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
-        $order->message = 'Uncomment this message in the controller'; //$orderRequestData['order']['message'];
+        $order->message = $orderRequestData['order']['message'];
         //$order->dateOrdered = ?; //$orderRequestData['order']['dateOrdered'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
