@@ -30,7 +30,7 @@
             </field>
 
             <field label="Date Paid">
-                <date-paid-input :date="draft.order.datePaid"></date-paid-input>
+                <date-ordered-input :date="draft.order.datePaid"></date-ordered-input>
             </field>
 
             <div class="field" id="isCompleted-field"
@@ -172,7 +172,7 @@
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
     import CustomerSelect from './components/meta/CustomerSelect'
-    import DatePaidInput from './components/meta/DatePaidInput'
+    import DateOrderedInput from './components/meta/DateOrderedInput'
     import Field from './components/Field'
 
     export default {
@@ -182,7 +182,7 @@
             OrderStatus,
             ShippingMethod,
             CustomerSelect,
-            DatePaidInput,
+            DateOrderedInput,
             Field,
         },
 
