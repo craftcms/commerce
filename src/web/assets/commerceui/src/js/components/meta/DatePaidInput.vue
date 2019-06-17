@@ -81,11 +81,8 @@
                 this.timeValue = event.target.value
             })
 
-            // Update values
-            const date = new Date(this.date)
-
-            this.dateValue = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear()
-            this.timeValue = this.formatAMPM(date)
+            this.dateValue = date.date
+            this.timeValue = date.time
         }
     }
 </script>
