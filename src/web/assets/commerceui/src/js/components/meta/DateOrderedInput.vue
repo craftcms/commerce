@@ -31,6 +31,9 @@
 
 
 <script>
+    /* global Craft */
+    /* global $ */
+
     export default {
         props: {
             date: {

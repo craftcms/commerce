@@ -14,8 +14,6 @@
 </template>
 
 <script>
-    /* global Garnish */
-
     import {mapGetters} from 'vuex'
     import LineItemStatusInput from './LineItemStatusInput'
 
