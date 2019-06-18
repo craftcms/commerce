@@ -56,16 +56,18 @@
             // For custom tabs, if the selected tab is dynamic, find corresponding static tab and select it instead.
             const $selectedTabLink = window.document.querySelector('#tabs a.tab.custom-tab.sel')
 
-            const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')
-            
-            if (!$selectedTabLinkHash.includes('Static')) {
-                const $newSelectedTabHash = $selectedTabLinkHash + 'Static'
+            if ($selectedTabLink) {
+                const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')
 
-                $tabLinks.forEach(function($tabLink) {
-                    if ($tabLink.getAttribute('href') === $newSelectedTabHash) {
-                        $tabLink.click()
-                    }
-                })
+                if (!$selectedTabLinkHash.includes('Static')) {
+                    const $newSelectedTabHash = $selectedTabLinkHash + 'Static'
+
+                    $tabLinks.forEach(function($tabLink) {
+                        if ($tabLink.getAttribute('href') === $newSelectedTabHash) {
+                            $tabLink.click()
+                        }
+                    })
+                }
             }
         }
     }
