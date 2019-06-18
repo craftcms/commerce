@@ -130,6 +130,36 @@ export default new Vuex.Store({
         },
 
         edit({commit}) {
+            const $tabLinks = window.document.querySelectorAll('#tabs a.tab.custom-tab')
+            let $selectedLink = null
+
+            // Disable static custom field tabs
+            $tabLinks.forEach(function($tabLink) {
+                if ($tabLink.classList.contains('sel')) {
+                    $selectedLink = $tabLink
+                }
+
+                if ($tabLink.classList.contains('static')) {
+                    $tabLink.parentNode.classList.add('hidden')
+                } else {
+                    $tabLink.parentNode.classList.remove('hidden')
+                }
+            })
+
+            // Retrieve dynamic link corresponding to selected static one and click it
+            if ($selectedLink && $selectedLink.classList.contains('static')) {
+                const staticLink = $selectedLink.getAttribute('href')
+                const dynamicLink = staticLink.substr(0, staticLink.length - 'Static'.length)
+
+                $tabLinks.forEach(function($tabLink) {
+                    if ($tabLink.getAttribute('href') === dynamicLink) {
+                        const $newSelectedLink = $tabLink
+                        $newSelectedLink.click()
+                    }
+                })
+            }
+
+            // Update `editing` state
             commit('updateEditing', true)
         },
 

@@ -452,7 +452,8 @@ class OrderController extends Controller
                 }
             }
 
-            $classes = [];
+            $classes = ['custom-tab'];
+
             if($hasErrors){
                 $classes[] = 'errors';
             }

@@ -39,5 +39,17 @@
                 'cancel',
             ]),
         },
+
+        mounted() {
+            // Disable non-static custom field tabs
+            const $tabLinks = window.document.querySelectorAll('#tabs a.tab.custom-tab')
+
+            $tabLinks.forEach(function($tabLink) {
+                if (!$tabLink.classList.contains('static')) {
+                    console.log('$tabLink.parentNode', $tabLink.parentNode)
+                    $tabLink.parentNode.classList.add('hidden')
+                }
+            })
+        }
     }
 </script>
