@@ -36,8 +36,11 @@
         methods: {
             ...mapActions([
                 'edit',
-                'cancel',
             ]),
+
+            cancel() {
+                window.location.reload()
+            }
         },
 
         mounted() {

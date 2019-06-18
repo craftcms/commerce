@@ -163,12 +163,6 @@ export default new Vuex.Store({
             commit('updateEditing', true)
         },
 
-        cancel({state, commit}) {
-            commit('updateEditing', false)
-            const draft = state.originalDraft
-            commit('updateDraft', draft)
-        },
-
         getOrder({state, getters, commit, dispatch}) {
             const orderId = getters.orderId
 
