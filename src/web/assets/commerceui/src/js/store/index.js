@@ -130,19 +130,37 @@ export default new Vuex.Store({
         },
 
         edit({commit}) {
-            const $tabLinks = window.document.querySelectorAll('#tabs a.tab.custom-tab')
+            const $tabLinks = window.document.querySelectorAll('#tabs a.tab')
             let $selectedLink = null
 
-            // Disable static custom field tabs
             $tabLinks.forEach(function($tabLink) {
-                if ($tabLink.classList.contains('sel')) {
-                    $selectedLink = $tabLink
+                // Disable Transactions tab
+                if ($tabLink.getAttribute('href') === '#transactionsTab') {
+                    $tabLink.classList.add('disabled')
+                    $tabLink.href = ''
+
+                    const $tabLinkClone = $tabLink.cloneNode(true)
+
+                    $tabLinkClone.addEventListener('click', function(ev) {
+                        ev.preventDefault()
+                    })
+
+                    $tabLink.parentNode.replaceChild($tabLinkClone, $tabLink)
                 }
 
-                if ($tabLink.classList.contains('static')) {
-                    $tabLink.parentNode.classList.add('hidden')
-                } else {
-                    $tabLink.parentNode.classList.remove('hidden')
+                // Custom tabs
+                if ($tabLink.classList.contains('custom-tab')) {
+                    // Selected link
+                    if ($tabLink.classList.contains('sel')) {
+                        $selectedLink = $tabLink
+                    }
+
+                    // Disable static custom field tabs
+                    if ($tabLink.classList.contains('static')) {
+                        $tabLink.parentNode.classList.add('hidden')
+                    } else {
+                        $tabLink.parentNode.classList.remove('hidden')
+                    }
                 }
             })
 
@@ -152,7 +170,7 @@ export default new Vuex.Store({
                 const dynamicLink = staticLink.substr(0, staticLink.length - 'Static'.length)
 
                 $tabLinks.forEach(function($tabLink) {
-                    if ($tabLink.getAttribute('href') === dynamicLink) {
+                    if ($tabLink.classList.contains('custom-tab') && $tabLink.getAttribute('href') === dynamicLink) {
                         const $newSelectedLink = $tabLink
                         $newSelectedLink.click()
                     }
