@@ -49,10 +49,24 @@
 
             $tabLinks.forEach(function($tabLink) {
                 if (!$tabLink.classList.contains('static')) {
-                    console.log('$tabLink.parentNode', $tabLink.parentNode)
                     $tabLink.parentNode.classList.add('hidden')
                 }
             })
+
+            // For custom tabs, if the selected tab is dynamic, find corresponding static tab and select it instead.
+            const $selectedTabLink = window.document.querySelector('#tabs a.tab.custom-tab.sel')
+
+            const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')
+            
+            if (!$selectedTabLinkHash.includes('Static')) {
+                const $newSelectedTabHash = $selectedTabLinkHash + 'Static'
+
+                $tabLinks.forEach(function($tabLink) {
+                    if ($tabLink.getAttribute('href') === $newSelectedTabHash) {
+                        $tabLink.click()
+                    }
+                })
+            }
         }
     }
 </script>
