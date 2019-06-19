@@ -372,11 +372,11 @@ class OrderController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $handle = Craft::$app->getRequest()->getParam('handle');
+        $id = Craft::$app->getRequest()->getParam('id');
 
-        if(!$handle)
+        if(!$id)
         {
-            return $this->asErrorJson(Craft::t('commerce', 'Missing email handle'));
+            return $this->asErrorJson(Craft::t('commerce', 'Missing email ID'));
         }
 
         return $this->asJson(['success' => true]);
@@ -570,11 +570,11 @@ class OrderController extends Controller
 
         $emailTemplates = [
             [
-                'handle' => 'emailHandle1',
+                'id' => 1,
                 'title' => 'Welcome',
             ],
             [
-                'handle' => 'emailHandle2',
+                'id' => 2,
                 'title' => 'Notification Warning',
             ]
         ];
