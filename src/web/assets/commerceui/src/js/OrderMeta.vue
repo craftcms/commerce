@@ -99,12 +99,28 @@
 
             <div class="data">
                 <h5 class="heading">Short Number</h5>
-                <p class="value">{{draft.order.shortNumber}}</p>
+                <div class="value order-number-value">
+                    <div>
+                        {{draft.order.shortNumber}}
+                    </div>
+                    <div class="hidden-input">
+                        <input type="text" ref="orderShortNumber" :value="draft.order.shortNumber" />
+                    </div>
+                    <a @click.prevent="copy($refs.orderShortNumber)">Copy</a>
+                </div>
             </div>
 
             <div class="data">
                 <h5 class="heading">Number</h5>
-                <p class="value">{{draft.order.number}}</p>
+                <div class="value order-number-value">
+                    <div>
+                        {{draft.order.number}}
+                    </div>
+                    <div class="hidden-input">
+                        <input type="text" ref="orderNumber" :value="draft.order.number" />
+                    </div>
+                    <a @click.prevent="copy($refs.orderNumber)">Copy</a>
+                </div>
             </div>
 
             <div class="data" v-if="!editing">
@@ -246,7 +262,19 @@
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order = order
                 this.recalculateOrder(draft)
-            }
+            },
+
+            select() {
+
+            },
+
+            copy(ref) {
+                ref.select()
+
+                window.document.execCommand('copy');
+
+                this.$store.dispatch('displayNotice', 'Copied!');
+            },
         }
     }
 </script>
