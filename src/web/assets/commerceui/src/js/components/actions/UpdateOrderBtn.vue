@@ -1,7 +1,7 @@
 <template>
     <div id="order-save" class="btngroup">
         <input type="hidden" name="orderData" id="test" v-model="orderData">
-        <input id="order-save-btn" type="button" class="btn submit" value="Update Order" @click="save()"/>
+        <input id="order-save-btn" type="button" class="btn submit" value="Update order" @click="save()"/>
 
         <div class="btn submit menubtn" ref="updateMenuBtn"></div>
         <div class="menu">
