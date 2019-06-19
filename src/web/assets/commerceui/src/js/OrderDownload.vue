@@ -1,6 +1,17 @@
 <template>
     <div v-if="defaultPdfUrl">
-        <a class="btn" :href="defaultPdfUrl.url" target="_blank">Download PDF</a>
+        <div id="order-save" class="btngroup">
+            <a class="btn" :href="defaultPdfUrl.url" target="_blank">Download PDF</a>
+
+            <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
+            <div class="menu">
+                <ul>
+                    <li v-for="pdfUrl in pdfUrls">
+                        <a :href="pdfUrl.url" target="_blank">{{pdfUrl.name}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -8,7 +19,6 @@
     import {mapGetters} from 'vuex'
 
     export default {
-
         computed: {
             ...mapGetters([
                 'pdfUrls',
@@ -22,5 +32,9 @@
                 return this.pdfUrls[0]
             }
         },
+
+        mounted() {
+            new Garnish.MenuBtn(this.$refs.downloadPdfMenuBtn)
+        }
     }
 </script>
