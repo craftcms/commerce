@@ -365,6 +365,23 @@ class OrderController extends Controller
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionSendEmail()
+    {
+        $this->requireAcceptsJson();
+
+        $handle = Craft::$app->getRequest()->getParam('handle');
+
+        if(!$handle)
+        {
+            return $this->asErrorJson(Craft::t('commerce', 'Missing email handle'));
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+    /**
      * Updates an order address
      *
      * @return Response
