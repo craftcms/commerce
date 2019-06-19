@@ -1,28 +1,28 @@
 <template>
-    <div id="order-save" class="btngroup">
+    <div id="order-save" class="order-flex">
         <input type="hidden" name="orderData" id="test" v-model="orderData">
         <input id="order-save-btn" type="button" class="btn submit" value="Update order" @click="save()"/>
 
-        <div class="btn submit menubtn" ref="updateMenuBtn"></div>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a @click="save()">
-                        <option-shortcut-label os="mac" shortcut-key="S"></option-shortcut-label>
-                        Save and continue editing
-                    </a>
-                </li>
-                <li>
-                    <a @click="saveAndReturnToOrders()">
-                        Save and return to orders
-                    </a>
-                </li>
-            </ul>
+        <div class="spacer"></div>
 
-            <hr>
-            <ul>
-                <li><a class="error" @click="deleteOrder()">Delete</a></li>
-            </ul>
+        <div>
+            <div class="btn menubtn" data-icon="settings" title="Actions" ref="updateMenuBtn"></div>
+
+            <div class="menu">
+                <ul>
+                    <li>
+                        <a @click="save()">
+                            <option-shortcut-label os="mac" shortcut-key="S"></option-shortcut-label>
+                            Save and continue editing
+                        </a>
+                    </li>
+                </ul>
+
+                <hr>
+                <ul>
+                    <li><a class="error" @click="deleteOrder()">Delete</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
@@ -51,7 +51,6 @@
             }),
 
             ...mapGetters([
-                'ordersIndexUrl',
                 'orderId',
             ]),
         },
@@ -74,13 +73,6 @@
                 })
             },
 
-            saveAndReturnToOrders() {
-                this.save()
-                    .then(() => {
-                        this.returnToOrders()
-                    })
-            },
-
             deleteOrder() {
                 const message = "Are you sure you want to delete this order?"
 
@@ -91,10 +83,6 @@
                         })
                 }
             },
-
-            returnToOrders() {
-                window.location.href = this.ordersIndexUrl
-            }
         },
 
         mounted() {

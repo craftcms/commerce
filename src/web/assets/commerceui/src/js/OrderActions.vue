@@ -12,6 +12,7 @@
         </div>
 
         <template v-if="editing">
+            <div class="spacer"></div>
             <update-order-btn></update-order-btn>
         </template>
     </div>
