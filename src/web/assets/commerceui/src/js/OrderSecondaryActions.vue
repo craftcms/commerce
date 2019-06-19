@@ -1,0 +1,85 @@
+<template>
+    <div class="order-flex" v-if="!editing">
+        <div v-if="defaultPdfUrl">
+            <div id="order-save" class="btngroup">
+                <a class="btn" :href="defaultPdfUrl.url" target="_blank">Download PDF</a>
+
+                <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
+                <div class="menu">
+                    <ul>
+                        <li v-for="pdfUrl in pdfUrls">
+                            <a :href="pdfUrl.url" target="_blank">{{pdfUrl.name}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <template v-if="emailTemplates.length > 0">
+            <div class="spacer"></div>
+
+            <div class="btngroup">
+                <div class="btn menubtn" ref="sendEmailMenuBtn">Send Email</div>
+                <div class="menu">
+                    <ul>
+                        <li v-for="emailTemplate in emailTemplates">
+                            <a :href="emailTemplate.id" @click.prevent="sendEmail(emailTemplate.id)">{{emailTemplate.title}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>
+
+<script>
+    import {mapState, mapGetters} from 'vuex'
+
+    export default {
+        computed: {
+            ...mapGetters([
+                'pdfUrls',
+                'emailTemplates',
+            ]),
+
+            ...mapState({
+                editing: state => state.editing,
+            }),
+
+            defaultPdfUrl() {
+                if (this.pdfUrls.length === 0) {
+                    return null
+                }
+
+                return this.pdfUrls[0]
+            }
+        },
+
+        methods: {
+            sendEmail(emailTemplateId) {
+                const emailTemplate = this.emailTemplates.find(emailTemplate => emailTemplate.id === emailTemplateId)
+
+                if (!emailTemplate) {
+                    return false
+                }
+
+                if (window.confirm("Are you sure you want to send email: " + emailTemplate.title)) {
+                    this.$store.dispatch('sendEmail', emailTemplateId)
+                        .then((response) => {
+                            if (typeof response.data.error !== 'undefined') {
+                                this.$store.dispatch('displayError', response.data.error);
+                                return
+                            }
+
+                            this.$store.dispatch('displayNotice', 'Email sent');
+                        })
+                }
+            }
+        },
+
+        mounted() {
+            new Garnish.MenuBtn(this.$refs.downloadPdfMenuBtn)
+            new Garnish.MenuBtn(this.$refs.sendEmailMenuBtn)
+        }
+    }
+</script>

@@ -56,5 +56,13 @@ export default {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }
         })
+    },
+
+    sendEmail(emailTemplateId) {
+        return axios.post(Craft.getActionUrl('commerce/order/send-email', {id: emailTemplateId}), {}, {
+            headers: {
+                'X-CSRF-Token':  Craft.csrfTokenValue,
+            }
+        })
     }
 }

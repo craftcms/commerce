@@ -6,7 +6,7 @@ import App from './OrderDetails'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
-import OrderDownload from './OrderDownload'
+import OrderSecondaryActions from './OrderSecondaryActions'
 import store from './store'
 
 Vue.config.productionTip = false
@@ -47,7 +47,7 @@ window.OrderMetaApp = new Vue({
 // Order download
 // =========================================================================
 
-window.OrderDownloadApp = new Vue({
-    render: h => h(OrderDownload),
+window.OrderSecondaryActionsApp = new Vue({
+    render: h => h(OrderSecondaryActions),
     store,
-}).$mount('#order-download-app')
+}).$mount('#order-secondary-actions-app')

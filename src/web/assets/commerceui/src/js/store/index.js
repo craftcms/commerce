@@ -21,6 +21,10 @@ export default new Vuex.Store({
     },
 
     getters: {
+        emailTemplates() {
+            return window.orderEdit.emailTemplates
+        },
+
         ordersIndexUrl() {
             return window.orderEdit.ordersIndexUrl
         },
@@ -275,6 +279,10 @@ export default new Vuex.Store({
                     throw errorMsg + ': '+ error.response
                 })
         },
+
+        sendEmail(context, emailTemplateId) {
+            return orderApi.sendEmail(emailTemplateId)
+        }
     },
 
     mutations: {
