@@ -1,5 +1,5 @@
 <template>
-    <div v-if="defaultPdfUrl">
+    <div v-if="defaultPdfUrl && !editing">
         <div id="order-save" class="btngroup">
             <a class="btn" :href="defaultPdfUrl.url" target="_blank">Download PDF</a>
 
@@ -16,13 +16,17 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapState, mapGetters} from 'vuex'
 
     export default {
         computed: {
             ...mapGetters([
                 'pdfUrls',
             ]),
+
+            ...mapState({
+                editing: state => state.editing,
+            }),
 
             defaultPdfUrl() {
                 if (this.pdfUrls.length === 0) {
