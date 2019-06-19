@@ -29,8 +29,8 @@
                         placeholder="Enter coupon code"/>
             </field>
 
-            <field label="Date Paid">
-                <date-ordered-input :date="draft.order.dateOrdered"></date-ordered-input>
+            <field label="Date Ordered">
+                <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
             <div class="field" id="isCompleted-field"
@@ -264,10 +264,6 @@
                 this.recalculateOrder(draft)
             },
 
-            select() {
-
-            },
-
             copy(ref) {
                 ref.select()
 
@@ -275,6 +271,12 @@
 
                 this.$store.dispatch('displayNotice', 'Copied!');
             },
+
+            updateDateOrderedInput(dateTime) {
+                const draft = JSON.parse(JSON.stringify(this.draft))
+                draft.order.dateOrdered = dateTime
+                this.recalculateOrder(draft)
+            }
         }
     }
 </script>
