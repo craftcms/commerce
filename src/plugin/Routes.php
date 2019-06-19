@@ -49,7 +49,8 @@ trait Routes
             $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';
 
             $event->rules['commerce/orders'] = 'commerce/order/order-index';
-            $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/order/edit-order';
+            $event->rules['commerce/order/<orderId:\d+>'] = 'commerce/order/edit-order';
+            $event->rules['commerce/order/new'] = 'commerce/order/new-order';
 
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 

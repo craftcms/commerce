@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
@@ -29,6 +30,7 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
+use DateTime;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -72,6 +74,24 @@ class OrderController extends Controller
     }
 
     /**
+     * Create an order
+     */
+    public function actionNewOrder(): Response
+    {
+        $order = new Order();
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+        $customer = new Customer();
+        Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        $order->customerId = $customer->id;
+
+        if (!Craft::$app->getElements()->saveElement($order)) {
+            throw new Exception(Craft::t('commerce', 'Can not create a new order'));
+        }
+
+        return $this->redirect('commerce/order/' . $order->id);
+    }
+
+    /**
      * @param int $orderId
      * @param Order $order
      * @return Response
@@ -99,6 +119,31 @@ class OrderController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
+    }
+
+    /**
+     * Completes Order
+     *
+     * @return Response
+     * @throws Exception
+     * @throws Throwable
+     * @throws OrderStatusException
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
+     */
+    public function actionCompleteOrder(): Response
+    {
+        $this->requireAcceptsJson();
+        $orderId = Craft::$app->getRequest()->getParam('orderId');
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if ($order && !$order->isCompleted && $order->markAsComplete()) {
+            $date = new DateTime($order->dateOrdered);
+            return $this->asJson(['success' => true, 'dateOrdered' => $date]);
+        }
+
+        return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
     }
 
     /**
@@ -374,13 +419,13 @@ class OrderController extends Controller
 
         $id = Craft::$app->getRequest()->getParam('id');
 
-        if(!$id)
-        {
+        if (!$id) {
             return $this->asErrorJson(Craft::t('commerce', 'Missing email ID'));
         }
 
         return $this->asJson(['success' => true]);
     }
+
     /**
      * Updates an order address
      *
