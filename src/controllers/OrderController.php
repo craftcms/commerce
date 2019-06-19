@@ -454,13 +454,13 @@ class OrderController extends Controller
 
             $classes = ['custom-tab'];
 
-            if($hasErrors){
+            if ($hasErrors) {
                 $classes[] = 'errors';
             }
 
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index+1),
+                'url' => '#tab' . ($index + 1),
                 'class' => implode(' ', $classes)
             ];
 
@@ -468,7 +468,7 @@ class OrderController extends Controller
             $classes[] = 'static';
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index+1).'Static',
+                'url' => '#tab' . ($index + 1) . 'Static',
                 'class' => implode(' ', $classes)
             ];
         }
@@ -544,9 +544,25 @@ class OrderController extends Controller
 
         // TODO when we support multiple PDF templates, retrieve them all from a service
         $pdfUrls = [
-            'Download PDF' => $variables['order']->getPdfUrl()
+            [
+                'name' => 'Download PDF',
+                'url' => $variables['order']->getPdfUrl()
+            ]
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
+
+        $emailTemplates = [
+            [
+                'handle' => 'emailHandle1',
+                'title' => 'Welcome',
+            ],
+            [
+                'handle' => 'emailHandle2',
+                'title' => 'Notification Warning',
+            ]
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emailTemplates)) . ';', View::POS_BEGIN);
+
 
         $response = [];
         $response['order'] = $this->_orderToArray($variables['order']);

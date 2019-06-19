@@ -42,16 +42,7 @@ export default new Vuex.Store({
         },
 
         pdfUrls() {
-            const pdfUrls = []
-
-            for (let key in window.orderEdit.pdfUrls) {
-                pdfUrls.push({
-                    title: key,
-                    url: window.orderEdit.pdfUrls[key]
-                })
-            }
-
-            return pdfUrls
+            return window.orderEdit.pdfUrls
         },
 
         maxLineItems(state, getters) {
