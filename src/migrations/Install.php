@@ -509,14 +509,13 @@ class Install extends Migration
         ]);
 
         $this->createTable('{{%commerce_purchasables}}', [
-            'id' => $this->integer()->notNull(),
+            'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull(),
-            'description' => $$this->text(),
+            'description' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
         ]);
 
         $this->createTable('{{%commerce_sale_purchasables}}', [
@@ -766,7 +765,7 @@ class Install extends Migration
         ]);
 
         $this->createTable('{{%commerce_variants}}', [
-            'id' => $this->integer()->notNull(),
+            'id' => $this->primaryKey(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
@@ -784,7 +783,6 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
         ]);
     }
 

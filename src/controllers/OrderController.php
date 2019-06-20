@@ -14,7 +14,6 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\OrderStatusException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
@@ -25,12 +24,12 @@ use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
-use DateTime;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -122,31 +121,6 @@ class OrderController extends Controller
     }
 
     /**
-     * Completes Order
-     *
-     * @return Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws OrderStatusException
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionCompleteOrder(): Response
-    {
-        $this->requireAcceptsJson();
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-
-        if ($order && !$order->isCompleted && $order->markAsComplete()) {
-            $date = new DateTime($order->dateOrdered);
-            return $this->asJson(['success' => true, 'dateOrdered' => $date]);
-        }
-
-        return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
-    }
-
-    /**
      * @throws Exception
      * @throws Throwable
      * @throws ElementNotFoundException
@@ -167,12 +141,22 @@ class OrderController extends Controller
             throw new HttpException(400, Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        $this->_updateOrder($order, $orderRequestData);
-
+        // Set custom field values
         $order->setFieldValuesFromRequest('fields');
 
-        $order->setScenario(Element::SCENARIO_LIVE);
+        $alreadyCompleted = $order->isCompleted;
+        // Set data from request to the order
+        $this->_updateOrder($order, $orderRequestData);
+        $markAsComplete = !$alreadyCompleted && $order->isCompleted;
 
+        // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
+        if ($markAsComplete) {
+            $order->isCompleted = false;
+            $order->dateOrdered = null;
+            $order->orderStatusId = null;
+        }
+
+        $order->setScenario(Element::SCENARIO_LIVE);
         if (!Craft::$app->getElements()->saveElement($order)) {
             // Recalculation mode should always return to none, unless it is still a cart
             $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
@@ -187,6 +171,11 @@ class OrderController extends Controller
             ]);
 
             return null;
+        }
+
+        // This request is marking the order as complete
+        if ($markAsComplete) {
+            $order->markAsComplete();
         }
 
         $this->redirectToPostedUrl();
@@ -653,7 +642,7 @@ class OrderController extends Controller
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
         $order->message = $orderRequestData['order']['message'];
-        //$order->dateOrdered = ?; //$orderRequestData['order']['dateOrdered'];
+        $order->dateOrdered = DateTimeHelper::toDateTime($orderRequestData['order']['dateOrdered']);
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
         // New customer
