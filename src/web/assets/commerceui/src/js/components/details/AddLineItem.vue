@@ -5,30 +5,30 @@
         </template>
         <template v-else>
             <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
-                <v-select
+                <select-input
                         label="sku"
                         v-model="selectedPurchasable"
                         :options="purchasables"
                         :disabled="formDisabled"
                         :filterable="false"
                         @search="onSearch">
-                    <template slot="option" slot-scope="option">
-                        <div class="purchasable-select-option" v-bind:class="{ notAvailable: !option.isAvailable }">
+                    <template v-slot:option="slotProps">
+                        <div class="purchasable-select-option" v-bind:class="{ notAvailable: !slotProps.option.isAvailable }">
                             <div class="description">
-                                <template v-if="option.description">
-                                    <template v-if="option.description.length<20">{{option.description}}</template>
-                                    <template v-if="option.description.length>=20">{{option.description.substring(0,20)+".." }}</template>
-                                    <template v-if="!option.isAvailable"> (Not available)</template>
+                                <template v-if="slotProps.option.description">
+                                    <template v-if="slotProps.option.description.length<20">{{slotProps.option.description}}</template>
+                                    <template v-if="slotProps.option.description.length>=20">{{slotProps.option.description.substring(0,20)+".." }}</template>
+                                    <template v-if="!slotProps.option.isAvailable"> (Not available)</template>
                                 </template>
                                 <template v-else>
                                     <em>No description</em>
                                 </template>
                             </div>
-                            <div class="sku">{{ option.sku }}</div>
-                            <div class="price">{{ option.priceAsCurrency }}</div>
+                            <div class="sku">{{ slotProps.option.sku }}</div>
+                            <div class="price">{{ slotProps.option.priceAsCurrency }}</div>
                         </div>
                     </template>
-                </v-select>
+                </select-input>
 
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" value="Cancel" @click="showForm = false" />
@@ -44,10 +44,12 @@
     import debounce from 'lodash.debounce'
     import VSelect from 'vue-select'
     import orderApi from '../../api/order'
+    import SelectInput from '../SelectInput'
 
     export default {
         components: {
             VSelect,
+            SelectInput,
         },
 
         data() {
@@ -121,15 +123,15 @@
                 this.showForm = false
             },
 
-            onSearch(search, loading) {
+            onSearch({searchText, loading}) {
                 loading(true);
-                this.search(loading, search, this);
+                this.search(loading, searchText, this);
             },
 
-            search: debounce((loading, search, vm) => {
-                orderApi.purchasableSearch(vm.orderId, escape(search))
+            search: debounce((loading, searchText, vm) => {
+                orderApi.purchasableSearch(vm.orderId, escape(searchText))
                     .then((response) => {
-                        vm.purchasables = response.data
+                        vm.$store.commit('updatePurchasables', response.data)
                         loading(false)
                     })
             }, 350)

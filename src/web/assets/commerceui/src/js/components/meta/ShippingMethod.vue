@@ -1,30 +1,31 @@
 <template>
     <div>
-        <v-select
+        <select-input
                 label="name"
-                v-model="selectedShippingMethod"
                 :options="shippingMethods"
                 :filterable="false"
+                v-model="selectedShippingMethod"
                 @input="onChange"
-                @search="onSearch">
-            <template slot="option" slot-scope="option">
+                @search="onSearch"
+        >
+            <template v-slot:option="slotProps">
                 <div class="shipping-method-select-option">
-                    {{option.name}}
+                    {{slotProps.option.name}}
                 </div>
             </template>
-        </v-select>
+        </select-input>
     </div>
 </template>
 
 <script>
     /* global Garnish */
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters} from 'vuex'
     import debounce from 'lodash.debounce'
-    import VSelect from 'vue-select'
+    import SelectInput from '../SelectInput'
 
     export default {
         components: {
-            VSelect,
+            SelectInput,
         },
 
         props: {
@@ -75,9 +76,9 @@
                 this.shippingMethodHandle = this.selectedShippingMethod.handle
             },
 
-            onSearch(search, loading) {
+            onSearch({searchText, loading}) {
                 loading(true);
-                this.search(loading, search, this);
+                this.search(loading, searchText, this);
             },
 
             search: debounce((loading, search, vm) => {
