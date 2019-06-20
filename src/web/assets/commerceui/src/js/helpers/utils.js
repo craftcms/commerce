@@ -14,6 +14,7 @@ export default {
                 recalculationMode: draft.order.recalculationMode,
                 shippingMethodHandle: draft.order.shippingMethodHandle,
                 message: draft.order.message,
+                dateOrdered: draft.order.dateOrdered,
                 lineItems: [],
                 orderAdjustments: [],
             }
