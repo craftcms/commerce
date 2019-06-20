@@ -13,7 +13,7 @@
 
         <template v-if="editing">
             <div class="spacer"></div>
-            <update-order-btn></update-order-btn>
+            <update-order-btn ref="updateOrderBtn"></update-order-btn>
         </template>
     </div>
 </template>
@@ -70,6 +70,22 @@
                     })
                 }
             }
+        },
+
+        created() {
+            window.document.addEventListener('keydown', function(event) {
+                if((event.ctrlKey || event.metaKey) && event.which == 83) {
+                    event.preventDefault()
+
+                    if (!this.editing) {
+                        return false
+                    }
+
+                    this.$refs.updateOrderBtn.save()
+
+                    return false
+                }
+            }.bind(this))
         }
     }
 </script>
