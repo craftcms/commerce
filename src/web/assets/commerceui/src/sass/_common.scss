@@ -56,21 +56,18 @@
     }
 
     .vs__dropdown-toggle {
-      // background: red;
       border: 0;
       border-radius: 0;
       min-width: 0;
       padding: 0;
 
       .vs__selected-options {
-        // background: blue;
         min-width: 0;
         flex-wrap: nowrap;
         padding: 0;
 
         .vs__search,
         .vs__search:focus {
-          // background: green;
           padding: 6px 12px;
           margin: 0;
           min-width: 0;
@@ -78,7 +75,6 @@
 
         .vs__selected {
           min-width: 0;
-          // background: yellow;
           margin: 0;
           padding: 6px 12px;
           padding-right: 0;
