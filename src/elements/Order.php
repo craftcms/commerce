@@ -797,6 +797,9 @@ class Order extends Element
             $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
+        // Completed orders should no longer recalculate anything by default
+        $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
+
         if (Craft::$app->getElements()->saveElement($this, false)) {
 
             $this->afterOrderComplete();
