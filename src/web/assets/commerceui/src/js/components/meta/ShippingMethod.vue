@@ -5,6 +5,7 @@
                 :options="shippingMethods"
                 :filterable="false"
                 v-model="selectedShippingMethod"
+                :placeholder="shippingMethodHandle"
                 @input="onChange"
                 @search="onSearch"
         >
