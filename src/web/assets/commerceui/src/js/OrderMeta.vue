@@ -256,6 +256,10 @@
             ]),
 
             markAsCompleted() {
+                if (!window.confirm("Are you sure you want to complete this order?")) {
+                    return false
+                }
+
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.isCompleted = true
                 this.saveOrder(draft)
