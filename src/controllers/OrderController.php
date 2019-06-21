@@ -628,6 +628,10 @@ class OrderController extends Controller
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response) . ';', View::POS_BEGIN);
+
+        $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
     }
 
     /**
