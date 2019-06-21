@@ -92,7 +92,6 @@
 
         mounted() {
             const shippingMethod = this.shippingMethods.find(s => s.handle === this.order.shippingMethodHandle)
-            this.$store.commit('updateCustomers', [shippingMethod])
             this.selectedShippingMethod = shippingMethod
         }
     }
