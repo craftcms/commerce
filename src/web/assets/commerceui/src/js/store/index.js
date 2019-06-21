@@ -22,6 +22,10 @@ export default new Vuex.Store({
     },
 
     getters: {
+        forceEdit() {
+            return window.orderEdit.forceEdit
+        },
+
         emailTemplates() {
             return window.orderEdit.emailTemplates
         },

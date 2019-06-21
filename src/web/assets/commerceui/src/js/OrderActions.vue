@@ -19,7 +19,7 @@
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapState, mapGetters, mapActions} from 'vuex'
     import UpdateOrderBtn from './components/actions/UpdateOrderBtn'
 
     export default {
@@ -32,6 +32,9 @@
                 saveLoading: state => state.saveLoading,
                 editing: state => state.editing,
             }),
+            ...mapGetters([
+                'forceEdit',
+            ]),
         },
 
         methods: {
@@ -69,6 +72,11 @@
                         }
                     })
                 }
+            }
+
+            // Force edit
+            if (this.forceEdit) {
+                this.edit()
             }
         },
 
