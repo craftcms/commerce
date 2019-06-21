@@ -58,6 +58,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 if (!response.success) {
                     alert(response.error);
                 }
+
+                window.OrderDetailsApp.externalRefresh();
+
             });
         },
         _getCountries: function() {

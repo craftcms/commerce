@@ -8,10 +8,6 @@
     {    label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
-{% if order.isCompleted %}
-{% set pdfUrl = order.getPdfUrl() %}
-{% endif %}
-
 {% hook "cp.commerce.order.edit" %}
 
 {% block mainFormAttributes %}id="main-form" method="post" accept-charset="UTF-8" data-confirm-unload novalidate{% endblock %}
