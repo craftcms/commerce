@@ -51,7 +51,7 @@ window.OrderMetaApp = new Vue({
 }).$mount('#order-meta-app')
 
 
-// Order download
+// Order secondary actions
 // =========================================================================
 
 window.OrderSecondaryActionsApp = new Vue({
