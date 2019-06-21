@@ -18,6 +18,7 @@ export default new Vuex.Store({
         originalDraft: null,
         purchasables: [],
         customers: [],
+        orderData: null,
     },
 
     getters: {
@@ -250,7 +251,7 @@ export default new Vuex.Store({
 
             // Recalculate
 
-            orderApi.recalculate(data)
+            return orderApi.recalculate(data)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
@@ -312,6 +313,10 @@ export default new Vuex.Store({
 
         updateSaveLoading(state, saveLoading) {
             state.saveLoading = saveLoading
+        },
+
+        updateOrderData(state, orderData) {
+            state.orderData = orderData
         }
     }
 })

@@ -33,16 +33,12 @@
 
     import {mapState, mapGetters} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
-    import utils from '../../helpers/utils'
+    import mixins from '../../mixins'
 
     export default {
         components: {OptionShortcutLabel},
 
-        data() {
-            return {
-                orderData: null,
-            }
-        },
+        mixins: [mixins],
 
         computed: {
             ...mapState({
@@ -53,24 +49,20 @@
             ...mapGetters([
                 'orderId',
             ]),
+
+            orderData: {
+                get() {
+                    return this.$store.state.orderData
+                },
+                set(value) {
+                    this.$store.commit('updateOrderData', value)
+                }
+            }
         },
 
         methods: {
             save() {
-                if (this.saveLoading) {
-                    return false
-                }
-
-                this.$store.commit('updateSaveLoading', true)
-
-                const data = utils.buildDraftData(this.draft)
-                const dataString = JSON.stringify(data)
-
-                this.orderData = dataString
-
-                this.$nextTick(() => {
-                    $('#main-form').submit()
-                })
+                this.saveOrder(this.draft)
             },
 
             deleteOrder() {

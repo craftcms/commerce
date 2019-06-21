@@ -190,6 +190,7 @@
     import CustomerSelect from './components/meta/CustomerSelect'
     import DateOrderedInput from './components/meta/DateOrderedInput'
     import Field from './components/Field'
+    import mixins from './mixins'
 
     export default {
         name: 'order-meta-app',
@@ -201,6 +202,8 @@
             DateOrderedInput,
             Field,
         },
+
+        mixins: [mixins],
 
         computed: {
             ...mapState({
@@ -255,7 +258,7 @@
             markAsCompleted() {
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.isCompleted = true
-                this.recalculateOrder(draft)
+                this.saveOrder(draft)
             },
 
             updateOrder(order) {
