@@ -28,6 +28,13 @@ window.OrderDetailsApp = new Vue({
     render: h => h(App),
     store,
 
+    methods: {
+        externalRefresh() {
+            const draft = this.$store.state.draft
+            this.$store.dispatch('recalculateOrder', draft)
+        }
+    },
+
     mounted() {
         this.$store.dispatch('getOrder')
         this.$store.dispatch('getPurchasables')
