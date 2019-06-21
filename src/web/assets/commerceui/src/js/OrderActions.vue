@@ -1,5 +1,5 @@
 <template>
-    <div class="order-flex">
+    <div v-if="canEdit" class="order-flex">
         <div>
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
 
@@ -34,6 +34,7 @@
             }),
             ...mapGetters([
                 'forceEdit',
+                'canEdit',
             ]),
         },
 
@@ -75,10 +76,11 @@
             }
 
             // Force edit
-            if (this.$store.getters.forceEdit) {
+            if (this.forceEdit && this.canEdit) {
                 // Set timeout to wait for Prism editor to be initialized
+                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized
                 setTimeout(function() {
-                    this.$store.dispatch('edit')
+                    this.edit()
                 }.bind(this), 50)
             }
         },

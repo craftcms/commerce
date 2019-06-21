@@ -18,10 +18,12 @@
                     </li>
                 </ul>
 
-                <hr>
-                <ul>
-                    <li><a class="error" @click="deleteOrder()">Delete</a></li>
-                </ul>
+                <template v-if="canDelete">
+                    <hr>
+                    <ul>
+                        <li><a class="error" @click="deleteOrder()">Delete</a></li>
+                    </ul>
+                </template>
             </div>
         </div>
     </div>
@@ -48,6 +50,7 @@
 
             ...mapGetters([
                 'orderId',
+                'canDelete',
             ]),
 
             orderData: {
