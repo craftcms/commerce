@@ -29,7 +29,7 @@
                         placeholder="Enter coupon code"/>
             </field>
 
-            <field label="Date Ordered">
+            <field v-if="order.isCompleted" label="Date Ordered">
                 <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
