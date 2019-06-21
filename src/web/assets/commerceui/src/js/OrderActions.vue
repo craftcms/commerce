@@ -75,8 +75,11 @@
             }
 
             // Force edit
-            if (this.forceEdit) {
-                this.edit()
+            if (this.$store.getters.forceEdit) {
+                // Set timeout to wait for Prism editor to be initialized
+                setTimeout(function() {
+                    this.$store.dispatch('edit')
+                }.bind(this), 50)
             }
         },
 
