@@ -80,8 +80,9 @@ export default new Vuex.Store({
             return statuses
         },
 
-        shippingMethods() {
-            const shippingMethodsObject = window.orderEdit.shippingMethods
+        shippingMethods(state) {
+
+            const shippingMethodsObject = state.draft.order.availableShippingMethods
             const shippingMethods = []
 
             for (let key in shippingMethodsObject) {

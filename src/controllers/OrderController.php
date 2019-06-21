@@ -21,6 +21,7 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
@@ -585,9 +586,6 @@ class OrderController extends Controller
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
 
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        Craft::$app->getView()->registerJs('window.orderEdit.shippingMethods = ' . Json::encode(ArrayHelper::toArray($shippingMethods)) . ';', View::POS_BEGIN);
-
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
@@ -645,12 +643,21 @@ class OrderController extends Controller
         $order->dateOrdered = DateTimeHelper::toDateTime($orderRequestData['order']['dateOrdered']);
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
-        // New customer
+        // Only email set on the order
         if ($order->customerId == null && $order->email) {
-            $newCustomer = new Customer();
-            if (Plugin::getInstance()->getCustomers()->saveCustomer($newCustomer)) {
-                $order->customerId = $newCustomer->id;
+            // See if there is a user with that email
+            $user = User::find()->email($order->email)->one();
+            $customer = null;
+            if ($user) {
+                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
             }
+            // If no user or customer
+            if ($customer == null) {
+                $customer = new Customer();
+                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+            }
+
+            $order->customerId = $customer->id;
         }
 
         $lineItems = [];
