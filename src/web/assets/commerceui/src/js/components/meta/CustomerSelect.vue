@@ -7,6 +7,7 @@
             :filterable="false"
             :clearable="false"
             :create-option="createOption"
+            placeholder="Search customer…"
             taggable
             @search="onSearch">
         <template v-slot:option="slotProps">
@@ -100,9 +101,11 @@
         },
 
         mounted() {
-            const customer = {customerId: this.customerId, email: this.order.email}
-            this.$store.commit('updateCustomers', [customer])
-            this.selectedCustomer = customer
+            if (this.order.email) {
+                const customer = {customerId: this.customerId, email: this.order.email}
+                this.$store.commit('updateCustomers', [customer])
+                this.selectedCustomer = customer
+            }
         }
     }
 </script>

@@ -81,7 +81,10 @@
                 type: Boolean,
             },
             value: {},
-            placeholder: {}
+            placeholder: {
+                type: String,
+                default: '',
+            }
         },
 
         data() {
