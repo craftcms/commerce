@@ -1,7 +1,16 @@
 <template>
     <div>
         <template v-if="!showForm">
-            <a @click.prevent="showForm = true">Add a line item</a>
+            <template v-if="lineItems.length > 0">
+                <a @click.prevent="showForm = true">Add a line item</a>
+            </template>
+            <template>
+                <div class="starter">
+                    <div data-icon="info"></div>
+                    <h2>Your order is empty</h2>
+                    <a @click.prevent="showForm = true">Create your first line item</a>
+                </div>
+            </template>
         </template>
         <template v-else>
             <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
@@ -60,7 +69,6 @@
         },
 
         computed: {
-
             ...mapState({
                 purchasables: state => state.purchasables,
             }),
@@ -86,6 +94,10 @@
                 }
 
                 return false
+            },
+
+            lineItems() {
+                return this.$store.state.draft.order.lineItems
             }
         },
 
