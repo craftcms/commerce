@@ -27,8 +27,12 @@
     import {mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
+    import { validationMixin } from 'vuelidate'
+    import { required, email } from 'vuelidate/lib/validators'
 
     export default {
+        mixins: [validationMixin],
+
         components: {
             SelectInput,
         },
@@ -42,6 +46,14 @@
         data() {
             return {
                 selectedCustomer: null,
+                newCustomerEmail: null,
+            }
+        },
+
+        validations: {
+            newCustomerEmail: {
+                required,
+                email
             }
         },
 
@@ -79,6 +91,16 @@
 
         methods: {
             createOption(searchText) {
+                if (this.$v.newCustomerEmail.$invalid) {
+                    this.$store.dispatch('displayError', 'Invalid email.')
+
+                    this.$nextTick(() => {
+                        this.$refs.vSelect.$children[0].search = searchText
+                    })
+
+                    return {customerId: this.customerId, email: this.order.email}
+                }
+
                 const order = JSON.parse(JSON.stringify(this.order))
                 order.customerId = null
                 order.email = searchText
@@ -90,6 +112,8 @@
             onSearch({searchText, loading}) {
                 loading(true);
                 this.search(loading, searchText, this);
+
+                this.newCustomerEmail = searchText
             },
 
             search: debounce((loading, search, vm) => {

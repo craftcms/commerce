@@ -13,6 +13,7 @@
                 :value="value"
                 :placeholder="placeholder"
                 :searchInputQuerySelector="searchInputQuerySelector"
+                :clearSearchOnSelect="clearSearchOnSelect"
                 @input="$emit('input', $event)"
                 @search="onSearch"
         >
@@ -60,6 +61,10 @@
             },
             createOption: {
                 type: Function,
+            },
+            clearSearchOnSelect: {
+                type: Boolean,
+                default: false,
             },
             disabled: {
                 type: Boolean,
