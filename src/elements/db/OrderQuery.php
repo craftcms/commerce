@@ -823,6 +823,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.reference',
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
+            'commerce_orders.orderOrigin',
             'commerce_orders.dateOrdered',
             'commerce_orders.email',
             'commerce_orders.isCompleted',

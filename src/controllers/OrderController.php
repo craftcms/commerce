@@ -83,6 +83,7 @@ class OrderController extends Controller
         $customer = new Customer();
         Plugin::getInstance()->getCustomers()->saveCustomer($customer);
         $order->customerId = $customer->id;
+        $order->orderOrigin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -474,10 +475,14 @@ class OrderController extends Controller
         /** @var Order $order */
         $order = $variables['order'];
 
-        if ($order->isCompleted || $order->reference) {
-            $variables['title'] = 'Order ' . $order->reference;
-        } else {
-            $variables['title'] = 'Cart ' . $order->number;
+        $variables['title'] = Craft::t('commerce', 'Order') . ' ' . $order->reference;
+
+        if (!$order->isCompleted && $order->orderOrigin == Order::ORIGIN_CP) {
+            $variables['title'] = Craft::t('commerce', 'New Order');
+        }
+
+        if (!$order->isCompleted && $order->orderOrigin == Order::ORIGIN_FRONT) {
+            $variables['title'] = Craft::t('commerce', 'Cart') . ' ' . $order->getShortNumber();
         }
 
         $variables['tabs'] = [];

@@ -69,6 +69,7 @@ use yii\log\Logger;
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
  * @property string $recalculationMode the mode of recalculation.
+ * @property string $orderOrigin
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -101,6 +102,8 @@ use yii\log\Logger;
  * @property-read float $totalTaxablePrice
  * @property-read int $totalQty the total number of items
  * @property-read int $totalWeight
+ * @property-read string $orderStatusHtml
+ * @property-read string $customerLinkHtml
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -120,6 +123,10 @@ class Order extends Element
     const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
     const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
     const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
+
+    const ORIGIN_FRONT = 'front'; // Did the order get created from the front-end
+    const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
+    const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
 
     /**
      * @event \yii\base\Event This event is raised before a line item has been added to the order
@@ -279,11 +286,6 @@ class Order extends Element
     public $lastIp;
 
     /**
-     * @var string Order locale
-     */
-    public $orderLanguage;
-
-    /**
      * @var string Message
      */
     public $message;
@@ -302,6 +304,16 @@ class Order extends Element
      * @var int Order status ID
      */
     public $orderStatusId;
+
+    /**
+     * @var string Order locale
+     */
+    public $orderLanguage;
+
+    /**
+     * @var string Order origin
+     */
+    public $orderOrigin;
 
     /**
      * @var int Billing address ID
@@ -1050,6 +1062,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
+        $orderRecord->orderOrigin = $this->orderOrigin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
