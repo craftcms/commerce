@@ -20,7 +20,7 @@
 
 <script>
     /* global Garnish */
-    import {mapGetters} from 'vuex'
+
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
 
@@ -42,9 +42,9 @@
         },
 
         computed: {
-            ...mapGetters([
-                'shippingMethods',
-            ]),
+            shippingMethods() {
+                return [{handle: 'none', name: "None"}, ...this.$store.getters.shippingMethods]
+            },
 
             shippingMethod() {
                 if (this.shippingMethodHandle !== 0) {
@@ -57,7 +57,7 @@
                     }
                 }
 
-                return {id: 0, name: "None", color: null}
+                return {handle: 'none', name: "None"}
             },
 
             shippingMethodHandle: {
@@ -74,7 +74,11 @@
 
         methods: {
             onChange() {
-                this.shippingMethodHandle = this.selectedShippingMethod.handle
+                if (this.selectedShippingMethod.handle === 'none') {
+                    this.shippingMethodHandle = null
+                } else {
+                    this.shippingMethodHandle = this.selectedShippingMethod.handle
+                }
             },
 
             onSearch({searchText, loading}) {
