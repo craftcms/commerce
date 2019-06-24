@@ -3,11 +3,10 @@
         <select-input
                 label="name"
                 :options="shippingMethods"
-                :filterable="false"
+                :filterable="true"
                 v-model="selectedShippingMethod"
                 :placeholder="shippingMethodHandle"
                 @input="onChange"
-                @search="onSearch"
         >
             <template v-slot:option="slotProps">
                 <div class="shipping-method-select-option">
@@ -19,12 +18,13 @@
 </template>
 
 <script>
-    import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
+    import VSelect from 'vue-select'
 
     export default {
         components: {
             SelectInput,
+            VSelect,
         },
 
         props: {
@@ -78,18 +78,6 @@
                     this.shippingMethodHandle = this.selectedShippingMethod.handle
                 }
             },
-
-            onSearch({searchText, loading}) {
-                loading(true);
-                this.search(loading, searchText, this);
-            },
-
-            search: debounce((loading, search, vm) => {
-                vm.$store.dispatch('customerSearch', search)
-                    .then(() => {
-                        loading(false)
-                    })
-            }, 350)
         },
 
         mounted() {
