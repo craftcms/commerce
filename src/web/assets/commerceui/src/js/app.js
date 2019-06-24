@@ -1,5 +1,3 @@
-/* global Craft */
-
 import Vue from 'vue'
 import App from './OrderDetails'
 // import 'prismjs'

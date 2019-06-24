@@ -178,7 +178,7 @@ export default new Vuex.Store({
             commit('updateEditing', true)
         },
 
-        getOrder({state, getters, commit, dispatch}) {
+        getOrder({state, getters, commit}) {
             const orderId = getters.orderId
 
             commit('updateRecalculateLoading', true)
@@ -242,7 +242,7 @@ export default new Vuex.Store({
             return dispatch('recalculateOrder', draft)
         },
 
-        recalculateOrder({dispatch, commit}, draft) {
+        recalculateOrder({commit}, draft) {
             commit('updateRecalculateLoading', true)
 
             const data = utils.buildDraftData(draft)
@@ -260,7 +260,6 @@ export default new Vuex.Store({
 
                     if (response.data.error) {
                         throw response.data.error
-                        return
                     }
                 })
                 .catch((error) => {
