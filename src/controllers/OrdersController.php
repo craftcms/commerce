@@ -842,7 +842,7 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
-        $order->customerId = $orderRequestData['order']['customerId'];
+        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
@@ -852,7 +852,6 @@ class OrdersController extends Controller
         if (($dateOrdered = $orderRequestData['order']['dateOrdered']) !== null) {
             $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
         }
-
 
         // Only email set on the order
         if ($order->customerId == null && $order->email) {
@@ -916,9 +915,9 @@ class OrdersController extends Controller
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
-                foreach ($lineItemData['adjustments'] as $adjustment) {
+                foreach ($lineItemData['adjustments'] as $adjustmentData) {
 
-                    $id = $adjustment['id'];
+                    $id = $adjustmentData['id'];
 
                     $adjustment = null;
                     if ($id) {
@@ -930,11 +929,11 @@ class OrdersController extends Controller
 
                     $adjustment->setOrder($order);
                     $adjustment->setLineItem($lineItem);
-                    $adjustment->amount = $adjustment['amount'];
-                    $adjustment->type = $adjustment['type'];
-                    $adjustment->name = $adjustment['name'];
-                    $adjustment->description = $adjustment['description'];
-                    $adjustment->included = $adjustment['included'];
+                    $adjustment->amount = $adjustmentData['amount'];
+                    $adjustment->type = $adjustmentData['type'];
+                    $adjustment->name = $adjustmentData['name'];
+                    $adjustment->description = $adjustmentData['description'];
+                    $adjustment->included = $adjustmentData['included'];
 
                     $adjustments[] = $adjustment;
                 }
@@ -946,9 +945,9 @@ class OrdersController extends Controller
         // Only update the adjustments if the recalculation mode is none (manually updating adjustments)
         if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
-            foreach ($orderRequestData['order']['orderAdjustments'] as $adjustment) {
+            foreach ($orderRequestData['order']['orderAdjustments'] as $adjustmentData) {
 
-                $id = $adjustment['id'];
+                $id = $adjustmentData['id'];
 
                 $adjustment = null;
                 if ($id) {
@@ -959,11 +958,11 @@ class OrdersController extends Controller
                 }
 
                 $adjustment->setOrder($order);
-                $adjustment->amount = $adjustment['amount'];
-                $adjustment->type = $adjustment['type'];
-                $adjustment->name = $adjustment['name'];
-                $adjustment->description = $adjustment['description'];
-                $adjustment->included = $adjustment['included'];
+                $adjustment->amount = $adjustmentData['amount'];
+                $adjustment->type = $adjustmentData['type'];
+                $adjustment->name = $adjustmentData['name'];
+                $adjustment->description = $adjustmentData['description'];
+                $adjustment->included = $adjustmentData['included'];
 
                 $adjustments[] = $adjustment;
             }
