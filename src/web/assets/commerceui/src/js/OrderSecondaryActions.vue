@@ -2,7 +2,7 @@
     <div class="order-flex" v-if="!editing">
         <div v-if="defaultPdfUrl">
             <div id="order-save" class="btngroup">
-                <a class="btn" :href="defaultPdfUrl.url" target="_blank">Download PDF</a>
+                <a class="btn" :href="defaultPdfUrl.url" target="_blank">{{"Download PDF"|t('commerce')}}</a>
 
                 <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
                 <div class="menu">
@@ -19,7 +19,7 @@
             <div class="spacer"></div>
 
             <div class="btngroup">
-                <div class="btn menubtn" ref="sendEmailMenuBtn">Send Email</div>
+                <div class="btn menubtn" ref="sendEmailMenuBtn">{{"Send Email"|t('commerce')}}</div>
                 <div class="menu">
                     <ul>
                         <li v-for="emailTemplate in emailTemplates">
@@ -71,7 +71,7 @@
                                 return
                             }
 
-                            this.$store.dispatch('displayNotice', 'Email sent');
+                            this.$store.dispatch('displayNotice', this.$options.filters.t("Email sent", 'commerce'));
                         })
                 }
             }

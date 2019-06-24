@@ -36,7 +36,7 @@
 
                     <template v-if="lineItems.length > 0">
                         <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
-                            <a class="recalculate-btn error" @click.prevent="autoRecalculate()">Recalculate Order</a>
+                            <a class="recalculate-btn error" @click.prevent="autoRecalculate()">{{"Recalculate Order"|t('commerce')}}</a>
                         </div>
 
                         <div v-if="recalculateLoading" class="spinner"></div>

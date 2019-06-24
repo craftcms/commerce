@@ -214,7 +214,7 @@ export default new Vuex.Store({
                 .catch((error) => {
                     commit('updateRecalculateLoading', false)
 
-                    let errorMsg = 'Couldn’t get order.'
+                    let errorMsg = this.$options.filters.t("Couldn’t get order.", 'commerce')
 
                     if (error.response.data.error) {
                         errorMsg = error.response.data.error
@@ -280,12 +280,12 @@ export default new Vuex.Store({
                         return
                     }
 
-                    dispatch('displayNotice', 'Order recalculated.');
+                    dispatch('displayNotice', this.$options.filters.t("Order recalculated.", 'commerce'));
                 })
                 .catch((error) => {
                     commit('updateRecalculateLoading', false)
 
-                    let errorMsg = 'Couldn’t recalculate order.'
+                    let errorMsg = this.$options.filters.t("Couldn’t recalculate order.", 'commerce')
 
                     if (error.response.data.error) {
                         errorMsg = error.response.data.error

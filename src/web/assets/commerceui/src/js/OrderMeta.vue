@@ -4,7 +4,7 @@
             <div class="field" id="reference-field">
                 <div class="heading">
                     <label id="reference-label"
-                           for="reference">Reference</label>
+                           for="reference">{{"Reference"|t('commerce')}}</label>
                 </div>
                 <div class="input ltr">
                     <input
@@ -14,11 +14,11 @@
                             autocomplete="off"
                             autocorrect="off"
                             autocapitalize="off"
-                            placeholder="Enter reference"/>
+                            :placeholder="$options.filters.t('Enter reference', 'commerce')"/>
                 </div>
             </div>
 
-            <field label="Coupon Code" :errors="getErrors('couponCode')[0]">
+            <field :label="$options.filters.t('Coupon Code', 'commerce')" :errors="getErrors('couponCode')[0]">
                 <input
                         class="text fullwidth"
                         type="text"
@@ -26,10 +26,10 @@
                         autocomplete="off"
                         autocorrect="off"
                         autocapitalize="off"
-                        placeholder="Enter coupon code"/>
+                        :placeholder="$options.filters.t('Enter coupon code', 'commerce')"/>
             </field>
 
-            <field v-if="order.isCompleted" label="Date Ordered">
+            <field v-if="order.isCompleted" :label="$options.filters.t('Date Ordered', 'commerce')">
                 <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
@@ -37,12 +37,12 @@
                  v-if="!draft.order.isCompleted">
                 <div class="heading">
                     <label id="isCompleted-label"
-                           for="isCompleted">Completed</label>
+                           for="isCompleted">{{"Completed"|t('commerce')}}</label>
                 </div>
                 <div class="input ltr">
                     <div class="buttons">
                         <input type="button" class="btn small"
-                               value="Mark as completed"
+                               :value="$options.filters.t('Mark as completed', 'commerce')"
                                @click="markAsCompleted"/>
                     </div>
                 </div>
@@ -51,8 +51,7 @@
             <template v-if="draft.order.isCompleted">
                 <div class="field" id="orderStatus-field">
                     <div class="heading">
-                        <label id="orderStatus-label"
-                               for="status">Status</label>
+                        <label id="orderStatus-label" for="status">{{"Status"|t('commerce')}}</label>
                     </div>
                     <div class="input ltr">
                         <order-status
@@ -66,8 +65,7 @@
 
             <div class="field" id="shippingMethod-field">
                 <div class="heading">
-                    <label id="shippingMethod-label" for="slug">Shipping
-                        Method</label>
+                    <label id="shippingMethod-label" for="slug">{{"Shipping Method"|t('commerce')}}</label>
                 </div>
                 <div class="input ltr">
                     <shipping-method :order="order"
@@ -77,7 +75,7 @@
 
             <div class="field" id="customer-field">
                 <div class="heading">
-                    <label id="customer-label" for="customer">Customer</label>
+                    <label id="customer-label" for="customer">{{"Customer"|t('commerce')}}</label>
                 </div>
                 <div class="input ltr">
                     <customer-select :order="order"
@@ -88,17 +86,17 @@
 
         <div id="meta" class="meta read-only">
             <div class="data" v-if="!editing">
-                <h5 class="heading">Reference</h5>
+                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.reference}}</p>
             </div>
 
             <div class="data">
-                <h5 class="heading">ID</h5>
+                <h5 class="heading">{{"ID"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.id}}</p>
             </div>
 
             <div class="data">
-                <h5 class="heading">Short Number</h5>
+                <h5 class="heading">{{"Short Number"|t('commerce')}}</h5>
                 <div class="value order-number-value">
                     <div>
                         {{draft.order.shortNumber}}
@@ -106,12 +104,12 @@
                     <div class="hidden-input">
                         <input type="text" ref="orderShortNumber" :value="draft.order.shortNumber" />
                     </div>
-                    <a @click.prevent="copy($refs.orderShortNumber)">Copy</a>
+                    <a @click.prevent="copy($refs.orderShortNumber)">{{"Copy"|t('commerce')}}</a>
                 </div>
             </div>
 
             <div class="data">
-                <h5 class="heading">Number</h5>
+                <h5 class="heading">{{"Number"|t('commerce')}}</h5>
                 <div class="value order-number-value">
                     <div>
                         {{draft.order.number}}
@@ -119,63 +117,63 @@
                     <div class="hidden-input">
                         <input type="text" ref="orderNumber" :value="draft.order.number" />
                     </div>
-                    <a @click.prevent="copy($refs.orderNumber)">Copy</a>
+                    <a @click.prevent="copy($refs.orderNumber)">{{"Copy"|t('commerce')}}</a>
                 </div>
             </div>
 
             <div class="data" v-if="!editing">
-                <h5 class="heading">Customer</h5>
+                <h5 class="heading">{{"Customer"|t('commerce')}}</h5>
                 <p class="value" v-html="draft.order.customerLinkHtml"></p>
             </div>
 
             <template v-if="draft.order.isCompleted && !editing">
                 <div class="data">
-                    <h5 class="heading">Status</h5>
+                    <h5 class="heading">{{"Status"|t('commerce')}}</h5>
                     <span class="value"
                           v-html="draft.order.orderStatusHtml"></span>
                 </div>
 
                 <div class="data">
-                    <h5 class="heading">Date Completed</h5>
+                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
                     <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
                 </div>
             </template>
 
             <div class="data">
-                <h5 class="heading">Paid Status</h5>
+                <h5 class="heading">{{"Paid Status"|t('commerce')}}</h5>
                 <span class="value"
                       v-html="draft.order.paidStatusHtml"></span>
             </div>
 
             <div class="data">
-                <h5 class="heading">Paid Amount</h5>
+                <h5 class="heading">{{"Paid Amount"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.totalPaidAsCurrency}}</span>
             </div>
 
             <template v-if="draft.order.datePaid">
                 <div class="data">
-                    <h5 class="heading">Date Paid</h5>
+                    <h5 class="heading">{{"Date Paid"|t('commerce')}}</h5>
                     <span class="value">{{draft.order.datePaid.date}} {{draft.order.datePaid.time}}</span>
                 </div>
             </template>
 
             <div class="data" v-if="!editing">
-                <h5 class="heading">Shipping Method</h5>
+                <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
                 <span class="value code">{{draft.order.shippingMethodHandle}}</span>
             </div>
 
             <div class="data" v-if="draft.order.couponCode && !editing">
-                <h5 class="heading">Coupon Code</h5>
+                <h5 class="heading">{{"Coupon Code"|t('commerce')}}</h5>
                 <span class="value code">{{draft.order.couponCode}}</span>
             </div>
 
             <div class="data">
-                <h5 class="heading">Last Updated</h5>
+                <h5 class="heading">{{"Last Updated"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.dateUpdated.date}} {{draft.order.dateUpdated.time}}</span>
             </div>
 
             <div class="data">
-                <h5 class="heading">IP Address</h5>
+                <h5 class="heading">{{"IP Address"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.lastIp}}</span>
             </div>
         </div>
@@ -276,7 +274,7 @@
 
                 window.document.execCommand('copy');
 
-                this.$store.dispatch('displayNotice', 'Copied!');
+                this.$store.dispatch('displayNotice', this.$options.filters.t("Copied!", 'commerce'));
             },
 
             updateDateOrderedInput(dateTime) {

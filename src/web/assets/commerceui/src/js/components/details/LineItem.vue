@@ -10,20 +10,20 @@
                 <small>
                     <ul>
                         <li>
-                            {{shippingCategory}} <span class="light"><small>(Shipping)</small></span>
+                            {{shippingCategory}} <span class="light"><small>({{"Shipping"|t('commerce')}})</small></span>
                             <input-error :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
                         </li>
-                        <li>{{taxCategory}} <span class="light">(Tax)</span></li>
+                        <li>{{taxCategory}} <span class="light">({{"Tax"|t('commerce')}})</span></li>
                     </ul>
                 </small>
 
                 <!-- Snapshot -->
                 <div>
                     <template v-if="!showSnapshot">
-                        <a @click.prevent="showSnapshot = true">Snapshot <i data-icon="downangle"></i></a>
+                        <a @click.prevent="showSnapshot = true">{{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i></a>
                     </template>
                     <template v-else>
-                        <a @click.prevent="showSnapshot = false">Hide snapshot <i data-icon="upangle"></i></a>
+                        <a @click.prevent="showSnapshot = false">{{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i></a>
                         <div>
                             <pre><code>{{lineItem.snapshot}}</code></pre>
                         </div>
@@ -45,18 +45,18 @@
                             <ul>
                                 <li>
                                     <template v-if="editing && recalculationMode === 'none'">
-                                        <field label="Sale Price" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
+                                        <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
                                             <input type="text" class="text" size="10" v-model="salePrice" />
                                         </field>
                                     </template>
                                     <template v-else>
-                                        <label class="light" for="salePrice">Sale Price</label>
+                                        <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
                                         {{ lineItem.salePriceAsCurrency }}
                                     </template>
                                 </li>
                                 <template v-if="lineItem.onSale">
-                                    <li><span class="light">Original Price</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
-                                    <li><span class="light">Sale Amount Off</span> {{ lineItem.saleAmountAsCurrency }}</li>
+                                    <li><span class="light">{{"Original Price"|t('commerce')}}</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
+                                    <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
                                 </template>
                             </ul>
 
@@ -64,11 +64,11 @@
                         <div class="order-flex-grow">
                             <div>
                                 <template v-if="!editing">
-                                    <label class="light" for="quantity">Quantity</label>
+                                    <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
                                     {{ lineItem.qty }}
                                 </template>
                                 <template v-else>
-                                    <field label="Quantity" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">
+                                    <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">
                                         <input type="text" class="text" size="3" v-model="qty" />
                                     </field>
                                 </template>
@@ -88,7 +88,7 @@
                         <strong>{{ lineItem.totalAsCurrency }}</strong>
                     </div>
                     <div v-if="editing">
-                        <a @click.prevent="$emit('removeLineItem')">Remove</a>
+                        <a @click.prevent="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</a>
                     </div>
                 </div>
             </div>

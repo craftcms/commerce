@@ -13,9 +13,9 @@
         <div class="menu">
             <ul class="padded" role="listbox">
                 <li>
-                    <a data-id="0" data-name="None">
+                    <a data-id="0" :data-name="$options.filters.t('None', 'commerce')">
                         <span class="status"></span>
-                        None
+                        {{"None"|t('commerce')}}
                     </a>
                 </li>
                 <li v-for="(status) in lineItemStatuses">
@@ -74,7 +74,7 @@
                     }
                 }
 
-                return {id: 0, name: "None", color: null}
+                return {id: 0, name: this.$options.filters.t("None", 'commerce'), color: null}
             },
         },
 

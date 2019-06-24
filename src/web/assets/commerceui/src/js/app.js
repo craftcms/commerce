@@ -8,9 +8,12 @@ import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
 import OrderSecondaryActions from './OrderSecondaryActions'
 import store from './store'
+import {t} from './filters/craft'
 
 Vue.config.productionTip = false
 
+
+Vue.filter('t', t)
 
 // Order actions
 // =========================================================================

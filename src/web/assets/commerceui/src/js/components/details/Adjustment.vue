@@ -4,7 +4,7 @@
             <div>
                 <template v-if="editing">
                     <div class="meta">
-                        <field label="Type" :required="true">
+                        <field :label="$options.filters.t('Type', 'commerce')" :required="true">
                             <div class="select">
                                 <select v-model="type">
                                     <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
@@ -14,22 +14,22 @@
                             </div>
                         </field>
 
-                        <field label="Name">
+                        <field :label="$options.filters.t('Name', 'commerce')">
                             <input type="text" class="text" v-model="name" />
 
                         </field>
 
-                        <field label="Description">
+                        <field :label="$options.filters.t('Description', 'commerce')">
                             <input type="text" class="text" v-model="description" />
                         </field>
 
-                        <field label="Amount" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]">
+                        <field :label="$options.filters.t('Amount', 'commerce')" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]">
                             <div class="flex">
                                 <div class="textwrapper">
                                     <input type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
                                 </div>
                                 <div class="nowrap">
-                                    <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" /> <label :for="_uid + '-included'">Included</label>
+                                    <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" /> <label :for="_uid + '-included'">{{"Included"|t('commerce')}}</label>
                                 </div>
                             </div>
                         </field>
@@ -41,10 +41,10 @@
                     {{description}}
                     <div>
                         <template v-if="!showSnapshot">
-                            <a @click.prevent="showSnapshot = true">Snapshot <i data-icon="downangle"></i></a>
+                            <a @click.prevent="showSnapshot = true">{{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i></a>
                         </template>
                         <template v-else>
-                            <a @click.prevent="showSnapshot = false">Hide snapshot <i data-icon="upangle"></i></a>
+                            <a @click.prevent="showSnapshot = false">{{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i></a>
                             <div>
                                 <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
                             </div>
@@ -54,14 +54,14 @@
 
                 <template v-if="editing && recalculationMode === 'none'">
                     <div class="adjustment-actions">
-                        <a @click.prevent="$emit('remove')">Remove</a>
+                        <a @click.prevent="$emit('remove')">{{"Remove"|t('commerce')}}</a>
                     </div>
                 </template>
             </div>
         </div>
         <div class="order-flex-grow text-right">
             <template v-if="adjustment.included !== '0' && adjustment.included !== false">
-                <div class="light">{{adjustment.amountAsCurrency}} included</div>
+                <div class="light">{{"{amount} included"|t('commerce', {amount: adjustment.amountAsCurrency})}}</div>
             </template>
             <template v-else>
                 {{adjustment.amountAsCurrency}}

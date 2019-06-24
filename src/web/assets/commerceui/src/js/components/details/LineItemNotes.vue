@@ -2,7 +2,7 @@
     <div v-if="note || adminNote || editing" class="order-indented-block">
         <div class="order-flex">
             <div class="order-block-title">
-                <h3>Notes</h3>
+                <h3>{{"Notes"|t('commerce')}}</h3>
             </div>
 
             <div class="order-flex order-flex-grow order-margin-wrapper">
@@ -16,7 +16,7 @@
                         </template>
                     </template>
                     <template v-else>
-                        <label for="note">Customer Note</label>
+                        <label for="note">{{"Customer Note"|t('commerce')}}</label>
                         <textarea v-model="note" class="text fullwidth"></textarea>
                     </template>
                 </div>
@@ -26,11 +26,11 @@
                             {{adminNote}}
                         </template>
                         <template v-else>
-                            <span class="light">{{ 'No admin note.' }}</span>
+                            <span class="light">{{ "No admin note."|t('commerce') }}</span>
                         </template>
                     </template>
                     <template v-else>
-                        <label for="note">Admin Note</label>
+                        <label for="note">{{"Admin Note"|t('commerce')}}</label>
                         <textarea v-model="adminNote" class="text fullwidth"></textarea>
                     </template>
                 </div>

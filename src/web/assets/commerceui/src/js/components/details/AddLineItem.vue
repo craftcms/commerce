@@ -2,13 +2,13 @@
     <div>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <a @click.prevent="showForm = true">Add a line item</a>
+                <a @click.prevent="showForm = true">{{"Add a line item"|t('commerce')}}</a>
             </template>
             <template>
                 <div class="starter">
                     <div data-icon="info"></div>
-                    <h2>Your order is empty</h2>
-                    <a @click.prevent="showForm = true">Create your first line item</a>
+                    <h2>{{"Your order is empty"|t('commerce')}}</h2>
+                    <a @click.prevent="showForm = true">{{"Create your first line item"|t('commerce')}}</a>
                 </div>
             </template>
         </template>
@@ -26,11 +26,11 @@
                             <div class="description">
                                 <template v-if="slotProps.option.description">
                                     <template v-if="slotProps.option.description.length<20">{{slotProps.option.description}}</template>
-                                    <template v-if="slotProps.option.description.length>=20">{{slotProps.option.description.substring(0,20)+".." }}</template>
-                                    <template v-if="!slotProps.option.isAvailable"> (Not available)</template>
+                                    <template v-if="slotProps.option.description.length>=20">{{slotProps.option.description.substring(0,20)+"…" }}</template>
+                                    <template v-if="!slotProps.option.isAvailable"> ({{"Not available"|t('commerce')}})</template>
                                 </template>
                                 <template v-else>
-                                    <em>No description</em>
+                                    <em>{{"No description"|t('commerce')}}</em>
                                 </template>
                             </div>
                             <div class="sku">{{ slotProps.option.sku }}</div>
@@ -40,8 +40,8 @@
                 </select-input>
 
                 <div class="buttons">
-                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" value="Cancel" @click="showForm = false" />
-                    <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" value="Add" />
+                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false" />
+                    <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" />
                 </div>
             </form>
         </template>
@@ -108,7 +108,7 @@
 
             lineItemAdd() {
                 if (!this.canAddLineItem) {
-                    this.displayError('You are not allowed to add a line item.');
+                    this.displayError(this.$options.filters.t("You are not allowed to add a line item.", 'commerce'));
                     return
                 }
 

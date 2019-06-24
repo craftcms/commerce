@@ -15,7 +15,7 @@
 
         <template v-if="editing && recalculationMode === 'none'">
             <div class="adjustment-actions">
-                <a @click.prevent="$emit('addAdjustment')">Add an adjustment</a>
+                <a @click.prevent="$emit('addAdjustment')">{{"Add an adjustment"|t('commerce')}}</a>
             </div>
         </template>
     </div>

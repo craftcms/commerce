@@ -43,7 +43,7 @@
 
         computed: {
             shippingMethods() {
-                return [{handle: 'none', name: "None"}, ...this.$store.getters.shippingMethods]
+                return [{handle: 'none', name: this.$options.filters.t("None", 'commerce')}, ...this.$store.getters.shippingMethods]
             },
 
             shippingMethod() {
@@ -57,7 +57,7 @@
                     }
                 }
 
-                return {handle: 'none', name: "None"}
+                return {handle: 'none', name: this.$options.filters.t("None", 'commerce')}
             },
 
             shippingMethodHandle: {

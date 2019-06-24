@@ -2,7 +2,7 @@
     <div v-if="Object.keys(lineItem.options).length || editing" class="order-indented-block">
         <div class="order-flex">
             <div class="order-block-title">
-                <h3>Options</h3>
+                <h3>{{"Options"|t('commerce')}}</h3>
             </div>
 
             <div class="order-flex-grow">

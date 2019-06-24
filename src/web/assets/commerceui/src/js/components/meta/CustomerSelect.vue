@@ -7,13 +7,13 @@
             :filterable="false"
             :clearable="false"
             :create-option="createOption"
-            placeholder="Search customer…"
+            :placeholder="$options.filters.t('Search customer…', 'commerce')"
             taggable
             @search="onSearch">
         <template v-slot:option="slotProps">
             <div class="customer-select-option">
                 <template v-if="!slotProps.option.customerId">
-                    Create “{{slotProps.option.email}}”
+                    {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
                 </template>
                 <template v-else>
                     {{slotProps.option.email}}
@@ -74,7 +74,7 @@
                     }
                 }
 
-                return {id: 0, name: "None"}
+                return {id: 0, name: this.$options.filters.t("None", 'commerce')}
             },
 
             customerId: {
@@ -92,7 +92,7 @@
         methods: {
             createOption(searchText) {
                 if (this.$v.newCustomerEmail.$invalid) {
-                    this.$store.dispatch('displayError', 'Invalid email.')
+                    this.$store.dispatch('displayError', this.$options.filters.t("Invalid email.", 'commerce'))
 
                     this.$nextTick(() => {
                         this.$refs.vSelect.$children[0].search = searchText

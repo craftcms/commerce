@@ -1,7 +1,7 @@
 <template>
     <div class="order-flex">
         <div class="order-block-title">
-            <h3>Adjustments</h3>
+            <h3>{{"Adjustments"|t('commerce')}}</h3>
         </div>
 
         <div class="order-flex-grow">

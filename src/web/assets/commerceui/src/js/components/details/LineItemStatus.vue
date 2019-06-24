@@ -51,7 +51,7 @@
                     }
                 }
 
-                return {id: 0, name: "None", color: null}
+                return {id: 0, name: this.$options.filters.t("None", 'commerce'), color: null}
             },
         },
     }
