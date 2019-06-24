@@ -424,6 +424,10 @@ class Order extends Element
             $this->orderLanguage = Craft::$app->language;
         }
 
+        if ($this->currency === null) {
+            $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
         if ($this->_recalculationMode === null) {
             if ($this->isCompleted) {
                 $this->setRecalculationMode(self::RECALCULATION_MODE_NONE);

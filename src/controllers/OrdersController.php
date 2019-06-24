@@ -93,7 +93,7 @@ class OrdersController extends Controller
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
 
-        return $this->redirect('commerce/order/' . $order->id);
+        return $this->redirect('commerce/orders/' . $order->id);
     }
 
     /**
@@ -786,8 +786,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         $permissions = [
-            'commerce-editOrders' => true,
-            'commerce-commerce-deleteOrders' => false
+            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
 
@@ -847,8 +847,12 @@ class OrdersController extends Controller
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
         $order->message = $orderRequestData['order']['message'];
-        $order->dateOrdered = DateTimeHelper::toDateTime($orderRequestData['order']['dateOrdered']);
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        if($dateOrdered = DateTimeHelper::toDateTime($orderRequestData['order']['dateOrdered']))
+        {
+            $order->dateOrdered = $dateOrdered;
+        }
 
         // Only email set on the order
         if ($order->customerId == null && $order->email) {
