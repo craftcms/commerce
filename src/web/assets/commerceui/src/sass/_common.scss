@@ -73,6 +73,10 @@
           min-width: 0;
         }
 
+        .vs__search::placeholder {
+          color: $lightTextColor;
+        }
+
         .vs__selected {
           min-width: 0;
           margin: 0;
