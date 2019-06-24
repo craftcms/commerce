@@ -842,7 +842,7 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
-        $order->customerId = $orderRequestData['order']['customerId'];
+        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
@@ -852,7 +852,6 @@ class OrdersController extends Controller
         if (($dateOrdered = $orderRequestData['order']['dateOrdered']) !== null) {
             $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
         }
-
 
         // Only email set on the order
         if ($order->customerId == null && $order->email) {
