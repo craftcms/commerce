@@ -35,6 +35,12 @@ window.OrderDetailsApp = new Vue({
         externalRefresh() {
             const draft = this.$store.state.draft
             this.$store.dispatch('recalculateOrder', draft)
+                .then(() => {
+                    this.$store.dispatch('displayNotice', "Order recalculated.")
+                })
+                .catch((error) => {
+                    this.$store.dispatch('displayError', error);
+                })
         }
     },
 

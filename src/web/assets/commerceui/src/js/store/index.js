@@ -205,9 +205,7 @@ export default new Vuex.Store({
                         errorMsg = error.response.data.error
                     }
 
-                    dispatch('displayError', errorMsg);
-
-                    throw errorMsg + ': ' + error.response
+                    throw errorMsg
                 })
         },
 
@@ -241,7 +239,7 @@ export default new Vuex.Store({
         autoRecalculate({state, dispatch}) {
             const draft = state.draft
             draft.order.recalculationMode = 'all'
-            dispatch('recalculateOrder', draft)
+            return dispatch('recalculateOrder', draft)
         },
 
         recalculateOrder({dispatch, commit}, draft) {
@@ -261,11 +259,9 @@ export default new Vuex.Store({
 
 
                     if (response.data.error) {
-                        dispatch('displayError', response.data.error);
+                        throw response.data.error
                         return
                     }
-
-                    dispatch('displayNotice', "Order recalculated.");
                 })
                 .catch((error) => {
                     commit('updateRecalculateLoading', false)
@@ -276,9 +272,7 @@ export default new Vuex.Store({
                         errorMsg = error.response.data.error
                     }
 
-                    dispatch('displayError', errorMsg);
-
-                    throw errorMsg + ': '+ error.response
+                    throw errorMsg
                 })
         },
 

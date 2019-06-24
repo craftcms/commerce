@@ -146,6 +146,12 @@
 
             recalculate(draft) {
                 this.recalculateOrder(draft)
+                    .then(() => {
+                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    })
             },
 
             autoRecalculate() {
@@ -153,6 +159,12 @@
 
                 if (window.confirm(message)) {
                     this.$store.dispatch('autoRecalculate')
+                        .then(() => {
+                            this.$store.dispatch('displayNotice', "Order recalculated.")
+                        })
+                        .catch((error) => {
+                            this.$store.dispatch('displayError', error);
+                        })
                 }
             }
         },

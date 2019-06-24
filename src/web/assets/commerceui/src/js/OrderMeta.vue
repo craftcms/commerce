@@ -222,6 +222,12 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.reference = value
                     this.recalculateOrder(draft)
+                        .then(() => {
+                            this.$store.dispatch('displayNotice', "Order recalculated.")
+                        })
+                        .catch((error) => {
+                            this.$store.dispatch('displayError', error);
+                        })
                 }, 1000)
             },
 
@@ -233,6 +239,12 @@
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.couponCode = value
                     this.recalculateOrder(draft)
+                        .then(() => {
+                            this.$store.dispatch('displayNotice', "Order recalculated.")
+                        })
+                        .catch((error) => {
+                            this.$store.dispatch('displayError', error);
+                        })
                 }, 1000)
             },
 
@@ -244,6 +256,12 @@
                     const draft = this.draft
                     draft.order = value
                     this.recalculateOrder(draft)
+                        .then(() => {
+                            this.$store.dispatch('displayNotice', "Order recalculated.")
+                        })
+                        .catch((error) => {
+                            this.$store.dispatch('displayError', error);
+                        })
                 }
             }
         },
@@ -267,6 +285,12 @@
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order = order
                 this.recalculateOrder(draft)
+                    .then(() => {
+                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    })
             },
 
             copy(ref) {
@@ -281,6 +305,12 @@
                 const draft = JSON.parse(JSON.stringify(this.draft))
                 draft.order.dateOrdered = dateTime
                 this.recalculateOrder(draft)
+                    .then(() => {
+                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    })
             }
         }
     }
