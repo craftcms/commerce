@@ -849,10 +849,10 @@ class OrdersController extends Controller
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
-        if($dateOrdered = DateTimeHelper::toDateTime($orderRequestData['order']['dateOrdered']))
-        {
-            $order->dateOrdered = $dateOrdered;
+        if (($dateOrdered = $orderRequestData['order']['dateOrdered']) !== null) {
+            $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
         }
+
 
         // Only email set on the order
         if ($order->customerId == null && $order->email) {
