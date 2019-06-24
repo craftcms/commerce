@@ -104,12 +104,12 @@ class SubscriptionsController extends BaseController
     /**
      * Refreshes all subscription payments
      *
-     * @return Response|null
      * @throws BadRequestHttpException If not POST request
      * @throws ForbiddenHttpException If permissions are lacking
      * @throws NotFoundHttpException If subscription not found
+     * @throws InvalidConfigException
      */
-    public function actionRefreshPayments(): Response
+    public function actionRefreshPayments()
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
@@ -128,12 +128,13 @@ class SubscriptionsController extends BaseController
     }
 
     /**
+     * @return Response|null
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSubscribe(): Response
+    public function actionSubscribe()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -203,11 +204,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionReactivate(): Response
+    public function actionReactivate()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -261,11 +262,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionSwitch(): Response
+    public function actionSwitch()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -337,11 +338,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionCancel(): Response
+    public function actionCancel()
     {
         $this->requireLogin();
         $this->requirePostRequest();

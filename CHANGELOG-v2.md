@@ -4,6 +4,7 @@
 
 ### Fixed
 - When calling toArray on an Order, the line items are no longer indexed incorrectly.
+- Fixed a PHP error that occurred when `commerce/subscriptions/*` actions returned validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
 
 ## 2.1.7 - 2019-06-11
 
