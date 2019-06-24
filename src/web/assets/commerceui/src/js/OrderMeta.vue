@@ -254,7 +254,7 @@
             ]),
 
             markAsCompleted() {
-                if (!window.confirm("Are you sure you want to complete this order?")) {
+                if (!window.confirm(this.$options.filters.t("Are you sure you want to complete this order?", 'commerce'))) {
                     return false
                 }
 

@@ -63,7 +63,7 @@
                     return false
                 }
 
-                if (window.confirm("Are you sure you want to send email: " + emailTemplate.title)) {
+                if (window.confirm(this.options.filters.t("Are you sure you want to send email: {title}?", 'commerce', {title:emailTemplate.title}))) {
                     this.$store.dispatch('sendEmail', emailTemplateId)
                         .then((response) => {
                             if (typeof response.data.error !== 'undefined') {
