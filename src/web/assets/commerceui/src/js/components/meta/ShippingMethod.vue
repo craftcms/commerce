@@ -19,12 +19,10 @@
 
 <script>
     import SelectInput from '../SelectInput'
-    import VSelect from 'vue-select'
 
     export default {
         components: {
             SelectInput,
-            VSelect,
         },
 
         props: {
