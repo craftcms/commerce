@@ -7,7 +7,7 @@
                 <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
                 <div class="menu">
                     <ul>
-                        <li v-for="pdfUrl in pdfUrls">
+                        <li v-for="(pdfUrl, key) in pdfUrls" :key="'pdfUrl' + key">
                             <a :href="pdfUrl.url" target="_blank">{{pdfUrl.name}}</a>
                         </li>
                     </ul>
@@ -22,7 +22,7 @@
                 <div class="btn menubtn" ref="sendEmailMenuBtn">{{"Send Email"|t('commerce')}}</div>
                 <div class="menu">
                     <ul>
-                        <li v-for="emailTemplate in emailTemplates">
+                        <li v-for="(emailTemplate, key) in emailTemplates" :key="'emailTemplate' + key">
                             <a :href="emailTemplate.id" @click.prevent="sendEmail(emailTemplate.id)">{{emailTemplate.title}}</a>
                         </li>
                     </ul>
@@ -33,6 +33,8 @@
 </template>
 
 <script>
+    /* global Garnish */
+
     import {mapState, mapGetters} from 'vuex'
 
     export default {

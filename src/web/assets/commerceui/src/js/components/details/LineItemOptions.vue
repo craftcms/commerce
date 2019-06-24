@@ -29,7 +29,7 @@
                     <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                     <ul v-if="errors.length > 0" class="errors">
-                        <li v-for="error in errors">{{error}}</li>
+                        <li v-for="(error, key) in errors" :key="key">{{error}}</li>
                     </ul>
                 </template>
             </div>

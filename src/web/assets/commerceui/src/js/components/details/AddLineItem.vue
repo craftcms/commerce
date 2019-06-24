@@ -51,13 +51,11 @@
 <script>
     import {mapState, mapGetters, mapActions} from 'vuex'
     import debounce from 'lodash.debounce'
-    import VSelect from 'vue-select'
     import orderApi from '../../api/order'
     import SelectInput from '../SelectInput'
 
     export default {
         components: {
-            VSelect,
             SelectInput,
         },
 

@@ -7,7 +7,7 @@
                         <field :label="$options.filters.t('Type', 'commerce')" :required="true">
                             <div class="select">
                                 <select v-model="type">
-                                    <option v-for="adjustmentOption in adjustmentOptions" :value="adjustmentOption.value">
+                                    <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
                                         {{adjustmentOption.label}}
                                     </option>
                                 </select>
@@ -173,7 +173,7 @@
 
             included: {
                 get() {
-                    if (this.adjustment.included === true || this.adjustment.included === '1') {
+                    if (this.adjustment.included === true || this.adjustment.included === '1') {
                         return true
                     }
 

@@ -19,8 +19,6 @@
 </template>
 
 <script>
-    /* global Garnish */
-
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
 

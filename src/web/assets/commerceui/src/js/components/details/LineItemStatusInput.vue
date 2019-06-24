@@ -18,7 +18,7 @@
                         {{"None"|t('commerce')}}
                     </a>
                 </li>
-                <li v-for="(status) in lineItemStatuses">
+                <li v-for="(status, key) in lineItemStatuses" :key="key">
                     <a
                             :data-id="status.id"
                             :data-color="status.color"

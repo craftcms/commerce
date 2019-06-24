@@ -14,7 +14,7 @@
 
             <div class="menu">
                 <ul class="padded" role="listbox">
-                    <li v-for="(status) in orderStatuses">
+                    <li v-for="(status, key) in orderStatuses" :key="key">
                         <a
                                 :data-id="status.id"
                                 :data-color="status.color"
