@@ -1,0 +1,17 @@
+@import "~vue-select/src/scss/global/variables";
+
+$vs-state-active-bg: $lightSelColor;
+$vs-state-active-color: $textColor;
+
+@import "~vue-select/src/scss/global/component";
+@import "~vue-select/src/scss/global/animations";
+@import "~vue-select/src/scss/global/states";
+
+@import "~vue-select/src/scss/modules/dropdown-toggle";
+@import "~vue-select/src/scss/modules/open-indicator";
+@import "~vue-select/src/scss/modules/clear";
+@import "~vue-select/src/scss/modules/dropdown-menu";
+@import "~vue-select/src/scss/modules/dropdown-option";
+@import "~vue-select/src/scss/modules/selected";
+@import "~vue-select/src/scss/modules/search-input";
+@import "~vue-select/src/scss/modules/spinner";
