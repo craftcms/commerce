@@ -23,7 +23,6 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\validators\StringValidator;
 use LitEmoji\LitEmoji;
-use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -141,7 +140,7 @@ class LineItem extends Model
     /**
      * @var
      */
-    private $_options = [];
+    private $_options;
 
     // Public Methods
     // =========================================================================
@@ -187,12 +186,10 @@ class LineItem extends Model
      */
     public function setOptions($options)
     {
-        if (is_string($options)) {
-            $options = Json::decode($options);
-        }
+        $options = Json::decodeIfJson($options);
 
         if (!is_array($options)) {
-            throw new InvalidArgumentException('Options must be an array.');
+            $options = [];
         }
 
         $cleanEmojiValues = static function(&$options) use (&$cleanEmojiValues) {
