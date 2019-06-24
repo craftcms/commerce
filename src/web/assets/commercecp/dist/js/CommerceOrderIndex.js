@@ -11,7 +11,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
     init: function(elementType, $container, settings) {
         this.base(elementType, $container, settings);
-        this.$newEntryBtn = $('<a class="btn submit add icon" href="'+Craft.getCpUrl('commerce/order/new')+'">New order</a>');
+        this.$newEntryBtn = $('<a class="btn submit add icon" href="'+Craft.getCpUrl('commerce/orders/new')+'">New order</a>');
         this.addButton(this.$newEntryBtn);
     },
     getViewClass: function(mode) {

@@ -321,7 +321,9 @@ class LineItemStatuses extends Component
             $results = $this->_createLineItemStatusesQuery()->all();
 
             foreach ($results as $row) {
-                $this->_memoizeLineItemStatus(new LineItemStatus($row));
+                $status = new LineItemStatus($row);
+                $status->typecastAttributes();
+                $this->_memoizeLineItemStatus($status);
             }
 
             $this->_fetchedAllStatuses = true;

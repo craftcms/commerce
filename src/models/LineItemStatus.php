@@ -8,9 +8,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order status model.
@@ -73,6 +73,27 @@ class LineItemStatus extends Model
 
     // Public Methods
     // =========================================================================
+
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'name' => AttributeTypecastBehavior::TYPE_STRING,
+                'handle' => AttributeTypecastBehavior::TYPE_STRING,
+                'color' => AttributeTypecastBehavior::TYPE_STRING,
+                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'uid' => AttributeTypecastBehavior::TYPE_STRING,
+            ]
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * @return string
