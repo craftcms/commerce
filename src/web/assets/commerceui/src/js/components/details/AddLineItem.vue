@@ -51,7 +51,7 @@
 <script>
     import {mapState, mapGetters, mapActions} from 'vuex'
     import debounce from 'lodash.debounce'
-    import orderApi from '../../api/order'
+    import ordersApi from '../../api/orders'
     import SelectInput from '../SelectInput'
 
     export default {
@@ -139,7 +139,7 @@
             },
 
             search: debounce((loading, searchText, vm) => {
-                orderApi.purchasableSearch(vm.orderId, escape(searchText))
+                ordersApi.purchasableSearch(vm.orderId, escape(searchText))
                     .then((response) => {
                         vm.$store.commit('updatePurchasables', response.data)
                         loading(false)

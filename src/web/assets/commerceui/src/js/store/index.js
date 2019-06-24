@@ -2,7 +2,6 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
-import orderApi from '../api/order';
 import ordersApi from '../api/orders';
 import utils from '../helpers/utils'
 
@@ -87,38 +86,15 @@ export default new Vuex.Store({
         },
 
         lineItemStatuses() {
-            const statuses = window.orderEdit.lineItemStatuses
-
-            for (let key in statuses) {
-                statuses[key].id = parseInt(statuses[key].id)
-            }
-
-            return statuses
+            return window.orderEdit.lineItemStatuses
         },
 
         shippingMethods(state) {
-            const shippingMethodsObject = JSON.parse(JSON.stringify(state.draft.order.availableShippingMethods))
-            const shippingMethods = []
-
-            for (let key in shippingMethodsObject) {
-                const shippingMethod = shippingMethodsObject[key]
-
-                shippingMethod.id = parseInt(shippingMethod.id)
-
-                shippingMethods.push(shippingMethod)
-            }
-
-            return shippingMethods
+            return JSON.parse(JSON.stringify(state.draft.order.availableShippingMethods))
         },
 
         orderStatuses() {
-            const statuses = window.orderEdit.orderStatuses
-
-            for (let key in statuses) {
-                statuses[key].id = parseInt(statuses[key].id)
-            }
-
-            return statuses
+            return window.orderEdit.orderStatuses
         },
 
         getErrors(state) {
@@ -198,7 +174,7 @@ export default new Vuex.Store({
 
             commit('updateRecalculateLoading', true)
 
-            return orderApi.get(orderId, true)
+            return ordersApi.get(orderId, true)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
@@ -240,14 +216,14 @@ export default new Vuex.Store({
         getPurchasables({commit, getters}) {
             const orderId = getters.orderId
 
-            return orderApi.purchasableSearch(orderId)
+            return ordersApi.purchasableSearch(orderId)
                 .then((response) => {
                     commit('updatePurchasables', response.data)
                 })
         },
 
         customerSearch({commit}, query) {
-            return orderApi.customerSearch(query)
+            return ordersApi.customerSearch(query)
                 .then((response) => {
                     commit('updateCustomers', response.data)
                 })
@@ -267,7 +243,7 @@ export default new Vuex.Store({
 
             // Recalculate
 
-            return orderApi.recalculate(data)
+            return ordersApi.recalculate(data)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
@@ -298,7 +274,7 @@ export default new Vuex.Store({
         },
 
         sendEmail(context, emailTemplateId) {
-            return orderApi.sendEmail(emailTemplateId)
+            return ordersApi.sendEmail(emailTemplateId)
         }
     },
 
