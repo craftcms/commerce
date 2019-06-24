@@ -148,31 +148,3 @@
         },
     }
 </script>
-
-<style lang="scss">
-    .add-line-item-form {
-        max-width: 500px;
-    }
-
-    .purchasable-select-option {
-        display: flex;
-
-        .description {
-            flex-grow: 1;
-        }
-
-        .sku {
-            color: #888;
-            margin-right: 20px;
-        }
-
-        &.notAvailable{
-            color: red;
-        }
-
-        .price {
-            width: 10%;
-            text-align: right;
-        }
-    }
-</style>

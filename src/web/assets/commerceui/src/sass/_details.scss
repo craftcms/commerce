@@ -10,6 +10,8 @@
     color: #f1f5f8;
   }
 }
+
+
 /* Order */
 
 .order-indented-block {
@@ -46,6 +48,42 @@
   }
 }
 
+
+/* Add line item form */
+
+.add-line-item-form {
+  max-width: 500px;
+}
+
+
+/* Purchasable select option */
+
+.purchasable-select-option {
+  display: flex;
+
+  .description {
+    flex-grow: 1;
+  }
+
+  .sku {
+    color: $lightTextColor;
+    margin-right: 20px;
+  }
+
+  &.notAvailable{
+    .description {
+      color: $lightTextColor;
+    }
+    .price {
+      color: red;
+    }
+  }
+
+  .price {
+    width: 10%;
+    text-align: right;
+  }
+}
 
 /* Adjustments */
 
