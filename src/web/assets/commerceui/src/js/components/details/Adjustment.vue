@@ -2,7 +2,7 @@
     <div class="adjustment order-flex">
         <div class="order-flex-grow">
             <div>
-                <template v-if="editing">
+                <template v-if="editing && recalculationMode === 'none'">
                     <div class="meta">
                         <field :label="$options.filters.t('Type', 'commerce')" :required="true">
                             <div class="select">
