@@ -9,6 +9,7 @@
             :create-option="createOption"
             :placeholder="$options.filters.t('Search customer…', 'commerce')"
             taggable
+            @input="onChange"
             @search="onSearch">
         <template v-slot:option="slotProps">
             <div class="customer-select-option">
@@ -62,30 +63,8 @@
                 customers: state => state.customers,
             }),
 
-
-            customer() {
-                if (this.customerId !== 0) {
-                    for (let customersKey in this.customers) {
-                        const customer = this.customers[customersKey]
-
-                        if (customer.id === this.customerId) {
-                            return customer
-                        }
-                    }
-                }
-
-                return {id: 0, name: this.$options.filters.t("None", 'commerce')}
-            },
-
-            customerId: {
-                get() {
-                    return this.order.customerId
-                },
-                set(value) {
-                    const order = this.order
-                    order.customerId = value
-                    this.$emit('updateOrder', order)
-                }
+            customerId() {
+                return this.order.customerId
             },
         },
 
@@ -100,11 +79,6 @@
 
                     return {customerId: this.customerId, email: this.order.email}
                 }
-
-                const order = JSON.parse(JSON.stringify(this.order))
-                order.customerId = null
-                order.email = searchText
-                this.$emit('updateOrder', order)
 
                 return {customerId: null, email: searchText, totalOrders: 0, userId: null, firstName: null, lastName: null}
             },
@@ -122,6 +96,13 @@
                         loading(false)
                     })
             }, 350),
+
+            onChange() {
+                const order = JSON.parse(JSON.stringify(this.order))
+                order.customerId = this.selectedCustomer.customerId
+                order.email = this.selectedCustomer.email
+                this.$emit('updateOrder', order)
+            }
         },
 
         mounted() {
