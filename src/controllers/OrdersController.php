@@ -916,9 +916,9 @@ class OrdersController extends Controller
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
-                foreach ($lineItemData['adjustments'] as $adjustment) {
+                foreach ($lineItemData['adjustments'] as $adjustmentData) {
 
-                    $id = $adjustment['id'];
+                    $id = $adjustmentData['id'];
 
                     $adjustment = null;
                     if ($id) {
@@ -930,11 +930,11 @@ class OrdersController extends Controller
 
                     $adjustment->setOrder($order);
                     $adjustment->setLineItem($lineItem);
-                    $adjustment->amount = $adjustment['amount'];
-                    $adjustment->type = $adjustment['type'];
-                    $adjustment->name = $adjustment['name'];
-                    $adjustment->description = $adjustment['description'];
-                    $adjustment->included = $adjustment['included'];
+                    $adjustment->amount = $adjustmentData['amount'];
+                    $adjustment->type = $adjustmentData['type'];
+                    $adjustment->name = $adjustmentData['name'];
+                    $adjustment->description = $adjustmentData['description'];
+                    $adjustment->included = $adjustmentData['included'];
 
                     $adjustments[] = $adjustment;
                 }
@@ -946,9 +946,9 @@ class OrdersController extends Controller
         // Only update the adjustments if the recalculation mode is none (manually updating adjustments)
         if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
 
-            foreach ($orderRequestData['order']['orderAdjustments'] as $adjustment) {
+            foreach ($orderRequestData['order']['orderAdjustments'] as $adjustmentData) {
 
-                $id = $adjustment['id'];
+                $id = $adjustmentData['id'];
 
                 $adjustment = null;
                 if ($id) {
@@ -959,11 +959,11 @@ class OrdersController extends Controller
                 }
 
                 $adjustment->setOrder($order);
-                $adjustment->amount = $adjustment['amount'];
-                $adjustment->type = $adjustment['type'];
-                $adjustment->name = $adjustment['name'];
-                $adjustment->description = $adjustment['description'];
-                $adjustment->included = $adjustment['included'];
+                $adjustment->amount = $adjustmentData['amount'];
+                $adjustment->type = $adjustmentData['type'];
+                $adjustment->name = $adjustmentData['name'];
+                $adjustment->description = $adjustmentData['description'];
+                $adjustment->included = $adjustmentData['included'];
 
                 $adjustments[] = $adjustment;
             }
