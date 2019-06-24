@@ -1179,7 +1179,7 @@ class Order extends Element
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/order/' . $this->id);
+        return UrlHelper::cpUrl('commerce/orders/' . $this->id);
     }
 
     /**

@@ -13,7 +13,7 @@ export default {
             });
         }
 
-        return axios.get(Craft.getActionUrl('commerce/order/get', {orderId}), {
+        return axios.get(Craft.getActionUrl('commerce/orders/get', {orderId}), {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }
@@ -21,7 +21,7 @@ export default {
     },
 
     recalculate(draft) {
-        return axios.post(Craft.getActionUrl('commerce/order/refresh'), draft, {
+        return axios.post(Craft.getActionUrl('commerce/orders/refresh'), draft, {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }
@@ -37,7 +37,7 @@ export default {
             data.query = query
         }
 
-        return axios.get(Craft.getActionUrl('commerce/order/purchasable-search', data), {
+        return axios.get(Craft.getActionUrl('commerce/orders/purchasable-search', data), {
             headers: {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }
@@ -51,7 +51,7 @@ export default {
             data.query = query
         }
 
-        return axios.get(Craft.getActionUrl('commerce/order/customer-search', data), {
+        return axios.get(Craft.getActionUrl('commerce/orders/customer-search', data), {
             headers: {
                 [Craft.csrfTokenName]:  Craft.csrfTokenValue,
             }
@@ -59,7 +59,7 @@ export default {
     },
 
     sendEmail(emailTemplateId) {
-        return axios.post(Craft.getActionUrl('commerce/order/send-email', {id: emailTemplateId}), {}, {
+        return axios.post(Craft.getActionUrl('commerce/orders/send-email', {id: emailTemplateId}), {}, {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }

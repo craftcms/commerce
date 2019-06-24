@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -140,9 +141,20 @@ class Carts extends Component
     public function purgeIncompleteCarts(): int
     {
         $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
+        $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
 
         if ($doPurge) {
-            $cartIds = $this->_getCartsIdsToPurge();
+            $edge = new DateTime();
+            $interval = new DateInterval($configInterval);
+            $interval->invert = 1;
+            $edge->add($interval);
+
+            $cartIds = (new Query())
+                ->select(['orders.id'])
+                ->where(['not', ['isCompleted' => 1]])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->from(['orders' => '{{%commerce_orders}}'])
+                ->column();
 
             // Taken from craft\services\Elements::deleteElement(); Using the method directly
             // takes too much resources since it retrieves the order before deleting it.
@@ -180,6 +192,7 @@ class Carts extends Component
      * Get the session cart number.
      *
      * @return mixed|string
+     * @throws MissingComponentException
      */
     private function getSessionCartNumber()
     {
@@ -192,27 +205,5 @@ class Carts extends Component
         }
 
         return $cartNumber;
-    }
-
-    /**
-     * Return cart IDs to be deleted
-     *
-     * @return int[]
-     * @throws \Exception
-     */
-    private function _getCartsIdsToPurge(): array
-    {
-        $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
-        $edge = new DateTime();
-        $interval = new DateInterval($configInterval);
-        $interval->invert = 1;
-        $edge->add($interval);
-
-        return (new Query())
-            ->select(['orders.id'])
-            ->where(['not', ['isCompleted' => 1]])
-            ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
-            ->from(['orders' => '{{%commerce_orders}}'])
-            ->column();
     }
 }
