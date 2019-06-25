@@ -8,4 +8,5 @@
 *aspnet_client/*
 /composer.lock
 /node_modules
+commerceui/mode_modules/
 /vendor
