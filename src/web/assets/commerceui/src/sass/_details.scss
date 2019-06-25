@@ -1,0 +1,126 @@
+/* Order Details */
+
+/* Starter */
+
+.starter {
+  text-align: center;
+
+  div[data-icon] {
+    font-size: 4em;
+    color: #f1f5f8;
+  }
+}
+
+
+/* Order */
+
+.order-indented-block {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.order-block-title {
+  margin-right: 20px;
+  width: 30%;
+}
+
+
+/* Line Item */
+
+.line-item {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+
+  label {
+    margin-right: 10px;
+  }
+
+  .line-item-title {
+    min-width: 200px;
+  }
+
+  .order-indented-block:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+
+
+/* Add line item form */
+
+.add-line-item-form {
+  max-width: 500px;
+}
+
+
+/* Purchasable select option */
+
+.purchasable-select-option {
+  display: flex;
+
+  .description {
+    flex-grow: 1;
+  }
+
+  .sku {
+    color: $lightTextColor;
+    margin-right: 20px;
+  }
+
+  &.notAvailable{
+    .description {
+      color: $lightTextColor;
+    }
+    .price {
+      color: red;
+    }
+  }
+
+  .price {
+    width: 10%;
+    text-align: right;
+  }
+}
+
+/* Adjustments */
+
+.adjustment {
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+  }
+
+  .meta {
+    & > .field:last-child {
+      border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+    }
+  }
+}
+
+.adjustment-actions {
+  padding: 14px 0;
+}
+
+
+/* Recalculate action */
+
+.recalculate-action {
+  margin-top: 14px;
+
+  .recalculate-btn {
+    display: inline-block;
+  }
+}
+
+
+/* PrismJS fix for .token conflict with Craft’s styles */
+
+.order-details {
+  .token {
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+}

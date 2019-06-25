@@ -16,6 +16,7 @@ use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItems;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
 use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Orders;
@@ -176,6 +177,16 @@ trait Services
     public function getLineItems(): LineItems
     {
         return $this->get('lineItems');
+    }
+
+    /**
+     * Returns the lineItems statuses service
+     *
+     * @return LineItemStatuses The lineItems service
+     */
+    public function getLineItemStatuses(): LineItemStatuses
+    {
+        return $this->get('lineItemStatuses');
     }
 
     /**
@@ -456,6 +467,7 @@ trait Services
             'emails' => Emails::class,
             'gateways' => Gateways::class,
             'lineItems' => LineItems::class,
+            'lineItemStatuses' => LineItemStatuses::class,
             'orderAdjustments' => OrderAdjustments::class,
             'orderHistories' => OrderHistories::class,
             'orders' => Orders::class,

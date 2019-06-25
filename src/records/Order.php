@@ -38,6 +38,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $message
  * @property string $number
  * @property string $orderLanguage
+ * @property string $orderOrigin
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId
  * @property string $paidStatus
@@ -46,6 +47,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $registerUserOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
+ * @property string $recalculationMode
  * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle

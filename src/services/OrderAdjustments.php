@@ -86,6 +86,26 @@ class OrderAdjustments extends Component
     }
 
     /**
+     * @param int $id
+     * @return OrderAdjustment|null
+     */
+    public function getOrderAdjustmentById(int $id)
+    {
+        $row = $this->_createOrderAdjustmentQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
+        $adjustment = new OrderAdjustment($row);
+        $adjustment->typecastAttributes();
+        return $adjustment;
+    }
+
+    /**
      * Get all order adjustments by order's ID.
      *
      * @param int $orderId

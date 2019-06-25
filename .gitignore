@@ -7,4 +7,4 @@
 *Thumbs.db
 *aspnet_client/*
 /composer.lock
-/node_modules
+node_modules/

@@ -50,6 +50,7 @@ trait Routes
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
+            $event->rules['commerce/orders/new'] = 'commerce/orders/new-order';
 
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 
@@ -69,6 +70,9 @@ trait Routes
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
             $event->rules['commerce/settings/orderstatuses/<id:\d+>'] = 'commerce/order-statuses/edit';
 
+            $event->rules['commerce/settings/lineitemstatuses'] = 'commerce/line-item-statuses/index';
+            $event->rules['commerce/settings/lineitemstatuses/new'] = 'commerce/line-item-statuses/edit';
+            $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
 
@@ -113,7 +117,6 @@ trait Routes
 
 
             // Taxes
-
             $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
             $event->rules['commerce/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
             $event->rules['commerce/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
@@ -125,9 +128,7 @@ trait Routes
             $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-
             // Promotions
-
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
             $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
@@ -137,7 +138,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
             // Customers
-
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });

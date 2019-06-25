@@ -18,10 +18,12 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property float $length
  * @property string $note
+ * @property string $adminNote
  * @property mixed $options
  * @property string $optionsSignature
  * @property Order $order
  * @property int $orderId
+ * @property int|null lineItemStatusId
  * @property float $price
  * @property ActiveQueryInterface $purchasable
  * @property int $purchasableId
@@ -83,5 +85,13 @@ class LineItem extends ActiveRecord
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getLineItemStatus(): ActiveQueryInterface
+    {
+        return $this->hasOne(LineItemStatus::class, ['id' => 'lineItemStatusId']);
     }
 }

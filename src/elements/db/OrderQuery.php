@@ -823,6 +823,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.reference',
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
+            'commerce_orders.orderOrigin',
             'commerce_orders.dateOrdered',
             'commerce_orders.email',
             'commerce_orders.isCompleted',
@@ -843,9 +844,15 @@ class OrderQuery extends ElementQuery
             'commerce_orders.dateUpdated'
         ]);
 
+        // TODO: remove after next breakpoint
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
         if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
             $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '2.2', '>=')) {
+            $this->query->addSelect(['commerce_products.recalculationMode']);
         }
 
         if ($this->number) {

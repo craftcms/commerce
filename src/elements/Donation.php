@@ -156,10 +156,9 @@ class Donation extends Purchasable
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
             $lineItem->price = $options['donationAmount'];
+            $lineItem->salePrice = $options['donationAmount'];
             $lineItem->saleAmount = 0;
         }
-
-        return $lineItem->salePrice ?? 0.0;
     }
 
     /**

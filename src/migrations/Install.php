@@ -291,7 +291,23 @@ class Install extends Migration
             'total' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
+            'adminNote' => $this->text(),
             'snapshot' => $this->longText(),
+            'lineItemStatusId' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%commerce_lineitemstatuses}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
+            'isArchived' => $this->boolean()->notNull()->defaultValue(false),
+            'dateArchived' => $this->dateTime(),
+            'sortOrder' => $this->integer(),
+            'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -350,6 +366,7 @@ class Install extends Migration
             'orderLanguage' => $this->string(12)->notNull(),
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean(),
+            'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
             'returnUrl' => $this->string(),
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
@@ -492,13 +509,13 @@ class Install extends Migration
         ]);
 
         $this->createTable('{{%commerce_purchasables}}', [
-            'id' => $this->integer()->notNull(),
+            'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull(),
+            'description' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
         ]);
 
         $this->createTable('{{%commerce_sale_purchasables}}', [
@@ -748,7 +765,7 @@ class Install extends Migration
         ]);
 
         $this->createTable('{{%commerce_variants}}', [
-            'id' => $this->integer()->notNull(),
+            'id' => $this->primaryKey(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean(),
@@ -766,7 +783,6 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
         ]);
     }
 
@@ -789,6 +805,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%commerce_emails}}');
         $this->dropTableIfExists('{{%commerce_gateways}}');
         $this->dropTableIfExists('{{%commerce_lineitems}}');
+        $this->dropTableIfExists('{{%commerce_lineitemstatuses}}');
         $this->dropTableIfExists('{{%commerce_orderadjustments}}');
         $this->dropTableIfExists('{{%commerce_orderhistories}}');
         $this->dropTableIfExists('{{%commerce_orders}}');
@@ -867,6 +884,8 @@ class Install extends Migration
         $this->createIndex(null, '{{%commerce_lineitems}}', 'purchasableId', false);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'taxCategoryId', false);
         $this->createIndex(null, '{{%commerce_lineitems}}', 'shippingCategoryId', false);
+        $this->createIndex(null, '{{%commerce_lineitems}}', 'lineItemStatusId', false);
+        $this->createIndex(null, '{{%commerce_lineitemstatuses}}', 'isArchived', false);
         $this->createIndex(null, '{{%commerce_orderadjustments}}', 'orderId', false);
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'orderId', false);
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'prevStatusId', false);
@@ -975,6 +994,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['shippingCategoryId'], '{{%commerce_shippingcategories}}', ['id'], null, 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_lineitems}}', ['taxCategoryId'], '{{%commerce_taxcategories}}', ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, '{{%commerce_lineitems}}', ['lineItemStatusId'], '{{%commerce_lineitemstatuses}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderadjustments}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['customerId'], '{{%commerce_customers}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['newStatusId'], '{{%commerce_orderstatuses}}', ['id'], 'RESTRICT', 'CASCADE');
@@ -1667,15 +1687,6 @@ class Install extends Migration
             'handle' => 'new',
             'color' => 'green',
             'default' => true
-        ];
-        $orderStatus = new OrderStatusModel($data);
-        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
-
-        $data = [
-            'name' => 'Shipped',
-            'handle' => 'shipped',
-            'color' => 'blue',
-            'default' => false
         ];
         $orderStatus = new OrderStatusModel($data);
         Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);

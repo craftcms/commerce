@@ -42,28 +42,34 @@ use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\i18n\Locale;
 use DateInterval;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
+use yii\log\Logger;
 
 /**
  * Order or Cart model.
  *
  * @property OrderAdjustment[] $adjustments
- * @property bool $shouldRecalculateAdjustments
  * @property string $email the email for this order
  * @property LineItem[] $lineItems
  * @property Address $billingAddress
  * @property Address $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
+ * @property string $recalculationMode the mode of recalculation.
+ * @property string $orderOrigin
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -96,6 +102,8 @@ use yii\base\InvalidConfigException;
  * @property-read float $totalTaxablePrice
  * @property-read int $totalQty the total number of items
  * @property-read int $totalWeight
+ * @property-read string $orderStatusHtml
+ * @property-read string $customerLinkHtml
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -111,6 +119,14 @@ class Order extends Element
     const PAID_STATUS_PAID = 'paid';
     const PAID_STATUS_PARTIAL = 'partial';
     const PAID_STATUS_UNPAID = 'unpaid';
+
+    const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
+    const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
+    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
+
+    const ORIGIN_FRONT = 'front'; // Did the order get created from the front-end
+    const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
+    const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
 
     /**
      * @event \yii\base\Event This event is raised before a line item has been added to the order
@@ -270,11 +286,6 @@ class Order extends Element
     public $lastIp;
 
     /**
-     * @var string Order locale
-     */
-    public $orderLanguage;
-
-    /**
      * @var string Message
      */
     public $message;
@@ -293,6 +304,16 @@ class Order extends Element
      * @var int Order status ID
      */
     public $orderStatusId;
+
+    /**
+     * @var string Order locale
+     */
+    public $orderLanguage;
+
+    /**
+     * @var string Order origin
+     */
+    public $orderOrigin;
 
     /**
      * @var int Billing address ID
@@ -340,6 +361,11 @@ class Order extends Element
     public $registerUserOnOrderComplete;
 
     /**
+     * @var string
+     */
+    private $_recalculationMode;
+
+    /**
      * @var Address
      */
     private $_shippingAddress;
@@ -374,11 +400,6 @@ class Order extends Element
      */
     private $_email;
 
-    /**
-     * @var bool Should the order recalculate?
-     */
-    private $_recalculate = true;
-
     // Public Methods
     // =========================================================================
 
@@ -399,12 +420,56 @@ class Order extends Element
             }
         }
 
-        if (!$this->orderLanguage)
-        {
+        if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }
 
+        if ($this->currency === null) {
+            $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
+        if ($this->_recalculationMode === null) {
+            if ($this->isCompleted) {
+                $this->setRecalculationMode(self::RECALCULATION_MODE_NONE);
+            } else {
+                $this->setRecalculationMode(self::RECALCULATION_MODE_ALL);
+            }
+        }
+
         return parent::init();
+    }
+
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'number' => AttributeTypecastBehavior::TYPE_STRING,
+                'reference' => AttributeTypecastBehavior::TYPE_STRING,
+                'couponCode' => AttributeTypecastBehavior::TYPE_STRING,
+                'isCompleted' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'gatewayId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lastIp' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderLanguage' => AttributeTypecastBehavior::TYPE_STRING,
+                'message' => AttributeTypecastBehavior::TYPE_STRING,
+                'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
+                'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'makePrimaryBillingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingSameAsBilling' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
+                'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ]
+        ];
+
+        return $behaviors;
     }
 
     /**
@@ -457,6 +522,7 @@ class Order extends Element
         $attributes = parent::datetimeAttributes();
         $attributes[] = 'datePaid';
         $attributes[] = 'dateOrdered';
+        $attributes[] = 'dateUpdated';
         return $attributes;
     }
 
@@ -466,9 +532,12 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
+        $names[] = 'recalculationMode';
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'email';
+        $names[] = 'isPaid';
+        $names[] = 'paidStatus';
         $names[] = 'itemSubtotal';
         $names[] = 'itemTotal';
         $names[] = 'lineItems';
@@ -486,11 +555,75 @@ class Order extends Element
     }
 
     /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'adjustmentSubtotal';
+        $attributes[] = 'adjustmentsTotal';
+        $attributes[] = 'itemSubtotal';
+        $attributes[] = 'itemTotal';
+        $attributes[] = 'outstandingBalance';
+        $attributes[] = 'totalPaid';
+        $attributes[] = 'total';
+        $attributes[] = 'totalPrice';
+        $attributes[] = 'totalSaleAmount';
+        $attributes[] = 'totalTaxablePrice';
+        return $attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+
+                if (!empty($model->$attribute)) {
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        foreach ($this->datetimeAttributes() as $attribute) {
+            $fields[$attribute] = function($model, $attribute) {
+                if (!empty($model->$attribute)) {
+
+                    $formatter = Craft::$app->getFormatter();
+
+                    return [
+                        'date' => $formatter->asDate($model->$attribute, Locale::LENGTH_SHORT),
+                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT)
+                    ];
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        $fields['paidStatusHtml'] = 'paidStatusHtml';
+        $fields['customerLinkHtml'] = 'customerLinkHtml';
+        $fields['orderStatusHtml'] = 'orderStatusHtml';
+
+        return $fields;
+    }
+
+    /**
      * @inheritdoc
      */
     public function extraFields()
     {
         $names = parent::extraFields();
+        $names[] = 'availableShippingMethods';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
         $names[] = 'customer';
@@ -501,7 +634,6 @@ class Order extends Element
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
-        $names[] = 'shippingMethodId';
         $names[] = 'transactions';
         return $names;
     }
@@ -576,8 +708,8 @@ class Order extends Element
         }
 
         // Lock for recalculation
-        $originalShouldRecalculate = $this->getShouldRecalculateAdjustments();
-        $this->setShouldRecalculateAdjustments(false);
+        $originalRecalculationMode = $this->getRecalculationMode();
+        $this->setRecalculationMode(self::RECALCULATION_MODE_NONE);
 
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
@@ -596,7 +728,7 @@ class Order extends Element
         }
 
         // restore recalculation lock state
-        $this->setShouldRecalculateAdjustments($originalShouldRecalculate);
+        $this->setRecalculationMode($originalRecalculationMode);
     }
 
     /**
@@ -613,22 +745,6 @@ class Order extends Element
         $includedTaxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
-    }
-
-    /**
-     * @return bool
-     */
-    public function getShouldRecalculateAdjustments(): bool
-    {
-        return $this->_recalculate;
-    }
-
-    /**
-     * @param bool $value
-     */
-    public function setShouldRecalculateAdjustments(bool $value)
-    {
-        $this->_recalculate = $value;
     }
 
     /**
@@ -667,9 +783,6 @@ class Order extends Element
             $mutex->release($lockName);
             return true;
         }
-        // Release after we have confirmed this order is not already complete
-
-        $mutex->release($lockName);
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new DateTime());
@@ -679,16 +792,20 @@ class Order extends Element
         if ($orderStatus && $orderStatus->id) {
             $this->orderStatusId = $orderStatus->id;
         } else {
+            $mutex->release($lockName);
             throw new OrderStatusException('Could not find a valid default order status.');
         }
 
-        $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+        if ($this->reference == null) {
+            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
 
-        try {
-            $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
-        } catch (Throwable $exception) {
-            Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
-            throw $exception;
+            try {
+                $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
+            } catch (Throwable $exception) {
+                $mutex->release($lockName);
+                Craft::error('Unable to generate order completion reference for order ID: ' . $this->id . ', with format: ' . $referenceTemplate . ', error: ' . $exception->getMessage());
+                throw $exception;
+            }
         }
 
         // Raising the 'beforeCompleteOrder' event
@@ -696,12 +813,17 @@ class Order extends Element
             $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
+        // Completed orders should no longer recalculate anything by default
+        $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
+
         if (Craft::$app->getElements()->saveElement($this, false)) {
 
             $this->afterOrderComplete();
-
+            $mutex->release($lockName);
             return true;
         }
+
+        $mutex->release($lockName);
 
         Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
             ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
@@ -796,46 +918,79 @@ class Order extends Element
     }
 
     /**
-     * Regenerates all adjusters and update line item and order totals.
+     * Gets the recalculation mode of the order
+     *
+     * @return string
+     */
+    public function getRecalculationMode(): string
+    {
+        return $this->_recalculationMode;
+    }
+
+    /**
+     * Sets the recalculation mode of the order
+     *
+     * @param $value
+     */
+    public function setRecalculationMode($value)
+    {
+        $this->_recalculationMode = $value;
+    }
+
+    /**
+     * Regenerates all adjusters and updates line items, depending on the current recalculationMode
      *
      * @throws Exception
      */
     public function recalculate()
     {
-        // Check if the order needs to recalculated
-        if (!$this->id || $this->isCompleted || !$this->getShouldRecalculateAdjustments() || $this->hasErrors()) {
+
+        if (!$this->id) {
+            throw new InvalidCallException('Do not recalculate an order that has not been saved');
+        }
+
+        if ($this->hasErrors()) {
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
-        //clear adjustments
-        $this->setAdjustments([]);
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_NONE) {
+            return;
+        }
 
-        $lineItemRemoved = false;
-        foreach ($this->getLineItems() as $item) {
-            if (!$item->refreshFromPurchasable()) {
-                $this->removeLineItem($item);
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+
+            $lineItemRemoved = false;
+            foreach ($this->getLineItems() as $item) {
+                if (!$item->refreshFromPurchasable()) {
+                    $this->removeLineItem($item);
+                    $lineItemRemoved = true;
+                }
+            }
+
+            // This is run in a validation, but need to run again incase the options
+            // data was changed on population of the line item by a plugin.
+            if (OrderHelper::mergeDuplicateLineItems($this)) {
                 $lineItemRemoved = true;
+            }
+
+            if ($lineItemRemoved) {
+                $this->recalculate();
+                return;
             }
         }
 
-        // This is run in a validation, but need to run again incase the options
-        // data was changed on population of the line item by a plugin.
-        if (OrderHelper::mergeDuplicateLineItems($this)) {
-            $lineItemRemoved = true;
-        }
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL || $this->getRecalculationMode() == self::RECALCULATION_MODE_ADJUSTMENTS_ONLY) {
+            //clear adjustments
+            $this->setAdjustments([]);
 
-        if ($lineItemRemoved) {
-            $this->recalculate();
-            return;
+            foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
+                /** @var AdjusterInterface $adjuster */
+                $adjuster = new $adjuster();
+                $adjustments = $adjuster->adjust($this);
+                $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
+            }
         }
-
-        foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-            /** @var AdjusterInterface $adjuster */
-            $adjuster = new $adjuster();
-            $adjustments = $adjuster->adjust($this);
-            $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
-        }
-
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = $this->getAvailableShippingMethods();
@@ -911,6 +1066,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
+        $orderRecord->orderOrigin = $this->orderOrigin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
@@ -918,6 +1074,7 @@ class Order extends Element
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
+        $orderRecord->recalculationMode = $this->getRecalculationMode();
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
@@ -1122,6 +1279,41 @@ class Order extends Element
         }
 
         return self::PAID_STATUS_UNPAID;
+    }
+
+    /**
+     * Customer represented as HTML
+     *
+     * @return string
+     */
+    public function getCustomerLinkHtml(): string
+    {
+        if ($this->getUser()) {
+            return '<span><a href="' . $this->getUser()->getCpEditUrl() . '">' . $this->getUser()->email . '</a></span>';
+        }
+
+        // TODO change this to the link to the customer edit screen when we have customer management
+        if (!$this->getUser() && $this->getCustomer()) {
+            return '<span>' . $this->email . '</span>';
+        }
+
+        if ($this->getCustomer() && $this->email) {
+            return '<span>' . $this->email . '</span>';
+        }
+
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getOrderStatusHtml(): string
+    {
+        if ($status = $this->getOrderStatus()) {
+            return '<span class="commerceStatusLabel"><span class="status ' . $status->color . '"></span> ' . $status->name . '</span>';
+        }
+
+        return '';
     }
 
     /**
@@ -1401,7 +1593,7 @@ class Order extends Element
         $orderAdjustments = [];
 
         foreach ($adjustments as $adjustment) {
-            if ($adjustment->lineItemId == null && $adjustment->orderId == $this->id) {
+            if (!$adjustment->getLineItem() && $adjustment->orderId == $this->id) {
                 $orderAdjustments[] = $adjustment;
             }
         }

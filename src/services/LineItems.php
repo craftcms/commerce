@@ -103,7 +103,9 @@ class LineItems extends Component
 
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $this->_lineItemsByOrderId[$orderId][] = new LineItem($result);
+                $lineItem = new LineItem($result);
+                $lineItem->typecastAttributes();
+                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
 
@@ -135,6 +137,7 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
         } else {
             $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
@@ -196,6 +199,8 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = $lineItem->note;
+        $lineItemRecord->adminNote = $lineItem->adminNote ?? '';
+        $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
@@ -248,7 +253,13 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
-        return $result ? new LineItem($result) : null;
+        if ($result) {
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            return $lineItem;
+        }
+
+        return null;
     }
 
     /**
@@ -273,9 +284,9 @@ class LineItems extends Component
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-        $lineItem->setPurchasable($purchasable);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
+            $lineItem->setPurchasable($purchasable);
             $lineItem->populateFromPurchasable($purchasable);
         } else {
             throw new InvalidArgumentException('Invalid purchasable ID');
@@ -329,10 +340,12 @@ class LineItems extends Component
                 'qty',
                 'snapshot',
                 'note',
+                'adminNote',
                 'purchasableId',
                 'orderId',
                 'taxCategoryId',
-                'shippingCategoryId'
+                'shippingCategoryId',
+                'lineItemStatusId'
             ])
             ->from(['{{%commerce_lineitems}} lineItems']);
     }

@@ -366,7 +366,9 @@ class OrderStatuses extends Component
             $results = $this->_createOrderStatusesQuery()->all();
 
             foreach ($results as $row) {
-                $this->_memoizeOrderStatus(new OrderStatus($row));
+                $status = new OrderStatus($row);
+                $status->typecastAttributes();
+                $this->_memoizeOrderStatus($status);
             }
 
             $this->_fetchedAllStatuses = true;
