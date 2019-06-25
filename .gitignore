@@ -7,5 +7,4 @@
 *Thumbs.db
 *aspnet_client/*
 /composer.lock
-/node_modules
-commerceui/mode_modules/
+node_modules/
