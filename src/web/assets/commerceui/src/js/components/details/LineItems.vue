@@ -14,7 +14,6 @@
 </template>
 
 <script>
-    import {mapActions} from 'vuex'
     import LineItem from './LineItem'
 
     export default {
