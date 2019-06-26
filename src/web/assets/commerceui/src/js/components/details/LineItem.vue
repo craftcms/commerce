@@ -93,7 +93,7 @@
                         <strong>{{ lineItem.totalAsCurrency }}</strong>
                     </div>
                     <div v-if="editing">
-                        <a @click.prevent="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</a>
+                        <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
                     </div>
                 </div>
             </div>

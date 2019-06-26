@@ -104,7 +104,7 @@
                     <div class="hidden-input">
                         <input type="text" ref="orderShortNumber" :value="draft.order.shortNumber" />
                     </div>
-                    <a @click.prevent="copy($refs.orderShortNumber)">{{"Copy"|t('commerce')}}</a>
+                    <btn-link @click="copy($refs.orderShortNumber)">{{"Copy"|t('commerce')}}</btn-link>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
                     <div class="hidden-input">
                         <input type="text" ref="orderNumber" :value="draft.order.number" />
                     </div>
-                    <a @click.prevent="copy($refs.orderNumber)">{{"Copy"|t('commerce')}}</a>
+                    <btn-link @click="copy($refs.orderNumber)">{{"Copy"|t('commerce')}}</btn-link>
                 </div>
             </div>
 
