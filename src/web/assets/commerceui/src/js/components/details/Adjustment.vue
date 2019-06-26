@@ -40,11 +40,16 @@
                     <span class="light">({{type}})</span>
                     {{description}}
                     <div>
-                        <template v-if="!showSnapshot">
-                            <a @click.prevent="showSnapshot = true">{{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i></a>
-                        </template>
-                        <template v-else>
-                            <a @click.prevent="showSnapshot = false">{{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i></a>
+                        <btn-link @click="showSnapshot = !showSnapshot">
+                            <template v-if="!showSnapshot">
+                                {{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i>
+                            </template>
+                            <template v-else>
+                                {{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i>
+                            </template>
+                        </btn-link>
+
+                        <template v-if="showSnapshot">
                             <div>
                                 <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
                             </div>
@@ -54,7 +59,7 @@
 
                 <template v-if="editing && recalculationMode === 'none'">
                     <div class="adjustment-actions">
-                        <a @click.prevent="$emit('remove')">{{"Remove"|t('commerce')}}</a>
+                        <btn-link @click="$emit('remove')">{{"Remove"|t('commerce')}}</btn-link>
                     </div>
                 </template>
             </div>
