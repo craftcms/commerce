@@ -1,5 +1,5 @@
 <template>
-    <div class="line-item">
+    <div class="line-item" :class="{'new-line-item': isLineItemNew}">
         <div class="order-flex">
             <div class="line-item-title">
                 <div class="light"><code>{{ lineItem.sku }}</code></div>
@@ -97,7 +97,7 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapState, mapGetters} from 'vuex'
     import debounce from 'lodash.debounce'
     import InputError from '../InputError'
     import Field from '../Field'
@@ -138,6 +138,10 @@
         },
 
         computed: {
+            ...mapState({
+                lastPurchasableId: state => state.lastPurchasableId,
+            }),
+
             ...mapGetters([
                 'getErrors',
                 'shippingCategories',
@@ -190,6 +194,10 @@
 
                 return this.taxCategories[this.lineItem.taxCategoryId]
             },
+
+            isLineItemNew() {
+                return !this.lineItem.id && this.lastPurchasableId === this.lineItem.purchasableId
+            }
         },
 
         methods: {

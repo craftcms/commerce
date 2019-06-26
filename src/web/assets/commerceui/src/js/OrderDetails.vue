@@ -130,12 +130,19 @@
                 const lineItems = this.lineItems
                 lineItems.push(lineItem)
                 this.updateLineItems(lineItems)
+                    .then(() => {
+                        this.$store.commit('updateLastPurchasableId', lineItem.purchasableId)
+
+                        setTimeout(function() {
+                            this.$store.commit('updateLastPurchasableId', null)
+                        }.bind(this), 4000)
+                    })
             },
 
             updateLineItems(lineItems) {
                 const draft = JSON.parse(JSON.stringify(this.$store.state.draft))
                 draft.order.lineItems = lineItems
-                this.recalculate(draft)
+                return this.recalculate(draft)
             },
 
             updateOrderAdjustments(orderAdjustments) {
@@ -145,7 +152,7 @@
             },
 
             recalculate(draft) {
-                this.recalculateOrder(draft)
+                return this.recalculateOrder(draft)
                     .then(() => {
                         this.$store.dispatch('displayNotice', "Order recalculated.")
                     })

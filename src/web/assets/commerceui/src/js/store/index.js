@@ -18,6 +18,7 @@ export default new Vuex.Store({
         purchasables: [],
         customers: [],
         orderData: null,
+        lastPurchasableId: null,
     },
 
     getters: {
@@ -311,6 +312,10 @@ export default new Vuex.Store({
 
         updateOrderData(state, orderData) {
             state.orderData = orderData
+        },
+
+        updateLastPurchasableId(state, lastPurchasableId) {
+            state.lastPurchasableId = lastPurchasableId
         }
     }
 })
