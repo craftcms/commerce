@@ -10,6 +10,7 @@ namespace craftcommerce\tests\unit;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\Plugin;
 use UnitTester;
 
 /**
@@ -34,6 +35,16 @@ class OrderTest extends Unit
      */
     protected $order;
 
+    /**
+     * @var string
+     */
+    protected $originalEdition;
+
+    /**
+     *
+     */
+    protected $pluginInstance;
+
     // Public Methods
     // =========================================================================
 
@@ -43,15 +54,20 @@ class OrderTest extends Unit
     /**
      *
      */
-    public function testOrderSumming()
+    public function testOrderSumTotalPriceCorrectly()
     {
-        $lineItem = new LineItem();
-        $lineItem->qty = 2;
-        $lineItem->salePrice = 10;
-        $this->assertEquals($lineItem->getSubtotal(),  20);
+        $lineItem1 = new LineItem();
+        $lineItem1->qty = 2;
+        $lineItem1->salePrice = 10;
+        $this->assertEquals($lineItem1->getSubtotal(),  20);
 
-        $this->order->setLineItems([$lineItem]);
-        $this->assertEquals($this->order->totalPrice,  20);
+        $lineItem2 = new LineItem();
+        $lineItem2->qty = 3;
+        $lineItem2->salePrice = 20;
+        $this->assertEquals($lineItem2->getSubtotal(),  60);
+
+        $this->order->setLineItems([$lineItem1, $lineItem2]);
+        $this->assertEquals($this->order->totalPrice,  80);
     }
 
     // Protected methods
@@ -64,6 +80,17 @@ class OrderTest extends Unit
     {
         parent::_before();
 
+        $this->pluginInstance = Plugin::getInstance();
+        $this->originalEdition = $this->pluginInstance->edition;
+        $this->pluginInstance->edition = Plugin::EDITION_PRO;
+
         $this->order = new Order();
+    }
+
+    protected function _after()
+    {
+        parent::_after();
+
+        $this->pluginInstance->edition = $this->originalEdition;
     }
 }

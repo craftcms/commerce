@@ -11,4 +11,4 @@ DB_PORT="5432"
 SECURITY_KEY="abcde12345"
 
 # Set this to the `entryUrl` param in the `codeception.yml` file.
-DEFAULT_SITE_URL="http://craft-dev.test/"
+DEFAULT_SITE_URL="http://craft-test.test/"
