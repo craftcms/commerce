@@ -21,7 +21,7 @@
 }
 
 .order-block-title {
-  margin-right: 20px;
+  @include margin-right(20px);
   width: 30%;
 }
 
@@ -34,7 +34,7 @@
   margin-bottom: 20px;
 
   label {
-    margin-right: 10px;
+    @include margin-right(10px);
   }
 
   .line-item-title {
@@ -67,7 +67,7 @@
 
   .sku {
     color: $lightTextColor;
-    margin-right: 20px;
+    @include margin-right(20px);
   }
 
   &.notAvailable{
