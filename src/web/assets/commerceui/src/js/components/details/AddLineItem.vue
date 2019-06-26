@@ -2,13 +2,13 @@
     <div>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <a @click.prevent="showForm = true">{{"Add a line item"|t('commerce')}}</a>
+                <btn-link @click="showForm = true">{{"Add a line item"|t('commerce')}}</btn-link>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <a @click.prevent="showForm = true">{{"Create your first line item"|t('commerce')}}</a>
+                    <btn-link @click="showForm = true">{{"Create your first line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
         </template>
