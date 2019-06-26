@@ -43,7 +43,7 @@
                         </div>
                         <div class="order-flex-grow">
                             <ul>
-                                <li>
+                                <li class="order-flex">
                                     <template v-if="editing && recalculationMode === 'none'">
                                         <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
                                             <input type="text" class="text" size="10" v-model="salePrice" />
@@ -51,7 +51,7 @@
                                     </template>
                                     <template v-else>
                                         <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
-                                        {{ lineItem.salePriceAsCurrency }}
+                                        <div>{{ lineItem.salePriceAsCurrency }}</div>
                                     </template>
                                 </li>
                                 <template v-if="lineItem.onSale">
@@ -62,10 +62,10 @@
 
                         </div>
                         <div class="order-flex-grow">
-                            <div>
+                            <div class="order-flex">
                                 <template v-if="!editing">
                                     <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
-                                    {{ lineItem.qty }}
+                                    <span>{{ lineItem.qty }}</span>
                                 </template>
                                 <template v-else>
                                     <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">

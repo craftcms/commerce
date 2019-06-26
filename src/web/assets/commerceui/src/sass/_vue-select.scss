@@ -72,7 +72,7 @@ $vs-state-active-color: $textColor;
           min-width: 0;
           margin: 0;
           padding: 6px 12px;
-          padding-right: 0;
+          @include padding-right(20px);
           left: 0;
           right: 0;
           text-align: left;

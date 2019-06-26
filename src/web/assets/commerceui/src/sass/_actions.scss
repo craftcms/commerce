@@ -2,7 +2,7 @@
 
 #order-actions {
   .btngroup {
-    margin-left: 7px;
+    @include margin-left(7px);
   }
 }
 
