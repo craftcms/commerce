@@ -851,8 +851,8 @@ class OrderQuery extends ElementQuery
             $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
         }
 
-        if ($commerce && version_compare($commerce['version'], '2.2', '>=')) {
-            $this->query->addSelect(['commerce_products.recalculationMode']);
+        if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
+            $this->query->addSelect(['commerce_orders.recalculationMode']);
         }
 
         if ($this->number) {
