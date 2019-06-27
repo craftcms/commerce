@@ -19,7 +19,9 @@ class m190622_161916_origin_on_order extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_orders}}', 'orderOrigin', $this->string());
+        $this->addColumn('{{%commerce_orders}}', 'orderOrigin', $this->enum('orderOrigin', ['front', 'cp', 'remote'])->notNull()->defaultValue('all'));
+        // All carts have recalculation mode of 'all' to start
+        $this->update('{{%commerce_orders}}', ['orderOrigin' => 'web']);
     }
 
     /**
