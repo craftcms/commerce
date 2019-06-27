@@ -1,11 +1,11 @@
 <template>
     <div v-if="Object.keys(lineItem.options).length || editing" class="order-indented-block">
         <div class="order-flex">
-            <div class="order-block-title">
+            <div class="order-block-title w-1/5">
                 <h3>{{"Options"|t('commerce')}}</h3>
             </div>
 
-            <div class="order-flex-grow">
+            <div class="order-flex-grow w-4/5">
                 <template v-if="!editing">
                     <template v-if="Object.keys(lineItem.options).length">
                         <ul :id="'info-' + lineItem.id">

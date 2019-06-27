@@ -1,11 +1,11 @@
 <template>
     <div v-if="editing || lineItem.adjustments.length" class="order-indented-block">
         <div class="order-flex">
-            <div class="order-block-title">
+            <div class="order-block-title w-1/5">
                 <h3>{{"Adjustments"|t('commerce')}}</h3>
             </div>
 
-            <div class="order-flex-grow">
+            <div class="order-flex-grow w-4/5">
                 <adjustments
                         :editing="editing"
                         :error-prefix="errorPrefix"
