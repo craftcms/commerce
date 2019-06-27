@@ -50,8 +50,8 @@
                             <ul>
                                 <li class="order-flex">
                                     <template v-if="editing && recalculationMode === 'none'">
-                                        <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')">
-                                            <input type="text" class="text" size="10" v-model="salePrice" />
+                                        <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
+                                            <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
                                         </field>
                                     </template>
                                     <template v-else>
@@ -73,8 +73,8 @@
                                     <span>{{ lineItem.qty }}</span>
                                 </template>
                                 <template v-else>
-                                    <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')">
-                                        <input type="text" class="text" size="3" v-model="qty" />
+                                    <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
+                                        <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
                                     </field>
                                 </template>
                             </div>

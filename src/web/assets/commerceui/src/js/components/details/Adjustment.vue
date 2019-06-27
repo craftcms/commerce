@@ -3,9 +3,9 @@
         <div class="order-flex-grow">
             <template v-if="editing && recalculationMode === 'none'">
                 <div class="fields order-flex">
-                    <field :label="$options.filters.t('Type', 'commerce')" :required="true">
+                    <field :label="$options.filters.t('Type', 'commerce')" :required="true" v-slot:default="slotProps">
                         <div class="select">
-                            <select v-model="type">
+                            <select :id="slotProps.id" v-model="type">
                                 <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
                                     {{adjustmentOption.label}}
                                 </option>
@@ -13,16 +13,16 @@
                         </div>
                     </field>
 
-                    <field :label="$options.filters.t('Name', 'commerce')">
-                        <input type="text" class="text" v-model="name" />
+                    <field :label="$options.filters.t('Name', 'commerce')" v-slot:default="slotProps">
+                        <input :id="slotProps.id" type="text" class="text" v-model="name" />
                     </field>
 
-                    <field :label="$options.filters.t('Description', 'commerce')">
-                        <input type="text" class="text" v-model="description" />
+                    <field :label="$options.filters.t('Description', 'commerce')" v-slot:default="slotProps">
+                        <input :id="slotProps.id" type="text" class="text" v-model="description" />
                     </field>
 
-                    <field :label="$options.filters.t('Amount', 'commerce')" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]">
-                        <input type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
+                    <field :label="$options.filters.t('Amount', 'commerce')" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
+                        <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
 
                         <div class="included">
                             <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" /> <label :for="_uid + '-included'">{{"Included"|t('commerce')}}</label>

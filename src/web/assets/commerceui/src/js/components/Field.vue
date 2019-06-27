@@ -9,7 +9,7 @@
         </div>
 
         <div class="input">
-            <slot></slot>
+            <slot :id="id"></slot>
         </div>
 
         <template v-if="errors && errors.length > 0">

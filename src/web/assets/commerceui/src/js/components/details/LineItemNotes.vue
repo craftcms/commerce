@@ -16,8 +16,8 @@
                         </template>
                     </template>
                     <template v-else>
-                        <field :label="this.$options.filters.t('Customer Note', 'commerce')">
-                            <textarea v-model="note" class="text fullwidth"></textarea>
+                        <field :label="this.$options.filters.t('Customer Note', 'commerce')" v-slot:default="slotProps">
+                            <textarea :id="slotProps.id" v-model="note" class="text fullwidth"></textarea>
                         </field>
                     </template>
                 </div>
@@ -31,8 +31,8 @@
                         </template>
                     </template>
                     <template v-else>
-                        <field :label="this.$options.filters.t('Admin Note', 'commerce')">
-                            <textarea v-model="adminNote" class="text fullwidth"></textarea>
+                        <field :label="this.$options.filters.t('Admin Note', 'commerce')" v-slot:default="slotProps">
+                            <textarea :id="slotProps.id" v-model="adminNote" class="text fullwidth"></textarea>
                         </field>
                     </template>
                 </div>
