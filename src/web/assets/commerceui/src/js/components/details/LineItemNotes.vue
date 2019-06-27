@@ -16,8 +16,9 @@
                         </template>
                     </template>
                     <template v-else>
-                        <label for="note">{{"Customer Note"|t('commerce')}}</label>
-                        <textarea v-model="note" class="text fullwidth"></textarea>
+                        <field :label="this.$options.filters.t('Customer Note', 'commerce')">
+                            <textarea v-model="note" class="text fullwidth"></textarea>
+                        </field>
                     </template>
                 </div>
                 <div class="order-flex-grow order-margin">
@@ -30,8 +31,9 @@
                         </template>
                     </template>
                     <template v-else>
-                        <label for="note">{{"Admin Note"|t('commerce')}}</label>
-                        <textarea v-model="adminNote" class="text fullwidth"></textarea>
+                        <field :label="this.$options.filters.t('Admin Note', 'commerce')">
+                            <textarea v-model="adminNote" class="text fullwidth"></textarea>
+                        </field>
                     </template>
                 </div>
             </div>
@@ -41,8 +43,13 @@
 
 <script>
     import debounce from 'lodash.debounce'
+    import Field from '../Field'
 
     export default {
+        components: {
+            Field,
+        },
+
         props: {
             lineItem: {
                 type: Object,
