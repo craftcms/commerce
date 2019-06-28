@@ -27,7 +27,7 @@ export default new Vuex.Store({
         },
 
         canDelete(state, getters) {
-            return getters.currentUserPermissions['commerce-commerce-deleteOrders']
+            return getters.currentUserPermissions['commerce-deleteOrders']
         },
 
         canEdit(state, getters) {
