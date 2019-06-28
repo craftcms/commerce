@@ -1,6 +1,6 @@
 <template>
     <div class="order-block">
-        {{slot}}
+        <slot></slot>
     </div>
 </template>
 

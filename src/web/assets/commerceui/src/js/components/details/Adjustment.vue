@@ -191,10 +191,15 @@
 
 <style lang="scss">
     .adjustment {
-        padding-bottom: 20px;
+        padding-bottom: 10px;
+        padding-top: 10px;
 
         &:not(:last-child) {
             border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+        }
+
+        &:first-child {
+            padding-top: 0px;
         }
 
         .fields {

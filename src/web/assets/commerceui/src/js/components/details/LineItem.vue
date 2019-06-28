@@ -6,7 +6,7 @@
                 <order-title>{{ lineItem.description }}</order-title>
 
                 <!-- SKU -->
-                <p class="light"><code>{{ lineItem.sku }}</code></p>
+                <p><code>{{ lineItem.sku }}</code></p>
 
                 <!-- Status -->
                 <line-item-status :line-item="lineItem" :editing="editing" @change="updateLineItemStatusId"></line-item-status>
@@ -53,7 +53,7 @@
         <!-- Shipping & Tax -->
         <order-block class="order-flex">
             <div class="w-1/3">
-                <h3>{{"Shipping & Taxes"|t('commerce')}}</h3>
+                <h3 class="light">{{"Shipping & Taxes"|t('commerce')}}</h3>
             </div>
             <div class="w-2/3">
                 <small>
