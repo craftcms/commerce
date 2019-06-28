@@ -1,11 +1,11 @@
 <template>
     <div v-if="note || adminNote || editing" class="order-block order-flex">
         <div class="w-1/3">
-            <h3>{{"Notes"|t('commerce')}}</h3>
+            <h3 class="light">{{"Notes"|t('commerce')}}</h3>
         </div>
 
         <div class="order-flex w-2/3">
-            <div class="order-flex-grow order-margin">
+            <div class="order-flex-grow">
                 <template v-if="!editing">
                     <template v-if="note">
                         {{note}}

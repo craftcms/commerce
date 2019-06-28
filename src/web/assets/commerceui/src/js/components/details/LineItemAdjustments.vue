@@ -1,7 +1,7 @@
 <template>
     <div v-if="editing || lineItem.adjustments.length" class="order-block order-flex">
         <div class="w-1/3">
-            <h3>{{"Adjustments"|t('commerce')}}</h3>
+            <h3 class="light">{{"Adjustments"|t('commerce')}}</h3>
         </div>
 
         <div class="w-2/3">
