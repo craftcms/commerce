@@ -3,6 +3,17 @@
 @import "craft-classes";
 @import "vue-select";
 @import "common";
-@import "actions";
-@import "details";
-@import "meta";
+
+
+/* Details App */
+
+/* Order Block */
+.order-block {
+  border-top: 1px solid #eee;
+  padding: 20px 0;
+}
+
+/* Order Title */
+.order-title {
+  font-size: 1.2em;
+}

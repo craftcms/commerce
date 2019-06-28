@@ -27,3 +27,9 @@
         }
     }
 </script>
+
+<style lang="scss">
+    .option-shortcut-label {
+        display: inline;
+    }
+</style>

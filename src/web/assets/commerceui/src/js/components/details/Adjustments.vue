@@ -48,3 +48,9 @@
         },
     }
 </script>
+
+<style lang="scss">
+    .adjustment-actions {
+        padding: 14px 0;
+    }
+</style>

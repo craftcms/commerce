@@ -99,3 +99,13 @@
         }
     }
 </script>
+
+<style lang="scss" scoped>
+    /* PrismJS fix for .token conflict with Craft’s styles */
+
+    .token {
+        background: transparent;
+        border: 0;
+        padding: 0;
+    }
+</style>

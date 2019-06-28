@@ -188,3 +188,53 @@
         },
     }
 </script>
+
+<style lang="scss">
+    .adjustment {
+        padding-bottom: 20px;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+        }
+
+        .fields {
+            display: flex;
+            box-sizing: inherit;
+            margin: 0 -10px;
+
+            .field {
+                margin: 0;
+                width: 25%;
+                padding: 0 10px;
+                box-sizing: inherit;
+
+                .input {
+                    &::after {
+                        display: none !important;
+                    }
+
+                    .select {
+                        width: 100%;
+                        box-sizing: border-box;
+
+                        select {
+                            width: 100%;
+                        }
+                    }
+
+                    input[type="text"] {
+                        width: 100%;
+                    }
+
+                    .included {
+                        margin-top: 10px;
+                    }
+                }
+            }
+        }
+    }
+
+    .order-price {
+        min-width: 160px;
+    }
+</style>

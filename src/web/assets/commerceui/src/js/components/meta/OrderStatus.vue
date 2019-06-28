@@ -111,3 +111,9 @@
         }
     }
 </script>
+
+<style lang="scss">
+    .order-status-message {
+        margin-top: 10px;
+    }
+</style>

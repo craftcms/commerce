@@ -53,6 +53,14 @@
 
 <style lang="scss">
     @import '../sass/app';
+
+    .recalculate-action {
+        margin-top: 14px;
+
+        .recalculate-btn {
+            display: inline-block;
+        }
+    }
 </style>
 
 <script>

@@ -148,3 +148,55 @@
         },
     }
 </script>
+
+<style lang="scss">
+    @import "~craftcms-sass/src/mixins";
+
+    /* Starter */
+
+    .starter {
+        text-align: center;
+
+        div[data-icon] {
+            font-size: 4em;
+            color: #f1f5f8;
+        }
+    }
+
+
+    /* Add line item form */
+
+    .add-line-item-form {
+        max-width: 500px;
+    }
+
+
+    /* Purchasable select option */
+
+    .purchasable-select-option {
+        display: flex;
+
+        .description {
+            flex-grow: 1;
+        }
+
+        .sku {
+            color: $lightTextColor;
+            @include margin-right(20px);
+        }
+
+        &.notAvailable{
+            .description {
+                color: $lightTextColor;
+            }
+            .price {
+                color: red;
+            }
+        }
+
+        .price {
+            width: 10%;
+            text-align: right;
+        }
+    }
+</style>

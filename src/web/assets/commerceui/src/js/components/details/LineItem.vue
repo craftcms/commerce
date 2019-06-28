@@ -214,3 +214,27 @@
         },
     }
 </script>
+
+<style lang="scss">
+    @import "~craftcms-sass/src/mixins";
+
+    .line-item {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        transition: background-color 0.5s ease;
+
+        &.new-line-item {
+            background: #FFFFF0;
+        }
+
+        label {
+            @include margin-right(10px);
+        }
+
+        .order-block:first-child {
+            border-top: 0;
+            padding-top: 0;
+        }
+    }
+</style>
