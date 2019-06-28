@@ -25,7 +25,7 @@
                 </template>
             </template>
             <template v-else>
-                <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+                <prism-editor ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                 <ul v-if="errors.length > 0" class="errors">
                     <li v-for="(error, key) in errors" :key="key">{{error}}</li>
@@ -64,6 +64,13 @@
             lineItem() {
                 if (this.lineItem) {
                     this.options = JSON.stringify(this.lineItem.options, null, '\t')
+                }
+            },
+            editing(value) {
+                if (value) {
+                    this.$nextTick(() => {
+                        this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                    })
                 }
             }
         },
