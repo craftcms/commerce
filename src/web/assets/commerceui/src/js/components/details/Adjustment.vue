@@ -62,7 +62,9 @@
             </template>
 
             <template v-if="editing && recalculationMode === 'none'">
-                <btn-link @click="$emit('remove')">{{"Remove"|t('commerce')}}</btn-link>
+                <div>
+                    <btn-link @click="$emit('remove')">{{"Remove"|t('commerce')}}</btn-link>
+                </div>
             </template>
         </div>
     </div>
