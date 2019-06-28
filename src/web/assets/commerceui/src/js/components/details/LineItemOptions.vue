@@ -98,7 +98,7 @@
                 const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
-            }, 1000)
+            }, 2000)
         },
 
         mounted() {
