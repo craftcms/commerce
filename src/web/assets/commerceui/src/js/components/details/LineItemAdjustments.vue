@@ -1,5 +1,5 @@
 <template>
-    <div v-if="editing || lineItem.adjustments.length" class="order-block order-flex">
+    <order-block v-if="editing || lineItem.adjustments.length" class="order-flex">
         <div class="w-1/3">
             <h3>{{"Adjustments"|t('commerce')}}</h3>
         </div>
@@ -15,7 +15,7 @@
                     @removeAdjustment="removeAdjustment"
             ></adjustments>
         </div>
-    </div>
+    </order-block>
 </template>
 
 <script>

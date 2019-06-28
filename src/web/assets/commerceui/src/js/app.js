@@ -8,6 +8,7 @@ import OrderSecondaryActions from './OrderSecondaryActions'
 import store from './store'
 import {t} from './filters/craft'
 import BtnLink from './components/BtnLink'
+import OrderBlock from './components/OrderBlock'
 
 
 Vue.config.productionTip = false
@@ -15,6 +16,7 @@ Vue.config.productionTip = false
 
 Vue.filter('t', t)
 Vue.component('btn-link', BtnLink)
+Vue.component('order-block', OrderBlock)
 
 // Order actions
 // =========================================================================

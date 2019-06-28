@@ -1,5 +1,5 @@
 <template>
-    <div v-if="Object.keys(lineItem.options).length || editing" class="order-block order-flex">
+    <order-block v-if="Object.keys(lineItem.options).length || editing" class="order-flex">
         <div class="w-1/3">
             <h3>{{"Options"|t('commerce')}}</h3>
         </div>
@@ -32,7 +32,7 @@
                 </ul>
             </template>
         </div>
-    </div>
+    </order-block>
 </template>
 
 <script>
