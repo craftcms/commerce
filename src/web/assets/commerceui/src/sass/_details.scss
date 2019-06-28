@@ -14,22 +14,24 @@
 
 /* Order */
 
-.order-indented-block {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+.order-block {
+  border-top: 1px solid #eee;
+  padding: 20px 0;
 }
 
 .order-block-title {
   @include margin-right(20px);
-  width: 30%;
+}
+
+.order-title {
+  font-size: 1.2em;
 }
 
 
 /* Line Item */
 
 .line-item {
-  border-bottom: 1px solid #eee;
+  border-bottom: 2px solid #eee;
   padding-bottom: 20px;
   margin-bottom: 20px;
   transition: background-color 0.5s ease;
@@ -42,14 +44,9 @@
     @include margin-right(10px);
   }
 
-  .line-item-title {
-    min-width: 200px;
-  }
-
-  .order-indented-block:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-    margin-bottom: 0;
+  .order-block:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
 }
 

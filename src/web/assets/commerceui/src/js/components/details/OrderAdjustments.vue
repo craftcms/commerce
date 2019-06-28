@@ -1,10 +1,10 @@
 <template>
     <div class="order-flex">
-        <div class="order-block-title">
-            <h3>{{"Adjustments"|t('commerce')}}</h3>
+        <div class="w-1/3">
+            <h3 class="order-title">{{"Adjustments"|t('commerce')}}</h3>
         </div>
 
-        <div class="order-flex-grow">
+        <div class="w-2/3">
             <adjustments
                     :editing="editing"
                     :adjustments="adjustments"

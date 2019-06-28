@@ -1,38 +1,36 @@
 <template>
-    <div v-if="Object.keys(lineItem.options).length || editing" class="order-indented-block">
-        <div class="order-flex">
-            <div class="order-block-title w-1/5">
-                <h3>{{"Options"|t('commerce')}}</h3>
-            </div>
+    <div v-if="Object.keys(lineItem.options).length || editing" class="order-block order-flex">
+        <div class="w-1/3">
+            <h3>{{"Options"|t('commerce')}}</h3>
+        </div>
 
-            <div class="order-flex-grow w-4/5">
-                <template v-if="!editing">
-                    <template v-if="Object.keys(lineItem.options).length">
-                        <ul :id="'info-' + lineItem.id">
-                            <template v-for="(option, key) in lineItem.options">
-                                <li :key="'option-'+key">
-                                    <code>
-                                        {{key}}:
+        <div class="w-2/3">
+            <template v-if="!editing">
+                <template v-if="Object.keys(lineItem.options).length">
+                    <ul :id="'info-' + lineItem.id">
+                        <template v-for="(option, key) in lineItem.options">
+                            <li :key="'option-'+key">
+                                <code>
+                                    {{key}}:
 
-                                        <template v-if="Array.isArray(option)">
-                                            <code>{{ option }}</code>
-                                        </template>
+                                    <template v-if="Array.isArray(option)">
+                                        <code>{{ option }}</code>
+                                    </template>
 
-                                        <template v-else>{{ option }}</template>
-                                    </code>
-                                </li>
-                            </template>
-                        </ul>
-                    </template>
-                </template>
-                <template v-else>
-                    <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
-
-                    <ul v-if="errors.length > 0" class="errors">
-                        <li v-for="(error, key) in errors" :key="key">{{error}}</li>
+                                    <template v-else>{{ option }}</template>
+                                </code>
+                            </li>
+                        </template>
                     </ul>
                 </template>
-            </div>
+            </template>
+            <template v-else>
+                <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+
+                <ul v-if="errors.length > 0" class="errors">
+                    <li v-for="(error, key) in errors" :key="key">{{error}}</li>
+                </ul>
+            </template>
         </div>
     </div>
 </template>

@@ -1,5 +1,3 @@
-
-
 /* General */
 
 .order-flex {
@@ -18,9 +16,6 @@
   text-align: right;
 }
 
-.order-margin-wrapper {
-  margin: 0 -10px;
-}
 .order-margin {
   padding: 0 10px;
 }
@@ -33,8 +28,31 @@
   background: transparent;
 }
 
+
+/* Width */
+
+.w-1\/2 {
+  width: 50%;
+}
+
+.w-1\/3 {
+  width: 33.3333%;
+}
+
+.w-2\/3 {
+  width: 66.6666%;
+}
+
 .w-1\/5 {
   width: 20%;
+}
+
+.w-2\/5 {
+  width: 40%;
+}
+
+.w-3\/5 {
+  width: 60%;
 }
 
 .w-4\/5 {

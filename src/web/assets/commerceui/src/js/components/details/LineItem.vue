@@ -1,12 +1,61 @@
 <template>
     <div class="line-item" :class="{'new-line-item': isLineItemNew}">
-        <div class="order-flex">
-            <div class="line-item-title">
-                <div class="light"><code>{{ lineItem.sku }}</code></div>
+        <div class="order-block order-flex">
+            <div class="w-1/3">
+                <!-- Description -->
+                <h3 class="order-title">{{ lineItem.description }}</h3>
 
-                <br />
+                <!-- SKU -->
+                <p class="light"><code>{{ lineItem.sku }}</code></p>
 
-                <!-- Shipping & Tax -->
+                <!-- Status -->
+                <line-item-status :line-item="lineItem" :editing="editing" @change="updateLineItemStatusId"></line-item-status>
+            </div>
+            <div class="w-2/3 order-flex">
+                <div class="order-flex-grow">
+                    <ul>
+                        <li class="order-flex">
+                            <template v-if="editing && recalculationMode === 'none'">
+                                <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
+                                    <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
+                                </field>
+                            </template>
+                            <template v-else>
+                                <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
+                                <div>{{ lineItem.salePriceAsCurrency }}</div>
+                            </template>
+                        </li>
+                        <template v-if="lineItem.onSale">
+                            <li><span class="light">{{"Original Price"|t('commerce')}}</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
+                            <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
+                        </template>
+                    </ul>
+                </div>
+                <div class="order-flex-grow">
+                    <div class="order-flex">
+                        <template v-if="!editing">
+                            <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
+                            <span>{{ lineItem.qty }}</span>
+                        </template>
+                        <template v-else>
+                            <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
+                                <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
+                            </field>
+                        </template>
+                    </div>
+                </div>
+                <div class="order-flex-grow text-right">
+                    {{lineItem.subtotalAsCurrency}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Tax -->
+        <div class="order-block order-flex">
+            <div class="w-1/3">
+                <h3>{{"Shipping & Taxes"|t('commerce')}}</h3>
+            </div>
+            <div class="w-2/3">
                 <small>
                     <ul>
                         <li>
@@ -35,67 +84,18 @@
                     </template>
                 </div>
             </div>
+        </div>
 
-            <div class="order-flex-grow">
-                <div class="order-indented-block">
-                    <div class="order-flex">
-                        <div class="order-block-title">
-                            <!-- Description -->
-                            <h3>{{ lineItem.description }}</h3>
+        <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
+        <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
+        <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
 
-                            <!-- Status -->
-                            <line-item-status :line-item="lineItem" :editing="editing" @change="updateLineItemStatusId"></line-item-status>
-                        </div>
-                        <div class="order-flex-grow">
-                            <ul>
-                                <li class="order-flex">
-                                    <template v-if="editing && recalculationMode === 'none'">
-                                        <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
-                                            <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
-                                        </field>
-                                    </template>
-                                    <template v-else>
-                                        <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
-                                        <div>{{ lineItem.salePriceAsCurrency }}</div>
-                                    </template>
-                                </li>
-                                <template v-if="lineItem.onSale">
-                                    <li><span class="light">{{"Original Price"|t('commerce')}}</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
-                                    <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
-                                </template>
-                            </ul>
-
-                        </div>
-                        <div class="order-flex-grow">
-                            <div class="order-flex">
-                                <template v-if="!editing">
-                                    <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
-                                    <span>{{ lineItem.qty }}</span>
-                                </template>
-                                <template v-else>
-                                    <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
-                                        <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
-                                    </field>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="order-flex-grow text-right">
-                            {{lineItem.subtotalAsCurrency}}
-                        </div>
-                    </div>
-                </div>
-
-                <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
-                <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
-                <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
-                <div class="order-indented-block text-right">
-                    <div>
-                        <strong>{{ lineItem.totalAsCurrency }}</strong>
-                    </div>
-                    <div v-if="editing">
-                        <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
-                    </div>
-                </div>
+        <div class="order-block text-right">
+            <div>
+                <strong>{{ lineItem.totalAsCurrency }}</strong>
+            </div>
+            <div v-if="editing">
+                <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
         </div>
     </div>

@@ -1,41 +1,40 @@
 <template>
-    <div v-if="note || adminNote || editing" class="order-indented-block">
-        <div class="order-flex">
-            <div class="order-block-title w-1/5">
-                <h3>{{"Notes"|t('commerce')}}</h3>
+    <div v-if="note || adminNote || editing" class="order-block order-flex">
+        <div class="w-1/3">
+            <h3>{{"Notes"|t('commerce')}}</h3>
+        </div>
+
+        <div class="order-flex w-2/3">
+            <div class="order-flex-grow order-margin">
+                <template v-if="!editing">
+                    <template v-if="note">
+                        {{note}}
+                    </template>
+                    <template v-else>
+                        <span class="light">{{ 'No customer note.' }}</span>
+                    </template>
+                </template>
+                <template v-else>
+                    <field :label="this.$options.filters.t('Customer Note', 'commerce')" v-slot:default="slotProps">
+                        <textarea :id="slotProps.id" v-model="note" class="text fullwidth"></textarea>
+                    </field>
+                </template>
             </div>
 
-            <div class="order-flex order-flex-grow order-margin-wrapper w-4/5">
-                <div class="order-flex-grow order-margin">
-                    <template v-if="!editing">
-                        <template v-if="note">
-                            {{note}}
-                        </template>
-                        <template v-else>
-                            <span class="light">{{ 'No customer note.' }}</span>
-                        </template>
+            <div class="order-flex-grow order-margin">
+                <template v-if="!editing">
+                    <template v-if="adminNote">
+                        {{adminNote}}
                     </template>
                     <template v-else>
-                        <field :label="this.$options.filters.t('Customer Note', 'commerce')" v-slot:default="slotProps">
-                            <textarea :id="slotProps.id" v-model="note" class="text fullwidth"></textarea>
-                        </field>
+                        <span class="light">{{ "No admin note."|t('commerce') }}</span>
                     </template>
-                </div>
-                <div class="order-flex-grow order-margin">
-                    <template v-if="!editing">
-                        <template v-if="adminNote">
-                            {{adminNote}}
-                        </template>
-                        <template v-else>
-                            <span class="light">{{ "No admin note."|t('commerce') }}</span>
-                        </template>
-                    </template>
-                    <template v-else>
-                        <field :label="this.$options.filters.t('Admin Note', 'commerce')" v-slot:default="slotProps">
-                            <textarea :id="slotProps.id" v-model="adminNote" class="text fullwidth"></textarea>
-                        </field>
-                    </template>
-                </div>
+                </template>
+                <template v-else>
+                    <field :label="this.$options.filters.t('Admin Note', 'commerce')" v-slot:default="slotProps">
+                        <textarea :id="slotProps.id" v-model="adminNote" class="text fullwidth"></textarea>
+                    </field>
+                </template>
             </div>
         </div>
     </div>
