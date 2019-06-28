@@ -100,12 +100,14 @@
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     /* PrismJS fix for .token conflict with Craft’s styles */
 
-    .token {
-        background: transparent;
-        border: 0;
-        padding: 0;
+    .prism-editor-wrapper {
+        .token {
+            background: transparent;
+            border: 0;
+            padding: 0;
+        }
     }
 </style>
