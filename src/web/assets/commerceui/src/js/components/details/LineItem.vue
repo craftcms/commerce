@@ -3,7 +3,7 @@
         <order-block class="order-flex">
             <div class="w-1/3">
                 <!-- Description -->
-                <h3 class="order-title">{{ lineItem.description }}</h3>
+                <order-title>{{ lineItem.description }}</order-title>
 
                 <!-- SKU -->
                 <p class="light"><code>{{ lineItem.sku }}</code></p>
