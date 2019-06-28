@@ -11,7 +11,7 @@
             </template>
         </div>
 
-        <template v-if="editing">
+        <template v-if="editing || canDelete">
             <div class="spacer"></div>
             <update-order-btn ref="updateOrderBtn"></update-order-btn>
         </template>
@@ -35,6 +35,7 @@
             ...mapGetters([
                 'forceEdit',
                 'canEdit',
+                'canDelete',
             ]),
         },
 
