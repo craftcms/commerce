@@ -26,6 +26,11 @@
   font-size: 1em;
   padding: 0;
   background: transparent;
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 }
 
 
