@@ -13,7 +13,7 @@
                     <li>
                         <a @click="save()">
                             <option-shortcut-label os="mac" shortcut-key="S"></option-shortcut-label>
-                            {{"Save and continue editing"|t('commerce')}}
+                            {{"Save and return to all orders"|t('commerce')}}
                         </a>
                     </li>
                 </ul>
