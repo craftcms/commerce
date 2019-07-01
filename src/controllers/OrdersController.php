@@ -74,6 +74,13 @@ class OrdersController extends Controller
 
         Craft::$app->queue->push(new CartPurgeJob());
 
+        Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+        $permissions = [
+            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
+
         return $this->renderTemplate('commerce/orders/_index');
     }
 
@@ -416,6 +423,11 @@ class OrdersController extends Controller
 
         $id = Craft::$app->getRequest()->getParam('id');
         $orderId = Craft::$app->getRequest()->getParam('orderId');
+
+        if ($id === null || $orderId === null) {
+            return $this->asErrorJson(Craft::t('commerce', 'Bad Request'));
+        }
+
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
