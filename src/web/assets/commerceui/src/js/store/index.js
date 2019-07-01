@@ -184,7 +184,7 @@ export default new Vuex.Store({
 
             commit('updateRecalculateLoading', true)
 
-            return ordersApi.get(orderId, true)
+            return ordersApi.get(orderId)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
@@ -248,9 +248,7 @@ export default new Vuex.Store({
 
             const data = utils.buildDraftData(draft)
 
-
             // Recalculate
-
             return ordersApi.recalculate(data)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
@@ -258,9 +256,8 @@ export default new Vuex.Store({
                     const draft = response.data
                     commit('updateDraft', draft)
 
-
                     if (response.data.error) {
-                        throw response.data.error
+                        throw { response }
                     }
                 })
                 .catch((error) => {

@@ -43,10 +43,10 @@ window.OrderDetailsApp = new Vue({
                 .then(() => {
                     this.$store.dispatch('displayNotice', "Order recalculated.")
                 })
-                .catch((error) => {
-                    this.$store.dispatch('displayError', error);
-                })
-        }
+    .catch((error) => {
+            this.$store.dispatch('displayError', error);
+        })
+    }
     },
 
     mounted() {
