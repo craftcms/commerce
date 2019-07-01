@@ -66,6 +66,7 @@
                     this.options = JSON.stringify(this.lineItem.options, null, '\t')
                 }
             },
+
             editing(value) {
                 if (value) {
                     this.$nextTick(() => {
@@ -78,6 +79,7 @@
         methods: {
             onOptionsChange() {
                 this.errors = []
+
                 let jsonValid = true
                 let options = null
 

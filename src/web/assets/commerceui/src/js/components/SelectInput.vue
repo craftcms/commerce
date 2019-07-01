@@ -85,11 +85,11 @@
             taggable: {
                 type: Boolean,
             },
-            value: {},
             placeholder: {
                 type: String,
                 default: '',
-            }
+            },
+            value: {},
         },
 
         data() {

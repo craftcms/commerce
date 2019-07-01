@@ -65,6 +65,7 @@ export default {
             }
         })
     },
+
     deleteOrder(orderId) {
         let formData = new FormData();
         formData.append('orderId', orderId)

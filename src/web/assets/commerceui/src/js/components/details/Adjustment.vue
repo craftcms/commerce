@@ -30,10 +30,12 @@
                     </field>
                 </div>
             </template>
+
             <template v-else>
                 {{name}}
                 <span class="light">({{type}})</span>
                 {{description}}
+
                 <div>
                     <btn-link @click="showSnapshot = !showSnapshot">
                         <template v-if="!showSnapshot">
@@ -179,6 +181,7 @@
 
                     return false
                 },
+
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.included = value

@@ -63,6 +63,7 @@
                 get() {
                     return this.lineItem.note
                 },
+
                 set: debounce(function(val) {
                     const lineItem = this.lineItem
                     lineItem.note = val
@@ -74,6 +75,7 @@
                 get() {
                     return this.lineItem.adminNote
                 },
+
                 set: debounce(function(val) {
                     const lineItem = this.lineItem
                     lineItem.adminNote = val

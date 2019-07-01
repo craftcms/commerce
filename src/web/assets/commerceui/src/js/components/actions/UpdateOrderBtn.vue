@@ -6,7 +6,7 @@
 
             <div class="spacer"></div>
         </template>
-        
+
         <div>
             <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="updateMenuBtn"></div>
 
@@ -38,7 +38,6 @@
 
 <script>
     /* global Garnish */
-    /* global $ */
 
     import {mapState, mapGetters} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
@@ -65,6 +64,7 @@
                 get() {
                     return this.$store.state.orderData
                 },
+
                 set(value) {
                     this.$store.commit('updateOrderData', value)
                 }

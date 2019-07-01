@@ -75,6 +75,7 @@
                 get() {
                     return this.order.orderStatusId
                 },
+
                 set(value) {
                     const order = JSON.parse(JSON.stringify(this.order))
                     order.orderStatusId = value
@@ -86,6 +87,7 @@
                 get() {
                     return this.order.message
                 },
+
                 set: debounce(function(value) {
                     const order = JSON.parse(JSON.stringify(this.order))
                     order.message = value

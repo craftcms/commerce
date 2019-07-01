@@ -218,9 +218,11 @@
                 get() {
                     return this.draft.order.reference
                 },
+
                 set: debounce(function(value) {
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.reference = value
+
                     this.recalculateOrder(draft)
                         .then(() => {
                             this.$store.dispatch('displayNotice', "Order recalculated.")
@@ -235,9 +237,11 @@
                 get() {
                     return this.draft.order.couponCode
                 },
+
                 set: debounce(function(value) {
                     const draft = JSON.parse(JSON.stringify(this.draft))
                     draft.order.couponCode = value
+
                     this.recalculateOrder(draft)
                         .then(() => {
                             this.$store.dispatch('displayNotice', "Order recalculated.")
@@ -252,6 +256,7 @@
                 get() {
                     return this.draft.order
                 },
+
                 set(value) {
                     const draft = this.draft
                     draft.order = value
