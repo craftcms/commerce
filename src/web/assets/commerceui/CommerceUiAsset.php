@@ -47,7 +47,7 @@ class CommerceUiAsset extends AssetBundle
         // $this->css[] = 'css/app.css';
 
         // Development
-        $this->js[] = 'http://localhost:8080/app.js';
+        $this->js[] = 'http://localhost:8085/app.js';
 
         parent::init();
     }
