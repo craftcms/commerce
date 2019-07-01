@@ -257,7 +257,7 @@ export default new Vuex.Store({
                     commit('updateDraft', draft)
 
                     if (response.data.error) {
-                        throw { response }
+                        throw {response}
                     }
                 })
                 .catch((error) => {
