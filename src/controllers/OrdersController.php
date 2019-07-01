@@ -7,7 +7,6 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\queue\jobs\CartPurgeJob;
 use Craft;
 use craft\base\Element;
 use craft\base\Field;
@@ -21,6 +20,7 @@ use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\CartPurgeJob;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
@@ -415,9 +415,29 @@ class OrdersController extends Controller
         $this->requireAcceptsJson();
 
         $id = Craft::$app->getRequest()->getParam('id');
+        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $email = Plugin::getInstance()->getEmails()->getEmailById($id);
+        $order = Order::find()->id($orderId)->one();
 
-        if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Missing email ID'));
+        if ($email === null) {
+            return $this->asErrorJson(Craft::t('commerce', 'Can not find email'));
+        }
+
+        if ($order === null) {
+            return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
+        }
+
+        $success = true;
+        try {
+            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
+                $success = false;
+            }
+        } catch (\Exception $exception) {
+            $success = false;
+        }
+
+        if (!$success) {
+            return $this->asErrorJson(Craft::t('commerce', 'Could not send email'));
         }
 
         return $this->asJson(['success' => true]);
@@ -805,18 +825,8 @@ class OrdersController extends Controller
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
-        $emailTemplates = [
-            [
-                'id' => 1,
-                'title' => 'Welcome',
-            ],
-            [
-                'id' => 2,
-                'title' => 'Notification Warning',
-            ]
-        ];
-        Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emailTemplates)) . ';', View::POS_BEGIN);
-
+        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
+        Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];
         $response['order'] = $this->_orderToArray($variables['order']);
@@ -889,9 +899,9 @@ class OrdersController extends Controller
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             if (!$lineItem) {
-                try{
+                try {
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
-                }catch(\Exception $exception){
+                } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
                 }
