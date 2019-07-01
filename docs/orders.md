@@ -1,6 +1,13 @@
 # Orders
 
-When a cart is completed, it becomes an order. You can view orders in the Commerce → Orders section of the Control Panel. 
+When a cart is completed, it becomes an order. You can view orders in the Commerce → Orders section of the Control Panel.
+
+Orders are an [Element Type](https://docs.craftcms.com/v3/extend/element-types.html) and can have custom field associated with them.
+
+To see how to get order information in templates, and learn of all the properties of an order look at 
+the <api:craft\commerce\elements\Order> class reference.
+
+# Carts become orders
 
 When a cart becomes an order, the following things happen:
 
@@ -71,3 +78,30 @@ Ouput:
 
 In the above example we have used the year as the sequence name so that we automatically get a new sequence starting at 1 when the next year arrives.
 
+# Creating and Editing Orders
+
+## Creating
+
+Orders are usually created by customer on the front-end as [carts](cart.md) when they [add items](adding-to-and-updating-the-cart.md), 
+but they can also be created in the control panel.
+
+To create a new order, go to Commerce → Orders, and click “New Order”. This will create a new order that behaves like a cart. 
+Purchasables can be added and removed from the order and it will automatically recalculate it’s sales and [adjustments].
+
+To complete the order, click the “Mark as complete” button to save the order and mark it as complete. This will set the default order status, current date ordered, and 
+generate a order reference number. 
+
+::: tip
+ You must have the “Edit Orders” permission to create orders in the control panel.
+:::
+
+# Editing orders
+
+Orders can be edited in the control panel by visiting the order edit page and clicking the “Edit” button. This will place you into 
+edit mode where you can change values within the order.
+
+While editing the order, the order will refresh subtotals and totals, and display any errors, but it will not automatically 
+recalculate the order based on system rules like shipping, taxes, or promotions. If you want the order to fully recalculate, 
+click the “Recalculate Order” button to recalculate the order.
+ 
+Once you are happy with your changes, you can click “Update Order”.

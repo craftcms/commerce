@@ -1,10 +1,13 @@
 # Cart
 
-A cart is an [order](orders.md) that has not yet been completed. A customer can edit the contents of a cart, but once the cart becomes an order it is no longer editable by the customer.
+A cart is an [order](orders.md) that has not yet been completed. A customer can edit the contents of a cart, 
+but once the cart becomes an order it is no longer editable by the customer.
 
-You can view all carts on the Orders index page. You can also only view _active_ carts (carts that have been updated in the last 24 hours) and _inactive_ carts (carts that are older than 24 hours and likely to be abandoned).
+You can view all carts on the Orders index page. You can also only view _active_ carts (carts that have been 
+updated in the last 24 hours) and _inactive_ carts (carts that are older than 24 hours and likely to be abandoned).
 
-You can set the system to purge (delete) abandoned carts after a given time period in [your config](configuration.md), the default of which is 3 months.
+You can set the system to purge (delete) abandoned carts after a given time period in [your config](configuration.md), 
+the default of which is 3 months.
 
 In your templates, you can get the current user’s cart with [craft.commerce.carts.cart](craft-commerce-carts-cart.md).
 
