@@ -30,10 +30,12 @@
                     </field>
                 </div>
             </template>
+
             <template v-else>
                 {{name}}
                 <span class="light">({{type}})</span>
                 {{description}}
+
                 <div>
                     <btn-link @click="showSnapshot = !showSnapshot">
                         <template v-if="!showSnapshot">
@@ -179,6 +181,7 @@
 
                     return false
                 },
+
                 set(value) {
                     const adjustment = this.adjustment
                     adjustment.included = value
@@ -188,3 +191,58 @@
         },
     }
 </script>
+
+<style lang="scss">
+    .adjustment {
+        padding-bottom: 10px;
+        padding-top: 10px;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid rgba(0, 0, 20, 0.1);
+        }
+
+        &:first-child {
+            padding-top: 0px;
+        }
+
+        .fields {
+            display: flex;
+            box-sizing: inherit;
+            margin: 0 -10px;
+
+            .field {
+                margin: 0;
+                width: 25%;
+                padding: 0 10px;
+                box-sizing: inherit;
+
+                .input {
+                    &::after {
+                        display: none !important;
+                    }
+
+                    .select {
+                        width: 100%;
+                        box-sizing: border-box;
+
+                        select {
+                            width: 100%;
+                        }
+                    }
+
+                    input[type="text"] {
+                        width: 100%;
+                    }
+
+                    .included {
+                        margin-top: 10px;
+                    }
+                }
+            }
+        }
+    }
+
+    .order-price {
+        min-width: 160px;
+    }
+</style>

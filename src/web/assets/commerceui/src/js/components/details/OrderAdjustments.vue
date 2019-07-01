@@ -1,7 +1,7 @@
 <template>
     <div class="order-flex">
         <div class="w-1/3">
-            <h3 class="order-title">{{"Adjustments"|t('commerce')}}</h3>
+            <order-title>{{"Adjustments"|t('commerce')}}</order-title>
         </div>
 
         <div class="w-2/3">

@@ -58,6 +58,7 @@
                 get() {
                     return this.lineItem.lineItemStatusId
                 },
+
                 set(val) {
                     this.$emit('change', val)
                 }

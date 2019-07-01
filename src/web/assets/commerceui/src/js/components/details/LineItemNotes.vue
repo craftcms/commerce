@@ -1,5 +1,5 @@
 <template>
-    <div v-if="note || adminNote || editing" class="order-block order-flex">
+    <order-block v-if="note || adminNote || editing" class="order-flex">
         <div class="w-1/3">
             <h3 class="light">{{"Notes"|t('commerce')}}</h3>
         </div>
@@ -37,7 +37,7 @@
                 </template>
             </div>
         </div>
-    </div>
+    </order-block>
 </template>
 
 <script>
@@ -63,6 +63,7 @@
                 get() {
                     return this.lineItem.note
                 },
+
                 set: debounce(function(val) {
                     const lineItem = this.lineItem
                     lineItem.note = val
@@ -74,6 +75,7 @@
                 get() {
                     return this.lineItem.adminNote
                 },
+
                 set: debounce(function(val) {
                     const lineItem = this.lineItem
                     lineItem.adminNote = val

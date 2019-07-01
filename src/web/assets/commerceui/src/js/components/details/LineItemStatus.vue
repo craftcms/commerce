@@ -1,6 +1,6 @@
 <template>
     <div>
-        <template v-if="editing">
+        <template v-if="editing && lineItemStatuses.length > 0">
             <line-item-status-input :lineItem="lineItem" :editing="editing" @change="$emit('change', $event)"></line-item-status-input>
         </template>
 

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="Object.keys(lineItem.options).length || editing" class="order-block order-flex">
+    <order-block v-if="Object.keys(lineItem.options).length || editing" class="order-flex">
         <div class="w-1/3">
             <h3 class="light">{{"Options"|t('commerce')}}</h3>
         </div>
@@ -25,14 +25,14 @@
                 </template>
             </template>
             <template v-else>
-                <prism-editor v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+                <prism-editor ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                 <ul v-if="errors.length > 0" class="errors">
                     <li v-for="(error, key) in errors" :key="key">{{error}}</li>
                 </ul>
             </template>
         </div>
-    </div>
+    </order-block>
 </template>
 
 <script>
@@ -65,12 +65,21 @@
                 if (this.lineItem) {
                     this.options = JSON.stringify(this.lineItem.options, null, '\t')
                 }
+            },
+
+            editing(value) {
+                if (value) {
+                    this.$nextTick(() => {
+                        this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                    })
+                }
             }
         },
 
         methods: {
             onOptionsChange() {
                 this.errors = []
+
                 let jsonValid = true
                 let options = null
 
@@ -91,7 +100,7 @@
                 const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
-            }, 1000)
+            }, 2000)
         },
 
         mounted() {
@@ -99,3 +108,15 @@
         }
     }
 </script>
+
+<style lang="scss">
+    /* PrismJS fix for .token conflict with Craft’s styles */
+
+    .prism-editor-wrapper {
+        .token {
+            background: transparent;
+            border: 0;
+            padding: 0;
+        }
+    }
+</style>

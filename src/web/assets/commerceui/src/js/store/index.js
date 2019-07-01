@@ -27,7 +27,7 @@ export default new Vuex.Store({
         },
 
         canDelete(state, getters) {
-            return getters.currentUserPermissions['commerce-commerce-deleteOrders']
+            return getters.currentUserPermissions['commerce-deleteOrders']
         },
 
         canEdit(state, getters) {
@@ -179,12 +179,10 @@ export default new Vuex.Store({
             commit('updateEditing', true)
         },
 
-        getOrder({state, getters, commit}) {
-            const orderId = getters.orderId
-
+        getOrder({state, commit}) {
             commit('updateRecalculateLoading', true)
 
-            return ordersApi.get(orderId, true)
+            return ordersApi.get()
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 
@@ -248,9 +246,7 @@ export default new Vuex.Store({
 
             const data = utils.buildDraftData(draft)
 
-
             // Recalculate
-
             return ordersApi.recalculate(data)
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
@@ -258,9 +254,8 @@ export default new Vuex.Store({
                     const draft = response.data
                     commit('updateDraft', draft)
 
-
                     if (response.data.error) {
-                        throw response.data.error
+                        throw {response}
                     }
                 })
                 .catch((error) => {

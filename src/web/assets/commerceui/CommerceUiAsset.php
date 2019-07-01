@@ -38,12 +38,15 @@ class CommerceUiAsset extends AssetBundle
             TimepickerAsset::class,
         ];
 
-//        $this->js[] = 'js/chunk-vendors.js';
-//        $this->js[] = 'js/app.js';
-//
-//        $this->css[] = 'css/chunk-vendors.css';
-//        $this->css[] = 'css/app.css';
+        // Production
+        //
+        // $this->js[] = 'js/chunk-vendors.js';
+        // $this->js[] = 'js/app.js';
+        //
+        // $this->css[] = 'css/chunk-vendors.css';
+        // $this->css[] = 'css/app.css';
 
+        // Development
         $this->js[] = 'http://localhost:8080/app.js';
 
         parent::init();

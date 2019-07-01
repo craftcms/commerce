@@ -1,9 +1,9 @@
 <template>
     <div class="line-item" :class="{'new-line-item': isLineItemNew}">
-        <div class="order-block order-flex">
+        <order-block class="order-flex">
             <div class="w-1/3">
                 <!-- Description -->
-                <h3 class="order-title">{{ lineItem.description }}</h3>
+                <order-title>{{ lineItem.description }}</order-title>
 
                 <!-- SKU -->
                 <p><code>{{ lineItem.sku }}</code></p>
@@ -48,10 +48,10 @@
                     {{lineItem.subtotalAsCurrency}}
                 </div>
             </div>
-        </div>
+        </order-block>
 
         <!-- Shipping & Tax -->
-        <div class="order-block order-flex">
+        <order-block class="order-flex">
             <div class="w-1/3">
                 <h3 class="light">{{"Shipping & Taxes"|t('commerce')}}</h3>
             </div>
@@ -84,20 +84,20 @@
                     </template>
                 </div>
             </div>
-        </div>
+        </order-block>
 
         <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
         <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
         <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
 
-        <div class="order-block text-right">
+        <order-block class="text-right">
             <div>
                 <strong>{{ lineItem.totalAsCurrency }}</strong>
             </div>
             <div v-if="editing">
                 <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
-        </div>
+        </order-block>
     </div>
 </template>
 
@@ -214,3 +214,27 @@
         },
     }
 </script>
+
+<style lang="scss">
+    @import "~craftcms-sass/src/mixins";
+
+    .line-item {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        transition: background-color 0.5s ease;
+
+        &.new-line-item {
+            background: #FFFFF0;
+        }
+
+        label {
+            @include margin-right(10px);
+        }
+
+        .order-block:first-child {
+            border-top: 0;
+            padding-top: 0;
+        }
+    }
+</style>

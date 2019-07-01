@@ -163,7 +163,9 @@ class OrdersController extends Controller
         }
 
         $order->setScenario(Element::SCENARIO_LIVE);
-        if (!Craft::$app->getElements()->saveElement($order)) {
+        $valid = $order->validate(null, false);
+
+        if (!$valid || !Craft::$app->getElements()->saveElement($order, false)) {
             // Recalculation mode should always return to none, unless it is still a cart
             $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
             if (!$order->isCompleted) {
@@ -244,7 +246,7 @@ class OrdersController extends Controller
 
         $this->_updateOrder($order, $orderRequestData);
 
-        if ($order->validate() && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+        if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
             $order->recalculate(); // dont save, just recalculate
         }
 
@@ -775,7 +777,7 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
 
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
-        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(ArrayHelper::toArray($lineItemStatuses)) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
@@ -887,7 +889,12 @@ class OrdersController extends Controller
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             if (!$lineItem) {
-                $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                try{
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                }catch(\Exception $exception){
+                    $order->addError('lineItems', $exception->getMessage());
+                    continue;
+                }
             }
 
             $lineItem->purchasableId = $purchasableId;

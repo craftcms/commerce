@@ -23,7 +23,6 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
-use function count;
 
 /**
  * Order status service.
@@ -270,14 +269,11 @@ class LineItemStatuses extends Component
      */
     public function archiveLineItemStatusById(int $id): bool
     {
-        $statuses = $this->getAllLineItemStatuses();
         $status = $this->getLineItemStatusById($id);
-
-        if (count($statuses) >= 2 && $status) {
+        if ($status) {
             $status->isArchived = true;
             return $this->saveLineItemStatus($status);
         }
-
         return false;
     }
 
