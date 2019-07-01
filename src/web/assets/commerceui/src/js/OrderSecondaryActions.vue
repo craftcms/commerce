@@ -59,7 +59,6 @@
 
         methods: {
             sendEmail(emailTemplateId) {
-                debugger;
                 const emailTemplate = this.emailTemplates.find(emailTemplate => emailTemplate.id === emailTemplateId)
 
                 if (!emailTemplate) {
