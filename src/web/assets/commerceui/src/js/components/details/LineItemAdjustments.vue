@@ -58,7 +58,7 @@
                     name: '',
                     description: '',
                     amount: '0.0000',
-                    included: '0',
+                    included: false,
                     orderId: this.orderId,
                     lineItemId: this.lineItem.id
                 }
