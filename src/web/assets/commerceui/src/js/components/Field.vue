@@ -14,7 +14,7 @@
 
         <template v-if="errors && errors.length > 0">
             <ul class="errors">
-                <li v-for="(error, key) in errors">
+                <li v-for="(error, key) in errors" :key="id + 'error' + key">
                     {{error}}
                 </li>
             </ul>
@@ -26,7 +26,7 @@
     export default {
         props: {
             errors: {
-                type: Array | Boolean,
+                type: [Array, Boolean],
                 default: null,
             },
             id: {
@@ -45,7 +45,6 @@
             },
             required: {
                 type: Boolean,
-                default: false,
                 default: false,
             },
         },

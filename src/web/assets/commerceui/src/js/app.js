@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import App from './OrderDetails'
-// import 'prismjs'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
@@ -13,12 +12,11 @@ import OrderTitle from './components/OrderTitle'
 
 
 Vue.config.productionTip = false
-
-
 Vue.filter('t', t)
 Vue.component('btn-link', BtnLink)
 Vue.component('order-block', OrderBlock)
 Vue.component('order-title', OrderTitle)
+
 
 // Order actions
 // =========================================================================
