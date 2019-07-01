@@ -23,7 +23,7 @@
                 <div class="menu">
                     <ul>
                         <li v-for="(emailTemplate, key) in emailTemplates" :key="'emailTemplate' + key">
-                            <a :href="emailTemplate.id" @click.prevent="sendEmail(emailTemplate.id)">{{emailTemplate.title}}</a>
+                            <a :href="emailTemplate.id" @click.prevent="sendEmail(emailTemplate.id)">Send the “{{emailTemplate.name}}” email</a>
                         </li>
                     </ul>
                 </div>
@@ -59,13 +59,14 @@
 
         methods: {
             sendEmail(emailTemplateId) {
+                debugger;
                 const emailTemplate = this.emailTemplates.find(emailTemplate => emailTemplate.id === emailTemplateId)
 
                 if (!emailTemplate) {
                     return false
                 }
 
-                if (window.confirm(this.options.filters.t("Are you sure you want to send email: {title}?", 'commerce', {title:emailTemplate.title}))) {
+                if (window.confirm(this.options.filters.t("Are you sure you want to send email: {name}?", 'commerce', {name:emailTemplate.name}))) {
                     this.$store.dispatch('sendEmail', emailTemplateId)
                         .then((response) => {
                             if (typeof response.data.error !== 'undefined') {
