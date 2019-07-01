@@ -423,6 +423,11 @@ class OrdersController extends Controller
 
         $id = Craft::$app->getRequest()->getParam('id');
         $orderId = Craft::$app->getRequest()->getParam('orderId');
+
+        if ($id === null || $orderId === null) {
+            return $this->asErrorJson(Craft::t('commerce', 'Bad Request'));
+        }
+
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 

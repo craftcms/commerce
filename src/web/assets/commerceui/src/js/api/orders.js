@@ -53,7 +53,7 @@ export default {
     },
 
     sendEmail(emailTemplateId) {
-        return axios.post(Craft.getActionUrl('commerce/orders/send-email', {id: emailTemplateId}), {}, {
+        return axios.post(Craft.getActionUrl('commerce/orders/send-email', {id: emailTemplateId, orderId: window.orderEdit.orderId}), {}, {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }
