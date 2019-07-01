@@ -67,22 +67,7 @@
                 </small>
 
                 <!-- Snapshot -->
-                <div>
-                    <btn-link @click="showSnapshot = !showSnapshot">
-                        <template v-if="!showSnapshot">
-                            {{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i>
-                        </template>
-                        <template v-else>
-                            {{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i>
-                        </template>
-                    </btn-link>
-
-                    <template v-if="showSnapshot">
-                        <div>
-                            <pre><code>{{lineItem.snapshot}}</code></pre>
-                        </div>
-                    </template>
-                </div>
+                <snapshot>{{lineItem.snapshot}}</snapshot>
             </div>
         </order-block>
 
@@ -110,6 +95,7 @@
     import LineItemOptions from './LineItemOptions'
     import LineItemNotes from './LineItemNotes'
     import LineItemAdjustments from './LineItemAdjustments'
+    import Snapshot from './Snapshot'
 
     export default {
         components: {
@@ -119,6 +105,7 @@
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
+            Snapshot,
         },
 
         props: {
@@ -134,12 +121,6 @@
             editing: {
                 type: Boolean,
             },
-        },
-
-        data() {
-            return {
-                showSnapshot: false,
-            }
         },
 
         computed: {

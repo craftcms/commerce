@@ -1,6 +1,6 @@
 module.exports = {
     filenameHashing: false,
-    publicPath: 'http://localhost:8080/',
+    publicPath: process.env.NODE_ENV === 'development' ? process.env.DEV_SERVER_PUBLIC_PATH : '/',
     configureWebpack: {
         externals: {
             'vue': 'Vue',
@@ -11,8 +11,8 @@ module.exports = {
     },
     devServer: {
         headers: {"Access-Control-Allow-Origin": "*"},
-        public: 'http://localhost:8080/',
-        disableHostCheck: true
+        disableHostCheck: true,
+        port: process.env.DEV_SERVER_PORT,
     },
     chainWebpack: config => {
         // Remove the standard entry point
