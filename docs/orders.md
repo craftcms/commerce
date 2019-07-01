@@ -78,9 +78,9 @@ Ouput:
 
 In the above example we have used the year as the sequence name so that we automatically get a new sequence starting at 1 when the next year arrives.
 
-# Creating and Editing Orders
+## Creating and editing orders
 
-## Creating
+### Creating orders
 
 Orders are usually created by customer on the front-end as [carts](cart.md) when they [add items](adding-to-and-updating-the-cart.md), 
 but they can also be created in the control panel.
@@ -95,7 +95,7 @@ generate a order reference number.
  You must have the “Edit Orders” permission to create orders in the control panel.
 :::
 
-# Editing orders
+### Editing orders
 
 Orders can be edited in the control panel by visiting the order edit page and clicking the “Edit” button. This will place you into 
 edit mode where you can change values within the order.
