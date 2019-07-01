@@ -30,7 +30,7 @@
             },
             lineItems: {
                 type: Array,
-            },
+            }
         },
 
         methods: {

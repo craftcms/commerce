@@ -3,7 +3,7 @@
 import axios from 'axios/index'
 
 export default {
-    get(orderId) {
+    get() {
         //If we have the order loaded into the page already return that data and save us a ajax trip
         if(window.orderEdit.data) {
             return new Promise((resolve) => {

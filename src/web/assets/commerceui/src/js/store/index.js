@@ -179,12 +179,10 @@ export default new Vuex.Store({
             commit('updateEditing', true)
         },
 
-        getOrder({state, getters, commit}) {
-            const orderId = getters.orderId
-
+        getOrder({state, commit}) {
             commit('updateRecalculateLoading', true)
 
-            return ordersApi.get(orderId)
+            return ordersApi.get()
                 .then((response) => {
                     commit('updateRecalculateLoading', false)
 

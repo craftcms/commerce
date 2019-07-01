@@ -5,6 +5,13 @@
                 <div class="spinner"></div>
             </template>
             <template v-else>
+
+                <ul v-if="lineItemsErrors.length > 0">
+                    <li class="error" v-for="(lineItemError, lineItemsErrorsKey) in lineItemsErrors" :key="'lineItemsErrors-'+lineItemsErrorsKey">
+                        {{ lineItemError }}
+                    </li>
+                </ul>
+
                 <template v-if="lineItems.length > 0">
                     <line-items
                             :line-items="lineItems"
@@ -90,6 +97,14 @@
 
             recalculationMode() {
               return this.draft.order.recalculationMode
+            },
+
+            lineItemsErrors() {
+                if (this.draft.order.errors && this.draft.order.errors.lineItems) {
+                    return this.draft.order.errors.lineItems
+                }
+
+                return []
             },
 
             lineItems: {
