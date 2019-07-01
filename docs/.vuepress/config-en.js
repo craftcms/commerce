@@ -82,7 +82,7 @@ module.exports = {
                 collapsable: false,
                 children: [
                     'example-templates',
-                    'available-variables',
+                    'commonly-used-variables',
                     'adding-to-and-updating-the-cart',
                     'update-cart-addresses',
                     'coupon-codes',

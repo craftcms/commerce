@@ -133,6 +133,23 @@ class Emails extends Component
     }
 
     /**
+     * Get all emails that are enabled.
+     *
+     * @return Email[]
+     */
+    public function getAllEnabledEmails(): array
+    {
+        $rows = $this->_createEmailQuery()->andWhere(['enabled' => true])->all();
+
+        $emails = [];
+        foreach ($rows as $row) {
+            $emails[] = new Email($row);
+        }
+
+        return $emails;
+    }
+
+    /**
      * Save an email.
      *
      * @param Email $email
@@ -291,8 +308,10 @@ class Emails extends Component
      * @param Order $order
      * @param OrderHistory $orderHistory
      * @return bool $result
+     * @throws Exception
+     * @throws Throwable
      */
-    public function sendEmail($email, $order, $orderHistory): bool
+    public function sendEmail($email, $order, $orderHistory = null): bool
     {
         if (!$email->enabled) {
             return false;
