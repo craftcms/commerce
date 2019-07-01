@@ -36,22 +36,7 @@
                 <span class="light">({{type}})</span>
                 {{description}}
 
-                <div>
-                    <btn-link @click="showSnapshot = !showSnapshot">
-                        <template v-if="!showSnapshot">
-                            {{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i>
-                        </template>
-                        <template v-else>
-                            {{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i>
-                        </template>
-                    </btn-link>
-
-                    <template v-if="showSnapshot">
-                        <div>
-                            <pre><code>{{adjustment.sourceSnapshot}}</code></pre>
-                        </div>
-                    </template>
-                </div>
+                <snapshot>{{adjustment.sourceSnapshot}}</snapshot>
             </template>
         </div>
 
@@ -76,10 +61,12 @@
     import debounce from 'lodash.debounce'
     import {mapGetters} from 'vuex'
     import Field from '../Field'
+    import Snapshot from './Snapshot'
 
     export default {
         components: {
             Field,
+            Snapshot,
         },
 
         props: {
@@ -102,7 +89,6 @@
 
         data() {
             return {
-                showSnapshot: false,
                 adjustmentOptions: [
                     {
                         label: 'Tax',
