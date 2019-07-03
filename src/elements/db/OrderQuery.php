@@ -823,7 +823,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.reference',
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
-            'commerce_orders.orderOrigin',
             'commerce_orders.dateOrdered',
             'commerce_orders.email',
             'commerce_orders.isCompleted',
@@ -853,6 +852,10 @@ class OrderQuery extends ElementQuery
 
         if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
             $this->query->addSelect(['commerce_orders.recalculationMode']);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
+            $this->query->addSelect(['commerce_orders.orderOrigin']);
         }
 
         if ($this->number) {
