@@ -399,8 +399,7 @@ class Order extends Element
             }
         }
 
-        if (!$this->orderLanguage)
-        {
+        if (!$this->orderLanguage) {
             $this->orderLanguage = Craft::$app->language;
         }
 
@@ -1832,10 +1831,12 @@ class Order extends Element
         return [
             'billingFirstName',
             'billingLastName',
+            'billingFullName',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
+            'shippingFullName',
             'shortNumber',
             'transactionReference',
             'username',
@@ -1853,10 +1854,14 @@ class Order extends Element
                 return $this->billingAddress->firstName ?? '';
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
+            case 'billingFullName':
+                return ($this->billingAddress->firstName ?? '') . ($this->billingAddress->lastName ?? '');
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
+            case 'shippingFullName':
+                return ($this->shippingAddress->firstName ?? '') . ($this->shippingAddress->lastName ?? '');
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
