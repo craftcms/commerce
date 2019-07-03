@@ -1552,11 +1552,6 @@ class Order extends Element
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
-        /** @var Gateway $gateway */
-        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
-            throw new InvalidConfigException('Gateway not allowed.');
-        }
-
         return $gateway;
     }
 

@@ -10,7 +10,8 @@
 - Fixed a PHP error that occurred when `commerce/subscriptions/*` actions returned validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
 - Fixed a PHP error that occurred when retrieving line items with missing line item options data. ([#897](https://github.com/craftcms/commerce/issues/897))
 - Fixed a bug where the shipping or billing addresses for an order where not being set correctly when saving the order. ([#922](https://github.com/craftcms/commerce/issues/922))
-
+- Fixed a bug where a disabled gateway ID could still be used for payment. ([#912](https://github.com/craftcms/commerce/issues/912))
+ 
 ## 2.1.7 - 2019-06-11
 
 ### Fixed
