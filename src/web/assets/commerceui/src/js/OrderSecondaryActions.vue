@@ -18,7 +18,7 @@
         <template v-if="emailTemplates.length > 0">
             <div class="spacer"></div>
 
-            <div class="btngroup">
+            <div class="btngroup send-email">
                 <div class="btn menubtn" ref="sendEmailMenuBtn">{{"Send Email"|t('commerce')}}</div>
                 <div class="menu">
                     <ul>
@@ -27,6 +27,8 @@
                         </li>
                     </ul>
                 </div>
+
+                <div v-if="emailLoading" class="spinner"></div>
             </div>
         </template>
     </div>
@@ -38,6 +40,12 @@
     import {mapState, mapGetters} from 'vuex'
 
     export default {
+        data() {
+            return {
+                emailLoading: false,
+            }
+        },
+
         computed: {
             ...mapGetters([
                 'pdfUrls',
@@ -66,8 +74,10 @@
                 }
 
                 if (window.confirm(this.$options.filters.t("Are you sure you want to send email: {name}?", 'commerce', {name:emailTemplate.name}))) {
+                    this.emailLoading = true
                     this.$store.dispatch('sendEmail', emailTemplateId)
                         .then((response) => {
+                            this.emailLoading = false
                             if (typeof response.data.error !== 'undefined') {
                                 this.$store.dispatch('displayError', response.data.error);
                                 return
@@ -85,3 +95,15 @@
         }
     }
 </script>
+
+<style lang="scss">
+    .btngroup.send-email {
+        position: relative;
+
+        .spinner {
+            position: absolute;
+            top: 0;
+            right: -29px;
+        }
+    }
+</style>
