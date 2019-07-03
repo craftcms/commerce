@@ -89,6 +89,8 @@ class OrdersController extends Controller
      */
     public function actionNewOrder(): Response
     {
+        $this->requirePermission('commerce-editOrder');
+
         $order = new Order();
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $customer = new Customer();
@@ -112,6 +114,8 @@ class OrdersController extends Controller
      */
     public function actionEditOrder($orderId, Order $order = null): Response
     {
+        $this->requirePermission('commerce-editOrder');
+
         $plugin = Plugin::getInstance();
         $variables = [];
 
@@ -142,6 +146,7 @@ class OrdersController extends Controller
      */
     public function actionSave()
     {
+        $this->requirePermission('commerce-editOrder');
         $this->requirePostRequest();
 
         $data = Craft::$app->getRequest()->getBodyParam('orderData');
@@ -206,8 +211,9 @@ class OrdersController extends Controller
     public function actionDeleteOrder()
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-deleteOrder');
 
-        $orderId = Craft::$app->getRequest()->getRequiredBodyParam('orderId');
+        $orderId = (int) Craft::$app->getRequest()->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
@@ -215,22 +221,10 @@ class OrdersController extends Controller
         }
 
         if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => false]);
-            }
-
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
-            Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
-
-            return null;
+            return $this->asJson(['success' => false]);
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
-        }
-
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-        return $this->redirect('commerce/orders');
+        return $this->asJson(['success' => true]);
     }
 
     /**
@@ -242,6 +236,8 @@ class OrdersController extends Controller
      */
     public function actionRefresh()
     {
+        $this->requirePermission('commerce-editOrder');
+
         $data = Craft::$app->getRequest()->getRawBody();
         $orderRequestData = Json::decodeIfJson($data);
 
