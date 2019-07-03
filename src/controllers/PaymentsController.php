@@ -30,6 +30,20 @@ class PaymentsController extends BaseFrontEndController
     // Public Methods
     // =========================================================================
 
+
+    /**
+     * @inheritDoc
+     */
+    public function beforeAction($action): bool
+    {
+        // Don't enable CSRF validation for complete-payment requests
+        if ($action->id === 'complete-payment') {
+            $this->enableCsrfValidation = false;
+        }
+
+        return parent::beforeAction($action);
+    }
+
     /**
      * @return Response|null
      * @throws HttpException

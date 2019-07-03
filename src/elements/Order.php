@@ -124,7 +124,7 @@ class Order extends Element
     const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
     const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
 
-    const ORIGIN_FRONT = 'front'; // Did the order get created from the front-end
+    const ORIGIN_WEB = 'web'; // Did the order get created from the front-end
     const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
     const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
 
