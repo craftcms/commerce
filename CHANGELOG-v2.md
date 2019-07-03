@@ -4,7 +4,6 @@
 
 ### Added
 - Added the full name of the customer to the order search index. ([#892](https://github.com/craftcms/commerce/issues/892)) 
-- Added the name of the subscriber to the Edit Subscription page.
 
 ### Changed
 - CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action by default. ([#900](https://github.com/craftcms/commerce/issues/900)) 
