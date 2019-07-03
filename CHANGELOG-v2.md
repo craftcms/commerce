@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action. ([#900](https://github.com/craftcms/commerce/issues/900)) 
+
 ### Fixed
 - When calling toArray on an Order, the line items are no longer indexed incorrectly.
 - Fixed a PHP error that occurred when `commerce/subscriptions/*` actions returned validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
