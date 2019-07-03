@@ -707,7 +707,7 @@ class OrdersController extends Controller
             $variables['title'] = Craft::t('commerce', 'New Order');
         }
 
-        if (!$order->isCompleted && $order->orderOrigin == Order::ORIGIN_FRONT) {
+        if (!$order->isCompleted && $order->orderOrigin == Order::ORIGIN_WEB) {
             $variables['title'] = Craft::t('commerce', 'Cart') . ' ' . $order->getShortNumber();
         }
 

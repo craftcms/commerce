@@ -176,6 +176,11 @@
                 <h5 class="heading">{{"IP Address"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.lastIp}}</span>
             </div>
+
+            <div class="data">
+                <h5 class="heading">{{"Order Origin"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.orderOrigin}}</span>
+            </div>
         </div>
     </div>
 </template>
