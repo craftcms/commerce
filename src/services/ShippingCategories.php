@@ -213,6 +213,7 @@ class ShippingCategories extends Component
             unset($this->_shippingCategoriesByHandle[$oldHandle]);
         }
 
+
         return true;
     }
 

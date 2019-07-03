@@ -4,6 +4,7 @@
 
 ### Added
 - Added the full name of the customer to the order search index. ([#892](https://github.com/craftcms/commerce/issues/892)) 
+- Added the name of the subscriber to the Edit Subscription page.
 
 ### Changed
 - CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action by default. ([#900](https://github.com/craftcms/commerce/issues/900)) 
@@ -15,7 +16,8 @@
 - Fixed a bug where the shipping or billing addresses for an order where not being set correctly when saving the order. ([#922](https://github.com/craftcms/commerce/issues/922))
 - Fixed a bug where a disabled gateway ID could still be used for payment. ([#912](https://github.com/craftcms/commerce/issues/912))
 - Fixed a bug where a discount’s coupon code could be saved with leading or trailing whitespace. ([#894](https://github.com/craftcms/commerce/issues/894))
- 
+- Fixed a issue where custom field tabs and custom fields on the Edit Subscription page were not being displayed or editable. ([#884](https://github.com/craftcms/commerce/issues/884)) 
+
 ## 2.1.7 - 2019-06-11
 
 ### Fixed
