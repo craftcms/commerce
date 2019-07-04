@@ -115,7 +115,7 @@ class Carts extends Component
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
-        $this->_cart->orderOrigin = Order::ORIGIN_FRONT;
+        $this->_cart->orderOrigin = Order::ORIGIN_WEB;
 
         return $this->_cart;
     }

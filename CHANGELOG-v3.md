@@ -9,3 +9,4 @@
 - Added the `resave/products` command.
 - Added `craft\commerce\models\LineItem::adminNote`.
 - Added `craft\commerce\elements\Order::orderOrigin`.
+- Added `craft\commerce\elements\Order::recalculationMode`.

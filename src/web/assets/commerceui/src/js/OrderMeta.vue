@@ -140,15 +140,22 @@
             </template>
 
             <div class="data">
+                <h5 class="heading">{{"Total Price"|t('commerce')}}</h5>
+                <span class="value">{{draft.order.totalPriceAsCurrency}}</span>
+            </div>
+
+            <div class="data">
                 <h5 class="heading">{{"Paid Status"|t('commerce')}}</h5>
                 <span class="value"
                       v-html="draft.order.paidStatusHtml"></span>
             </div>
 
+            <template v-if="draft.order.totalPaid != 0"> <!-- Show positive and negative numbers. -->
             <div class="data">
                 <h5 class="heading">{{"Paid Amount"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.totalPaidAsCurrency}}</span>
             </div>
+            </template>
 
             <template v-if="draft.order.datePaid">
                 <div class="data">
