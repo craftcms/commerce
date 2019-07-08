@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/cp" %}
+{% extends "_layouts/cp" %}
 
 {% set selectedSubnavItem = "subscriptions" %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesubscriptions commercesubscriptionsedit" %}
@@ -14,183 +14,181 @@
 {% block header %}
     {{ block('pageTitle') }}
     <div class="flex-grow"></div>
+
+    {% block actionButton %}
+    <div class="btngroup">
+            <input type="button" id="saveCustomFieldsSubmit" class="btn submit" value="{{ 'Update Subscription'|t('app') }}">
+    </div>
+    {% endblock %}
+
 {% endblock %}
 
+
+
 {% block content %}
+    <div id="subscriptionManageTab">
+        <div class="pane">
 
-    {% if fieldLayout is not null and fieldLayout.getTabs()|length %}
-        <form id="order-form" method="post" accept-charset="UTF-8" data-saveshortcut data-saveshortcut-redirect="{{ subscription.cpEditUrl|hash }}" data-confirm-unload>
-            <input type="hidden" name="action" value="commerce/subscriptions/save">
-            <input type="hidden" name="redirect" value="{{ 'commerce/subscriptions'|hash }}">
-            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
-            {{ csrfInput() }}
+            <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
 
-            {# Custom fields pane #}
-            <div id="fields" class="pane">
+            {% if subscription.gateway.supportsPlanSwitch and not subscription.isCanceled and not subscription.isExpired %}
+                {% set plans = subscription.alternativePlans %}
+                {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
 
+                {% for plan in plans %}
+                    {% set planOptions = planOptions|merge([{label: plan.name, value:plan.id}]) %}
+                {% endfor %}
 
-                {% for tab in fieldLayout.getTabs() %}
-                    <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-                        {% include "_includes/fields" with {
-                            fields: tab.getFields(),
-                            element: subscription,
-                        } only %}
+                {{ forms.selectField({
+                    label: 'Switch plan'|t('commerce'),
+                    options: planOptions,
+                    id: 'switchPlans'
+                }) }}
+
+                {% for plan in plans %}
+                    <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
+                        <form method="POST">
+                            <input type="hidden" name="action" value="commerce/subscriptions/switch">
+                            <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                            <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
+                            {{ redirectInput(continueEditingUrl) }}
+                            {{ csrfInput() }}
+
+                            {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
+
+                            <div class="field">
+                                <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Switch'|t('commerce') }}"></div>
+                            </div>
+                        </form>
                     </div>
                 {% endfor %}
-                <div class="footer">
-                    <div class="btngroup right submit first">
-                        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
-                        <div class="btn submit menubtn"></div>
-                        <div class="menu">
-                            <ul>
-                                <li>
-                                    <a class="formsubmit" data-redirect="{{ subscription.cpEditUrl|hash }}"> {{ "Save and continue editing"|t('commerce') }} {{ forms.optionShortcutLabel('S') }}</a>
-                                </li>
-                            </ul>
-                        </div>
+            {% else %}
+                <div>{{ 'Cannot switch plans for this subscription.'|t('commerce') }}</div>
+            {% endif %}
+
+            {% if subscription.canReactivate() %}
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
+                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
+                    {{ redirectInput(continueEditingUrl) }}
+                    {{ csrfInput() }}
+
+                    <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
+                </form>
+            {% endif %}
+
+        </div>
+
+        {% if not subscription.isCanceled and not subscription.isExpired %}
+            <div class="pane">
+                <h2>{{ 'Cancel subscription'|t('commerce') }}</h2>
+
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/cancel">
+                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
+                    {{ redirectInput(continueEditingUrl) }}
+                    {{ csrfInput() }}
+
+                    {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
+
+                    <div class="field">
+                        <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
                     </div>
-                </div>
+
+                </form>
             </div>
-        </form>
-    {% endif %}
-
-    <div class="pane">
-
-        <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
-
-        {% if subscription.gateway.supportsPlanSwitch and not subscription.isCanceled and not subscription.isExpired %}
-            {% set plans = subscription.alternativePlans %}
-            {% set planOptions = [{label: 'Pick a plan'|t('commerce'), value: ''}] %}
-
-            {% for plan in plans %}
-                {% set planOptions = planOptions|merge([{label: plan.name, value:plan.id}]) %}
-            {% endfor %}
-
-            {{ forms.selectField({
-                label: 'Switch plan'|t('commerce'),
-                options: planOptions,
-                id: 'switchPlans'
-            }) }}
-
-            {% for plan in plans %}
-                <div id="switch-{{ plan.id }}" class="hidden switchPlansForm">
-                    <form method="POST">
-                        <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                        <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
-                        <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                        {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
-                        {{ csrfInput() }}
-
-                        {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
-
-                        <div class="field">
-                            <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Switch'|t('commerce') }}"></div>
-                        </div>
-                    </form>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div>{{ 'Cannot switch plans for this subscription.'|t('commerce') }}</div>
         {% endif %}
 
-        {% if subscription.canReactivate() %}
-            <form method="POST">
-                <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
-                {{ csrfInput() }}
-
-                <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
-            </form>
-        {% endif %}
-
-    </div>
-
-    {% if not subscription.isCanceled and not subscription.isExpired %}
         <div class="pane">
-            <h2>{{ 'Cancel subscription'|t('commerce') }}</h2>
+            <h2>Payment history</h2>
+            {% set payments = subscription.getAllPayments() %}
+
+            <table id="" class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Invoice date'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Invoice amount'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Info'|t('commerce') }}s</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for payment in payments %}
+                    {% set info = [
+                        { label: "Reference", type: 'code', value: payment.paymentReference },
+                        { label: "Gateway response", type: 'response', value: payment.response|raw },
+                    ] %}
+                    <tr class="infoRow" data-info="{{ info|json_encode }}">
+                        <td>{{ payment.paymentDate|datetime }}</td>
+                        <td>{{ payment.paymentCurrency }} {{ payment.paymentAmount }}</td>
+                        <td class="payment-status-{{ payment.paid ? 'paid' : 'unpaid' }}">
+                            {{ payment.paid ? 'Paid'|t('commerce') : 'Unpaid'|t('commerce') }}
+                        </td>
+                        <td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
 
             <form method="POST">
-                <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
-                {{ redirectInput('commerce/subscriptions/'~subscription.id) }}
+                <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
+                <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+                {{ redirectInput(continueEditingUrl) }}
                 {{ csrfInput() }}
-
-                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
                 <div class="field">
-                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Unsubscribe'|t('commerce') }}"></div>
+                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
                 </div>
-
             </form>
         </div>
-    {% endif %}
-
-    <div class="pane">
-        <h2>Payment history</h2>
-        {% set payments = subscription.getAllPayments() %}
-
-        <table id="" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Invoice date'|t('commerce') }}</th>
-                <th scope="col">{{ 'Invoice amount'|t('commerce') }}</th>
-                <th scope="col">{{ 'Status'|t('commerce') }}</th>
-                <th scope="col">{{ 'Info'|t('commerce') }}s</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for payment in payments %}
-                {% set info = [
-                    { label: "Reference", type: 'code', value: payment.paymentReference },
-                    { label: "Gateway response", type: 'response', value: payment.response|raw },
-                ] %}
-                <tr class="infoRow" data-info="{{ info|json_encode }}">
-                    <td>{{ payment.paymentDate|datetime }}</td>
-                    <td>{{ payment.paymentCurrency }} {{ payment.paymentAmount }}</td>
-                    <td class="payment-status-{{ payment.paid ? 'paid' : 'unpaid' }}">
-                        {{ payment.paid ? 'Paid'|t('commerce') : 'Unpaid'|t('commerce') }}
-                    </td>
-                    <td><span class="tableRowInfo" data-icon="info" href="#"></span></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-
-        <form method="POST">
-            <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
-            <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
-            {{ redirectInput('commerce/subscriptions/' ~ subscription.id) }}
-            {{ csrfInput() }}
-
-            <div class="field">
-                <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
-            </div>
-        </form>
     </div>
+
+    <form id="customFields" method="POST">
+
+    <input type="hidden" name="action" value="commerce/subscriptions/save">
+    <input type="hidden" name="subscriptionId" value="{{ subscription.id }}">
+    {{ redirectInput('commerce/subscriptions') }}
+    {{ csrfInput() }}
+
+    {% if fieldLayout is not null and fieldLayout.getTabs()|length %}
+    {% for tab in fieldLayout.getTabs() %}
+    <div id="tab{{ loop.index }}" class="hidden">
+        {% include "_includes/fields" with {
+        fields: tab.getFields(),
+        element: subscription,
+        } only %}
+    </div>
+    {% endfor %}
+    {% endif %}
+    </form>
+
 {% endblock %}
 
 
 {% block details %}
 
     <div class="meta">
+
+        <div class="data">
+            <h5 class="heading">User</h5>
+            <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
+        </div>
+        <hr />
         {{ forms.textField({
-            label: 'Subscription plan'|t('commerce'),
+            label: 'Plan'|t('commerce'),
             value: subscription.getPlan().name,
             readonly: true
         }) }}
 
         {{ forms.textField({
-            label: 'Subscription reference'|t('commerce'),
+            label: 'Reference'|t('commerce'),
             value: subscription.reference,
             readonly: true
         }) }}
-    </div>
-    <hr />
-    <div class="meta">
+
         {{ forms.textField({
-            label: 'Subscription date'|t('commerce'),
+            label: 'Created'|t('commerce'),
             value: subscription.dateCreated|datetime,
             readonly: true
         }) }}
@@ -203,28 +201,26 @@
 
         {% if subscription.trialDays %}
             {{ forms.textField({
-                label: 'Trial expiration date'|t('commerce'),
+                label: 'Trial expiration'|t('commerce'),
                 value: subscription.trialExpires|datetime,
                 readonly: true
             }) }}
         {% endif %}
-    </div>
-    <hr>
-    <div class="meta">
+
         {{ forms.textField({
-            label: 'Next payment date'|t('commerce'),
+            label: 'Next payment'|t('commerce'),
             value: subscription.nextPaymentDate|datetime,
             readonly: true
         }) }}
 
         {{ forms.textField({
-            label: 'Expiry date'|t('commerce'),
+            label: 'Expiry'|t('commerce'),
             value: subscription.dateExpired ? subscription.dateExpired|datetime : '-',
             readonly: true
         }) }}
 
         {{ forms.textField({
-            label: 'Cancelation date'|t('commerce'),
+            label: 'Cancellation'|t('commerce'),
             value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
             readonly: true
         }) }}
@@ -240,6 +236,10 @@
 
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
+
+        $('#saveCustomFieldsSubmit').click(function(){
+            $('form#customFields').submit();
         });
     });
 

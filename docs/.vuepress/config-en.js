@@ -85,6 +85,7 @@ module.exports = {
                     'available-variables',
                     'adding-to-and-updating-the-cart',
                     'update-cart-addresses',
+                    'update-cart-customer',
                     'coupon-codes',
                     'customer-address-management',
                     'twig-filters',

@@ -8,12 +8,14 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
+use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -52,17 +54,48 @@ class SubscriptionsController extends BaseController
      */
     public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
     {
-
+        $variables = [];
         $this->requirePermission('commerce-manageSubscriptions');
-
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
+
+        if ($subscription === null && $subscriptionId) {
+            $subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one();
+        }
+
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = compact('subscriptionId', 'subscription', 'fieldLayout');
+        $variables['tabs'] = [];
 
-        if (empty($variables['subscription'])) {
-            $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Manage'),
+            'url' => '#subscriptionManageTab',
+            'class' => null
+        ];
+
+        foreach ($fieldLayout->getTabs() as $index => $tab) {
+            // Do any of the fields on this tab have errors?
+            $hasErrors = false;
+
+            if ($subscription->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    if ($subscription->getErrors($field->handle)) {
+                        $hasErrors = true;
+                        break;
+                    }
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab' . ($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
         }
+
+        $variables['continueEditingUrl'] = $subscription->cpEditUrl;
+        $variables['subscriptionId'] = $subscriptionId;
+        $variables['subscription'] = $subscription;
+        $variables['fieldLayout'] = $fieldLayout;
 
         return $this->renderTemplate('commerce/subscriptions/_edit', $variables);
     }
@@ -89,27 +122,28 @@ class SubscriptionsController extends BaseController
 
         $subscription->setFieldValuesFromRequest('fields');
 
-        if (Craft::$app->getElements()->saveElement($subscription)) {
-            return $this->redirectToPostedUrl($subscription);
+        $subscription->setScenario(Element::SCENARIO_LIVE);
+
+        if (!Craft::$app->getElements()->saveElement($subscription)) {
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription.'));
+            Craft::$app->getUrlManager()->setRouteParams([
+                'subscription' => $subscription
+            ]);
+            return null;
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription..'));
-        Craft::$app->getUrlManager()->setRouteParams([
-            'subscriptions' => $subscription
-        ]);
-
-        return null;
+        return $this->redirectToPostedUrl($subscription);
     }
 
     /**
      * Refreshes all subscription payments
      *
-     * @return Response|null
      * @throws BadRequestHttpException If not POST request
      * @throws ForbiddenHttpException If permissions are lacking
      * @throws NotFoundHttpException If subscription not found
+     * @throws InvalidConfigException
      */
-    public function actionRefreshPayments(): Response
+    public function actionRefreshPayments()
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
@@ -128,12 +162,13 @@ class SubscriptionsController extends BaseController
     }
 
     /**
+     * @return Response|null
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSubscribe(): Response
+    public function actionSubscribe()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -203,11 +238,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionReactivate(): Response
+    public function actionReactivate()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -261,11 +296,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionSwitch(): Response
+    public function actionSwitch()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -337,11 +372,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionCancel(): Response
+    public function actionCancel()
     {
         $this->requireLogin();
         $this->requirePostRequest();

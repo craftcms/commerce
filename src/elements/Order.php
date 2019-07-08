@@ -399,8 +399,7 @@ class Order extends Element
             }
         }
 
-        if (!$this->orderLanguage)
-        {
+        if (!$this->orderLanguage) {
             $this->orderLanguage = Craft::$app->language;
         }
 
@@ -940,6 +939,7 @@ class Order extends Element
             }
 
             $orderRecord->shippingAddressId = $shippingAddress->id;
+            $this->setShippingAddress($shippingAddress);
         }
 
         // Save billing address, it has already been validated.
@@ -952,6 +952,7 @@ class Order extends Element
             }
 
             $orderRecord->billingAddressId = $billingAddress->id;
+            $this->setBillingAddress($billingAddress);
         }
 
 
@@ -1550,11 +1551,6 @@ class Order extends Element
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
-        /** @var Gateway $gateway */
-        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
-            throw new InvalidConfigException('Gateway not allowed.');
-        }
-
         return $gateway;
     }
 
@@ -1835,10 +1831,12 @@ class Order extends Element
         return [
             'billingFirstName',
             'billingLastName',
+            'billingFullName',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
+            'shippingFullName',
             'shortNumber',
             'transactionReference',
             'username',
@@ -1856,10 +1854,14 @@ class Order extends Element
                 return $this->billingAddress->firstName ?? '';
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
+            case 'billingFullName':
+                return ($this->billingAddress->firstName ?? '') . ($this->billingAddress->lastName ?? '');
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
+            case 'shippingFullName':
+                return ($this->shippingAddress->firstName ?? '') . ($this->shippingAddress->lastName ?? '');
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -1878,7 +1880,7 @@ class Order extends Element
     protected static function defineSources(string $context = null): array
     {
         $allCriteria = ['isCompleted' => true];
-        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
+        $count = Craft::configure(self::find(), $allCriteria)->count();
 
         $sources = [
             '*' => [

@@ -75,12 +75,6 @@ The following first-party provided gateways support payment sources:
 - PayPal REST
 - eWAY Rapid
 
-## CSRF Protection issues
-
-Craft CMS [supports CSRF protection](https://craftcms.com/support/csrf-protection) when turned on. Some gateways attempt to POST data back to Craft Commerce which they can’t do without a valid token. If you wish to have CSRF protection enabled on your site and your gateway uses a POST request when communicating with Craft Commerce, you will need to disable CSRF protection for that request.
-
-To learn how to disable CSRF on a per controller action basis, see this [Stack Overflow answer](http://craftcms.stackexchange.com/a/4554/91).
-
 ## Updating from Commerce 1.x
 
 When you update to Commerce 2, your gateways will still show up in the admin panel, but they will not work. To restore operation to them, you have to install the appropriate plugin. If such a plugin does not exist, you will have to build your own plugin or switch to a different gateway.

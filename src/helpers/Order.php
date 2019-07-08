@@ -39,7 +39,7 @@ class Order
             }
         }
 
-        $order->setLineItems($lineItemsByKey);
+        $order->setLineItems(array_values($lineItemsByKey));
 
         return $lineItems > $lineItemsByKey;
     }
