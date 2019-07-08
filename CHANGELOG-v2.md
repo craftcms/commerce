@@ -11,8 +11,8 @@
 ### Fixed
 - When calling `toArray()` on an Order, the line items are no longer indexed incorrectly.
 - Fixed a PHP error that occurred when `commerce/subscriptions/*` actions returned validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
-- Fixed a PHP error that occurred when retrieving line items with missing line item options data. ([#897](https://github.com/craftcms/commerce/issues/897))
-- Fixed a bug where the shipping or billing addresses for an order where not being set correctly when saving the order. ([#922](https://github.com/craftcms/commerce/issues/922))
+- Fixed a PHP error that occurred when retrieving line items with no line item options data. ([#897](https://github.com/craftcms/commerce/issues/897))
+- Fixed a bug where the shipping or billing addresses for an order were not being set correctly when saving the order. ([#922](https://github.com/craftcms/commerce/issues/922))
 - Fixed a bug where a disabled gateway ID could still be used for payment. ([#912](https://github.com/craftcms/commerce/issues/912))
 - Fixed a bug where a discount’s coupon code could be saved with leading or trailing whitespace. ([#894](https://github.com/craftcms/commerce/issues/894))
 - Fixed a issue where custom field tabs and custom fields on the Edit Subscription page were not being displayed or editable. ([#884](https://github.com/craftcms/commerce/issues/884)) 
