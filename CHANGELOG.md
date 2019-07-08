@@ -2,22 +2,20 @@
 
 ## Unreleased
 
-### Added
-- Added the full name of the customer to the order search index. ([#892](https://github.com/craftcms/commerce/issues/892)) 
-
 ### Changed
-- CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action. ([#900](https://github.com/craftcms/commerce/issues/900)) 
+- Orders now include the full customer name as search keywords. ([#892](https://github.com/craftcms/commerce/issues/892))
+- CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action. ([#900](https://github.com/craftcms/commerce/issues/900))
+- Leading and trailing whitespace is now trimmed from coupon codes. ([#894](https://github.com/craftcms/commerce/issues/894))
 
 ### Fixed
-- When calling `toArray()` on an Order, the line items are no longer indexed incorrectly.
-- Fixed a PHP error that occurred when `commerce/subscriptions/*` actions returned validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
-- Fixed a PHP error that occurred when retrieving line items with no line item options data. ([#897](https://github.com/craftcms/commerce/issues/897))
-- Fixed a bug where the shipping or billing addresses for an order were not being set correctly when saving the order. ([#922](https://github.com/craftcms/commerce/issues/922))
-- Fixed a bug where a disabled gateway ID could still be used for payment. ([#912](https://github.com/craftcms/commerce/issues/912))
-- Fixed a bug where a discount’s coupon code could be saved with leading or trailing whitespace. ([#894](https://github.com/craftcms/commerce/issues/894))
-- Fixed a issue where custom field tabs and custom fields on the Edit Subscription page were not being displayed or editable. ([#884](https://github.com/craftcms/commerce/issues/884)) 
+- Fixed a bug where the `lineItems` array wasn’t getting indexed correctly when calling `toArray()` on an order.
+- Fixed a PHP error that occurred when `commerce/subscriptions/*` actions had validation errors. ([#918](https://github.com/craftcms/commerce/issues/918))
+- Fixed a PHP error that occurred when retrieving line items with no option data. ([#897](https://github.com/craftcms/commerce/issues/897))
+- Fixed a bug where shipping and billing addresses weren’t being set correctly when saving an order. ([#922](https://github.com/craftcms/commerce/issues/922))
+- Fixed a bug where it was possible to pay with a disabled gateway. ([#912](https://github.com/craftcms/commerce/issues/912))
+- Fixed a bug where Edit Subscription pages weren’t showing custom tabs. ([#884](https://github.com/craftcms/commerce/issues/884))
 - Fixed a bug where an empty cart was created unnecessarily when a user logged in. ([#906](https://github.com/craftcms/commerce/issues/906))
-- Fixed a bug where archived subscription plans would be incorrectly returned. ([#916](https://github.com/craftcms/commerce/issues/916))
+- Fixed a bug where `craft\commerce\services\Plans::getAllEnabledPlans()` was returning archived subscription plans. ([#916](https://github.com/craftcms/commerce/issues/916))
 
 ## 2.1.7 - 2019-06-11
 
@@ -56,7 +54,7 @@
 
 ## Fixed
 - Fixed a missing import. ([#845](https://github.com/craftcms/commerce/issues/845))
-- Fixed an error that could occur when a customer logged in. 
+- Fixed an error that could occur when a customer logged in.
 - Fixed an error that occurred when saving a sale. ([#837](https://github.com/craftcms/commerce/issues/837))
 
 ## 2.1.5.1 - 2019-05-07
@@ -212,9 +210,9 @@
 
 ## 2.0.3 - 2019-02-02
 
-### Added 
+### Added
 - Added the "Tax is included in price" tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
- 
+
 ### Changed
 - Soft-deleted products are now restorable.
 - Commerce project config settings are now removed when Commerce is uninstalled.
@@ -236,7 +234,7 @@
 ## 2.0.2 - 2019-01-23
 
 ### Added
-- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`. 
+- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`.
 
 ### Fixed
 - Fixed a PHP error raised when extending the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
@@ -439,7 +437,7 @@
 - Fix a bug where it wasn’t possible to set the billing address based off an existing shipping address.
 
 ### Fixed
-- Fixed a Javascript error when viewing a customer field on the Edit User page. 
+- Fixed a Javascript error when viewing a customer field on the Edit User page.
 
 ## 1.2.1364 - 2018-08-23
 
@@ -472,7 +470,7 @@
 
 ### Changed
 - Line item modals on Edit Order pages now include the line item total.
-- Added Craft 2.6.3013 compatibility. 
+- Added Craft 2.6.3013 compatibility.
 
 ## 1.2.1359 - 2018-03-08
 
