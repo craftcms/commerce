@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.1.8 - 2019-07-08
 
 ### Added
 - Added the `resave/products` command (requires Craft 3.2).
