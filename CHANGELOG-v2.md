@@ -6,7 +6,7 @@
 - Added the full name of the customer to the order search index. ([#892](https://github.com/craftcms/commerce/issues/892)) 
 
 ### Changed
-- CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action by default. ([#900](https://github.com/craftcms/commerce/issues/900)) 
+- CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action. ([#900](https://github.com/craftcms/commerce/issues/900)) 
 
 ### Fixed
 - When calling `toArray()` on an Order, the line items are no longer indexed incorrectly.
