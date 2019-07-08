@@ -17,6 +17,7 @@
 - Fixed a bug where a discount’s coupon code could be saved with leading or trailing whitespace. ([#894](https://github.com/craftcms/commerce/issues/894))
 - Fixed a issue where custom field tabs and custom fields on the Edit Subscription page were not being displayed or editable. ([#884](https://github.com/craftcms/commerce/issues/884)) 
 - Fixed a bug where an empty cart was created unnecessarily when a user logged in. ([#906](https://github.com/craftcms/commerce/issues/906))
+- Fixed a bug where archived subscription plans would be incorrectly returned. ([#916](https://github.com/craftcms/commerce/issues/916))
 
 ## 2.1.7 - 2019-06-11
 

@@ -109,7 +109,7 @@ class Plans extends Component
     public function getAllEnabledPlans(): array
     {
         $results = $this->_createPlansQuery()
-            ->where(['enabled' => true])
+            ->andWhere(['enabled' => true])
             ->all();
 
         return $this->_populatePlans($results);
