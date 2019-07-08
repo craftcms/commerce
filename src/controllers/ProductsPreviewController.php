@@ -219,7 +219,9 @@ class ProductsPreviewController extends Controller
         Craft::$app->language = $site->language;
 
         // Have this product override any freshly queried products with the same ID/site
-        Craft::$app->getElements()->setPlaceholderElement($product);
+        if ($product->id) {
+            Craft::$app->getElements()->setPlaceholderElement($product);
+        }
 
         $this->getView()->getTwig()->disableStrictVariables();
 
