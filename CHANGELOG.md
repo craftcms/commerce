@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `resave/products` command (requires Craft 3.2).
+
 ### Changed
 - Orders now include the full customer name as search keywords. ([#892](https://github.com/craftcms/commerce/issues/892))
 - CSRF protection is now disabled for the `commerce/pay/complete-payment` controller action. ([#900](https://github.com/craftcms/commerce/issues/900))

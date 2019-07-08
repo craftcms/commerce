@@ -34,7 +34,11 @@ use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
+use craft\console\Application as ConsoleApplication;
+use craft\console\Controller as ConsoleController;
+use craft\console\controllers\ResaveController;
 use craft\elements\User as UserElement;
+use craft\events\DefineConsoleActionsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -139,6 +143,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
+        $this->_defineResaveCommand();
     }
 
     /**
@@ -496,6 +501,38 @@ class Plugin extends BasePlugin
                 'action' => function() {
                     FileHelper::clearDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
                 }
+            ];
+        });
+    }
+
+    /**
+     * Defines the `resave/products` command.
+     */
+    private function _defineResaveCommand()
+    {
+        if (
+            !Craft::$app instanceof ConsoleApplication ||
+            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
+        ) {
+            return;
+        }
+
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
+            $e->actions['products'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Product::find();
+                    if ($controller->type !== null) {
+                        $query->type(explode(',', $controller->type));
+                    }
+                    return $controller->saveElements($query);
+                },
+                'options' => ['type'],
+                'helpSummary' => 'Re-saves Commerce products.',
+                'optionsHelp' => [
+                    'type' => 'The product type handle(s) of the products to resave.',
+                ],
             ];
         });
     }
