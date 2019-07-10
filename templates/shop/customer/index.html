@@ -1,5 +1,10 @@
 {% extends 'shop/_layouts/main' %}
 
+{% set extraHead %}
+{# We don't want the order info indexed by search engines. #}
+<meta name="robots" content="noindex">
+{% endset %}
+
 {% block main %}
     {% if currentUser %}
         {% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
