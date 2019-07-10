@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.1.9 - 2019-07-10
+
+### Security
+- Fixed a data disclosure vulnerability.
+
 ## 2.1.8 - 2019-07-08
 
 ### Added
