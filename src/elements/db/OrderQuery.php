@@ -848,12 +848,14 @@ class OrderQuery extends ElementQuery
             $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
         }
 
-        if ($this->number) {
+        if ($this->number !== null) {
             if (is_string($this->number)) {
                 $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
             } else {
                 $this->subQuery->andWhere(Db::parseParam('commerce_orders.number', $this->number));
             }
+        }else{
+            $this->subQuery->andWhere(['commerce_orders.number' => false]);
         }
 
         if ($this->reference) {

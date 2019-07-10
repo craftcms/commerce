@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Security
+- Fixed a bug where it was possible to access purchase receipts when it shouldn’t have been.
+
 ## 2.1.8 - 2019-07-08
 
 ### Added
