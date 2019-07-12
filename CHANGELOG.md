@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.1.10 - 2019-07-12
 
 ### Fixed
 - Fixed a bug where all payments from the control panel were rejected. ([#928](https://github.com/craftcms/commerce/issues/928))
