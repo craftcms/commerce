@@ -156,17 +156,24 @@ class PaymentsController extends BaseFrontEndController
             /** @var Gateway|null $gateway */
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-            if($gateway && $isSiteRequest && $gateway->isFrontendEnabled && $gateway->availableForUseWithOrder($order))
-            {
-                $order->setGatewayId($gatewayId);
+            if ($gateway && $gateway->availableForUseWithOrder($order)) {
+                if ($isSiteRequest && $gateway->isFrontendEnabled) {
+                    $order->setGatewayId($gatewayId);
+                }
+                if (!$isSiteRequest) {
+                    $order->setGatewayId($gatewayId);
+                }
             }
         }
 
         $gateway = $order->getGateway();
 
-        if ($gateway)
-        {
-            $gatewayAllowed = ($isSiteRequest && $gateway->isFrontendEnabled) && $gateway->availableForUseWithOrder($order);
+        if ($gateway) {
+            $gatewayAllowed = $gateway->availableForUseWithOrder($order);
+
+            if ($isSiteRequest && !$gateway->isFrontendEnabled) {
+                $gatewayAllowed = false;
+            }
 
             if (!$gatewayAllowed) {
                 $error = Craft::t('commerce', 'Gateway is not available.');
