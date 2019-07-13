@@ -12,11 +12,11 @@ use craft\base\Element;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
-use craft\commerce\base\OrderDeprecatedTrait;
-use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
-use craft\commerce\elements\actions\UpdateOrderStatus;
-use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\elements\traits\OrderDeprecatedTrait;
+use craft\commerce\elements\traits\OrderElementTrait;
+use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
@@ -36,19 +36,14 @@ use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
-use craft\elements\actions\Delete;
-use craft\elements\actions\Restore;
-use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
-use DateInterval;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -112,6 +107,7 @@ class Order extends Element
 {
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
+    use OrderElementTrait;
 
     // Constants
     // =========================================================================
@@ -241,112 +237,330 @@ class Order extends Element
     // =========================================================================
 
     /**
+     * This is the unique number (hash) generated for the order when it was first created.
+     *
      * @var string Number
+     * ---
+     * ```php
+     * echo $order->number;
+     * ```
+     * ```twig
+     * {{ order.number }}
+     * ```
      */
     public $number;
 
     /**
+     * This is the the reference number generated once the order was completed.
+     * While the order is a cart, this is null.
+     *
      * @var string Reference
+     * ---
+     * ```php
+     * echo $order->reference;
+     * ```
+     * ```twig
+     * {{ order.reference }}
+     * ```
      */
     public $reference;
 
     /**
-     * @var string Coupon Code
+     * This is the currently applied coupon code.
+     *
+     * @var string|null Coupon Code
+     * ---
+     * ```php
+     * echo $order->couponCode;
+     * ```
+     * ```twig
+     * {{ order.couponCode }}
+     * ```
      */
     public $couponCode;
 
     /**
+     * Is this order completed (no longer a cart).
+     *
      * @var bool Is completed
+     * ---
+     * ```php
+     * echo $order->isCompleted;
+     * ```
+     * ```twig
+     * {{ order.isCompleted }}
+     * ```
      */
     public $isCompleted = false;
 
     /**
+     * The date and time this order was completed
+     *
      * @var DateTime Date ordered
+     * ---
+     * ```php
+     * echo $order->dateOrdered;
+     * ```
+     * ```twig
+     * {{ order.dateOrdered }}
+     * ```
      */
     public $dateOrdered;
 
     /**
+     * The date and time this order was paid in full.
+     *
      * @var DateTime Date paid
+     * ---
+     * ```php
+     * echo $order->datePaid;
+     * ```
+     * ```twig
+     * {{ order.datePaid }}
+     * ```
      */
     public $datePaid;
 
     /**
+     * The currency of the order (ISO code)
+     *
      * @var string Currency
+     * ---
+     * ```php
+     * echo $order->currency;
+     * ```
+     * ```twig
+     * {{ order.currency }}
+     * ```
      */
     public $currency;
 
     /**
+     * The current gateway ID to identify the gateway the order should use when accepting payments.
+     * If the `paymentSourceId` is set on this order, this `gatewayId` will be that belonging to the
+     * payment source.
+     *
      * @var int|null Gateway ID
+     * ---
+     * ```php
+     * echo $order->gatewayId;
+     * ```
+     * ```twig
+     * {{ order.gatewayId }}
+     * ```
      */
     public $gatewayId;
 
     /**
-     * @var string Last IP
+     * The last IP address of the user building the order before it was marked as complete.
+     *
+     * @var string|null Last IP address
+     * ---
+     * ```php
+     * echo $order->lastIp;
+     * ```
+     * ```twig
+     * {{ order.lastIp }}
+     * ```
      */
     public $lastIp;
 
     /**
-     * @var string Message
+     * The current message set on the order when having it’s order status being changed.
+     *
+     * @var string|null message
+     * ---
+     * ```php
+     * echo $order->message;
+     * ```
+     * ```twig
+     * {{ order.message }}
+     * ```
      */
     public $message;
 
     /**
+     * The current URL the order should return to after successful payment.
+     * This is stored on the order as we may be redirected off-site for payments.
+     *
      * @var string Return URL
+     * ---
+     * ```php
+     * echo $order->returnUrl;
+     * ```
+     * ```twig
+     * {{ order.returnUrl }}
+     * ```
      */
     public $returnUrl;
 
     /**
+     * The current URL the order should return to if the customer cancels payment off-site.
+     * This is stored on the order as we may be redirected off-site for payments.
+     *
      * @var string Cancel URL
+     * ---
+     * ```php
+     * echo $order->cancelUrl;
+     * ```
+     * ```twig
+     * {{ order.cancelUrl }}
+     * ```
      */
     public $cancelUrl;
 
     /**
-     * @var int Order status ID
+     * The current order status ID. This will be null if the order is not complete
+     * and is still a cart.
+     *
+     * @var int|null Order status ID
+     * ---
+     * ```php
+     * echo $order->orderStatusId;
+     * ```
+     * ```twig
+     * {{ order.orderStatusId }}
+     * ```
      */
     public $orderStatusId;
 
     /**
-     * @var string Order locale
+     * The current order status ID. This will be null if the order is not complete
+     * and is still a cart.
+     *
+     * @var int|null Order status ID
+     * ---
+     * ```php
+     * echo $order->orderStatusId;
+     * ```
+     * ```twig
+     * {{ order.orderStatusId }}
+     * ```
      */
     public $orderLanguage;
 
+
     /**
+     * The origin of the order when it was first created.
+     * Values can be 'web', 'cp', or 'api'
+     *
      * @var string Order origin
+     * ---
+     * ```php
+     * echo $order->orderOrigin;
+     * ```
+     * ```twig
+     * {{ order.orderOrigin }}
+     * ```
      */
     public $orderOrigin;
 
     /**
-     * @var int Billing address ID
+     * The current billing address ID
+     *
+     * @var int|null Billing address ID
+     * ---
+     * ```php
+     * echo $order->billingAddressId;
+     * ```
+     * ```twig
+     * {{ order.billingAddressId }}
+     * ```
      */
     public $billingAddressId;
 
     /**
-     * @var int Shipping address ID
+     * The current shipping address ID
+     *
+     * @var int|null Shipping address ID
+     * ---
+     * ```php
+     * echo $order->shippingAddressId;
+     * ```
+     * ```twig
+     * {{ order.shippingAddressId }}
+     * ```
      */
     public $shippingAddressId;
 
+
     /**
-     * @var bool Whether shipping address should be made primary
+     * Whether or not the shipping address should be made the primary address of the
+     * order‘s customer. This is not persisted on the order, and is only used during the
+     * update order request.
+     *
+     * @var bool Make this the customer‘s primary shipping address
+     * ---
+     * ```php
+     * echo $order->makePrimaryShippingAddress;
+     * ```
+     * ```twig
+     * {{ order.makePrimaryShippingAddress }}
+     * ```
      */
     public $makePrimaryShippingAddress;
 
     /**
-     * @var bool Whether billing address should be made primary
+     * Whether or not the billing address should be made the primary address of the
+     * order‘s customer. This is not persisted on the order, and is only used during the
+     * update order request.
+     *
+     * @var bool Make this the customer‘s primary billing address
+     * ---
+     * ```php
+     * echo $order->makePrimaryBillingAddress;
+     * ```
+     * ```twig
+     * {{ order.makePrimaryBillingAddress }}
+     * ```
      */
     public $makePrimaryBillingAddress;
 
     /**
-     * @var bool Whether shipping address should be set to the same address as billing
+     * Whether or not the shipping address should be the same address as the order’s
+     * billing address. This is not persisted on the order, and is only used during the
+     * update order request. Can not be set to `true` at the same time as setting
+     * `billingSameAsShipping` to true, or an error will be raised.
+     *
+     * @var bool Make this the shipping address the same as the billing address
+     * ---
+     * ```php
+     * echo $order->shippingSameAsBilling;
+     * ```
+     * ```twig
+     * {{ order.shippingSameAsBilling }}
+     * ```
      */
     public $shippingSameAsBilling;
 
     /**
-     * @var bool Whether billing address should be set to the same address as shipping
+     * Whether or not the billing address should be the same address as the order’s
+     * shipping address. This is not persisted on the order, and is only used during the
+     * update order request. Can not be set to `true` at the same time as setting
+     * `shippingSameAsBilling` to true, or an error will be raised.
+     *
+     * @var bool Make this the shipping address the same as the billing address
+     * ---
+     * ```php
+     * echo $order->billingSameAsShipping;
+     * ```
+     * ```twig
+     * {{ order.billingSameAsShipping }}
+     * ```
      */
     public $billingSameAsShipping;
 
     /**
-     * @var string Shipping Method Handle
+     * The current shipping method set on the order.
+     *
+     * @var bool Shipping method handle
+     * ---
+     * ```php
+     * echo $order->shippingMethodHandle;
+     * ```
+     * ```twig
+     * {{ order.shippingMethodHandle }}
+     * ```
      */
     public $shippingMethodHandle;
 
@@ -356,47 +570,147 @@ class Order extends Element
     public $customerId;
 
     /**
-     * @var bool Register the email on order completion
+     * Whether the the email address on the order should be used to register
+     * as a user account when the order is complete.
+     *
+     * @var bool Register user on order complete
+     * ---
+     * ```php
+     * echo $order->registerUserOnOrderComplete;
+     * ```
+     * ```twig
+     * {{ order.registerUserOnOrderComplete }}
+     * ```
      */
     public $registerUserOnOrderComplete;
 
     /**
+     * The current payment source that should be used to make payments on the
+     * order. If this is set, the `gatewayId` will also be set to the related
+     * gateway.
+     *
+     * @var bool Payment source ID
+     * ---
+     * ```php
+     * echo $order->paymentSourceId;
+     * ```
+     * ```twig
+     * {{ order.paymentSourceId }}
+     * ```
+     */
+    public $paymentSourceId;
+
+    /**
      * @var string
+     * @see Order::setRecalculationMode() To set the current recalculation mode
+     * @see Order::getRecalculationMode() To get the current recalculation mode
+     * ---
+     * ```php
+     * echo $order->recalculationMode;
+     * ```
+     * ```twig
+     * {{ order.recalculationMode }}
+     * ```
      */
     private $_recalculationMode;
 
     /**
-     * @var Address
+     * @var Address|null
+     * @see Order::setShippingAddress() To set the current shipping address
+     * @see Order::getShippingAddress() To get the current shipping address
+     * ---
+     * ```php
+     * if ($order->shippingAddress) {
+     * echo $order->shippingAddress->firstName;
+     * }
+     * ```
+     * ```twig
+     * {% if order.shippingAddress %}
+     * {{ order.shippingAddress.firstName }}
+     * {% endif %}
+     * ```
      */
     private $_shippingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
+     * @see Order::setBillingAddress() To set the current billing address
+     * @see Order::getBillingAddress() To get the current billing address
+     * ---
+     * ```php
+     * if ($order->billingAddress) {
+     * echo $order->billingAddress->firstName;
+     * }
+     * ```
+     * ```twig
+     * {% if order.billingAddress %}
+     * {{ order.billingAddress.firstName }}
+     * {% endif %}
+     * ```
      */
     private $_billingAddress;
 
     /**
      * @var LineItem[]
+     * @see Order::setLineItems() To set the order line items
+     * @see Order::getLineItems() To get the order line items
+     * ---
+     * ```php
+     * foreach ($order->getLineItems() as $lineItem) {
+     * echo $lineItem->description';
+     * }
+     * ```
+     * ```twig
+     * {% for lineItem in order.lineItems %}
+     * {{ lineItem.description }}
+     * {% endif %}
+     * ```
      */
     private $_lineItems;
 
     /**
      * @var OrderAdjustment[]
+     * @see Order::setAdjustments() To set the order adjustments
+     * @see Order::setAdjustments() To get the order adjustments
+     * ---
+     * ```php
+     * foreach ($order->getAdjustments() as $adjustment) {
+     * echo $adjustment->amount';
+     * }
+     * ```
+     * ```twig
+     * {% for adjustment in order.adjustments %}
+     * {{ adjustment.amount }}
+     * {% endif %}
+     * ```
      */
     private $_orderAdjustments;
 
     /**
      * @var string
+     * @see Order::setPaymentCurrency() To set the payment currency
+     * @see Order::getPaymentCurrency() To get the payment currency
+     * ---
+     * ```php
+     * echo $order->paymentCurrency;
+     * ```
+     * ```twig
+     * {{ order.paymentCurrency }}
+     * ```
      */
     private $_paymentCurrency;
 
     /**
-     * @var int|null Payment source ID
-     */
-    public $paymentSourceId;
-
-    /**
-     * @var string Email
+     * @var string
+     * @see Order::setEmail() To set the order email
+     * @see Order::getEmail() To get the email
+     * ---
+     * ```php
+     * echo $order->email;
+     * ```
+     * ```twig
+     * {{ order.email }}
+     * ```
      */
     private $_email;
 
@@ -458,6 +772,7 @@ class Order extends Element
                 'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
                 'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
                 'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'orderOrigin' => AttributeTypecastBehavior::TYPE_STRING,
                 'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
@@ -491,7 +806,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         // Set default gateway if none present and no payment source selected
         if (!$this->gatewayId && !$this->paymentSourceId) {
@@ -507,7 +822,7 @@ class Order extends Element
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
-        if ($email = $customer->getEmail()) {
+        if ($customer && $email = $customer->getEmail()) {
             $this->setEmail($email);
         }
 
@@ -620,7 +935,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         $names = parent::extraFields();
         $names[] = 'availableShippingMethods';
@@ -641,7 +956,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         $rules = parent::rules();
 
@@ -950,7 +1265,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -1010,20 +1325,6 @@ class Order extends Element
     public function getAvailableShippingMethods(): array
     {
         return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-    }
-
-    /**
-     * @return float
-     */
-    public function getItemTotal(): float
-    {
-        $total = 0;
-
-        foreach ($this->getLineItems() as $lineItem) {
-            $total += $lineItem->getTotal();
-        }
-
-        return $total;
     }
 
     /**
@@ -1225,6 +1526,7 @@ class Order extends Element
 
     /**
      * @return User|null
+     * @throws InvalidConfigException
      */
     public function getUser()
     {
@@ -1235,6 +1537,7 @@ class Order extends Element
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
      *
      * @return string
+     * @throws InvalidConfigException
      */
     public function getEmail(): string
     {
@@ -1261,6 +1564,14 @@ class Order extends Element
     public function getIsPaid(): bool
     {
         return !$this->hasOutstandingBalance() && $this->isCompleted;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsUnpaid(): bool
+    {
+        return $this->hasOutstandingBalance();
     }
 
     /**
@@ -1375,6 +1686,20 @@ class Order extends Element
     }
 
     /**
+     * @return float
+     */
+    public function getItemTotal(): float
+    {
+        $total = 0;
+
+        foreach ($this->getLineItems() as $lineItem) {
+            $total += $lineItem->getTotal();
+        }
+
+        return $total;
+    }
+
+    /**
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
@@ -1390,7 +1715,7 @@ class Order extends Element
     /**
      * @return bool
      */
-    public function hasOutstandingBalance()
+    public function hasOutstandingBalance(): bool
     {
         return $this->getOutstandingBalance() > 0;
     }
@@ -1406,17 +1731,12 @@ class Order extends Element
     }
 
     /**
-     * @return bool
-     */
-    public function getIsUnpaid(): bool
-    {
-        return $this->hasOutstandingBalance();
-    }
-
-    /**
      * Returns whether this order is the user's current active cart.
      *
      * @return bool
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws Throwable
      */
     public function getIsActiveCart(): bool
     {
@@ -1754,8 +2074,10 @@ class Order extends Element
      * Returns the current payment currency, and defaults to the primary currency if not set.
      *
      * @return string
+     * @throws InvalidConfigException
+     * @throws CurrencyException
      */
-    public function getPaymentCurrency()
+    public function getPaymentCurrency(): string
     {
         if ($this->_paymentCurrency === null) {
             $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
@@ -1892,379 +2214,6 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
-    /**
-     * @inheritdoc
-     * @return OrderQuery The newly created [[OrderQuery]] instance.
-     */
-    public static function find(): ElementQueryInterface
-    {
-        return new OrderQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFieldLayout()
-    {
-        return Craft::$app->getFields()->getLayoutByType(self::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function tableAttributeHtml(string $attribute): string
-    {
-        switch ($attribute) {
-            case 'orderStatus':
-                {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-                    return '<span class="status"></span>';
-                }
-            case 'shippingFullName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-                    return '';
-                }
-            case 'billingFullName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->getFullName();
-                    }
-                    return '';
-                }
-            case 'shippingBusinessName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-                    return '';
-                }
-            case 'billingBusinessName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->businessName;
-                    }
-                    return '';
-                }
-            case 'shippingMethodName':
-                {
-                    if ($this->getShippingMethod()) {
-                        return $this->getShippingMethod()->name;
-                    }
-                    return '';
-                }
-            case 'gatewayName':
-                {
-                    if ($this->getGateway()) {
-                        return $this->getGateway()->name;
-                    }
-                    return '';
-                }
-            case 'paidStatus':
-                {
-                    return $this->getPaidStatusHtml();
-                }
-            case 'totalPaid':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
-                }
-            case 'total':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
-                }
-            case 'totalPrice':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
-                }
-            case 'totalShippingCost':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('shipping');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
-            case 'totalDiscount':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('discount');
-                    if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                    }
-
-                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
-                }
-            case 'totalTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
-            case 'totalIncludedTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax', true);
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
-            default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSearchableAttributes(): array
-    {
-        return [
-            'billingFirstName',
-            'billingLastName',
-            'email',
-            'number',
-            'shippingFirstName',
-            'shippingLastName',
-            'shortNumber',
-            'transactionReference',
-            'username',
-            'reference'
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSearchKeywords(string $attribute): string
-    {
-        switch ($attribute) {
-            case 'billingFirstName':
-                return $this->billingAddress->firstName ?? '';
-            case 'billingLastName':
-                return $this->billingAddress->lastName ?? '';
-            case 'shippingFirstName':
-                return $this->shippingAddress->firstName ?? '';
-            case 'shippingLastName':
-                return $this->shippingAddress->lastName ?? '';
-            case 'transactionReference':
-                return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
-            case 'username':
-                return $this->getUser()->username ?? '';
-            default:
-                return parent::getSearchKeywords($attribute);
-        }
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSources(string $context = null): array
-    {
-        $allCriteria = ['isCompleted' => true];
-        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
-
-        $sources = [
-            '*' => [
-                'key' => '*',
-                'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true],
-                'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
-            ]
-        ];
-
-        $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
-
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
-            $key = 'orderStatus:' . $orderStatus->handle;
-            $criteriaStatus = ['orderStatusId' => $orderStatus->id];
-
-            $count = (new Query())
-                ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from(['{{%commerce_orders}} o'])
-                ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
-                ->count();
-
-            $sources[] = [
-                'key' => $key,
-                'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
-                'criteria' => $criteriaStatus,
-                'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
-            ];
-        }
-
-        $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
-
-        $edge = new DateTime();
-        $interval = new DateInterval('PT1H');
-        $interval->invert = 1;
-        $edge->add($interval);
-        $edge = $edge->format(DateTime::ATOM);
-
-        $updatedAfter = [];
-        $updatedAfter[] = '>= ' . $edge;
-
-        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
-        $sources[] = [
-            'key' => 'carts:active',
-            'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => $criteriaActive,
-            'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
-        ];
-        $updatedBefore = [];
-        $updatedBefore[] = '< ' . $edge;
-
-        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
-        $sources[] = [
-            'key' => 'carts:inactive',
-            'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => $criteriaInactive,
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
-        ];
-
-        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
-        $sources[] = [
-            'key' => 'carts:attempted-payment',
-            'label' => Craft::t('commerce', 'Attempted Payments'),
-            'criteria' => $criteriaAttemptedPayment,
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
-        ];
-
-        return $sources;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineActions(string $source = null): array
-    {
-        $actions = parent::defineActions($source);
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $elementService = Craft::$app->getElements();
-            $deleteAction = $elementService->createAction(
-                [
-                    'type' => Delete::class,
-                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
-                    'successMessage' => Craft::t('commerce', 'Orders deleted.'),
-                ]
-            );
-            $actions[] = $deleteAction;
-
-            // Only allow mass updating order status when all selected are of the same status, and not carts.
-            $isStatus = strpos($source, 'orderStatus:');
-
-            if ($isStatus === 0) {
-                $updateOrderStatusAction = $elementService->createAction([
-                    'type' => UpdateOrderStatus::class
-                ]);
-                $actions[] = $updateOrderStatusAction;
-            }
-
-            // Restore
-            $actions[] = Craft::$app->getElements()->createAction([
-                'type' => Restore::class,
-                'successMessage' => Craft::t('commerce', 'Orders restored.'),
-                'partialSuccessMessage' => Craft::t('commerce', 'Some orders restored.'),
-                'failMessage' => Craft::t('commerce', 'Orders not restored.'),
-            ]);
-        }
-
-        return $actions;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineTableAttributes(): array
-    {
-        return [
-            'order' => ['label' => Craft::t('commerce', 'Order')],
-            'reference' => ['label' => Craft::t('commerce', 'Reference')],
-            'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
-            'number' => ['label' => Craft::t('commerce', 'Number')],
-            'id' => ['label' => Craft::t('commerce', 'ID')],
-            'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
-            'total' => ['label' => Craft::t('commerce', 'Total')],
-            'totalPrice' => ['label' => Craft::t('commerce', 'Total')],
-            'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
-            'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
-            'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
-            'totalTax' => ['label' => Craft::t('commerce', 'Total Tax')],
-            'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
-            'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
-            'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
-            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
-            'email' => ['label' => Craft::t('commerce', 'Email')],
-            'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
-            'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
-            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
-            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
-            'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
-            'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')]
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineDefaultTableAttributes(string $source = null): array
-    {
-        $attributes = [];
-        $attributes[] = 'order';
-
-        if (0 !== strpos($source, 'carts:')) {
-            $attributes[] = 'reference';
-            $attributes[] = 'orderStatus';
-            $attributes[] = 'totalPrice';
-            $attributes[] = 'dateOrdered';
-            $attributes[] = 'totalPaid';
-            $attributes[] = 'datePaid';
-            $attributes[] = 'paidStatus';
-        } else {
-            $attributes[] = 'shortNumber';
-            $attributes[] = 'dateUpdated';
-            $attributes[] = 'totalPrice';
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'number' => Craft::t('commerce', 'Number'),
-            'reference' => Craft::t('commerce', 'Reference'),
-            'id' => Craft::t('commerce', 'ID'),
-            'orderStatusId' => Craft::t('commerce', 'Order Status'),
-            'totalPrice' => Craft::t('commerce', 'Total Payable'),
-            'totalPaid' => Craft::t('commerce', 'Total Paid'),
-            'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
-            [
-                'label' => Craft::t('commerce', 'Date Updated'),
-                'orderBy' => 'commerce_orders.dateUpdated',
-                'attribute' => 'dateUpdated'
-            ],
-            'datePaid' => Craft::t('commerce', 'Date Paid')
-        ];
-    }
-
     // Private Methods
     // =========================================================================
 
@@ -2272,6 +2221,9 @@ class Order extends Element
      * Updates the adjustments, including deleting the old ones.
      *
      * @return null
+     * @throws Exception
+     * @throws Throwable
+     * @throws \yii\db\StaleObjectException
      */
     private function _saveAdjustments()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\commerce\base;
+namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\Order;
