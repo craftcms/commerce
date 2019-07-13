@@ -522,7 +522,10 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand()
     {
-        if (!Craft::$app instanceof ConsoleApplication) {
+        if (
+            !Craft::$app instanceof ConsoleApplication ||
+            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
+        ) {
             return;
         }
 

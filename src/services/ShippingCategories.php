@@ -155,7 +155,7 @@ class ShippingCategories extends Component
         }
 
         $row = $this->_createShippingCategoryQuery()
-            ->where(['default' => 1])
+            ->where(['default' => true])
             ->one();
 
         if (!$row) {
@@ -208,7 +208,7 @@ class ShippingCategories extends Component
 
         // If this was the default make all others not the default.
         if ($shippingCategory->default) {
-            ShippingCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+            ShippingCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
         }
 
         // Remove existing Categories <-> ProductType relationships
@@ -226,6 +226,7 @@ class ShippingCategories extends Component
         if (null !== $oldHandle && $shippingCategory->handle != $oldHandle) {
             unset($this->_shippingCategoriesByHandle[$oldHandle]);
         }
+
 
         return true;
     }

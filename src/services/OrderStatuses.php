@@ -145,7 +145,7 @@ class OrderStatuses extends Component
         }
 
         $result = $this->_createOrderStatusesQuery()
-            ->where(['default' => 1])
+            ->where(['default' => true])
             ->one();
 
         return new OrderStatus($result);
@@ -256,7 +256,7 @@ class OrderStatuses extends Component
             $statusRecord->save(false);
 
             if ($statusRecord->default) {
-                OrderStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
+                OrderStatusRecord::updateAll(['default' => false], ['not', ['id' => $statusRecord->id]]);
             }
 
             $connection = Craft::$app->getDb();

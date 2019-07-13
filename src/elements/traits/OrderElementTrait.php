@@ -151,10 +151,12 @@ trait OrderElementTrait
         return [
             'billingFirstName',
             'billingLastName',
+            'billingFullName',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
+            'shippingFullName',
             'shortNumber',
             'transactionReference',
             'username',
@@ -172,10 +174,14 @@ trait OrderElementTrait
                 return $this->billingAddress->firstName ?? '';
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
+            case 'billingFullName':
+                return ($this->billingAddress->firstName ?? '') . ($this->billingAddress->lastName ?? '');
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
+            case 'shippingFullName':
+                return ($this->shippingAddress->firstName ?? '') . ($this->shippingAddress->lastName ?? '');
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -194,7 +200,7 @@ trait OrderElementTrait
     protected static function defineSources(string $context = null): array
     {
         $allCriteria = ['isCompleted' => true];
-        $count = $count = Craft::configure(self::find(), $allCriteria)->count();
+        $count = Craft::configure(self::find(), $allCriteria)->count();
 
         $sources = [
             '*' => [
