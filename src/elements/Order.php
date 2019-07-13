@@ -1398,6 +1398,7 @@ class Order extends Element
             }
 
             $orderRecord->shippingAddressId = $shippingAddress->id;
+            $this->setShippingAddress($shippingAddress);
         }
 
         // Save billing address, it has already been validated.
@@ -1410,6 +1411,7 @@ class Order extends Element
             }
 
             $orderRecord->billingAddressId = $billingAddress->id;
+            $this->setBillingAddress($billingAddress);
         }
 
 
@@ -2060,11 +2062,6 @@ class Order extends Element
 
         if (null === $gateway) {
             throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
-        }
-
-        /** @var Gateway $gateway */
-        if (!$this->isCompleted && !$gateway->isFrontendEnabled) {
-            throw new InvalidConfigException('Gateway not allowed.');
         }
 
         return $gateway;
