@@ -104,7 +104,7 @@ class DiscountsController extends BaseCpController
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
-        $discount->code = $request->getBodyParam('code') ?: null;
+        $discount->code = trim($request->getBodyParam('code')) ?: null;
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');

@@ -302,7 +302,7 @@ class CartController extends BaseFrontEndController
 
         // Set Coupon on Cart. Allow blank string to remove coupon
         if (($couponCode = $request->getParam('couponCode')) !== null) {
-            $this->_cart->couponCode = $couponCode ?: null;
+            $this->_cart->couponCode = trim($couponCode) ?: null;
         }
 
         // Set Payment Gateway on cart

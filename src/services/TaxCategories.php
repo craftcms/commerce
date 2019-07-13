@@ -155,7 +155,7 @@ class TaxCategories extends Component
         }
 
         $result = $this->_createTaxCategoryQuery()
-            ->where(['default' => 1])
+            ->where(['default' => true])
             ->one();
 
         if (!$result) {
@@ -210,7 +210,7 @@ class TaxCategories extends Component
 
         // If this was the default make all others not the default.
         if ($taxCategory->default) {
-            TaxCategoryRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+            TaxCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
         }
 
         // Remove existing Categories <-> ProductType relationships

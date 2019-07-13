@@ -149,12 +149,33 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+
         // Allow setting the payment method at time of submitting payment.
         if ($gatewayId = $request->getParam('gatewayId')) {
             /** @var Gateway|null $gateway */
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-            if ($gateway && (Craft::$app->getRequest()->getIsSiteRequest() && !$gateway->isFrontendEnabled) && !$gateway->availableForUseWithOrder($order)) {
+            if ($gateway && $gateway->availableForUseWithOrder($order)) {
+                if ($isSiteRequest && $gateway->isFrontendEnabled) {
+                    $order->setGatewayId($gatewayId);
+                }
+                if (!$isSiteRequest) {
+                    $order->setGatewayId($gatewayId);
+                }
+            }
+        }
+
+        $gateway = $order->getGateway();
+
+        if ($gateway) {
+            $gatewayAllowed = $gateway->availableForUseWithOrder($order);
+
+            if ($isSiteRequest && !$gateway->isFrontendEnabled) {
+                $gatewayAllowed = false;
+            }
+
+            if (!$gatewayAllowed) {
                 $error = Craft::t('commerce', 'Gateway is not available.');
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($error);
@@ -165,11 +186,7 @@ class PaymentsController extends BaseFrontEndController
 
                 return null;
             }
-
-            $order->gatewayId = $gatewayId;
         }
-
-        $gateway = $order->getGateway();
 
         /** @var Gateway $gateway */
         if (!$gateway) {
