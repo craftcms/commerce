@@ -912,7 +912,7 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
         }
 
-        // Allow true ot false but not null
+        // Allow true or false but not null
         if (($this->isUnpaid !== null) && $this->isUnpaid) {
             $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
         }
