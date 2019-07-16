@@ -26,7 +26,7 @@
 ## Changed
 - The order edit page is now a Vue.js app. This will break any template hooks that use javascript to modify the DOM on that page.
 - The `craft\commerce\controller\BaseFronEndController::cartArray()` now uses `$cart->toArray()` instead of a custom formatter.
-- The donation amount now defaults to zero if no `donationAmount` line item option is not submitted when adding the donation to the cart.
+- The donation amount now defaults to zero if no `donationAmount` line item option is submitted, when adding the donation to the cart.
 
 ## Deprecated
 - Moved the original cart array formatter (used for a cart‘s JSON representation) to `craft\commerce\services\Orders::cartArray($cart)` and deprecated it. Use `$cart->toArray()` instead.
