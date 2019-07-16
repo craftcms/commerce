@@ -136,6 +136,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
     {
         $orderShippingCategories = [];
         foreach ($order->lineItems as $lineItem) {
+            // Dont' look at the shipping category of non shippable products.
+            if($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable())
             $orderShippingCategories[] = $lineItem->shippingCategoryId;
         }
         $orderShippingCategories = array_unique($orderShippingCategories);
