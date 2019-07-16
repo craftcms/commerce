@@ -16,7 +16,7 @@
 #}
 
             {# Get the available payment sources the user has to be used later in this page. #}
-            {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
+            {% set storedCards = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
 
             {# Get the available gateways to be used later in this page #}
             {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
