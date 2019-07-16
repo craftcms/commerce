@@ -8,12 +8,12 @@
                 <td>
                     <span id="order-number-short">{{ order.reference ?: order.shortNumber }}</span>
                     <span class="info">
-                        <h2>Order Identification</h2>
+                        <h2>{{ "Order Identification"|t('commerce') }}</h2>
                         <table class="data">
-                            <tr><td><strong>{{ 'Reference'|t('commerce') }}</strong></td><td>{{ order.reference }}</td></tr>
-                            <tr><td><strong>{{ 'ID'|t('commerce') }}</strong></td><td>{{ order.id }}</td></tr>
-                            <tr><td><strong>{{ 'Short'|t('commerce') }}</strong></td><td>{{ order.shortNumber }}</td></tr>
-                            <tr><td><strong>{{ 'Full'|t('commerce') }}</strong></td><td>{{ order.number }}</td></tr>
+                            <tr><td><strong class="nowrap">{{ 'Reference'|t('commerce') }}</strong></td><td>{{ order.reference }}</td></tr>
+                            <tr><td><strong class="nowrap">{{ 'ID'|t('commerce') }}</strong></td><td>{{ order.id }}</td></tr>
+                            <tr><td><strong class="nowrap">{{ 'Short'|t('commerce') }}</strong></td><td>{{ order.shortNumber }}</td></tr>
+                            <tr><td><strong class="nowrap">{{ 'Full'|t('commerce') }}</strong></td><td>{{ order.number }}</td></tr>
                         </table>
                     </span>
                 </td>
