@@ -1202,7 +1202,7 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = (bool)$lineItem->id;
+        $isNew = !$lineItem->id;
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
             $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
@@ -1551,7 +1551,7 @@ class Order extends Element
             $this->setEmail($this->getCustomer()->getUser()->email);
         }
 
-        return $this->_email ?? '';
+        return $this->_email ?? null;
     }
 
     /**
