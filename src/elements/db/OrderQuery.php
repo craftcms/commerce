@@ -84,6 +84,11 @@ class OrderQuery extends ElementQuery
     public $orderStatusId;
 
     /**
+     * @var string|null The origin the resulting orders must have.
+     */
+    public $origin;
+
+    /**
      * @var bool The completion status that the resulting orders must have.
      */
     public $customerId;
@@ -536,6 +541,44 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the origin.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'web'` | with an origin of `web`.
+     * | `'not api'` | not with an origin of `api`.
+     * | `['web', 'cp']` | with an order origin of `web` or `cp`.
+     * | `['not', 'web', 'cp']` | not with an origin of `web` or `cp`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch shipped {elements} #}
+     * {% set {elements-var} = {twig-method}
+     *     .origin('web')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch shipped {elements}
+     * ${elements-var} = {php-method}
+     *     ->origin('web')
+     *     ->all();
+     * ```
+     *
+     * @param string|string[]|null $value The property value
+     * @return static self reference
+     */
+    public function origin($value = null)
+    {
+        $this->origin = $value;
+
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the customer.
      *
      * Possible values include:
@@ -856,6 +899,10 @@ class OrderQuery extends ElementQuery
 
         if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
             $this->query->addSelect(['commerce_orders.origin']);
+
+            if ($this->origin) {
+                $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
+            }
         }
 
         if ($this->number !== null) {
