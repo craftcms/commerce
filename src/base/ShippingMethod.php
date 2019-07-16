@@ -144,15 +144,32 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
     public function getPriceForOrder(Order $order)
     {
         $shippingRule = $this->getMatchingShippingRule($order);
+        $lineItems = $order->getLineItems();
 
         if (!$shippingRule) {
+            return 0;
+        }
+
+        $nonShippableItems = [];
+
+        foreach ($lineItems as $item) {
+            $purchasable = $item->getPurchasable();
+            if($purchasable && !$purchasable->getIsShippable())
+            {
+                $nonShippableItems[$item->id] = $item->id;
+            }
+        }
+
+        // Are all line items non shippable items? No shipping cost.
+        if(count($lineItems) == count($nonShippableItems))
+        {
             return 0;
         }
 
         $amount = $shippingRule->getBaseRate();
 
         foreach ($order->lineItems as $item) {
-            if ($item->purchasable && !$item->purchasable->hasFreeShipping()) {
+            if ($item->purchasable && !$item->purchasable->hasFreeShipping() && $item->purchasable->getIsShippable()) {
                 $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
                 $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
                 $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);
