@@ -364,7 +364,7 @@ class Install extends Migration
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
             'orderLanguage' => $this->string(12)->notNull(),
-            'orderOrigin' => $this->enum('orderOrigin', ['web', 'cp', 'remote'])->notNull()->defaultValue('web'),
+            'origin' => $this->enum('origin', ['web', 'cp', 'remote'])->notNull()->defaultValue('web'),
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean(),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),

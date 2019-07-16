@@ -185,8 +185,8 @@
             </div>
 
             <div class="data">
-                <h5 class="heading">{{"Order Origin"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.orderOrigin}}</span>
+                <h5 class="heading">{{"Origin"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.origin}}</span>
             </div>
         </div>
     </div>

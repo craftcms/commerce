@@ -855,7 +855,7 @@ class OrderQuery extends ElementQuery
         }
 
         if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.orderOrigin']);
+            $this->query->addSelect(['commerce_orders.origin']);
         }
 
         if ($this->number !== null) {

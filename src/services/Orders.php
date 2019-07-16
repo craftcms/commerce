@@ -189,7 +189,7 @@ class Orders extends Component
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
-        $data['orderOrigin'] = $cart->orderOrigin;
+        $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();

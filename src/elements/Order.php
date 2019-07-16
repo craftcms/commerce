@@ -64,7 +64,7 @@ use yii\log\Logger;
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
  * @property string $recalculationMode the mode of recalculation.
- * @property string $orderOrigin
+ * @property string $origin
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -447,13 +447,13 @@ class Order extends Element
      * @var string Order origin
      * ---
      * ```php
-     * echo $order->orderOrigin;
+     * echo $order->origin;
      * ```
      * ```twig
-     * {{ order.orderOrigin }}
+     * {{ order.origin }}
      * ```
      */
-    public $orderOrigin;
+    public $origin;
 
     /**
      * The current billing address ID
@@ -742,8 +742,8 @@ class Order extends Element
             $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
 
-        if ($this->orderOrigin === null) {
-            $this->orderOrigin = static::ORIGIN_WEB;
+        if ($this->origin === null) {
+            $this->origin = static::ORIGIN_WEB;
         }
 
         if ($this->_recalculationMode === null) {
@@ -776,7 +776,7 @@ class Order extends Element
                 'returnUrl' => AttributeTypecastBehavior::TYPE_STRING,
                 'cancelUrl' => AttributeTypecastBehavior::TYPE_STRING,
                 'orderStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderOrigin' => AttributeTypecastBehavior::TYPE_STRING,
+                'origin' => AttributeTypecastBehavior::TYPE_STRING,
                 'billingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'shippingAddressId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'makePrimaryShippingAddress' => AttributeTypecastBehavior::TYPE_BOOLEAN,
@@ -1371,7 +1371,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
-        $orderRecord->orderOrigin = $this->orderOrigin;
+        $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
