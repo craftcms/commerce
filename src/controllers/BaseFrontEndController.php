@@ -35,6 +35,11 @@ class BaseFrontEndController extends BaseController
      */
     protected function cartArray(Order $cart): array
     {
-        return Plugin::getInstance()->getOrders()->cartArray($cart);
+        // Typecast order attributes
+        $cart->typeCastAttributes();
+
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+
+        return $cart->toArray([], $extraFields);
     }
 }
