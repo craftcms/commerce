@@ -546,6 +546,7 @@ class Payments extends Component
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
             } catch (Throwable $exception) {
+                Craft::error(Craft::t('commerce', 'Error refunding transaction: {transactionHash}', ['transactionHash' => $parent->hash]), 'commerce');
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);
