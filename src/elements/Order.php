@@ -1086,7 +1086,7 @@ class Order extends Element
             $this->setEmail($this->getCustomer()->getUser()->email);
         }
 
-        return $this->_email ?? '';
+        return $this->_email ?? null;
     }
 
     /**
