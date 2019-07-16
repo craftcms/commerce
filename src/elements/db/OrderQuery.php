@@ -548,9 +548,9 @@ class OrderQuery extends ElementQuery
      * | Value | Fetches {elements}…
      * | - | -
      * | `'web'` | with an origin of `web`.
-     * | `'not api'` | not with an origin of `api`.
+     * | `'not remote'` | not with an origin of `remote`.
      * | `['web', 'cp']` | with an order origin of `web` or `cp`.
-     * | `['not', 'web', 'cp']` | not with an origin of `web` or `cp`.
+     * | `['not', 'remote', 'cp']` | not with an origin of `web` or `cp`.
      *
      * ---
      *
