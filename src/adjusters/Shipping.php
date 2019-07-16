@@ -48,8 +48,25 @@ class Shipping extends Component implements AdjusterInterface
         $this->_order = $order;
 
         $shippingMethod = $order->getShippingMethod();
+        $lineItems = $order->getLineItems();
 
         if ($shippingMethod === null) {
+            return [];
+        }
+
+        $nonShippableItems = [];
+
+        foreach ($lineItems as $item) {
+            $purchasable = $item->getPurchasable();
+            if($purchasable && !$purchasable->getIsShippable())
+            {
+                $nonShippableItems[$item->id] = $item->id;
+            }
+        }
+
+        // Are all line items non shippable items? No shipping cost.
+        if(count($lineItems) == count($nonShippableItems))
+        {
             return [];
         }
 
@@ -73,7 +90,8 @@ class Shipping extends Component implements AdjusterInterface
                 }
 
                 $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount) {
+                $shippable =  $item->purchasable->getIsShippable();
+                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                     $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);

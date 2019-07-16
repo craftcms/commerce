@@ -315,7 +315,7 @@
         {{ commerceForms.numberField({
             label: "Base Rate"|t('commerce'),
             name: 'baseRate',
-            instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate."|t('commerce'),
+            instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate. The whole rule, including this base rate, will not match and apply if the cart only contains non-shippable items like digital products."|t('commerce'),
             value: shippingRule.baseRate + 0,
             type: 'number',
             min: 0,

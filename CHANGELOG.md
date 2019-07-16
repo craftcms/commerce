@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` had the `isNew` param set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
+- Fixed a bug where non shippable purchasables were being included in shipping calculations.
 
 ## 2.1.10 - 2019-07-12
 
