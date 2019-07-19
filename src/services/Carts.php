@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
@@ -57,9 +58,46 @@ class Carts extends Component
     public function getCart($forceSave = false): Order
     {
         if (null === $this->_cart) {
+
             $number = $this->getSessionCartNumber();
 
             $cart = Order::find()->number($number)->trashed(null)->one();
+
+            // Recover previous carts of the current user and merge them
+            if (!Craft::$app->getUser()->getIsGuest()) {
+                $user = Craft::$app->getUser()->getIdentity();
+                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
+
+                // If the current cart in the session doesn't belong to the logged in user, assign it to the logged in user.
+                if($cart && $customer && $customer->id && ($cart->customerId != $customer->id))
+                {
+                    $cart->customerId = $customer->id;
+                    Craft::$app->getElements()->saveElement($cart, false);
+                }
+
+                // Now get all previous carts for this current user
+                $allCustomerCarts = Order::find()->isCompleted(false)->user($user)->all();
+
+                if (count($allCustomerCarts) > 1) {
+                    // Always use the first cart as the users cart.
+                    $cart = array_values($allCustomerCarts)[0];
+                    $this->setSessionCartNumber($cart->number);
+
+                    foreach ($allCustomerCarts as $previousCart) {
+                        if ($cart->id != $previousCart->id) {
+                            OrderHelper::mergeOrders($cart, $previousCart);
+                        }
+                    }
+                }
+
+                if(count($allCustomerCarts) == 1)
+                {
+                    $cart = array_values($allCustomerCarts)[0];
+                    $this->setSessionCartNumber($cart->number);
+                }
+            }
+
+            // Do we have a cart?
             if ($this->_cart = $cart) {
                 // We do not want to use the same order number as a completed order.
                 if ($this->_cart->isCompleted || $this->_cart->trashed) {
@@ -190,6 +228,18 @@ class Carts extends Component
         }
 
         return $cartNumber;
+    }
+
+    /**
+     * Set the session cart number.
+     *
+     * @param string $cartNumber
+     * @return void
+     */
+    private function setSessionCartNumber(string $cartNumber)
+    {
+        $session = Craft::$app->getSession();
+        $session->set($this->cartName, $cartNumber);
     }
 
     /**
