@@ -895,7 +895,7 @@ class Order extends Element
         $orderRecord->number = $this->number;
         $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
-        $orderRecord->email = $this->getEmail();
+        $orderRecord->email = $this->getEmail() ?? '';
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
         $orderRecord->datePaid = $this->datePaid ?: null;
@@ -1078,9 +1078,9 @@ class Order extends Element
     /**
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
      *
-     * @return string
+     * @return string|null
      */
-    public function getEmail(): string
+    public function getEmail()
     {
         if ($this->getCustomer() && $this->getCustomer()->getUser()) {
             $this->setEmail($this->getCustomer()->getUser()->email);
