@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
@@ -36,16 +37,59 @@ use function in_array;
  */
 class Discounts extends Component
 {
-    // Properties
+    // Constants
     // =========================================================================
 
     /**
-     * @var Discount[]
+     * @event DiscountEvent The event that is raised before an discount is saved.
+     *
+     * Plugins can get notified before an discount is being saved
+     *
+     * ```php
+     * use craft\commerce\events\DiscountEvent;
+     * use craft\commerce\services\Discounts;
+     * use yii\base\Event;
+     *
+     * Event::on(Discounts::class, Discounts::EVENT_BEFORE_SAVE_DISCOUNT, function(DiscountEvent $e) {
+     *     // Do something - perhaps let an external CRM system know about a client's new discount
+     * });
+     * ```
      */
-    private $_allDiscounts;
+    const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
 
-    // Constants
-    // =========================================================================
+    /**
+     * @event DiscountEvent The event that is raised after an discount is saved.
+     *
+     * Plugins can get notified after an discount has been saved
+     *
+     * ```php
+     * use craft\commerce\events\DiscountEvent;
+     * use craft\commerce\services\Discounts;
+     * use yii\base\Event;
+     *
+     * Event::on(Discounts::class, Discounts::EVENT_AFTER_SAVE_DISCOUNT, function(DiscountEvent $e) {
+     *     // Do something - perhaps set this discount as default in an external CRM system
+     * });
+     * ```
+     */
+    const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
+
+    /**
+     * @event DiscountEvent The event that is raised after an discount is deleted.
+     *
+     * Plugins can get notified after an discount has been deleted.
+     *
+     * ```php
+     * use craft\commerce\events\DiscountEvent;
+     * use craft\commerce\services\Discounts;
+     * use yii\base\Event;
+     *
+     * Event::on(Discounts::class, Discounts::EVENT_AFTER_DELETE_DISCOUNT, function(DiscountEvent $e) {
+     *     // Do something - perhaps remove this discount from a payment gateway.
+     * });
+     * ```
+     */
+    const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
@@ -64,6 +108,14 @@ class Discounts extends Component
      * ```
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
+
+    // Properties
+    // =========================================================================
+
+    /**
+     * @var Discount[]
+     */
+    private $_allDiscounts;
 
     // Public Methods
     // =========================================================================
@@ -382,6 +434,8 @@ class Discounts extends Component
      */
     public function saveDiscount(Discount $model, bool $runValidation = true): bool
     {
+        $isNew = !$model->id;
+
         if ($model->id) {
             $record = DiscountRecord::findOne($model->id);
 
@@ -390,6 +444,14 @@ class Discounts extends Component
             }
         } else {
             $record = new DiscountRecord();
+        }
+
+        // Raise the beforeSaveDiscount event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_DISCOUNT)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_DISCOUNT, new DiscountEvent([
+                'discount' => $model,
+                'isNew' => $isNew,
+            ]));
         }
 
         if ($runValidation && !$model->validate()) {
@@ -461,6 +523,14 @@ class Discounts extends Component
 
             $transaction->commit();
 
+            // Raise the afterSaveDiscount event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_DISCOUNT)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_DISCOUNT, new DiscountEvent([
+                    'discount' => $model,
+                    'isNew' => $isNew,
+                ]));
+            }
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -476,13 +546,26 @@ class Discounts extends Component
      */
     public function deleteDiscountById($id): bool
     {
-        $record = DiscountRecord::findOne($id);
+        $discountRecord = DiscountRecord::findOne($id);
 
-        if ($record) {
-            return $record->delete();
+        if (!$discountRecord) {
+            return false;
         }
 
-        return false;
+        // Get the Discount model before deletion to pass to the Event.
+        $discount = $this->getDiscountById($id);
+
+        $result = (bool)$discountRecord->delete();
+
+        //Raise the afterDeleteDiscount event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
+            $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
+                'discount' => $discount,
+                'isNew' => false
+            ]));
+        }
+
+        return $result;
     }
 
     /**
