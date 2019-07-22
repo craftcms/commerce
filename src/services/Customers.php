@@ -261,20 +261,9 @@ class Customers extends Component
         $this->forgetCustomer();
         /** @var User $user */
         $user = $event->identity;
-        $this->consolidateOrdersToUser($user);
 
-        // Recover previous carts of user
-        if (Plugin::getInstance()->getSettings()->mergeLastCartOnLogin) {
-            $previousOrders = Order::find()->isCompleted(false)->user($user)->all();
-            if ($previousOrders) {
-                $cart = Plugin::getInstance()->getCarts()->getCart(true);
-                foreach ($previousOrders as $previousOrder) {
-                    if ($cart->id != $previousOrder->id) {
-                        OrderHelper::mergeOrders($cart, $previousOrder);
-                    }
-                }
-            }
-        }
+        // Consolidates completed orders to the user
+        $this->consolidateOrdersToUser($user);
     }
 
     /**

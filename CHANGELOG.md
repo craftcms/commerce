@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+### Added
+- Added more cart information to the example templates to help with debugging.
+- Added client side polling to the example templates to detect if the current cart has changes on another tab or session.
+
 ### Fixed
 - Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` had the `isNew` param set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
 - Fixed a bug where non shippable purchasables were being included in shipping calculations.
+- Fixed a bug where a logged in user did not see the same cart across all their sessions.
+
+### Deprecated
+- The `mergeLastCartOnLogin` setting is no longer able to be turned off, a logged in user will always have a single cart.
 
 ## 2.1.10 - 2019-07-12
 
