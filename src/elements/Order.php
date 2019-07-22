@@ -1006,16 +1006,6 @@ class Order extends Element
     }
 
     /**
-     * @deprecated
-     */
-    public function updateOrderPaidTotal()
-    {
-        Craft::$app->getDeprecator()->log('Order::updateOrderPaidTotal()', 'The Order::updateOrderPaidTotal() function has been deprecated. Use Order::Order::updateOrderPaidInformation() instead');
-
-        return $this->updateOrderPaidInformation();
-    }
-
-    /**
      * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
      */
     public function updateOrderPaidInformation()

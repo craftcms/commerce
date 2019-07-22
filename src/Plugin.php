@@ -20,7 +20,6 @@ use craft\commerce\fields\Variants;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
-use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
@@ -117,7 +116,6 @@ class Plugin extends BasePlugin
 
     use CommerceServices;
     use Variables;
-    use DeprecatedVariables;
     use Routes;
 
     // Public Methods

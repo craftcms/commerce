@@ -54,16 +54,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     // =========================================================================
 
     /**
-     * @deprecated as of 2.0
-     */
-    public function getPurchasableId()
-    {
-        Craft::$app->getDeprecator()->log('Purchasable::getPurchasableId()', 'The Purchasable::getPurchasableId() function has been deprecated. Use Purchasable::getId() instead.');
-
-        return $this->getId();
-    }
-
-    /**
      * @inheritdoc
      */
     public function attributes()

@@ -271,19 +271,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @return Sale[]
-     * @deprecated
-     */
-    public function getSalesApplied(): array
-    {
-        Craft::$app->getDeprecator()->log('Variant::getSalesApplied()', 'The getSalesApplied() function has been deprecated. Use getSales() instead.');
-
-        return $this->getSales();
-    }
-
-    /**
      * @inheritdoc
      */
     public function getFieldLayout()

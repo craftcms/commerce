@@ -277,28 +277,6 @@ class Discount extends Model
 
     /**
      * @param bool $value
-     * @deprecated in 2.1
-     */
-    public function setFreeShipping($value)
-    {
-        Craft::$app->getDeprecator()->log('Discount::setFreeShipping()', 'Discount::setFreeShipping() has been deprecated. Use Discount::setHasFreeShippingForMatchingItems() instead');
-
-        $this->setHasFreeShippingForMatchingItems($value);
-    }
-
-    /**
-     * @return bool
-     * @deprecated in 2.1
-     */
-    public function getFreeShipping(): bool
-    {
-        Craft::$app->getDeprecator()->log('Discount::getFreeShipping()', 'Discount::getFreeShipping() or discount.freeShipping has been deprecated. Use Discount::getHasFreeShippingForMatchingItems() or discount.hasFreeShippingForMatchingItems instead');
-
-        return $this->getHasFreeShippingForMatchingItems();
-    }
-
-    /**
-     * @param bool $value
      */
     public function setHasFreeShippingForMatchingItems($value)
     {

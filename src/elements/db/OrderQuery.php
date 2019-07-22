@@ -140,65 +140,6 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * @inheritdoc
-     */
-    public function __set($name, $value)
-    {
-        switch ($name) {
-            case 'updatedAfter':
-                $this->updatedAfter($value);
-                break;
-            case 'updatedBefore':
-                $this->updatedBefore($value);
-                break;
-            default:
-                parent::__set($name, $value);
-        }
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedAfter($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>=' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedBefore($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<' . $value;
-
-        return $this;
-    }
-
-    /**
      * Narrows the query results based on the order number.
      *
      * Possible values include:

@@ -491,17 +491,6 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     * @deprecated in 2.0 Use populateFromPurchasable() instead.
-     */
-    public function fillFromPurchasable(PurchasableInterface $purchasable)
-    {
-        Craft::$app->getDeprecator()->log('LineItemModel::fillFromPurchasable()', 'LineItemModel::fillFromPurchasable() has been deprecated by renaming. Use LineItem::populateFromPurchasable($purchasable)');
-
-        $this->populateFromPurchasable($purchasable);
-    }
-
-    /**
-     * @param PurchasableInterface $purchasable
      *
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable)
@@ -654,49 +643,5 @@ class LineItem extends Model
         }
 
         return $amount;
-    }
-
-    /**
-     * @return float
-     * @deprecated since 2.0
-     */
-    public function getTax(): float
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getTax()', 'craft\commerce\models\LineItem::getTax() has been deprecated. Use getAdjustmentsTotalByType(\'tax\') instead.');
-
-        return $this->getAdjustmentsTotalByType('tax');
-    }
-
-    /**
-     * @return float
-     * @deprecated since 2.0
-     */
-    public function getTaxIncluded(): float
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getTaxIncluded()', 'craft\commerce\models\LineItem::getTaxIncluded() has been deprecated. Use getAdjustmentsTotalByType(\'taxIncluded\', true) instead.');
-
-        return $this->getAdjustmentsTotalByType('taxIncluded', true);
-    }
-
-    /**
-     * @return float
-     * @deprecated since 2.0
-     */
-    public function getShippingCost(): float
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getShippingCost()', 'craft\commerce\models\LineItem::getShippingCost() has been deprecated. Use getAdjustmentsTotalByType(\'shipping\') instead.');
-
-        return $this->getAdjustmentsTotalByType('shipping');
-    }
-
-    /**
-     * @return float
-     * @deprecated since 2.0
-     */
-    public function getDiscount(): float
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getDiscount()', 'craft\commerce\models\LineItem::getDiscount() has been deprecated. Use getAdjustmentsTotalByType(\'discount\') instead.');
-
-        return $this->getAdjustmentsTotalByType('discount');
     }
 }

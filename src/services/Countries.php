@@ -98,19 +98,6 @@ class Countries extends Component
      * Returns all country names, indexed by ID.
      *
      * @return array
-     * @deprecated as of 2.0
-     */
-    public function getAllCountriesListData(): array
-    {
-        Craft::$app->getDeprecator()->log('Countries::getAllCountriesListData()', 'Countries::getAllCountriesListData() has been deprecated. Use Countries::getAllCountriesAsList() instead');
-
-        return $this->getAllCountriesAsList();
-    }
-
-    /**
-     * Returns all country names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllCountriesAsList(): array
     {

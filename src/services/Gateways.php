@@ -93,17 +93,6 @@ class Gateways extends Component
     }
 
     /**
-     * Returns all frontend enabled gateways.
-     *
-     * @return GatewayInterface[] All gateways that are enabled for frontend
-     * @deprecated as of 2.0
-     */
-    public function getAllFrontEndGateways(): array
-    {
-        return $this->getAllCustomerEnabledGateways();
-    }
-
-    /**
      * Returns all customer enabled gateways.
      *
      * @return GatewayInterface[] All gateways that are enabled for frontend
