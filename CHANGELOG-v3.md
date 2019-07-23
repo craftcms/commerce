@@ -22,11 +22,13 @@
 - Added `craft\commerce\queue\jobs\CartPurgeJob`.
 - Added `craft\commerce\services\lineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added the `yii\behaviors\AttributeTypecastBehavior` to orders, line items, order adjustments, order statuses, and shipping methods.
+- Added order errors to the `commerce/payments/pay` controller action ajax response under the `orderErrors` JSON key.
 
 ## Changed
 - The order edit page is now a Vue.js app. This will break any template hooks that use javascript to modify the DOM on that page.
-- The `craft\commerce\controller\BaseFronEndController::cartArray()` now uses `$cart->toArray()` instead of a custom formatter.
-- The donation amount now defaults to zero if no `donationAmount` line item option is submitted, when adding the donation to the cart.
+- The `craft\commerce\controller\BaseFronEndController::cartArray()` now uses `$cart->toArray()` instead of the custom formatter.
+- If no `donationAmount` line item option parameter is submitted when adding the donation to the cart, the donation will default to zero and not return an error.
+- Ajax responses to from the `commerce/payments/pay` controller action has renamed `paymentForm` to `paymentFormErrors`.
 
 ## Deprecated
 - Moved the original cart array formatter (used for a cart‘s JSON representation) to `craft\commerce\services\Orders::cartArray($cart)` and deprecated it. Use `$cart->toArray()` instead.

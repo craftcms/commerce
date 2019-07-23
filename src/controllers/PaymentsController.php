@@ -27,9 +27,16 @@ use yii\web\Response;
  */
 class PaymentsController extends BaseFrontEndController
 {
+
+    private $_cartVariableName;
+
     // Public Methods
     // =========================================================================
 
+    public function init()
+    {
+        $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
+    }
 
     /**
      * @inheritDoc
@@ -239,11 +246,11 @@ class PaymentsController extends BaseFrontEndController
                 $customError = Craft::t('commerce', 'Unable to make payment at this time.');
 
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($customError);
+                    return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
                 }
 
                 $session->setError($customError);
-                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
                 return null;
             }
@@ -259,11 +266,11 @@ class PaymentsController extends BaseFrontEndController
             $customError = Craft::t('commerce', 'No customer email address exists on this cart.');
 
             if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($customError);
+                return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
             }
 
             $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
             return null;
         }
@@ -304,11 +311,11 @@ class PaymentsController extends BaseFrontEndController
                 $customError = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
                 if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($customError);
+                    return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
                 }
 
                 $session->setError($customError);
-                Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
                 return null;
             }
@@ -333,18 +340,18 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$success) {
             if ($request->getAcceptsJson()) {
-                // TODO: remame paymentForm to paymentFormErrors on next breaking release.
-                return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
+                return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
             }
 
             $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
             return null;
         }
 
         if ($request->getAcceptsJson()) {
-            $response = ['success' => true, 'order' => $this->cartArray($order)];
+            $response = ['success' => true, $this->_cartVariableName => $order->toArray()];
 
             if ($redirect) {
                 $response['redirect'] = $redirect;
