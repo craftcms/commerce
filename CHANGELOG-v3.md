@@ -9,7 +9,7 @@
 - Line items now have a status that can be changed on the order edit page.
 - Line items now have an admin note attribute.
 - Purging inactive carts is now run as a job in the queue.
-- Orders now have an origin attribute to determine where the order was created from (web or control panel).
+- Orders now track the origin of where the order was created (web or control panel).
 - Orders now have recalculation modes to determine what should be recalculated on the order. 
 - Added the `resave/products` command.
 - Added `craft\commerce\controllers\LineItemStatuses`.
