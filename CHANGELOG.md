@@ -10,6 +10,10 @@
 - Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` had the `isNew` param set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
 - Fixed a bug where non shippable purchasables were being included in shipping calculations.
 - Fixed a bug where a logged in user did not see the same cart across all their sessions.
+- Fixed an order export cache error when clearing all caches.
+ 
+### Changed
+- Order file exports are now cached in the `storage/runtime` folder, and not in the `storage/runtime/temp` folder. 
 
 ### Deprecated
 - The `mergeLastCartOnLogin` setting is no longer able to be turned off, a logged in user will always have a single cart.
