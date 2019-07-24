@@ -20,7 +20,6 @@ use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\queue\jobs\CartPurgeJob;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
@@ -71,8 +70,6 @@ class OrdersController extends Controller
     public function actionOrderIndex(): Response
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-
-        Craft::$app->queue->push(new CartPurgeJob());
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
