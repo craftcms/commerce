@@ -51,6 +51,7 @@ use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gc;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -142,6 +143,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
+        $this->_registerGarbageCollection();
         $this->_defineResaveCommand();
     }
 
@@ -499,6 +501,9 @@ class Plugin extends BasePlugin
         });
     }
 
+    /**
+     * Register the cache types
+     */
     private function _registerCacheTypes()
     {
         // create the directory if it doesn't exist
@@ -528,7 +533,16 @@ class Plugin extends BasePlugin
                     }
                 }
             ];
+        });
+    }
 
+    /**
+     * Register the things that need to be garbage collected
+     */
+    private function _registerGarbageCollection()
+    {
+        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
         });
     }
 
