@@ -86,6 +86,11 @@
                         })
                 }
             },
+
+            returnToOrders() {
+                window.location.replace(window.orderEdit.ordersIndexUrl);
+            }
+
         },
 
         mounted() {

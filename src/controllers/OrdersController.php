@@ -225,6 +225,8 @@ class OrdersController extends Controller
             return $this->asJson(['success' => false]);
         }
 
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
+
         return $this->asJson(['success' => true]);
     }
 
