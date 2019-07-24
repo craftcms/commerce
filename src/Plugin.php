@@ -512,7 +512,6 @@ class Plugin extends BasePlugin
         }
 
         Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
-         //   $path = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports/';
 
             try {
                 FileHelper::createDirectory($path);
