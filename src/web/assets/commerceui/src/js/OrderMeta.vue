@@ -84,15 +84,15 @@
             </div>
         </div>
 
-        <div id="meta" class="meta read-only">
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
-                <p class="value">{{draft.order.reference}}</p>
-            </div>
-
+        <div id="meta" class="meta">
             <div class="data">
                 <h5 class="heading">{{"ID"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.id}}</p>
+            </div>
+
+            <div class="data" v-if="!editing">
+                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
+                <p class="value">{{draft.order.reference}}</p>
             </div>
 
             <div class="data">
@@ -121,33 +121,28 @@
                 </div>
             </div>
 
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Customer"|t('commerce')}}</h5>
-                <p class="value" v-html="draft.order.customerLinkHtml"></p>
-            </div>
-
             <template v-if="draft.order.isCompleted && !editing">
                 <div class="data">
                     <h5 class="heading">{{"Status"|t('commerce')}}</h5>
                     <span class="value"
                           v-html="draft.order.orderStatusHtml"></span>
                 </div>
-
-                <div class="data">
-                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
-                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
-                </div>
             </template>
-
-            <div class="data">
-                <h5 class="heading">{{"Total Price"|t('commerce')}}</h5>
-                <span class="value">{{draft.order.totalPriceAsCurrency}}</span>
-            </div>
 
             <div class="data">
                 <h5 class="heading">{{"Paid Status"|t('commerce')}}</h5>
                 <span class="value"
                       v-html="draft.order.paidStatusHtml"></span>
+            </div>
+
+            <div class="data" v-if="!editing">
+                <h5 class="heading">{{"Customer"|t('commerce')}}</h5>
+                <p class="value" v-html="draft.order.customerLinkHtml"></p>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{"Total Price"|t('commerce')}}</h5>
+                <span class="value">{{draft.order.totalPriceAsCurrency}}</span>
             </div>
 
             <template v-if="draft.order.totalPaid != 0"> <!-- Show positive and negative numbers. -->
@@ -174,6 +169,13 @@
                 <span class="value code">{{draft.order.couponCode}}</span>
             </div>
 
+            <template v-if="draft.order.isCompleted && !editing">
+                <div class="data">
+                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
+                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
+                </div>
+            </template>
+
             <div class="data">
                 <h5 class="heading">{{"Last Updated"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.dateUpdated.date}} {{draft.order.dateUpdated.time}}</span>
@@ -186,7 +188,7 @@
 
             <div class="data">
                 <h5 class="heading">{{"Origin"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.origin}}</span>
+                <span class="value">{{draft.order.origin|capitalize}}</span>
             </div>
         </div>
     </div>
