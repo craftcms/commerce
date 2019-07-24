@@ -119,7 +119,7 @@
                     salePrice: this.selectedPurchasable.price,
                     qty: "1",
                     note: "",
-                    adminNote: "",
+                    privateNote: "",
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,

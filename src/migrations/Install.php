@@ -291,7 +291,7 @@ class Install extends Migration
             'total' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
-            'adminNote' => $this->text(),
+            'privateNote' => $this->text(),
             'snapshot' => $this->longText(),
             'lineItemStatusId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),

@@ -901,7 +901,7 @@ class OrdersController extends Controller
             // Normalize data
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
-            $adminNote = $lineItemData['adminNote'] ?? '';
+            $privateNote = $lineItemData['privateNote'] ?? '';
             $purchasableId = $lineItemData['purchasableId'];
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
@@ -921,7 +921,7 @@ class OrdersController extends Controller
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
-            $lineItem->adminNote = $adminNote;
+            $lineItem->privateNote = $privateNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
             $lineItem->setOptions($options);
 

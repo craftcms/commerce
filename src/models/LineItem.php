@@ -110,9 +110,9 @@ class LineItem extends Model
     public $note;
 
     /**
-     * @var string Admin Note
+     * @var string Private Note
      */
-    public $adminNote;
+    public $privateNote;
 
     /**
      * @var int Purchasable ID
@@ -175,7 +175,7 @@ class LineItem extends Model
                 'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'note' => AttributeTypecastBehavior::TYPE_STRING,
-                'adminNote' => AttributeTypecastBehavior::TYPE_STRING,
+                'privateNote' => AttributeTypecastBehavior::TYPE_STRING,
                 'width' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'height' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'length' => AttributeTypecastBehavior::TYPE_FLOAT,
@@ -312,7 +312,7 @@ class LineItem extends Model
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
             [['price', 'salePrice', 'saleAmount'], 'number'],
-            [['note', 'adminNote'], StringValidator::class, 'disallowMb4' => true],
+            [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {

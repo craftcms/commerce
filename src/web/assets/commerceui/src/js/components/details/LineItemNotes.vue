@@ -1,5 +1,5 @@
 <template>
-    <order-block v-if="note || adminNote || editing" class="order-flex">
+    <order-block v-if="note || privateNote || editing" class="order-flex">
         <div class="w-1/3">
             <h3 class="light">{{"Notes"|t('commerce')}}</h3>
         </div>
@@ -23,16 +23,16 @@
 
             <div class="order-flex-grow order-margin">
                 <template v-if="!editing">
-                    <template v-if="adminNote">
-                        {{adminNote}}
+                    <template v-if="privateNote">
+                        {{privateNote}}
                     </template>
                     <template v-else>
-                        <span class="light">{{ "No admin note."|t('commerce') }}</span>
+                        <span class="light">{{ "No private Note."|t('commerce') }}</span>
                     </template>
                 </template>
                 <template v-else>
-                    <field :label="this.$options.filters.t('Admin Note', 'commerce')" v-slot:default="slotProps">
-                        <textarea :id="slotProps.id" v-model="adminNote" class="text fullwidth"></textarea>
+                    <field :label="this.$options.filters.t('Private Note', 'commerce')" v-slot:default="slotProps">
+                        <textarea :id="slotProps.id" v-model="privateNote" class="text fullwidth"></textarea>
                     </field>
                 </template>
             </div>
@@ -71,14 +71,14 @@
                 }, 1000)
             },
 
-            adminNote: {
+            privateNote: {
                 get() {
-                    return this.lineItem.adminNote
+                    return this.lineItem.privateNote
                 },
 
                 set: debounce(function(val) {
                     const lineItem = this.lineItem
-                    lineItem.adminNote = val
+                    lineItem.privateNote = val
                     this.$emit('updateLineItem', lineItem)
                 }, 1000)
             },
