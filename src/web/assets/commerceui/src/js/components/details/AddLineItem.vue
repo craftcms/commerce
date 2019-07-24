@@ -25,8 +25,7 @@
                         <div class="purchasable-select-option" v-bind:class="{ notAvailable: !slotProps.option.isAvailable }">
                             <div class="description">
                                 <template v-if="slotProps.option.description">
-                                    <template v-if="slotProps.option.description.length<20">{{slotProps.option.description}}</template>
-                                    <template v-if="slotProps.option.description.length>=20">{{slotProps.option.description.substring(0,20)+"…" }}</template>
+                                    {{slotProps.option.description}}
                                     <template v-if="!slotProps.option.isAvailable"> ({{"Not available"|t('commerce')}})</template>
                                 </template>
                                 <template v-else>
@@ -167,7 +166,7 @@
     /* Add line item form */
 
     .add-line-item-form {
-        max-width: 500px;
+        max-width: 100%;
     }
 
 
