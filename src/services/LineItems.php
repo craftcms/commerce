@@ -199,7 +199,7 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = $lineItem->note;
-        $lineItemRecord->adminNote = $lineItem->adminNote ?? '';
+        $lineItemRecord->privateNote = $lineItem->privateNote ?? '';
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
@@ -340,7 +340,7 @@ class LineItems extends Component
                 'qty',
                 'snapshot',
                 'note',
-                'adminNote',
+                'privateNote',
                 'purchasableId',
                 'orderId',
                 'taxCategoryId',

@@ -31,7 +31,7 @@ export default {
             draftData.order.lineItems[lineItemKey].salePrice = this.parseInputValue('float', lineItem.salePrice)
             draftData.order.lineItems[lineItemKey].qty = this.parseInputValue('int', lineItem.qty)
             draftData.order.lineItems[lineItemKey].note = lineItem.note
-            draftData.order.lineItems[lineItemKey].adminNote = lineItem.adminNote
+            draftData.order.lineItems[lineItemKey].privateNote = lineItem.privateNote
             draftData.order.lineItems[lineItemKey].orderId = lineItem.orderId
             draftData.order.lineItems[lineItemKey].options = lineItem.options
             draftData.order.lineItems[lineItemKey].adjustments = []

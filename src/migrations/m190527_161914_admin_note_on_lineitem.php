@@ -19,7 +19,7 @@ class m190527_161914_admin_note_on_lineitem extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_lineitems}}', 'adminNote', $this->text());
+        $this->addColumn('{{%commerce_lineitems}}', 'privateNote', $this->text());
     }
 
     /**
