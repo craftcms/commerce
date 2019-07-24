@@ -1,7 +1,9 @@
 <template>
     <div class="order-flex">
         <div class="w-1/3">
-            <order-title>{{"Adjustments"|t('commerce')}}</order-title>
+            <template v-if="recalculationMode != 'all' || adjustments.length">
+                <order-title>{{"Order Adjustments"|t('commerce')}}</order-title>
+            </template>
         </div>
 
         <div class="w-2/3">
