@@ -50,3 +50,9 @@ By updating the order status ID on the order and saving the order, the status ch
 In addition to using order statuses to manage your orders, You can choose emails that will be sent when an order moves into that status.
 
 See [Order Status Emails](order-status-emails.md).
+
+
+## Line item statuses
+
+Line item statuses are not the same as order statuses. They can not trigger emails. They are simply there for internal management 
+of the order. Line items do not get a status by default, and can have a null or 'None' status.
