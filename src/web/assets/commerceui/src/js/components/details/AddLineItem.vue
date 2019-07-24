@@ -124,7 +124,7 @@
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,
-                    options: {giftWrapped: "no"},
+                    options: [],
                     adjustments: [],
                 }
 
