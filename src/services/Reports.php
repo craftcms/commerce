@@ -120,7 +120,7 @@ class Reports extends Component
         // Prepare and write temp file to disk
         FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
         $filename = uniqid('orderexport', true) . '.' . $format;
-        $tempFile = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
+        $tempFile = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
         if (($handle = fopen($tempFile, 'wb')) === false) {
             throw new Exception('Could not create temp file: ' . $tempFile);
         }
