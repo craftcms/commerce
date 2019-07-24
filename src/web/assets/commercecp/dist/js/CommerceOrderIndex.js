@@ -11,7 +11,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
     init: function(elementType, $container, settings) {
         this.base(elementType, $container, settings);
-        if (window.orderEdit.currentUserPermissions['commerce-editOrders'] == true) {
+        if (window.orderEdit.currentUserPermissions['commerce-editOrders'] == true && window.orderEdit.edition != 'lite') {
             this.$newEntryBtn = $('<a class="btn submit add icon" href="' + Craft.getCpUrl('commerce/orders/new') + '">New order</a>');
             this.addButton(this.$newEntryBtn);
         }
