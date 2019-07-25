@@ -406,10 +406,7 @@ class Subscriptions extends Component
         }
 
         $response = $gateway->subscribe($user, $plan, $parameters);
-
-        if ($response->isInactive()) {
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
-        }
+        $failedToStart = $response->isInactive();
 
         $subscription = new Subscription();
         $subscription->userId = $user->id;
@@ -422,6 +419,13 @@ class Subscriptions extends Component
         $subscription->subscriptionData = $response->getData();
         $subscription->isCanceled = false;
         $subscription->isExpired = false;
+        $subscription->hasStarted = !$failedToStart;
+        $subscription->isSuspended = $failedToStart;
+
+        if ($failedToStart) {
+            $subscription->dateSuspended = Db::prepareDateForDb(new DateTime());
+        }
+
         $subscription->setFieldValues($fieldValues);
 
         Craft::$app->getElements()->saveElement($subscription, false);

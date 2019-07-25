@@ -63,6 +63,7 @@ class SettingsController extends BaseAdminController
         $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
         $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
+        $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
 
         if (!$settings->validate()) {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
