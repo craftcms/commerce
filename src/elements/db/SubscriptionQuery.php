@@ -574,8 +574,7 @@ class SubscriptionQuery extends ElementQuery
      * | - | -
      * | `'>= 2018-04-01'` | that were suspended on or after 2018-04-01.
      * | `'< 2018-05-01'` | that were suspended before 2018-05-01
-     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were canceled between 2018-04-01 and 2018-05-01.
-    suspended
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were suspended between 2018-04-01 and 2018-05-01.
      * ---
      *
      * ```twig
