@@ -11,6 +11,7 @@ use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
@@ -97,6 +98,15 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface;
 
     /**
+     * Update a subscription's billing details with the information in the payment form.
+     *
+     * @param Subscription $subscription
+     * @param BasePaymentForm $paymentForm
+     * @return SubscriptionResponseInterface
+     */
+    public function updateBillingDetails(Subscription $subscription, BasePaymentForm $paymentForm): SubscriptionResponseInterface;
+
+    /**
      * Switch a subscription to a different subscription plan.
      *
      * @param Subscription $subscription the subscription to modify
@@ -119,4 +129,20 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsPlanSwitch(): bool;
+
+    /**
+     * Return a description of the billing issue (if any) with this subscription.
+     *
+     * @param Subscription $subscription
+     * @return string
+     */
+    public function getBillingIssueDescription(Subscription $subscription): string;
+
+    /**
+     * Return the form HTML for resolving the billing issue (if any) with this subscription.
+     *
+     * @param Subscription $subscription
+     * @return string
+     */
+    public function getBillingIssueResolveFormHtml(Subscription $subscription): string;
 }

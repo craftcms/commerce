@@ -601,6 +601,26 @@ class Subscription extends Element
     }
 
     /**
+     * Return a description of the billing issue (if any) with this subscription.
+     *
+     * @return mixed
+     * @throws InvalidConfigException if not a subscription gateway anymore
+     */
+    public function getBillingIssueDescription() {
+        return $this->getGateway()->getBillingIssueDescription($this);
+    }
+
+    /**
+     * Return the form HTML for resolving the billing issue (if any) with this subscription.
+     *
+     * @return mixed
+     * @throws InvalidConfigException if not a subscription gateway anymore
+     */
+    public function getBillingIssueResolveFormHtml() {
+        return $this->getGateway()->getBillingIssueResolveFormHtml($this);
+    }
+
+    /**
      * @inheritdoc
      */
     protected static function defineTableAttributes(): array

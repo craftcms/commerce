@@ -344,4 +344,30 @@ class Dummy extends SubscriptionGateway
     {
         return true;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBillingIssueDescription(Subscription $subscription): string
+    {
+        return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBillingIssueResolveFormHtml(Subscription $subscription): string
+    {
+        return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateBillingDetails(Subscription $subscription, BasePaymentForm $paymentForm): SubscriptionResponseInterface
+    {
+        return new DummySubscriptionResponse();
+    }
+
+
 }
