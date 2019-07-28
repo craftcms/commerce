@@ -228,18 +228,11 @@
             readonly: true
         }) }}
 
-        {% if subscription.hasStarted and subscription.isSuspended %}
-                {% set message = 'Payment declined on {date}'|t('commerce', {date: subscription.dateSuspended }) %}
-        {% elseif subscription.hasStarted %}
-                {% set message = 'No current issues'|t('commerce') %}
-        {% else %}
-            {% set message = 'Waiting to start'|t('commerce') %}
-        {% endif %}
-
-        {{ forms.textField({
+        {{ forms.textAreaField({
             label: 'Billing issues'|t('commerce'),
-            value: message,
-            readonly: true
+            value: subscription.getBillingIssueDescription(),
+            readonly: true,
+            rows: 3
         }) }}
     </div>
 {% endblock %}
