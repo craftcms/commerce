@@ -220,7 +220,7 @@ class Carts extends Component
     private function getSessionCartNumber()
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session[$this->cartName];
+        $cartNumber = $session->get($this->cartName);;
 
         if (!$cartNumber) {
             $cartNumber = $this->generateCartNumber();
