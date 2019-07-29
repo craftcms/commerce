@@ -215,9 +215,9 @@ class Carts extends Component
     /**
      * Get the session cart number.
      *
-     * @return mixed|string
+     * @return string
      */
-    private function getSessionCartNumber()
+    private function getSessionCartNumber(): string
     {
         $session = Craft::$app->getSession();
         $cartNumber = $session->get($this->cartName);;
