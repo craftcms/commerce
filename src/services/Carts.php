@@ -213,6 +213,18 @@ class Carts extends Component
     // =========================================================================
 
     /**
+     * Returns whether there is a cart number in the session.
+     *
+     * @return bool
+     * @since 2.1.11
+     */
+    public function getHasSessionCartNumber(): bool
+    {
+        $session = Craft::$app->getSession();
+        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
+    }
+
+    /**
      * Get the session cart number.
      *
      * @return string
