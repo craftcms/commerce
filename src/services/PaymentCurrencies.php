@@ -100,11 +100,12 @@ class PaymentCurrencies extends Component
      * Get a payment currency by its ISO code.
      *
      * @param string $iso
-     * @return PaymentCurrency
+     * @return PaymentCurrency|null
      * @throws CurrencyException if currency does not exist with tat iso code
      */
-    public function getPaymentCurrencyByIso($iso): PaymentCurrency
+    public function getPaymentCurrencyByIso($iso)
     {
+
         if ($this->_allCurrenciesByIso === null) {
             $this->getAllPaymentCurrencies();
         }
@@ -113,7 +114,7 @@ class PaymentCurrencies extends Component
             return $this->_allCurrenciesByIso[$iso];
         }
 
-        throw new CurrencyException(Craft::t('commerce', 'No currency found with ISO code “{iso}”.', ['iso' => $iso]));
+        return null;
     }
 
     /**

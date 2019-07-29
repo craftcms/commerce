@@ -742,6 +742,11 @@ class Order extends Element
             $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
 
+        // Better default for carts if the base currency changes (usually only happens in development)
+        if(!$this->isCompleted && $this->paymentCurrency && !Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->paymentCurrency)) {
+            $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        }
+
         if ($this->origin === null) {
             $this->origin = static::ORIGIN_WEB;
         }
@@ -2072,13 +2077,6 @@ class Order extends Element
     {
         if ($this->_paymentCurrency === null) {
             $this->_paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        }
-
-        if ($this->_paymentCurrency) {
-            $allPaymentCurrenciesIso = ArrayHelper::getColumn(Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies(), 'iso');
-            if (!in_array($this->_paymentCurrency, $allPaymentCurrenciesIso, false)) {
-                throw new InvalidConfigException('Payment currency not allowed.');
-            }
         }
 
         return $this->_paymentCurrency;
