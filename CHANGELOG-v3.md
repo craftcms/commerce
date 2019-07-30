@@ -21,12 +21,33 @@
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
+- Added the possibility for subscriptions to be suspended due to payment issues.
+- Added the ability to resolve payment issues for subscriptions.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getHasBillingIssues()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueDescription()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueResolveFormHtml()`.
+- Added the `updateBillingDetailsUrl` config setting.
+- Added the `suspended` status for Subscriptions.
+- Added `craft\commerce\elements\Subscription::$dateSuspended`.
+- Added `craft\commerce\elements\Subscription::$hasStarted`.
+- Added `craft\commerce\elements\Subscription::$isSuspended`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueDescription()`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueResolveFormHtml()`.
+- Added `craft\commerce\elements\Subscription::getHasBillingIssues()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$dateSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$hasStarted`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$isSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::anyStatus()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::dateSuspended()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::hasStarted()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::isSuspended()`.
 
 ## Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
+- Added the "Subscriptions on hold" source group to Subscription index page with two sources for suspended subscriptions.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
