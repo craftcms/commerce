@@ -98,15 +98,6 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface;
 
     /**
-     * Update a subscription's billing details with the information in the payment form.
-     *
-     * @param Subscription $subscription
-     * @param BasePaymentForm $paymentForm
-     * @return SubscriptionResponseInterface
-     */
-    public function updateBillingDetails(Subscription $subscription, BasePaymentForm $paymentForm): SubscriptionResponseInterface;
-
-    /**
      * Switch a subscription to a different subscription plan.
      *
      * @param Subscription $subscription the subscription to modify
@@ -129,6 +120,14 @@ interface SubscriptionGatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsPlanSwitch(): bool;
+
+    /**
+     * Returns whether this subscription has billing issues.
+     *
+     * @param Subscription $subscription
+     * @return bool
+     */
+    public function getHasBillingIssues(Subscription $subscription): bool;
 
     /**
      * Return a description of the billing issue (if any) with this subscription.
