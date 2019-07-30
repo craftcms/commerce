@@ -217,13 +217,13 @@
         }) }}
 
         {{ forms.textField({
-            label: 'Expiry'|t('commerce'),
+            label: 'Expiry date'|t('commerce'),
             value: subscription.dateExpired ? subscription.dateExpired|datetime : '-',
             readonly: true
         }) }}
 
         {{ forms.textField({
-            label: 'Cancellation'|t('commerce'),
+            label: 'Cancellation date'|t('commerce'),
             value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
             readonly: true
         }) }}
