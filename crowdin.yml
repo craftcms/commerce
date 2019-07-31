@@ -1,0 +1,8 @@
+project_identifier: craft-commerce
+api_key_env: CROWDIN_API_KEY
+base_path: /src/translations
+preserve_hierarchy: true
+files:
+  - source: /en/commerce.php
+    translation: /%two_letters_code%/commerce.php
+    type: php
