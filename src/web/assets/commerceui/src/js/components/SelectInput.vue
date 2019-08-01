@@ -39,7 +39,7 @@
 
             <template v-slot:search="search">
                 <slot name="search" :search="search">
-                    <input class="vs__search" type="text" v-bind="search.attributes" v-on="search.events">
+                    <input class="vs__search" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
                 </slot>
             </template>
         </v-select>
@@ -101,6 +101,25 @@
         methods: {
             onSearch(searchText, loading) {
                 this.$emit('search', {searchText, loading})
+
+                if (searchText) {
+                    this.$refs.vSelect.open = true;
+                } else {
+                    this.$refs.vSelect.open = false;
+                }
+            },
+
+            onSearchFocus() {
+                if (!this.$refs.vSelect.value) {
+                    this.$refs.vSelect.open = false;
+                }
+            },
+
+            getSearchEvents(events) {
+                // override focus event
+                events.focus = this.onSearchFocus
+
+                return events;
             },
 
             onOptionClick() {
