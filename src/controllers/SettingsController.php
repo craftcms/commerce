@@ -96,7 +96,7 @@ class SettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Craft::t('app', 'Subscription fields saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription fields saved.'));
 
         return $this->redirectToPostedUrl();
     }
