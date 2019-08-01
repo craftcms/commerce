@@ -13,6 +13,9 @@
 - Fixed a bug where a logged in user did not see the same cart across all their sessions.
 - Fixed an order export cache error when clearing all caches.
  
+### Security
+- Fixed a data disclosure vulnerability.
+ 
 ### Changed
 - Order file exports are now cached in the `storage/runtime` folder, and not in the `storage/runtime/temp` folder. 
 
