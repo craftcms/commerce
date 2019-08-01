@@ -120,7 +120,7 @@ class Orders extends Component
      * @param string $number
      * @return Order|null
      */
-    public function getOrderByNumber($number)
+    public function getOrderByNumber(string $number)
     {
         $query = Order::find();
         $query->number($number);
@@ -136,6 +136,10 @@ class Orders extends Component
      */
     public function getOrdersByCustomer($customer)
     {
+        if (!$customer) {
+            return null;
+        }
+
         $query = Order::find();
         if ($customer instanceof Customer) {
             $query->customer($customer);
@@ -154,7 +158,7 @@ class Orders extends Component
      * @param string $email
      * @return Order[]|null
      */
-    public function getOrdersByEmail($email)
+    public function getOrdersByEmail(string $email)
     {
         $query = Order::find();
         $query->email($email);
