@@ -763,7 +763,7 @@ return [
     'Minimum Order Total Value' => 'Mindestbestellwert',
     'Is this tax is already included in the price of items?' => 'Wurde die Steuer bereits zum Preis der Artikel hinzugefügt?',
     'Store' => 'Shop',
-    'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}',
+    'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Parsingfehler der E-Mail Vorlage für E-Mail „{email}“ in „Betreff:“. Bestellung „{order}“. Vorlagenfehler: „{message}“ {file}:{line}',
     'Manage All Shipping Categories' => 'Manage All Shipping Categories',
     'Default Category' => 'Default Category',
     'Strategy to apply when calculating the minimum order price.' => 'Strategy to apply when calculating the minimum order price.',
