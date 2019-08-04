@@ -800,7 +800,7 @@ return [
     'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).' => 'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).',
     'The unique SKU of the donation purchasable.' => 'The unique SKU of the donation purchasable.',
     'Maximum Order Total Value' => 'Maximum Order Total Value',
-    'Trial expiration' => 'Vyptšanie platnosti skúšobnej verzie',
+    'Trial expiration' => 'Vypršanie platnosti skúšobnej verzie',
     'Donations' => 'Dary',
     'Select a tax zone. If no zone is selected, this rate will match anywhere.' => 'Select a tax zone. If no zone is selected, this rate will match anywhere.',
     'Donation' => 'Darovanie',
