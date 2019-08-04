@@ -836,7 +836,7 @@ return [
     'Could not save address.' => 'Não foi possível guardar o endereço.',
     'Phone Number' => 'Número de telefone',
     'Couldn’t archive Order Status.' => 'Não foi possível arquivar o estado do pedido.',
-    'Total Tax' => 'Total de Imposto',
+    'Total Tax' => 'Imposto Total',
     'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'O valor total máximo de itens no carrinho (antes de qualquer ajuste) para corresponder a esta regra. Zero corresponde a todos os carrinhos.',
     'Donation Settings' => 'Definições de doações'
 ];
