@@ -773,7 +773,7 @@ return [
     'Minimum Total Price Strategy' => 'Strategie für den minimalen Gesamtpreis',
     'Some products restored.' => 'Einige Produkte wurden wiederhergestellt.',
     'Products restored.' => 'Produkte wurden wiederhergestellt.',
-    'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}',
+    'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Parsingfehler des Pfads der E-Mail Vorlage für E-Mail „{email}“ in „Vorlagenpfad“. Bestellung „{order}“. Vorlagenfehler: „{message}“ {file}:{line}',
     'What the shipping cost is for the order.' => 'Was die Versandgebühren für diese Bestellung sind.',
     'Everywhere' => 'Überall',
     'Available to Product Types' => 'Für Produkttypen verfügbar',
