@@ -33,6 +33,11 @@ use yii\web\BadRequestHttpException;
  */
 class Reports extends Component
 {
+    // Constants
+    // =========================================================================
+
+    const EVENT_BEFORE_GENERATE_EXPORT = 'beforeGenerateExport';
+    
     // Public Methods
     // =========================================================================
 
