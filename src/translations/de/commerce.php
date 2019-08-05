@@ -789,7 +789,7 @@ return [
     'Manage All Tax Categories' => 'Alle Steuerkategorien verwalten',
     'No donation amount supplied.' => 'Keine Spendemenge geliefert.',
     'What the shipping cost is for each item.' => 'Was die Versandgebühren für jeden Artikel sind.',
-    'Orders not restored.' => 'Orders not restored.',
+    'Orders not restored.' => 'Bestellungen wurden nicht wiederhergestellt.',
     'Store Settings' => 'Store Settings',
     'System Settings' => 'System Settings',
     'Remove shipping costs for matching products only' => 'Remove shipping costs for matching products only',
