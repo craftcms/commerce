@@ -785,7 +785,7 @@ return [
     'Which product types should this category be available to?' => 'Für welche Produkttypen sollte diese Kategorie verfügbar sein?',
     'Order Identification' => 'Bestellungsidentifikation',
     'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}' => 'E-Mail „{email}“ konnte nicht für die Bestellung „{order}“ versendet werden. Fehler: {error} {file}:{line}',
-    'New products default to the first shipping category available to them. If none are available, this category will be used.' => 'New products default to the first shipping category available to them. If none are available, this category will be used.',
+    'New products default to the first shipping category available to them. If none are available, this category will be used.' => 'Neue Produkte sind standardmäßig Teil der ersten für sie verfügbaren Versandkategorie. Sollte keine verfügbar sein, wird diese Kategorie verwendet.',
     'Manage All Tax Categories' => 'Manage All Tax Categories',
     'No donation amount supplied.' => 'No donation amount supplied.',
     'What the shipping cost is for each item.' => 'What the shipping cost is for each item.',
