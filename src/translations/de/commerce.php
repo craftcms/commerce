@@ -801,7 +801,7 @@ return [
     'The unique SKU of the donation purchasable.' => 'The unique SKU of the donation purchasable.',
     'Maximum Order Total Value' => 'Maximum Order Total Value',
     'Trial expiration' => 'Ablauf der Testphase',
-    'Donations' => 'Donations',
+    'Donations' => 'Spenden',
     'Select a tax zone. If no zone is selected, this rate will match anywhere.' => 'Select a tax zone. If no zone is selected, this rate will match anywhere.',
     'Donation' => 'Donation',
     'Cancellation' => 'Cancellation',
