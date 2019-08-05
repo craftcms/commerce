@@ -767,7 +767,7 @@ return [
     'Manage All Shipping Categories' => 'Alle Versandkategorien verwalten',
     'Default Category' => 'Standardkategorie',
     'Strategy to apply when calculating the minimum order price.' => 'Anzuwendende Strategie beim Berechnen des Mindestbestellpreises.',
-    'Capture Payment' => 'Capture Payment',
+    'Capture Payment' => 'Zahlung erfassen',
     'Refund Payment' => 'Zahlung rückerstatten',
     'PDF Settings' => 'PDF-Einstellungen',
     'Minimum Total Price Strategy' => 'Strategie für den minimalen Gesamtpreis',
