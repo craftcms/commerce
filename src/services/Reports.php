@@ -11,6 +11,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\Plugin;
+use craft\commerce\events\ReportEvent;
 use craft\db\Query as CraftQuery;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
@@ -93,11 +94,23 @@ class Reports extends Component
 
         $orders = $orderQuery->all();
 
+        // Raise the beforeGenerateExport event
+        $event = new ReportEvent([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'status' => $status,
+            'orderQuery' => $orderQuery,
+            'columns' => $columns,
+            'orders' => $orders,
+            'format' => $format,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_GENERATE_EXPORT, $event);
+
         // Populate the spreadsheet
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
-        $spreadsheet->getActiveSheet()->fromArray($columns, null, 'A1');
-        $spreadsheet->getActiveSheet()->fromArray($orders, null, 'A2');
+        $spreadsheet->getActiveSheet()->fromArray($event->columns, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($event->orders, null, 'A2');
 
         // Could use the writer factory with a $format <-> phpspreadsheet string map, but this is more simple for now.
         switch ($format) {
