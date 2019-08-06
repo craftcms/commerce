@@ -425,9 +425,7 @@ class Customers extends Component
         // Update the email address on orders for this customer.
         if ($customer) {
             $orders = (new Query())
-                ->select([
-                    'orders.id'
-                ])
+                ->select(['orders.id'])
                 ->from(['{{%commerce_orders}} orders'])
                 ->where(['orders.customerId' => $customer->id])
                 ->column();
