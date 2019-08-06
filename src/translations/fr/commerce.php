@@ -778,7 +778,7 @@ return [
     'Everywhere' => 'Partout',
     'Available to Product Types' => 'Disponible dans types de produits',
     'Products not restored.' => 'Produits non restaurés.',
-    'The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'La valeur totale minimale des articles dans le panier (avant tout rajustement) pour respecter cette règle. Zéro renvoie tous les paniers.',
+    'The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'La valeur totale minimale des articles dans le panier (avant tout ajustement) pour respecter cette règle. Zéro renvoie tous les paniers.',
     'Manage taxes (Pro edition Only)' => 'Gérer les taxes (version Pro seulement)',
     'Units' => 'Unités',
     'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Erreur d\'analyse du modèle de courriel personnalisé « {email} » dans « À : » « {order} ». Erreur de modèle : « {message} » {file} : {line}',
@@ -837,6 +837,6 @@ return [
     'Phone Number' => 'Numéro de téléphone',
     'Couldn’t archive Order Status.' => 'Impossible d\'archiver le statut de commande.',
     'Total Tax' => 'Total des taxes',
-    'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'La valeur totale maximale des articles dans le panier (avant tout rajustement) pour respecter cette règle. Zéro renvoie tous les paniers.',
+    'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'La valeur totale maximale des articles dans le panier (avant tout ajustement) pour respecter cette règle. Zéro renvoie tous les paniers.',
     'Donation Settings' => 'Paramètres des dons'
 ];
