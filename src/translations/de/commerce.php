@@ -832,11 +832,11 @@ return [
     'Manage shipping (Pro edition Only)' => 'Versand verwalten (Nur in der Pro Edition)',
     'Manage store settings' => 'Geschäftseinstellungen verwalten',
     'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.' => 'Versand - Minimale Kosten sind die Versandkosten, sollte der Bestellpreis geringer sein als die Versandkosten.',
-    'Zero - Minimum price is zero if discounts are greater than the order value.' => 'Zero - Minimum price is zero if discounts are greater than the order value.',
-    'Could not save address.' => 'Could not save address.',
-    'Phone Number' => 'Phone Number',
+    'Zero - Minimum price is zero if discounts are greater than the order value.' => 'Null - Minimaler Preis ist Null, sollten die Rabatte größer sein als der Wert der Bestellung.',
+    'Could not save address.' => 'Adresse konnte nicht gespeichert werden.',
+    'Phone Number' => 'Telefonnummer',
     'Couldn’t archive Order Status.' => 'Couldn’t archive Order Status.',
-    'Total Tax' => 'Total Tax',
+    'Total Tax' => 'Steuern gesamt',
     'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.',
     'Donation Settings' => 'Donation Settings'
 ];
