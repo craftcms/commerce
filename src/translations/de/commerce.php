@@ -805,7 +805,7 @@ return [
     'Select a tax zone. If no zone is selected, this rate will match anywhere.' => 'Wählen Sie eine Steuerzone. Sollte keine Zone ausgewählt werden, wird dieser Satz überall übereinstimmen.',
     'Donation' => 'Spende',
     'Cancellation' => 'Stornierung',
-    'Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate. The whole rule, including this base rate, will not match and apply if the cart only contains non-shippable items like digital products.' => 'Versandkosten werden in Gänze zur Rechnung hinzugefügt, bevor Prozent-, Artikel- und Gewichtssätze angewendet werden. Auf Null setzen, um diese Rate auszuschalten. Die gesamte Regel, inklusive dieser Grundrate werden nicht übereinstimmen und angewendet werden, wenn der Warenkorb nur nicht-lieferbare Artikel wie digitale Produkte enthält.',
+    'Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate. The whole rule, including this base rate, will not match and apply if the cart only contains non-shippable items like digital products.' => 'Versandkosten werden in Gänze zur Rechnung hinzugefügt, bevor Prozent-, Artikel- und Gewichtssätze angewendet werden. Auf Null setzen, um diesen Satz auszuschalten. Die gesamte Regel, inklusive dieses Basissatzes wird nicht übereinstimmen und angewendet werden, wenn der Warenkorb nur nicht-lieferbare Artikel wie digitale Produkte enthält.',
     'That handle is already in use' => 'Dieser Identifikator wird bereits verwendet',
     'That handle is already in use.' => 'Dieser Identifikator wird bereits verwendet.',
     'Order Tax Rate' => 'Bestellsteuersatz',
@@ -838,5 +838,5 @@ return [
     'Couldn’t archive Order Status.' => 'Bestellungsstatus konnte nicht archiviert werden.',
     'Total Tax' => 'Steuern gesamt',
     'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'Der maximale Gesamtwert von Artikeln, der im Einkaufswagen sein muss, (vor jeglichen Anpassungen) damit die Bedingungen dieser Regel erfüllt sind. Null bedeutet, dass die Regel auf alle Einkaufswagen zutrifft.',
-    'Donation Settings' => 'Spendeeinstellungen'
+    'Donation Settings' => 'Spende-Einstellungen'
 ];
