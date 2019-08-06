@@ -6,6 +6,11 @@
 - Added more cart information to the example templates to help with debugging.
 - Added client side polling to the example templates to detect if the current cart has changes on another tab or session.
 - Added `craft\commerce\services\Carts::getHasSessionCartNumber()`.
+- Added `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT`. ([#949](https://github.com/craftcms/commerce/pull/949))
+- Added `craft\commerce\services\Discounts::EVENT_BEFORE_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Discounts::EVENT_AFTER_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Discounts::EVENT_AFTER_DELETE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added a `cp.commerce.discount.edit` template hook. ([#936](https://github.com/craftcms/commerce/pull/936))
 
 ### Fixed
 - Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` had the `isNew` param set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
