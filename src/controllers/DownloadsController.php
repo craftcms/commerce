@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -38,10 +39,15 @@ class DownloadsController extends BaseFrontEndController
     {
         $number = Craft::$app->getRequest()->getQueryParam('number');
         $option = Craft::$app->getRequest()->getQueryParam('option', '');
+
+        if (!$number) {
+            throw new HttpInvalidParamException('Order number required');
+        }
+
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
-            throw new HttpException('No Order Found');
+            throw new HttpException('404','Order not found');
         }
 
         $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);

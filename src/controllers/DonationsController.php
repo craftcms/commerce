@@ -68,7 +68,7 @@ class DonationsController extends BaseStoreSettingsController
             return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('app', 'Donation settings saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Donation settings saved.'));
         return $this->redirectToPostedUrl();
     }
 }
