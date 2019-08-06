@@ -812,7 +812,7 @@ return [
     'Expiry' => 'Verfall',
     'Couldn’t save subscription.' => 'Abonnement konnte nicht gespeichert werden.',
     'Dummy gateway payment failed.' => 'Dummy gateway payment failed.',
-    'Refresh payment history' => 'Refresh payment history',
+    'Refresh payment history' => 'Zahlungsverlauf aktualisieren',
     'Default - Allow the price to be negative if discounts are greater than the order value.' => 'Default - Allow the price to be negative if discounts are greater than the order value.',
     'Shipping Per Item Rate' => 'Shipping Per Item Rate',
     'Shipping Base Rate' => 'Shipping Base Rate',
