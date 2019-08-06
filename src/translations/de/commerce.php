@@ -798,8 +798,8 @@ return [
     'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}' => 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}',
     'Created' => 'Erstellt',
     'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).' => 'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).',
-    'The unique SKU of the donation purchasable.' => 'The unique SKU of the donation purchasable.',
-    'Maximum Order Total Value' => 'Maximum Order Total Value',
+    'The unique SKU of the donation purchasable.' => 'Die einzigartige SKU für die kauffähige Option zum Spenden.',
+    'Maximum Order Total Value' => 'Gesamter Höchstbestellwert',
     'Trial expiration' => 'Ablauf der Testphase',
     'Donations' => 'Spenden',
     'Select a tax zone. If no zone is selected, this rate will match anywhere.' => 'Wählen Sie eine Steuerzone. Sollte keine Zone ausgewählt werden, wird dieser Satz überall übereinstimmen.',
@@ -827,7 +827,7 @@ return [
     'What is the name of the tax. For example, \'GST\' or \'VAT\'' => 'Wie lautet der Name der Steuer. Zum Beispiel „MwSt“ oder „GST“',
     'Couldn’t save shipping settings.' => 'Versandeinstellungen konnten nicht gespeichert werden.',
     'Remove all shipping costs from the order' => 'Remove all shipping costs from the order',
-    'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}',
+    'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Parsingfehler der E-Mail Vorlage für E-Mail „{email}“ Bestellung „{order}“. Vorlagenfehler: „{message}“ {file}:{line}',
     'Next payment' => 'Nächste Zahlung',
     'Manage shipping (Pro edition Only)' => 'Versand verwalten (Nur in der Pro Edition)',
     'Manage store settings' => 'Geschäftseinstellungen verwalten',
@@ -835,8 +835,8 @@ return [
     'Zero - Minimum price is zero if discounts are greater than the order value.' => 'Null - Minimaler Preis ist Null, sollten die Rabatte größer sein als der Wert der Bestellung.',
     'Could not save address.' => 'Adresse konnte nicht gespeichert werden.',
     'Phone Number' => 'Telefonnummer',
-    'Couldn’t archive Order Status.' => 'Couldn’t archive Order Status.',
+    'Couldn’t archive Order Status.' => 'Bestellungsstatus konnte nicht archiviert werden.',
     'Total Tax' => 'Steuern gesamt',
     'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'Der maximale Gesamtwert von Artikeln, der im Einkaufswagen sein muss, (vor jeglichen Anpassungen) damit die Bedingungen dieser Regel erfüllt sind. Null bedeutet, dass die Regel auf alle Einkaufswagen zutrifft.',
-    'Donation Settings' => 'Donation Settings'
+    'Donation Settings' => 'Spendeeinstellungen'
 ];
