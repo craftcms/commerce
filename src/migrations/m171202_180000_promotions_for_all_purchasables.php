@@ -107,9 +107,9 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             $db = Craft::$app->getDb();
 
             // Update all product's `promotionCategories` field we created  with the product types category we created from the product type.
-            $products = Product::find()->limit(null)->all();
+            $products = Product::find()->limit(null);
 
-            foreach ($products as $product) {
+            foreach ($products->each() as $product) {
                 $data = [
                     'fieldId' => $field->id,
                     'sourceId' => $product->id,
