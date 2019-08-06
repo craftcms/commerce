@@ -823,7 +823,7 @@ return [
     'Tax Name' => 'Steuername',
     'Invalid Business Tax ID.' => 'Ungültige Gewerbesteuer-ID.',
     'Orders restored.' => 'Bestellungen wiederhergestellt.',
-    'New products default to the first tax category available to them. If none are available, this category will be used.' => 'New products default to the first tax category available to them. If none are available, this category will be used.',
+    'New products default to the first tax category available to them. If none are available, this category will be used.' => 'Neue Produkte sind standardmäßig Teil der ersten für sie verfügbaren Steuerklasse. Sollte keine verfügbar sein, wird diese Kategorie verwendet.',
     'What is the name of the tax. For example, \'GST\' or \'VAT\'' => 'What is the name of the tax. For example, \'GST\' or \'VAT\'',
     'Couldn’t save shipping settings.' => 'Couldn’t save shipping settings.',
     'Remove all shipping costs from the order' => 'Remove all shipping costs from the order',
