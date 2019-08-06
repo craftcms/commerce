@@ -422,7 +422,7 @@ class Customers extends Component
         $customer = $this->getCustomerByUserId($user->id);
         $email = $user->email;
 
-        // update all the order's with the customers current email
+        // Update the email address on orders for this customer.
         if ($customer) {
             $orders = (new Query())
                 ->select([
