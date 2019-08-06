@@ -26,6 +26,7 @@
 - Fixed a bug where non shippable purchasables were being included in shipping calculations.
 - Fixed a bug where a logged in user did not see the same cart across all their sessions.
 - Fixed an order export cache error when clearing all caches.
+- Fixed a bug where project config rebuild would remove the order field layout. ([#948](https://github.com/craftcms/commerce/issues/948))
 
 ### Security
 - Fixed a data disclosure vulnerability.

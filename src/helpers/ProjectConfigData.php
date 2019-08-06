@@ -9,6 +9,7 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Order as OrderElement;
 use craft\db\Query;
 use craft\helpers\Json;
 
@@ -36,6 +37,22 @@ class ProjectConfigData
     {
         $output = [];
 
+        $output['emails'] = self::_getEmailData();
+        $output['gateways'] = self::_rebuildGatewayProjectConfig();
+
+        $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
+
+        if ($orderFieldLayout->uid) {
+            $output['orders'] = [
+                'fieldLayouts' => [
+                    $orderFieldLayout->uid => $orderFieldLayout->getConfig()
+                ]
+            ];
+        }
+
+        $output['orderStatuses'] = self::_getStatusData();
+        $output['productTypes'] = self::_getProductTypeData();
+
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
         if ($subscriptionFieldLayout->uid) {
@@ -46,11 +63,6 @@ class ProjectConfigData
             ];
         }
 
-        $output['gateways'] = self::_rebuildGatewayProjectConfig();
-
-        $output['productTypes'] = self::_getProductTypeData();
-        $output['emails'] = self::_getEmailData();
-        $output['orderStatuses'] = self::_getStatusData();
 
         return $output;
     }
