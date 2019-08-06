@@ -829,7 +829,7 @@ return [
     'Remove all shipping costs from the order' => 'Remove all shipping costs from the order',
     'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}',
     'Next payment' => 'Nächste Zahlung',
-    'Manage shipping (Pro edition Only)' => 'Manage shipping (Pro edition Only)',
+    'Manage shipping (Pro edition Only)' => 'Versand verwalten (Nur in der Pro Edition)',
     'Manage store settings' => 'Manage store settings',
     'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.' => 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.',
     'Zero - Minimum price is zero if discounts are greater than the order value.' => 'Zero - Minimum price is zero if discounts are greater than the order value.',
