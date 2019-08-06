@@ -602,7 +602,7 @@ return [
     'Short' => 'Kurz',
     'Couldn’t save subscription plan.' => 'Abonnementsplan konnte nicht gespeichert werden.',
     'Manage subscription' => 'Abonnement verwalten',
-    'Gateways' => 'Eingänge',
+    'Gateways' => 'Gateways',
     'A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off). Percentages are rounded to 2 decimal places.' => 'Es muss ein Prozentwert oder ein Pauschalbetrag verwendet werden (zum Beispiel: „3 %“ für 3 %-igen Preisnachlass und „10“ für einen Preisnachlass von 10 $). Prozentangaben werden auf 2 Dezimalstellen gerundet.',
     'There is no gateway selected that supports payment sources.' => 'Es wurde kein Gateway ausgewählt, der die Zahlungsquellen unterstützt.',
     'Card Holder' => 'Karteninhaber',
