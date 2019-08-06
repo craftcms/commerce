@@ -797,7 +797,7 @@ return [
     'Couldn’t reorder plans.' => 'Pläne konnten nicht neu geordnet werden.',
     'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}' => 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}',
     'Created' => 'Erstellt',
-    'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).' => 'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).',
+    'Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’).' => 'Steuersätze als Prozentteil der Gesamtkosten der Bestellung (z.B. “5%” eingeben, wenn der Steuersatz 5% beträgt. Auch “10.5%” könnten eingegeben werden).',
     'The unique SKU of the donation purchasable.' => 'Die einzigartige SKU für die kauffähige Option zum Spenden.',
     'Maximum Order Total Value' => 'Gesamter Höchstbestellwert',
     'Trial expiration' => 'Ablauf der Testphase',
