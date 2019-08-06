@@ -75,6 +75,7 @@
             errors: discount.getErrors('enabled')
         }) }}
 
+        {% hook "cp.commerce.discount.edit" %}
     </div>
 
     <div id="coupon" class="hidden">
