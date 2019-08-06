@@ -837,6 +837,6 @@ return [
     'Phone Number' => 'Telefonnummer',
     'Couldn’t archive Order Status.' => 'Couldn’t archive Order Status.',
     'Total Tax' => 'Steuern gesamt',
-    'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.',
+    'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'Der maximale Gesamtwert von Artikeln, der im Einkaufswagen sein muss, (vor jeglichen Anpassungen) damit die Bedingungen dieser Regel erfüllt sind. Null bedeutet, dass die Regel auf alle Einkaufswagen zutrifft.',
     'Donation Settings' => 'Donation Settings'
 ];
