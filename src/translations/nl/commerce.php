@@ -780,7 +780,7 @@ return [
     'Products not restored.' => 'Producten niet hersteld.',
     'The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'De minimale totaalwaarde van items in de winkelwagen (voor eventuele aanpassingen) om aan deze regel voldoen. Nul betekent dat alle winkelwagens voldoen.',
     'Manage taxes (Pro edition Only)' => 'Belastingen beheren (alleen in de Pro-editie)',
-    'Units' => 'Stuks',
+    'Units' => 'Eenheden',
     'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Parsefout in e-mailsjabloon voor aangepaste e-mail “{email}” in “Aan:”. Bestelling: “{order}”. Sjabloonfout: “{message}” {file}:{line}',
     'Which product types should this category be available to?' => 'Voor welke producttypen moet deze categorie beschikbaar zijn?',
     'Order Identification' => 'Bestellings-ID',
