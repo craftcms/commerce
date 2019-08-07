@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\SubscriptionException;
@@ -309,6 +310,22 @@ class Payments extends Component
         return $refundTransaction;
     }
 
+    private function processRestockOfLineItems(int $orderId): bool
+    {
+        $orderData = Order::find()->id($orderId)->one();
+
+        foreach ($orderData->getLineItems() as $lineItem) {
+            $this->doRestockSingleProduct($lineItem->purchasableId, $lineItem->qty);
+        }
+    }
+
+    private function doRestockSingleProduct(int $purchasableId, int $qtyToRestock): void
+    {
+        $variant = Variant::find()->id($purchasableId)->one();
+        $variant->stock = (int) $variant->stock+$qtyToRestock;
+        \Craft::$app->getElements()->saveElement($variant);
+    }
+
     /**
      * Process return from off-site payment.
      *
@@ -546,6 +563,9 @@ class Payments extends Component
             try {
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
+
+                $this->processRestockOfLineItems($parent->orderId);
+
             } catch (Throwable $exception) {
                 Craft::error(Craft::t('commerce', 'Error refunding transaction: {transactionHash}', ['transactionHash' => $parent->hash]), 'commerce');
                 $child->status = TransactionRecord::STATUS_FAILED;
