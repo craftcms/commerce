@@ -809,7 +809,7 @@ return [
     'That handle is already in use' => 'Die ingang is al in gebruik',
     'That handle is already in use.' => 'Die ingang is al in gebruik.',
     'Order Tax Rate' => 'Belastingtarief bestelling',
-    'Expiry' => 'Verval',
+    'Expiry' => 'Verloop',
     'Couldn’t save subscription.' => 'Kan abonnement niet opslaan.',
     'Dummy gateway payment failed.' => 'Dummygatewaybetaling mislukt.',
     'Refresh payment history' => 'Betalingsgeschiedenis vernieuwen',
