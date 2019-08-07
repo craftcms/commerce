@@ -4,27 +4,26 @@
 
 ### Added
 - Added more cart information to the example templates to help with debugging.
-- Added client side polling to the example templates to detect if the current cart has changes on another tab or session.
+- Added a client side polling example to the example templates which detects if the current cart has changed on another tab or session.
 - Added `craft\commerce\services\Carts::getHasSessionCartNumber()`.
+- Added `craft\commerce\services\Carts::getMergedCart()`.
+- The `commerce/cart/get-cart` controller action merges all carts belonging to the current user’s cart if the the `mergeCarts` param is submitted.
+- The `commerce/cart/update-cart` controller action merges all carts belonging to the current user’s cart if the the `mergeCarts` param is submitted.
+- Added a `cp.commerce.discount.edit` template hook. ([#936](https://github.com/craftcms/commerce/pull/936))
 - Added `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT`. ([#949](https://github.com/craftcms/commerce/pull/949))
 - Added `craft\commerce\services\Discounts::EVENT_BEFORE_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
 - Added `craft\commerce\services\Discounts::EVENT_AFTER_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
 - Added `craft\commerce\services\Discounts::EVENT_AFTER_DELETE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
-- Added a `cp.commerce.discount.edit` template hook. ([#936](https://github.com/craftcms/commerce/pull/936))
 
 ### Changed
-
 - Order file exports are now cached in the `storage/runtime` folder, and not in the `storage/runtime/temp` folder. 
 - Improved the performance of updating from older version of Commerce with large amounts of products.
-
-### Deprecated
-
-- The `mergeLastCartOnLogin` setting is no longer able to be turned off, a logged in user will always have a single cart.
+- The `mergeLastCartOnLogin` setting has been removed. Cart merging is now a manual directive via the `mergeCarts` parameter. Merging of carts no longer occurs automatically on login. ([#947](https://github.com/craftcms/commerce/issues/947))
+- After a registered user completes an order, the most recent incomplete cart is now loaded as the current cart in session. 
 
 ### Fixed
 - Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` had the `isNew` param set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
-- Fixed a bug where non shippable purchasables were being included in shipping calculations.
-- Fixed a bug where a logged in user did not see the same cart across all their sessions.
+- Fixed a bug where non shippable purchasables were being included in shipping price calculations.
 - Fixed an order export cache error when clearing all caches.
 - Fixed a bug where project config rebuild would remove the order field layout. ([#948](https://github.com/craftcms/commerce/issues/948))
 
