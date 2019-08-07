@@ -163,7 +163,7 @@ The example templates contain all of the above examples of adding and updating t
 By default the current cart begins blank and customers add things to it.
 
 If the customer is a registered user they may expect to be able to log into another computer and continue their cart from 
-a previous session. If the user arrives at the store page logged-in, without a cart in session the most recent cart belonging to that user is restored to the session.
+a previous session. If the user arrives at the store page logged-in, without a cart in session the most recent cart belonging to that user is restored to the session.  
 
 If the user logs in, but already has a cart in session (even an empty one), this does not happen automatically.
 
@@ -176,10 +176,11 @@ in 2 ways:
 
 2) Instead of calling `{% set cart = craft.commetce.cart.cart %}` in your twig template, call `craft.commetce.cart.mergedCart`.
 
-Please note, using the above 2 methods will only merge previous carts of a logged in user, and only carts that belong to that user.
+Please note, using the above two methods will only merge previous carts of a logged-in user and only carts that belong to that user. If the user is a guest, no errors are raised, and everything behaves as normal.
 
-Calling `craft.commetce.cart.mergedCart` which the user is a guest behaves the same way as `craft.commetce.cart.cart`, so there is no harm is using it on most cart pages. 
-Having said that, you might not want to use it on final checkout pages so the customers does not get confused seeing new items in the cart before payment.
+Calling `craft.commetce.cart.mergedCart` which the user is a guest behaves the same way as `craft.commetce.cart.cart`, so there is no harm in using it on most cart pages. 
+
+You might not want to use it on final checkout pages, so that customers don't get confused seeing new items in the cart before payment.
 
 Before merging, you may want to show the user what will be merged. 
 
