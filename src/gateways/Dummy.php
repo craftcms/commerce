@@ -364,10 +364,8 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function updateBillingDetails(Subscription $subscription, BasePaymentForm $paymentForm): SubscriptionResponseInterface
+    public function getHasBillingIssues(Subscription $subscription): bool
     {
-        return new DummySubscriptionResponse();
+        return false;
     }
-
-
 }
