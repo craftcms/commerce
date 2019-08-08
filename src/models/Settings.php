@@ -165,6 +165,11 @@ class Settings extends Model
      */
     public $gatewaySettings = [];
 
+    /**
+     * @var string
+     */
+    public $updateBillingDetailsUrl = '';
+
     // Public Methods
     // =========================================================================
 
