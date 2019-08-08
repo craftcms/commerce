@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 {% block main %}
 
-{% set plans = craft.commerce.getPlans().getAllPlans() %}
+{% set plans = craft.commerce.getPlans().getAllEnabledPlans() %}
 
 {% if currentUser and plans|length%}
     {% for plan in plans %}
