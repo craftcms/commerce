@@ -760,7 +760,7 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = (bool)$lineItem->id;
+        $isNew = !$lineItem->id;
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
             $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
@@ -895,7 +895,7 @@ class Order extends Element
         $orderRecord->number = $this->number;
         $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
-        $orderRecord->email = $this->getEmail();
+        $orderRecord->email = $this->getEmail() ?? '';
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
         $orderRecord->datePaid = $this->datePaid ?: null;
@@ -1078,15 +1078,15 @@ class Order extends Element
     /**
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
      *
-     * @return string
+     * @return string|null
      */
-    public function getEmail(): string
+    public function getEmail()
     {
         if ($this->getCustomer() && $this->getCustomer()->getUser()) {
             $this->setEmail($this->getCustomer()->getUser()->email);
         }
 
-        return $this->_email ?? '';
+        return $this->_email ?? null;
     }
 
     /**
@@ -1134,17 +1134,17 @@ class Order extends Element
     {
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_PAID:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
+            }
             case self::PAID_STATUS_PARTIAL:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
+            }
             case self::PAID_STATUS_UNPAID:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
+            }
         }
 
         return '';
@@ -1728,98 +1728,98 @@ class Order extends Element
     {
         switch ($attribute) {
             case 'orderStatus':
-                {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-                    return '<span class="status"></span>';
+            {
+                if ($this->orderStatus) {
+                    return $this->orderStatus->getLabelHtml();
                 }
+                return '<span class="status"></span>';
+            }
             case 'shippingFullName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-                    return '';
+            {
+                if ($this->getShippingAddress()) {
+                    return $this->getShippingAddress()->getFullName();
                 }
+                return '';
+            }
             case 'billingFullName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->getFullName();
-                    }
-                    return '';
+            {
+                if ($this->getBillingAddress()) {
+                    return $this->getBillingAddress()->getFullName();
                 }
+                return '';
+            }
             case 'shippingBusinessName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-                    return '';
+            {
+                if ($this->getShippingAddress()) {
+                    return $this->getShippingAddress()->businessName;
                 }
+                return '';
+            }
             case 'billingBusinessName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->businessName;
-                    }
-                    return '';
+            {
+                if ($this->getBillingAddress()) {
+                    return $this->getBillingAddress()->businessName;
                 }
+                return '';
+            }
             case 'shippingMethodName':
-                {
-                    if ($this->getShippingMethod()) {
-                        return $this->getShippingMethod()->name;
-                    }
-                    return '';
+            {
+                if ($this->getShippingMethod()) {
+                    return $this->getShippingMethod()->name;
                 }
+                return '';
+            }
             case 'gatewayName':
-                {
-                    if ($this->getGateway()) {
-                        return $this->getGateway()->name;
-                    }
-                    return '';
+            {
+                if ($this->getGateway()) {
+                    return $this->getGateway()->name;
                 }
+                return '';
+            }
             case 'paidStatus':
-                {
-                    return $this->getPaidStatusHtml();
-                }
+            {
+                return $this->getPaidStatusHtml();
+            }
             case 'totalPaid':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+            }
             case 'total':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
+            }
             case 'totalPrice':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+            }
             case 'totalShippingCost':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('shipping');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getAdjustmentsTotalByType('shipping');
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             case 'totalDiscount':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('discount');
-                    if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                    }
+            {
+                $amount = $this->getAdjustmentsTotalByType('discount');
+                if ($this->$attribute >= 0) {
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
 
-                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
-                }
+                return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
+            }
             case 'totalTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getAdjustmentsTotalByType('tax');
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             case 'totalIncludedTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax', true);
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getAdjustmentsTotalByType('tax', true);
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 

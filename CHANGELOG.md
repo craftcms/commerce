@@ -1,5 +1,36 @@
 # Release Notes for Craft Commerce
 
+## 2.1.11 - 2019-08-09
+
+### Added
+- Added the `cp.commerce.discount.edit` template hook. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Carts::getHasSessionCartNumber()`.
+- Added `craft\commerce\services\Carts::getMergedCart()`.
+- Added `craft\commerce\services\Discounts::EVENT_AFTER_DELETE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Discounts::EVENT_AFTER_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Discounts::EVENT_BEFORE_SAVE_DISCOUNT`. ([#936](https://github.com/craftcms/commerce/pull/936))
+- Added `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT`. ([#949](https://github.com/craftcms/commerce/pull/949))
+
+### Changed
+- Improved the performance of Commerce 2 migrations.
+- Users’ carts are no longer merged together automatically. Instead cart merging can be manually triggered by passing a `mergeCarts` param to the `commerce/cart/get-cart` and `commerce/cart/update-cart` actions. ([#947](https://github.com/craftcms/commerce/issues/947))
+- After a logged-in user completes an order, their most recent incomplete cart is now loaded as the current cart in session.
+- Order file exports are now cached in `storage/runtime/commerce-order-exports/` instead of `storage/runtime/temp/commerce-order-exports/`.
+- The example templates now include client side polling to detect if the cart has changed in another tab or session.
+- The example templates show more information about the cart to help with debugging.
+
+### Removed
+- Removed the `mergeLastCartOnLogin` setting.
+
+### Fixed
+- Fixed a bug where `craft/commerce/elements/Order::EVENT_BEFORE_ADD_LINE_ITEM` events had `$isNew` set incorrectly. ([#851](https://github.com/craftcms/commerce/pull/851))
+- Fixed a bug where non-shippable purchasables were getting included in shipping price calculations.
+- Fixed an error that occurred when clearing order caches.
+- Fixed a bug where the `project-config/rebuild` command would remove the order field layout. ([#948](https://github.com/craftcms/commerce/issues/948))
+
+### Security
+- Fixed a data disclosure vulnerability.
+
 ## 2.1.10 - 2019-07-12
 
 ### Fixed

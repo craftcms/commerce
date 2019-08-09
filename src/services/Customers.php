@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
@@ -261,20 +260,9 @@ class Customers extends Component
         $this->forgetCustomer();
         /** @var User $user */
         $user = $event->identity;
-        $this->consolidateOrdersToUser($user);
 
-        // Recover previous carts of user
-        if (Plugin::getInstance()->getSettings()->mergeLastCartOnLogin) {
-            $previousOrders = Order::find()->isCompleted(false)->user($user)->all();
-            if ($previousOrders) {
-                $cart = Plugin::getInstance()->getCarts()->getCart(true);
-                foreach ($previousOrders as $previousOrder) {
-                    if ($cart->id != $previousOrder->id) {
-                        OrderHelper::mergeOrders($cart, $previousOrder);
-                    }
-                }
-            }
-        }
+        // Consolidates completed orders to the user
+        $this->consolidateOrdersToUser($user);
     }
 
     /**
@@ -432,15 +420,19 @@ class Customers extends Component
     {
         $user = $event->sender;
         $customer = $this->getCustomerByUserId($user->id);
+        $email = $user->email;
 
-        // Sync the users email with the customer record.
+        // Update the email address on orders for this customer.
         if ($customer) {
-            $orders = Plugin::getInstance()->getOrders()->getOrdersByCustomer($customer);
+            $orders = (new Query())
+                ->select(['orders.id'])
+                ->from(['{{%commerce_orders}} orders'])
+                ->where(['orders.customerId' => $customer->id])
+                ->column();
 
-            foreach ($orders as $order) {
-                // Email will be set to the users email since on re-save as $order->getEmail() returns the related registered user's email.
-                Craft::$app->getElements()->saveElement($order);
-            }
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%commerce_orders}}', ['email' => $email], ['id' => $orders])
+                ->execute();
         }
     }
 

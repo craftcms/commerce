@@ -154,7 +154,19 @@ class CartController extends BaseFrontEndController
     {
         $this->requireAcceptsJson();
 
-        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
+        $this->_cart = $this->_getCart();
+
+        return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
+    }
+
+    /**
+     * Returns the cart combined with any other carts belonging to the current user as JSON
+     */
+    public function actionGetMergedCart()
+    {
+        $this->requireAcceptsJson();
+
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart(true, true);
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
@@ -389,19 +401,24 @@ class CartController extends BaseFrontEndController
     {
         $request = Craft::$app->getRequest();
 
+        $cart = null;
+
         if ($orderNumber = $request->getBodyParam('orderNumber')) {
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
-        } else {
-            // Get the cart from the current users session, or return a new cart attached to the session
-            $cart = Plugin::getInstance()->getCarts()->getCart(true);
+
+            if (!$cart) {
+                throw new NotFoundHttpException('Cart not found');
+            }
         }
 
-        if (!$cart) {
-            throw new NotFoundHttpException('Cart not found');
+        // Get the cart from the current users session, or return a new cart attached to the session
+        // Merge previous carts if any are found
+        if ($merge = $request->getBodyParam('mergeCarts')) {
+            return Plugin::getInstance()->getCarts()->getMergedCart();
         }
 
-        return $cart;
+        return Plugin::getInstance()->getCarts()->getCart(true);
     }
 
     /**

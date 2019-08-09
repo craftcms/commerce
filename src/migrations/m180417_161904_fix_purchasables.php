@@ -8,11 +8,14 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\db\Migration;
 use craft\db\Query;
+use craft\db\Table;
 use craft\helpers\MigrationHelper;
 use ReflectionClass;
 use ReflectionException;
@@ -86,42 +89,27 @@ class m180417_161904_fix_purchasables extends Migration
         $this->delete('{{%commerce_purchasables}}', ['id' => $purchasableIds]);
 
         // Need to recreate all purchasable rows, so need to get all elements unfortunately
-        $elementsRows = (new Query())
-            ->select(['id', 'type'])
-            ->from(['{{%elements}}'])
+        $types = (new Query())
+            ->select(['type'])
+            ->from([Table::ELEMENTS])
+            ->distinct()
             ->all();
 
-        // Cache the reflection classes we need.
-        $reflectionClassesByType = [];
-        foreach ($elementsRows as $elementsRow) {
-            $type = $elementsRow['type'];
+        foreach ($types as $row) {
+            $type = $row['type'];
 
-            if (!isset($reflectionClassesByType[$type])) {
-                try {
-                    $reflectionClassesByType[$type] = new ReflectionClass($type);
-                } catch (ReflectionException $e) {
-                    Craft::warning('Class: ' . $type . ' does not exist. Can not re-create purchasable records for elements of that type.');
+            if (class_exists($type) && is_subclass_of($type, PurchasableInterface::class)) {
+                /** @var string|Element $type */
+                foreach ($type::find()->anyStatus()->limit(427)->batch() as $batch) {
+                    $newPurchasables = [];
+                    foreach ($batch as $purchasable) {
+                        $newPurchasables[] = [$purchasable->getId(), $purchasable->getSku(), $purchasable->getPrice()];
+                    }
+
+                    $this->batchInsert('{{%commerce_purchasables}}', ['id', 'sku', 'price'], $newPurchasables);
                 }
             }
         }
-
-        // Create the purchasable records.
-        foreach ($elementsRows as $elementsRow) {
-            if (isset($reflectionClassesByType[$elementsRow['type']])) {
-                $class = $reflectionClassesByType[$elementsRow['type']];
-                $implementsClass = ($class && $class->implementsInterface(PurchasableInterface::class));
-                /** @var PurchasableInterface $element */
-                if ($implementsClass && $element = Craft::$app->getElements()->getElementById($elementsRow['id'])) {
-                    $row = [];
-                    $row['id'] = $element->getId();
-                    $row['price'] = $element->getPrice();
-                    $row['sku'] = $element->getSku();
-                    $this->insert('{{%commerce_purchasables}}', $row);
-                }
-            }
-        }
-
-        return true;
     }
 
     /**

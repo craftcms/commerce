@@ -92,6 +92,31 @@
         </div>
     {% endblock %}
 
+    <div>
+        <div class="container mx-auto p-6">
+            <h3>Commerce Cart Debug Info</h3>
+            <ul>
+                <li><strong>ID</strong> {{ cart.id }}</li>
+                <li><strong>Number</strong> {{ cart.number }}</li>
+                <li><strong>Short Number</strong> {{ cart.shortNumber }}</li>
+                <li><strong>Email</strong> {{ cart.email }}</li>
+                <li><strong>Customer ID</strong> {{ cart.customerId }}</li>
+                <li><strong>User</strong> {{ cart.user }}</li>
+                <li><strong>Shipping Address ID</strong> {{ cart.shippingAddressId }}</li>
+                <li><strong>Billing Address ID</strong> {{ cart.billingAddressId }}</li>
+                <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
+                <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
+                <li><strong>Currency</strong> {{ cart.currency }}</li>
+                <li><strong>Payment Currency</strong> {{ cart.paymentCurrency }}</li>
+                <li><strong>Gateway ID</strong> {{ cart.gatewayId }}</li>
+                <li><strong>Payment Source ID</strong> {{ cart.paymentSourceId }}</li>
+                <li><strong>Language</strong> {{ cart.orderLanguage }}</li>
+                <li><strong>Payment Return URL</strong> {{ cart.returnUrl }}</li>
+                <li><strong>Payment Cancel URL</strong> {{ cart.cancelUrl }}</li>
+                <li><strong>Last IP</strong> {{ cart.lastIp }}</li>
+            </ul>
+        </div>
+    </div>
     <footer>
         <div class="container mx-auto p-6">
             <h3>Welcome!</h3>
@@ -105,5 +130,43 @@
             </ul>
         </div>
     </footer>
+
+    {#
+        The following javascript polls the server every 10 seconds and sees if the cart has changed on another session or browser tab
+        and will refresh the page if the current page is out of date. This prevents the customer from changing the cart on another tab,
+        then submitting an update cart form action that might overwrite the changes on the other page.
+    #}
+    {% js %}
+        function doPoll(){
+            console.log('Commerce example templates : Polling to see if the order changed on another tab or session');
+            $.ajax({
+                url: '',
+                data: {
+                    '{{ craft.config.csrfTokenName|e('js') }}': '{{ craft.request.csrfToken|e('js') }}',
+                    'action': 'commerce/cart/get-cart'
+                },
+                success: function(data) {
+                    var orderNumberChanged = (data.cart.number != '{{ cart.number }}');
+                    var orderTotalChanged = (data.cart.totalQty != '{{ cart.totalQty }}');
+                    var orderTotalPriceChanged = (data.cart.totalPrice != '{{ cart.totalPrice }}');
+                    if(orderNumberChanged || orderTotalChanged || orderTotalPriceChanged){
+                        console.log({'orderNumberChanged' : orderNumberChanged, 'orderTotalChanged' : orderTotalChanged, 'orderTotalPriceChanged': orderTotalPriceChanged});
+                        console.log('Order changed.');
+                        var r = confirm("Your cart has been updated elsewhere, reload the page?");
+                        if (r == true) {
+                          location.reload(true);
+                        }
+                    }else{
+                        console.log('Commerce example templates : Nothing changed, checking again in 30 seconds.');
+                    }
+                    setTimeout(doPoll,30000);
+                },
+                dataType: 'json'
+            });
+        }
+
+        doPoll();
+    {% endjs %}
+
 </body>
 </html>

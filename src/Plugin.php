@@ -492,14 +492,30 @@ class Plugin extends BasePlugin
     private function _registerCacheTypes()
     {
         // create the directory if it doesn't exist
-        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
 
-        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) {
+        $path = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports';
+
+        try {
+            FileHelper::createDirectory($path);
+        } catch (\Exception $e) {
+            Craft::error($e->getMessage());
+        }
+
+        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
+
+            try {
+                FileHelper::createDirectory($path);
+            } catch (\Exception $e) {
+                Craft::error($e->getMessage());
+            }
+
             $e->options[] = [
                 'key' => 'commerce-order-exports',
                 'label' => Craft::t('commerce', 'Commerce order exports'),
-                'action' => function() {
-                    FileHelper::clearDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+                'action' => static function() use ($path) {
+                    if (file_exists($path)) {
+                        FileHelper::clearDirectory($path);
+                    }
                 }
             ];
         });

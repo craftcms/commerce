@@ -157,3 +157,35 @@ To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in 
 ```
 
 The example templates contain all of the above examples of adding and updating the cart within a full checkout flow.
+
+## Cart Merging
+
+By default the current cart begins blank and customers add things to it.
+
+If the customer is a registered user they may expect to be able to log into another computer and continue their cart from 
+a previous session. If the user arrives at the store page logged-in, without a cart in session the most recent cart belonging to that user is restored to the session.  
+
+If the user logs in, but already has a cart in session (even an empty one), this does not happen automatically.
+
+When retrieving the current cart you can optionally tell the system to merge in the line items from a previous session 
+in 2 ways:
+
+1) Submit the `mergeCarts` parameter in either the `commerce/cart/get-cart` ajax controller action or the `commerce/cart/update-cart` controller action.
+
+`<input type="hidden" name="mergeCarts" value="commerce/cart/update-cart">`
+
+2) Instead of calling `{% set cart = craft.commetce.cart.cart %}` in your twig template, call `craft.commetce.cart.mergedCart`.
+
+Please note, using the above two methods will only merge previous carts of a logged-in user and only carts that belong to that user. If the user is a guest, no errors are raised, and everything behaves as normal.
+
+Calling `craft.commetce.cart.mergedCart` which the user is a guest behaves the same way as `craft.commetce.cart.cart`, so there is no harm in using it on most cart pages. 
+
+You might not want to use it on final checkout pages, so that customers don't get confused seeing new items in the cart before payment.
+
+Before merging, you may want to show the user what will be merged. 
+
+You could do this by showing the other cart’s contents from the previous session with:
+
+`{% set otherCarts = craft.orders.isCompleted(false).user(currentUser).id('not ' ~ cart.id).all()`
+
+The above query gets all carts for the current user, excluding the current cart.

@@ -10,6 +10,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\events\ReportEvent;
 use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
 use craft\helpers\Db;
@@ -32,6 +33,11 @@ use yii\web\BadRequestHttpException;
  */
 class Reports extends Component
 {
+    // Constants
+    // =========================================================================
+
+    const EVENT_BEFORE_GENERATE_EXPORT = 'beforeGenerateExport';
+
     // Public Methods
     // =========================================================================
 
@@ -93,11 +99,23 @@ class Reports extends Component
 
         $orders = $orderQuery->all();
 
+        // Raise the beforeGenerateExport event
+        $event = new ReportEvent([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'status' => $status,
+            'orderQuery' => $orderQuery,
+            'columns' => $columns,
+            'orders' => $orders,
+            'format' => $format,
+        ]);
+        $this->trigger(self::EVENT_BEFORE_GENERATE_EXPORT, $event);
+
         // Populate the spreadsheet
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
-        $spreadsheet->getActiveSheet()->fromArray($columns, null, 'A1');
-        $spreadsheet->getActiveSheet()->fromArray($orders, null, 'A2');
+        $spreadsheet->getActiveSheet()->fromArray($event->columns, null, 'A1');
+        $spreadsheet->getActiveSheet()->fromArray($event->orders, null, 'A2');
 
         // Could use the writer factory with a $format <-> phpspreadsheet string map, but this is more simple for now.
         switch ($format) {
@@ -118,9 +136,10 @@ class Reports extends Component
         }
 
         // Prepare and write temp file to disk
-        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+        $path = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports';
+        FileHelper::createDirectory($path);
         $filename = uniqid('orderexport', true) . '.' . $format;
-        $tempFile = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
+        $tempFile = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
         if (($handle = fopen($tempFile, 'wb')) === false) {
             throw new Exception('Could not create temp file: ' . $tempFile);
         }

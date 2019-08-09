@@ -327,6 +327,7 @@ class Payments extends Component
 
         // If it's successful already, we're good.
         if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
+            $transaction->order->updateOrderPaidInformation();
             return true;
         }
 
