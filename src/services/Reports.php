@@ -10,8 +10,8 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\Plugin;
 use craft\commerce\events\ReportEvent;
+use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
@@ -37,7 +37,7 @@ class Reports extends Component
     // =========================================================================
 
     const EVENT_BEFORE_GENERATE_EXPORT = 'beforeGenerateExport';
-    
+
     // Public Methods
     // =========================================================================
 
@@ -136,7 +136,8 @@ class Reports extends Component
         }
 
         // Prepare and write temp file to disk
-        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+        $path = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports';
+        FileHelper::createDirectory($path);
         $filename = uniqid('orderexport', true) . '.' . $format;
         $tempFile = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports' . DIRECTORY_SEPARATOR . $filename;
         if (($handle = fopen($tempFile, 'wb')) === false) {
