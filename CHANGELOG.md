@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.1.12 - 2019-08-15
+
+### Fixed
+- Fixed an bug where the `requireShippingMethodSelectionAtCheckout` setting was being ignored.
+
 ## 2.1.11 - 2019-08-09
 
 ### Added

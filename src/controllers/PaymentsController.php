@@ -268,6 +268,20 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
+        // Does the order require shipping
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethodId) {
+            $customError = Craft::t('commerce', 'There is no shipping method selected for this order.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($customError);
+            }
+
+            $session->setError($customError);
+            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+
+            return null;
+        }
+
         // Save the return and cancel URLs to the order
         $returnUrl = $request->getValidatedBodyParam('redirect');
         $cancelUrl = $request->getValidatedBodyParam('cancelUrl');
@@ -283,6 +297,7 @@ class PaymentsController extends BaseFrontEndController
         $order->recalculate();
         // Save the orders new values.
         if (Craft::$app->getElements()->saveElement($order)) {
+
             $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
             $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
