@@ -61,7 +61,7 @@ class ChartsController extends ElementIndexesController
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($currency));
 
-        return $this->asJson([
+        $data =  $this->asJson([
             'dataTable' => $dataTable,
             'total' => $total,
             'totalHtml' => $totalHtml,
@@ -73,6 +73,8 @@ class ChartsController extends ElementIndexesController
                 'currency' => $this->_getLocaleDefinitionCurrency(),
             ],
         ]);
+
+        return $data;
     }
 
     // Private Methods
