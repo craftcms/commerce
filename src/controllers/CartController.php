@@ -409,7 +409,9 @@ class CartController extends BaseFrontEndController
 
             if (!$cart) {
                 throw new NotFoundHttpException('Cart not found');
-            }
+			}
+			
+			return $cart;
         }
 
         // Get the cart from the current users session, or return a new cart attached to the session
