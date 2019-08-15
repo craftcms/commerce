@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an bug where the `requireShippingMethodSelectionAtCheckout` setting was being ignored.
+- Fixed a bug that caused the order revenue chart to display incorrect data. ([#518](https://github.com/craftcms/commerce/issues/518))
 
 ## 2.1.11 - 2019-08-09
 

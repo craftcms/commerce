@@ -34,8 +34,8 @@ class ChartsController extends ElementIndexesController
         $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');
 
-        $startDate = DateTimeHelper::toDateTime($startDateParam);
-        $endDate = DateTimeHelper::toDateTime($endDateParam);
+        $startDate = DateTimeHelper::toDateTime($startDateParam, true);
+        $endDate = DateTimeHelper::toDateTime($endDateParam, true);
         $endDate->modify('+1 day');
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
