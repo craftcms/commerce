@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
@@ -19,8 +20,13 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use DateTime;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
+use function get_class;
+use function in_array;
 
 /**
  * Sale service.
@@ -64,6 +70,11 @@ class Sales extends Component
      * @var Sale[]
      */
     private $_allActiveSales;
+
+    /**
+     * @var array
+     */
+    private $_purchasableSaleMatch = [];
 
     // Public Methods
     // =========================================================================
@@ -211,10 +222,10 @@ class Sales extends Component
 
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
-            }
-
-            if ($sale->stopProcessing) {
-                break;
+                    
+                if ($sale->stopProcessing) {
+                    break;
+                }
             }
         }
 
@@ -230,11 +241,11 @@ class Sales extends Component
     {
         $sales = [];
 
-        if ($purchasable->id) {
+        if ($purchasable->getId()) {
             foreach ($this->getAllSales() as $sale) {
                 $purchasableIds = $sale->getPurchasableIds();
                 $id = $purchasable->getId();
-                if (\in_array($id, $purchasableIds, false)) {
+                if (in_array($id, $purchasableIds, false)) {
                     $sales[] = $sale;
                 }
             }
@@ -318,29 +329,47 @@ class Sales extends Component
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
+        /** @var Purchasable $purchasable */
+        $purchasableId = $purchasable->id;
+        $saleId = $sale->id;
+
+        if (!isset($this->_purchasableSaleMatch[$purchasableId])) {
+            $this->_purchasableSaleMatch[$purchasableId] = [];
+        }
+
+        if (!isset($this->_purchasableSaleMatch[$purchasableId][$saleId])) {
+            $this->_purchasableSaleMatch[$purchasableId][$saleId] = null;
+        }
+
+        if ($this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+            return $this->_purchasableSaleMatch[$purchasableId][$saleId];
+        }
+
+        // default response is no match
+        $this->_purchasableSaleMatch[$purchasableId][$saleId] = false;
+
         // can't match something not promotable
         if (!$purchasable->getIsPromotable()) {
             return false;
         }
 
         // Purchasable ID match
-        if (!$sale->allPurchasables && !\in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
+        if (!$sale->allPurchasables && !in_array($purchasable->getId(), $sale->getPurchasableIds(), false)) {
             return false;
         }
 
         // Category match
-        $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
-        $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-        $saleCategories = $sale->getCategoryIds();
-        $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $saleCategories);
+        if (!$sale->allCategories) {
+            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $saleCategories = $sale->getCategoryIds();
+            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-        if (!$sale->allCategories && !$purchasableIsRelateToOneOrMoreCategories) {
-            return false;
+            if (empty($relatedCategories)) {
+                return false;
+            }
         }
 
-
         if ($order) {
-
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
@@ -357,22 +386,20 @@ class Sales extends Component
         }
 
         // Are we dealing with the current session outside of any cart/order context
-        if (!$order) {
-            if (!$sale->allGroups) {
-                // User groups of the currently logged in user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
-                if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
-                    return false;
-                }
+        if (!$order && !$sale->allGroups) {
+            // User groups of the currently logged in user
+            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
+                return false;
             }
         }
 
-        $date = new \DateTime();
+        $date = new DateTime();
 
         if ($order) {
             // Date we care about in the context of an order is the date the order was placed.
             // If the order is still a cart, use the current date time.
-            $date = $order->isCompleted ? $order->dateOrdered : new \DateTime();
+            $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
         if ($sale->dateFrom && $sale->dateFrom >= $date) {
@@ -383,17 +410,15 @@ class Sales extends Component
             return false;
         }
 
-        $saleMatchEvent = new SaleMatchEvent([
-            'sale' => $sale,
-            'purchasable' => $purchasable
-        ]);
+        $saleMatchEvent = new SaleMatchEvent(compact('sale', 'purchasable'));
 
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
         }
 
-        return $saleMatchEvent->isValid;
+        $this->_purchasableSaleMatch[$purchasableId][$saleId] = $saleMatchEvent->isValid;
+        return $this->_purchasableSaleMatch[$purchasableId][$saleId];
     }
 
     /**
@@ -473,7 +498,7 @@ class Sales extends Component
                 $relation = new SalePurchasableRecord();
                 $relation->purchasableId = $purchasableId;
                 $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-                $relation->purchasableType = \get_class($purchasable);
+                $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();
             }
@@ -510,8 +535,8 @@ class Sales extends Component
      * @param $id
      * @return bool
      * @throws \Exception
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteSaleById($id): bool
     {

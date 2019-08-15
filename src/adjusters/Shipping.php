@@ -48,8 +48,25 @@ class Shipping extends Component implements AdjusterInterface
         $this->_order = $order;
 
         $shippingMethod = $order->getShippingMethod();
+        $lineItems = $order->getLineItems();
 
         if ($shippingMethod === null) {
+            return [];
+        }
+
+        $nonShippableItems = [];
+
+        foreach ($lineItems as $item) {
+            $purchasable = $item->getPurchasable();
+            if($purchasable && !$purchasable->getIsShippable())
+            {
+                $nonShippableItems[$item->id] = $item->id;
+            }
+        }
+
+        // Are all line items non shippable items? No shipping cost.
+        if(count($lineItems) == count($nonShippableItems))
+        {
             return [];
         }
 
@@ -67,13 +84,14 @@ class Shipping extends Component implements AdjusterInterface
                 // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                 $hasFreeShippingFromDiscount = false;
                 foreach ($discounts as $discount) {
-                    if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount) && $discount->hasFreeShippingForMatchingItems) {
+                    if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
                         $hasFreeShippingFromDiscount = true;
                     }
                 }
 
                 $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount) {
+                $shippable =  $item->purchasable->getIsShippable();
+                if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                     $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                     $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
@@ -137,7 +155,7 @@ class Shipping extends Component implements AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
-        $adjustment->sourceSnapshot = $rule->getOptions();
+        $adjustment->sourceSnapshot = $rule->toArray();
         $adjustment->description = $rule->getDescription();
 
         return $adjustment;

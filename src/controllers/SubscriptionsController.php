@@ -8,12 +8,15 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
+use craft\models\FieldLayout;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -27,7 +30,6 @@ use yii\web\Response;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * TODO when checking if subscription is currentUser's, allow for commerce permission instead of admin
  */
 class SubscriptionsController extends BaseController
 {
@@ -52,21 +54,48 @@ class SubscriptionsController extends BaseController
      */
     public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
     {
-
+        $variables = [];
         $this->requirePermission('commerce-manageSubscriptions');
-
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
+
+        if ($subscription === null && $subscriptionId) {
+            $subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one();
+        }
+
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables = [
-            'subscriptionId' => $subscriptionId,
-            'subscription' => $subscription,
-            'fieldLayout' => $fieldLayout
+        $variables['tabs'] = [];
+
+        $variables['tabs'][] = [
+            'label' => Craft::t('commerce', 'Manage'),
+            'url' => '#subscriptionManageTab',
+            'class' => null
         ];
 
-        if (empty($variables['subscription'])) {
-            $variables['subscription'] = Subscription::find()->anyStatus()->id($subscriptionId)->one();
+        foreach ($fieldLayout->getTabs() as $index => $tab) {
+            // Do any of the fields on this tab have errors?
+            $hasErrors = false;
+
+            if ($subscription->hasErrors()) {
+                foreach ($tab->getFields() as $field) {
+                    if ($subscription->getErrors($field->handle)) {
+                        $hasErrors = true;
+                        break;
+                    }
+                }
+            }
+
+            $variables['tabs'][] = [
+                'label' => Craft::t('commerce', $tab->name),
+                'url' => '#tab' . ($index + 1),
+                'class' => $hasErrors ? 'error' : null
+            ];
         }
+
+        $variables['continueEditingUrl'] = $subscription->cpEditUrl;
+        $variables['subscriptionId'] = $subscriptionId;
+        $variables['subscription'] = $subscription;
+        $variables['fieldLayout'] = $fieldLayout;
 
         return $this->renderTemplate('commerce/subscriptions/_edit', $variables);
     }
@@ -78,7 +107,7 @@ class SubscriptionsController extends BaseController
      * @throws NotFoundHttpException if subscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function actionSave()
     {
@@ -93,23 +122,53 @@ class SubscriptionsController extends BaseController
 
         $subscription->setFieldValuesFromRequest('fields');
 
-        if (Craft::$app->getElements()->saveElement($subscription)) {
-            $this->redirectToPostedUrl($subscription);
+        $subscription->setScenario(Element::SCENARIO_LIVE);
+
+        if (!Craft::$app->getElements()->saveElement($subscription)) {
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription.'));
+            Craft::$app->getUrlManager()->setRouteParams([
+                'subscription' => $subscription
+            ]);
+            return null;
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription..'));
-        Craft::$app->getUrlManager()->setRouteParams([
-            'subscriptions' => $subscription
-        ]);
+        return $this->redirectToPostedUrl($subscription);
     }
 
     /**
+     * Refreshes all subscription payments
+     *
+     * @throws BadRequestHttpException If not POST request
+     * @throws ForbiddenHttpException If permissions are lacking
+     * @throws NotFoundHttpException If subscription not found
+     * @throws InvalidConfigException
+     */
+    public function actionRefreshPayments()
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
+
+        if (!$subscription = Subscription::find()->id($subscriptionId)->one()) {
+            throw new NotFoundHttpException('Subscription not found');
+        }
+
+        $gateway = $subscription->getGateway();
+        $gateway->refreshPaymentHistory($subscription);
+
+        // Save
+        return $this->redirectToPostedUrl($subscription);
+    }
+
+    /**
+     * @return Response|null
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSubscribe(): Response
+    public function actionSubscribe()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -123,8 +182,6 @@ class SubscriptionsController extends BaseController
         if (!$planUid || !$plan = $plugin->getPlans()->getPlanByUid($planUid)) {
             throw new InvalidConfigException('Subscription plan not found with that id.');
         }
-
-        $error = false;
 
         try {
             /** @var SubscriptionGateway $gateway */
@@ -150,26 +207,24 @@ class SubscriptionsController extends BaseController
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                 }
-            } catch (\Throwable $exception) {
-                Craft::error($exception->getMessage(), 'commerce');
+
+                $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
+                $fieldValues = $request->getBodyParam($fieldsLocation, []);
+
+                $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
+            } catch (Throwable $exception) {
+                Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
             }
-
-            $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
-            $fieldValues = $request->getBodyParam($fieldsLocation, []);
-
-            $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
         } catch (SubscriptionException $exception) {
-            $error = $exception->getMessage();
-        }
 
-        if ($error) {
             if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asErrorJson($exception->getMessage());
             }
 
-            $session->setError($error);
+            $session->setError($exception->getMessage());
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -183,11 +238,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionReactivate(): Response
+    public function actionReactivate()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -198,6 +253,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -206,7 +262,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -215,7 +271,7 @@ class SubscriptionsController extends BaseController
             } else {
                 $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
             }
-        } catch (SubscriptionException $exception) {
+        } catch (Exception $exception) {
             $error = $exception->getMessage();
         }
 
@@ -225,6 +281,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -238,11 +296,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionSwitch(): Response
+    public function actionSwitch()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -255,6 +313,7 @@ class SubscriptionsController extends BaseController
         $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscription = Subscription::find()->uid($subscriptionUid)->one();
@@ -263,7 +322,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -298,6 +357,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {
@@ -311,11 +372,11 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionCancel(): Response
+    public function actionCancel()
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -325,6 +386,7 @@ class SubscriptionsController extends BaseController
         $request = Craft::$app->getRequest();
 
         $error = false;
+        $subscription = null;
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
@@ -333,7 +395,7 @@ class SubscriptionsController extends BaseController
             $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->getIsAdmin();
+            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -368,6 +430,8 @@ class SubscriptionsController extends BaseController
             }
 
             $session->setError($error);
+
+            return null;
         }
 
         if ($request->getAcceptsJson()) {

@@ -15,6 +15,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\Db;
+use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -24,8 +25,8 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
- * @property array|\craft\commerce\base\Plan[] $allEnabledPlans
- * @property array|\craft\commerce\base\Plan[] $allPlans
+ * @property array|Plan[] $allEnabledPlans
+ * @property array|Plan[] $allPlans
  */
 class Plans extends Component
 {
@@ -108,7 +109,7 @@ class Plans extends Component
     public function getAllEnabledPlans(): array
     {
         $results = $this->_createPlansQuery()
-            ->where(['enabled' => true])
+            ->andWhere(['enabled' => true])
             ->all();
 
         return $this->_populatePlans($results);
@@ -196,11 +197,10 @@ class Plans extends Component
     /**
      * Returns plans which use the provided Entry for its "information"
      *
-     * @param string $id The Entry ID to search by
-     * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
+     * @param int $entryId The Entry ID to search by
+     * @return Plan[]
      */
-    public function getPlansByInformationEntryId(int $entryId)
+    public function getPlansByInformationEntryId(int $entryId): array
     {
         $results = $this->_createPlansQuery()
             ->where(['planInformationId' => $entryId])
@@ -217,7 +217,7 @@ class Plans extends Component
      * @return bool Whether the plan was saved successfully
      * @throws InvalidConfigException if subscription plan not found by id.
      */
-    public function savePlan(Plan $plan, bool $runValidation = true)
+    public function savePlan(Plan $plan, bool $runValidation = true): bool
     {
         if ($plan->id) {
             $record = PlanRecord::findOne($plan->id);
@@ -292,7 +292,7 @@ class Plans extends Component
         }
 
         $plan->isArchived = true;
-        $plan->dateArchived = Db::prepareDateForDb(new \DateTime());
+        $plan->dateArchived = Db::prepareDateForDb(new DateTime());
 
         return $this->savePlan($plan);
     }

@@ -10,6 +10,7 @@ namespace craft\commerce\records;
 use craft\db\ActiveRecord;
 use craft\records\Category;
 use craft\records\UserGroup;
+use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -18,8 +19,8 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allCategories
  * @property bool $allGroups
  * @property bool $allPurchasables
- * @property \DateTime $dateFrom
- * @property \DateTime $dateTo
+ * @property DateTime $dateFrom
+ * @property DateTime $dateTo
  * @property string $description
  * @property float $applyAmount
  * @property bool $ignorePrevious

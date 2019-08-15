@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * Plan trait
  *
@@ -59,7 +61,7 @@ trait PlanTrait
     public $isArchived;
 
     /**
-     * @var \DateTime when the plan was archived
+     * @var DateTime when the plan was archived
      */
     public $dateArchived;
 

@@ -1,0 +1,51 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
+    { label: "Countries"|t('commerce'), url: url('commerce/store-settings/countries') },
+] %}
+
+{% set selectedSubnavItem = 'store-settings' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/countries/save">
+    {{ redirectInput('commerce/store-settings/countries') }}
+    {% if country.id %}<input type="hidden" name="countryId"
+                              value="{{ country.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "What this country will be called in the CP."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: country.name,
+        errors: country.getErrors('name'),
+        autofocus: true,
+        required: true,
+        translatable: true
+    }) }}
+
+    {{ forms.textField({
+        label: "ISO"|t('commerce'),
+        instructions: "The two-letter ISO country code."|t('commerce'),
+        id: 'iso',
+        name: 'iso',
+        value: country.iso,
+        errors: country.getErrors('iso'),
+        required: true,
+    }) }}
+
+    {{ forms.checkboxField({
+        label: "Require a state to be selected when this country is chosen"|t('commerce'),
+        id: 'isStateRequired',
+        name: 'isStateRequired',
+        value: 1,
+        checked: country.isStateRequired,
+        errors: country.getErrors('isStateRequired')
+    }) }}
+{% endblock %}

@@ -55,6 +55,16 @@
             required: true,
         }) }}
 
+        {{ forms.selectField({
+            label: "Minimum Total Price Strategy"|t('commerce'),
+            instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
+            name: 'settings[minimumTotalPriceStrategy]',
+            value: settings.minimumTotalPriceStrategy,
+            options: settings.getMinimumTotalPriceStrategyOptions(),
+            errors: settings.getErrors('minimumTotalPriceStrategy'),
+            required: true,
+        }) }}
+
         <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
         {{ forms.textField({
             label: "Order PDF Template"|t('commerce'),
@@ -93,63 +103,6 @@
             errors: settings.getErrors('orderReferenceFormat'),
             required: true,
         }) }}
-
-        {% if craft.commerce.is('lite') %}
-        <h3>{{ 'Tax & Shipping'|t('commerce') }}</h3>
-
-        {{ forms.textField({
-            label: "Shipping Base Rate"|t('commerce'),
-            instructions: "What the shipping cost is for the order."|t('commerce'),
-            id: 'shippingBaseRate',
-            name: 'lite[shippingBaseRate]',
-            value: lite.shippingBaseRate ?? 0,
-            class: 'code ltr',
-            errors: lite.getErrors('shippingBaseRate'),
-            required: true,
-        }) }}
-
-        {{ forms.textField({
-            label: "Shipping Per Item Rate"|t('commerce'),
-            instructions: "What the shipping cost is for each item."|t('commerce'),
-            id: 'shippingPerItemRate',
-            name: 'lite[shippingPerItemRate]',
-            value: lite.shippingPerItemRate ?? 0,
-            class: 'code ltr',
-            errors: lite.getErrors('shippingPerItemRate'),
-            required: true,
-        }) }}
-
-        {{ forms.textField({
-            label: "Tax Name"|t('commerce'),
-            instructions: "What is the name of the tax. For example, 'GST' or 'VAT'"|t('commerce'),
-            id: 'taxName',
-            name: 'lite[taxName]',
-            value: lite.taxName ?? 'Tax',
-            class: 'code ltr',
-            errors: lite.getErrors('taxName'),
-            required: true,
-        }) }}
-
-        {{ forms.textField({
-            label: "Order Tax Rate"|t('commerce'),
-            instructions: "Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
-            id: 'taxRate',
-            name: 'lite[taxRate]',
-            value: lite.getTaxRateAsPercent,
-            class: 'code ltr',
-            errors: lite.getErrors('taxRate'),
-            required: true,
-        }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Is this tax is already included in the price of items?"|t('commerce'),
-            name: 'lite[taxInclude]',
-            on: lite.taxInclude,
-            checked: lite.taxInclude,
-            errors: lite.getErrors('taxInclude')
-        }) }}
-
-        {% endif %}
 
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>

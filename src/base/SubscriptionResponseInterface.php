@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * This interface class functions that a Subscription response needs to implement
  *
@@ -42,9 +44,9 @@ interface SubscriptionResponseInterface
     /**
      * Returns the time of next payment.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getNextPaymentDate(): \DateTime;
+    public function getNextPaymentDate(): DateTime;
 
     /**
      * Returns whether the subscription is canceled.
@@ -59,4 +61,11 @@ interface SubscriptionResponseInterface
      * @return bool
      */
     public function isScheduledForCancellation(): bool;
+
+    /**
+     * Whether the subscription is unpaid.
+     *
+     * @return bool
+     */
+    public function isInactive(): bool;
 }

@@ -19,7 +19,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class StatesController extends BaseAdminController
+class StatesController extends BaseStoreSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -30,7 +30,7 @@ class StatesController extends BaseAdminController
     public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
-        return $this->renderTemplate('commerce/settings/states/index', compact('states'));
+        return $this->renderTemplate('commerce/store-settings/states/index', compact('states'));
     }
 
     /**
@@ -41,10 +41,7 @@ class StatesController extends BaseAdminController
      */
     public function actionEdit(int $id = null, State $state = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'state' => $state
-        ];
+        $variables = compact('id', 'state');
         if (!$variables['state']) {
             if ($variables['id']) {
                 $variables['state'] = Plugin::getInstance()->getStates()->getStateById($variables['id']);
@@ -70,7 +67,7 @@ class StatesController extends BaseAdminController
         }
         $variables['countries'] = $countries;
 
-        return $this->renderTemplate('commerce/settings/states/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
     }
 
     /**

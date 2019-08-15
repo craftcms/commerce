@@ -8,7 +8,6 @@
 namespace craft\commerce\gateways;
 
 use Craft;
-use craft\commerce\base\CancelSubscriptionHtml;
 use craft\commerce\base\Plan;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\base\SubscriptionGateway;
@@ -274,9 +273,9 @@ class Dummy extends SubscriptionGateway
      */
     public function cancelSubscription(Subscription $subscription, CancelSubscriptionForm $parameters): SubscriptionResponseInterface
     {
-        $subscription = new DummySubscriptionResponse();
-        $subscription->setIsCanceled(true);
-        return $subscription;
+        $response = new DummySubscriptionResponse();
+        $response->setIsCanceled(true);
+        return $response;
     }
 
     /**

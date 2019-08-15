@@ -10,10 +10,12 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\Json;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -96,14 +98,13 @@ class LineItems extends Component
             $results = $this->_createLineItemQuery()
                 ->where(['orderId' => $orderId])
                 ->all();
-            $lineItems = [];
+
+            $this->_lineItemsByOrderId[$orderId] = [];
 
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $lineItems[] = new LineItem($result);
+                $this->_lineItemsByOrderId[$orderId][] = new LineItem($result);
             }
-
-            $this->_lineItemsByOrderId[$orderId] = $lineItems;
         }
 
         return $this->_lineItemsByOrderId[$orderId];
@@ -118,14 +119,11 @@ class LineItems extends Component
      * @param int $orderId
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
-     * @param int $qty
-     * @param string $note
      * @return LineItem
      */
     public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
     {
-        ksort($options);
-        $signature = md5(Json::encode($options));
+        $signature = LineItemHelper::generateOptionsSignature($options);
 
         $result = $this->_createLineItemQuery()
             ->where([
@@ -150,7 +148,7 @@ class LineItems extends Component
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
      * @return bool
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
     {
@@ -220,7 +218,7 @@ class LineItems extends Component
 
                     $transaction->commit();
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $transaction->rollBack();
                 throw $e;
             }

@@ -1,0 +1,38 @@
+{% extends "commerce/_layouts/cp" %}
+{% set selectedSubnavItem = 'tax' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
+
+{% set title = "Tax"|t('commerce') %}
+
+{% set navItems = {} %}
+
+{% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}
+    {% set navItems = navItems|merge({
+        'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: 'pro' },
+        'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: 'pro' },
+        'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: 'pro' }
+    }) %}
+{% endif %}
+
+{% if selectedItem is not defined %}
+    {% set selectedItem = craft.app.request.getSegment(3) %}
+{% endif %}
+
+{% set docTitle = navItems[selectedItem].title~' - '~title %}
+
+{% block sidebar %}
+    <nav>
+        <ul>
+            {% for handle, item in navItems if craft.commerce.is(item.minEdition, '>=') %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li>
+                        <a href="{{ url('commerce/tax/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}
+

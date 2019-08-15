@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -16,6 +17,8 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\db\Query;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
@@ -253,10 +256,12 @@ class Customers extends Component
      */
     public function loginHandler(UserEvent $event)
     {
-        // Remove the customer from session.
+        // Remove the old customer from the session.
         $this->forgetCustomer();
         /** @var User $user */
         $user = $event->identity;
+
+        // Consolidates completed orders to the user
         $this->consolidateOrdersToUser($user);
     }
 
@@ -368,7 +373,6 @@ class Customers extends Component
      * Handle the user logout.
      *
      * @param UserEvent $event
-     * @throws Exception
      */
     public function logoutHandler(UserEvent $event)
     {
@@ -386,74 +390,11 @@ class Customers extends Component
      */
     public function orderCompleteHandler($order)
     {
-        $addressesExist = false;
-        // Now duplicate the addresses on the order
-        $addressesService = Plugin::getInstance()->getAddresses();
-        if ($order->billingAddress) {
-            $snapshotBillingAddress = new Address($order->billingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName'
-                ]
-            ));
-            $originalBillingAddressId = $snapshotBillingAddress->id;
-            $snapshotBillingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
-                $addressesExist = true;
-                $order->setBillingAddress($snapshotBillingAddress);
-            } else {
-                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
-                    ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
-            }
-        }
+        $orderAddressesMutated = $this->_copyAddressesToOrder($order);
 
-        if ($order->shippingAddress) {
-            $snapshotShippingAddress = new Address($order->shippingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName'
-                ]
-            ));
-            $originalShippingAddressId = $snapshotShippingAddress->id;
-            $snapshotShippingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
-                $addressesExist = true;
-                $order->setShippingAddress($snapshotShippingAddress);
-            } else {
-                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
-                    ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
-            }
-        }
+        $this->_createUserFromOrder($order);
 
-        if ($addressesExist) {
+        if ($orderAddressesMutated) {
             Craft::$app->getElements()->saveElement($order, false);
         }
     }
@@ -479,15 +420,19 @@ class Customers extends Component
     {
         $user = $event->sender;
         $customer = $this->getCustomerByUserId($user->id);
+        $email = $user->email;
 
-        // Sync the users email with the customer record.
+        // Update the email address on orders for this customer.
         if ($customer) {
-            $orders = Plugin::getInstance()->getOrders()->getOrdersByCustomer($customer);
+            $orders = (new Query())
+                ->select(['orders.id'])
+                ->from(['{{%commerce_orders}} orders'])
+                ->where(['orders.customerId' => $customer->id])
+                ->column();
 
-            foreach ($orders as $order) {
-                // Email will be set to the users email since on re-save as $order->getEmail() returns the related registered user's email.
-                Craft::$app->getElements()->saveElement($order);
-            }
+            Craft::$app->getDb()->createCommand()
+                ->update('{{%commerce_orders}}', ['email' => $email], ['id' => $orders])
+                ->execute();
         }
     }
 
@@ -531,5 +476,156 @@ class Customers extends Component
                 'primaryShippingAddressId'
             ])
             ->from(['{{%commerce_customers}}']);
+    }
+
+    /**
+     * @param Order $order
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    private function _copyAddressesToOrder(Order $order): bool
+    {
+        $mutated = false;
+        // Now duplicate the addresses on the order
+        $addressesService = Plugin::getInstance()->getAddresses();
+        if ($order->billingAddress) {
+            $snapshotBillingAddress = new Address($order->billingAddress->toArray([
+                    'id',
+                    'attention',
+                    'title',
+                    'firstName',
+                    'lastName',
+                    'countryId',
+                    'stateId',
+                    'address1',
+                    'address2',
+                    'city',
+                    'zipCode',
+                    'phone',
+                    'alternativePhone',
+                    'businessName',
+                    'businessTaxId',
+                    'businessId',
+                    'stateName'
+                ]
+            ));
+            $originalBillingAddressId = $snapshotBillingAddress->id;
+            $snapshotBillingAddress->id = null;
+            if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
+                $mutated = true;
+                $order->setBillingAddress($snapshotBillingAddress);
+            } else {
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
+            }
+        }
+
+        if ($order->shippingAddress) {
+            $snapshotShippingAddress = new Address($order->shippingAddress->toArray([
+                    'id',
+                    'attention',
+                    'title',
+                    'firstName',
+                    'lastName',
+                    'countryId',
+                    'stateId',
+                    'address1',
+                    'address2',
+                    'city',
+                    'zipCode',
+                    'phone',
+                    'alternativePhone',
+                    'businessName',
+                    'businessTaxId',
+                    'businessId',
+                    'stateName'
+                ]
+            ));
+            $originalShippingAddressId = $snapshotShippingAddress->id;
+            $snapshotShippingAddress->id = null;
+            if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
+                $mutated = true;
+                $order->setShippingAddress($snapshotShippingAddress);
+            } else {
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                    ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
+            }
+        }
+
+        return $mutated;
+    }
+
+    /**
+     * @param Order $order
+     * @return void
+     * @throws Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     */
+    public function _createUserFromOrder(Order $order)
+    {
+        // Only do this if requested
+        if (!$order->registerUserOnOrderComplete) {
+            return;
+        }
+
+        // Only if on pro edition
+        if (Craft::$app->getEdition() != Craft::Pro) {
+            return;
+        }
+
+        // If a user is logged in, then don't create a user account
+        if (Craft::$app->getUser()->getIdentity()) {
+            return;
+        }
+
+        // order already has a registered user associated
+        if ($order->getUser()) {
+            return;
+        }
+
+        // can't create a user without an email
+        if (!$order->email) {
+            return;
+        }
+
+        // already a user?
+        $user = User::find()->email($order->email)->one();
+        if ($user) {
+            return;
+        }
+
+        // Need to associate the new user to the orders customer
+        $customer = $order->getCustomer();
+        if (!$customer) {
+            return;
+        }
+
+        // Create a new user
+        $user = new User();
+        $user->email = $order->email;
+        $user->unverifiedEmail = $order->email;
+        $user->newPassword = null;
+        $user->username = $order->email;
+        $user->firstName = $order->billingAddress->firstName ?? '';
+        $user->lastName = $order->billingAddress->lastName ?? '';
+        $user->pending = true;
+        $user->setScenario(Element::SCENARIO_ESSENTIALS); //  don't validate required custom fields.
+
+        if (Craft::$app->getElements()->saveElement($user)) {
+            Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+            $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+            if (!$emailSent) {
+                Craft::warning('User saved, but couldn’t send activation email. Check your email settings.', __METHOD__);
+            }
+
+            $customer->userId = $user->id;
+            Plugin::getInstance()->getCustomers()->saveCustomer($customer, false);
+        } else {
+            $errors = $user->getErrors();
+            Craft::warning('Could not create user on order completion.', __METHOD__);
+            Craft::warning($errors, __METHOD__);
+        }
     }
 }

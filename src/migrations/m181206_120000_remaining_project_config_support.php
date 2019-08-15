@@ -8,7 +8,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Orders;
@@ -115,6 +114,11 @@ class m181206_120000_remaining_project_config_support extends Migration
             }
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
+
+            $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
+            $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
+            $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
+
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;
         }
@@ -136,6 +140,9 @@ class m181206_120000_remaining_project_config_support extends Migration
             $typeUid = $productTypeSiteRow['typeUid'];
             $siteUid = $productTypeSiteRow['siteUid'];
             unset($productTypeSiteRow['siteUid'], $productTypeSiteRow['typeUid']);
+
+            $productTypeSiteRow['hasUrls'] = (bool)$productTypeSiteRow['hasUrls'];
+
             $typeData[$typeUid]['siteSettings'][$siteUid] = $productTypeSiteRow;
         }
 
@@ -169,6 +176,8 @@ class m181206_120000_remaining_project_config_support extends Migration
 
         foreach ($emailRows as &$row) {
             unset($row['uid']);
+            $row['enabled'] = (bool)$row['enabled'];
+            $row['attachPdf'] = (bool)$row['attachPdf'];
         }
 
         return $emailRows;
@@ -213,13 +222,17 @@ class m181206_120000_remaining_project_config_support extends Migration
             ->leftJoin('{{%commerce_emails}} emails', '[[emails.id]] = [[relations.emailId]]')
             ->all();
 
-        foreach($relationRows as $relationRow) {
+        foreach ($relationRows as $relationRow) {
             $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
         }
 
         foreach ($statusRows as &$statusRow) {
             $statusUid = $statusRow['uid'];
             unset($statusRow['uid']);
+
+            $statusRow['default'] = (bool)$statusRow['default'];
+            $statusRow['sortOrder'] = (int)$statusRow['sortOrder'];
+
             $statusData[$statusUid] = $statusRow;
         }
 

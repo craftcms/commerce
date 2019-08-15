@@ -21,9 +21,11 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use DateInterval;
 use DateTime;
+use Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -43,7 +45,7 @@ use yii\base\InvalidConfigException;
  * @property DateTime $trialExpires datetime of trial expiry
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
- * @since 1.0
+ * @since 2.0
  */
 class Subscription extends Element
 {
@@ -99,11 +101,6 @@ class Subscription extends Element
     public $nextPaymentDate;
 
     /**
-     * @var string The subscription data from gateway
-     */
-    public $subscriptionData;
-
-    /**
      * @var bool Whether the subscription is canceled
      */
     public $isCanceled;
@@ -142,6 +139,11 @@ class Subscription extends Element
      * @var Order
      */
     private $_order;
+
+    /**
+     * @var array The subscription data from gateway
+     */
+    public $_subscriptionData;
 
     // Public Methods
     // =========================================================================
@@ -212,9 +214,29 @@ class Subscription extends Element
     }
 
     /**
+     * @return array
+     */
+    public function getSubscriptionData(): array
+    {
+        return $this->_subscriptionData;
+    }
+
+    /**
+     *
+     * @param string|array $data
+     */
+    public function setSubscriptionData($data)
+    {
+        $data = Json::decodeIfJson($data);
+
+        $this->_subscriptionData = $data;
+    }
+
+    /**
      * Returns the datetime of trial expiry.
      *
      * @return DateTime
+     * @throws Exception
      */
     public function getTrialExpires(): DateTIme
     {

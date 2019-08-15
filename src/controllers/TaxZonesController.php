@@ -31,7 +31,7 @@ class TaxZonesController extends BaseTaxSettingsController
     public function actionIndex(): Response
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
-        return $this->renderTemplate('commerce/settings/taxzones/index', compact('taxZones'));
+        return $this->renderTemplate('commerce/tax/taxzones/index', compact('taxZones'));
     }
 
     /**
@@ -42,10 +42,7 @@ class TaxZonesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'taxZone' => $taxZone
-        ];
+        $variables = compact('id', 'taxZone');
 
         if (!$variables['taxZone']) {
             if ($variables['id']) {
@@ -71,7 +68,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
         $variables['states'] = ArrayHelper::map($states, 'id', 'name');
 
-        return $this->renderTemplate('commerce/settings/taxzones/_edit', $variables);
+        return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
 
     /**
@@ -88,7 +85,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->default = (bool) Craft::$app->getRequest()->getBodyParam('default');
+        $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
 

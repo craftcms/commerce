@@ -9,10 +9,16 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use LitEmoji\LitEmoji;
+use Throwable;
 use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * Class Cart Controller
@@ -50,7 +56,7 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws HttpException
-     * @throws \Throwable
+     * @throws Throwable
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionUpdateLineItem()
@@ -76,7 +82,7 @@ class CartController extends BaseFrontEndController
             $lineItem->qty = $qty;
         }
 
-        if ($note = $request->getParam('note')) {
+        if ($note = LitEmoji::unicodeToShortcode($request->getParam('note'))) {
             $lineItem->note = $note;
         }
 
@@ -94,7 +100,7 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws NotFoundHttpException
-     * @throws \Throwable
+     * @throws Throwable
      * @deprecated as of 2.0.0-beta.5
      */
     public function actionRemoveLineItem()
@@ -148,7 +154,19 @@ class CartController extends BaseFrontEndController
     {
         $this->requireAcceptsJson();
 
-        $this->_cart = Plugin::getInstance()->getCarts()->getCart();
+        $this->_cart = $this->_getCart();
+
+        return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
+    }
+
+    /**
+     * Returns the cart combined with any other carts belonging to the current user as JSON
+     */
+    public function actionGetMergedCart()
+    {
+        $this->requireAcceptsJson();
+
+        $this->_cart = Plugin::getInstance()->getCarts()->getCart(true, true);
 
         return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
     }
@@ -171,7 +189,7 @@ class CartController extends BaseFrontEndController
 
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
-            $note = $request->getParam('note', '');
+            $note = LitEmoji::unicodeToShortcode($request->getParam('note', ''));
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
@@ -191,28 +209,47 @@ class CartController extends BaseFrontEndController
 
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
+
+            // Initially combine same purchasables
+            $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
+
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
-                if(!$purchasableId)
-                {
-                    continue;
-                }
-                $note = $request->getParam("purchasables.{$key}.note", '');
+                $note = LitEmoji::unicodeToShortcode($request->getParam("purchasables.{$key}.note", ''));
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
+                $purchasable = [];
+                $purchasable['id'] = $purchasableId;
+                $purchasable['options'] = $options;
+                $purchasable['note'] = $note;
+                $purchasable['qty'] = $qty;
+
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                if (isset($purchasablesByKey[$key])) {
+                    $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
+                } else {
+                    $purchasablesByKey[$key] = $purchasable;
+                }
+            }
+
+            foreach ($purchasablesByKey as $purchasable) {
+                if ($purchasable['id'] == null) {
+                    continue;
+                }
+
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
-                if ($qty > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+                if ($purchasable['qty'] > 0) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasable['id'], $purchasable['options']);
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
-                        $lineItem->qty += $qty;
+                        $lineItem->qty += $purchasable['qty'];
                     } else {
-                        $lineItem->qty = $qty;
+                        $lineItem->qty = $purchasable['qty'];
                     }
 
-                    $lineItem->note = $note;
+                    $lineItem->note = $purchasable['note'];
                     $this->_cart->addLineItem($lineItem);
                 }
             }
@@ -222,7 +259,7 @@ class CartController extends BaseFrontEndController
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
                 $lineItemId = $key;
-                $note = $request->getParam("lineItems.{$key}.note");
+                $note = LitEmoji::unicodeToShortcode($request->getParam("lineItems.{$key}.note"));
                 $options = $request->getParam("lineItems.{$key}.options");
                 $qty = $request->getParam("lineItems.{$key}.qty");
                 $removeLine = $request->getParam("lineItems.{$key}.remove");
@@ -246,7 +283,7 @@ class CartController extends BaseFrontEndController
                     $lineItem->setOptions($options);
                 }
 
-                if($qty !== null && $qty == 0){
+                if ($qty !== null && $qty == 0) {
                     $removeLine = true;
                 }
 
@@ -265,6 +302,11 @@ class CartController extends BaseFrontEndController
             $this->_cart->setEmail($email);
         }
 
+        // Set if the customer should be registered on order completion
+        if ($registerUserOnOrderComplete = $request->getBodyParam('registerUserOnOrderComplete')) {
+            $this->_cart->registerUserOnOrderComplete = true;
+        }
+
         // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
@@ -272,7 +314,7 @@ class CartController extends BaseFrontEndController
 
         // Set Coupon on Cart. Allow blank string to remove coupon
         if (($couponCode = $request->getParam('couponCode')) !== null) {
-            $this->_cart->couponCode = $couponCode ?: null;
+            $this->_cart->couponCode = trim($couponCode) ?: null;
         }
 
         // Set Payment Gateway on cart
@@ -299,11 +341,11 @@ class CartController extends BaseFrontEndController
     // =========================================================================
 
     /**
-     * @return \yii\web\Response
+     * @return Response
      * @throws Exception
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
      */
     private function _returnCart()
     {
@@ -316,6 +358,7 @@ class CartController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
@@ -351,26 +394,31 @@ class CartController extends BaseFrontEndController
      *
      * @throws Exception
      * @throws NotFoundHttpException
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      */
     private function _getCart()
     {
         $request = Craft::$app->getRequest();
 
+        $cart = null;
+
         if ($orderNumber = $request->getBodyParam('orderNumber')) {
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
-        } else {
-            // Get the cart from the current users session, or return a new cart attached to the session
-            $cart = Plugin::getInstance()->getCarts()->getCart(true);
+
+            if (!$cart) {
+                throw new NotFoundHttpException('Cart not found');
+            }
         }
 
-        if (!$cart) {
-            throw new NotFoundHttpException('Cart not found');
+        // Get the cart from the current users session, or return a new cart attached to the session
+        // Merge previous carts if any are found
+        if ($merge = $request->getBodyParam('mergeCarts')) {
+            return Plugin::getInstance()->getCarts()->getMergedCart();
         }
 
-        return $cart;
+        return Plugin::getInstance()->getCarts()->getCart(true);
     }
 
     /**
@@ -408,8 +456,8 @@ class CartController extends BaseFrontEndController
             $this->_cart->setBillingAddress($billingAddress);
         }
 
-        $this->_cart->billingSameAsShipping = $billingIsShipping;
-        $this->_cart->shippingSameAsBilling = $shippingIsBilling;
+        $this->_cart->billingSameAsShipping = (bool)$billingIsShipping;
+        $this->_cart->shippingSameAsBilling = (bool)$shippingIsBilling;
 
         // Set primary addresses
         if ($request->getBodyParam('makePrimaryShippingAddress')) {

@@ -9,9 +9,8 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\helpers\UrlHelper;
-use craft\validators\UniqueValidator;
+use DateTime;
 
 /**
  * Order status model.
@@ -58,12 +57,12 @@ class OrderStatus extends Model
     public $default;
 
     /**
-     * @var boo Whether the order status is archived.
+     * @var bool Whether the order status is archived.
      */
     public $isArchived = false;
 
     /**
-     * @var \DateTime Archived Date
+     * @var DateTime Archived Date
      */
     public $dateArchived;
 

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\fields\Products;
 use craft\db\Migration;
 use craft\db\Query;
@@ -48,12 +49,12 @@ class m180319_130001_fieldSettings extends Migration
 
             // targetLocale => targetSiteId
             if (!empty($settings['targetLocale'])) {
-                $site = \Craft::$app->getSites()->getSiteByHandle($settings['targetLocale']);
+                $site = Craft::$app->getSites()->getSiteByHandle($settings['targetLocale']);
 
                 if ($site) {
                     $settings['targetSiteId'] = $site->id;
                 } else {
-                    $settings['targetSiteId'] = \Craft::$app->getSites()->getPrimarySite()->id;
+                    $settings['targetSiteId'] = Craft::$app->getSites()->getPrimarySite()->id;
                 }
             }
             unset($settings['targetLocale']);

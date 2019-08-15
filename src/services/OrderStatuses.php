@@ -11,19 +11,22 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
-use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
-use craft\commerce\records\OrderStatusEmail as OrderStatusEmailRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use DateTime;
+use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
+use function count;
 
 /**
  * Order status service.
@@ -142,7 +145,7 @@ class OrderStatuses extends Component
         }
 
         $result = $this->_createOrderStatusesQuery()
-            ->where(['default' => 1])
+            ->where(['default' => true])
             ->one();
 
         return new OrderStatus($result);
@@ -210,8 +213,8 @@ class OrderStatuses extends Component
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
-                'sortOrder' => $orderStatus->sortOrder,
-                'default' => $orderStatus->default,
+                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
+                'default' => (bool)$orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
         }
@@ -231,7 +234,7 @@ class OrderStatuses extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedOrderStatus(ConfigEvent $event)
     {
@@ -245,7 +248,7 @@ class OrderStatuses extends Component
             $statusRecord->name = $data['name'];
             $statusRecord->handle = $data['handle'];
             $statusRecord->color = $data['color'];
-            $statusRecord->sortOrder = $data['sortOrder'] ?: 999;
+            $statusRecord->sortOrder = $data['sortOrder'] ?? 99;
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
 
@@ -253,13 +256,17 @@ class OrderStatuses extends Component
             $statusRecord->save(false);
 
             if ($statusRecord->default) {
-                OrderStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
+                OrderStatusRecord::updateAll(['default' => false], ['not', ['id' => $statusRecord->id]]);
             }
 
             $connection = Craft::$app->getDb();
             $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
 
             if (!empty($data['emails'])) {
+                foreach ($data['emails'] as $emailUid) {
+                    Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
+                }
+
                 $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
 
                 foreach ($emailIds as $emailId) {
@@ -273,7 +280,7 @@ class OrderStatuses extends Component
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -281,17 +288,17 @@ class OrderStatuses extends Component
 
     /**
      * Archive an order status by it's id.
+     *
      * @param int $id
      * @return bool
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
      */
     public function archiveOrderStatusById(int $id): bool
     {
         $statuses = $this->getAllOrderStatuses();
         $status = $this->getOrderStatusById($id);
 
-        if (\count($statuses) >= 2 && $status) {
+        if (count($statuses) >= 2 && $status) {
             $status->isArchived = true;
             return $this->saveOrderStatus($status);
         }
@@ -305,7 +312,7 @@ class OrderStatuses extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleArchivedOrderStatus(ConfigEvent $event)
     {
@@ -316,13 +323,13 @@ class OrderStatuses extends Component
             $orderStatusRecord = $this->_getOrderStatusRecord($orderStatusUid);
 
             $orderStatusRecord->isArchived = true;
-            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new DateTime());
 
             // Save the volume
             $orderStatusRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -378,7 +385,7 @@ class OrderStatuses extends Component
     {
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && \count($status->emails)) {
+            if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
                     Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
                 }
@@ -420,7 +427,10 @@ class OrderStatuses extends Component
      *
      * @param array $ids
      * @return bool
-     * @throws \yii\db\Exception
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function reorderOrderStatuses(array $ids): bool
     {
@@ -467,6 +477,7 @@ class OrderStatuses extends Component
                 'color',
                 'sortOrder',
                 'default',
+                'uid',
             ])
             ->where(['isArchived' => false])
             ->orderBy('sortOrder')
@@ -481,6 +492,10 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        return OrderStatusRecord::findOne(['uid' => $uid]) ?? new OrderStatusRecord();
+        if ($orderStatus = OrderStatusRecord::findOne(['uid' => $uid])) {
+            return $orderStatus;
+        }
+
+        return new OrderStatusRecord();
     }
 }

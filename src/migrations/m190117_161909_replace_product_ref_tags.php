@@ -7,6 +7,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\db\Migration;
 use craft\queue\jobs\FindAndReplace;
 
@@ -20,12 +21,12 @@ class m190117_161909_replace_product_ref_tags extends Migration
      */
     public function safeUp()
     {
-        \Craft::$app->getQueue()->push(new FindAndReplace([
+        Craft::$app->getQueue()->push(new FindAndReplace([
             'find' => '{commerce_product:',
             'replace' => '{product:',
         ]));
 
-        \Craft::$app->getQueue()->push(new FindAndReplace([
+        Craft::$app->getQueue()->push(new FindAndReplace([
             'find' => '{commerce_variant:',
             'replace' => '{variant:',
         ]));

@@ -13,8 +13,10 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
+use function is_array;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -46,10 +48,7 @@ class PlansController extends BaseAdminController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
-        $variables = [
-            'planId' => $planId,
-            'plan' => $plan,
-        ];
+        $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
 
@@ -93,7 +92,7 @@ class PlansController extends BaseAdminController
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionSavePlan()
     {
@@ -116,11 +115,12 @@ class PlansController extends BaseAdminController
         $planService = Plugin::getInstance()->getPlans();
         $planId = $request->getParam('planId');
 
+        $plan = null;
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
 
-        if (empty($plan)) {
+        if (null === $plan) {
             $plan = $gateway->getPlanModel();
         }
 
@@ -129,7 +129,7 @@ class PlansController extends BaseAdminController
         $plan->gatewayId = $gatewayId;
         $plan->name = $request->getParam('name');
         $plan->handle = $request->getParam('handle');
-        $plan->planInformationId = \is_array($planInformationIds) ? reset($planInformationIds) : null;
+        $plan->planInformationId = is_array($planInformationIds) ? reset($planInformationIds) : null;
         $plan->reference = $reference;
         $plan->enabled = (bool)$request->getParam('enabled');
         $plan->planData = $planData;

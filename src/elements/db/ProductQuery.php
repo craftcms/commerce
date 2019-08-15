@@ -45,19 +45,14 @@ class ProductQuery extends ElementQuery
     // =========================================================================
 
     /**
+     * @var bool Whether the product is available for purchase
+     */
+    public $availableForPurchase;
+
+    /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
     public $editable = false;
-
-    /**
-     * @var int|int[]|null The product type ID(s) that the resulting products must have.
-     */
-    public $typeId;
-
-    /**
-     * @var mixed The Post Date that the resulting products must have.
-     */
-    public $postDate;
 
     /**
      * @var mixed The Post Date that the resulting products must have.
@@ -90,7 +85,7 @@ class ProductQuery extends ElementQuery
     public $defaultWeight;
 
     /**
-     * @var float The default sku the resulting products must have.
+     * @var mixed The default sku the resulting products must have.
      */
     public $defaultSku;
 
@@ -100,9 +95,14 @@ class ProductQuery extends ElementQuery
     public $hasVariant;
 
     /**
-     * @var bool Whether the product is available for purchase
+     * @var mixed The Post Date that the resulting products must have.
      */
-    public $availableForPurchase;
+    public $postDate;
+
+    /**
+     * @var int|int[]|null The product type ID(s) that the resulting products must have.
+     */
+    public $typeId;
 
     /**
      * @inheritdoc
@@ -588,7 +588,7 @@ class ProductQuery extends ElementQuery
      */
     protected function statusCondition(string $status)
     {
-        $currentTimeDb = Db::prepareDateForDb(new \DateTime());
+        $currentTimeDb = Db::prepareDateForDb(new DateTime());
 
         switch ($status) {
             case Product::STATUS_LIVE:
@@ -670,12 +670,12 @@ class ProductQuery extends ElementQuery
 
             $variantQuery->limit = null;
             $variantQuery->select('commerce_variants.productId');
-            $productIds = $variantQuery->column();
+            $productIds = $variantQuery->asArray()->column();
 
             // Remove any blank product IDs (if any)
             $productIds = array_filter($productIds);
 
-            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
+            $this->subQuery->andWhere(['commerce_products.id' => array_values($productIds)]);
         }
     }
 

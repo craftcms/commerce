@@ -181,7 +181,7 @@ class TaxZones extends Component
 
             //If this was the default make all others not the default.
             if ($model->default) {
-                TaxZoneRecord::updateAll(['default' => 0], ['not', ['id' => $record->id]]);
+                TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
             }
 
             $transaction->commit();

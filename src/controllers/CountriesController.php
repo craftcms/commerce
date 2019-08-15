@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -19,7 +20,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class CountriesController extends BaseAdminController
+class CountriesController extends BaseStoreSettingsController
 {
     // Public Methods
     // =========================================================================
@@ -30,7 +31,7 @@ class CountriesController extends BaseAdminController
     public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        return $this->renderTemplate('commerce/settings/countries/index',
+        return $this->renderTemplate('commerce/store-settings/countries/index',
             compact('countries'));
     }
 
@@ -42,10 +43,7 @@ class CountriesController extends BaseAdminController
      */
     public function actionEdit(int $id = null, Country $country = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'country' => $country,
-        ];
+        $variables = compact('id', 'country');
 
         if (!$variables['country']) {
             if ($variables['id']) {
@@ -66,7 +64,7 @@ class CountriesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
-        return $this->renderTemplate('commerce/settings/countries/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
     }
 
     /**
@@ -109,7 +107,7 @@ class CountriesController extends BaseAdminController
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
             return $this->asJson(['success' => true]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->asErrorJson($e->getMessage());
         }
     }

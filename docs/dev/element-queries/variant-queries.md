@@ -130,8 +130,8 @@ Possible values include:
 
 ```php
 // Fetch variants created last month
-$start = new \DateTime('first day of next month')->format(\DateTime::ATOM);
-$end = new \DateTime('first day of this month')->format(\DateTime::ATOM);
+$start = (new \DateTime('first day of last month'))->format(\DateTime::ATOM);
+$end = (new \DateTime('first day of this month'))->format(\DateTime::ATOM);
 
 $variants = \craft\commerce\elements\Variant::find()
     ->dateCreated(['and', ">= {$start}", "< {$end}"])
@@ -168,7 +168,7 @@ Possible values include:
 
 ```php
 // Fetch variants updated in the last week
-$lastWeek = new \DateTime('1 week ago')->format(\DateTime::ATOM);
+$lastWeek = (new \DateTime('1 week ago'))->format(\DateTime::ATOM);
 
 $variants = \craft\commerce\elements\Variant::find()
     ->dateUpdated(">= {$lastWeek}")
@@ -356,6 +356,36 @@ $variants = \craft\commerce\elements\Variant::find()
 :::
 
 
+### `maxQty`
+
+Narrows the query results based on the variants’ max quantity.
+
+Possible values include:
+
+| Value | Fetches variants…
+| - | -
+| `100` | with a maxQty of 100.
+| `'>= 100'` | with a maxQty of at least 100.
+| `'< 100'` | with a maxQty of less than 100.
+
+
+
+
+### `minQty`
+
+Narrows the query results based on the variants’ min quantity.
+
+Possible values include:
+
+| Value | Fetches variants…
+| - | -
+| `100` | with a minQty of 100.
+| `'>= 100'` | with a minQty of at least 100.
+| `'< 100'` | with a minQty of less than 100.
+
+
+
+
 ### `offset`
 
 Determines how many variants should be skipped in the results.
@@ -389,14 +419,14 @@ Determines the order that the variants should be returned in.
 ```twig
 {# Fetch all variants in order of date created #}
 {% set variants = craft.variants()
-    .orderBy('elements.dateCreated asc')
+    .orderBy('dateCreated asc')
     .all() %}
 ```
 
 ```php
 // Fetch all variants in order of date created
 $variants = \craft\commerce\elements\Variant::find()
-    ->orderBy('elements.dateCreated asc')
+    ->orderBy('dateCreated asc')
     ->all();
 ```
 :::
@@ -485,7 +515,7 @@ See [Searching](https://docs.craftcms.com/v3/searching.html) for a full explanat
 ::: code
 ```twig
 {# Get the search query from the 'q' query string param #}
-{% set searchQuery = craft.request.getQueryParam('q') %}
+{% set searchQuery = craft.app.request.getQueryParam('q') %}
 
 {# Fetch all variants that match the search query #}
 {% set variants = craft.variants()
@@ -654,6 +684,31 @@ Possible values include:
 // Fetch variants with a title that contains "Foo"
 $variants = \craft\commerce\elements\Variant::find()
     ->title('*Foo*')
+    ->all();
+```
+:::
+
+
+### `trashed`
+
+Narrows the query results to only variants that have been soft-deleted.
+
+
+
+
+
+::: code
+```twig
+{# Fetch trashed variants #}
+{% set variants = {twig-function}
+    .trashed()
+    .all() %}
+```
+
+```php
+// Fetch trashed variants
+$variants = \craft\commerce\elements\Variant::find()
+    ->trashed()
     ->all();
 ```
 :::

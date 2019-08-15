@@ -1,0 +1,160 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+
+    <h2>{{ "Store Location"|t('commerce') }}</h2>
+
+    <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
+
+    <form action="" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="commerce/store-location/save-store-location">
+        {{ redirectInput('commerce/store-settings/location') }}
+        {{ csrfInput() }}
+
+        {% if storeLocation.id %}
+            <input type="hidden" name="id" value="{{ storeLocation.id }}"/>
+        {% endif %}
+
+        {{ forms.textField({
+            label: 'Attention'|t('commerce'),
+            id: 'attention',
+            name: 'attention',
+            placeholder: storeLocation.attention,
+            value: storeLocation.attention,
+            errors: storeLocation.getErrors('attention'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Title'|t('commerce'),
+            id: 'title',
+            name: 'title',
+            placeholder: storeLocation.title,
+            value: storeLocation.title,
+            errors: storeLocation.getErrors('title'),
+        }) }}
+
+
+        {{ forms.textField({
+            label: 'First Name'|t('commerce'),
+            id: 'firstName',
+            name: 'firstName',
+            required: true,
+            placeholder: storeLocation.firstName,
+            value: storeLocation.firstName,
+            errors: storeLocation.getErrors('firstName'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Last Name'|t('commerce'),
+            id: 'lastName',
+            name: 'lastName',
+            required: true,
+            placeholder: storeLocation.lastName,
+            value: storeLocation.lastName,
+            errors: storeLocation.getErrors('lastName'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Company'|t('commerce'),
+            id: 'businessName',
+            name: 'businessName',
+            placeholder: storeLocation.businessName,
+            value: storeLocation.businessName,
+            errors: storeLocation.getErrors('company'),
+        }) }}
+
+        <hr/>
+
+        {{ forms.textField({
+            label: 'Address 1'|t('commerce'),
+            id: 'address1',
+            name: 'address1',
+            required: true,
+            placeholder: storeLocation.address1,
+            value: storeLocation.address1,
+            errors: storeLocation.getErrors('address1'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Address 2'|t('commerce'),
+            id: 'address2',
+            name: 'address2',
+            placeholder: storeLocation.address2,
+            value: storeLocation.address2,
+            errors: storeLocation.getErrors('address2'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'City'|t('commerce'),
+            id: 'city',
+            name: 'city',
+            placeholder: storeLocation.city,
+            value: storeLocation.city,
+            errors: storeLocation.getErrors('city'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Zip Code'|t('commerce'),
+            id: 'zipCode',
+            name: 'zipCode',
+            placeholder: storeLocation.zipCode,
+            value: storeLocation.zipCode,
+            errors: storeLocation.getErrors('zipCode'),
+        }) }}
+
+        <div class="countrySelector field">
+            {{ forms.selectField({
+                label: "Country"|t('commerce'),
+                id: 'countryId',
+                name: 'countryId',
+                value: storeLocation.countryId,
+                options: craft.commerce.countries.allCountriesAsList,
+                errors: storeLocation.getErrors('countryId'),
+                required: true,
+                class: 'fullwidth'
+            }) }}
+        </div>
+
+        {{ forms.selectField({
+            label: 'State'|t('commerce'),
+            id: 'stateValue',
+            name: 'stateValue',
+            value: storeLocation.stateValue,
+            errors: storeLocation.getErrors('stateValue'),
+            class: 'selectize fullwidth'
+        }) }}
+
+        {{ forms.textField({
+            label: 'Phone Number'|t('commerce'),
+            id: 'phone',
+            name: 'phone',
+            placeholder: storeLocation.phone,
+            value: storeLocation.phone,
+            errors: storeLocation.getErrors('phone'),
+        }) }}
+
+        <input type="submit" class="btn submit"
+               value="{{ 'Save'|t('commerce') }}">
+    </form>
+
+    {% js %}
+        window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
+
+        // add any custom state value that could not be in the standard list of states.
+        window.states.push({'name': '{{ storeLocation.stateValue }}', 'id': '{{ storeLocation.stateValue }}'});
+
+        $('#stateValue-field').find('select').selectize({
+            valueField: 'id',
+            create: true,
+            items: ['{{ storeLocation.stateValue }}'],
+            options: window.states,
+            labelField: 'name',
+            searchField: ['name'],
+            dropdownParent: 'body',
+            inputClass: 'selectize-input text',
+            allowEmptyOption: false
+        });
+    {% endjs %}
+{% endblock %}

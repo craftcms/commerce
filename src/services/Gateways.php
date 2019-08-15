@@ -22,14 +22,19 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use DateTime;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use function get_class;
 
 /**
  * Gateway service.
  *
- * @property GatewayInterface[]|array $allFrontEndGateways all frontend enabled gateways
- * @property GatewayInterface[]|array $allGateways all gateways
+ * @property GatewayInterface[] $allFrontEndGateways all frontend enabled gateways
+ * @property GatewayInterface[] $allGateways all gateways
+ * @property GatewayInterface[] $allCustomerEnabledGateways all gateways enabled for the customer
+ * @property array $allSubscriptionGateways
  * @property string[] $allGatewayTypes all registered gateway types
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -194,7 +199,7 @@ class Gateways extends Component
      * Returns a gateway by its handle.
      *
      * @param string $handle
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|GatewayInterface|null The gateway or null if not found.
      */
     public function getGatewayByHandle(string $handle)
     {
@@ -244,11 +249,11 @@ class Gateways extends Component
             $configData = [
                 'name' => $gateway->name,
                 'handle' => $gateway->handle,
-                'type' => \get_class($gateway),
+                'type' => get_class($gateway),
                 'settings' => $gateway->getSettings(),
-                'sortOrder' => $gateway->sortOrder,
+                'sortOrder' => (int)($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => $gateway->isFrontendEnabled,
+                'isFrontendEnabled' => (bool)$gateway->isFrontendEnabled,
             ];
         }
 
@@ -267,7 +272,7 @@ class Gateways extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedGateway(ConfigEvent $event)
     {
@@ -293,7 +298,7 @@ class Gateways extends Component
             $gatewayRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -304,7 +309,7 @@ class Gateways extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleArchivedGateway(ConfigEvent $event)
     {
@@ -315,13 +320,13 @@ class Gateways extends Component
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
 
             $gatewayRecord->isArchived = true;
-            $gatewayRecord->dateArchived = Db::prepareDateForDb(new \DateTime());
+            $gatewayRecord->dateArchived = Db::prepareDateForDb(new DateTime());
 
             // Save the volume
             $gatewayRecord->save(false);
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -442,6 +447,10 @@ class Gateways extends Component
      */
     private function _getGatewayRecord(string $uid): GatewayRecord
     {
-        return GatewayRecord::findOne(['uid' => $uid]) ?? new GatewayRecord();
+        if ($gateway = GatewayRecord::findOne(['uid' => $uid])) {
+            return $gateway;
+        }
+
+        return new GatewayRecord();
     }
 }

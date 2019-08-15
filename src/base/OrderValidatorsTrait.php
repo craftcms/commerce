@@ -3,11 +3,17 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\elements\Order;
+use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
+use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
+/**
+ * @property Order $this
+ */
 trait OrderValidatorsTrait
 {
     /**
@@ -35,6 +41,21 @@ trait OrderValidatorsTrait
         try {
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentSource();
+        } catch (InvalidConfigException $e) {
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
+        }
+    }
+
+    /**
+     * @param $attribute
+     * @param $params
+     * @param Validator $validator
+     */
+    public function validatePaymentCurrency($attribute, $params, Validator $validator)
+    {
+        try {
+            // this will confirm the payment source is valid and belongs to the orders customer
+            $this->getPaymentCurrency();
         } catch (InvalidConfigException $e) {
             $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
         }
@@ -95,30 +116,10 @@ trait OrderValidatorsTrait
      */
     public function validateLineItems($attribute)
     {
-
-        // Ensure no duplicate line items exist, and if they do, combine them.
-        $keysByLineItemId = [];
-        $quantityByLineItemId = [];
-        $idsToRemove = [];
-        foreach ($this->getLineItems() as $lineItem) {
-            $quantityByLineItemId[$lineItem->id] = $lineItem->qty;
-            $uniqueKey = [$lineItem->orderId, $lineItem->purchasableId, $lineItem->getOptionsSignature()];
-            $keysByLineItemId[$lineItem->id] = $uniqueKey;
-            foreach ($keysByLineItemId as $index => $key) {
-                if ($uniqueKey === $key && $index != $lineItem->id) {
-                    $lineItem->qty += $quantityByLineItemId[$index];
-                    $idsToRemove[] = $index;
-                }
-            }
-        }
-
-        foreach ($idsToRemove as $id) {
-            if ($lineItem = Plugin::getInstance()->lineItems->getLineItemById($id)) {
-                $this->removeLineItem($lineItem);
-            }
-        }
+        OrderHelper::mergeDuplicateLineItems($this);
 
         foreach ($this->getLineItems() as $key => $lineItem) {
+            /** @var LineItem $lineItem */
             if (!$lineItem->validate()) {
                 $this->addModelErrors($lineItem, "lineItems.{$key}");
             }

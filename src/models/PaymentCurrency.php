@@ -71,7 +71,7 @@ class PaymentCurrency extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/paymentcurrencies/' . $this->id);
+        return UrlHelper::cpUrl('commerce/store-settings/paymentcurrencies/' . $this->id);
     }
 
     /**

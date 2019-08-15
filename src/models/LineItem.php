@@ -8,20 +8,21 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
+use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use yii\base\InvalidArgumentException;
+use craft\validators\StringValidator;
+use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
 
 /**
@@ -31,6 +32,7 @@ use yii\base\InvalidConfigException;
  * @property string $description the description from the snapshot of the purchasable
  * @property float $discount
  * @property bool $onSale
+ * @property array $options
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -51,7 +53,7 @@ class LineItem extends Model
     // =========================================================================
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
     public $id;
 
@@ -138,7 +140,7 @@ class LineItem extends Model
     /**
      * @var
      */
-    private $_options = [];
+    private $_options;
 
     // Public Methods
     // =========================================================================
@@ -163,11 +165,14 @@ class LineItem extends Model
      */
     public function setOrder(Order $order)
     {
+        $this->orderId = $order->id;
         $this->_order = $order;
     }
 
     /**
-     * Gets the options for the line item.
+     * Returns the options for the line item.
+     *
+     * @return array
      */
     public function getOptions(): array
     {
@@ -181,17 +186,31 @@ class LineItem extends Model
      */
     public function setOptions($options)
     {
-        if (is_string($options)) {
-            $options = Json::decode($options);
-        }
+        $options = Json::decodeIfJson($options);
 
         if (!is_array($options)) {
-            throw new InvalidArgumentException('Options must be an array.');
+            $options = [];
         }
 
-        ksort($options);
+        $cleanEmojiValues = static function(&$options) use (&$cleanEmojiValues) {
+            foreach ($options as $key => $value) {
+                if (is_array($value)) {
+                    $cleanEmojiValues($options[$key]);
+                } else {
+                    if (is_string($value)) {
+                        $options[$key] = LitEmoji::unicodeToShortcode($value);
+                    }
+                }
+            }
 
-        $this->_options = $options;
+            return $options;
+        };
+
+        if (Craft::$app->getDb()->getSupportsMb4()) {
+            $this->_options = $options;
+        } else {
+            $this->_options = $cleanEmojiValues($options);
+        }
     }
 
     /**
@@ -199,7 +218,7 @@ class LineItem extends Model
      */
     public function getOptionsSignature()
     {
-        return md5(Json::encode($this->_options));
+        return LineItemHelper::generateOptionsSignature($this->_options);
     }
 
 
@@ -227,6 +246,7 @@ class LineItem extends Model
                 ], 'required'
             ],
             [['qty'], 'integer', 'min' => 1],
+            [['note'], StringValidator::class, 'disallowMb4' => true],
         ];
 
         if ($this->purchasableId) {
@@ -347,11 +367,11 @@ class LineItem extends Model
     }
 
     /**
-     * @param \craft\commerce\base\Element $purchasable
+     * @param PurchasableInterface $purchasable
      */
-    public function setPurchasable(Element $purchasable)
+    public function setPurchasable(PurchasableInterface $purchasable)
     {
-        $this->purchasableId = $purchasable->id;
+        $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
     }
 
@@ -389,7 +409,8 @@ class LineItem extends Model
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
-        $this->snapshot = array_merge($purchasable->getSnapshot(), $snapshot);
+        $purchasableSnapshot = $purchasable->getSnapshot();
+        $this->snapshot = array_merge($purchasableSnapshot, $snapshot);
 
         $purchasable->populateLineItem($this);
 
@@ -483,8 +504,8 @@ class LineItem extends Model
 
         foreach ($adjustments as $adjustment) {
             // Since the line item may not yet be saved and won't have an ID, we need to check the adjuster references this as it's line item.
-            $hasLineItemId = (bool) $adjustment->lineItemId;
-            $hasLineItem = (bool) $adjustment->getLineItem();
+            $hasLineItemId = (bool)$adjustment->lineItemId;
+            $hasLineItem = (bool)$adjustment->getLineItem();
 
             if (($hasLineItemId && $adjustment->lineItemId == $this->id) || ($hasLineItem && $adjustment->getLineItem() === $this)) {
                 $lineItemAdjustments[] = $adjustment;
@@ -529,8 +550,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getTax(): float
     {
@@ -540,8 +561,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getTaxIncluded(): float
     {
@@ -551,8 +572,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getShippingCost(): float
     {
@@ -562,8 +583,8 @@ class LineItem extends Model
     }
 
     /**
-     * @deprecated since 2.0
      * @return float
+     * @deprecated since 2.0
      */
     public function getDiscount(): float
     {

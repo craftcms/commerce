@@ -24,7 +24,7 @@
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
-                    <label for="gatewayId">Select a payment method:</label>
+                    <label for="paymentMethod">Select a payment method:</label>
                     <select id="paymentMethod" name="paymentMethod" class="form-control">
                         {% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
 
@@ -63,7 +63,7 @@
                             <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
                             {{ cart.gateway.getPaymentFormHtml({})|raw }}
 
-                            {% if cart.gateway.supportsPaymentSources() %}
+                            {% if cart.gateway.supportsPaymentSources() and currentUser %}
                                 <div class="checkbox">
                                     <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases"|t }}</label>
                                 </div><br />
@@ -71,6 +71,13 @@
 
                         {% else %}
                             {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
+                        {% endif %}
+
+                        {% set user = craft.users.email(cart.email).one() %}
+                        {% if not user %}
+                        <label for="registerUserOnOrderComplete">
+                            <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account"|t }}
+                        </label>
                         {% endif %}
 
                         <button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>

@@ -21,8 +21,12 @@ use craft\helpers\Assets;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
+use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Email service.
@@ -132,8 +136,12 @@ class Emails extends Component
      * Save an email.
      *
      * @param Email $email
+     * @param bool $runValidation
      * @return bool
-     * @throws \Exception
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function saveEmail(Email $email, bool $runValidation = true): bool
     {
@@ -165,9 +173,9 @@ class Emails extends Component
             'recipientType' => $email->recipientType,
             'to' => $email->to,
             'bcc' => $email->bcc,
-            'enabled' => $email->enabled,
+            'enabled' => (bool)$email->enabled,
             'templatePath' => $email->templatePath,
-            'attachPdf' => $email->attachPdf,
+            'attachPdf' => (bool)$email->attachPdf,
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
 
@@ -187,7 +195,7 @@ class Emails extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedEmail(ConfigEvent $event)
     {
@@ -212,7 +220,7 @@ class Emails extends Component
 
             $emailRecord->save(false);
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -294,23 +302,23 @@ class Emails extends Component
         $view = Craft::$app->getView();
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
+        $option = 'email';
 
         //sending emails
-        $renderVariables = [
-            'order' => $order,
-            'orderHistory' => $orderHistory
-        ];
+        $renderVariables = compact('order', 'orderHistory', 'option');
 
         $newEmail = new Message();
 
         $originalLanguage = Craft::$app->language;
 
-        if (Plugin::getInstance()->getSettings()->emailSenderAddress) {
-            $newEmail->setFrom(Plugin::getInstance()->getSettings()->emailSenderAddressPlaceholder);
+        $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
+        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
+        if ($emailOverride) {
+            $newEmail->setFrom($emailOverride);
         }
 
-        if (Plugin::getInstance()->getSettings()->emailSenderAddress && Plugin::getInstance()->getSettings()->emailSenderName) {
-            $newEmail->setFrom([Plugin::getInstance()->getSettings()->emailSenderAddress => Plugin::getInstance()->getSettings()->emailSenderName]);
+        if ($nameOverride && $emailOverride) {
+            $newEmail->setFrom([$emailOverride => $nameOverride]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
@@ -438,55 +446,53 @@ class Emails extends Component
             return false;
         }
 
-        if ($email->attachPdf) {
-            if ($path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
-                // Email Body
-                if (!$view->doesTemplateExist($path)) {
-                    $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
-                        'templatePath' => $path,
-                        'email' => $email->name,
-                        'order' => $order->getShortNumber()
-                    ]);
-                    Craft::error($error, __METHOD__);
+        if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
+            // Email Body
+            if (!$view->doesTemplateExist($path)) {
+                $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
+                    'templatePath' => $path,
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber()
+                ]);
+                Craft::error($error, __METHOD__);
 
-                    Craft::$app->language = $originalLanguage;
-                    $view->setTemplateMode($oldTemplateMode);
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
 
-                    return false;
+                return false;
+            }
+
+            try {
+                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, 'email', $path);
+
+                $tempPath = Assets::tempFilePath('pdf');
+
+                file_put_contents($tempPath, $pdf);
+
+                // Get a file name
+                $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
+                $fileName = $view->renderObjectTemplate($filenameFormat, $order);
+                if (!$fileName) {
+                    $fileName = 'Order-' . $order->number;
                 }
 
-                try {
-                    $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, null, $path);
+                // Attachment information
+                $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
+                $newEmail->attach($tempPath, $options);
+            } catch (\Exception $e) {
+                $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                Craft::error($error, __METHOD__);
 
-                    $tempPath = Assets::tempFilePath('pdf');
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
 
-                    file_put_contents($tempPath, $pdf);
-
-                    // Get a file name
-                    $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
-                    $fileName = $view->renderObjectTemplate($filenameFormat, $order);
-                    if (!$fileName) {
-                        $fileName = 'Order-' . $order->number;
-                    }
-
-                    // Attachment information
-                    $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
-                    $newEmail->attach($tempPath, $options);
-                } catch (\Exception $e) {
-                    $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
-                        'email' => $email->name,
-                        'order' => $order->getShortNumber(),
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine()
-                    ]);
-                    Craft::error($error, __METHOD__);
-
-                    Craft::$app->language = $originalLanguage;
-                    $view->setTemplateMode($oldTemplateMode);
-
-                    return false;
-                }
+                return false;
             }
         }
 
@@ -644,7 +650,11 @@ class Emails extends Component
      */
     private function _getEmailRecord(string $uid): EmailRecord
     {
-        return EmailRecord::findOne(['uid' => $uid]) ?? new EmailRecord();
+        if ($email = EmailRecord::findOne(['uid' => $uid])) {
+            return $email;
+        }
+
+        return new EmailRecord();
     }
 
 }

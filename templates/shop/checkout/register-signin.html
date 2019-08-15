@@ -37,8 +37,8 @@
                 </div>
 
                 <div class="field">
-                    <label for="password">Password</label>
-                    <input id="password" class="w-full" type="password" name="password">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" class="w-full" type="password" name="password">
                 </div>
 
                 <div class="field">
@@ -96,8 +96,8 @@
                 </div>
 
                 <div class="field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password">
+                <label for="savePassword">Password</label>
+                <input id="savePassword" type="password" name="password">
 
                 {% if user is defined %}
                 {{ errorList(user.getErrors('password')) }}

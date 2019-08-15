@@ -12,9 +12,14 @@ use craft\base\Element;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
+use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -62,7 +67,7 @@ class ProductsPreviewController extends Controller
      * @return Response
      * @throws Exception
      * @throws HttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionShareProduct($productId, $siteId): Response
     {
@@ -118,10 +123,10 @@ class ProductsPreviewController extends Controller
      * @return Response|null
      * @throws Exception
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\MissingComponentException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
      */
     public function actionSaveProduct()
     {
@@ -181,15 +186,15 @@ class ProductsPreviewController extends Controller
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->id);
+        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
     /**
      * Displays a product.
      *
      * @param Product $product
-     * @throws HttpException
      * @return Response
+     * @throws HttpException
      */
     private function _showProduct(Product $product): Response
     {
@@ -214,7 +219,9 @@ class ProductsPreviewController extends Controller
         Craft::$app->language = $site->language;
 
         // Have this product override any freshly queried products with the same ID/site
-        Craft::$app->getElements()->setPlaceholderElement($product);
+        if ($product->id) {
+            Craft::$app->getElements()->setPlaceholderElement($product);
+        }
 
         $this->getView()->getTwig()->disableStrictVariables();
 

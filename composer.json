@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "2.0.4",
+  "version": "2.1.11",
   "keywords": [
     "cms",
     "craftcms",
@@ -16,14 +16,14 @@
     "issues": "https://github.com/craftcms/commerce/issues?state=open",
     "forum": "https://craftcms.stackexchange.com/",
     "source": "https://github.com/craftcms/commerce",
-    "docs": "https://github.com/craftcms/commerce-docs",
+    "docs": "https://docs.craftcms.com/commerce/v2/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.1.0",
+    "craftcms/cms": "^3.1.20",
     "dompdf/dompdf": "~0.8.2",
     "moneyphp/money": "^3.1.3",
-    "dannyvankooten/vat.php": "^1.1.2",
+    "ibericode/vat": "^1.1.2",
     "phpoffice/phpspreadsheet": "^1.4"
   },
   "autoload": {
@@ -35,6 +35,7 @@
     "handle": "commerce",
     "name": "Craft Commerce",
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
-    "developer": "Pixel & Tonic"
+    "developer": "Pixel & Tonic",
+    "documentationUrl": "https://docs.craftcms.com/commerce/v2/"
   }
 }

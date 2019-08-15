@@ -1,6 +1,12 @@
 {% extends 'shop/_layouts/main' %}
 
+{% set extraHead %}
+{# We don't want the order info indexed by search engines. #}
+<meta name="robots" content="noindex">
+{% endset %}
+
 {% set number = craft.app.request.param('number') %}
+
 {% set order = craft.orders.number(number).one() %}
 
 {% if not order or order.isCompleted == false %}

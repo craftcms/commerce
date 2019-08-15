@@ -9,8 +9,12 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use HttpInvalidParamException;
+use Throwable;
+use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
 
 /**
@@ -27,18 +31,23 @@ class DownloadsController extends BaseFrontEndController
     /**
      * @return Response
      * @throws HttpException
-     * @throws \Throwable
-     * @throws \yii\base\Exception
-     * @throws \yii\web\RangeNotSatisfiableHttpException
+     * @throws Throwable
+     * @throws Exception
+     * @throws RangeNotSatisfiableHttpException
      */
     public function actionPdf(): Response
     {
         $number = Craft::$app->getRequest()->getQueryParam('number');
         $option = Craft::$app->getRequest()->getQueryParam('option', '');
+
+        if (!$number) {
+            throw new HttpInvalidParamException('Order number required');
+        }
+
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
-            throw new HttpException('No Order Found');
+            throw new HttpException('404','Order not found');
         }
 
         $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);

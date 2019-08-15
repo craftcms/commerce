@@ -62,7 +62,7 @@ Returns an array of <api:craft\commerce\models\State> objects.
 
 ```twig
 <select>
-{% for states in craft.commerce.countries %}
+{% for state in craft.commerce.states %}
     <option value="{{ state.id }}">{{ state.name }}</option>
 {% endfor %}
 </select>
@@ -119,7 +119,7 @@ Returns all payment gateway available to the customer.
     <label for="">Payment Method</label>
     <select id="gatewayId" name="gatewayId" class="form-control" >
         {% for id,name in craft.commerce.gateways.allFrontEndGateways %}
-            <option value="{{ id }}" {% if id == cart.paymentMethod.id %}selected{% endif %}>{{ name }}</option>
+            <option value="{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
         {% endfor %}
     </select>
 

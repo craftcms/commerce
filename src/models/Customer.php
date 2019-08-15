@@ -33,7 +33,7 @@ class Customer extends Model
     // =========================================================================
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
     public $id;
 
@@ -103,7 +103,7 @@ class Customer extends Model
         }
 
         if (($user = Craft::$app->getUsers()->getUserById($this->userId)) === null) {
-            throw new InvalidConfigException("Invalid user ID: {$this->userId}");
+            return null; // They are probably soft-deleted
         }
 
         return $this->_user = $user;
@@ -171,7 +171,7 @@ class Customer extends Model
      */
     public function getOrders(): array
     {
-        return Order::find()->customer($this)->isCompleted(true)->all();
+        return Order::find()->customer($this)->isCompleted()->all();
     }
 
     /**

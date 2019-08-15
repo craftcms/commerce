@@ -14,7 +14,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
-use craft\commerce\records\Product as ProductRecord;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
@@ -24,11 +23,12 @@ use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\queue\jobs\ResaveElements;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -152,11 +152,11 @@ class ProductTypes extends Component
     {
         if (null === $this->_editableProductTypeIds) {
             $this->_editableProductTypeIds = [];
-            $allProductTypeIds = $this->getAllProductTypeIds();
+            $allProductTypes = $this->getAllProductTypes();
 
-            foreach ($allProductTypeIds as $productTypeId) {
-                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productTypeId)) {
-                    $this->_editableProductTypeIds[] = $productTypeId;
+            foreach ($allProductTypes as $productType) {
+                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid)) {
+                    $this->_editableProductTypeIds[] = $productType->id;
                 }
             }
         }
@@ -270,7 +270,7 @@ class ProductTypes extends Component
      * @param ProductType $productType The product type model.
      * @param bool $runValidation If validation should be ran.
      * @return bool Whether the product type was saved successfully.
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function saveProductType(ProductType $productType, bool $runValidation = true): bool
     {
@@ -293,6 +293,7 @@ class ProductTypes extends Component
         if ($isNewProductType) {
             $productType->uid = StringHelper::UUID();
         } else {
+            /** @var ProductTypeRecord|null $existingProductTypeRecord */
             $existingProductTypeRecord = ProductTypeRecord::find()
                 ->where(['id' => $productType->id])
                 ->one();
@@ -325,8 +326,7 @@ class ProductTypes extends Component
             'siteSettings' => []
         ];
 
-        $generateLayoutConfig = function (FieldLayout $fieldLayout): array
-        {
+        $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
             $fieldLayoutConfig = $fieldLayout->getConfig();
 
             if ($fieldLayoutConfig) {
@@ -380,7 +380,7 @@ class ProductTypes extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleChangedProductType(ConfigEvent $event)
     {
@@ -448,6 +448,7 @@ class ProductTypes extends Component
 
             $sitesNowWithoutUrls = [];
             $sitesWithNewUriFormats = [];
+            $allOldSiteSettingsRecords = [];
 
             if (!$isNewProductType) {
                 // Get the old product type site settings
@@ -537,7 +538,7 @@ class ProductTypes extends Component
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
-                            // Loop through each of the changed sites and update all of the categories’ slugs and
+                            // Loop through each of the changed sites and update all of the products’ slugs and
                             // URIs
                             foreach ($sitesWithNewUriFormats as $siteId) {
                                 $product = Product::find()
@@ -556,7 +557,7 @@ class ProductTypes extends Component
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -629,7 +630,7 @@ class ProductTypes extends Component
      *
      * @param int $id the product type's ID
      * @return bool Whether the product type was deleted successfully.
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function deleteProductTypeById(int $id): bool
     {
@@ -643,7 +644,7 @@ class ProductTypes extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws \Throwable if reasons
+     * @throws Throwable if reasons
      */
     public function handleDeletedProductType(ConfigEvent $event)
     {
@@ -678,7 +679,7 @@ class ProductTypes extends Component
 
             $productTypeRecord->delete();
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
@@ -784,6 +785,17 @@ class ProductTypes extends Component
     }
 
     /**
+     * Returns a product type by its UID.
+     *
+     * @param string $uid the product type's UID
+     * @return ProductType|null either the product type or `null`
+     */
+    public function getProductTypeByUid(string $uid)
+    {
+        return ArrayHelper::firstWhere($this->getAllProductTypes(), 'uid', $uid, true);
+    }
+
+    /**
      * Returns whether a product type’s products have URLs, and if the template path is valid.
      *
      * @param ProductType $productType The product for which to validate the template.
@@ -828,7 +840,8 @@ class ProductTypes extends Component
                     'productTypes.uid productTypeUid',
                     'producttypes_sites.uriFormat',
                     'producttypes_sites.template',
-                    'producttypes_sites.hasUrls'])
+                    'producttypes_sites.hasUrls'
+                ])
                 ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
                 ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
                 ->where(['siteId' => $event->oldPrimarySiteId])
@@ -893,6 +906,10 @@ class ProductTypes extends Component
      */
     private function _getProductTypeRecord(string $uid): ProductTypeRecord
     {
-        return ProductTypeRecord::findOne(['uid' => $uid]) ?? new ProductTypeRecord();
+        if ($productType = ProductTypeRecord::findOne(['uid' => $uid])) {
+            return $productType;
+        }
+
+        return new ProductTypeRecord();
     }
 }

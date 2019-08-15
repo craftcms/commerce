@@ -49,6 +49,7 @@ class OrderQuery extends ElementQuery
 
     /**
      * @var string The order reference of the resulting order.
+     * @used-by reference()
      */
     public $reference;
 
@@ -112,6 +113,11 @@ class OrderQuery extends ElementQuery
      */
     public $hasTransactions;
 
+    /**
+     * @inheritdoc
+     */
+    protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
+
     // Public Methods
     // =========================================================================
 
@@ -146,6 +152,48 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the {elements}’ last-updated dates.
+     *
+     * @param string|DateTime $value The property value
+     * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
+     */
+    public function updatedAfter($value)
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
+
+        if ($value instanceof DateTime) {
+            $value = $value->format(DateTime::W3C);
+        }
+
+        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
+        $this->dateUpdated[] = '>=' . $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ last-updated dates.
+     *
+     * @param string|DateTime $value The property value
+     * @return static self reference
+     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
+     */
+    public function updatedBefore($value)
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
+
+        if ($value instanceof DateTime) {
+            $value = $value->format(DateTime::W3C);
+        }
+
+        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
+        $this->dateUpdated[] = '<' . $value;
+
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the order number.
      *
      * Possible values include:
@@ -172,10 +220,10 @@ class OrderQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param string|null $value The property value
+     * @param string|array|null $value The property value.
      * @return static self reference
      */
-    public function number(string $value = null)
+    public function number($value = null)
     {
         $this->number = $value;
         return $this;
@@ -299,7 +347,7 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateCompleted(">= #{aWeekAgo}")
+     *     .dateOrdered(">= #{aWeekAgo}")
      *     .all() %}
      * ```
      *
@@ -308,7 +356,7 @@ class OrderQuery extends ElementQuery
      * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
      *
      * ${elements-var} = {php-method}
-     *     ->dateCompleted(">= {$aWeekAgo}")
+     *     ->dateOrdered(">= {$aWeekAgo}")
      *     ->all();
      * ```
      *
@@ -398,48 +446,6 @@ class OrderQuery extends ElementQuery
     public function expiryDate($value)
     {
         $this->expiryDate = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedAfter($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '>=' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ last-updated dates.
-     *
-     * @param string|DateTime $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateUpdated()]] instead.
-     */
-    public function updatedBefore($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateUpdated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateUpdated = ArrayHelper::toArray($this->dateUpdated);
-        $this->dateUpdated[] = '<' . $value;
-
         return $this;
     }
 
@@ -837,7 +843,17 @@ class OrderQuery extends ElementQuery
             'commerce_orders.dateUpdated'
         ]);
 
-        if ($this->number) {
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
+            $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
+        }
+
+        if ($this->number !== null) {
+            // If it's set to anything besides a non-empty string, abort the query
+            if (!is_string($this->number) || $this->number === '') {
+                return false;
+            }
+
             $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
         }
 
@@ -849,7 +865,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email));
         }
 
-        if ($this->isCompleted) {
+        // Allow true ot false but not null
+        if ($this->isCompleted !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted));
         }
 
@@ -881,15 +898,18 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
         }
 
-        if ($this->isPaid) {
+        // Allow true ot false but not null
+        if (($this->isPaid !== null) && $this->isPaid) {
             $this->subQuery->andWhere('commerce_orders.totalPaid >= commerce_orders.totalPrice');
         }
 
-        if ($this->isUnpaid) {
+        // Allow true ot false but not null
+        if (($this->isUnpaid !== null) && $this->isUnpaid) {
             $this->subQuery->andWhere('commerce_orders.totalPaid < commerce_orders.totalPrice');
         }
 
-        if ($this->hasPurchasables) {
+        // Allow true ot false but not null
+        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
             $purchasableIds = [];
 
             if (!is_array($this->hasPurchasables)) {
@@ -911,8 +931,13 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
-        if ($this->hasTransactions) {
-            $this->subQuery->innerJoin('{{%commerce_transactions}} transactions', '[[commerce_orders.id]] = [[transactions.orderId]]');
+        // Allow true ot false but not null
+        if (($this->hasTransactions !== null) && $this->hasTransactions) {
+            $this->subQuery->andWhere([
+                'exists', (new Query())
+                    ->from(['{{%commerce_transactions}} transactions'])
+                    ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
+            ]);
         }
 
         return parent::beforePrepare();

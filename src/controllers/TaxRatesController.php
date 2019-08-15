@@ -39,7 +39,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxZones()->getAllTaxZones();
         $plugin->getTaxCategories()->getAllTaxCategories();
 
-        return $this->renderTemplate('commerce/settings/taxrates/index', [
+        return $this->renderTemplate('commerce/tax/taxrates/index', [
             'taxRates' => $taxRates
         ]);
     }
@@ -52,10 +52,7 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'taxRate' => $taxRate
-        ];
+        $variables = compact('id', 'taxRate');
 
         $plugin = Plugin::getInstance();
 
@@ -107,7 +104,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $countries = $plugin->getCountries()->getAllCountries();
         $states = $plugin->getStates()->getAllStates();
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/settings/taxzones/_fields', [
+            $view->renderTemplate('commerce/tax/taxzones/_fields', [
                 'countries' => ArrayHelper::map($countries, 'id', 'name'),
                 'states' => ArrayHelper::map($states, 'id', 'name')
             ])
@@ -116,7 +113,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/settings/taxcategories/_fields',[
+            $view->renderTemplate('commerce/tax/taxcategories/_fields', [
                 'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
             ])
         );
@@ -124,7 +121,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->setNamespace();
 
-        return $this->renderTemplate('commerce/settings/taxrates/_edit', $variables);
+        return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
 
     /**

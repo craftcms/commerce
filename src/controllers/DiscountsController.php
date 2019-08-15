@@ -18,6 +18,8 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
+use function explode;
+use function get_class;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -58,10 +60,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
-        $variables = [
-            'id' => $id,
-            'discount' => $discount,
-        ];
+        $variables = compact('id', 'discount');
 
         if (!$variables['discount']) {
             if ($variables['id']) {
@@ -105,7 +104,7 @@ class DiscountsController extends BaseCpController
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
-        $discount->code = $request->getBodyParam('code') ?: null;
+        $discount->code = trim($request->getBodyParam('code')) ?: null;
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
@@ -248,7 +247,7 @@ class DiscountsController extends BaseCpController
         $categories = $categoryIds = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
-            $categoryIds = \explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+            $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
         } else {
             $categoryIds = $variables['discount']->getCategoryIds();
         }
@@ -264,7 +263,7 @@ class DiscountsController extends BaseCpController
 
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = \explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+            $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
@@ -279,10 +278,10 @@ class DiscountsController extends BaseCpController
         }
 
         $purchasables = [];
-        foreach ($variables['discount']->getPurchasableIds() as $purchasableId) {
+        foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
             if ($purchasable && $purchasable instanceof PurchasableInterface) {
-                $class = \get_class($purchasable);
+                $class = get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
                 $purchasables[$class][] = $purchasable;
             }

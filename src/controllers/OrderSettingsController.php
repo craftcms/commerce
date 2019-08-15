@@ -47,7 +47,7 @@ class OrderSettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Craft::t('app', 'Order fields saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -42,10 +44,7 @@ class AddressesController extends BaseCpController
      */
     public function actionEdit(int $addressId = null, AddressModel $address = null): Response
     {
-        $variables = [
-            'addressId' => $addressId,
-            'address' => $address,
-        ];
+        $variables = compact('addressId', 'address');
 
         if (!$variables['address']) {
             $variables['address'] = $variables['addressId'] ? Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']) : null;
@@ -65,8 +64,8 @@ class AddressesController extends BaseCpController
 
     /**
      * @return Response
-     * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
@@ -123,6 +122,8 @@ class AddressesController extends BaseCpController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+
+        return null;
     }
 
     /**

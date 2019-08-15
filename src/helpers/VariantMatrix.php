@@ -12,6 +12,7 @@ use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
 use craft\helpers\Json;
+use craft\web\View;
 
 /**
  * Class VariantMatrix
@@ -33,7 +34,7 @@ class VariantMatrix
      */
     public static function getVariantMatrixHtml(ProductElement $product, $name = 'variants'): string
     {
-        /** @var \craft\web\View $viewService */
+        /** @var View $viewService */
         $viewService = Craft::$app->getView();
         $id = $viewService->formatInputId($name);
 

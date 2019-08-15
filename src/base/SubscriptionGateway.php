@@ -26,7 +26,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      *
      * @param Subscription $subscription the subscription to cancel
      *
-     * @return CancelSubscriptionHtml
+     * @return string
      */
     abstract public function getCancelSubscriptionFormHtml(Subscription $subscription): string;
 
@@ -86,5 +86,10 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
         throw new NotImplementedException('This gateway has not implemented subscription reactivation');
     }
 
-
+    /**
+     * @inheritdoc
+     */
+    public function refreshPaymentHistory(Subscription $subscription)
+    {
+    }
 }

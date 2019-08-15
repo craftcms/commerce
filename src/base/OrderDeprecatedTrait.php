@@ -7,8 +7,8 @@ use Craft;
 trait OrderDeprecatedTrait
 {
     /**
-     * @deprecated
      * @return string
+     * @deprecated
      */
     public function getOrderLocale(): string
     {
@@ -18,8 +18,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalTax(): float
     {
@@ -29,19 +29,19 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalTaxIncluded(): float
     {
-        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTax() has been deprecated. Use Order::getAdjustmentsTotalByType("taxIncluded") instead.');
+        Craft::$app->getDeprecator()->log('Order::getTotalTaxIncluded()', 'Order::getTotalTaxIncluded() has been deprecated. Use Order::getAdjustmentsTotalByType("tax", true) instead.');
 
         return $this->getAdjustmentsTotalByType('tax', true);
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalDiscount(): float
     {
@@ -51,8 +51,8 @@ trait OrderDeprecatedTrait
     }
 
     /**
-     * @deprecated
      * @return float
+     * @deprecated
      */
     public function getTotalShippingCost(): float
     {

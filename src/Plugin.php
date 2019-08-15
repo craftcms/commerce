@@ -9,6 +9,7 @@ namespace craft\commerce;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
@@ -16,25 +17,33 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
+use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
+use craft\console\Application as ConsoleApplication;
+use craft\console\Controller as ConsoleController;
+use craft\console\controllers\ResaveController;
 use craft\elements\User as UserElement;
+use craft\events\DefineConsoleActionsEvent;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\redactor\events\RegisterLinkOptionsEvent;
@@ -42,6 +51,7 @@ use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
@@ -84,7 +94,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.0.59';
+    public $schemaVersion = '2.1.06';
 
     /**
      * @inheritdoc
@@ -105,6 +115,7 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     use CommerceServices;
+    use Variables;
     use DeprecatedVariables;
     use Routes;
 
@@ -132,6 +143,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
+        $this->_defineResaveCommand();
     }
 
     /**
@@ -176,19 +188,11 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (count($this->getProductTypes()->getEditableProductTypes()) > 0) {
-            if (Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
-                $ret['subnav']['products'] = [
-                    'label' => Craft::t('commerce', 'Products'),
-                    'url' => 'commerce/products'
-                ];
-            }
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $ret['subnav']['promotions'] = [
-                'label' => Craft::t('commerce', 'Promotions'),
-                'url' => 'commerce/promotions'
+        $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
+        if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+            $ret['subnav']['products'] = [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products'
             ];
         }
 
@@ -199,9 +203,39 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->getIsAdmin() || Craft::$app->getUser()->checkPermission('commerce-manageShipping') || Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
+            $ret['subnav']['promotions'] = [
+                'label' => Craft::t('commerce', 'Promotions'),
+                'url' => 'commerce/promotions'
+            ];
+        }
+
+        if (self::getInstance()->is('pro', '>=')) {
+            if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
+                $ret['subnav']['shipping'] = [
+                    'label' => Craft::t('commerce', 'Shipping'),
+                    'url' => 'commerce/shipping'
+                ];
+            }
+
+            if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+                $ret['subnav']['tax'] = [
+                    'label' => Craft::t('commerce', 'Tax'),
+                    'url' => 'commerce/tax'
+                ];
+            }
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
+            $ret['subnav']['store-settings'] = [
+                'label' => Craft::t('commerce', 'Store Settings'),
+                'url' => 'commerce/store-settings'
+            ];
+        }
+
+        if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
-                'label' => Craft::t('commerce', 'Settings'),
+                'label' => Craft::t('commerce', 'System Settings'),
                 'url' => 'commerce/settings'
             ];
         }
@@ -247,7 +281,7 @@ class Plugin extends BasePlugin
             $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
                 if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:' . $productType->id;
+                    $productSources[] = 'productType:' . $productType->uid;
                 }
             }
 
@@ -278,18 +312,28 @@ class Plugin extends BasePlugin
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             $productTypePermissions = [];
-            foreach ($productTypes as $id => $productType) {
-                $suffix = ':' . $id;
+            foreach ($productTypes as $productType) {
+                $suffix = ':' . $productType->uid;
                 $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
-                'commerce-manageOrders' => ['label' => Craft::t('commerce', 'Manage orders')],
+                'commerce-manageOrders' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                        'commerce-capturePayment' => [
+                            'label' => Craft::t('commerce', 'Capture Payment')
+                        ],
+                        'commerce-refundPayment' => [
+                            'label' => Craft::t('commerce', 'Refund Payment')
+                        ],
+                    ]
+                ],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
+                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
         });
     }
@@ -348,6 +392,9 @@ class Plugin extends BasePlugin
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
 
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+            $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
+        });
     }
 
     /**
@@ -358,6 +405,7 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
+        Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }
 
     /**
@@ -365,7 +413,7 @@ class Plugin extends BasePlugin
      */
     private function _registerFieldTypes()
     {
-        Event::on(Fields::className(), Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
             $event->types[] = Customer::class;
@@ -400,11 +448,11 @@ class Plugin extends BasePlugin
      */
     private function _registerForeignKeysRestore()
     {
-        if (!class_exists(\craft\fixfks\controllers\RestoreController::class)) {
+        if (!class_exists(RestoreController::class)) {
             return;
         }
 
-        Event::on(\craft\fixfks\controllers\RestoreController::class, \craft\fixfks\controllers\RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
+        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
             // Add default FKs
             (new Install())->addForeignKeys();
         });
@@ -444,15 +492,63 @@ class Plugin extends BasePlugin
     private function _registerCacheTypes()
     {
         // create the directory if it doesn't exist
-        FileHelper::createDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
 
-        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) {
+        $path = Craft::$app->getPath()->getRuntimePath() . DIRECTORY_SEPARATOR . 'commerce-order-exports';
+
+        try {
+            FileHelper::createDirectory($path);
+        } catch (\Exception $e) {
+            Craft::error($e->getMessage());
+        }
+
+        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
+
+            try {
+                FileHelper::createDirectory($path);
+            } catch (\Exception $e) {
+                Craft::error($e->getMessage());
+            }
+
             $e->options[] = [
                 'key' => 'commerce-order-exports',
                 'label' => Craft::t('commerce', 'Commerce order exports'),
-                'action' => function() {
-                    FileHelper::clearDirectory(Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . 'commerce-order-exports');
+                'action' => static function() use ($path) {
+                    if (file_exists($path)) {
+                        FileHelper::clearDirectory($path);
+                    }
                 }
+            ];
+        });
+    }
+
+    /**
+     * Defines the `resave/products` command.
+     */
+    private function _defineResaveCommand()
+    {
+        if (
+            !Craft::$app instanceof ConsoleApplication ||
+            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
+        ) {
+            return;
+        }
+
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
+            $e->actions['products'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Product::find();
+                    if ($controller->type !== null) {
+                        $query->type(explode(',', $controller->type));
+                    }
+                    return $controller->saveElements($query);
+                },
+                'options' => ['type'],
+                'helpSummary' => 'Re-saves Commerce products.',
+                'optionsHelp' => [
+                    'type' => 'The product type handle(s) of the products to resave.',
+                ],
             ];
         });
     }

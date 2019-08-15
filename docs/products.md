@@ -42,4 +42,6 @@ When a product is able to have multiple variants, the author can choose which on
 
 Anything that can be added to the cart by a customer is called a [purchasable](purchasables.md).
 
-Third party plugins can provide additional purchasables, but Craft Commerce only provides a single type of purchasable (product variants).
+Third party plugins can provide additional purchasables.
+
+The only purchasables Craft Commerce provides by default are product variants, and a donation purchasable.

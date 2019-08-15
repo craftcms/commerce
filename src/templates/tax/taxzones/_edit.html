@@ -1,0 +1,18 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Tax Zones"|t('commerce'), url: url('commerce/tax/taxzones') },
+] %}
+
+{% set selectedSubnavItem = 'tax' %}
+
+{% set fullPageForm = true %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/tax-zones/save">
+    {{ redirectInput('commerce/tax/taxzones') }}
+    {% if taxZone.id %}<input type="hidden" name="taxZoneId"
+                              value="{{ taxZone.id }}">{% endif %}
+    {% include "commerce/tax/taxzones/_fields" %}
+{% endblock %}

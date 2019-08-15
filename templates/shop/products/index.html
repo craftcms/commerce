@@ -3,7 +3,9 @@
 {% set products = craft.products.limit(5).all() %}
 
 {% block main %}
-    <form method="POST" class="pt-2 pb-8 text-center">
+    <h1>Products</h1>
+
+    <form method="POST" class="text-center">
         <input type="hidden" name="action" value="commerce/cart/update-cart">
         {{ redirectInput('shop/cart') }}
         {{ csrfInput() }}
@@ -17,7 +19,7 @@
     </form>
 
     {% for product in products %}
-        <div class="md:flex product bg-white mb-4 p-8 rounded items-center border-t border-grey-lighter text-center md:text-left">
+        <div class="md:flex product bg-white mb-4 p-8 rounded items-center text-center md:text-left">
             <div class="md:w-1/6 md:p-4">
                 {% include "shop/_images/product" with { number: '3' } %}
             </div>
@@ -75,6 +77,20 @@
             </div>
         </div>
     {% endfor %}
+
+
+    {% set donation = craft.commerce.donation %}
+    {% if donation and donation.isAvailable %}
+    <h1>Donations</h1>
+    <form method="POST" class="pt-2 pb-8 text-center">
+        <input type="hidden" name="action" value="commerce/cart/update-cart">
+        {{ redirectInput('shop/cart') }}
+        {{ csrfInput() }}
+        <input type="hidden" name="purchasableId" value="{{ craft.commerce.donation.id }}">
+        <input type="text" name="options[donationAmount]" value="" placeholder="Donation">
+        <input type="submit" value="Donate Now" />
+    </form>
+    {% endif %}
 
     {% js %}
         $( ".purchasableId" ).change(function(e) {
