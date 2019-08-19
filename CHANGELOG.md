@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+## Fixed
+- Fixed a bug where the orders revenue chart was showing the incorrect currency. ([#792](https://github.com/craftcms/commerce/issues/792))
+
 ## 2.1.12 - 2019-08-15
 
 ### Fixed

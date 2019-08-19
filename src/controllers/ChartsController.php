@@ -69,7 +69,7 @@ class ChartsController extends ElementIndexesController
             'formats' => ChartHelper::formats(),
             'orientation' => Craft::$app->getLocale()->getOrientation(),
             'scale' => $intervalUnit,
-            'localeDefinition' => [
+            'formatLocaleDefinition' => [
                 'currency' => $this->_getLocaleDefinitionCurrency(),
             ],
         ]);
