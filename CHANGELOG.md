@@ -3,7 +3,8 @@
 ## Unreleased
 
 ## Fixed
-- Fixed a bug where the orders revenue chart was showing the incorrect currency. ([#792](https://github.com/craftcms/commerce/issues/792))
+- Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
+- Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 
 ## 2.1.12 - 2019-08-15
 
