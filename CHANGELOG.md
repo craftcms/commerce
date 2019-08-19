@@ -3,16 +3,14 @@
 ## Unreleased
 
 ### Changed
+- Calling `order.pdfUrl` no longer pre-renders the order PDF before returning the download URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
 - Updated Product HUD to align with other elements. ([#418](https://github.com/craftcms/commerce/issues/418))
 
-## Fixed
+### Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed some British message translations.
 - Fixed a JavaScript error when using the Products HUD outside of Commerce.
-
-## Changed
-- Calling `order.pdfUrl` no longer pre-renders the order PDF before returning the download URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
 
 ## 2.1.12 - 2019-08-15
 
