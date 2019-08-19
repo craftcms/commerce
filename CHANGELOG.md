@@ -5,6 +5,7 @@
 ## Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
+- Fixed some British message translations
 
 ## Changed
 - Calling `order.pdfUrl` no longer pre-renders the order PDF before returning the download URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
