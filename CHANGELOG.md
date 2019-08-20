@@ -12,6 +12,7 @@
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed some British message translations.
 - Fixed a JavaScript error when using the Products HUD outside of Commerce.
+- Fixed a bug where Commerce emails were not sending with a From Name ([#939](https://github.com/craftcms/commerce/issues/939))
 
 ## 2.1.12 - 2019-08-15
 
