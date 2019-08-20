@@ -17,6 +17,7 @@ use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use function explode;
 use function get_class;
@@ -128,6 +129,7 @@ class DiscountsController extends BaseCpController
         $percentDiscountAmount = $request->getBodyParam('percentDiscount');
         $localeData = Craft::$app->getLocale();
         $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount, $localeData->id);
         if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
             $discount->percentDiscount = (float)$percentDiscountAmount / -100;
         } else {

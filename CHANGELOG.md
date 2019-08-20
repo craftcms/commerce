@@ -12,6 +12,7 @@
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed some British message translations.
 - Fixed a JavaScript error when using the Products HUD outside of Commerce.
+- Fixed a bug where decimals were being stripped in locales that use commas as separtors ([#592](https://github.com/craftcms/commerce/issues/592)) 
 
 ## 2.1.12 - 2019-08-15
 
