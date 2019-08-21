@@ -7,6 +7,7 @@
 - Updated Product HUD to align with other elements. ([#418](https://github.com/craftcms/commerce/issues/418))
 - Updated Qty and Stock validation to show multiple LineItem errors and out of stock items. ([#546](https://github.com/craftcms/commerce/issues/546))
 - Updated error message on Product validation if there are errors with the variants. ([#953](https://github.com/craftcms/commerce/issues/953))
+- Updated Commerce emails to create Message class from mailer config to be consistent with core.
 
 ### Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
