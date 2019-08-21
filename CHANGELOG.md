@@ -6,6 +6,7 @@
 - Calling `order.pdfUrl` no longer pre-renders the order PDF before returning the download URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
 - Updated Product HUD to align with other elements. ([#418](https://github.com/craftcms/commerce/issues/418))
 - Updated Qty and Stock validation to show multiple LineItem errors and out of stock items ([#546](https://github.com/craftcms/commerce/issues/546))
+- Updated Purchase Total in discounts to allow for decimal values. 
 
 ### Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
