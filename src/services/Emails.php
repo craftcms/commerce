@@ -308,7 +308,8 @@ class Emails extends Component
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option');
 
-        $newEmail = new Message();
+        $mailer = Craft::$app->getMailer();
+        $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
 
