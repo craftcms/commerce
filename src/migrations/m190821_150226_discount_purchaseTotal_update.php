@@ -16,7 +16,6 @@ class m190821_150226_discount_purchaseTotal_update extends Migration
     public function safeUp()
     {
         $this->alterColumn('{{%commerce_discounts}}', 'purchaseTotal', $this->decimal(14, 4));
-        true;
     }
 
     /**
