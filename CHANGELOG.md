@@ -4,18 +4,18 @@
 
 ### Changed
 - Calling `order.pdfUrl` no longer pre-renders the order PDF before returning the download URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
-- Updated Product HUD to align with other elements. ([#418](https://github.com/craftcms/commerce/issues/418))
-- Updated Qty and Stock validation to show multiple LineItem errors and out of stock items. ([#546](https://github.com/craftcms/commerce/issues/546))
-- Updated error message on Product validation if there are errors with the variants. ([#953](https://github.com/craftcms/commerce/issues/953))
-- Updated Commerce emails to create Message class from mailer config to be consistent with core.
 
 ### Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed some British message translations.
 - Fixed a JavaScript error when using the Products HUD outside of Commerce.
+- Fixed a bug where decimals were being stripped in locales that use commas as separtors ([#592](https://github.com/craftcms/commerce/issues/592)) 
+- Fixed a javascript error when displaying the Product editor HUD. ([#418](https://github.com/craftcms/commerce/issues/418))
 - Fixed a bug where sites with a large number of variants might not update properly when updating. ([#964](https://github.com/craftcms/commerce/issues/964))
-- Fixed a bug where Commerce emails were not sending with a From Name ([#939](https://github.com/craftcms/commerce/issues/939))
+- Fixed a PHP error when saving a Product with the editor HUD . ([#958](https://github.com/craftcms/commerce/issues/958))
+- Fixed a bug where the “Purchase Total” discount condition would only save whole numbers. ([#966]()https://github.com/craftcms/commerce/pull/966)
+- Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))
 
 ## 2.1.12 - 2019-08-15
 
@@ -327,7 +327,7 @@
 - Added the Store Location setting.
 - Customers can now save their credit cards or payment sources stored as tokens in Commerce so customers don’t need to enter their card number on subsequent checkouts. ([#21](https://github.com/craftcms/commerce/issues/21))
 - Any custom purchasable can now have sales and discounts applied to them.
-- Sales and discouts can now be set on categories of products or purchasables.
+- Sales and discounts can now be set on categories of products or purchasables.
 - Customers can now set their primary default shipping and billing addresses in their address book.
 - It’s now possible to export orders as CSV, ODS, XSL, and XLSX, from the Orders index page. ([#222](https://github.com/craftcms/commerce/issues/222))
 - Orders can now have custom-formatted, sequential reference numbers. ([#184](https://github.com/craftcms/commerce/issues/184))
