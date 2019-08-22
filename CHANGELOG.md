@@ -8,7 +8,6 @@
 ### Fixed
 - Fixed a bug where the orders revenue chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed a bug where the revenue widget chart wasn't showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
-- Fixed some British message translations.
 - Fixed a bug where decimals were being stripped in locales that use commas as separators ([#592](https://github.com/craftcms/commerce/issues/592)) 
 - Fixed a javascript error when displaying the Product editor HUD. ([#418](https://github.com/craftcms/commerce/issues/418))
 - Fixed a bug where sites with a large number of variants might not update properly when updating. ([#964](https://github.com/craftcms/commerce/issues/964))
