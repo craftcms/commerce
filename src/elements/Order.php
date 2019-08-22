@@ -955,7 +955,6 @@ class Order extends Element
             $this->setBillingAddress($billingAddress);
         }
 
-
         $orderRecord->save(false);
 
         $updateCustomer = false;
@@ -975,10 +974,10 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
+
         $this->_saveAdjustments();
 
         $this->_saveLineItems();
-
 
         if ($this->isCompleted) {
             //creating order history record
@@ -1035,22 +1034,21 @@ class Order extends Element
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @throws Exception
      */
     public function getPdfUrl($option = null)
     {
         $url = null;
+        $view = Craft::$app->getView();
+        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
 
-        try {
-            $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
-            if ($pdf) {
-                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
-                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-                $url = UrlHelper::siteUrl($path);
-            }
-        } catch (\Exception $exception) {
-            Craft::error($exception->getMessage());
+        if (!$file || !$view->doesTemplateExist($file)) {
             return null;
         }
+
+        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+        $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
+        $url = UrlHelper::siteUrl($path);
 
         return $url;
     }
@@ -2095,6 +2093,7 @@ class Order extends Element
             // Don't run validation as validation of the adjustments should happen before saving the order
             Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
+            $adjustment->orderId = $this->id;
         }
 
         foreach ($previousAdjustments as $previousAdjustment) {

@@ -143,6 +143,11 @@ class Settings extends Model
     /**
      * @var bool
      */
+    public $requireShippingMethodSelectionAtCheckout = false;
+
+    /**
+     * @var bool
+     */
     public $autoSetNewCartAddresses = true;
 
     /**

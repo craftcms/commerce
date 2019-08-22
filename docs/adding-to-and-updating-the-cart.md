@@ -174,11 +174,11 @@ in 2 ways:
 
 `<input type="hidden" name="mergeCarts" value="commerce/cart/update-cart">`
 
-2) Instead of calling `{% set cart = craft.commetce.cart.cart %}` in your twig template, call `craft.commetce.cart.mergedCart`.
+2) Instead of calling `{% set cart = craft.commerce.cart.cart %}` in your twig template, call `craft.commetce.cart.mergedCart`.
 
 Please note, using the above two methods will only merge previous carts of a logged-in user and only carts that belong to that user. If the user is a guest, no errors are raised, and everything behaves as normal.
 
-Calling `craft.commetce.cart.mergedCart` which the user is a guest behaves the same way as `craft.commetce.cart.cart`, so there is no harm in using it on most cart pages. 
+Calling `craft.commerce.cart.mergedCart` which the user is a guest behaves the same way as `craft.commetce.cart.cart`, so there is no harm in using it on most cart pages. 
 
 You might not want to use it on final checkout pages, so that customers don't get confused seeing new items in the cart before payment.
 

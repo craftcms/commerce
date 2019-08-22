@@ -635,30 +635,28 @@ class Variant extends Purchasable
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
-                    if (!$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
+                    if (!$this->hasStock()) {
+                        $error = Craft::t('commerce', '"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
                         $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
-                }
-            ],
-            [
-                'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
-                    if ($getQty($lineItem) < $this->minQty) {
+
+                    if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
                         $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
-                }
-            ],
-            [
-                'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
+
                     if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
                         $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
-                }
-            ]
+                },
+            ],
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false]
         ];
     }
 

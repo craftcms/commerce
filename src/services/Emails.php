@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
+use craft\helpers\App;
 use craft\helpers\Assets;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -307,18 +308,20 @@ class Emails extends Component
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option');
 
-        $newEmail = new Message();
+        $mailer = Craft::$app->getMailer();
+        $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
 
-        $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
-        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
-        if ($emailOverride) {
-            $newEmail->setFrom($emailOverride);
+        $craftMailSettings = App::mailSettings();
+        $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
+        $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
+        if ($fromEmail) {
+            $newEmail->setFrom($fromEmail);
         }
 
-        if ($nameOverride && $emailOverride) {
-            $newEmail->setFrom([$emailOverride => $nameOverride]);
+        if ($fromName && $fromEmail) {
+            $newEmail->setFrom([$fromEmail => $fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {

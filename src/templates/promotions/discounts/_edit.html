@@ -198,13 +198,14 @@
             errors: discount.getErrors('categories'),
         }) }}
 
-        {{ forms.textField({
+        {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
-            value: discount.purchaseTotal,
+            value: discount.purchaseTotal != 0 ? discount.purchaseTotal : 0,
             type: 'number',
+            step: 'any',
             errors: discount.getErrors('purchaseTotal'),
         }) }}
 
@@ -245,7 +246,7 @@
             instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t('commerce'),
             id: 'baseDiscount',
             name: 'baseDiscount',
-            value: discount.baseDiscount != 0 ? discount.baseDiscount * -1 : 0,
+            value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('baseDiscount'),
@@ -256,7 +257,7 @@
             instructions: "The flat value which should discount each item in the order. i.e “1” for $1 off."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
-            value: discount.perItemDiscount != 0 ? discount.perItemDiscount * -1 : 0,
+            value: discount.perItemDiscount != 0 ? discount.perItemDiscount : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('perItemDiscount'),
