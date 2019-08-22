@@ -353,7 +353,7 @@ class PaymentsController extends BaseFrontEndController
             }
 
             $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(compact($order, $paymentForm));
+            Craft::$app->getUrlManager()->setRouteParams(compact('order', 'paymentForm'));
 
             return null;
         }
