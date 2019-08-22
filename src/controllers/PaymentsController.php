@@ -349,11 +349,11 @@ class PaymentsController extends BaseFrontEndController
         if (!$success) {
             if ($request->getAcceptsJson()) {
                 // TODO: remame paymentForm to paymentFormErrors on next breaking release.
-                return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
+                return $this->asJson(['error' => $customError, 'order' => $order->getErrors(), 'paymentForm' => $paymentForm->getErrors()]);
             }
 
             $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+            Craft::$app->getUrlManager()->setRouteParams(compact($order, $paymentForm));
 
             return null;
         }
