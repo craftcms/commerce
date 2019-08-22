@@ -14,17 +14,15 @@ use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\elements\Category;
-use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\i18n\Locale;
-use craft\volumes\Local;
-use function explode;
-use function get_class;
 use yii\web\HttpException;
 use yii\web\Response;
+use function explode;
+use function get_class;
 
 /**
  * Class Discounts Controller
@@ -133,7 +131,7 @@ class DiscountsController extends BaseCpController
         $percentDiscountAmount = $request->getBodyParam('percentDiscount');
         $localeData = Craft::$app->getLocale();
         $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount, $localeData->id);
+        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount);
         if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
             $discount->percentDiscount = (float)$percentDiscountAmount / -100;
         } else {
