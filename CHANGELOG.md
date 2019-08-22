@@ -12,6 +12,7 @@
 - Fixed a JavaScript error when using the Products HUD outside of Commerce.
 - Fixed a bug where decimals were being stripped in locales that use commas as separtors ([#592](https://github.com/craftcms/commerce/issues/592)) 
 - Fixed a javascript error when displaying the Product editor HUD. ([#418](https://github.com/craftcms/commerce/issues/418))
+- Fixed a bug where sites with a large number of variants might not update properly when updating. ([#964](https://github.com/craftcms/commerce/issues/964))
 - Fixed a PHP error when saving a Product with the editor HUD . ([#958](https://github.com/craftcms/commerce/issues/958))
 - Fixed a bug where the “Purchase Total” discount condition would only save whole numbers. ([#966]()https://github.com/craftcms/commerce/pull/966)
 - Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))

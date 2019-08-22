@@ -96,7 +96,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
                 <input id="address1" name="shippingAddress[address1]" type="text" value="{{cart.shippingAddress.address1 ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2">
-                <label for="address2" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('address2') %}text-red{% endif %}">Address1</label>
+                <label for="address2" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('address2') %}text-red{% endif %}">Address2</label>
                 <input id="address2" name="shippingAddress[address2]" type="text" value="{{cart.shippingAddress.address2 ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
             </div>
         </div>
