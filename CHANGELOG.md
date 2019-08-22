@@ -16,6 +16,7 @@
 - Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))
 - Fixed a bug where emails would ignore the “From Name” setting. ([#939](https://github.com/craftcms/commerce/issues/939))
 - Fixed a bug where order adjustments were not being returned during PDF rendering. ([#960](https://github.com/craftcms/commerce/issues/960))
+- Fixed a bug where submitting a very long "Order Status Message" would cause and SQL error. ([#629](https://github.com/craftcms/commerce/issues/629))
 
 ## 2.1.12 - 2019-08-15
 
