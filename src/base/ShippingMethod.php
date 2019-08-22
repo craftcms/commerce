@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
+use craft\commerce\events\ModifyShippingPriceEvent;
 
 /**
  * Base ShippingMethod
@@ -20,6 +21,23 @@ use craft\commerce\errors\NotImplementedException;
  */
 abstract class ShippingMethod extends Model implements ShippingMethodInterface
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     *
+     * ```php
+     * use craft\commerce\base\ShippingMethod;
+     * use craft\commerce\events\ModifyShippingPriceEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(ShippingMethod::class, ShippingMethod::EVENT_MODIFY_SHIPPING_PRICE_FOR_ORDER, function(ModifyShippingPriceEvent $e) {
+     *      // Maybe check some business rules and prevent a match from happening in some cases.
+     * });
+     * ```
+     */
+    const EVENT_MODIFY_SHIPPING_PRICE_FOR_ORDER = 'modifyShippingPriceForOrder';
+    
     // Properties
     // =========================================================================
 
@@ -188,7 +206,12 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
             $amount = min($amount, $shippingRule->getMaxRate());
         }
 
-        return $amount;
+        // Raise the 'modifyShippingPriceForOrder' event
+        $event = new ModifyShippingPriceEvent(compact('order', 'shippingRule', 'amount'));
+
+        $this->trigger(self::EVENT_MODIFY_SHIPPING_PRICE_FOR_ORDER, $event);
+
+        return $event->amount;
     }
 
     /**
