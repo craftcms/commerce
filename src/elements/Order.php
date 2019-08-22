@@ -955,7 +955,6 @@ class Order extends Element
             $this->setBillingAddress($billingAddress);
         }
 
-
         $orderRecord->save(false);
 
         $updateCustomer = false;
@@ -975,10 +974,10 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
+
         $this->_saveAdjustments();
 
         $this->_saveLineItems();
-
 
         if ($this->isCompleted) {
             //creating order history record
@@ -2094,6 +2093,7 @@ class Order extends Element
             // Don't run validation as validation of the adjustments should happen before saving the order
             Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
+            $adjustment->orderId = $this->id;
         }
 
         foreach ($previousAdjustments as $previousAdjustment) {

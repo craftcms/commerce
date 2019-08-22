@@ -15,6 +15,7 @@
 - Fixed a bug where the “Purchase Total” discount condition would only save whole numbers. ([#966]()https://github.com/craftcms/commerce/pull/966)
 - Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))
 - Fixed a bug where emails would ignore the “From Name” setting. ([#939](https://github.com/craftcms/commerce/issues/939))
+- Fixed a bug where order adjustments were not being returned during PDF rendering. ([#960](https://github.com/craftcms/commerce/issues/960))
 
 ## 2.1.12 - 2019-08-15
 
