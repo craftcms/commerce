@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.1.12 - 2019-08-22
 
 ### Changed
 - `craft\commerce\elements\Order::getPdfUrl()` no longer pre-renders the order PDF before returning the URL, improving performance. ([#962](https://github.com/craftcms/commerce/issues/962))
@@ -17,10 +17,6 @@
 - Fixed a SQL error that occurred when updating an order status with a very long message. ([#629](https://github.com/craftcms/commerce/issues/629))
 - Fixed a JavaScript error that occurred when displaying product edit HUDs. ([#418](https://github.com/craftcms/commerce/issues/418))
 - Fixed a PHP error that occurred when saving a product from an editor HUD. ([#958](https://github.com/craftcms/commerce/issues/958))
-
-## 2.1.12 - 2019-08-15
-
-### Fixed
 - Fixed an bug where the `requireShippingMethodSelectionAtCheckout` setting was being ignored.
 - Fixed a bug that caused the order revenue chart to display incorrect data. ([#518](https://github.com/craftcms/commerce/issues/518))
 
