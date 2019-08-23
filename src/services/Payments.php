@@ -23,6 +23,9 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\helpers\ConfigHelper;
+use craft\helpers\DateTimeHelper;
+use DateTime;
 use Exception;
 use Throwable;
 use yii\base\Component;
@@ -207,6 +210,39 @@ class Payments extends Component
             }
         } else if (!$gateway->supportsPurchase()) {
             throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support purchase'));
+        }
+
+        // Check transaction against velocity filter if enabled
+        if ($enableVelocityFilter = Plugin::getInstance()->getSettings()->enableVelocityFilter) {
+            $orders = (new Query())
+                ->select(['id'])
+                ->from('{{%commerce_orders}}')
+                ->where(['lastIp' => $order->lastIp])
+                ->all();
+
+            $orderIds = [];
+            foreach ($orders as $row) {
+                $orderIds[] = $row['id'];
+            }
+
+            $window = $this->_velocityFilterWindow();
+
+            $declines = (new Query())
+                ->select(['dateUpdated'])
+                ->from('{{%commerce_transactions}}')
+                ->where(['IN', 'orderId', $orderIds])
+                ->andWhere(['type' => $defaultAction])
+                ->andWhere(['status' => TransactionRecord::STATUS_FAILED])
+                ->andWhere('dateUpdated >= :window', [':window' => $window])
+                ->orderBy(['dateUpdated' => SORT_DESC])
+                ->all();
+
+            if (count($declines) > $maxDeclinedTransactions = Plugin::getInstance()->getSettings()->maxDeclinedTransactions) {
+                // Throw exception if cooldown period hasn't passed since last failed attempt
+                if (DateTimeHelper::currentUTCDateTime() <= $this->_cooldownWindow($declines[0])) {
+                    throw new PaymentException(Craft::t('commerce', 'Unable to make payment at this time.'));
+                }
+            }
         }
 
         //creating order, transaction and request
@@ -595,5 +631,36 @@ class Payments extends Component
         $transaction->message = $response->getMessage();
 
         $this->_saveTransaction($transaction);
+    }
+
+    /**
+     * Provides the start time of the window for declined transactions based on current time
+     *
+     * @return string
+     */
+    private function _velocityFilterWindow(): string
+    {
+        $now = DateTimeHelper::currentUTCDateTime();
+        $duration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->velocityFilterWindowDuration);
+        $interval = DateTimeHelper::secondsToInterval($duration);
+        $start = $now->sub($interval)->format('Y-m-d H:i:s');
+
+        return $start;
+    }
+
+    /**
+     * Provides the end time of the cooldown window based on last failed transaction
+     *
+     * @param array $lastDecline
+     * @return DateTime
+     */
+    private function _cooldownWindow(array $lastDecline): DateTime
+    {
+        $start = DateTimeHelper::toDateTime($lastDecline['dateUpdated'], false, false);
+        $duration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->cooldownDuration);
+        $interval = DateTimeHelper::secondsToInterval($duration);
+        $end = $start->add($interval);
+
+        return $end;
     }
 }
