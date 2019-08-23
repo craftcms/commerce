@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.1.12.1 - 2019-08-23
+
+### Fixed
+- Fixed a PHP error that could occur at checkout. ([#973](https://github.com/craftcms/commerce/pull/973))
+
 ## 2.1.12 - 2019-08-22
 
 ### Changed
