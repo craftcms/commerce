@@ -269,7 +269,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethodId) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethodId()) {
             $customError = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($request->getAcceptsJson()) {
