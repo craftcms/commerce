@@ -170,6 +170,26 @@ class Settings extends Model
      */
     public $gatewaySettings = [];
 
+    /**
+     * @var bool
+     */
+    public $enableVelocityFilter = false;
+
+    /**
+     * @var mixed
+     */
+    public $velocityFilterWindowDuration = 3600;
+
+    /**
+     * @var int
+     */
+    public $maxDeclinedTransactions = 5;
+
+    /**
+     * @var mixed
+     */
+    public $cooldownDuration = 300;
+
     // Public Methods
     // =========================================================================
 
