@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that forced the user to choose a "Tax Category" for order "Taxable Subjects". ([#538](https://github.com/craftcms/commerce/issues/538))
+
 ## 2.1.12 - 2019-08-22
 
 ### Changed
