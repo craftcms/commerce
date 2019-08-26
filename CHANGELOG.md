@@ -4,6 +4,8 @@
 
 ### Fixed
 - Fixed a bug where the "Download PDF" button wouldn't show in Orders. ([#962](https://github.com/craftcms/commerce/issues/962))
+- Fixed a bug where save shortcut didn't work in "General Settings".
+- Fixed a bug where save shortcut didn't work in "Store Location" settings.
 
 ## 2.1.12.1 - 2019-08-23
 
