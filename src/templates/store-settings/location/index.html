@@ -8,7 +8,7 @@
 
     <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
 
-    <form action="" method="post" accept-charset="UTF-8">
+    <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
         <input type="hidden" name="action" value="commerce/store-location/save-store-location">
         {{ redirectInput('commerce/store-settings/location') }}
         {{ csrfInput() }}
