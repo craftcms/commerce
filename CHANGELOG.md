@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where the "Download PDF" button wouldn't show in Orders. ([#962](https://github.com/craftcms/commerce/issues/962))
+
 ## 2.1.12.1 - 2019-08-23
 
 ### Fixed
