@@ -239,11 +239,6 @@ class Settings extends Model
             [
                 ['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'],
                 'required'
-            ],
-            [
-                ['emailSenderAddress'],
-                'email',
-                'skipOnEmpty' => true // Allow the email to be blank, it then defaults to the system email
             ]
         ];
     }
