@@ -53,7 +53,7 @@ class Reports extends Component
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function getOrdersExportFile($format, $startDate, $endDate, $orderStatusId = null)
+    public function getOrdersExportFile($format, $startDate, $endDate, $orderStatusId = null, $paidStatus = null)
     {
         $columns = [
             'id',
@@ -97,6 +97,10 @@ class Reports extends Component
             $orderQuery->andWhere('orderStatusId = :id', [':id' => $status->id]);
         }
 
+        if ($paidStatus) {
+            $orderQuery->andWhere('paidStatus = :paidStatus', [':paidStatus' => $paidStatus]);
+        }
+
         $orders = $orderQuery->all();
 
         // Raise the beforeGenerateExport event
@@ -108,6 +112,7 @@ class Reports extends Component
             'columns' => $columns,
             'orders' => $orders,
             'format' => $format,
+            'paidStatus' => $paidStatus,
         ]);
         $this->trigger(self::EVENT_BEFORE_GENERATE_EXPORT, $event);
 
