@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use craft\commerce\elements\Order;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
@@ -88,11 +89,18 @@ class DownloadsController extends BaseFrontEndController
             $sourceHandle = explode(':', $source)[1];
         }
 
+        $paidStatus = null;
+
+        // Check to see if we're filtering by paid statuses
+        if (in_array($source, [Order::PAID_STATUS_PAID, Order::PAID_STATUS_UNPAID, Order::PAID_STATUS_PARTIAL])) {
+            $paidStatus = $source;
+        }
+
         // null order status is ok, will then find all order statuses
         $orderStatusId = isset($sourceHandle) ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusByHandle($sourceHandle)->id : null;
 
         // Get the generated file saved into a temporary location
-        $tempFile = Plugin::getInstance()->getReports()->getOrdersExportFile($format, $startDate, $endDate, $orderStatusId);
+        $tempFile = Plugin::getInstance()->getReports()->getOrdersExportFile($format, $startDate, $endDate, $orderStatusId, $paidStatus);
 
         return Craft::$app->getResponse()->sendFile($tempFile, 'orders.' . $format);
     }
