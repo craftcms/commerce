@@ -27,4 +27,5 @@ class ReportEvent extends Event
     public $columns;
     public $orders;
     public $format;
+    public $paidStatus;
 }
