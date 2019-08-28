@@ -21,7 +21,7 @@
 
 {% if currentUser.can('commerce-manageStoreSettings') and craft.commerce.is('lite') %}
 {% set navItems = navItems|merge({
-    'taxandshipping-heading': { heading: "Tax & Shipping"|t('commerce'), minEdition: 'lite' },
+    'taxandshipping-heading': { heading: "Tax & Shipping (Lite)"|t('commerce'), minEdition: 'lite' },
     'shipping': { title: "Shipping"|t('commerce'), minEdition: 'lite' },
     'tax': { title: "Tax"|t('commerce'), minEdition: 'lite' },
 }) %}

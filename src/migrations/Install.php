@@ -209,7 +209,7 @@ class Install extends Migration
             'totalUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
-            'purchaseTotal' => $this->integer()->notNull()->defaultValue(0),
+            'purchaseTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),

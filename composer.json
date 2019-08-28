@@ -23,7 +23,8 @@
     "craftcms/cms": "^3.2.0",
     "dompdf/dompdf": "^0.8.3",
     "moneyphp/money": "^3.2.1",
-    "ibericode/vat": "^1.1.2"
+    "ibericode/vat": "^1.1.2",
+    "phpoffice/phpspreadsheet": "^1.4"
   },
   "autoload": {
     "psr-4": {

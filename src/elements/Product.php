@@ -584,7 +584,6 @@ class Product extends Element
     {
         $viewService = Craft::$app->getView();
         $html = $viewService->renderTemplateMacro('commerce/products/_fields', 'titleField', [$this]);
-        $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'generalMetaFields', [$this]);
         $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
         $html .= parent::getEditorHtml();
 
@@ -807,7 +806,7 @@ class Product extends Element
     public function afterValidate()
     {
         if (!Model::validateMultiple($this->getVariants())) {
-            $this->addError(null); // add an empty error to prevent saving
+            $this->addError('variants', Craft::t('commerce', 'Error saving variants'));
         }
         parent::afterValidate();
     }

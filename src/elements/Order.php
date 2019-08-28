@@ -38,12 +38,12 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\web\View;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -51,6 +51,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
+use yii\db\StaleObjectException;
 use yii\log\Logger;
 
 /**
@@ -743,7 +744,7 @@ class Order extends Element
         }
 
         // Better default for carts if the base currency changes (usually only happens in development)
-        if(!$this->isCompleted && $this->paymentCurrency && !Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->paymentCurrency)) {
+        if (!$this->isCompleted && $this->paymentCurrency && !Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->paymentCurrency)) {
             $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
 
@@ -1413,7 +1414,6 @@ class Order extends Element
             $this->setBillingAddress($billingAddress);
         }
 
-
         $orderRecord->save(false);
 
         $updateCustomer = false;
@@ -1433,10 +1433,10 @@ class Order extends Element
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
         }
+
         $this->_saveAdjustments();
 
         $this->_saveLineItems();
-
 
         if ($this->isCompleted) {
             //creating order history record
@@ -1493,22 +1493,25 @@ class Order extends Element
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @throws Exception
      */
     public function getPdfUrl($option = null)
     {
         $url = null;
+        $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
 
-        try {
-            $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($this, $option);
-            if ($pdf) {
-                $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
-                $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-                $url = UrlHelper::siteUrl($path);
-            }
-        } catch (\Exception $exception) {
-            Craft::error($exception->getMessage());
+        if (!$file || !$view->doesTemplateExist($file)) {
+            $view->setTemplateMode($oldTemplateMode);
             return null;
         }
+        $view->setTemplateMode($oldTemplateMode);
+
+        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+        $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
+        $url = UrlHelper::siteUrl($path);
 
         return $url;
     }
@@ -1537,8 +1540,8 @@ class Order extends Element
     /**
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
      *
-     * @throws InvalidConfigException
      * @return string|null
+     * @throws InvalidConfigException
      */
     public function getEmail()
     {
@@ -1637,17 +1640,17 @@ class Order extends Element
     {
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_PAID:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
+            }
             case self::PAID_STATUS_PARTIAL:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
+            }
             case self::PAID_STATUS_UNPAID:
-                {
-                    return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
-                }
+            {
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
+            }
         }
 
         return '';
@@ -2212,7 +2215,7 @@ class Order extends Element
      * @return null
      * @throws Exception
      * @throws Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws StaleObjectException
      */
     private function _saveAdjustments()
     {
@@ -2226,6 +2229,7 @@ class Order extends Element
             // Don't run validation as validation of the adjustments should happen before saving the order
             Plugin::getInstance()->getOrderAdjustments()->saveOrderAdjustment($adjustment, false);
             $newAdjustmentIds[] = $adjustment->id;
+            $adjustment->orderId = $this->id;
         }
 
         foreach ($previousAdjustments as $previousAdjustment) {

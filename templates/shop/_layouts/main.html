@@ -151,13 +151,15 @@
                     var orderTotalPriceChanged = (data.cart.totalPrice != '{{ cart.totalPrice }}');
                     if(orderNumberChanged || orderTotalChanged || orderTotalPriceChanged){
                         console.log({'orderNumberChanged' : orderNumberChanged, 'orderTotalChanged' : orderTotalChanged, 'orderTotalPriceChanged': orderTotalPriceChanged});
-                        console.log('Reloading the page as the cart has changed');
-                        alert("Your cart has been updated, reloading the page.");
-                        location.reload(true);
+                        console.log('Order changed.');
+                        var r = confirm("Your cart has been updated elsewhere, reload the page?");
+                        if (r == true) {
+                          location.reload(true);
+                        }
                     }else{
-                        console.log('Commerce example templates : Nothing changed, checking again in 10 seconds.');
+                        console.log('Commerce example templates : Nothing changed, checking again in 30 seconds.');
                     }
-                    setTimeout(doPoll,10000);
+                    setTimeout(doPoll,30000);
                 },
                 dataType: 'json'
             });
