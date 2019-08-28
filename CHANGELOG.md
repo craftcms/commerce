@@ -3,7 +3,15 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where the "Download PDF" button wouldn't show in Orders. ([#962](https://github.com/craftcms/commerce/issues/962))
+- Fixed a bug where save shortcut didn't work in "General Settings".
+- Fixed a bug where save shortcut didn't work in "Store Location" settings.
 - Fixed a bug that forced the user to choose a "Tax Category" for order "Taxable Subjects". ([#538](https://github.com/craftcms/commerce/issues/538))
+
+## 2.1.12.1 - 2019-08-23
+
+### Fixed
+- Fixed a PHP error that could occur at checkout. ([#973](https://github.com/craftcms/commerce/pull/973))
 
 ## 2.1.12 - 2019-08-22
 
