@@ -682,7 +682,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'taxZoneId' => $this->integer(),
             'isEverywhere' => $this->boolean(),
-            'taxCategoryId' => $this->integer()->notNull(),
+            'taxCategoryId' => $this->integer()->null(),
             'name' => $this->string()->notNull(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean(),

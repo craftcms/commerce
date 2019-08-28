@@ -42,8 +42,10 @@
                          {{ 'Everywhere'|t('commerce') }}
                         {% endif %}
                     </td>
-                    <td data-title="{{ 'Tax Category'|t('commerce') }}"><a
-                                href="{{ taxRate.taxCategory.cpEditUrl }}">{{ taxRate.taxCategory.name }}</a>
+                    <td data-title="{{ 'Tax Category'|t('commerce') }}">
+                        {% if taxRate.taxCategory %}
+                            <a href="{{ taxRate.taxCategory.cpEditUrl }}">{{ taxRate.taxCategory.name }}</a>
+                        {% endif %}
                     </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
