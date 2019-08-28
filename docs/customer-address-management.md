@@ -6,6 +6,8 @@ If the customer is a guest, they have no need to manage an address book.
 
 Customers can only add and remove addresses from the front-end while they are logged in.
 
+See <api:craft\commerce\models\Customer> to learn about the methods available to retrieve customer address data e.g. <api:craft\commerce\models\Customer::getPrimaryBillingAddress()>, <api:craft\commerce\models\Customer::getPrimaryShippingAddress()> and <api:craft\commerce\models\Customer::getAddressById()>.
+
 ## Get all addresses belonging to the current customer
 
 ```twig
