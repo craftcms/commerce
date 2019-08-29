@@ -30,6 +30,7 @@ use yii\db\Connection;
  * @replace {myElement} myVariant
  * @replace {element-class} \craft\commerce\elements\Variant
  * @supports-site-params
+ * @supports-status-param
  * @supports-title-param
  */
 class VariantQuery extends ElementQuery
