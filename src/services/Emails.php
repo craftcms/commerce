@@ -312,10 +312,14 @@ class Emails extends Component
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
-
         $craftMailSettings = App::mailSettings();
+
         $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
+        $fromEmail = Craft::parseEnv($fromEmail);
+
         $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
+        $fromName = Craft::parseEnv($fromName);
+
         if ($fromEmail) {
             $newEmail->setFrom($fromEmail);
         }
