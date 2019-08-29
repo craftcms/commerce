@@ -890,6 +890,15 @@ class OrdersController extends Controller
             $order->customerId = $customer->id;
         }
 
+        // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
+        try {
+            $order->getPaymentSource();
+            $order->getGateway();
+        } catch (\Exception $e) {
+            $order->paymentSourceId = null;
+            $order->gatewayId = null;
+        }
+
         $lineItems = [];
         $adjustments = [];
 
