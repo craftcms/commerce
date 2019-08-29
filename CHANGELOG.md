@@ -8,6 +8,7 @@
 - Fixed a bug where save shortcut didn’t work in "Store Location" settings.
 - Fixed a bug that forced the user to choose a "Tax Category" for order "Taxable Subjects". ([#538](https://github.com/craftcms/commerce/issues/538))
 - Fixed a bug where a variants’ status was being overridden by the owner product status. ([#926](https://github.com/craftcms/commerce/issues/926))
+- Fixed a bug where a payment source that was originally used to pay for the order would incorrectly be used when making new payments from the CP. ([#891](https://github.com/craftcms/commerce/issues/891))
 
 ## 2.1.12.1 - 2019-08-23
 

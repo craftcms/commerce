@@ -587,6 +587,12 @@ class Order extends Element
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
+
+                // We need to remove the payment source from the order now that it's paid
+                // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
+                // Payment information is still stored in the transactions.
+                $this->paymentSourceId = null;
+
                 $this->markAsComplete();
             }
         }
