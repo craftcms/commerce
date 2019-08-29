@@ -29,7 +29,7 @@ return [
 ];
 ```
 
-Here’s the full list of config settings that Craft supports:
+Here’s the full list of config settings that Commerce supports:
 
 ## `pdfAllowRemoteImages`
 
