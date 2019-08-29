@@ -46,6 +46,7 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\web\View;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -1040,11 +1041,15 @@ class Order extends Element
     {
         $url = null;
         $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
         $file = Plugin::getInstance()->getSettings()->orderPdfPath;
 
         if (!$file || !$view->doesTemplateExist($file)) {
+            $view->setTemplateMode($oldTemplateMode);
             return null;
         }
+        $view->setTemplateMode($oldTemplateMode);
 
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
         $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
