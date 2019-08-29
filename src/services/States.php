@@ -111,11 +111,6 @@ class States extends Component
 
         foreach ($states as $state) {
             $cid2state += [$state->countryId => []];
-
-            if (!count($cid2state[$state->countryId])) {
-                $cid2state[$state->countryId][null] = '';
-            }
-
             $cid2state[$state->countryId][$state->id] = $state->name;
         }
 
