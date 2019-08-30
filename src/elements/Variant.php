@@ -814,30 +814,28 @@ class Variant extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        if ($this->getProduct() && !$this->getProduct()->availableForPurchase) {
+        $product = $this->getProduct();
+
+        if (!$product) {
             return false;
         }
 
+        // is the parent product available for sale?
+        if (!$product->availableForPurchase) {
+            return false;
+        }
+
+        // is the variant enabled?
         if ($this->getStatus() !== Element::STATUS_ENABLED) {
             return false;
         }
 
-        return $this->stock >= 1 || $this->hasUnlimitedStock;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getStatus()
-    {
-        $status = parent::getStatus();
-
-        $productStatus = $this->getProduct()->getStatus();
-        if ($productStatus != Product::STATUS_LIVE) {
-            return Element::STATUS_DISABLED;
+        // is parent product enabled?
+        if ($product->getStatus() !== Product::STATUS_LIVE) {
+            return false;
         }
 
-        return $status;
+        return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
     /**

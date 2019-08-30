@@ -2,11 +2,18 @@
 
 ## Unreleased
 
+### Changed
+- "Status Email Address" and "From Name" settings now accept environment variables.
+
 ### Fixed
 - Fixed a bug where the "Download PDF" button wouldn't show in Orders. ([#962](https://github.com/craftcms/commerce/issues/962))
-- Fixed a bug where save shortcut didn't work in "General Settings".
-- Fixed a bug where save shortcut didn't work in "Store Location" settings.
+- Fixed a bug where save shortcut didn’t work in "General Settings".
+- Fixed a bug where save shortcut didn’t work in "Store Location" settings.
 - Fixed a bug that forced the user to choose a "Tax Category" for order "Taxable Subjects". ([#538](https://github.com/craftcms/commerce/issues/538))
+- Fixed a bug where a variants’ status was being overridden by the owner product status. ([#926](https://github.com/craftcms/commerce/issues/926))
+- Fixed a bug where a payment source that was originally used to pay for the order would incorrectly be used when making new payments from the CP. ([#891](https://github.com/craftcms/commerce/issues/891))
+- Fixed a bug where products did not have their shipping or tax category updated when those categories removed themselves as available to that product’s tyoe. ([#688](https://github.com/craftcms/commerce/issues/688))
+- Fixed a PHP error that occurred when entering an order description format on a product type longer than 255 characters. ([#989](https://github.com/craftcms/commerce/issues/989))
 
 ## 2.1.12.1 - 2019-08-23
 
