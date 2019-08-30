@@ -831,7 +831,7 @@ class Variant extends Purchasable
         }
 
         // is parent product enabled?
-        if ($product->getStatus() !== Element::STATUS_ENABLED) {
+        if ($product->getStatus() !== Product::STATUS_LIVE) {
             return false;
         }
 
