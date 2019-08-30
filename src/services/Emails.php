@@ -19,9 +19,11 @@ use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\App;
 use craft\helpers\Assets;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
+use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -304,6 +306,14 @@ class Emails extends Component
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
         $option = 'email';
+
+        // Make sure date vars are in the correct format
+        $dateFields = ['dateOrdered', 'datePaid'];
+        foreach ($dateFields as $dateField) {
+            if (isset($order->{$dateField}) && !($order->{$dateField} instanceof DateTime) && $order->{$dateField}) {
+                $order->{$dateField} = DateTimeHelper::toDateTime($order->{$dateField});
+            }
+        }
 
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option');
