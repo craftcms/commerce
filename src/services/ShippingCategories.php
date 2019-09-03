@@ -8,9 +8,12 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -195,6 +198,33 @@ class ShippingCategories extends Component
         // If this was the default make all others not the default.
         if ($shippingCategory->default) {
             ShippingCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
+        }
+
+        // Product type IDs this shipping category is available to
+        $currentProductTypeIds = (new Query())
+            ->select(['productTypeId'])
+            ->from(['{{%commerce_producttypes_shippingcategories}}'])
+            ->where(['shippingCategoryId' => $shippingCategory->id])
+            ->column();
+
+        // Newly set product types this shipping category is available to
+        $newProductTypeIds = ArrayHelper::getColumn($shippingCategory->getProductTypes(), 'id');
+
+        foreach ($currentProductTypeIds as $oldProductTypeId) {
+            // If we are removing a product type for this shipping category the products of that type should be re-saved
+            if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
+                // Re-save all products that no longer have this shipping category available to them
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Product::class,
+                    'criteria' => [
+                        'typeId' => $oldProductTypeId,
+                        'siteId' => '*',
+                        'unique' => true,
+                        'status' => null,
+                        'enabledForSite' => false,
+                    ]
+                ]));
+            }
         }
 
         // Remove existing Categories <-> ProductType relationships

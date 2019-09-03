@@ -8,10 +8,12 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\elements\Product;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -211,6 +213,33 @@ class TaxCategories extends Component
         // If this was the default make all others not the default.
         if ($taxCategory->default) {
             TaxCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
+        }
+
+        // Product type IDs this tax category is available to
+        $currentProductTypeIds = (new Query())
+            ->select(['productTypeId'])
+            ->from(['{{%commerce_producttypes_taxcategories}}'])
+            ->where(['taxCategoryId' => $taxCategory->id])
+            ->column();
+
+        // Newly set product types this tax category is available to
+        $newProductTypeIds = ArrayHelper::getColumn($taxCategory->getProductTypes(), 'id');
+
+        foreach ($currentProductTypeIds as $oldProductTypeId) {
+            // If we are removing a product type for this tax category the products of that type should be re-saved
+            if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
+                // Re-save all products that no longer have this tax category available to them
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Product::class,
+                    'criteria' => [
+                        'typeId' => $oldProductTypeId,
+                        'siteId' => '*',
+                        'unique' => true,
+                        'status' => null,
+                        'enabledForSite' => false,
+                    ]
+                ]));
+            }
         }
 
         // Remove existing Categories <-> ProductType relationships

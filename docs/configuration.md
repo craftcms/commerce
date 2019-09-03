@@ -1,6 +1,35 @@
 # General Configuration
 
-In addition to the settings available in Commerce → Settings, the config items below can be placed into a `commerce.php` file in your `craft/config/` folder:
+In addition to the settings available in Commerce → Settings, the config items below can be placed into a `commerce.php` file in your `craft/config/` folder. Use the same format as `config/general.php`. You may define it in one of the environment config arrays, depending on which environment(s) you want the setting to apply to.
+
+For example, if you want to change the Commerce inactive carts duration in dev environments, but not on staging or production environments, do this:
+
+```php{4,10}
+return [
+    // Global settings
+    '*' => [
+        // ...
+    ],
+
+    // Dev environment settings
+    'dev' => [
+        'purgeInactiveCartsDuration' => P1D,
+        // ...
+    ],
+
+    // Staging environment settings
+    'staging' => [
+        // ...
+    ],
+
+    // Production environment settings
+    'production' => [
+        // ...
+    ],
+];
+```
+
+Here’s the full list of config settings that Commerce supports:
 
 ## `pdfAllowRemoteImages`
 

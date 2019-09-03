@@ -245,7 +245,6 @@ class LineItem extends Model
                     'shippingCategoryId'
                 ], 'required'
             ],
-            [['qty'], 'integer', 'min' => 1],
             [['note'], StringValidator::class, 'disallowMb4' => true],
         ];
 

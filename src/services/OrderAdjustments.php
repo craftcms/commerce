@@ -143,15 +143,15 @@ class OrderAdjustments extends Component
         $record->included = $orderAdjustment->included;
         $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
         $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
-        $record->orderId = $orderAdjustment->getOrder()->id;
+        $record->orderId = $orderAdjustment->getOrder()->id ?? null;
         $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
 
         $record->save(false);
 
-        // Now that we have an ID, save it on the model
-        if ($isNewOrderAdjustment) {
-            $orderAdjustment->id = $record->id;
-        }
+        // Update the model with the latest IDs
+        $orderAdjustment->id = $record->id;
+        $orderAdjustment->orderId = $record->orderId;
+        $orderAdjustment->lineItemId = $record->lineItemId;
 
         return true;
     }

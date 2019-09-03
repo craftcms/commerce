@@ -68,7 +68,7 @@
                         var chartDataTable = new Craft.charts.DataTable(response.dataTable);
 
                         var chartSettings = {
-                            localeDefinition: response.localeDefinition,
+                            formatLocaleDefinition: response.formatLocaleDefinition,
                             orientation: response.orientation,
                             formats: response.formats,
                             dataScale: response.scale

@@ -8,13 +8,14 @@
 
     <h2>{{ "General Settings"|t('commerce') }}</h2>
 
-    <form action="" method="post" accept-charset="UTF-8">
+    <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
         <input type="hidden" name="action" value="commerce/settings/save-settings">
         {{ redirectInput('commerce/settings/general') }}
         {{ csrfInput() }}
 
         <h3>{{ 'Email'|t('commerce') }}</h3>
-        {{ forms.textField({
+        {{ forms.autosuggestField({
+            first: true,
             label: 'Status Email Address'|t('commerce'),
             instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
             id: 'emailSenderAddress',
@@ -22,9 +23,11 @@
             placeholder: settings.emailSenderAddressPlaceholder,
             value: settings.emailSenderAddress,
             errors: settings.getErrors('emailSenderAddress'),
+            suggestEnvVars: true,
+            autofocus: true,
         }) }}
 
-        {{ forms.textField({
+        {{ forms.autosuggestField({
             label: 'From Name'|t('commerce'),
             instructions: 'The "From" name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
             id: 'emailSenderName',
@@ -32,6 +35,8 @@
             placeholder: settings.emailSenderNamePlaceholder,
             value: settings.emailSenderName,
             errors: settings.getErrors('emailSenderName'),
+            suggestEnvVars: true,
+            autofocus: true,
         }) }}
 
         <h3>{{ 'Units'|t('commerce') }}</h3>

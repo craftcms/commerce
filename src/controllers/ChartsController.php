@@ -34,8 +34,8 @@ class ChartsController extends ElementIndexesController
         $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
         $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');
 
-        $startDate = DateTimeHelper::toDateTime($startDateParam);
-        $endDate = DateTimeHelper::toDateTime($endDateParam);
+        $startDate = DateTimeHelper::toDateTime($startDateParam, true);
+        $endDate = DateTimeHelper::toDateTime($endDateParam, true);
         $endDate->modify('+1 day');
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
@@ -61,7 +61,7 @@ class ChartsController extends ElementIndexesController
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($currency));
 
-        return $this->asJson([
+        $data =  $this->asJson([
             'dataTable' => $dataTable,
             'total' => $total,
             'totalHtml' => $totalHtml,
@@ -69,10 +69,12 @@ class ChartsController extends ElementIndexesController
             'formats' => ChartHelper::formats(),
             'orientation' => Craft::$app->getLocale()->getOrientation(),
             'scale' => $intervalUnit,
-            'localeDefinition' => [
+            'formatLocaleDefinition' => [
                 'currency' => $this->_getLocaleDefinitionCurrency(),
             ],
         ]);
+
+        return $data;
     }
 
     // Private Methods
