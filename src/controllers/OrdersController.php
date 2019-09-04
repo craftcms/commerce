@@ -376,12 +376,18 @@ class OrdersController extends Controller
 
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['[[customers.id]] as customerId', '[[orders.email]] as email', 'count([[orders.id]]) as totalOrders', '[[customers.userId]] as userId', '[[users.firstName]] as firstName', '[[users.lastName]] as lastName'])
+            ->select([
+                '[[customers.id]] as customerId',
+                '[[orders.email]] as email',
+                '[[users.id]] as userId',
+                'count([[orders.id]]) as totalOrders',
+            ])
             ->from('{{%commerce_customers}} customers')
-            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]');
+        ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+        ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+        ->groupBy(['customerId', 'email', 'userId']);
 
-        // Are they searching for a purchasable ID?
+        // Are they searching for a customer ID?
         $results = [];
         if (is_numeric($query)) {
             $result = $sqlQuery->where(['[[customers.id]]' => $query])->one();
@@ -390,7 +396,7 @@ class OrdersController extends Controller
             }
         }
 
-        // Are they searching for a SKU or purchasable description?
+        // Are they searching for an email address?
         if (!is_numeric($query)) {
             if ($query) {
                 $sqlQuery->where(
@@ -401,7 +407,7 @@ class OrdersController extends Controller
         }
 
         foreach ($results as $key => $row) {
-            if (!isset($row['customerId']) || $row['customerId'] === null) {
+            if (!isset($row['customerId']) || $row['customerId'] === null || $row['email'] === null) {
                 unset($results[$key]);
             }
         }
