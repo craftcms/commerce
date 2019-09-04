@@ -237,7 +237,7 @@ trait OrderElementTrait
         $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
         $edge = new DateTime();
-        $interval = new DateInterval('PT1H');
+        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
         $interval->invert = 1;
         $edge->add($interval);
         $edge = $edge->format(DateTime::ATOM);

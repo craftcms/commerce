@@ -118,6 +118,11 @@ class Settings extends Model
     /**
      * @var string
      */
+    public $activeCartDuration = 'PT1H';
+
+    /**
+     * @var string
+     */
     public $gatewayPostRedirectTemplate = '';
 
     /**

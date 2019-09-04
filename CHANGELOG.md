@@ -2,6 +2,9 @@
 
 # Unreleased (3.x)
 
+### Added
+- Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
+
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 
