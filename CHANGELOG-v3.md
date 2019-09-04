@@ -27,6 +27,7 @@
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
+- Customer records that are anonymous and orphaned are now deleted during garbage collection.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
