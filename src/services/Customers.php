@@ -250,6 +250,24 @@ class Customers extends Component
     }
 
     /**
+     * Deletes any customer record not related to a user or a cart.
+     */
+    public function purgeOrphanedCustomers()
+    {
+        $customers = (new Query())
+            ->select(['[[customers.id]] id'])
+            ->from('{{%commerce_customers}} customers')
+            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
+            ->column();
+
+        // This will also remove all addresses related to the customer.
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%commerce_customers}}', ['id' => $customers])
+            ->execute();
+    }
+
+    /**
      * When a user logs in, consolidate all his/her orders.
      *
      * @param UserEvent $event
