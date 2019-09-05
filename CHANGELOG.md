@@ -16,6 +16,7 @@
 - Fixed a PHP error that occurred when entering an order description format on a product type longer than 255 characters. ([#989](https://github.com/craftcms/commerce/issues/989))
 - Fixed a bug where emails were displaying the wrong date/time for new orders. ([#882](https://github.com/craftcms/commerce/issues/882))
 - Fixed a bug where the Product index page did not support sorting of all columns correctly. ([#987](https://github.com/craftcms/commerce/issues/987))
+- Fixed a bug where Custom Shipping Methods would cause and error on payment if `requireShippingMethodSelectionAtCheckout` was set to true.
 
 ## 2.1.12.1 - 2019-08-23
 
