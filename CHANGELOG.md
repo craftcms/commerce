@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.1.13 - 2019-09-09
 
 ### Changed
 - The “Status Email Address” and “From Name” settings now accept environment variables.
