@@ -46,6 +46,7 @@ use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\web\View;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -586,6 +587,12 @@ class Order extends Element
             $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
+
+                // We need to remove the payment source from the order now that it's paid
+                // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
+                // Payment information is still stored in the transactions.
+                $this->paymentSourceId = null;
+
                 $this->markAsComplete();
             }
         }
@@ -1040,11 +1047,15 @@ class Order extends Element
     {
         $url = null;
         $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
         $file = Plugin::getInstance()->getSettings()->orderPdfPath;
 
         if (!$file || !$view->doesTemplateExist($file)) {
+            $view->setTemplateMode($oldTemplateMode);
             return null;
         }
+        $view->setTemplateMode($oldTemplateMode);
 
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
         $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');

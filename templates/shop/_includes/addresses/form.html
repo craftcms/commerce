@@ -109,7 +109,7 @@
                             <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
                         {% endfor %}
                     </select>
-                    <input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if model and model.stateName %}name="{{ modelName }}[stateValue]" value="{{ model.stateName}}"{% endif %}>
+                    <input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %} value="{{ model ? model.stateName : '' }}">
                     {% if model and model.getErrors('stateValue') %}
                         <span class="flash">{{ model.getErrors('stateValue')|join }}</span>
                     {% endif %}
