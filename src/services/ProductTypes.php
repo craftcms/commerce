@@ -17,6 +17,7 @@ use craft\commerce\models\ProductTypeSite;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
+use craft\db\Table;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -28,6 +29,7 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
+use craft\models\Site;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -357,7 +359,7 @@ class ProductTypes extends Component
         }
 
         foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById('{{%sites}}', $siteId);
+            $siteUid = Db::uidById(Table::SITES, $siteId);
             $configData['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
                 'uriFormat' => $settings['uriFormat'],
@@ -834,27 +836,18 @@ class ProductTypes extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event)
     {
+        $projectConfig = Craft::$app->getProjectConfig();
+
         if ($event->isNew) {
-            $primarySiteSettings = (new Query())
-                ->select([
-                    'productTypes.uid productTypeUid',
-                    'producttypes_sites.uriFormat',
-                    'producttypes_sites.template',
-                    'producttypes_sites.hasUrls'
-                ])
-                ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
-                ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
-                ->where(['siteId' => $event->oldPrimarySiteId])
-                ->one();
+            $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
+            $existingProductTypeSettings = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
 
-            if ($primarySiteSettings) {
-                $newSiteSettings = [
-                    'uriFormat' => $primarySiteSettings['uriFormat'],
-                    'template' => $primarySiteSettings['template'],
-                    'hasUrls' => $primarySiteSettings['hasUrls']
-                ];
-
-                Craft::$app->getProjectConfig()->set(self::CONFIG_PRODUCTTYPES_KEY . '.' . $primarySiteSettings['productTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);
+            if (is_array($existingProductTypeSettings)) {
+                foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
+                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
+                    $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.'. $event->site->uid;
+                    $projectConfig->set($configPath, $primarySiteSettings);
+                }
             }
         }
     }
