@@ -229,7 +229,7 @@ class Discount extends Component implements AdjusterInterface
             return false;
         }
 
-        // Raise the 'beforeMatchLineItem' event
+        // Raise the 'afterDiscountAdjustmentsCreated' event
         $event = new DiscountAdjustmentsEvent([
             'order' => $this->_order,
             'discount' => $discount,
