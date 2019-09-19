@@ -1059,7 +1059,7 @@ class Order extends Element
 
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
         $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-        $url = UrlHelper::siteUrl($path);
+        $url = UrlHelper::cpUrl($path);
 
         return $url;
     }
