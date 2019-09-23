@@ -2,6 +2,11 @@
 
 ## 2.1.13 - 2019-09-09
 
+### Fixed
+- Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
+
+## 2.1.13 - 2019-09-09
+
 ### Changed
 - The “Status Email Address” and “From Name” settings now accept environment variables.
 

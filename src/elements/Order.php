@@ -1058,8 +1058,7 @@ class Order extends Element
         $view->setTemplateMode($oldTemplateMode);
 
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
-        $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-        $url = UrlHelper::siteUrl($path);
+        $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;
     }
