@@ -339,7 +339,7 @@ class Install extends Migration
             'total' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'totalPaid' => $this->decimal(14, 4)->defaultValue(0),
-            'paidStatus' => $this->enum('paidStatus', ['paid', 'partial', 'unpaid']),
+            'paidStatus' => $this->enum('paidStatus', ['paid', 'partial', 'unpaid', 'overPaid']),
             'email' => $this->string(),
             'isCompleted' => $this->boolean(),
             'dateOrdered' => $this->dateTime(),
