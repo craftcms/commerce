@@ -1080,13 +1080,12 @@ class Product extends Element
      */
     protected static function defineSortOptions(): array
     {
-        $options = parent::defineSortOptions();
-        $options['title'] = Craft::t('commerce', 'Title');
-        $options['postDate'] = Craft::t('commerce', 'Post Date');
-        $options['expiryDate'] = Craft::t('commerce', 'Expiry Date');
-        $options['defaultPrice'] = Craft::t('commerce', 'Price');
-
-        return $options;
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'postDate' => Craft::t('commerce', 'Post Date'),
+            'expiryDate' => Craft::t('commerce', 'Expiry Date'),
+            'defaultPrice' => Craft::t('commerce', 'Price')
+        ];
     }
 
     /**
