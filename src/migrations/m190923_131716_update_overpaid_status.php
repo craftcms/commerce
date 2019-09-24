@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\db\Migration;
 
 /**
@@ -16,12 +15,7 @@ class m190923_131716_update_overpaid_status extends Migration
      */
     public function safeUp()
     {
-        $this->alterColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus', [
-            Order::PAID_STATUS_PAID,
-            Order::PAID_STATUS_PARTIAL,
-            Order::PAID_STATUS_UNPAID,
-            Order::PAID_STATUS_OVERPAID
-        ]));
+        $this->alterColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus', ['paid', 'partial', 'unpaid', 'overPaid']));
     }
 
     /**

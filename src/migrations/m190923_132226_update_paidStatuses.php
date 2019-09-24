@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\db\Migration;
 use yii\db\Expression;
 
@@ -18,7 +17,7 @@ class m190923_132226_update_paidStatuses extends Migration
     public function safeUp()
     {
         $this->update('{{%commerce_orders}}', [
-            'paidStatus' => Order::PAID_STATUS_OVERPAID,
+            'paidStatus' => 'overPaid',
         ], [
             'and',
             ['isCompleted' => true],
