@@ -327,7 +327,7 @@ class OrdersController extends BaseCpController
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if ($order && !$order->isCompleted && $order->markAsComplete()) {
-            $date = new DateTime($order->dateOrdered);
+            $date = gettype($order->dateOrdered) == 'object' ? $order->dateOrdered : new DateTime($order->dateOrdered);
             return $this->asJson(['success' => true, 'dateOrdered' => $date]);
         }
 
