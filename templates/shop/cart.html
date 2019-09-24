@@ -96,7 +96,7 @@
                     {% if not lineItemHasErrors %}
                         {% for adjustment in item.adjustments %}
                             <tr class="adjustment">
-                                <td></td>
+                                <td>{{ adjustment.type }}</td>
                                 <td>
                                     <strong>{{ adjustment.type }} {{ adjustment.name }}</strong><br>({{ adjustment.description }}
                                     )

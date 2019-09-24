@@ -57,7 +57,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 '</div>' +
                 '</div>' +
                 '<div class="input ltr">' +
-                '<textarea class="text fullwidth" rows="2" cols="50" name="message"></textarea>' +
+                '<textarea class="text fullwidth" rows="2" cols="50" name="message" maxlength="10000"></textarea>' +
                 '</div>' +
                 '</div>').appendTo($inputs);
 

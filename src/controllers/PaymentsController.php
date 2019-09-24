@@ -269,7 +269,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethodId) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
             $customError = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($request->getAcceptsJson()) {
@@ -349,11 +349,11 @@ class PaymentsController extends BaseFrontEndController
         if (!$success) {
             if ($request->getAcceptsJson()) {
                 // TODO: remame paymentForm to paymentFormErrors on next breaking release.
-                return $this->asJson(['error' => $customError, 'paymentForm' => $paymentForm->getErrors()]);
+                return $this->asJson(['error' => $customError, 'order' => $order->getErrors(), 'paymentForm' => $paymentForm->getErrors()]);
             }
 
             $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
+            Craft::$app->getUrlManager()->setRouteParams(compact('order', 'paymentForm'));
 
             return null;
         }

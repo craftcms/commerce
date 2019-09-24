@@ -100,7 +100,7 @@ class m180417_161904_fix_purchasables extends Migration
 
             if (class_exists($type) && is_subclass_of($type, PurchasableInterface::class)) {
                 /** @var string|Element $type */
-                foreach ($type::find()->anyStatus()->limit(427)->batch() as $batch) {
+                foreach ($type::find()->anyStatus()->batch() as $batch) {
                     $newPurchasables = [];
                     foreach ($batch as $purchasable) {
                         $newPurchasables[] = [$purchasable->getId(), $purchasable->getSku(), $purchasable->getPrice()];

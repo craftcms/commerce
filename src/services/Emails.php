@@ -17,10 +17,13 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
+use craft\helpers\App;
 use craft\helpers\Assets;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
+use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -304,21 +307,35 @@ class Emails extends Component
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
         $option = 'email';
 
+        // Make sure date vars are in the correct format
+        $dateFields = ['dateOrdered', 'datePaid'];
+        foreach ($dateFields as $dateField) {
+            if (isset($order->{$dateField}) && !($order->{$dateField} instanceof DateTime) && $order->{$dateField}) {
+                $order->{$dateField} = DateTimeHelper::toDateTime($order->{$dateField});
+            }
+        }
+
         //sending emails
         $renderVariables = compact('order', 'orderHistory', 'option');
 
-        $newEmail = new Message();
+        $mailer = Craft::$app->getMailer();
+        $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
+        $craftMailSettings = App::mailSettings();
 
-        $emailOverride = Plugin::getInstance()->getSettings()->emailSenderAddress;
-        $nameOverride = Plugin::getInstance()->getSettings()->emailSenderName;
-        if ($emailOverride) {
-            $newEmail->setFrom($emailOverride);
+        $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
+        $fromEmail = Craft::parseEnv($fromEmail);
+
+        $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
+        $fromName = Craft::parseEnv($fromName);
+
+        if ($fromEmail) {
+            $newEmail->setFrom($fromEmail);
         }
 
-        if ($nameOverride && $emailOverride) {
-            $newEmail->setFrom([$emailOverride => $nameOverride]);
+        if ($fromName && $fromEmail) {
+            $newEmail->setFrom([$fromEmail => $fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {

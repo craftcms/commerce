@@ -95,6 +95,12 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Craft::t('commerce', 'Order total shipping cost');
         $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Craft::t('commerce', 'Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
         $variables['taxables'] = $taxable;
+        $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
+
+        $variables['hideTaxCategory'] = false;
+        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'])) {
+            $variables['hideTaxCategory'] = true;
+        }
 
         // Get the HTML and JS for the new tax zone/category modals
         $view = $this->getView();
@@ -139,7 +145,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
+        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
 
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);

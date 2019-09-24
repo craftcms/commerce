@@ -299,7 +299,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('The „' . $this->getType()->name . '” product group is not enabled for the „' . $this->getSite()->name . '” site.');
+            throw new InvalidConfigException('The “' . $this->getType()->name . '” product type is not enabled for the „' . $this->getSite()->name . '” site.');
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -608,7 +608,6 @@ class Product extends Element
     {
         $viewService = Craft::$app->getView();
         $html = $viewService->renderTemplateMacro('commerce/products/_fields', 'titleField', [$this]);
-        $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'generalMetaFields', [$this]);
         $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
         $html .= parent::getEditorHtml();
 
@@ -831,7 +830,7 @@ class Product extends Element
     public function afterValidate()
     {
         if (!Model::validateMultiple($this->getVariants())) {
-            $this->addError(null); // add an empty error to prevent saving
+            $this->addError('variants', Craft::t('commerce', 'Error saving variants'));
         }
         parent::afterValidate();
     }
@@ -953,26 +952,26 @@ class Product extends Element
         // Get the section(s) we need to check permissions on
         switch ($source) {
             case '*':
-                {
-                    $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
-                    break;
-                }
+            {
+                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+                break;
+            }
             default:
-                {
-                    if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
-                        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
+            {
+                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
 
-                        if ($productType) {
-                            $productTypes = [$productType];
-                        }
-                    } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
-                        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
+                    if ($productType) {
+                        $productTypes = [$productType];
+                    }
+                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
-                        if ($productType) {
-                            $productTypes = [$productType];
-                        }
+                    if ($productType) {
+                        $productTypes = [$productType];
                     }
                 }
+            }
         }
 
         $actions = [];
@@ -1122,70 +1121,70 @@ class Product extends Element
 
         switch ($attribute) {
             case 'type':
-                {
-                    return ($productType ? Craft::t('site', $productType->name) : '');
-                }
+            {
+                return ($productType ? Craft::t('site', $productType->name) : '');
+            }
 
             case 'taxCategory':
-                {
-                    $taxCategory = $this->getTaxCategory();
+            {
+                $taxCategory = $this->getTaxCategory();
 
-                    return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
-                }
+                return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
+            }
             case 'shippingCategory':
-                {
-                    $shippingCategory = $this->getShippingCategory();
+            {
+                $shippingCategory = $this->getShippingCategory();
 
-                    return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
-                }
+                return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
+            }
             case 'defaultPrice':
-                {
-                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+            {
+                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-                }
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+            }
             case 'stock':
-                {
-                    $stock = 0;
-                    $hasUnlimited = false;
-                    /** @var Variant $variant */
-                    foreach ($this->getVariants() as $variant) {
-                        $stock += $variant->stock;
-                        if ($variant->hasUnlimitedStock) {
-                            $hasUnlimited = true;
-                        }
+            {
+                $stock = 0;
+                $hasUnlimited = false;
+                /** @var Variant $variant */
+                foreach ($this->getVariants() as $variant) {
+                    $stock += $variant->stock;
+                    if ($variant->hasUnlimitedStock) {
+                        $hasUnlimited = true;
                     }
-                    return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
                 }
+                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
+            }
             case 'defaultWeight':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
-                    }
-
-                    return '';
+            {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                 }
+
+                return '';
+            }
             case 'defaultLength':
             case 'defaultWidth':
             case 'defaultHeight':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
-                    }
-
-                    return '';
+            {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
                 }
+
+                return '';
+            }
             case 'availableForPurchase':
             case 'promotable':
             case 'freeShipping':
-                {
-                    return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
-                }
+            {
+                return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
+            }
 
             default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 }
