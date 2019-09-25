@@ -15,7 +15,22 @@ class m190923_131716_update_overpaid_status extends Migration
      */
     public function safeUp()
     {
-        $this->alterColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus', ['paid', 'partial', 'unpaid', 'overPaid']));
+
+        $values = ['paid', 'partial', 'unpaid', 'overPaid'];
+        if ($this->db->getIsPgsql()) {
+            // Manually construct the SQL for Postgres
+            $check = '[[paidStatus]] in (';
+            foreach ($values as $i => $value) {
+                if ($i != 0) {
+                    $check .= ',';
+                }
+                $check .= $this->db->quoteValue($value);
+            }
+            $check .= ')';
+            $this->execute("alter table {{%commerce_orders}} drop constraint {{%commerce_orders_paidStatus_check}}, add check ({$check})");
+        } else {
+            $this->alterColumn('{{%commerce_orders}}', 'paidStatus', $this->enum('paidStatus', $values));
+        }
     }
 
     /**
