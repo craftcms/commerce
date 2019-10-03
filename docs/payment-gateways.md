@@ -63,7 +63,7 @@ return [
 
 ## Payment sources
 
-Commerce 2 supports storing payment sources for select gateways. Storing a payment source allows for a more streamlined shopping experience for your customers.
+Commerce 2 supports storing payment sources for selected gateways. Storing a payment source allows for a more streamlined shopping experience for your customers.
 
 The following first-party provided gateways support payment sources:
 
