@@ -32,13 +32,23 @@
                 <td>
                     <div id="order-completion" class="hidden">
                         {% if order.isCompleted %}
-                            <span title="{{ order.dateOrdered|date('r') }}">{{ order.dateOrdered|date('D jS M Y') }}</span>
+                            <span title="{{ order.dateOrdered|date('r') }}">{{ order.dateOrdered|date(craft.app.locale.getDateFormat('full', 'php')) }}</span>
                         {% else %}
                             <div id="order-completionStatus">
                                 <a href="#"
                                    class="updatecompletion btn small"> {{ "Mark as complete"|t('commerce') }}</a>
                             </div>
                         {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr {% if not order.isCompleted %}class="hidden"{% endif %}>
+                <td>
+                    <strong>{{ "Order Time"|t('commerce') }}</strong>
+                </td>
+                <td>
+                    <div>
+                        <span>{{ order.dateOrdered|date(craft.app.locale.getTimeFormat('short', 'php')) }}</span>
                     </div>
                 </td>
             </tr>
@@ -82,7 +92,16 @@
                 </td>
                 <td>
                     {% if order.datePaid %}
-                    <span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date('D jS M Y') }}</span>
+                    <span title="{{ order.datePaid|date('r') }}">{{ order.datePaid|date(craft.app.locale.getDateFormat('full', 'php')) }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Paid Time"|t('commerce') }} </strong>
+                </td>
+                <td>
+                    {% if order.datePaid %}
+                    <span>{{ order.datePaid|date(craft.app.locale.getTimeFormat('short', 'php')) }}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -90,7 +109,12 @@
             <tr>
                 <td><strong>{{ "Last Updated"|t('commerce') }} </strong>
                 </td>
-                <td><span title="{{ order.dateUpdated|date('r') }}">{{ order.dateUpdated|date('D jS M Y') }}</span></td>
+                <td><span title="{{ order.dateUpdated|date('r') }}">{{ order.dateUpdated|date(craft.app.locale.getDateFormat('full', 'php')) }}</span></td>
+            </tr>
+            <tr>
+                <td><strong>{{ "Last Updated Time"|t('commerce') }} </strong>
+                </td>
+                <td><span title="{{ order.dateUpdated|date('r') }}">{{ order.dateUpdated|date(craft.app.locale.getTimeFormat('short', 'php')) }}</span></td>
             </tr>
             {% endif %}
             <tr>
