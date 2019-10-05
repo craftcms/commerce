@@ -10,6 +10,7 @@
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
 - Fixed a bug where the “Order Element Index” table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
 - Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
+- Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
 
 ## 2.1.13 - 2019-09-09
 
