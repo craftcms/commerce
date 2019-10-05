@@ -3,7 +3,7 @@
 ## Unreleased - 2019-09-09
 
 ### Added
-- Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_CONTENT`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
 
 ### Fixed
 - Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
