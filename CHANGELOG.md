@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+### Added
+- Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
+
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
+
+### Fixed
+- Fixed a bug with the DB migration for the `taxCategoryId` when using `postgres`
+- Fixed a bug where the “Order Element Index” table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
+- Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
 
 ## 2.1.13 - 2019-09-09
 

@@ -123,7 +123,7 @@ class Order extends Element
      * use craft\commerce\elements\Order;
      * use yii\events\CancelableEvent
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(CancelableEvent $e) {
+     * Event::on(Order::class, Order::EVENT_BEFORE_ADD_LINE_ITEM, function(CancelableEvent $e) {
      *     $lineItem = $e->lineItem;
      *     $isNew = $e->isNew;
      *     $isValid = $e->isValid;
