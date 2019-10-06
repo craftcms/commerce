@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
+use craft\commerce\events\ModifyCartInfoEvent;
 use craft\commerce\Plugin;
 
 /**
@@ -18,6 +19,27 @@ use craft\commerce\Plugin;
  */
 class BaseFrontEndController extends BaseController
 {
+    // Constants
+    // =========================================================================
+
+    /**
+     * @event Event The event that is triggered when an cart is returned as an array (for ajax cart update requests)
+     *
+     * ---
+     * ```php
+     * use craft\commerce\controllers\BaseFrontEndController;
+     * use craft\commerce\events\ModifyCartArray;
+     * use yii\base\Event;
+     *
+     * Event::on(BaseFrontEndController::class, BaseFrontEndController::EVENT_MODIFY_CART_INFO, function(ModifyCartInfoEvent $e) {
+     *     $cartArray = $e->cartInfo;
+     *     $cartArray['anotherOne'] = 'Howdy';
+     *     $e->cartInfo = $cartArray;
+     * });
+     * ```
+     */
+    const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
+
     // Properties
     // =========================================================================
 
@@ -35,6 +57,14 @@ class BaseFrontEndController extends BaseController
      */
     protected function cartArray(Order $cart): array
     {
-        return Plugin::getInstance()->getOrders()->cartArray($cart);
+        $cartInfo = Plugin::getInstance()->getOrders()->cartArray($cart);
+
+        // Fire a 'modifyCartContent' event
+        $event = new ModifyCartInfoEvent([
+            'cartInfo' => $cartInfo,
+        ]);
+        $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);
+
+        return $event->cartInfo;
     }
 }
