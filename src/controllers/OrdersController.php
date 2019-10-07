@@ -291,6 +291,7 @@ class OrdersController extends BaseCpController
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                    $child->order->updateOrderPaidInformation();
                     Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message
                     ]));
