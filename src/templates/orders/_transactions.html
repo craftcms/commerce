@@ -1,3 +1,4 @@
+
 <div id="transactionsTab" class="pane hidden">
     {% macro transactionRow(transaction, level) %}
         {% set info = [
@@ -12,13 +13,12 @@
         ] %}
 
         <tr class="infoRow" data-info="{{ info|json_encode }}">
-            <td style="padding-left: {{ level * 20 }}px;" data-title="{{ transaction.type|title }}">{{ transaction.type|title }}</td>
+            <td style="padding-{{ craft.app.locale.orientation == 'ltr' ? 'left' : 'right' }}: {{ level }}em;" data-title="{{ transaction.type|title }}">{% if level > 0 %}<span class="extralight">{{ craft.app.locale.orientation == 'ltr' ? '&#8627;'|raw : '&#8629;'|raw }}</span> {% endif %}{{ transaction.type|title }}</td>
             <td class="transaction-status transaction-status-{{ transaction.status }}" data-title="{{ 'Status'|t('commerce') }}">
                 {{ transaction.status|title|t('commerce') }}
             </td>
             <td data-title="{{ 'Amount'|t('commerce') }}">{{ transaction.amount|currency(transaction.currency) }}
-                <small class="light">({{ transaction.currency }})
-                </small>
+                <small class="light">({{ transaction.currency }})</small>
             </td>
             <td data-title="{{ 'Payment Amount'|t('commerce') }}">{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
                 <small class="light">
