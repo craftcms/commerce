@@ -16,7 +16,8 @@
 - Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
 - Fixed a bug where discounted shipping would still add tax to an order. ([#1007](https://github.com/craftcms/commerce/issues/1007))
 - `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
-- Fixed a bug where deleted order statuses would be taken into account when validating the handle. ([#1027](https://github.com/craftcms/commerce/pull/1027))
+- Fixed a bug where deleted order statuses would be taken into account when validating the handle uniqueness. ([#1027](https://github.com/craftcms/commerce/pull/1027))
+- Fixed a bug where deleted order statuses did not appear in history tab within the order edit page.
 
 ## 2.1.13 - 2019-09-09
 
