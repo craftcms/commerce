@@ -35,13 +35,12 @@
                 <td>{% if orderStatus.default %}<span data-icon="check"
                                                       title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                 </td>
-                {% set orderExists = craft.orders.orderStatusId(orderStatus.id).one() %}
                 <td class="thin">
                     <a class="move icon disabled"
-                       title="{{ 'Delete'|t('commerce') }}"
+                       title="{{ 'Move'|t('commerce') }}"
                        role="button"></a>
                 </td>
-                {% if not orderExists | length %}
+                {% if orderStatus.canDelete() %}
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
                                         role="button"></a></td>
@@ -64,7 +63,7 @@
 {% js %}
     new Craft.AdminTable({
     tableSelector: '#order-statuses',
-    deleteAction: 'commerce/order-statuses/archive',
+    deleteAction: 'commerce/order-statuses/delete',
     minObjects: 1,
     sortable: true,
     reorderAction: 'commerce/order-statuses/reorder',

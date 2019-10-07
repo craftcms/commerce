@@ -12,14 +12,12 @@
 - Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
 - Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
 - Fixed a bug where discounted shipping would still add tax to an order. ([#1007](https://github.com/craftcms/commerce/issues/1007))
+- `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
 
 ## 2.1.13 - 2019-09-09
 
 ### Fixed
 - Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
-- `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
-
-## 2.1.13 - 2019-09-09
 
 ### Changed
 - The “Status Email Address” and “From Name” settings now accept environment variables.

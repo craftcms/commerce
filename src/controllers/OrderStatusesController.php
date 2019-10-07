@@ -121,13 +121,13 @@ class OrderStatusesController extends BaseAdminController
     /**
      * @return Response|null
      */
-    public function actionArchive()
+    public function actionDelete()
     {
         $this->requireAcceptsJson();
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int)$orderStatusId)) {
+        if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
             return $this->asJson(['success' => true]);
         }
 

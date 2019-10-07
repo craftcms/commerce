@@ -6,9 +6,9 @@ use Craft;
 use craft\db\Migration;
 
 /**
- * m1901004_184910_orderPaidDate migration.
+ * m191004_184910_orderPaidDate migration.
  */
-class m1901004_184910_orderPaidDate extends Migration
+class m191004_184910_orderPaidDate extends Migration
 {
     /**
      * @inheritdoc
@@ -36,7 +36,7 @@ class m1901004_184910_orderPaidDate extends Migration
      */
     public function safeDown()
     {
-        echo "m1901004_184910_orderPaidDate cannot be reverted.\n";
+        echo "m191004_184910_orderPaidDate cannot be reverted.\n";
         return false;
     }
 }
