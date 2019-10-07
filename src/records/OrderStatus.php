@@ -8,6 +8,7 @@
 namespace craft\commerce\records;
 
 use craft\db\ActiveRecord;
+use craft\db\SoftDeleteTrait;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -18,8 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property Email[] $emails
  * @property string $handle
  * @property int $id
- * @property bool $isArchived
- * @property bool $dateArchived
+ * @property bool $dateDeleted
  * @property string $name
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -29,6 +29,8 @@ class OrderStatus extends ActiveRecord
 {
     // Public Methods
     // =========================================================================
+
+    use SoftDeleteTrait;
 
     /**
      * @inheritdoc
