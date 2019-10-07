@@ -122,7 +122,7 @@ class Order extends Element
      * use craft\commerce\elements\Order;
      * use yii\events\CancelableEvent
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(CancelableEvent $e) {
+     * Event::on(Order::class, Order::EVENT_BEFORE_ADD_LINE_ITEM, function(CancelableEvent $e) {
      *     $lineItem = $e->lineItem;
      *     $isNew = $e->isNew;
      *     $isValid = $e->isValid;
@@ -569,8 +569,15 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
-        $justPaid = !$this->hasOutstandingBalance() && $this->datePaid === null;
+        $paidInFull = !$this->hasOutstandingBalance();
+        $justPaid = $paidInFull && $this->datePaid === null;
 
+        // If it is no longer paid in full, set datePaid to null
+        if(!$paidInFull) {
+            $this->datePaid = null;
+        }
+
+        // If it was just paid set the date paid to now.
         if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new DateTime());
         }
@@ -584,9 +591,8 @@ class Order extends Element
 
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
-            $totalPaid = Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
-            if ($totalAuthorized >= $this->getTotalPrice() || $totalPaid >= $this->getTotalPrice()) {
+            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
 
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
@@ -1058,8 +1064,7 @@ class Order extends Element
         $view->setTemplateMode($oldTemplateMode);
 
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
-        $path = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/' . trim($path, '/');
-        $url = UrlHelper::siteUrl($path);
+        $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;
     }

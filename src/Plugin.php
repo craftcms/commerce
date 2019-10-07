@@ -384,7 +384,7 @@ class Plugin extends BasePlugin
         $orderStatusService = $this->getOrderStatuses();
         $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
-            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleArchivedOrderStatus']);
+            ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
 
         $emailService = $this->getEmails();

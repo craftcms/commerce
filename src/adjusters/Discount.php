@@ -60,11 +60,6 @@ class Discount extends Component implements AdjusterInterface
     private $_order;
 
     /**
-     * @var bool Whole order has free shipping applied
-     */
-    private $_hasFreeShippingForOrderApplied;
-
-    /**
      * @var
      */
     private $_discount;
@@ -208,16 +203,6 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
-        if ($discount->hasFreeShippingForOrder && !$this->_hasFreeShippingForOrderApplied) {
-            // Don't remove order shipping cost more than once
-            $this->_hasFreeShippingForOrderApplied = true;
-            $adjustment = $this->_createOrderAdjustment($this->_discount);
-            $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
-            if ($this->_order->getAdjustmentsTotalByType('shipping') > 0) {
-                $adjustments[] = $adjustment;
-            }
-        }
-
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
             $baseDiscountAdjustment->amount = $discount->baseDiscount;
@@ -229,7 +214,7 @@ class Discount extends Component implements AdjusterInterface
             return false;
         }
 
-        // Raise the 'beforeMatchLineItem' event
+        // Raise the 'afterDiscountAdjustmentsCreated' event
         $event = new DiscountAdjustmentsEvent([
             'order' => $this->_order,
             'discount' => $discount,

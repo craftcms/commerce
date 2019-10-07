@@ -2,19 +2,38 @@
 
 ## Unreleased
 
-### Changed
-- "Status Email Address" and "From Name" settings now accept environment variables.
+### Added
+- Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 
 ### Fixed
-- Fixed a bug where the "Download PDF" button wouldn't show in Orders. ([#962](https://github.com/craftcms/commerce/issues/962))
-- Fixed a bug where save shortcut didn’t work in "General Settings".
-- Fixed a bug where save shortcut didn’t work in "Store Location" settings.
-- Fixed a bug that forced the user to choose a "Tax Category" for order "Taxable Subjects". ([#538](https://github.com/craftcms/commerce/issues/538))
-- Fixed a bug where a variants’ status was being overridden by the owner product status. ([#926](https://github.com/craftcms/commerce/issues/926))
-- Fixed a bug where a payment source that was originally used to pay for the order would incorrectly be used when making new payments from the CP. ([#891](https://github.com/craftcms/commerce/issues/891))
-- Fixed a bug where products did not have their shipping or tax category updated when those categories removed themselves as available to that product’s tyoe. ([#688](https://github.com/craftcms/commerce/issues/688))
-- Fixed a PHP error that occurred when entering an order description format on a product type longer than 255 characters. ([#989](https://github.com/craftcms/commerce/issues/989))
-- Fixed a bug where emails were displaying the wrong date/time for new orders. ([#882](https://github.com/craftcms/commerce/issues/882))
+- Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
+- Fixed a bug where the “Order Element Index” table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
+- Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
+- Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
+- Fixed a bug where discounted shipping would still add tax to an order. ([#1007](https://github.com/craftcms/commerce/issues/1007))
+- `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
+
+## 2.1.13 - 2019-09-09
+
+### Fixed
+- Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
+
+### Changed
+- The “Status Email Address” and “From Name” settings now accept environment variables.
+
+### Fixed
+- Fixed a bug where the “Download PDF” button wouldn’t show in the Edit Order page. ([#962](https://github.com/craftcms/commerce/issues/962))
+- Fixed a bug where the <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in General Settings.
+- Fixed a bug where <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in Store Location settings.
+- Fixed a bug where users were forced to choose a tax category for order taxable subjects. ([#538](https://github.com/craftcms/commerce/issues/538))
+- Fixed a bug where variants’ statuses were getting overridden by their product’s status. ([#926](https://github.com/craftcms/commerce/issues/926))
+- Fixed a bug where Control Panel payments were incorrectly using the order’s previous payment source. ([#891](https://github.com/craftcms/commerce/issues/891))
+- Fixed a bug where products’ shipping and tax categories weren’t getting updated if their selected shipping/tax category was no longer available. ([#688](https://github.com/craftcms/commerce/issues/688))
+- Fixed a PHP error that occurred when entering an order description format on a product type that was longer than 255 characters. ([#989](https://github.com/craftcms/commerce/issues/989))
+- Fixed a bug where emails were displaying the wrong timestamp for new orders. ([#882](https://github.com/craftcms/commerce/issues/882))
+- Fixed a bug where the Products index page was not sorting correctly. ([#987](https://github.com/craftcms/commerce/issues/987))
+- Fixed an error that could occur on payment when using a custom shipping method if the `requireShippingMethodSelectionAtCheckout` config setting was enabled.
 
 ## 2.1.12.1 - 2019-08-23
 
