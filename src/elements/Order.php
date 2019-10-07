@@ -109,6 +109,7 @@ class Order extends Element
     // Constants
     // =========================================================================
 
+    const PAID_STATUS_OVERPAID = 'overPaid';
     const PAID_STATUS_PAID = 'paid';
     const PAID_STATUS_PARTIAL = 'partial';
     const PAID_STATUS_UNPAID = 'unpaid';
@@ -1128,6 +1129,10 @@ class Order extends Element
      */
     public function getPaidStatus(): string
     {
+        if ($this->getIsPaid() && $this->getTotal() > 0 && $this->getTotalPaid() > $this->getTotal()) {
+            return self::PAID_STATUS_OVERPAID;
+        }
+
         if ($this->getIsPaid()) {
             return self::PAID_STATUS_PAID;
         }
@@ -1147,6 +1152,10 @@ class Order extends Element
     public function getPaidStatusHtml(): string
     {
         switch ($this->getPaidStatus()) {
+            case self::PAID_STATUS_OVERPAID:
+            {
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
+            }
             case self::PAID_STATUS_PAID:
             {
                 return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
