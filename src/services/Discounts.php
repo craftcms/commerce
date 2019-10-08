@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -339,6 +340,34 @@ class Discounts extends Component
     }
 
     /**
+     * @param PurchasableInterface $purchasable
+     * @return array
+     */
+    public function getDiscountsRelatedToPurchasable(PurchasableInterface $purchasable): array
+    {
+        $discounts = [];
+
+        if ($purchasable->getId()) {
+            foreach ($this->getAllDiscounts() as $discount) {
+                // Get discount by related purchasable
+                $purchasableIds = $discount->getPurchasableIds();
+                $id = $purchasable->getId();
+
+                // Get discount by related category
+                $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
+                $categoryIds = $discount->getCategoryIds();
+                $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
+
+                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                    $discounts[$discount->id] = $discount;
+                }
+            }
+        }
+
+        return $discounts;
+    }
+
+    /**
      * Match a line item against a discount.
      *
      * @param LineItem $lineItem
@@ -374,7 +403,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {

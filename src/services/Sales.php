@@ -222,7 +222,7 @@ class Sales extends Component
 
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
-                    
+
                 if ($sale->stopProcessing) {
                     break;
                 }
@@ -243,9 +243,16 @@ class Sales extends Component
 
         if ($purchasable->getId()) {
             foreach ($this->getAllSales() as $sale) {
+                // Get related by product specifically
                 $purchasableIds = $sale->getPurchasableIds();
                 $id = $purchasable->getId();
-                if (in_array($id, $purchasableIds, false)) {
+
+                // Get related via category
+                $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
+                $saleCategories = $sale->getCategoryIds();
+                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $sales[] = $sale;
                 }
             }
@@ -360,7 +367,7 @@ class Sales extends Component
 
         // Category match
         if (!$sale->allCategories) {
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = ['source' => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
