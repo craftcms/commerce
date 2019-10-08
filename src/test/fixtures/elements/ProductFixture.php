@@ -3,6 +3,8 @@
 namespace craft\commerce\test\fixtures\elements;
 
 use Craft;
+use craft\commerce\Plugin;
+use craft\commerce\services\ProductTypes;
 use yii\base\ErrorException;
 use craft\base\Element;
 use craft\test\fixtures\elements\ElementFixture;
@@ -38,9 +40,9 @@ class ProductFixture extends ElementFixture
     {
         parent::init();
 
-        /** @var \craft\commerce\Plugin */
+        /** @var Plugin */
         $commerce = Craft::$app->getPlugins()->getPlugin('commerce');
-        /** @var \craft\commerce\services\ProductTypes */
+        /** @var ProductTypes */
         $productTypesService = $commerce->getProductTypes();
 
         // Get all product type id's
