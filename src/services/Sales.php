@@ -248,7 +248,7 @@ class Sales extends Component
                 $id = $purchasable->getId();
 
                 // Get related via category
-                $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
+                $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
                 $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
@@ -367,7 +367,7 @@ class Sales extends Component
 
         // Category match
         if (!$sale->allCategories) {
-            $relatedTo = ['source' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
