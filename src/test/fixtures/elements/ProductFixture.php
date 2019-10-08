@@ -34,7 +34,7 @@ class ProductFixture extends ElementFixture
     /**
      * {@inheritdoc}
      */
-    public function init(): void
+    public function init()
     {
         parent::init();
 
@@ -82,7 +82,7 @@ class ProductFixture extends ElementFixture
     /**
      * {@inheritdoc}
      */
-    protected function deleteElement(Element $element): void
+    protected function deleteElement(Element $element)
     {
         $variants = Variant::find()->productId($element->id)->all();
 
