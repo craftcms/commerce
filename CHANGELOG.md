@@ -6,6 +6,7 @@
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - Added “Related Discounts” to the Edit Product page.
+- Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
