@@ -35,6 +35,7 @@ class CommerceCpAsset extends AssetBundle
             JqueryAsset::class,
         ];
 
+        $this->css[] = 'css/addresses.css';
         $this->css[] = 'css/charts-explorer.css';
         $this->css[] = 'css/commerce.css';
         $this->css[] = 'css/order.css';
