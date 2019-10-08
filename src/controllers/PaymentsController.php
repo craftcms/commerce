@@ -368,6 +368,7 @@ class PaymentsController extends BaseFrontEndController
             if ($transaction) {
                 /** @var Transaction $transaction */
                 $response['transactionId'] = $transaction->reference;
+                $response['transactionHash'] = $transaction->hash;
             }
 
             return $this->asJson($response);

@@ -5,9 +5,11 @@
 ### Added
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
+- Added “Related Discounts” to the Edit Product page.
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
+- Sales and Discounts related categories can now be the source or the target of the relationship. ([#984](https://github.com/craftcms/commerce/issues/984)) 
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
