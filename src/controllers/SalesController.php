@@ -120,6 +120,7 @@ class SalesController extends BaseCpController
         $sale->sortOrder = $request->getBodyParam('sortOrder');
         $sale->ignorePrevious = $request->getBodyParam('ignorePrevious');
         $sale->stopProcessing = $request->getBodyParam('stopProcessing');
+        $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
@@ -253,6 +254,11 @@ class SalesController extends BaseCpController
 
         $variables['categories'] = $categories;
 
+        $variables['categoryRelationshipType'] = [
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Both'),
+        ];
 
         $variables['purchasables'] = null;
         $purchasables = $purchasableIds = [];

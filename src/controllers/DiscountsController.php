@@ -13,6 +13,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
+use craft\commerce\records\Discount as DiscountRecord;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -106,6 +107,7 @@ class DiscountsController extends BaseCpController
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
+        $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;
@@ -275,8 +277,13 @@ class DiscountsController extends BaseCpController
 
         $variables['categories'] = $categories;
 
-        $variables['purchasables'] = null;
+        $variables['categoryRelationshipType'] = [
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Both'),
+        ];
 
+        $variables['purchasables'] = null;
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));

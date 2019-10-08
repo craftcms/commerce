@@ -147,6 +147,11 @@ class Discount extends Model
     public $allCategories;
 
     /**
+     * @var string Type of relationship between Categories and Products
+     */
+    public $categoryRelationshipType;
+
+    /**
      * @var bool Discount enabled?
      */
     public $enabled = true;
@@ -358,6 +363,7 @@ class Discount extends Model
             }
             ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [['categoryRelationshipType'], 'in', 'range' => [DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH]],
         ];
     }
 

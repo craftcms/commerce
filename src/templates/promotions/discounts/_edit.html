@@ -198,6 +198,16 @@
             errors: discount.getErrors('categories'),
         }) }}
 
+        {{ forms.selectField({
+            id: 'categoryRelationshipType',
+            name: 'categoryRelationshipType',
+            label: 'Categories Relationship Type'|t('commerce'),
+            instructions: "This determines how the Products and Categories are related to match the discount."|t('commerce'),
+            options: categoryRelationshipType,
+            value: discount.categoryRelationshipType,
+            errors: discount.getErrors('categoryRelationshipType')
+        }) }}
+
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
