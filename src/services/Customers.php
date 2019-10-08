@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -426,12 +427,12 @@ class Customers extends Component
         if ($customer) {
             $orders = (new Query())
                 ->select(['orders.id'])
-                ->from(['{{%commerce_orders}} orders'])
+                ->from([Table::ORDERS. ' orders'])
                 ->where(['orders.customerId' => $customer->id])
                 ->column();
 
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_orders}}', ['email' => $email], ['id' => $orders])
+                ->update(Table::ORDERS, ['email' => $email], ['id' => $orders])
                 ->execute();
         }
     }
@@ -475,7 +476,7 @@ class Customers extends Component
                 'primaryBillingAddressId',
                 'primaryShippingAddressId'
             ])
-            ->from(['{{%commerce_customers}}']);
+            ->from([Table::CUSTOMERS]);
     }
 
     /**

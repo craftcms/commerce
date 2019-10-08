@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
@@ -488,7 +489,7 @@ class OrderQuery extends ElementQuery
         } else if ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
-                ->from(['{{%commerce_orderstatuses}}'])
+                ->from([Table::ORDERSTATUSES])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
@@ -927,7 +928,7 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
+            $this->subQuery->innerJoin(Table::LINEITEMS. ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
@@ -935,7 +936,7 @@ class OrderQuery extends ElementQuery
         if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
                 'exists', (new Query())
-                    ->from(['{{%commerce_transactions}} transactions'])
+                    ->from([Table::TRANSACTIONS. ' transactions'])
                     ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
             ]);
         }

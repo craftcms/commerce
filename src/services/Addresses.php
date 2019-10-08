@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\AddressZoneInterface;
+use craft\commerce\db\Table;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
@@ -120,7 +121,7 @@ class Addresses extends Component
     public function getAddressesByCustomerId(int $customerId): array
     {
         $rows = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->all();
 
@@ -143,7 +144,7 @@ class Addresses extends Component
     public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
     {
         $result = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES. ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->andWhere(['addresses.id' => $addressId])
             ->one();
@@ -224,7 +225,7 @@ class Addresses extends Component
         $addressRecord->stateName = $addressModel->stateName;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+            Craft::$app->getDb()->createCommand()->update(Table::ADDRESSES, ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
         $addressRecord->save(false);
@@ -343,6 +344,6 @@ class Addresses extends Component
                 'addresses.businessId',
                 'addresses.stateName'
             ])
-            ->from(['{{%commerce_addresses}} addresses']);
+            ->from([Table::ADDRESSES. ' addresses']);
     }
 }

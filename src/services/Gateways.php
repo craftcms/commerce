@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
@@ -261,7 +262,7 @@ class Gateways extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewGateway) {
-            $gateway->id = Db::idByUid('{{%commerce_gateways}}', $gatewayUid);
+            $gateway->id = Db::idByUid(Table::GATEWAYS, $gatewayUid);
         }
 
         return true;
@@ -342,7 +343,7 @@ class Gateways extends Component
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        $uidsByIds = Db::uidsByIds('{{%commerce_gateways}}', $ids);
+        $uidsByIds = Db::uidsByIds(Table::GATEWAYS, $ids);
 
         foreach ($ids as $gatewayOrder => $gatewayId) {
             if (!empty($uidsByIds[$gatewayId])) {
@@ -436,7 +437,7 @@ class Gateways extends Component
                 'uid',
                 'sortOrder'
             ])
-            ->from(['{{%commerce_gateways}}']);
+            ->from([Table::GATEWAYS]);
     }
 
     /**

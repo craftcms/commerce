@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\State;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
@@ -126,7 +127,7 @@ class States extends Component
     {
         if (!$this->_fetchedAllStates) {
             $results = $this->_createStatesQuery()
-                ->innerJoin('{{%commerce_countries}} countries', '[[states.countryId]] = [[countries.id]]')
+                ->innerJoin(Table::COUNTRIES. ' countries', '[[states.countryId]] = [[countries.id]]')
                 ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
                 ->all();
 
@@ -152,7 +153,7 @@ class States extends Component
     {
         if (!isset($this->_statesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createStatesQuery()
-                ->innerJoin('{{%commerce_taxzone_states}} taxZoneStates', '[[states.id]] = [[taxZoneStates.stateId]]')
+                ->innerJoin(Table::TAXZONE_STATES. ' taxZoneStates', '[[states.id]] = [[taxZoneStates.stateId]]')
                 ->where(['taxZoneStates.taxZoneId' => $taxZoneId])
                 ->all();
 
@@ -178,7 +179,7 @@ class States extends Component
     {
         if (!isset($this->_statesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createStatesQuery()
-                ->innerJoin('{{%commerce_shippingzone_states}} shippingZoneStates', '[[states.id]] = [[shippingZoneStates.stateId]]')
+                ->innerJoin(Table::SHIPPINGZONE_STATES. ' shippingZoneStates', '[[states.id]] = [[shippingZoneStates.stateId]]')
                 ->where(['shippingZoneStates.shippingZoneId' => $shippingZoneId])
                 ->all();
 
@@ -267,7 +268,7 @@ class States extends Component
                 'states.abbreviation',
                 'states.countryId'
             ])
-            ->from(['{{%commerce_states}} states'])
+            ->from([Table::STATES. ' states'])
             ->orderBy(['name' => SORT_ASC]);
     }
 }

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
@@ -160,13 +161,13 @@ class ShippingZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'shippingZoneId'];
-                $table = '{{%commerce_shippingzone_countries}}';
+                $table = Table::SHIPPINGZONE_COUNTRIES;
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'shippingZoneId'];
-                $table = '{{%commerce_shippingzone_states}}';
+                $table = Table::SHIPPINGZONE_STATES;
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
@@ -213,6 +214,6 @@ class ShippingZones extends Component
                 'isCountryBased',
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_shippingzones}}']);
+            ->from([Table::SHIPPINGZONES]);
     }
 }

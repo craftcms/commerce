@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
@@ -334,6 +335,6 @@ class LineItems extends Component
                 'taxCategoryId',
                 'shippingCategoryId'
             ])
-            ->from(['{{%commerce_lineitems}} lineItems']);
+            ->from([Table::LINEITEMS. ' lineItems']);
     }
 }

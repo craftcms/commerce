@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -30,7 +31,7 @@ class OrderStatusEmail extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_orderstatus_emails}}';
+        return Table::ORDERSTATUS_EMAILS;
     }
 
     /**

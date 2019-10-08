@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\models\Sale;
@@ -121,10 +122,10 @@ class Sales extends Component
                 sp.purchasableId,
                 spt.categoryId,
                 sug.userGroupId')
-                ->from('{{%commerce_sales}} sales')
-                ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]] = [[sales.id]]')
-                ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]] = [[sales.id]]')
-                ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]] = [[sales.id]]')
+                ->from(Table::SALES. ' sales')
+                ->leftJoin(Table::SALE_PURCHASABLES. ' sp', '[[sp.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_CATEGORIES. ' spt', '[[spt.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_USERGROUPS. ' sug', '[[sug.saleId]] = [[sales.id]]')
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -177,10 +178,10 @@ class Sales extends Component
             'sp.purchasableId,
             spt.categoryId,
             sug.userGroupId')
-            ->from('{{%commerce_sales}} sales')
-            ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]]=[[sales.id]]')
+            ->from(Table::SALES. ' sales')
+            ->leftJoin(Table::SALE_PURCHASABLES. ' sp', '[[sp.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_CATEGORIES. ' spt', '[[spt.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_USERGROUPS. ' sug', '[[sug.saleId]]=[[sales.id]]')
             ->where(['sales.id' => $sale->id])
             ->all();
 
@@ -529,7 +530,7 @@ class Sales extends Component
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_sales}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->update(Table::SALES, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
 

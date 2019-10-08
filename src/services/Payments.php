@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
@@ -383,7 +384,7 @@ class Payments extends Component
     public function getTotalPaidForOrder(Order $order): float
     {
         $paid = (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -403,7 +404,7 @@ class Payments extends Component
     public function getTotalRefundedForOrder(Order $order): float
     {
         return (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -421,7 +422,7 @@ class Payments extends Component
     public function getTotalAuthorizedForOrder(Order $order): float
     {
         $authorized = (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,

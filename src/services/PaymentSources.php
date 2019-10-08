@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\db\Table;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\models\payments\BasePaymentForm;
@@ -303,7 +304,7 @@ class PaymentSources extends Component
                 'description',
                 'response',
             ])
-            ->from(['{{%commerce_paymentsources}}']);
+            ->from([Table::PAYMENTSOURCES]);
     }
 
 }

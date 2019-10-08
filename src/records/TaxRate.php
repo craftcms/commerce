@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -52,7 +53,7 @@ class TaxRate extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_taxrates}}';
+        return Table::TAXRATES;
     }
 
     /**

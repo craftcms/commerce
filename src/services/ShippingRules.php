@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
@@ -266,7 +267,7 @@ class ShippingRules extends Component
     public function reorderShippingRules(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
+            Craft::$app->getDb()->createCommand()->update(Table::SHIPPINGRULES, ['priority' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
@@ -322,7 +323,7 @@ class ShippingRules extends Component
                 'isLite'
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_shippingrules}}']);
+            ->from([Table::SHIPPINGRULES]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $query->andWhere('[[isLite]] = true');

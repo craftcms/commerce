@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
@@ -26,6 +27,7 @@ use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
+use function count;
 
 /**
  * Order status service.
@@ -184,7 +186,7 @@ class OrderStatuses extends Component
         if ($isNewStatus) {
             $statusUid = StringHelper::UUID();
         } else {
-            $statusUid = Db::uidById('{{%commerce_orderstatuses}}', $orderStatus->id);
+            $statusUid = Db::uidById(Table::ORDERSTATUSES, $orderStatus->id);
         }
 
         // Make sure no statuses that are not archived share the handle
@@ -200,7 +202,7 @@ class OrderStatuses extends Component
         if ($orderStatus->dateDeleted) {
             $configData = null;
         } else {
-            $emails = Db::uidsByIds('{{%commerce_emails}}', $emailIds);
+            $emails = Db::uidsByIds(Table::EMAILS, $emailIds);
             $configData = [
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
@@ -215,7 +217,7 @@ class OrderStatuses extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewStatus) {
-            $orderStatus->id = Db::idByUid('{{%commerce_orderstatuses}}', $statusUid);
+            $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
         }
 
         return true;
@@ -253,18 +255,18 @@ class OrderStatuses extends Component
 
             $connection = Craft::$app->getDb();
             // Drop them all and we will recreate the new ones.
-            $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
+            $connection->createCommand()->delete(Table::ORDERSTATUS_EMAILS, ['orderStatusId' => $statusRecord->id])->execute();
 
             if (!empty($data['emails'])) {
                 foreach ($data['emails'] as $emailUid) {
                     Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
 
-                $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
+                $emailIds = Db::idsByUids(Table::EMAILS, $data['emails']);
 
                 foreach ($emailIds as $emailId) {
                     $connection->createCommand()
-                        ->insert('{{%commerce_orderstatus_emails}}', [
+                        ->insert(Table::ORDERSTATUS_EMAILS, [
                             'orderStatusId' => $statusRecord->id,
                             'emailId' => $emailId
                         ])
@@ -292,7 +294,7 @@ class OrderStatuses extends Component
         $orderStatus = $this->getOrderStatusById($id);
 
         // Can only delete if we have one that can remain as the default
-        if (\count($statuses) < 2 || $orderStatus == null) {
+        if (count($statuses) < 2 || $orderStatus == null) {
             return false;
         }
 
@@ -356,7 +358,7 @@ class OrderStatuses extends Component
     {
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && \count($status->emails)) {
+            if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
                     Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
                 }
@@ -378,7 +380,7 @@ class OrderStatuses extends Component
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        $uidsByIds = Db::uidsByIds('{{%commerce_orderstatuses}}', $ids);
+        $uidsByIds = Db::uidsByIds(Table::ORDERSTATUSES, $ids);
 
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
@@ -413,7 +415,7 @@ class OrderStatuses extends Component
                 'uid'
             ])
             ->orderBy('sortOrder')
-            ->from(['{{%commerce_orderstatuses}}']);
+            ->from([Table::ORDERSTATUSES]);
 
         // todo: remove schema version condition after next beakpoint
         $schemaVersion = Plugin::getInstance()->schemaVersion;

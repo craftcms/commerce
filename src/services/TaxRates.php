@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -252,7 +253,7 @@ class TaxRates extends Component
                 'isLite'
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
-            ->from(['{{%commerce_taxrates}}']);
+            ->from([Table::TAXRATES]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $query->andWhere('[[isLite]] = true');

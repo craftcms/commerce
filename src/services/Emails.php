@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
@@ -166,7 +167,7 @@ class Emails extends Component
         if ($isNewEmail) {
             $emailUid = StringHelper::UUID();
         } else {
-            $emailUid = Db::uidById('{{%commerce_emails}}', $email->id);
+            $emailUid = Db::uidById(Table::EMAILS, $email->id);
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -186,7 +187,7 @@ class Emails extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = Db::idByUid('{{%commerce_emails}}', $emailUid);
+            $email->id = Db::idByUid(Table::EMAILS, $emailUid);
         }
 
         return true;
@@ -616,8 +617,8 @@ class Emails extends Component
     public function getAllEmailsByOrderStatusId(int $id): array
     {
         $results = $this->_createEmailQuery()
-            ->innerJoin('{{%commerce_orderstatus_emails}} statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
-            ->innerJoin('{{%commerce_orderstatuses}} orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
+            ->innerJoin(Table::ORDERSTATUS_EMAILS. ' statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
+            ->innerJoin(Table::ORDERSTATUSES. ' orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
             ->where(['orderStatuses.id' => $id])
             ->all();
 
@@ -655,7 +656,7 @@ class Emails extends Component
                 'emails.uid',
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_emails}} emails']);
+            ->from([Table::EMAILS. ' emails']);
     }
 
 

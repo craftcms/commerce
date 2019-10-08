@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
@@ -247,6 +248,6 @@ class PaymentCurrencies extends Component
                 'primary',
                 'rate',
             ])
-            ->from(['{{%commerce_paymentcurrencies}}']);
+            ->from([Table::PAYMENTCURRENCIES]);
     }
 }

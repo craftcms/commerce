@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Country;
 use craft\commerce\records\Country as CountryRecord;
 use craft\db\Query;
@@ -148,7 +149,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin('{{%commerce_taxzone_countries}} taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
+                ->innerJoin(Table::TAXZONE_COUNTRIES. ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
                 ->where(['taxZoneCountries.taxZoneId' => $taxZoneId])
                 ->all();
             $countries = [];
@@ -173,7 +174,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin('{{%commerce_shippingzone_countries}} shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
+                ->innerJoin(Table::SHIPPINGZONE_COUNTRIES. ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
                 ->where(['shippingZoneCountries.shippingZoneId' => $shippingZoneId])
                 ->all();
             $countries = [];
@@ -262,7 +263,7 @@ class Countries extends Component
                 'countries.iso',
                 'countries.isStateRequired'
             ])
-            ->from(['{{%commerce_countries}} countries'])
+            ->from([Table::COUNTRIES. ' countries'])
             ->orderBy(['name' => SORT_ASC]);
     }
 }

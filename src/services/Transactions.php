@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
@@ -145,7 +146,7 @@ class Transactions extends Component
                 'orderId' => $transaction->orderId,
                 'parentId' => $transaction->id
             ])
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->sum('[[paymentAmount]]');
 
         return $transaction->paymentAmount - $amount;
@@ -443,7 +444,7 @@ class Transactions extends Component
                 'dateCreated',
                 'dateUpdated',
             ])
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->orderBy(['id' => SORT_ASC]);
     }
 }

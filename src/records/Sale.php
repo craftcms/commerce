@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Category;
 use craft\records\UserGroup;
@@ -51,7 +52,7 @@ class Sale extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_sales}}';
+        return Table::SALES;
     }
 
     /**
@@ -59,7 +60,7 @@ class Sale extends ActiveRecord
      */
     public function getGroups(): ActiveQueryInterface
     {
-        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable('{{%commerce_sale_usergroup}}', ['saleId' => 'id']);
+        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable(Table::SALE_USERGROUP, ['saleId' => 'id']);
     }
 
     /**
@@ -67,7 +68,7 @@ class Sale extends ActiveRecord
      */
     public function getPurchasables(): ActiveQueryInterface
     {
-        return $this->hasMany(Purchasable::class, ['id' => 'purchasableId'])->viaTable('{{%commerce_sale_purchasables}}', ['saleId' => 'id']);
+        return $this->hasMany(Purchasable::class, ['id' => 'purchasableId'])->viaTable(Table::SALE_PURCHASABLES, ['saleId' => 'id']);
     }
 
     /**
@@ -75,6 +76,6 @@ class Sale extends ActiveRecord
      */
     public function getCategories(): ActiveQueryInterface
     {
-        return $this->hasMany(Category::class, ['id' => 'categoryId'])->viaTable('{{%commerce_sale_categories}}', ['saleId' => 'id']);
+        return $this->hasMany(Category::class, ['id' => 'categoryId'])->viaTable(Table::SALE_CATEGORIES, ['saleId' => 'id']);
     }
 }

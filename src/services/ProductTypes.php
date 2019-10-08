@@ -252,7 +252,7 @@ class ProductTypes extends Component
                     'hasUrls',
                     'template'
                 ])
-                ->from('{{%commerce_producttypes_sites}}')
+                ->from(\craft\commerce\db\Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
                 ->all();
 
@@ -371,7 +371,7 @@ class ProductTypes extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewProductType) {
-            $productType->id = Db::idByUid('{{%commerce_producttypes}}', $productType->uid);
+            $productType->id = Db::idByUid(\craft\commerce\db\Table::PRODUCTTYPES, $productType->uid);
         }
 
         return true;
@@ -592,7 +592,7 @@ class ProductTypes extends Component
     public function getProductTypesByTaxCategoryId($taxCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
+            ->innerJoin(\craft\commerce\db\Table::PRODUCTTYPES_TAXCATEGORIES. ' productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
             ->where(['productTypeTaxCategories.taxCategoryId' => $taxCategoryId])
             ->all();
 
@@ -614,7 +614,7 @@ class ProductTypes extends Component
     public function getProductTypesByShippingCategoryId($shippingCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
+            ->innerJoin(\craft\commerce\db\Table::PRODUCTTYPES_SHIPPINGCATEGORIES. ' productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
             ->where(['productTypeShippingCategories.shippingCategoryId' => $shippingCategoryId])
             ->all();
 
@@ -888,7 +888,7 @@ class ProductTypes extends Component
                 'productTypes.descriptionFormat',
                 'productTypes.uid'
             ])
-            ->from(['{{%commerce_producttypes}} productTypes']);
+            ->from([\craft\commerce\db\Table::PRODUCTTYPES. ' productTypes']);
     }
 
     /**

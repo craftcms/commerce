@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
@@ -198,6 +199,6 @@ class OrderHistories extends Component
                 'customerId',
                 'dateCreated'
             ])
-            ->from(['{{%commerce_orderhistories}}']);
+            ->from([Table::ORDERHISTORIES]);
     }
 }

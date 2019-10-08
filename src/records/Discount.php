@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Category;
 use craft\records\UserGroup;
@@ -63,7 +64,7 @@ class Discount extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discounts}}';
+        return Table::DISCOUNTS;
     }
 
     /**

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
@@ -169,13 +170,13 @@ class TaxZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'taxZoneId'];
-                $table = '{{%commerce_taxzone_countries}}';
+                $table = Table::TAXZONE_COUNTRIES;
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'taxZoneId'];
-                $table = '{{%commerce_taxzone_states}}';
+                $table = Table::TAXZONE_STATES;
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
@@ -228,6 +229,6 @@ class TaxZones extends Component
                 'default',
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_taxzones}}']);
+            ->from([Table::TAXZONES]);
     }
 }

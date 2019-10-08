@@ -15,6 +15,7 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\OrderDeprecatedTrait;
 use craft\commerce\base\OrderValidatorsTrait;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\errors\OrderStatusException;
@@ -671,7 +672,7 @@ class Order extends Element
         // Try to catch where the order could be marked as completed twice at the same time, and thus cause a race condition.
         $completedInDb = (new Query())
             ->select('id')
-            ->from(['{{%commerce_orders}}'])
+            ->from([Table::ORDERS])
             ->where(['isCompleted' => true])
             ->andWhere(['id' => $this->id])
             ->exists();
@@ -1923,7 +1924,7 @@ class Order extends Element
 
             $count = (new Query())
                 ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from(['{{%commerce_orders}} o'])
+                ->from([Table::ORDERS. ' o'])
                 ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
                 ->count();
 

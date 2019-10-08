@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\db\Table;
 use craft\commerce\events\PlanEvent;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
@@ -308,7 +309,7 @@ class Plans extends Component
         $command = Craft::$app->getDb()->createCommand();
 
         foreach ($ids as $planOrder => $planId) {
-            $command->update('{{%commerce_plans}}', ['sortOrder' => $planOrder + 1], ['id' => $planId])->execute();
+            $command->update(Table::PLANS, ['sortOrder' => $planOrder + 1], ['id' => $planId])->execute();
         }
 
         return true;
@@ -342,7 +343,7 @@ class Plans extends Component
             ])
             ->where(['isArchived' => false])
             ->orderBy(['sortOrder' => SORT_ASC])
-            ->from(['{{%commerce_plans}}']);
+            ->from([Table::PLANS]);
     }
 
     /**
