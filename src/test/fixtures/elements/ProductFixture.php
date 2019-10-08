@@ -65,13 +65,16 @@ class ProductFixture extends ElementFixture
      *
      * @throws ErrorException
      */
-    protected function getErrors(Element $element): void
+    protected function getErrors(Element $element)
     {
         $errors = $element->getErrorSummary(true);
 
+        $variantErrors =[];
         foreach ($element->getVariants() as $variant) {
-            $errors = array_merge($errors, $variant->getErrorSummary(true));
+            $variantErrors[] = $variant->getErrorSummary(true);
         }
+
+        array_merge($errors, ...$variantErrors);
 
         throw new ErrorException(join(' ', array_filter($errors)));
     }
