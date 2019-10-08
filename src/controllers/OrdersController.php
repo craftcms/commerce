@@ -25,7 +25,6 @@ use craft\helpers\Localization;
 use craft\models\FieldLayout;
 use DateTime;
 use Throwable;
-use Twig_Error_Loader;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -128,7 +127,6 @@ class OrdersController extends BaseCpController
      *
      * @return Response
      * @throws Exception
-     * @throws Twig_Error_Loader
      * @throws BadRequestHttpException
      */
     public function actionGetPaymentModal(): Response
