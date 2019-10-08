@@ -8,7 +8,7 @@
 namespace craft\commerce\db;
 
 /**
- * This class provides constants for defining Craft Commerce’s database table names.
+ * This class provides constants for defining Craft Commerce’s database table names. Do not use these in migrations.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.2
