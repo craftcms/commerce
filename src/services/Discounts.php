@@ -355,7 +355,7 @@ class Discounts extends Component
                 $id = $purchasable->getId();
 
                 // Get discount by related category
-                $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
+                $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
 
@@ -404,7 +404,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $relatedTo = ['element' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {
