@@ -508,6 +508,7 @@ class Discounts extends Component
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalUseLimit = $model->totalUseLimit;
+        $record->ignoreSales = $model->ignoreSales;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -744,6 +745,7 @@ class Discounts extends Component
                 'discounts.allCategories',
                 'discounts.enabled',
                 'discounts.stopProcessing',
+                'discounts.ignoreSales',
                 'discounts.sortOrder',
                 'discounts.dateCreated',
                 'discounts.dateUpdated',

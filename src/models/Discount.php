@@ -172,6 +172,11 @@ class Discount extends Model
     public $dateUpdated;
 
     /**
+     * @var bool Discount ignores sales
+     */
+    public $ignoreSales;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
