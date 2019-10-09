@@ -19,6 +19,7 @@
 - `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
 - Fixed a bug where deleted order statuses would be taken into account when validating the handle uniqueness. ([#1027](https://github.com/craftcms/commerce/pull/1027))
 - Fixed a bug where deleted order statuses did not appear in history tab within the order edit page.
+- Fixed a bug where breadcrumbs were not displaying correcting for “Shipping” and “Tax” CP sections.
 
 ## 2.1.13 - 2019-09-09
 
