@@ -38,6 +38,13 @@
                     </template>
                 </select-input>
 
+                <options
+                    v-if="canAddOptions"
+                    :config="optionsConfig"
+                    ref="lineItemOptions"
+                    class="line-item-options">
+                </options>
+
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" />
@@ -52,16 +59,20 @@
     import debounce from 'lodash.debounce'
     import ordersApi from '../../api/orders'
     import SelectInput from '../SelectInput'
+    import Options from '../Options'
 
     export default {
         components: {
             SelectInput,
+            Options
         },
 
         data() {
             return {
                 showForm: false,
                 selectedPurchasable: null,
+                canAddOptions: false,
+                optionsConfig: null
             }
         },
 
@@ -109,10 +120,59 @@
                     return
                 }
 
-                this.addLineItem(this.selectedPurchasable)
+                if (this.canAddOptions) {
+                    this.setOptions()
+                } else {
+                    this.setupForOptions()
+                }
             },
 
-            addLineItem() {
+            setupForOptions() {
+
+                this.canAddOptions = false;
+
+                const optionsConfig = {
+                    "key_one": {
+                        "label": "A plain text option",
+                        "type": "text",
+                        "required": true
+                    },
+                    "key_two": {
+                        "label": "A dropdown option",
+                        "type": "dropdown",
+                        "required": true,
+                        "options": [
+                            {
+                                "label": "Option One",
+                                "value": "option_one"
+                            },
+                            {
+                                "label": "Option Two",
+                                "value": "option_two"
+                            },
+                            {
+                                "label": "Option Three",
+                                "value": "option_three"
+                            }
+                        ]
+                    },
+                    "key_three": {
+                        "label": "An option that should be a number",
+                        "type": "number",
+                        "required": true
+                    }
+                }
+
+                this.optionsConfig = optionsConfig;
+                this.canAddOptions = true;
+
+            },
+
+            setOptions() {
+                this.addLineItem(this.$refs.lineItemOptions.values)
+            },
+
+            addLineItem(options) {
                 const lineItem = {
                     id: null,
                     lineItemStatusId: null,
@@ -123,7 +183,7 @@
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,
-                    options: [],
+                    options: JSON.parse(JSON.stringify(options)),
                     adjustments: [],
                 }
 
@@ -197,5 +257,13 @@
             width: 10%;
             text-align: right;
         }
+    }
+
+    /* Line item options */
+
+    .line-item-options {
+        margin-top: 20px;
+
+
     }
 </style>
