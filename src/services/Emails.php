@@ -617,8 +617,8 @@ class Emails extends Component
     public function getAllEmailsByOrderStatusId(int $id): array
     {
         $results = $this->_createEmailQuery()
-            ->innerJoin(Table::ORDERSTATUS_EMAILS. ' statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
-            ->innerJoin(Table::ORDERSTATUSES. ' orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
+            ->innerJoin(Table::ORDERSTATUS_EMAILS . ' statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
+            ->innerJoin(Table::ORDERSTATUSES . ' orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
             ->where(['orderStatuses.id' => $id])
             ->all();
 
@@ -656,7 +656,7 @@ class Emails extends Component
                 'emails.uid',
             ])
             ->orderBy('name')
-            ->from([Table::EMAILS. ' emails']);
+            ->from([Table::EMAILS . ' emails']);
     }
 
 

@@ -144,7 +144,7 @@ class Addresses extends Component
     public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
     {
         $result = $this->_createAddressQuery()
-            ->innerJoin(Table::CUSTOMERS_ADDRESSES. ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->andWhere(['addresses.id' => $addressId])
             ->one();
@@ -344,6 +344,6 @@ class Addresses extends Component
                 'addresses.businessId',
                 'addresses.stateName'
             ])
-            ->from([Table::ADDRESSES. ' addresses']);
+            ->from([Table::ADDRESSES . ' addresses']);
     }
 }

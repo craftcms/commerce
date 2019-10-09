@@ -122,10 +122,10 @@ class Sales extends Component
                 sp.purchasableId,
                 spt.categoryId,
                 sug.userGroupId')
-                ->from(Table::SALES. ' sales')
-                ->leftJoin(Table::SALE_PURCHASABLES. ' sp', '[[sp.saleId]] = [[sales.id]]')
-                ->leftJoin(Table::SALE_CATEGORIES. ' spt', '[[spt.saleId]] = [[sales.id]]')
-                ->leftJoin(Table::SALE_USERGROUPS. ' sug', '[[sug.saleId]] = [[sales.id]]')
+                ->from(Table::SALES . ' sales')
+                ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]] = [[sales.id]]')
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -178,10 +178,10 @@ class Sales extends Component
             'sp.purchasableId,
             spt.categoryId,
             sug.userGroupId')
-            ->from(Table::SALES. ' sales')
-            ->leftJoin(Table::SALE_PURCHASABLES. ' sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_CATEGORIES. ' spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_USERGROUPS. ' sug', '[[sug.saleId]]=[[sales.id]]')
+            ->from(Table::SALES . ' sales')
+            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
             ->where(['sales.id' => $sale->id])
             ->all();
 

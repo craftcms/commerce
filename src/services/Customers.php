@@ -427,7 +427,7 @@ class Customers extends Component
         if ($customer) {
             $orders = (new Query())
                 ->select(['orders.id'])
-                ->from([Table::ORDERS. ' orders'])
+                ->from([Table::ORDERS . ' orders'])
                 ->where(['orders.customerId' => $customer->id])
                 ->column();
 

@@ -275,7 +275,7 @@ class ShippingCategories extends Component
     public function getShippingCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
-            ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES. ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
+            ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
             ->where(['productTypeShippingCategories.productTypeId' => $productTypeId])
             ->all();
 
@@ -331,6 +331,6 @@ class ShippingCategories extends Component
                 'shippingCategories.description',
                 'shippingCategories.default'
             ])
-            ->from([Table::SHIPPINGCATEGORIES. ' shippingCategories']);
+            ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
 }

@@ -1924,7 +1924,7 @@ class Order extends Element
 
             $count = (new Query())
                 ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from([Table::ORDERS. ' o'])
+                ->from([Table::ORDERS . ' o'])
                 ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
                 ->count();
 

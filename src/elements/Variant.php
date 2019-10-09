@@ -932,7 +932,7 @@ class Variant extends Purchasable
 
         // Check to see if any other purchasable has the same SKU and update this one before restore
         $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
-            ->from(\craft\commerce\db\Table::PURCHASABLES. ' p')
+            ->from(\craft\commerce\db\Table::PURCHASABLES . ' p')
             ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
             ->andWhere(['not', ['[[e.id]]' => $this->getId()]])

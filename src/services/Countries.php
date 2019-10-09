@@ -149,7 +149,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin(Table::TAXZONE_COUNTRIES. ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
+                ->innerJoin(Table::TAXZONE_COUNTRIES . ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
                 ->where(['taxZoneCountries.taxZoneId' => $taxZoneId])
                 ->all();
             $countries = [];
@@ -174,7 +174,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin(Table::SHIPPINGZONE_COUNTRIES. ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
+                ->innerJoin(Table::SHIPPINGZONE_COUNTRIES . ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
                 ->where(['shippingZoneCountries.shippingZoneId' => $shippingZoneId])
                 ->all();
             $countries = [];
@@ -263,7 +263,7 @@ class Countries extends Component
                 'countries.iso',
                 'countries.isStateRequired'
             ])
-            ->from([Table::COUNTRIES. ' countries'])
+            ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['name' => SORT_ASC]);
     }
 }

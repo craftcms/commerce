@@ -121,7 +121,7 @@ class ProjectConfigData
                 'descriptionFormat',
                 'uid'
             ])
-            ->from([Table::PRODUCTTYPES. ' productTypes'])
+            ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();
 
         $typeData = [];
@@ -162,9 +162,9 @@ class ProjectConfigData
                 'sites.uid AS siteUid',
                 'producttypes.uid AS typeUid',
             ])
-            ->from([Table::PRODUCTTYPES_SITES. ' producttypes_sites'])
+            ->from([Table::PRODUCTTYPES_SITES . ' producttypes_sites'])
             ->innerJoin('{{%sites}} sites', '[[sites.id]] = [[producttypes_sites.siteId]]')
-            ->innerJoin(Table::PRODUCTTYPES. ' producttypes', '[[producttypes.id]] = [[producttypes_sites.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES . ' producttypes', '[[producttypes.id]] = [[producttypes_sites.productTypeId]]')
             ->all();
 
         foreach ($productTypeSiteRows as $productTypeSiteRow) {
@@ -201,7 +201,7 @@ class ProjectConfigData
                 'emails.pdfTemplatePath'
             ])
             ->orderBy('name')
-            ->from([Table::EMAILS. ' emails'])
+            ->from([Table::EMAILS . ' emails'])
             ->indexBy('uid')
             ->all();
 
@@ -250,8 +250,8 @@ class ProjectConfigData
                 'relations.orderStatusId AS statusId',
                 'emails.uid AS emailUid',
             ])
-            ->from([Table::ORDERSTATUS_EMAILS. ' relations'])
-            ->leftJoin(Table::EMAILS. ' emails', '[[emails.id]] = [[relations.emailId]]')
+            ->from([Table::ORDERSTATUS_EMAILS . ' relations'])
+            ->leftJoin(Table::EMAILS . ' emails', '[[emails.id]] = [[relations.emailId]]')
             ->all();
 
         foreach ($relationRows as $relationRow) {

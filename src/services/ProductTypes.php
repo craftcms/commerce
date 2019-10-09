@@ -17,7 +17,8 @@ use craft\commerce\models\ProductTypeSite;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
-use craft\db\Table;
+use craft\db\Table as CraftTable;
+use craft\commerce\db\Table;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -29,7 +30,6 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
-use craft\models\Site;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -252,7 +252,7 @@ class ProductTypes extends Component
                     'hasUrls',
                     'template'
                 ])
-                ->from(\craft\commerce\db\Table::PRODUCTTYPES_SITES)
+                ->from(Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
                 ->all();
 
@@ -359,7 +359,7 @@ class ProductTypes extends Component
         }
 
         foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById(Table::SITES, $siteId);
+            $siteUid = Db::uidById(CraftTable::SITES, $siteId);
             $configData['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
                 'uriFormat' => $settings['uriFormat'],
@@ -371,7 +371,7 @@ class ProductTypes extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewProductType) {
-            $productType->id = Db::idByUid(\craft\commerce\db\Table::PRODUCTTYPES, $productType->uid);
+            $productType->id = Db::idByUid(Table::PRODUCTTYPES, $productType->uid);
         }
 
         return true;
@@ -592,7 +592,7 @@ class ProductTypes extends Component
     public function getProductTypesByTaxCategoryId($taxCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin(\craft\commerce\db\Table::PRODUCTTYPES_TAXCATEGORIES. ' productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
             ->where(['productTypeTaxCategories.taxCategoryId' => $taxCategoryId])
             ->all();
 
@@ -614,7 +614,7 @@ class ProductTypes extends Component
     public function getProductTypesByShippingCategoryId($shippingCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin(\craft\commerce\db\Table::PRODUCTTYPES_SHIPPINGCATEGORIES. ' productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
             ->where(['productTypeShippingCategories.shippingCategoryId' => $shippingCategoryId])
             ->all();
 
@@ -839,13 +839,13 @@ class ProductTypes extends Component
         $projectConfig = Craft::$app->getProjectConfig();
 
         if ($event->isNew) {
-            $oldPrimarySiteUid = Db::uidById(Table::SITES, $event->oldPrimarySiteId);
+            $oldPrimarySiteUid = Db::uidById(CraftTable::SITES, $event->oldPrimarySiteId);
             $existingProductTypeSettings = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
 
             if (is_array($existingProductTypeSettings)) {
                 foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
                     $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
-                    $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.'. $event->site->uid;
+                    $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $event->site->uid;
                     $projectConfig->set($configPath, $primarySiteSettings);
                 }
             }
@@ -888,7 +888,7 @@ class ProductTypes extends Component
                 'productTypes.descriptionFormat',
                 'productTypes.uid'
             ])
-            ->from([\craft\commerce\db\Table::PRODUCTTYPES. ' productTypes']);
+            ->from([Table::PRODUCTTYPES . ' productTypes']);
     }
 
     /**

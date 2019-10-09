@@ -713,7 +713,7 @@ class ProductQuery extends ElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin(Table::PRODUCTTYPES. ' commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
+            $this->subQuery->innerJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
     }
 }

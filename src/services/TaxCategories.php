@@ -290,7 +290,7 @@ class TaxCategories extends Component
     public function getTaxCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createTaxCategoryQuery()
-            ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES. ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
+            ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
             ->where(['productTypeTaxCategories.productTypeId' => $productTypeId])
             ->all();
 
@@ -345,6 +345,6 @@ class TaxCategories extends Component
                 'taxCategories.description',
                 'taxCategories.default'
             ])
-            ->from([Table::TAXCATEGORIES. ' taxCategories']);
+            ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
 }

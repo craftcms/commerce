@@ -153,9 +153,9 @@ class Discounts extends Component
                     'dpt.categoryId',
                     'dug.userGroupId',
                 ])
-                ->leftJoin(Table::DISCOUNT_PURCHASABLES. ' dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_CATEGORIES. ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_USERGROUPS. ' dug', '[[dug.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
                 ->all();
 
             $allDiscountsById = [];
@@ -207,10 +207,10 @@ class Discounts extends Component
             'dp.purchasableId,
             dpt.categoryId,
             dug.userGroupId')
-            ->from(Table::DISCOUNTS. ' discounts')
-            ->leftJoin(Table::DISCOUNT_PURCHASABLES. ' dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES. ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS. ' dug', '[[dug.discountId]]=[[discounts.id]]')
+            ->from(Table::DISCOUNTS . ' discounts')
+            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $discount->id])
             ->all();
 

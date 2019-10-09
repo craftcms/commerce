@@ -422,7 +422,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.maxQty'
         ]);
 
-        $this->subQuery->leftJoin(Table::PRODUCTS. ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+        $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));

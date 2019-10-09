@@ -335,6 +335,6 @@ class LineItems extends Component
                 'taxCategoryId',
                 'shippingCategoryId'
             ])
-            ->from([Table::LINEITEMS. ' lineItems']);
+            ->from([Table::LINEITEMS . ' lineItems']);
     }
 }

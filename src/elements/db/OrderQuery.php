@@ -928,7 +928,7 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin(Table::LINEITEMS. ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
+            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
@@ -936,7 +936,7 @@ class OrderQuery extends ElementQuery
         if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
                 'exists', (new Query())
-                    ->from([Table::TRANSACTIONS. ' transactions'])
+                    ->from([Table::TRANSACTIONS . ' transactions'])
                     ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
             ]);
         }
