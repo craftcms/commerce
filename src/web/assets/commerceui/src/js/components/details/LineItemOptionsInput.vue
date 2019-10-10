@@ -30,7 +30,7 @@
 </template>
 
 <script>
-    import Field from './Field'
+    import Field from '../Field'
 
     export default {
 
@@ -41,13 +41,42 @@
         props: {
             config: {
                 type: Object,
+            },
+            currentValues: {
+                type: Object,
+                default: function() {
+                    return {};
+                },
             }
         },
 
         data() {
             return {
-                values: {}
+                values: this.currentValues,
             }
         },
+
+        computed: {
+
+            isValid() {
+
+                for (let configKey in this.config) {
+
+                    let configObj = this.config[configKey];
+
+                    // Check if required
+                    if (configObj.required && !this.values[configKey]) {
+                        return false
+                    }
+
+                    // TODO: Check the type of value is correct
+
+                }
+
+                return true;
+            }
+
+        },
+
     }
 </script>

@@ -175,6 +175,11 @@ class Settings extends Model
      */
     public $gatewaySettings = [];
 
+    /**
+     * @var array
+     */
+    public $lineItemOptionsConfig = [];
+
     // Public Methods
     // =========================================================================
 

@@ -38,12 +38,12 @@
                     </template>
                 </select-input>
 
-                <options
-                    v-if="canAddOptions"
-                    :config="optionsConfig"
+                <line-item-options-input
+                    v-if="lineItemOptionsConfig"
+                    :config="lineItemOptionsConfig"
                     ref="lineItemOptions"
                     class="line-item-options">
-                </options>
+                </line-item-options-input>
 
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false" />
@@ -59,12 +59,12 @@
     import debounce from 'lodash.debounce'
     import ordersApi from '../../api/orders'
     import SelectInput from '../SelectInput'
-    import Options from '../Options'
+    import LineItemOptionsInput from './LineItemOptionsInput'
 
     export default {
         components: {
             SelectInput,
-            Options
+            LineItemOptionsInput
         },
 
         data() {
@@ -72,7 +72,6 @@
                 showForm: false,
                 selectedPurchasable: null,
                 canAddOptions: false,
-                optionsConfig: null
             }
         },
 
@@ -101,11 +100,29 @@
                     return true;
                 }
 
+                if (this.lineItemOptionsConfig && !this.$refs.lineItemOptions.isValid) {
+                    return true
+                }
+
                 return false
             },
 
             lineItems() {
                 return this.$store.state.draft.order.lineItems
+            },
+
+            lineItemOptionsConfig() {
+                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
+
+                if (!this.selectedPurchasable) {
+                    return {}
+                }
+
+                if (typeof lineItemOptionsConfig[this.selectedPurchasable.type] != "undefined") {
+                    return lineItemOptionsConfig[this.selectedPurchasable.type];
+                }
+
+                return {}
             }
         },
 
@@ -120,59 +137,26 @@
                     return
                 }
 
-                if (this.canAddOptions) {
-                    this.setOptions()
-                } else {
-                    this.setupForOptions()
-                }
-            },
-
-            setupForOptions() {
-
-                this.canAddOptions = false;
-
-                const optionsConfig = {
-                    "key_one": {
-                        "label": "A plain text option",
-                        "type": "text",
-                        "required": true
-                    },
-                    "key_two": {
-                        "label": "A dropdown option",
-                        "type": "dropdown",
-                        "required": true,
-                        "options": [
-                            {
-                                "label": "Option One",
-                                "value": "option_one"
-                            },
-                            {
-                                "label": "Option Two",
-                                "value": "option_two"
-                            },
-                            {
-                                "label": "Option Three",
-                                "value": "option_three"
-                            }
-                        ]
-                    },
-                    "key_three": {
-                        "label": "An option that should be a number",
-                        "type": "number",
-                        "required": true
+                if (this.lineItemOptionsConfig) {
+                    if (!this.$refs.lineItemOptions.values) {
+                        return
                     }
+
+                    this.addLineItem(this.$refs.lineItemOptions.values)
+                    return
                 }
 
-                this.optionsConfig = optionsConfig;
-                this.canAddOptions = true;
-
-            },
-
-            setOptions() {
-                this.addLineItem(this.$refs.lineItemOptions.values)
+                this.addLineItem()
             },
 
             addLineItem(options) {
+
+                if (options) {
+                    options = JSON.parse(JSON.stringify(options))
+                } else {
+                    options = []
+                }
+
                 const lineItem = {
                     id: null,
                     lineItemStatusId: null,
@@ -183,7 +167,7 @@
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,
-                    options: JSON.parse(JSON.stringify(options)),
+                    options: options,
                     adjustments: [],
                 }
 
@@ -263,7 +247,5 @@
 
     .line-item-options {
         margin-top: 20px;
-
-
     }
 </style>
