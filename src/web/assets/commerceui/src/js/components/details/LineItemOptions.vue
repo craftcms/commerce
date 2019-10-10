@@ -25,7 +25,15 @@
                 </template>
             </template>
             <template v-else>
-                <prism-editor ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+                <line-item-options-input
+                    v-if="optionsConfig"
+                    :config="optionsConfig"
+                    :current-values="currentOptionValues"
+                    ref="lineItemOptions"
+                    class="line-item-options">
+                </line-item-options-input>
+
+                <prism-editor v-else ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                 <ul v-if="errors.length > 0" class="errors">
                     <li v-for="(error, key) in errors" :key="key">{{error}}</li>
@@ -38,10 +46,12 @@
 <script>
     import debounce from 'lodash.debounce'
     import PrismEditor from 'vue-prism-editor'
+    import LineItemOptionsInput from './LineItemOptionsInput'
 
     export default {
         components: {
             PrismEditor,
+            LineItemOptionsInput,
         },
 
         props: {
@@ -57,6 +67,26 @@
             return {
                 options: null,
                 errors: [],
+            }
+        },
+
+        computed: {
+            optionsConfig() {
+                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
+
+                if (!this.lineItem.purchasableType) {
+                    return {}
+                }
+
+                if (typeof lineItemOptionsConfig[this.lineItem.purchasableType] != "undefined") {
+                    return lineItemOptionsConfig[this.lineItem.purchasableType];
+                }
+
+                return {}
+            },
+
+            currentOptionValues() {
+                return JSON.parse(this.options);
             }
         },
 

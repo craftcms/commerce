@@ -27,6 +27,8 @@ use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
+use function get_class;
+
 /**
  * Line Item model representing a line item on an order.
  *
@@ -118,6 +120,11 @@ class LineItem extends Model
      * @var int Purchasable ID
      */
     public $purchasableId;
+
+    /**
+     * @var string Purchasable Type
+     */
+    public $purchasableType;
 
     /**
      * @var int Order ID
@@ -365,6 +372,8 @@ class LineItem extends Model
             };
         }
 
+        $fields['purchasableType'] = $this->getPurchasableType();
+
         return $fields;
     }
 
@@ -378,7 +387,8 @@ class LineItem extends Model
             'shippingCategory',
             'taxCategory',
             'lineItemStatus',
-            'snapshot'
+            'snapshot',
+            'purchasableType'
         ];
     }
 
@@ -475,6 +485,7 @@ class LineItem extends Model
     {
         if (null === $this->_purchasable && null !== $this->purchasableId) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $this->purchasableType = get_class($this->_purchasable);
         }
 
         return $this->_purchasable;
@@ -487,6 +498,16 @@ class LineItem extends Model
     {
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
+        $this->purchasableType = get_class($purchasable);
+    }
+
+    public function getPurchasableType()
+    {
+        if (!$this->_purchasable) {
+            $this->getPurchasable();
+        }
+
+        return $this->purchasableType;
     }
 
     /**

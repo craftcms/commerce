@@ -309,7 +309,7 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        $extraFields = ['lineItems.snapshot', 'lineItems.purchasableType', 'availableShippingMethods'];
         return $order->toArray($orderFields, $extraFields);
     }
 
