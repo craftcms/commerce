@@ -73,17 +73,17 @@
 
         computed: {
             optionsConfig() {
-                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
+                const optionsConfig = this.$store.getters.lineItemOptionsConfig;
 
                 if (!this.lineItem.purchasableType) {
-                    return {}
+                    return false
                 }
 
-                if (lineItemOptionsConfig.hasOwnProperty(this.lineItem.purchasableType)) {
-                    return lineItemOptionsConfig[this.lineItem.purchasableType];
+                if (optionsConfig.hasOwnProperty(this.lineItem.purchasableType)) {
+                    return optionsConfig[this.lineItem.purchasableType];
                 }
 
-                return {}
+                return false
             },
 
             currentOptionValues() {
