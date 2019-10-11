@@ -88,7 +88,13 @@
 
             currentOptionValues() {
                 if (this.options) {
-                    return JSON.parse(this.options)
+                    let optionsObject = JSON.parse(this.options);
+
+                    if (Array.isArray(optionsObject)) {
+                        optionsObject = {}
+                    }
+
+                    return optionsObject;
                 }
 
                 return {};
@@ -145,7 +151,14 @@
                 if (isValid) {
                     let newOptions = JSON.stringify(this.$refs.lineItemOptions.values, null, '\t');
                     if (newOptions !== this.options) {
-                        this.onOptionsChangeWithValidJson(newOptions)
+
+                        try {
+                            newOptions = JSON.parse(newOptions);
+                            this.onOptionsChangeWithValidJson(newOptions)
+                        } catch(e) {
+                            this.errors = ['Invalid JSON']
+                        }
+
                     }
                 } else {
                     this.errors = ['Invalid options']
