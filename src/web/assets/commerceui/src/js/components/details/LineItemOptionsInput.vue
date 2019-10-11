@@ -6,24 +6,32 @@
                :required="option.required"
                v-slot:default="slotProps">
 
-            <template v-if="option.type === 'dropdown'">
+            <div v-if="option.type === 'dropdown'" class="select">
                 <select :id="slotProps.id"
-                        v-model="values[key]">
+                        v-model="values[key]"
+                        @change="validate">
                     <option v-for="opt in option.options"
                             :value="opt.value"
                             :key="opt.value">
                         {{ opt.label }}
                     </option>
                 </select>
-            </template>
+            </div>
 
-            <template v-else-if="option.type === 'number'">
-                <input :id="slotProps.id" type="text" class="text" size="10"  v-model="values[key]" />
-            </template>
+            <input v-else-if="option.type === 'number'"
+                   :id="slotProps.id"
+                   type="text"
+                   class="text"
+                   size="10"
+                   v-model="values[key]"
+                   @change="validate" />
 
-            <template v-else>
-                <input :id="slotProps.id" type="text" class="text" v-model="values[key]" />
-            </template>
+            <input v-else
+                   :id="slotProps.id"
+                   type="text"
+                   class="text"
+                   v-model="values[key]"
+                   @change="validate" />
         </field>
     </div>
 
@@ -44,7 +52,7 @@
             },
             currentValues: {
                 type: Object,
-                default: function() {
+                default: () => {
                     return {};
                 },
             }
@@ -52,28 +60,64 @@
 
         data() {
             return {
-                values: this.currentValues,
+                values: {},
             }
         },
 
-        computed: {
+        mounted () {
+            this.setValues()
+        },
 
-            isValid() {
+        methods: {
+
+            setValues() {
+                let values = this.currentValues;
+
+                // Set default values for each option if there is one
+                for (let configKey in this.config) {
+
+                    let configObj = this.config[configKey];
+
+                    // Skip if the values object already has something in it for this key
+                    if (values.hasOwnProperty(configKey)) {
+                        continue
+                    }
+
+                    // Dropdown defaults come from the options array
+                    if (configObj.type === 'dropdown') {
+                        configObj.options.forEach((opt) => {
+                            if (opt.hasOwnProperty('default') && opt.default) {
+                                values[configKey] = opt.value;
+                            }
+                        })
+                    } else if (configObj.hasOwnProperty('default')) {
+                        values[configKey] = configObj.default;
+                    }
+
+                }
+
+                this.values = values
+
+                this.validate()
+            },
+
+            validate() {
 
                 for (let configKey in this.config) {
 
                     let configObj = this.config[configKey];
 
                     // Check if required
-                    if (configObj.required && !this.values[configKey]) {
-                        return false
+                    if (configObj.hasOwnProperty('required') && configObj.required && !this.values[configKey]) {
+                        this.$emit('validated', false)
+                        return
                     }
 
                     // TODO: Check the type of value is correct
 
                 }
 
-                return true;
+                this.$emit('validated', true)
             }
 
         },

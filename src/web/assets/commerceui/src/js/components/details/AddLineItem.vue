@@ -2,13 +2,13 @@
     <div>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <btn-link @click="showForm = true">{{"Add a line item"|t('commerce')}}</btn-link>
+                <btn-link @click="handleShowForm">{{"Add a line item"|t('commerce')}}</btn-link>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <btn-link @click="showForm = true">{{"Create your first line item"|t('commerce')}}</btn-link>
+                    <btn-link @click="handleShowForm">{{"Create your first line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
         </template>
@@ -39,14 +39,15 @@
                 </select-input>
 
                 <line-item-options-input
-                    v-if="lineItemOptionsConfig"
+                    v-if="validPurchasable"
                     :config="lineItemOptionsConfig"
                     ref="lineItemOptions"
-                    class="line-item-options">
+                    class="line-item-options"
+                    v-on:validated="onLineItemOptionsValidated">
                 </line-item-options-input>
 
                 <div class="buttons">
-                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false" />
+                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="handleHideForm" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" />
                 </div>
             </form>
@@ -71,7 +72,7 @@
             return {
                 showForm: false,
                 selectedPurchasable: null,
-                canAddOptions: false,
+                validLineItemOptions: false
             }
         },
 
@@ -90,17 +91,25 @@
                 return !this.canAddLineItem
             },
 
-            submitDisabled() {
+            validPurchasable() {
                 if (!this.canAddLineItem || !this.selectedPurchasable) {
-                    return true
+                    return false
                 }
 
                 if(this.selectedPurchasable.isAvailable == false)
                 {
-                    return true;
+                    return false;
                 }
 
-                if (this.lineItemOptionsConfig && !this.$refs.lineItemOptions.isValid) {
+                return true;
+            },
+
+            submitDisabled() {
+                if (!this.validPurchasable) {
+                    return true
+                }
+
+                if (!this.lineItemOptionsConfig || !this.validLineItemOptions) {
                     return true
                 }
 
@@ -112,13 +121,13 @@
             },
 
             lineItemOptionsConfig() {
-                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
-
-                if (!this.selectedPurchasable) {
+                if (!this.validPurchasable) {
                     return {}
                 }
 
-                if (typeof lineItemOptionsConfig[this.selectedPurchasable.type] != "undefined") {
+                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
+
+                if (lineItemOptionsConfig.hasOwnProperty(this.selectedPurchasable.type)) {
                     return lineItemOptionsConfig[this.selectedPurchasable.type];
                 }
 
@@ -126,10 +135,39 @@
             }
         },
 
+        watch: {
+            // When the selectedPurchasable changes, reset the line item options
+            // validation and internal values
+            selectedPurchasable: {
+                handler() {
+                    this.validLineItemOptions = false
+
+                    this.$nextTick(() => {
+                        if (this.$refs.lineItemOptions) {
+                            this.$refs.lineItemOptions.setValues()
+                        }
+                    })
+                }
+            }
+        },
+
         methods: {
             ...mapActions([
                 'displayError',
             ]),
+
+            handleShowForm() {
+                this.showForm = true
+            },
+
+            handleHideForm() {
+                this.showForm = false
+                this.selectedPurchasable = null
+            },
+
+            onLineItemOptionsValidated(isValid) {
+                this.validLineItemOptions = isValid
+            },
 
             lineItemAdd() {
                 if (!this.canAddLineItem) {
@@ -172,8 +210,7 @@
                 }
 
                 this.$emit('addLineItem', lineItem)
-                this.selectedPurchasable = null
-                this.showForm = false
+                this.handleHideForm()
             },
 
             onSearch({searchText, loading}) {

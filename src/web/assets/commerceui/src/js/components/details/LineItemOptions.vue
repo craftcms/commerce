@@ -30,7 +30,8 @@
                     :config="optionsConfig"
                     :current-values="currentOptionValues"
                     ref="lineItemOptions"
-                    class="line-item-options">
+                    class="line-item-options"
+                    v-on:validated="onOptionsValidated">
                 </line-item-options-input>
 
                 <prism-editor v-else ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
@@ -66,7 +67,7 @@
         data() {
             return {
                 options: null,
-                errors: [],
+                errors: []
             }
         },
 
@@ -78,7 +79,7 @@
                     return {}
                 }
 
-                if (typeof lineItemOptionsConfig[this.lineItem.purchasableType] != "undefined") {
+                if (lineItemOptionsConfig.hasOwnProperty(this.lineItem.purchasableType)) {
                     return lineItemOptionsConfig[this.lineItem.purchasableType];
                 }
 
@@ -86,7 +87,11 @@
             },
 
             currentOptionValues() {
-                return JSON.parse(this.options);
+                if (this.options) {
+                    return JSON.parse(this.options)
+                }
+
+                return {};
             }
         },
 
@@ -94,13 +99,21 @@
             lineItem() {
                 if (this.lineItem) {
                     this.options = JSON.stringify(this.lineItem.options, null, '\t')
+
+                    this.$nextTick(() => {
+                        if (this.$refs.lineItemOptions) {
+                            this.$refs.lineItemOptions.setValues()
+                        }
+                    })
                 }
             },
 
             editing(value) {
                 if (value) {
                     this.$nextTick(() => {
-                        this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                        if (this.$refs.prismEditor) {
+                            this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                        }
                     })
                 }
             }
@@ -126,15 +139,34 @@
                 }
             },
 
+            onOptionsValidated(isValid) {
+                this.errors = []
+
+                if (isValid) {
+                    let newOptions = JSON.stringify(this.$refs.lineItemOptions.values, null, '\t');
+                    if (newOptions !== this.options) {
+                        this.onOptionsChangeWithValidJson(newOptions)
+                    }
+                } else {
+                    this.errors = ['Invalid options']
+                }
+            },
+
             onOptionsChangeWithValidJson: debounce(function(options) {
                 const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
             }, 2000)
+
         },
 
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
+            this.$nextTick(() => {
+                if (this.$refs.lineItemOptions) {
+                    this.$refs.lineItemOptions.setValues()
+                }
+            })
         }
     }
 </script>
