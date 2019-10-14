@@ -467,11 +467,7 @@ class Plugin extends BasePlugin
             $headers = Craft::$app->getResponse()->getHeaders();
             // Send the X-Powered-By header?
             if (Craft::$app->getConfig()->getGeneral()->sendPoweredByHeader) {
-                $original = $headers->get('X-Powered-By');
-                $headers->set('X-Powered-By', $original . ($original ? ',' : '') . 'Craft Commerce');
-            } else {
-                // In case PHP is already setting one
-                header_remove('X-Powered-By');
+                $headers->add('X-Powered-By', 'Craft Commerce');
             }
         }
     }
