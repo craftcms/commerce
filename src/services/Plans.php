@@ -12,7 +12,7 @@ use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
 use craft\commerce\events\PlanEvent;
-use craft\commerce\Plugin as Commerce;
+use craft\commerce\Plugin;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\Db;
@@ -224,7 +224,7 @@ class Plans extends Component
             $record = PlanRecord::findOne($plan->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Craft::t('commerce', 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
+                throw new InvalidConfigException(Plugin::t( 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
             }
         } else {
             $record = new PlanRecord();
@@ -376,7 +376,7 @@ class Plans extends Component
      */
     private function _populatePlan(array $result): Plan
     {
-        $gateway = Commerce::getInstance()->getGateways()->getGatewayById($result['gatewayId']);
+        $gateway = Plugin::getInstance()->getGateways()->getGatewayById($result['gatewayId']);
 
         if (!$gateway instanceof SubscriptionGateway) {
             throw new InvalidConfigException('This gateway does not support subscriptions');

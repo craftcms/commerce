@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\State;
+use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use yii\base\Component;
@@ -209,7 +210,7 @@ class States extends Component
             $record = StateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No state exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No state exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
