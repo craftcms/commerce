@@ -145,10 +145,10 @@
                 }
             },
 
-            onOptionsValidated(isValid) {
+            onOptionsValidated(event) {
                 this.errors = []
 
-                if (isValid) {
+                if (event.valid) {
                     let newOptions = JSON.stringify(this.$refs.lineItemOptions.values, null, '\t');
                     if (newOptions !== this.options) {
 
@@ -161,7 +161,7 @@
 
                     }
                 } else {
-                    this.errors = ['Invalid options']
+                    this.errors = [event.error]
                 }
             },
 

@@ -46,6 +46,10 @@
                     v-on:validated="onLineItemOptionsValidated">
                 </line-item-options-input>
 
+                <ul v-if="lineItemOptionsErrors.length > 0" class="errors">
+                    <li v-for="(error, key) in lineItemOptionsErrors" :key="key">{{error}}</li>
+                </ul>
+
                 <div class="buttons">
                     <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="handleHideForm" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" />
@@ -72,7 +76,8 @@
             return {
                 showForm: false,
                 selectedPurchasable: null,
-                validLineItemOptions: false
+                validLineItemOptions: false,
+                lineItemOptionsErrors: []
             }
         },
 
@@ -165,8 +170,14 @@
                 this.selectedPurchasable = null
             },
 
-            onLineItemOptionsValidated(isValid) {
-                this.validLineItemOptions = isValid
+            onLineItemOptionsValidated(event) {
+                this.validLineItemOptions = event.valid
+
+                if (!event.valid) {
+                    this.lineItemOptionsErrors = [event.error]
+                } else {
+                    this.lineItemOptionsErrors = []
+                }
             },
 
             lineItemAdd() {

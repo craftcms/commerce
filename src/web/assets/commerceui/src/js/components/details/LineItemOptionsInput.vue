@@ -109,15 +109,27 @@
 
                     // Check if required
                     if (configObj.hasOwnProperty('required') && configObj.required && !this.values[configKey]) {
-                        this.$emit('validated', false)
+                        this.$emit('validated', {
+                            valid: false,
+                            error: `“${configObj.label}” is required.`
+                        })
                         return
                     }
 
-                    // TODO: Check the type of value is correct
+                    // Check the type of value is correct
+                    if (configObj.type === 'number' && this.values[configKey] && Number.isNaN(Number(this.values[configKey]))) {
+                        this.$emit('validated', {
+                            valid: false,
+                            error: `“${configObj.label}” should be a number.`
+                        })
+                        return
+                    }
 
                 }
 
-                this.$emit('validated', true)
+                this.$emit('validated', {
+                    valid: true
+                })
             }
 
         },
