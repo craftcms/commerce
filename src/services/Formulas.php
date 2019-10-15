@@ -83,7 +83,7 @@ class Formulas extends Component
      * @oaram string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      */
-    public function evaluateCondition(string $formula, $params, $name): bool
+    public function evaluateCondition(string $formula, $params, $name = 'Evalute Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');
