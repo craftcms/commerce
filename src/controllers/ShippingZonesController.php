@@ -86,6 +86,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
+        $shippingZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $shippingZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
