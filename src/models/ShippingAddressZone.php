@@ -54,6 +54,11 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     public $default = false;
 
     /**
+     * @var string The code to match the zip code.
+     */
+    public $zipCodeConditionFormula;
+
+    /**
      * @var bool Country based
      */
     private $_isCountryBased = true;
@@ -161,6 +166,14 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
         }
 
         return $this->_states;
+    }
+
+    /**
+     * @return string
+     */
+    public function getZipCodeConditionFormula(): string
+    {
+        return $this->zipCodeConditionFormula;
     }
 
     /**

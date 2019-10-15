@@ -122,6 +122,7 @@ class ShippingZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
+        $record->zipCodeConditionFormula = $model->zipCodeConditionFormula;
         $record->isCountryBased = $model->isCountryBased;
 
         $countryIds = $model->getCountryIds();
@@ -213,6 +214,7 @@ class ShippingZones extends Component
                 'name',
                 'description',
                 'isCountryBased',
+                'zipCodeConditionFormula'
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);

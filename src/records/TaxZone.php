@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $isCountryBased
  * @property bool $default
  * @property string $description
+ * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
  * @property State[] $states
