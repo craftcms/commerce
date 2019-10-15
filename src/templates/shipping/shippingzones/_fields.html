@@ -1,5 +1,11 @@
 {% import "_includes/forms" as forms %}
 
+{% do view.registerTranslations('commerce', [
+"Invalid Condition Syntax",
+"Valid Condition Syntax",
+]) %}
+
+<div>
 {{ forms.textField({
     first: true,
     label: "Name"|t('commerce'),
@@ -9,8 +15,7 @@
     value: shippingZone is defined ? shippingZone.name,
     errors: shippingZone is defined ? shippingZone.getErrors('name'),
     autofocus: true,
-    required: true,
-    translatable: true
+    required: true
 }) }}
 
 {{ forms.textField({
@@ -56,32 +61,165 @@
     class: 'selectize fullwidth',
 }) }}
 
+<div class="flex" style="align-items: flex-start;">
+<div style="margin-right: 30px">
+    <div style="position:relative;">
+        {{ forms.textareaField({
+            label: 'Zip Code Condition Formula'|t('commerce'),
+            id: 'zipCodeConditionFormula',
+            rows: 5,
+            instructions: 'Use a formula to match the zip code. Leave this blank to match all zip codes. Use the `zipCode` variable.  e.g `zipCode[0:2] == \'NG\'`'|t('commerce'),
+            tip: 'This field uses the Twig expression sytax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            value: shippingZone.zipCodeConditionFormula,
+            name: 'zipCodeConditionFormula',
+            errors: shippingZone is defined ? shippingZone.getErrors('zipCodeConditionFormula'),
+            class: 'fullwidth code'
+        }) }}
+        <div style="position:absolute; right: 0; bottom: -12px">
+            <p id="validMessage" class="hidden"></p>
+            <div id="validSpinner" style="" class="spinner hidden"></div>
+        </div>
+    </div>
+</div>
+<div>
+    <div style="position:relative;">
+        {{ forms.textField({
+            label: 'Test Zip Code'|t('commerce'),
+            id: 'testZipCode',
+            instructions: 'Type a test zip to see if your match works.'|t('commerce'),
+            class: 'fullwidth code testZipCode'
+        }) }}
+        <div style="position:absolute; right: 0; bottom: -35px;">
+            <p id="testMessage" class="hidden"></p>
+            <div id="testSpinner" style="" class="spinner hidden"></div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+</div>
 {% set countriesId = 'countries'|namespaceInputId|e('js') %}
 {% set statesId = 'states'|namespaceInputId|e('js') %}
 {% set isCountryBasedName = 'isCountryBased'|namespaceInputName|e('js') %}
 
 {% js %}
     $('#{{ countriesId }}, #{{ statesId }}').selectize({
-    plugins: ['remove_button'],
-    dropdownParent: 'body'
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
     });
 
     $('[name="{{ isCountryBasedName }}"]').change(function () {
     if (!$(this).is(':checked')) {
-    return;
+        return;
     }
+
     if ($(this).val() * 1) {
-    $('#{{ countriesId }}')[0].selectize.enable();
-    $('#{{ statesId }}')[0].selectize.disable();
-    $('#{{ countriesId }}-field').show();
-    $('#{{ statesId }}-field').hide();
+        $('#{{ countriesId }}')[0].selectize.enable();
+        $('#{{ statesId }}')[0].selectize.disable();
+        $('#{{ countriesId }}-field').show();
+        $('#{{ statesId }}-field').hide();
     } else {
-    $('#{{ countriesId }}')[0].selectize.disable();
-    $('#{{ statesId }}')[0].selectize.enable();
-    $('#{{ countriesId }}-field').hide();
-    $('#{{ statesId }}-field').show();
+        $('#{{ countriesId }}')[0].selectize.disable();
+        $('#{{ statesId }}')[0].selectize.enable();
+        $('#{{ countriesId }}-field').hide();
+        $('#{{ statesId }}-field').show();
     }
     });
 
     $('[name="{{ isCountryBasedName }}"]:checked').trigger('change');
+
+    // setup for debouncing
+    var typingTimer;                //timer identifier
+    var doneTypingInterval = 1000;  //time in ms, 5 second for example
+
+    var $zipCodeConditionFormula = $('#zipCodeConditionFormula');
+    var $testZipCode = $('#testZipCode');
+
+    var $testMessage = $('#testMessage');
+    var $validMessage = $('#validMessage');
+
+    function startedTyping () {
+        $('#validSpinner').removeClass('hidden');
+        $('#testSpinner').removeClass('hidden');
+        $validMessage.addClass('hidden');
+        $testMessage.addClass('hidden');
+    }
+
+    //on keyup, start the countdown
+    $testZipCode.on('keyup', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        startedTyping();
+    });
+
+    //on keyup, start the countdown
+    $zipCodeConditionFormula.on('keyup', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
+    startedTyping();
+    });
+
+    //on keydown, clear the countdown
+    $zipCodeConditionFormula.on('keydown', function () {
+        clearTimeout(typingTimer);
+    });
+
+    //user is "finished typing," do something
+    function doneTyping () {
+        $.post({
+            url: Craft.getActionUrl('commerce/shipping-zones/test-zip'),
+            data: {
+                zipCodeConditionFormula: $zipCodeConditionFormula.val(),
+                testZipCode : $testZipCode.val()
+            },
+            dataType: 'json',
+            headers: {
+                'X-CSRF-Token': Craft.csrfTokenValue
+            },
+            success: function(data){
+                $('#testSpinner').addClass('hidden');
+
+                if(data.hasOwnProperty('error')){
+                    $testMessage.text(Craft.t('commerce', 'Zip code doesn’t match condition'));
+                    $testMessage.css('color','#da5a47');
+                    $testMessage.removeClass('hidden');
+                }else{
+                    $testMessage.text(Craft.t('commerce', 'Zip Code Matches'));
+                    $testMessage.css('color','#00b007');
+                    $testMessage.removeClass('hidden');
+                }
+            }
+        });
+
+        $.post({
+            url: Craft.getActionUrl('commerce/formulas/validate-condition'),
+            data: {
+                condition: $zipCodeConditionFormula.val(),
+                params: { zipCode : '' }
+            },
+            dataType: 'json',
+            headers: {
+                'X-CSRF-Token': Craft.csrfTokenValue
+            },
+            success: function(data){
+                $('#validSpinner').addClass('hidden');
+
+                if(data.hasOwnProperty('error')){
+                    $validMessage.text(Craft.t('commerce', 'Invalid Condition Syntax'));
+                    $validMessage.css('color','#da5a47');
+                    $validMessage.removeClass('hidden');
+                }else{
+                    $validMessage.text(Craft.t('commerce', 'Valid Condition Syntax'));
+                    $validMessage.css('color','#00b007');
+                    $validMessage.removeClass('hidden');
+                }
+            }
+        });
+    }
 {% endjs %}
+{% css %}
+.testZipCode{
+    background-color: #fffff2;
+}
+{% endcss %}

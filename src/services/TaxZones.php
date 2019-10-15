@@ -128,6 +128,7 @@ class TaxZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
+        $record->zipCodeConditionFormula = $model->zipCodeConditionFormula;
         $record->isCountryBased = $model->isCountryBased;
         $record->default = $model->default;
 
@@ -227,6 +228,7 @@ class TaxZones extends Component
                 'name',
                 'description',
                 'isCountryBased',
+                'zipCodeConditionFormula',
                 'default',
             ])
             ->orderBy('name')
