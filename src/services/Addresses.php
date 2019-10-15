@@ -13,6 +13,7 @@ use craft\commerce\db\Table;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
+use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
@@ -286,10 +287,12 @@ class Addresses extends Component
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
 
-            if (in_array($address->countryId, $countryIds, false)) {
-                return true;
+            if (!in_array($address->countryId, $countryIds, false)) {
+                return false;
             }
-        } else {
+        }
+
+        if (!$zone->getIsCountryBased()) {
             $states = [];
             $countries = [];
             $stateNames = [];
@@ -306,12 +309,21 @@ class Addresses extends Component
             $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
             $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
 
-            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
-                return true;
+            if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
+                return false;
             }
         }
 
-        return false;
+        if ($zone->getZipCodeConditionFormula() !== '') {
+            $formulasService = Plugin::getInstance()->getFormulas();
+            // The saved formula should always be saved as valid.
+            // Throwing an exception could happen, but that is correct at this point if the syntax is not valid.
+            if (!$formulasService->evaluateCondition($zone->getZipCodeConditionFormula(), $address->zipCode, 'Zip Code condition formula matching address')) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Private Methods
