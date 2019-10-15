@@ -158,4 +158,24 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
     }
+
+    /**
+     * @return Response
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionTestZip()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $zipCodeFormula = Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+
+        $params = ['zipCode' => $testZipCode];
+        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->asErrorJson('failed');
+    }
 }
