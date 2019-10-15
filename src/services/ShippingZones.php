@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
+use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
@@ -106,7 +107,7 @@ class ShippingZones extends Component
             $record = ShippingZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping zone exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Plugin::t( 'No shipping zone exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new ShippingZoneRecord();
@@ -131,13 +132,13 @@ class ShippingZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
+                $model->addError('countries', Plugin::t( 'At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
+                $model->addError('states', Plugin::t( 'At least one state must be selected.'));
             }
         }
 
