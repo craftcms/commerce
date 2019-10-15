@@ -139,6 +139,7 @@ class TaxRates extends Component
         }
 
         $record->name = $model->name;
+        $record->code = $model->code;
         $record->rate = $model->rate;
         $record->include = $model->include;
         $record->isVat = $model->isVat;
@@ -246,6 +247,7 @@ class TaxRates extends Component
                 'taxZoneId',
                 'taxCategoryId',
                 'name',
+                'code',
                 'rate',
                 'include',
                 'isVat',

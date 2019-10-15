@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $include
  * @property bool $isVat
  * @property string $name
+ * @property string $code
  * @property float $rate
  * @property string $taxable
  * @property TaxCategory $taxCategory
