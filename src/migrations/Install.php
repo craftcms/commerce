@@ -374,6 +374,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
+            'description' => $this->string(),
             'dateDeleted' => $this->dateTime(),
             'sortOrder' => $this->integer(),
             'default' => $this->boolean(),

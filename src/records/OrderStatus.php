@@ -19,6 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $default
  * @property Email[] $emails
  * @property string $handle
+ * @property string $description
  * @property int $id
  * @property bool $dateDeleted
  * @property string $name
