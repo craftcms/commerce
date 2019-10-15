@@ -53,6 +53,11 @@ class OrderStatus extends Model
     public $color = 'green';
 
     /**
+     * @var string Description
+     */
+    public $description;
+
+    /**
      * @var int Sort order
      */
     public $sortOrder;
