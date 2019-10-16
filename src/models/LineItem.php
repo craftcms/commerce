@@ -501,7 +501,10 @@ class LineItem extends Model
         $this->purchasableType = get_class($purchasable);
     }
 
-    public function getPurchasableType()
+    /**
+     * @return string
+     */
+    public function getPurchasableType(): string
     {
         if (!$this->_purchasable) {
             $this->getPurchasable();
@@ -512,7 +515,6 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     *
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
