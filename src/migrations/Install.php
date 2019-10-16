@@ -127,6 +127,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'iso' => $this->string(2)->notNull(),
             'isStateRequired' => $this->boolean(),
+            'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

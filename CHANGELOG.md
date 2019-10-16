@@ -10,6 +10,7 @@
 - Order status now have a description field. ([#1004](https://github.com/craftcms/commerce/issues/1004))
 - Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
+- Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status. ([#945](https://github.com/craftcms/commerce/issues/945))
