@@ -26,6 +26,7 @@
 - Fixed a bug where deleted order statuses did not appear in history tab within the order edit page.
 - Fixed a bug where breadcrumbs were not displaying correcting for “Shipping” and “Tax” CP sections.
 - Fixed a bug where the order element index did not have permanent URLs for order statuses. ([#901](https://github.com/craftcms/commerce/issues/901))
+- Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
 
 ## 2.1.13 - 2019-09-09
 
