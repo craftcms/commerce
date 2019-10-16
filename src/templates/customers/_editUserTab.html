@@ -2,8 +2,8 @@
   {% if customer %}
 
     {% if currentUser.can('commerce-manageOrders') %}
+      <h2>{{ 'Orders'|t('commerce') }}</h2>
       {% set orders = customer.orders %}
-
       <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
         <p>{{ "No orders exist for this user yet."|t('commerce') }}</p>
       </div>
@@ -29,16 +29,75 @@
           {% endfor %}
           </tbody>
         </table>
+
+        <br>
+        <h2>{{ 'Active Carts'|t('commerce') }}</h2>
+        {% set activeCarts = customer.getActiveCarts() %}
+
+        {% if activeCarts %}
+          <table class="data fullwidth collapsible">
+            <thead>
+            <tr>
+              <th scope="col">{{ 'Cart'|t('commerce') }}</th>
+              <th scope="col">{{ 'Date Updated'|t('commerce') }}</th>
+              <th scope="col">{{ 'total'|t('commerce') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in activeCarts %}
+              <tr>
+                <td>{{ order.link|raw }}</td>
+                <td>{{ craft.app.formatter.asTimestamp(order.dateUpdated, 'short') }}</td>
+                <td>{{ order.totalPrice|currency(order.currency) }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div>
+            <p>{{ 'No active carts exist for this customer.'|t('commerce') }}</p>
+          </div>
+        {% endif %}
+
+        <br>
+        <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
+        {% set inactiveCarts = customer.getInactiveCarts() %}
+
+        {% if inactiveCarts %}
+          <table class="data fullwidth collapsible">
+            <thead>
+            <tr>
+              <th scope="col">{{ 'Cart'|t('commerce') }}</th>
+              <th scope="col">{{ 'Date Updated'|t('commerce') }}</th>
+              <th scope="col">{{ 'total'|t('commerce') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in inactiveCarts %}
+              <tr>
+                <td>{{ order.link|raw }}</td>
+                <td>{{ craft.app.formatter.asTimestamp(order.dateUpdated, 'short') }}</td>
+                <td>{{ order.totalPrice|currency(order.currency) }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div>
+            <p>{{ 'No active carts exist for this customer.'|t('commerce') }}</p>
+          </div>
+        {% endif %}
       {% endif %}
 
       {% set addresses = customer.addresses %}
       <div id="no-addresses"{% if addresses|length %} class="hidden"{% endif %}>
         <p>{{ "No addresses exist for this user yet."|t('commerce') }}</p>
       </div>
-      <br>
+
       {% if addresses|length %}
+        <hr>
         <div class="address-heading-label">
-          <label>{{ "Addresses"|t('commerce') }}</label>
+          <h2>{{ "Addresses"|t('commerce') }}</h2>
         </div>
         <div class="address-boxes">
           {% for address in addresses %}
@@ -57,33 +116,38 @@
     {% endif %}
 
     {% if currentUser.can('commerce-manageSubscriptions') %}
+      <hr>
+      <h2>{{ 'Subscriptions'|t('commerce') }}</h2>
       {% set subscriptions = customer.subscriptions %}
       <div id="no-subscriptions"{% if subscriptions|length %} class="hidden"{% endif %}>
         <p>{{ "No subscriptions exist for this user yet."|t('commerce') }}</p>
       </div>
-      <br>
-      <table class="data fullwidth collapsible">
-        <thead>
-        <tr>
-          <th scope="col">{{ 'Subscription'|t('commerce') }}</th>
-          <th scope="col">{{ 'Subscription date'|t('commerce') }}</th>
-          <th scope="col">{{ 'Cancellation date'|t('commerce') }}</th>
-          <th scope="col">{{ 'Expiration date'|t('commerce') }}</th>
-          <th scope="col">{{ 'Is subscription active?'|t('commerce') }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for subscription in subscriptions %}
+
+      {% if subscriptions|length %}
+        <br>
+        <table class="data fullwidth collapsible">
+          <thead>
           <tr>
-            <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
-            <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
-            <td>{{ subscription.dateCanceled ? subscription.dateCanceled|date('D dS M Y') : '' }}</td>
-            <td>{{ subscription.dateExpired ? subscription.dateExpired|date('D dS M Y') : '' }}</td>
-            <td>{{ subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
+            <th scope="col">{{ 'Subscription'|t('commerce') }}</th>
+            <th scope="col">{{ 'Subscription date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Cancellation date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Expiration date'|t('commerce') }}</th>
+            <th scope="col">{{ 'Is subscription active?'|t('commerce') }}</th>
           </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          {% for subscription in subscriptions %}
+            <tr>
+              <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
+              <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
+              <td>{{ subscription.dateCanceled ? subscription.dateCanceled|date('D dS M Y') : '' }}</td>
+              <td>{{ subscription.dateExpired ? subscription.dateExpired|date('D dS M Y') : '' }}</td>
+              <td>{{ subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
     {% endif %}
   {% endif %}
 
