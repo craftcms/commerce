@@ -1939,11 +1939,7 @@ class Order extends Element
 
         $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
-        $edge = new DateTime();
-        $interval = new DateInterval('PT1H');
-        $interval->invert = 1;
-        $edge->add($interval);
-        $edge = $edge->format(DateTime::ATOM);
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
 
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
