@@ -12,7 +12,8 @@
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
 
 ### Changed
-- The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945)) 
+- The “Paid Status” on an order to include an “Overpaid” status. ([#945](https://github.com/craftcms/commerce/issues/945))
+- Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
