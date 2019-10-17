@@ -202,14 +202,12 @@
 
     //user is "finished typing," do something
     function doneTyping () {
-        var postData = {
-            condition: $zipCodeConditionFormula.val(),
-            params: { zipCode : '' }
-        }
-        console.log(postData);
         $.post({
             url: Craft.getActionUrl('commerce/formulas/validate-condition'),
-            data: postData,
+            data: {
+                condition: $zipCodeConditionFormula.val(),
+                params: { zipCode : '' }
+            },
             dataType: 'json',
             headers: {
                 'X-CSRF-Token': Craft.csrfTokenValue
