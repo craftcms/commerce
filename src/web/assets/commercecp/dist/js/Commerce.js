@@ -87,6 +87,18 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='lastName'>" + this.address.lastName + "<br></span>").appendTo(this.$address);
         }
 
+        if (this.address.fullName) {
+            $("<span class='fullName'>" + this.address.fullName + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.label) {
+            $("<span class='label'>" + this.address.label + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.notes) {
+            $("<span class='notes'>" + this.address.notes + "<br></span>").appendTo(this.$address);
+        }
+
         if (this.address.businessName) {
             $("<span class='businessName'>" + this.address.businessName + "<br></span>").appendTo(this.$address);
         }
@@ -115,6 +127,10 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='address2'>" + this.address.address2 + "<br></span>").appendTo(this.$address);
         }
 
+        if (this.address.address3) {
+            $("<span class='address3'>" + this.address.address3 + "<br></span>").appendTo(this.$address);
+        }
+
         if (this.address.city) {
             $("<span class='city'>" + this.address.city + "<br></span>").appendTo(this.$address);
         }
@@ -129,6 +145,22 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         if (this.address.countryText) {
             $("<span class='countryText'>" + this.address.countryText + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom1) {
+            $("<span class='custom1'>" + this.address.custom1 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom2) {
+            $("<span class='custom2'>" + this.address.custom2 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom3) {
+            $("<span class='custom3'>" + this.address.custom3 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom4) {
+            $("<span class='custom4'>" + this.address.custom4 + "<br></span>").appendTo(this.$address);
         }
 
         if (!this.address.id) {
@@ -248,31 +280,23 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                     required: true,
                     type: 'Text'
                 },
+                {field: 'fullName', label: Craft.t('commerce', 'Full Name'), type: 'Text'},
                 {field: 'address1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
                 {field: 'address2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
+                {field: 'address3', label: Craft.t('commerce', 'Address 3'), type: 'Text'},
                 {field: 'city', label: Craft.t('commerce', 'City'), type: 'Text'},
                 {field: 'zipCode', label: Craft.t('commerce', 'Zip Code'), type: 'Text'},
                 {field: 'phone', label: Craft.t('commerce', 'Phone'), type: 'Text'},
-                {
-                    field: 'alternativePhone',
-                    label: Craft.t('commerce', 'Phone (Alt)'),
-                    type: 'Text'
-                },
-                {
-                    field: 'businessName',
-                    label: Craft.t('commerce', 'Business Name'),
-                    type: 'Text'
-                },
-                {
-                    field: 'businessTaxId',
-                    label: Craft.t('commerce', 'Business Tax ID'),
-                    type: 'Text'
-                },
-                {
-                    field: 'businessId',
-                    label: Craft.t('commerce', 'Business ID'),
-                    type: 'Text'
-                }
+                {field: 'alternativePhone', label: Craft.t('commerce', 'Phone (Alt)'), type: 'Text'},
+                {field: 'label', label: Craft.t('commerce', 'Label'), type: 'Text'},
+                {field: 'notes', label: Craft.t('commerce', 'Notes'), type: 'Textarea'},
+                {field: 'businessName', label: Craft.t('commerce', 'Business Name'), type: 'Text'},
+                {field: 'businessTaxId', label: Craft.t('commerce', 'Business Tax ID'), type: 'Text'},
+                {field: 'businessId', label: Craft.t('commerce', 'Business ID'), type: 'Text'},
+                {field: 'custom1', label: Craft.t('commerce', 'Custom 1'), type: 'Text'},
+                {field: 'custom2', label: Craft.t('commerce', 'Custom 2'), type: 'Text'},
+                {field: 'custom3', label: Craft.t('commerce', 'Custom 3'), type: 'Text'},
+                {field: 'custom4', label: Craft.t('commerce', 'Custom 4'), type: 'Text'}
             ];
 
             this.fields = [];
@@ -359,20 +383,28 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'title': this.$form.find('input[name=' + this.id + 'title]').val(),
                 'firstName': this.$form.find('input[name=' + this.id + 'firstName]').val(),
                 'lastName': this.$form.find('input[name=' + this.id + 'lastName]').val(),
+                'fullName': this.$form.find('input[name=' + this.id + 'fullName]').val(),
                 'address1': this.$form.find('input[name=' + this.id + 'address1]').val(),
                 'address2': this.$form.find('input[name=' + this.id + 'address2]').val(),
+                'address3': this.$form.find('input[name=' + this.id + 'address3]').val(),
                 'city': this.$form.find('input[name=' + this.id + 'city]').val(),
                 'zipCode': this.$form.find('input[name=' + this.id + 'zipCode]').val(),
                 'phone': this.$form.find('input[name=' + this.id + 'phone]').val(),
                 'alternativePhone': this.$form.find('input[name=' + this.id + 'alternativePhone]').val(),
+                'label': this.$form.find('input[name=' + this.id + 'label]').val(),
+                'notes': this.$form.find('textarea[name=' + this.id + 'notes]').val(),
                 'businessName': this.$form.find('input[name=' + this.id + 'businessName]').val(),
                 'businessTaxId': this.$form.find('input[name=' + this.id + 'businessTaxId]').val(),
                 'businessId': this.$form.find('input[name=' + this.id + 'businessId]').val(),
                 'stateValue': this.$form.find('select[name=' + this.id + 'stateValue]').val(),
-                'countryId': this.$form.find('select[name=' + this.id + 'countryId]').val()
+                'countryId': this.$form.find('select[name=' + this.id + 'countryId]').val(),
+                'custom1': this.$form.find('input[name=' + this.id + 'custom1]').val(),
+                'custom2': this.$form.find('input[name=' + this.id + 'custom2]').val(),
+                'custom3': this.$form.find('input[name=' + this.id + 'custom3]').val(),
+                'custom4': this.$form.find('input[name=' + this.id + 'custom4]').val()
             };
 
-
+            console.log(this.address);
             var self = this;
             this.settings.onSubmit({'address': this.address}, $.proxy(function(errors) {
                 self.errors = errors;
