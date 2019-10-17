@@ -131,16 +131,18 @@
                 </tbody>
             </table>
 
-            <form method="POST">
-                <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
-                {{ redirectInput(continueEditingUrl) }}
-                {{ csrfInput() }}
+            {% if not subscription.isCanceled and not subscription.isExpired %}
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
+                    <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+                    {{ redirectInput(continueEditingUrl) }}
+                    {{ csrfInput() }}
 
-                <div class="field">
-                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
-                </div>
-            </form>
+                    <div class="field">
+                        <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
+                    </div>
+                </form>
+            {% endif %}
         </div>
     </div>
 

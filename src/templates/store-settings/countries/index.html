@@ -15,6 +15,7 @@
                 <th scope="col">{{ 'Country Code'|t('commerce') }}</th>
                 <th scope="col">{{ 'State Required?'|t('commerce') }}</th>
                 <td class="thin"></td>
+                <td class="thin"></td>
             </tr>
             </thead>
             <tbody>
@@ -27,6 +28,11 @@
                     <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.isStateRequired %}
                         <span data-icon="check"
                               title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
+                    </td>
+                    <td class="thin">
+                        <a class="move icon disabled"
+                           title="{{ 'Move'|t('commerce') }}"
+                           role="button"></a>
                     </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"
@@ -51,6 +57,10 @@
     noObjectsSelector: '#no-countries',
     deleteAction: 'commerce/countries/delete',
     confirmDeleteMessage:  Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?') ,
-    deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}'
+    deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}',
+    sortable: true,
+    reorderAction: 'commerce/countries/reorder',
+    reorderSuccessMessage: Craft.t('commerce', 'Countries reordered.') ,
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder countries.')
     });
 {% endjs %}

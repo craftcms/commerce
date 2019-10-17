@@ -247,6 +247,22 @@ class Countries extends Component
         return false;
     }
 
+    /**
+     * @param array $ids
+     * @return bool
+     * @throws \yii\db\Exception
+     */
+    public function reorderCountries(array $ids): bool
+    {
+        $command = Craft::$app->getDb()->createCommand();
+
+        foreach ($ids as $index => $id) {
+            $command->update(Table::COUNTRIES, ['sortOrder' => $index + 1], ['id' => $id])->execute();
+        }
+
+        return true;
+    }
+
     // Private methods
     // =========================================================================
 
@@ -265,6 +281,6 @@ class Countries extends Component
                 'countries.isStateRequired'
             ])
             ->from([Table::COUNTRIES . ' countries'])
-            ->orderBy(['name' => SORT_ASC]);
+            ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);
     }
 }

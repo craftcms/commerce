@@ -114,7 +114,7 @@
 {% endmacro %}
 
 
-{% macro generalVariantFields(variant) %}
+{% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
 
@@ -133,16 +133,24 @@
         }) }}
     {% endif %}
 
-    {{ forms.textField({
-        id: 'sku',
-        label: 'SKU'|t('commerce'),
-        required: true,
-        name: 'sku',
-        value: variant.sku,
-        placeholder: 'Enter SKU'|t('commerce'),
-        class: 'code',
-        errors: variant.getErrors('sku')
-    }) }}
+    {# For a new product hide/show the SKU field#}
+    {% if product.type.skuFormat and (not product.id or not variant.id) %}
+        {{ forms.hidden({
+            name: 'sku',
+            value: ''
+        }) }}
+    {% else %}
+        {{ forms.textField({
+            id: 'sku',
+            label: 'SKU'|t('commerce'),
+            required: true,
+            name: 'sku',
+            value: variant.sku,
+            placeholder: 'Enter SKU'|t('commerce'),
+            class: 'code',
+            errors: variant.getErrors('sku')
+        }) }}
+    {% endif %}
 
     {{ forms.textField({
         id: 'price',

@@ -2,7 +2,7 @@
 
 <div class="variant-properties meta">
     {% namespace namespace %}
-        {{ productFields.generalVariantFields(variant) }}
+        {{ productFields.generalVariantFields(variant, product) }}
         {% if variant.getProduct().getType().hasDimensions %}
             {{ productFields.dimensionVariantFields(variant) }}
         {% endif %}

@@ -1934,7 +1934,10 @@ class Order extends Element
                 'label' => $orderStatus->name,
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
+                'badgeCount' => $count,
+                'data' => [
+                    'handle' => $orderStatus->handle
+                ]
             ];
         }
 
@@ -1955,6 +1958,9 @@ class Order extends Element
             'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => $criteriaActive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
+            'data' => [
+                'handle' => 'cartsActive'
+            ]
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
@@ -1964,7 +1970,10 @@ class Order extends Element
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => $criteriaInactive,
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsInactive'
+            ]
         ];
 
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
@@ -1973,6 +1982,9 @@ class Order extends Element
             'label' => Craft::t('commerce', 'Attempted Payments'),
             'criteria' => $criteriaAttemptedPayment,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsAttemptedPayment'
+            ]
         ];
 
         return $sources;
