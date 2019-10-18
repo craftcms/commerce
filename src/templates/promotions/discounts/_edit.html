@@ -125,7 +125,7 @@
             {{ forms.field({
                 'label': 'Times Coupon Used'|t('commerce'),
                 'id': 'total-coupon-use-counter',
-                'instructions': "How many times this coupon has been used, if a total coupon usage limit has been set."|t('commerce'),
+                'instructions': "How many times this discount has been used with a coupon code."|t('commerce'),
             }, '<input disabled class="text disabled fullwidth" value="' ~ discount.totalUses ~ ' times">') }}
 
             {% if discount.id and discount.code|length %}
