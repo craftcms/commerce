@@ -16,17 +16,21 @@ use yii\db\ActiveQueryInterface;
  *
  * @property string $address1
  * @property string $address2
+ * @property string $address3
  * @property string $alternativePhone
  * @property string $attention
  * @property string $businessId
  * @property string $businessName
  * @property string $businessTaxId
  * @property string $city
+ * @property string $label
+ * @property string $notes
  * @property Country $country
  * @property int $countryId
  * @property string $firstName
  * @property int $id
  * @property string $lastName
+ * @property string $fullName
  * @property string $phone
  * @property State $state
  * @property int $stateId
@@ -34,6 +38,10 @@ use yii\db\ActiveQueryInterface;
  * @property bool $isStoreLocation
  * @property string $title
  * @property string $zipCode
+ * @property string $custom1
+ * @property string $custom2
+ * @property string $custom3
+ * @property string $custom4
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

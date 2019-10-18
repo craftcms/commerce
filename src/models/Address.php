@@ -85,6 +85,11 @@ class Address extends Model
     public $lastName;
 
     /**
+     * @var string Full Name
+     */
+    public $fullName;
+
+    /**
      * @var string Address Line 1
      */
     public $address1;
@@ -93,6 +98,11 @@ class Address extends Model
      * @var string Address Line 2
      */
     public $address2;
+
+    /**
+     * @var string Address Line 3
+     */
+    public $address3;
 
     /**
      * @var string City
@@ -113,6 +123,11 @@ class Address extends Model
      * @var string Alternative Phone
      */
     public $alternativePhone;
+
+    /**
+     * @var string Label
+     */
+    public $label;
 
     /**
      * @var string Business Name
@@ -143,6 +158,31 @@ class Address extends Model
      * @var int Country ID
      */
     public $stateId;
+
+    /**
+     * @var string Notes
+     */
+    public $notes;
+
+    /**
+     * @var string Custom Field 1
+     */
+    public $custom1;
+
+    /**
+     * @var string Custom Field 2
+     */
+    public $custom2;
+
+    /**
+     * @var string Custom Field 3
+     */
+    public $custom3;
+
+    /**
+     * @var string Custom Field 4
+     */
+    public $custom4;
 
     /**
      * @var int|string Can be a State ID or State Name

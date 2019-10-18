@@ -106,6 +106,7 @@ class DiscountsController extends BaseCpController
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
+        $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;

@@ -298,6 +298,14 @@
         }, pctDiscountInput) }}
 
         {{ forms.checkboxField({
+            label: "Ignore sales when this discount is applied."|t('commerce'),
+            id: 'ignoreSales',
+            name: 'ignoreSales',
+            value: 1,
+            checked: discount.ignoreSales
+        }) }}
+
+        {{ forms.checkboxField({
             label: "Remove all shipping costs from the order"|t('commerce'),
             id: 'hasFreeShippingForOrder',
             name: 'hasFreeShippingForOrder',
