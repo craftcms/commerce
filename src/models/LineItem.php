@@ -420,7 +420,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
