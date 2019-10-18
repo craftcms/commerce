@@ -47,16 +47,15 @@
                         }
                     });
 
-                    eval('{{ js|e("js") }}');
-
                     setTimeout(function() {
-                    $form.find('.text:first').focus();
-
-                    modal.updateSizeAndPosition();
-
-                    $form.find('.body:first').on('resize', function() {
+                        $form.find('.text:first').focus();
                         modal.updateSizeAndPosition();
+
+                        $form.find('.body:first').on('resize', function() {
+                            modal.updateSizeAndPosition();
                         });
+
+                        eval('{{ js|e("js") }}');
                     }, 100);
 
                     $form.on('submit', function(ev) {
@@ -120,8 +119,16 @@
         value: taxRate.name,
         errors: taxRate.getErrors('name'),
         autofocus: true,
-        required: true,
-        translatable: true
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Code"|t('commerce'),
+        instructions: "Can be used as an internal reference."|t('commerce'),
+        name: 'code',
+        value: taxRate.code,
+        errors: taxRate.getErrors('code'),
+        class: 'code'
     }) }}
 
     {{ forms.selectField({

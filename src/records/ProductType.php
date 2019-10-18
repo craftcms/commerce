@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\FieldLayout;
 use yii\db\ActiveQueryInterface;
@@ -44,7 +45,7 @@ class ProductType extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_producttypes}}';
+        return Table::PRODUCTTYPES;
     }
 
     /**

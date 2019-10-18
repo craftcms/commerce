@@ -142,6 +142,7 @@ class TaxRatesController extends BaseTaxSettingsController
         // Shared attributes
         $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
+        $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');

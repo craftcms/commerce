@@ -32,6 +32,13 @@ class Settings extends Model
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
 
+    const VIEW_URI_ORDERS = 'commerce/orders';
+    const VIEW_URI_PRODUCTS = 'commerce/products';
+    const VIEW_URI_PROMOTIONS = 'commerce/promotions';
+    const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
+    const VIEW_URI_TAX = 'commerce/tax/taxrates';
+    const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
+
     // Properties
     // =========================================================================
 
@@ -118,6 +125,11 @@ class Settings extends Model
     /**
      * @var string
      */
+    public $activeCartDuration = 'PT1H';
+
+    /**
+     * @var string
+     */
     public $gatewayPostRedirectTemplate = '';
 
     /**
@@ -161,6 +173,11 @@ class Settings extends Model
     public $orderReferenceFormat = '{{number[:7]}}';
 
     /**
+     * @var string Default view for Commerce in the CP
+     */
+    public $defaultView = 'commerce/orders';
+
+    /**
      * @var string
      */
     public $cartVariable = 'cart';
@@ -169,6 +186,11 @@ class Settings extends Model
      * @var array
      */
     public $gatewaySettings = [];
+
+    /**
+     * @var bool Whether or not to show the customer info tab on the Edit User page
+     */
+    public $showCustomerTabOnEditUser = true;
 
     // Public Methods
     // =========================================================================
@@ -228,6 +250,21 @@ class Settings extends Model
         }
 
         return $paymentCurrency;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultViewOptions(): array
+    {
+        return [
+            self::VIEW_URI_ORDERS => Plugin::t('Orders'),
+            self::VIEW_URI_PRODUCTS => Plugin::t('Products'),
+            self::VIEW_URI_PROMOTIONS => Plugin::t('Promotions'),
+            self::VIEW_URI_SHIPPING => Plugin::t('Shipping'),
+            self::VIEW_URI_TAX => Plugin::t('Tax'),
+            self::VIEW_URI_SUBSCRIPTIONS => Plugin::t('Subscriptions'),
+        ];
     }
 
     /**

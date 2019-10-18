@@ -7,20 +7,35 @@
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - Added “Related Discounts” to the Edit Product page.
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
+- Added “Customer Info” tab to Edit User page, its appearance can be controlled with `showCustomerTabOnEditUser` Commerce setting.
+- Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
+- Added `getActiveCarts` and `getInactiveCarts` to the customer model.
+- Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
-- Sales and Discounts related categories can now be the source or the target of the relationship. ([#984](https://github.com/craftcms/commerce/issues/984)) 
+- Customer customer field is now deprecated and will be removed in Commerce 3.0.
+- Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
+- Added “Ignore sales when this discount is applied” option to Discounts to allow disregarding of sale prices. ([#1008](https://github.com/craftcms/commerce/issues/1008))
+- Added a new `shortNumber` order criteria param.
+- Order status now have a description field. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
+- Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
+- Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
+
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
-- Fixed a bug where the “Order Element Index” table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
+- Fixed a bug where the order element index table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
 - Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
 - Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
 - Fixed a bug where discounted shipping would still add tax to an order. ([#1007](https://github.com/craftcms/commerce/issues/1007))
 - `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
 - Fixed a bug where deleted order statuses would be taken into account when validating the handle uniqueness. ([#1027](https://github.com/craftcms/commerce/pull/1027))
 - Fixed a bug where deleted order statuses did not appear in history tab within the order edit page.
+- Fixed a bug where breadcrumbs were not displaying correcting for “Shipping” and “Tax” CP sections.
+- Fixed a bug where the order element index did not have permanent URLs for order statuses. ([#901](https://github.com/craftcms/commerce/issues/901))
+- Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
 
 ## 2.1.13 - 2019-09-09
 

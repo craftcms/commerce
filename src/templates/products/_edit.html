@@ -185,7 +185,7 @@
     <hr>
     {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
         <div class="meta">
-            {{ productFields.generalVariantFields(product.defaultVariant) }}
+            {{ productFields.generalVariantFields(product.defaultVariant, product) }}
         </div>
         {% if productType.hasDimensions %}
             <hr>

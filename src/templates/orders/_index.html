@@ -8,7 +8,7 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
 
 {% do craft.app.view.registerTranslations('commerce', [
-	"Export",
+    "Export",
     "Total Revenue",
     "Last 7 days",
     "Last 30 days",
@@ -17,3 +17,9 @@
     "Custom Range",
     "Apply"
 ]) %}
+
+{% if orderStatusHandle is defined and orderStatusHandle %}
+    {% js %}
+        window.defaultStatusHandle = '{{ orderStatusHandle }}';
+    {% endjs %}
+{% endif %}

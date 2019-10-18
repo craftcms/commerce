@@ -8,8 +8,10 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\TaxCategory;
+use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -184,7 +186,7 @@ class TaxCategories extends Component
             $record = TaxCategoryRecord::findOne($taxCategory->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No tax category exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No tax category exists with the ID “{id}”',
                     ['id' => $taxCategory->id]));
             }
 
@@ -218,7 +220,7 @@ class TaxCategories extends Component
         // Product type IDs this tax category is available to
         $currentProductTypeIds = (new Query())
             ->select(['productTypeId'])
-            ->from(['{{%commerce_producttypes_taxcategories}}'])
+            ->from([Table::PRODUCTTYPES_TAXCATEGORIES])
             ->where(['taxCategoryId' => $taxCategory->id])
             ->column();
 
@@ -243,11 +245,11 @@ class TaxCategories extends Component
         }
 
         // Remove existing Categories <-> ProductType relationships
-        Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_taxcategories}}', ['taxCategoryId' => $record->id])->execute();
+        Craft::$app->getDb()->createCommand()->delete(Table::PRODUCTTYPES_TAXCATEGORIES, ['taxCategoryId' => $record->id])->execute();
 
         foreach ($taxCategory->getProductTypes() as $productType) {
             $data = ['productTypeId' => (int)$productType->id, 'taxCategoryId' => $taxCategory->id];
-            Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_taxcategories}}', $data)->execute();
+            Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_TAXCATEGORIES, $data)->execute();
         }
 
         // Update Service cache
@@ -289,7 +291,7 @@ class TaxCategories extends Component
     public function getTaxCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createTaxCategoryQuery()
-            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
+            ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
             ->where(['productTypeTaxCategories.productTypeId' => $productTypeId])
             ->all();
 
@@ -344,6 +346,6 @@ class TaxCategories extends Component
                 'taxCategories.description',
                 'taxCategories.default'
             ])
-            ->from(['{{%commerce_taxcategories}} taxCategories']);
+            ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
 }

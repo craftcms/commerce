@@ -9,19 +9,25 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\UserEvent;
 
 /**
@@ -187,7 +193,7 @@ class Customers extends Component
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Craft::t('commerce', 'No customer exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No customer exists with the ID “{id}”',
                     ['id' => $customer->id]));
             }
         }
@@ -426,12 +432,12 @@ class Customers extends Component
         if ($customer) {
             $orders = (new Query())
                 ->select(['orders.id'])
-                ->from(['{{%commerce_orders}} orders'])
+                ->from([Table::ORDERS . ' orders'])
                 ->where(['orders.customerId' => $customer->id])
                 ->column();
 
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_orders}}', ['email' => $email], ['id' => $orders])
+                ->update(Table::ORDERS, ['email' => $email], ['id' => $orders])
                 ->execute();
         }
     }
@@ -475,7 +481,7 @@ class Customers extends Component
                 'primaryBillingAddressId',
                 'primaryShippingAddressId'
             ])
-            ->from(['{{%commerce_customers}}']);
+            ->from([Table::CUSTOMERS]);
     }
 
     /**
@@ -515,7 +521,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setBillingAddress($snapshotBillingAddress);
             } else {
-                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Plugin::t( 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -547,7 +553,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setShippingAddress($snapshotShippingAddress);
             } else {
-                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Plugin::t( 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -627,5 +633,50 @@ class Customers extends Component
             Craft::warning('Could not create user on order completion.', __METHOD__);
             Craft::warning($errors, __METHOD__);
         }
+    }
+
+    /**
+     * @param array $context
+     */
+    public function addEditUserCustomerInfoTab(array &$context)
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        if (Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser && !$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
+            $context['tabs']['customerInfo'] = [
+                'label' => Craft::t('commerce', 'Customer Info'),
+                'url' => '#customerInfo'
+            ];
+        }
+    }
+
+    /**
+     * Add customer info to the Edit User page in the CP
+     *
+     * @param array $context
+     * @return string
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws InvalidConfigException
+     */
+    public function addEditUserCustomerInfoTabContent(array &$context): string
+    {
+        if (!Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser) {
+            return '';
+        }
+
+        if (!$context['user'] || $context['isNewUser']) {
+            return '';
+        }
+
+        $customer = $this->getCustomerByUserId($context['user']->id);
+        if (!$customer) {
+            return '';
+        }
+
+        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+        return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
+            'customer' => $customer
+        ]);
     }
 }

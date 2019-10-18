@@ -84,6 +84,7 @@ class OrderStatusesController extends BaseAdminController
         $orderStatus->name = Craft::$app->getRequest()->getBodyParam('name');
         $orderStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $orderStatus->color = Craft::$app->getRequest()->getBodyParam('color');
+        $orderStatus->description = Craft::$app->getRequest()->getBodyParam('description');
         $orderStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $emailIds = Craft::$app->getRequest()->getBodyParam('emails', []);
 

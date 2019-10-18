@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
@@ -132,7 +133,7 @@ class OrderHistories extends Component
             $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order history exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No order history exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -198,6 +199,6 @@ class OrderHistories extends Component
                 'customerId',
                 'dateCreated'
             ])
-            ->from(['{{%commerce_orderhistories}}']);
+            ->from([Table::ORDERHISTORIES]);
     }
 }

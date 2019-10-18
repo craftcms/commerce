@@ -43,7 +43,7 @@ class ProductFixture extends ElementFixture
     /**
      * {@inheritdoc}
      */
-    public function init(): void
+    public function init()
     {
         parent::init();
 
