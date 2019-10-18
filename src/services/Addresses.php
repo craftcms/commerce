@@ -212,12 +212,16 @@ class Addresses extends Component
         $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
+        $addressRecord->fullName = $addressModel->fullName;
         $addressRecord->address1 = $addressModel->address1;
         $addressRecord->address2 = $addressModel->address2;
+        $addressRecord->address3 = $addressModel->address3;
         $addressRecord->city = $addressModel->city;
         $addressRecord->zipCode = $addressModel->zipCode;
         $addressRecord->phone = $addressModel->phone;
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
+        $addressRecord->label = $addressModel->label;
+        $addressRecord->notes = $addressModel->notes;
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
@@ -225,6 +229,10 @@ class Addresses extends Component
         $addressRecord->isStoreLocation = $addressModel->isStoreLocation;
         $addressRecord->stateId = $addressModel->stateId;
         $addressRecord->stateName = $addressModel->stateName;
+        $addressRecord->custom1 = $addressModel->custom1;
+        $addressRecord->custom2 = $addressModel->custom2;
+        $addressRecord->custom3 = $addressModel->custom3;
+        $addressRecord->custom4 = $addressModel->custom4;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
             Craft::$app->getDb()->createCommand()->update(Table::ADDRESSES, ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
@@ -355,18 +363,26 @@ class Addresses extends Component
                 'addresses.title',
                 'addresses.firstName',
                 'addresses.lastName',
+                'addresses.fullName',
                 'addresses.countryId',
                 'addresses.stateId',
                 'addresses.address1',
                 'addresses.address2',
+                'addresses.address3',
                 'addresses.city',
                 'addresses.zipCode',
                 'addresses.phone',
                 'addresses.alternativePhone',
+                'addresses.label',
+                'addresses.notes',
                 'addresses.businessName',
                 'addresses.businessTaxId',
                 'addresses.businessId',
-                'addresses.stateName'
+                'addresses.stateName',
+                'addresses.custom1',
+                'addresses.custom2',
+                'addresses.custom3',
+                'addresses.custom4'
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }
