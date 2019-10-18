@@ -37,6 +37,7 @@
 - Fixed a bug where the order element index did not have permanent URLs for order statuses. ([#901](https://github.com/craftcms/commerce/issues/901))
 - Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
 - Fixed a bug where gateways disabled in the `commerce-gateways.php` config file would continue to show in the front end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
+- Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
 
 ## 2.1.13 - 2019-09-09
 
