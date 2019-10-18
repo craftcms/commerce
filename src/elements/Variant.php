@@ -794,14 +794,14 @@ class Variant extends Purchasable
         // Don't reduce stock of unlimited items.
         if (!$this->hasUnlimitedStock) {
             // Update the qty in the db directly
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::VARIANTS,
                 ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
                 ['id' => $this->id])->execute();
 
             // Update the stock
             $this->stock = (new Query())
                 ->select(['stock'])
-                ->from('{{%commerce_variants}}')
+                ->from(\craft\commerce\db\Table::VARIANTS)
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
@@ -913,7 +913,7 @@ class Variant extends Purchasable
         }
 
         Craft::$app->getDb()->createCommand()
-            ->update('{{%commerce_variants}}', [
+            ->update(\craft\commerce\db\Table::VARIANTS, [
                 'deletedWithProduct' => $this->deletedWithProduct,
             ], ['id' => $this->id], [], false)
             ->execute();
@@ -932,7 +932,7 @@ class Variant extends Purchasable
 
         // Check to see if any other purchasable has the same SKU and update this one before restore
         $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
-            ->from('{{%commerce_purchasables}} p')
+            ->from(\craft\commerce\db\Table::PURCHASABLES . ' p')
             ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
             ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
@@ -943,20 +943,20 @@ class Variant extends Purchasable
             $this->sku = $this->getSku() . '-1';
 
             // Update variant table with new SKU
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_variants}}',
+            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::VARIANTS,
                 ['sku' => $this->sku],
                 ['id' => $this->getId()]
             )->execute();
 
             if ($this->isDefault) {
-                Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}',
+                Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::PRODUCTS,
                     ['defaultSku' => $this->sku],
                     ['id' => $this->productId]
                 )->execute();
             }
 
             // Update purchasable table with new SKU
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_purchasables}}',
+            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::PURCHASABLES,
                 ['sku' => $this->sku],
                 ['id' => $this->getId()]
             )->execute();

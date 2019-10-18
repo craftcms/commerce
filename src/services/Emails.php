@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
@@ -166,7 +167,7 @@ class Emails extends Component
         if ($isNewEmail) {
             $emailUid = StringHelper::UUID();
         } else {
-            $emailUid = Db::uidById('{{%commerce_emails}}', $email->id);
+            $emailUid = Db::uidById(Table::EMAILS, $email->id);
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -186,7 +187,7 @@ class Emails extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = Db::idByUid('{{%commerce_emails}}', $emailUid);
+            $email->id = Db::idByUid(Table::EMAILS, $emailUid);
         }
 
         return true;
@@ -319,6 +320,7 @@ class Emails extends Component
         $renderVariables = compact('order', 'orderHistory', 'option');
 
         $mailer = Craft::$app->getMailer();
+        /** @var Message $newEmail */
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
@@ -356,7 +358,7 @@ class Emails extends Component
 
                 $newEmail->setTo($emails);
             } catch (\Exception $e) {
-                $error = Craft::t('commerce', 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                $error = Plugin::t( 'Email template parse error for custom email “{email}” in “To:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -373,7 +375,7 @@ class Emails extends Component
         }
 
         if (!$newEmail->getTo()) {
-            $error = Craft::t('commerce', 'Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
+            $error = Plugin::t( 'Email error. No email address found for order. Order: “{order}”', ['order' => $order->getShortNumber()]);
             Craft::error($error, __METHOD__);
 
             Craft::$app->language = $originalLanguage;
@@ -393,7 +395,7 @@ class Emails extends Component
                     $newEmail->setBcc($bcc);
                 }
             } catch (\Exception $e) {
-                $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                $error = Plugin::t( 'Email template parse error for email “{email}” in “BCC:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -413,7 +415,7 @@ class Emails extends Component
         try {
             $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+            $error = Plugin::t( 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -432,7 +434,7 @@ class Emails extends Component
         try {
             $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+            $error = Plugin::t( 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -449,7 +451,7 @@ class Emails extends Component
 
         // Email Body
         if (!$view->doesTemplateExist($templatePath)) {
-            $error = Craft::t('commerce', 'Email template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
+            $error = Plugin::t( 'Email template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->templatePath,
                 'templateParsedPath' => $templatePath,
                 'email' => $email->name,
@@ -466,7 +468,7 @@ class Emails extends Component
         if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
             // Email Body
             if (!$view->doesTemplateExist($path)) {
-                $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
+                $error = Plugin::t( 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
                     'templatePath' => $path,
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
@@ -497,7 +499,7 @@ class Emails extends Component
                 $options = ['fileName' => $fileName . '.pdf', 'contentType' => 'application/pdf'];
                 $newEmail->attach($tempPath, $options);
             } catch (\Exception $e) {
-                $error = Craft::t('commerce', 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
+                $error = Plugin::t( 'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
@@ -517,7 +519,7 @@ class Emails extends Component
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
         } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+            $error = Plugin::t( 'Email template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
@@ -543,7 +545,7 @@ class Emails extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
             if (!$event->isValid) {
-                $error = Craft::t('commerce', 'Email “{email}”, for order "{order}" was cancelled by plugin.', [
+                $error = Plugin::t( 'Email “{email}”, for order "{order}" was cancelled by plugin.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
@@ -557,7 +559,7 @@ class Emails extends Component
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
-                $error = Craft::t('commerce', 'Commerce email “{email}” could not be sent for order “{order}”.', [
+                $error = Plugin::t( 'Commerce email “{email}” could not be sent for order “{order}”.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
@@ -570,7 +572,7 @@ class Emails extends Component
                 return false;
             }
         } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
+            $error = Plugin::t( 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -616,8 +618,8 @@ class Emails extends Component
     public function getAllEmailsByOrderStatusId(int $id): array
     {
         $results = $this->_createEmailQuery()
-            ->innerJoin('{{%commerce_orderstatus_emails}} statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
-            ->innerJoin('{{%commerce_orderstatuses}} orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
+            ->innerJoin(Table::ORDERSTATUS_EMAILS . ' statusEmails', '[[emails.id]] = [[statusEmails.emailId]]')
+            ->innerJoin(Table::ORDERSTATUSES . ' orderStatuses', '[[statusEmails.orderStatusId]] = [[orderStatuses.id]]')
             ->where(['orderStatuses.id' => $id])
             ->all();
 
@@ -655,7 +657,7 @@ class Emails extends Component
                 'emails.uid',
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_emails}} emails']);
+            ->from([Table::EMAILS . ' emails']);
     }
 
 

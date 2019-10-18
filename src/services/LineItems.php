@@ -9,9 +9,11 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
+use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\Json;
@@ -160,7 +162,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -334,6 +336,6 @@ class LineItems extends Component
                 'taxCategoryId',
                 'shippingCategoryId'
             ])
-            ->from(['{{%commerce_lineitems}} lineItems']);
+            ->from([Table::LINEITEMS . ' lineItems']);
     }
 }

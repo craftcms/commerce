@@ -12,6 +12,7 @@ use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\base\AdjusterInterface;
+use craft\commerce\db\Table;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
@@ -124,7 +125,7 @@ class OrderAdjustments extends Component
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order Adjustment exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No order Adjustment exists with the ID “{id}”',
                     ['id' => $orderAdjustment->id]));
             }
         } else {
@@ -209,6 +210,6 @@ class OrderAdjustments extends Component
                 'lineItemId',
                 'orderId'
             ])
-            ->from(['{{%commerce_orderadjustments}}']);
+            ->from([Table::ORDERADJUSTMENTS]);
     }
 }

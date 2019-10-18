@@ -41,6 +41,11 @@ class TaxRate extends Model
     public $name;
 
     /**
+     * @var string Code
+     */
+    public $code;
+
+    /**
      * @var float Rate
      */
     public $rate = .00;

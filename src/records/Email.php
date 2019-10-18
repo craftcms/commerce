@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
@@ -41,6 +42,6 @@ class Email extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_emails}}';
+        return Table::EMAILS;
     }
 }

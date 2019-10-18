@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\elements\Category;
 use yii\db\ActiveQueryInterface;
@@ -32,7 +33,7 @@ class DiscountCategory extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discount_categories}}';
+        return Table::DISCOUNT_CATEGORIES;
     }
 
     /**

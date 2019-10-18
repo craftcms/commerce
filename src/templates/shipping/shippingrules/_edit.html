@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/cp" %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
     { label: "Shipping Methods"|t('commerce'), url: url('commerce/shipping/shippingmethods') },
     { label: shippingMethod.getName()|t('commerce'), url: url('commerce/shipping/shippingmethods/'~methodId) },
 ] %}
@@ -175,11 +175,12 @@
             errors: shippingRule.getErrors('description'),
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightSwitchField({
             label: "Enable this shipping rule"|t('commerce'),
             id: 'enabled',
             name: 'enabled',
             value: 1,
+            on: shippingRule.enabled,
             checked: shippingRule.enabled,
             errors: shippingRule.getErrors('enabled')
         }) }}

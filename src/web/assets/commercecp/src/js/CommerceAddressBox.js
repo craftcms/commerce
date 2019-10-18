@@ -71,6 +71,18 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='lastName'>" + this.address.lastName + "<br></span>").appendTo(this.$address);
         }
 
+        if (this.address.fullName) {
+            $("<span class='fullName'>" + this.address.fullName + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.label) {
+            $("<span class='label'>" + this.address.label + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.notes) {
+            $("<span class='notes'>" + this.address.notes + "<br></span>").appendTo(this.$address);
+        }
+
         if (this.address.businessName) {
             $("<span class='businessName'>" + this.address.businessName + "<br></span>").appendTo(this.$address);
         }
@@ -99,6 +111,10 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='address2'>" + this.address.address2 + "<br></span>").appendTo(this.$address);
         }
 
+        if (this.address.address3) {
+            $("<span class='address3'>" + this.address.address3 + "<br></span>").appendTo(this.$address);
+        }
+
         if (this.address.city) {
             $("<span class='city'>" + this.address.city + "<br></span>").appendTo(this.$address);
         }
@@ -113,6 +129,22 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         if (this.address.countryText) {
             $("<span class='countryText'>" + this.address.countryText + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom1) {
+            $("<span class='custom1'>" + this.address.custom1 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom2) {
+            $("<span class='custom2'>" + this.address.custom2 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom3) {
+            $("<span class='custom3'>" + this.address.custom3 + "<br></span>").appendTo(this.$address);
+        }
+
+        if (this.address.custom4) {
+            $("<span class='custom4'>" + this.address.custom4 + "<br></span>").appendTo(this.$address);
         }
 
         if (!this.address.id) {

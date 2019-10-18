@@ -85,11 +85,12 @@
                                 {% endif %}
                             {% endif %}
 
-                            {% for sale in item.purchasable.sales %}
-                                {% if loop.first %}
-                                    Sales Applied:
-                                {% endif %}
-                                {{ sale.name }}<br>
+                            {% set itemSales = item.snapshot.sales ?? [] %}
+                            {% for sale in itemSales %}
+                            {% if loop.first %}
+                              Sales Applied:
+                            {% endif %}
+                              {{ sale.name }}<br>
                             {% endfor %}
                         </td>
                     </tr>

@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\Plan;
 use craft\commerce\base\PlanInterface;
 use craft\commerce\base\SubscriptionGatewayInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\SubscriptionQuery;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin as Commerce;
@@ -439,7 +440,7 @@ class Subscription extends Element
         if ($handle === 'subscriber') {
             $map = (new Query())
                 ->select('id as source, userId as target')
-                ->from('{{%commerce_subscriptions}}')
+                ->from(Table::SUBSCRIPTIONS)
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
