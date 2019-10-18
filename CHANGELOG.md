@@ -24,6 +24,7 @@
 - Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
+- Customer records that are not related to a cart, order or user are now purged with expired orders. ([#1045](https://github.com/craftcms/commerce/issues/1045))
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
