@@ -23,7 +23,6 @@
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 
-
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
 - Fixed a bug where the order element index table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
