@@ -163,6 +163,12 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Allow the cart to be empty on checkout
+     * @todo Set this to false in 3.0
+     */
+    public $allowEmptyCartOnCheckout = true;
+
+    /**
      * @var bool
      */
     public $pdfAllowRemoteImages = false;

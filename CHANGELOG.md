@@ -10,6 +10,7 @@
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
 - Added “Customer Info” tab to Edit User page, its appearance can be controlled with `showCustomerTabOnEditUser` Commerce setting.
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
+- Added the `allowEmptyCartOnCheckout` setting to determine if a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 
