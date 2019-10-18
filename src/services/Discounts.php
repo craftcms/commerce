@@ -655,16 +655,14 @@ class Discounts extends Component
             return;
         }
 
-        if ($discount->totalUseLimit) {
-            // Increment total uses.
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::DISCOUNTS, [
-                    'totalUses' => new Expression('[[totalUses]] + 1')
-                ], [
-                    'code' => $order->couponCode
-                ])
-                ->execute();
-        }
+        // Increment total uses whether there is a limit or not..
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::DISCOUNTS, [
+                'totalUses' => new Expression('[[totalUses]] + 1')
+            ], [
+                'code' => $order->couponCode
+            ])
+            ->execute();
 
         if ($discount->perUserLimit && $order->customerId) {
             $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount->id])->one();
