@@ -6,6 +6,7 @@
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - Added “Related Discounts” to the Edit Product page.
+- Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
 - Added “Customer Info” tab to Edit User page, its appearance can be controlled with `showCustomerTabOnEditUser` Commerce setting.
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
