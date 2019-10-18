@@ -394,7 +394,23 @@ class LineItem extends Model
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
+        // Check to see if there is a discount applied that ignores Sales
+        $ignoreSales = false;
+        foreach ($discounts as $discount) {
+            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount)) {
+                $ignoreSales = $discount->ignoreSales;
+                if ($discount->ignoreSales) {
+                    $ignoreSales = $discount->ignoreSales;
+                    break;
+                }
+            }
+        }
+
+        $this->salePrice = $ignoreSales ? $this->price : Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+
         $this->saleAmount = $this->salePrice - $this->price;
 
         $snapshot = [
@@ -404,7 +420,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.

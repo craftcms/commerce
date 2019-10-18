@@ -226,6 +226,7 @@ class Install extends Migration
             'allCategories' => $this->boolean(),
             'enabled' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
+            'ignoreSales' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

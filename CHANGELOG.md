@@ -6,6 +6,7 @@
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - Added “Related Discounts” to the Edit Product page.
+- Added “Ignore sales when this discount is applied” option to Discounts to allow disregarding of sale prices. ([#1008](https://github.com/craftcms/commerce/issues/1008))
 - Added a new `shortNumber` order criteria param.
 - Order status now have a description field. ([#1004](https://github.com/craftcms/commerce/issues/1004))
 - Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
