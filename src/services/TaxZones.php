@@ -20,6 +20,7 @@ use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\caching\TagDependency;
 
 /**
  * Tax zone service.
@@ -128,6 +129,12 @@ class TaxZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
+
+        // If the condition formula changes, clear the cache for this zone.
+        if (($record->zipCodeConditionFormula != $model->zipCodeConditionFormula) && $record->id) {
+            TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
+        }
+
         $record->zipCodeConditionFormula = $model->zipCodeConditionFormula;
         $record->isCountryBased = $model->isCountryBased;
         $record->default = $model->default;

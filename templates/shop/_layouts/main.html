@@ -159,13 +159,13 @@
                     }else{
                         console.log('Commerce example templates : Nothing changed, checking again in 30 seconds.');
                     }
-                    setTimeout(doPoll,30000);
+                    setTimeout(doPoll,120000);
                 },
                 dataType: 'json'
             });
         }
 
-        doPoll();
+        setTimeout(doPoll,120000);;
     {% endjs %}
 
 </body>

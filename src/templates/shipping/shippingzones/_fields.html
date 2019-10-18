@@ -73,7 +73,7 @@
         <div id="zipCodeField" class="flex" style="align-items: stretch;">
             <div  class="zip-condition">
                 {{ forms.textarea({
-                    value: shippingZone.zipCodeConditionFormula,
+                    value: shippingZone is defined ? shippingZone.zipCodeConditionFormula,
                     name: 'zipCodeConditionFormula',
                     class: 'code',
                     rows: 6,

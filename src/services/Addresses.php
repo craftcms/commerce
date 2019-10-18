@@ -18,6 +18,7 @@ use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\caching\TagDependency;
 use yii\db\Exception;
 
 /**
@@ -314,11 +315,22 @@ class Addresses extends Component
             }
         }
 
+        // Do we have a condition formula for the zip matching? Blank condition will match all
         if ($zone->getZipCodeConditionFormula() !== '') {
             $formulasService = Plugin::getInstance()->getFormulas();
-            // The saved formula should always be saved as valid.
-            // Throwing an exception could happen, but that is correct at this point if the syntax is not valid.
-            if (!$formulasService->evaluateCondition($zone->getZipCodeConditionFormula(), $address->zipCode, 'Zip Code condition formula matching address')) {
+            $conditionFormula = $zone->getZipCodeConditionFormula();
+            $zipCode = $address->zipCode;
+
+            $cacheKey = get_class($zone) . ':' . $conditionFormula . ':' . $zipCode;
+
+            if (Craft::$app->cache->exists($cacheKey)) {
+                $result = Craft::$app->cache->get($cacheKey);
+            } else {
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode'=>$zipCode], 'Zip Code condition formula matching address');
+                Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
+            }
+
+            if (!$result) {
                 return false;
             }
         }
