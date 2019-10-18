@@ -14,7 +14,8 @@
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status. ([#945](https://github.com/craftcms/commerce/issues/945))
-- Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
+- Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))
+- Line items are now ordered by `dateCreated DESC` in the cart by default. ([#1055](https://github.com/craftcms/commerce/pull/1055))   
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
