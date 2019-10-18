@@ -88,7 +88,7 @@
         <div id="zipCodeField" class="flex" style="align-items: stretch;">
             <div  class="zip-condition">
                 {{ forms.textarea({
-                    value: taxZone.zipCodeConditionFormula,
+                    value: taxZone is defined ? taxZone.zipCodeConditionFormula : '',
                     name: 'zipCodeConditionFormula',
                     class: 'code',
                     rows: 6,
@@ -126,6 +126,7 @@
 {% set countriesId = 'countries'|namespaceInputId|e('js') %}
 {% set statesId = 'states'|namespaceInputId|e('js') %}
 {% set isCountryBasedName = 'isCountryBased'|namespaceInputName|e('js') %}
+{% set zipCodeFieldId = 'zipCodeField'|namespaceInputId|e('js') %}
 
 {% js %}
     $('#{{ countriesId }}, #{{ statesId }}').selectize({
@@ -153,15 +154,16 @@
 
     $('[name="{{ isCountryBasedName }}"]:checked').trigger('change');
 
+
     // setup for debouncing
     var typingTimer;                //timer identifier
     var doneTypingInterval = 1000;  //time in ms, 5 second for example
 
     // top level fov containing the field
-    var $zipCodeField = $('#zipCodeField');
-
-    var $zipCodeConditionFormula = $zipCodeField.find('textarea[name="zipCodeConditionFormula"]').first();
+    var $zipCodeField = $('#{{ zipCodeFieldId }}');
+    var $zipCodeConditionFormula = $zipCodeField.find('textarea').first();
     var $testZipCode = $zipCodeField.find('.zip-test-input input').first();
+
     var $zipTestStatus = $zipCodeField.find('.zip-test-status').first();
     var $zipTestStatusSuccess = $zipTestStatus.find('.zip-test-status-icon.success');
     var $zipTestStatusFailed = $zipTestStatus.find('.zip-test-status-icon.failure');
@@ -200,7 +202,6 @@
 
     //user is "finished typing," do something
     function doneTyping () {
-
         $.post({
             url: Craft.getActionUrl('commerce/formulas/validate-condition'),
             data: {

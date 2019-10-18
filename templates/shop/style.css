@@ -71,7 +71,8 @@ table td {
 input[type="text"],
 input[type="number"],
 input[type="password"],
-input[type="tel"] {
+input[type="tel"],
+textarea {
     border: 1px solid #ddd;
     padding: 8px 12px;
     -webkit-border-radius: 4px;

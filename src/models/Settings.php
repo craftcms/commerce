@@ -125,6 +125,11 @@ class Settings extends Model
     /**
      * @var string
      */
+    public $activeCartDuration = 'PT1H';
+
+    /**
+     * @var string
+     */
     public $gatewayPostRedirectTemplate = '';
 
     /**
@@ -181,6 +186,11 @@ class Settings extends Model
      * @var array
      */
     public $gatewaySettings = [];
+
+    /**
+     * @var bool Whether or not to show the customer info tab on the Edit User page
+     */
+    public $showCustomerTabOnEditUser = true;
 
     // Public Methods
     // =========================================================================

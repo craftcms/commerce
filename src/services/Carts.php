@@ -272,6 +272,19 @@ class Carts extends Component
     }
 
     /**
+     * @return string
+     * @throws \Exception
+     */
+    public function getActiveCartEdgeDuration(): string
+    {
+        $edge = new DateTime();
+        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
+        $interval->invert = 1;
+        $edge->add($interval);
+        return $edge->format(DateTime::ATOM);
+    }
+
+    /**
      * Get the session cart number.
      *
      * @return string

@@ -43,6 +43,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $purchaseTotal
  * @property int $sortOrder
  * @property bool $stopProcessing
+ * @property bool $ignoreSales
  * @property int $totalUseLimit
  * @property int $totalUses
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

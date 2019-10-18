@@ -104,7 +104,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.1.12';
+    public $schemaVersion = '2.1.14';
 
     /**
      * @inheritdoc
@@ -153,6 +153,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
+        $this->_registerTemplateHooks();
         $this->_defineResaveCommand();
     }
 
@@ -189,11 +190,11 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
 
-        $ret['label'] = self::t( 'Commerce');
+        $ret['label'] = self::t('Commerce');
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
-                'label' => self::t( 'Orders'),
+                'label' => self::t('Orders'),
                 'url' => 'commerce/orders'
             ];
         }
@@ -201,21 +202,21 @@ class Plugin extends BasePlugin
         $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
         if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
             $ret['subnav']['products'] = [
-                'label' => self::t( 'Products'),
+                'label' => self::t('Products'),
                 'url' => 'commerce/products'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
             $ret['subnav']['subscriptions'] = [
-                'label' => self::t( 'Subscriptions'),
+                'label' => self::t('Subscriptions'),
                 'url' => 'commerce/subscriptions'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
             $ret['subnav']['promotions'] = [
-                'label' => self::t( 'Promotions'),
+                'label' => self::t('Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
@@ -223,14 +224,14 @@ class Plugin extends BasePlugin
         if (self::getInstance()->is('pro', '>=')) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
                 $ret['subnav']['shipping'] = [
-                    'label' => self::t( 'Shipping'),
+                    'label' => self::t('Shipping'),
                     'url' => 'commerce/shipping'
                 ];
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
                 $ret['subnav']['tax'] = [
-                    'label' => self::t( 'Tax'),
+                    'label' => self::t('Tax'),
                     'url' => 'commerce/tax'
                 ];
             }
@@ -238,14 +239,14 @@ class Plugin extends BasePlugin
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-settings'] = [
-                'label' => self::t( 'Store Settings'),
+                'label' => self::t('Store Settings'),
                 'url' => 'commerce/store-settings'
             ];
         }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
-                'label' => self::t( 'System Settings'),
+                'label' => self::t('System Settings'),
                 'url' => 'commerce/settings'
             ];
         }
@@ -297,14 +298,14 @@ class Plugin extends BasePlugin
 
             if ($productSources) {
                 $event->linkOptions[] = [
-                    'optionTitle' => self::t( 'Link to a product'),
+                    'optionTitle' => self::t('Link to a product'),
                     'elementType' => Product::class,
                     'refHandle' => Product::refHandle(),
                     'sources' => $productSources
                 ];
 
                 $event->linkOptions[] = [
-                    'optionTitle' => self::t( 'Link to a variant'),
+                    'optionTitle' => self::t('Link to a variant'),
                     'elementType' => Variant::class,
                     'refHandle' => Variant::refHandle(),
                     'sources' => $productSources
@@ -324,26 +325,26 @@ class Plugin extends BasePlugin
             $productTypePermissions = [];
             foreach ($productTypes as $productType) {
                 $suffix = ':' . $productType->uid;
-                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => self::t( 'Manage “{type}” products', ['type' => $productType->name])];
+                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => self::t('Manage “{type}” products', ['type' => $productType->name])];
             }
 
-            $event->permissions[self::t( 'Craft Commerce')] = [
-                'commerce-manageProducts' => ['label' => self::t( 'Manage products'), 'nested' => $productTypePermissions],
+            $event->permissions[self::t('Craft Commerce')] = [
+                'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
-                    'label' => self::t( 'Manage orders'), 'nested' => [
+                    'label' => self::t('Manage orders'), 'nested' => [
                         'commerce-capturePayment' => [
-                            'label' => self::t( 'Capture Payment')
+                            'label' => self::t('Capture Payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => self::t( 'Refund Payment')
+                            'label' => self::t('Refund Payment')
                         ],
                     ]
                 ],
-                'commerce-managePromotions' => ['label' => self::t( 'Manage promotions')],
-                'commerce-manageSubscriptions' => ['label' => self::t( 'Manage subscriptions')],
-                'commerce-manageShipping' => ['label' => self::t( 'Manage shipping (Pro edition Only)')],
-                'commerce-manageTaxes' => ['label' => self::t( 'Manage taxes (Pro edition Only)')],
-                'commerce-manageStoreSettings' => ['label' => self::t( 'Manage store settings')],
+                'commerce-managePromotions' => ['label' => self::t('Manage promotions')],
+                'commerce-manageSubscriptions' => ['label' => self::t('Manage subscriptions')],
+                'commerce-manageShipping' => ['label' => self::t('Manage shipping (Pro edition Only)')],
+                'commerce-manageTaxes' => ['label' => self::t('Manage taxes (Pro edition Only)')],
+                'commerce-manageStoreSettings' => ['label' => self::t('Manage store settings')],
             ];
         });
     }
@@ -521,7 +522,7 @@ class Plugin extends BasePlugin
 
             $e->options[] = [
                 'key' => 'commerce-order-exports',
-                'label' => self::t( 'Commerce order exports'),
+                'label' => self::t('Commerce order exports'),
                 'action' => static function() use ($path) {
                     if (file_exists($path)) {
                         FileHelper::clearDirectory($path);
@@ -561,5 +562,14 @@ class Plugin extends BasePlugin
                 ],
             ];
         });
+    }
+
+    /**
+     * Registers templates hooks for inserting Commerce information in the CP
+     */
+    private function _registerTemplateHooks()
+    {
+        Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
+        Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
     }
 }
