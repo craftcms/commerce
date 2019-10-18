@@ -687,6 +687,7 @@ class Install extends Migration
             'isEverywhere' => $this->boolean(),
             'taxCategoryId' => $this->integer()->null(),
             'name' => $this->string()->notNull(),
+            'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean(),
             'isVat' => $this->boolean(),
