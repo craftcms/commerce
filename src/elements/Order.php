@@ -2153,17 +2153,17 @@ class Order extends Element
             ->where(['orderId' => $this->id])
             ->all();
 
-        $newLineItemIds = [];
+        $currentLineItemIds = [];
 
         // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
             // If the ID is null that's ok, it's a new line item and will be saves anyway
-            $newLineItemIds[] = $lineItem->id;
+            $currentLineItemIds[] = $lineItem->id;
         }
 
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
-            if (!in_array($previousLineItem->id, $newLineItemIds, false)) {
+            if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
                 $previousLineItem->delete();
             }
         }
