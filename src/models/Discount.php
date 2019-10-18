@@ -174,7 +174,7 @@ class Discount extends Model
     /**
      * @var bool Discount ignores sales
      */
-    public $ignoreSales = 1;
+    public $ignoreSales = true;
 
     /**
      * @var int[] Product Ids
