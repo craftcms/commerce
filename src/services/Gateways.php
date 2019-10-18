@@ -21,6 +21,7 @@ use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -123,6 +124,9 @@ class Gateways extends Component
         foreach ($rows as $row) {
             $gateways[$row['id']] = $this->createGateway($row);
         }
+
+        // Filter gateways to respect custom config files settings `isFrontendEnabled` to `false`
+        $gateways = ArrayHelper::where($gateways, 'isFrontendEnabled', true);
 
         return $gateways;
     }
