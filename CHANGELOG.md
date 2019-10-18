@@ -10,6 +10,7 @@
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
 - Added “Customer Info” tab to Edit User page, its appearance can be controlled with `showCustomerTabOnEditUser` Commerce setting.
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
+- Added the `allowEmptyCartOnCheckout` setting to determine if a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 
@@ -38,6 +39,7 @@
 - Fixed a bug where the order element index did not have permanent URLs for order statuses. ([#901](https://github.com/craftcms/commerce/issues/901))
 - Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
 - Fixed a bug where gateways disabled in the `commerce-gateways.php` config file would continue to show in the front end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
+- Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
 - Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
 
 ## 2.1.13 - 2019-09-09
