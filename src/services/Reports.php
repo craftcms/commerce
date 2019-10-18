@@ -10,6 +10,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\events\ReportEvent;
 use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
@@ -87,7 +88,7 @@ class Reports extends Component
 
         $orderQuery = (new CraftQuery())
             ->select($columns)
-            ->from('{{%commerce_orders}}')
+            ->from(Table::ORDERS)
             ->andWhere('[[isCompleted]] = true')
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);

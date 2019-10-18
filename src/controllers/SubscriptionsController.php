@@ -15,7 +15,6 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
-use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;

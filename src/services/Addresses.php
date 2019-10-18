@@ -9,13 +9,16 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\AddressZoneInterface;
+use craft\commerce\db\Table;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
+use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\caching\TagDependency;
 use yii\db\Exception;
 
 /**
@@ -120,7 +123,7 @@ class Addresses extends Component
     public function getAddressesByCustomerId(int $customerId): array
     {
         $rows = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->all();
 
@@ -143,7 +146,7 @@ class Addresses extends Component
     public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
     {
         $result = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->andWhere(['addresses.id' => $addressId])
             ->one();
@@ -224,7 +227,7 @@ class Addresses extends Component
         $addressRecord->stateName = $addressModel->stateName;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+            Craft::$app->getDb()->createCommand()->update(Table::ADDRESSES, ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
         $addressRecord->save(false);
@@ -285,10 +288,12 @@ class Addresses extends Component
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
 
-            if (in_array($address->countryId, $countryIds, false)) {
-                return true;
+            if (!in_array($address->countryId, $countryIds, false)) {
+                return false;
             }
-        } else {
+        }
+
+        if (!$zone->getIsCountryBased()) {
             $states = [];
             $countries = [];
             $stateNames = [];
@@ -305,12 +310,32 @@ class Addresses extends Component
             $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
             $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
 
-            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
-                return true;
+            if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
+                return false;
             }
         }
 
-        return false;
+        // Do we have a condition formula for the zip matching? Blank condition will match all
+        if ($zone->getZipCodeConditionFormula() !== '') {
+            $formulasService = Plugin::getInstance()->getFormulas();
+            $conditionFormula = $zone->getZipCodeConditionFormula();
+            $zipCode = $address->zipCode;
+
+            $cacheKey = get_class($zone) . ':' . $conditionFormula . ':' . $zipCode;
+
+            if (Craft::$app->cache->exists($cacheKey)) {
+                $result = Craft::$app->cache->get($cacheKey);
+            } else {
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode'=>$zipCode], 'Zip Code condition formula matching address');
+                Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
+            }
+
+            if (!$result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Private Methods
@@ -343,6 +368,6 @@ class Addresses extends Component
                 'addresses.businessId',
                 'addresses.stateName'
             ])
-            ->from(['{{%commerce_addresses}} addresses']);
+            ->from([Table::ADDRESSES . ' addresses']);
     }
 }

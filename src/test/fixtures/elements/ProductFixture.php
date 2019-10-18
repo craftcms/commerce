@@ -3,6 +3,8 @@
 namespace craft\commerce\test\fixtures\elements;
 
 use Craft;
+use craft\commerce\Plugin;
+use craft\commerce\services\ProductTypes;
 use yii\base\ErrorException;
 use craft\base\Element;
 use craft\test\fixtures\elements\ElementFixture;
@@ -34,13 +36,13 @@ class ProductFixture extends ElementFixture
     /**
      * {@inheritdoc}
      */
-    public function init(): void
+    public function init()
     {
         parent::init();
 
-        /** @var \craft\commerce\Plugin */
+        /** @var Plugin */
         $commerce = Craft::$app->getPlugins()->getPlugin('commerce');
-        /** @var \craft\commerce\services\ProductTypes */
+        /** @var ProductTypes */
         $productTypesService = $commerce->getProductTypes();
 
         // Get all product type id's
@@ -65,13 +67,16 @@ class ProductFixture extends ElementFixture
      *
      * @throws ErrorException
      */
-    protected function getErrors(Element $element): void
+    protected function getErrors(Element $element)
     {
         $errors = $element->getErrorSummary(true);
 
+        $variantErrors =[];
         foreach ($element->getVariants() as $variant) {
-            $errors = array_merge($errors, $variant->getErrorSummary(true));
+            $variantErrors[] = $variant->getErrorSummary(true);
         }
+
+        array_merge($errors, ...$variantErrors);
 
         throw new ErrorException(join(' ', array_filter($errors)));
     }
@@ -79,7 +84,7 @@ class ProductFixture extends ElementFixture
     /**
      * {@inheritdoc}
      */
-    protected function deleteElement(Element $element): void
+    protected function deleteElement(Element $element)
     {
         $variants = Variant::find()->productId($element->id)->all();
 

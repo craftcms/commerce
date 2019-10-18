@@ -22,6 +22,7 @@ use craft\commerce\models\subscriptions\CancelSubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
+use craft\commerce\Plugin;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -395,20 +396,20 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_CREATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription for {user} to {plan} prevented by a plugin.', [
+            $error = Plugin::t( 'Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
                 'plan' => (string)$plan
             ]);
 
             Craft::error($error, __METHOD__);
 
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
+            throw new SubscriptionException(Plugin::t( 'Unable to subscribe at this time.'));
         }
 
         $response = $gateway->subscribe($user, $plan, $parameters);
 
         if ($response->isInactive()) {
-            throw new SubscriptionException(Craft::t('commerce', 'Unable to subscribe at this time.'));
+            throw new SubscriptionException(Plugin::t( 'Unable to subscribe at this time.'));
         }
 
         $subscription = new Subscription();
@@ -461,7 +462,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" reactivation was cancelled by a plugin.', [
+            $error = Plugin::t( 'Subscription "{reference}" reactivation was cancelled by a plugin.', [
                 'reference' => $subscription->reference,
             ]);
 
@@ -526,7 +527,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" switch to "{plan}" was cancelled by a plugin.', [
+            $error = Plugin::t( 'Subscription "{reference}" switch to "{plan}" was cancelled by a plugin.', [
                 'reference' => $subscription->reference,
                 'plan' => $plan->reference
             ]);
@@ -581,7 +582,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_CANCEL_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" cancellation was prevented by a plugin.', [
+            $error = Plugin::t( 'Subscription "{reference}" cancellation was prevented by a plugin.', [
                 'reference' => $subscription->reference,
             ]);
 
@@ -617,7 +618,7 @@ class Subscriptions extends Component
             } catch (Throwable $exception) {
                 Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
 
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to cancel subscription at this time.'));
+                throw new SubscriptionException(Plugin::t( 'Unable to cancel subscription at this time.'));
             }
         }
 

@@ -55,6 +55,11 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     public $default = false;
 
     /**
+     * @var string The code to match the zip code.
+     */
+    public $zipCodeConditionFormula;
+
+    /**
      * @var bool Country based
      */
     private $_isCountryBased = true;
@@ -183,6 +188,14 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     public function setStates($states)
     {
         $this->_states = $states;
+    }
+
+    /**
+     * @return string
+     */
+    public function getZipCodeConditionFormula(): string
+    {
+        return $this->zipCodeConditionFormula;
     }
 
     /**
