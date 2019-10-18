@@ -681,9 +681,6 @@ class Order extends Element
             $mutex->release($lockName);
             return true;
         }
-        // Release after we have confirmed this order is not already complete
-
-        $mutex->release($lockName);
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new DateTime());
@@ -710,17 +707,20 @@ class Order extends Element
             $this->trigger(self::EVENT_BEFORE_COMPLETE_ORDER);
         }
 
-        if (Craft::$app->getElements()->saveElement($this, false)) {
+        $success = Craft::$app->getElements()->saveElement($this, false);
 
-            $this->afterOrderComplete();
+        $mutex->release($lockName);
 
-            return true;
+        if (!$success) {
+            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+                ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
+
+            return false;
         }
 
-        Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
-            ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
+        $this->afterOrderComplete();
 
-        return false;
+        return true;
     }
 
     /**
