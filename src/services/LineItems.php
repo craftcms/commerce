@@ -99,7 +99,7 @@ class LineItems extends Component
         if (!isset($this->_lineItemsByOrderId[$orderId])) {
             $results = $this->_createLineItemQuery()
                 ->where(['orderId' => $orderId])
-                ->orderBy('dateCreated')
+                ->orderBy('dateCreated DESC')
                 ->all();
 
             $this->_lineItemsByOrderId[$orderId] = [];
