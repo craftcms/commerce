@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -58,6 +59,16 @@ class Sales extends Component
      * ```
      */
     const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
+
+    /**
+     * @event SaleEvent The event that is triggered before a sale is saved.
+     */
+    const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
+
+    /**
+     * @event SaleEvent The event that is triggered after a sale is saved.
+     */
+    const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
     // Properties
     // =========================================================================
@@ -440,15 +451,17 @@ class Sales extends Component
      */
     public function saveSale(Sale $model, bool $runValidation = true): bool
     {
-        if ($model->id) {
+        $isNewSale = !$model->id;
+
+        if ($isNewSale) {
+            $record = new SaleRecord();
+        } else {
             $record = SaleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No sale exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No sale exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
-        } else {
-            $record = new SaleRecord();
         }
 
         if ($runValidation && !$model->validate()) {
@@ -476,6 +489,13 @@ class Sales extends Component
         $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
         $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
+        // Fire an 'beforeSaveSection' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
+                'sale' => $model,
+                'isNew' => $isNewSale
+            ]));
+        }
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -512,6 +532,14 @@ class Sales extends Component
             }
 
             $transaction->commit();
+
+            // Fire an 'beforeSaveSection' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
+                    'sale' => $model,
+                    'isNew' => $isNewSale
+                ]));
+            }
 
             return true;
         } catch (\Exception $e) {
