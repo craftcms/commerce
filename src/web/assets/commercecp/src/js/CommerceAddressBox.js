@@ -35,6 +35,14 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         var $buttons = $("<div class='address-buttons'/>").appendTo($header);
 
+        // Delete button
+        if (this.address.id && !this.settings.order) {
+            var $deleteButton = $('<a class="small btn right delete" href="#"></a>');
+            $deleteButton.text(Craft.t('commerce', 'Delete'));
+            $deleteButton.data('id', this.address.id);
+            $deleteButton.appendTo($buttons);
+        }
+
         // Only show the map button if we have an address
         if (this.address.id) {
             var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
@@ -152,6 +160,20 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
                 onSubmit: $.proxy(this, '_updateAddress')
             });
         }, this));
+
+        this.$addressBox.find('.delete').click($.proxy(function(ev) {
+            ev.preventDefault();
+            var confirmationMessage = Craft.t('commerce', 'Are you sure you want to delete this address?');
+            if (confirm(confirmationMessage)) {
+                Craft.postActionRequest('commerce/addresses/delete', {id: this.address.id}, $.proxy(function(response) {
+                    if (response.success) {
+                        this.$addressBox.remove();
+                    }
+                }, this));
+            }
+
+        }, this));
+
     },
     _updateAddress: function(data, onError) {
         Craft.postActionRequest(this.saveEndpoint, data.address, $.proxy(function(response) {
@@ -169,6 +191,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         }, this));
     },
     defaults: {
-        onChange: $.noop
+        onChange: $.noop,
+        order: false
     }
 });

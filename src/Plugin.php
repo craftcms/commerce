@@ -153,6 +153,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
+        $this->_registerTemplateHooks();
         $this->_defineResaveCommand();
     }
 
@@ -561,5 +562,14 @@ class Plugin extends BasePlugin
                 ],
             ];
         });
+    }
+
+    /**
+     * Registers templates hooks for inserting Commerce information in the CP
+     */
+    private function _registerTemplateHooks()
+    {
+        Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
+        Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
     }
 }
