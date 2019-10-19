@@ -655,7 +655,8 @@ class Discounts extends Component
             return;
         }
 
-        if ($discount->totalUseLimit) {
+        // Check `couponCode` against `null` in case the code is a "falsey" string
+        if ($order->couponCode !== null) {
             // Increment total uses.
             Craft::$app->getDb()->createCommand()
                 ->update(Table::DISCOUNTS, [
