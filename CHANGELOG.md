@@ -16,6 +16,7 @@
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 - Added the ability to add additional variables to the template rendering of a PDF. ([#599](https://github.com/craftcms/commerce/issues/599))
+- Added `address3`, `fullName`, `label`, `notes`, `custom1`, `custom2`, `custom3` and `custom4` fields to addresses.
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
@@ -28,6 +29,7 @@
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Customer records that are not related to a cart, order or user are now purged with expired orders. ([#1045](https://github.com/craftcms/commerce/issues/1045))
+- Addresses now have whitespace trimmed from all fields by default when saving an addresses.
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
