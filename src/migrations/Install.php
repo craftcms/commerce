@@ -257,6 +257,8 @@ class Install extends Migration
             'recipientType' => $this->enum('recipientType', ['customer', 'custom'])->defaultValue('custom'),
             'to' => $this->string(),
             'bcc' => $this->string(),
+            'cc' => $this->string(),
+            'replyTo' => $this->string(),
             'enabled' => $this->boolean(),
             'attachPdf' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),

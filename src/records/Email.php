@@ -14,6 +14,8 @@ use craft\db\ActiveRecord;
  * Email record.
  *
  * @property string $bcc
+ * @property string $cc
+ * @property string $replyTo
  * @property bool $enabled
  * @property int $id
  * @property string $name

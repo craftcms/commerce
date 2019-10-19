@@ -17,6 +17,7 @@
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 - Added the ability to add additional variables to the template rendering of a PDF. ([#599](https://github.com/craftcms/commerce/issues/599))
 - Added `address3`, `fullName`, `label`, `notes`, `custom1`, `custom2`, `custom3` and `custom4` fields to addresses.
+- Added “CC” and “Reply To” options to emails.
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
