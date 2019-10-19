@@ -15,6 +15,7 @@
 - Added the `allowEmptyCartOnCheckout` setting to determine if a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
+- Added the ability to add additional variables to the template rendering of a PDF. ([#599](https://github.com/craftcms/commerce/issues/599))
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
