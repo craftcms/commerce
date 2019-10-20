@@ -31,6 +31,7 @@
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Customer records that are not related to a cart, order or user are now purged with expired orders. ([#1045](https://github.com/craftcms/commerce/issues/1045))
 - Addresses now have whitespace trimmed from all fields by default when saving an addresses.
+- Line items are now ordered by `dateCreated DESC` in the cart by default. ([#1055](https://github.com/craftcms/commerce/pull/1055))
 
 ### Fixed
 - Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
@@ -47,6 +48,7 @@
 - Fixed a bug where gateways disabled in the `commerce-gateways.php` config file would continue to show in the front end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
 - Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
 - Fixed a bug where coupon code usage was not track because a limit was not set. ([#521](https://github.com/craftcms/commerce/issues/521))
+- Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
 
 ## 2.1.13 - 2019-09-09
 

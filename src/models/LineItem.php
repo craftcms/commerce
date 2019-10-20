@@ -128,6 +128,11 @@ class LineItem extends Model
     public $shippingCategoryId;
 
     /**
+     * @var DateTime|null
+     */
+    public $dateCreated;
+
+    /**
      * @var PurchasableInterface Purchasable
      */
     private $_purchasable;

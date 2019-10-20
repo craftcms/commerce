@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\Json;
+use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -99,6 +100,7 @@ class LineItems extends Component
         if (!isset($this->_lineItemsByOrderId[$orderId])) {
             $results = $this->_createLineItemQuery()
                 ->where(['orderId' => $orderId])
+                ->orderBy('dateCreated DESC')
                 ->all();
 
             $this->_lineItemsByOrderId[$orderId] = [];
@@ -204,6 +206,8 @@ class LineItems extends Component
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
+        // Fot existing lineItems do not reset the `dateCreated`
+        $lineItemRecord->dateCreated = $lineItem->dateCreated ?: null;
 
         if (!$lineItem->hasErrors()) {
 
@@ -334,7 +338,8 @@ class LineItems extends Component
                 'purchasableId',
                 'orderId',
                 'taxCategoryId',
-                'shippingCategoryId'
+                'shippingCategoryId',
+                'dateCreated'
             ])
             ->from([Table::LINEITEMS . ' lineItems']);
     }
