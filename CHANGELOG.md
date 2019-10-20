@@ -49,6 +49,7 @@
 - Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
 - Fixed a bug where coupon code usage was not track because a limit was not set. ([#521](https://github.com/craftcms/commerce/issues/521))
 - Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
+- Fixed a bug where all states were shown on the Store Location page regardless of which country was selected. ([#942](https://github.com/craftcms/commerce/issues/942))
 
 ## 2.1.13 - 2019-09-09
 
