@@ -193,7 +193,7 @@ class Customers extends Component
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Plugin::t( 'No customer exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No customer exists with the ID “{id}”',
                     ['id' => $customer->id]));
             }
         }
@@ -253,6 +253,25 @@ class Customers extends Component
         }
 
         return null;
+    }
+
+    /**
+     * Deletes any customer record not related to a user or a cart.
+     */
+    public function purgeOrphanedCustomers()
+    {
+        $customers = (new Query())
+            ->select(['[[customers.id]] id'])
+            ->from('{{%commerce_customers}} customers')
+            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->where(['[[orders.customerId]]' => null])
+            ->andWhere(['[[customers.userId]]' => null])
+            ->column();
+
+        // This will also remove all addresses related to the customer.
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%commerce_customers}}', ['id' => $customers])
+            ->execute();
     }
 
     /**
@@ -521,7 +540,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setBillingAddress($snapshotBillingAddress);
             } else {
-                Craft::error(Plugin::t( 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Plugin::t('Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -553,7 +572,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setShippingAddress($snapshotShippingAddress);
             } else {
-                Craft::error(Plugin::t( 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Plugin::t('Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }

@@ -5,6 +5,8 @@
 ### Added
 - Added a zip code condition to shipping and tax zones. ([#204](https://github.com/craftcms/commerce/issues/304))
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
+- Added `craft\commerce\services\Sales::EVENT_AFTER_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - Added “Related Discounts” to the Edit Product page.
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
@@ -13,6 +15,9 @@
 - Added the `allowEmptyCartOnCheckout` setting to determine if a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
 - Added `getActiveCarts` and `getInactiveCarts` to the customer model.
 - Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
+- Added the ability to add additional variables to the template rendering of a PDF. ([#599](https://github.com/craftcms/commerce/issues/599))
+- Added `address3`, `fullName`, `label`, `notes`, `custom1`, `custom2`, `custom3` and `custom4` fields to addresses.
+- Added “CC” and “Reply To” options to emails.
 
 ### Changed
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
@@ -24,6 +29,8 @@
 - Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
+- Customer records that are not related to a cart, order or user are now purged with expired orders. ([#1045](https://github.com/craftcms/commerce/issues/1045))
+- Addresses now have whitespace trimmed from all fields by default when saving an addresses.
 - Line items are now ordered by `dateCreated DESC` in the cart by default. ([#1055](https://github.com/craftcms/commerce/pull/1055))
 
 ### Fixed
@@ -40,6 +47,7 @@
 - Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
 - Fixed a bug where gateways disabled in the `commerce-gateways.php` config file would continue to show in the front end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
 - Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
+- Fixed a bug where coupon code usage was not track because a limit was not set. ([#521](https://github.com/craftcms/commerce/issues/521))
 - Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
 
 ## 2.1.13 - 2019-09-09
