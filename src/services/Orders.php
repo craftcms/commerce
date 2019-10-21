@@ -262,15 +262,34 @@ class Orders extends Component
             $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
-            $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
-            $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
-            $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
-            $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
+            $lineItemData['totalTax'] = $lineItem->getAdjustmentsTotalByType('tax');
+            $lineItemData['totalTaxIncluded'] = $lineItem->getAdjustmentsTotalByType('tax', true);
+            $lineItemData['totalShippingCost'] = $lineItem->getAdjustmentsTotalByType('shipping');
+            $lineItemData['totalDiscount'] = $lineItem->getAdjustmentsTotalByType('discount');
+            $lineItemAdjustments = [];
+            foreach ($cart->adjustments as $adjustment) {
+                $adjustmentData = [];
+                $adjustmentData['id'] = $adjustment->id;
+                $adjustmentData['type'] = $adjustment->type;
+                $adjustmentData['name'] = $adjustment->name;
+                $adjustmentData['description'] = $adjustment->description;
+                $adjustmentData['amount'] = $adjustment->amount;
+                $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
+                $adjustmentData['orderId'] = $adjustment->orderId;
+                $adjustmentData['lineItemId'] = $adjustment->orderId;
+                $adjustments[$adjustment->type][] = $adjustmentData;
+                $lineItemAdjustments[] = $adjustmentData;
+            }
+            $lineItemData['adjustments'] = $lineItemAdjustments;
             $lineItems[$lineItem->id] = $lineItemData;
             if ($lineItem->getErrors()) {
                 $lineItems['errors'] = $lineItem->getErrors();
             }
         }
+        $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
+        $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
+        $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
+        $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
         $data['lineItems'] = $lineItems;
         $data['totalLineItems'] = count($lineItems);
 
@@ -284,6 +303,7 @@ class Orders extends Component
             $adjustmentData['amount'] = $adjustment->amount;
             $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
             $adjustmentData['orderId'] = $adjustment->orderId;
+            $adjustmentData['lineItemId'] = $adjustment->lineItemId;
             $adjustments[$adjustment->type][] = $adjustmentData;
         }
         $data['adjustments'] = $adjustments;
