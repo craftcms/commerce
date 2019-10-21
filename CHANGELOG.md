@@ -20,6 +20,7 @@
 - Added “CC” and “Reply To” options to emails.
 
 ### Changed
+- Commerce now required Craft CMS 3.3.0 or later.
 - The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
 - Customer customer field is now deprecated and will be removed in Commerce 3.0.
 - Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
