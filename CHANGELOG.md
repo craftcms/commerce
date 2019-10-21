@@ -50,6 +50,7 @@
 - Fixed a bug where coupon code usage was not track because a limit was not set. ([#521](https://github.com/craftcms/commerce/issues/521))
 - Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
 - Fixed a bug where all states were shown on the Store Location page regardless of which country was selected. ([#942](https://github.com/craftcms/commerce/issues/942))
+- Fixed a bug where product title was not included in the variant search index. ([#934](https://github.com/craftcms/commerce/issues/934))
 
 ## 2.1.13 - 2019-09-09
 
