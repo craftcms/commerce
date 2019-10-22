@@ -51,6 +51,6 @@ The cart accepts the setting of an estimated shipping address and an estimated b
 </form>
 ```
 
-Adjusters that are based on estimated address data contain an `isEstimated` attribute. 
+<api:craft\commerce\adjusters\Tax> and <api:craft\commerce\adjusters\Shipping> adjusters that are based on estimated address data contain an `isEstimated` attribute. 
 
 A full example of this can be seen in the [example templates](example-templates.md) on the cart page.
