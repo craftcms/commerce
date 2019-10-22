@@ -123,6 +123,7 @@
                 {% endif %}
                 <tr>
                     <td colspan="2">
+                      {% if not cart.getShippingAddress() %}
                       <div class="p-6 bg-grey-lightest max-w-sm">
                         <h5 class="mt-0">{{ 'Shipping Estimate'|t('commerce') }}</h5>
 
@@ -205,6 +206,7 @@
                             {% endif %}
                           </div>
                       </div>
+                      {% endif %}
                     </td>
                     <td class="text-right align-text-top">
                         {% if not lineItemHasErrors %}
