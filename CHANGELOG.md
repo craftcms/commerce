@@ -3,58 +3,63 @@
 ## Unreleased
 
 ### Added
-- Added a zip code condition to shipping and tax zones. ([#204](https://github.com/craftcms/commerce/issues/304))
+- Edit User pages now have a “Customer Info” tab.
+- It’s now possible to view and create discounts directly from from the Edit Product page.
+- It’s now possible to delete customer addresses directly from the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
+- Addresses can now have “Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.
+- Email settings can now specify CC and Reply To email addresses.
+- Discounts now have the option to ignore sales when applied (enabled by default for new discounts). ([#1008](https://github.com/craftcms/commerce/issues/1008))
+- Shipping and tax zones can now have a dynamic zip code condition. ([#204](https://github.com/craftcms/commerce/issues/304))
+- Tax rates can now have codes. ([#707](https://github.com/craftcms/commerce/issues/707))
+- Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
+- Order statuses can now have descriptions. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Added the “Default View” setting, which determines which view should be shown by default when “Commerce” is selected in the global nav. ([#555](https://github.com/craftcms/commerce/issues/555))
+- Added the `activeCartDuration` config setting. ([#959](https://github.com/craftcms/commerce/issues/959))
+- Added the `allowEmptyCartOnCheckout` config setting, which determines whether a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
+- Added the ability to pass additional variables to the PDF template. ([#599](https://github.com/craftcms/commerce/issues/599))
+- Added the ability to override the “Cart updated” flash message by passing a `cartUpdatedNotice` parameter to the `commerce/cart/update-cart` action. ([#1038](https://github.com/craftcms/commerce/issues/1038))
+- Added the `shortNumber` order query param.
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
-- Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
+- Added `craft\commerce\models\Customer::getActiveCarts()`.
+- Added `craft\commerce\models\Customer::getInactiveCarts()`.
 - Added `craft\commerce\services\Sales::EVENT_AFTER_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
-- Added times for “Order Completed”, “Paid” and “Last Updated” on the Edit Order page. ([#1020](https://github.com/craftcms/commerce/issues/1020))
-- Added “Related Discounts” to the Edit Product page.
+- Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
-- Added “Customer Info” tab to Edit User page, its appearance can be controlled with `showCustomerTabOnEditUser` Commerce setting.
-- Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
-- Added the `allowEmptyCartOnCheckout` setting to determine if a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
-- Added `getActiveCarts` and `getInactiveCarts` to the customer model.
-- Added the ability to delete customer addresses from the customer info tab on the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
-- Added the ability to add additional variables to the template rendering of a PDF. ([#599](https://github.com/craftcms/commerce/issues/599))
-- Added `address3`, `fullName`, `label`, `notes`, `custom1`, `custom2`, `custom3` and `custom4` fields to addresses.
-- Added line item adjustment data to the cart’s json response. ([#1014](https://github.com/craftcms/commerce/issues/1014))
-- Added “CC” and “Reply To” settings to emails.
 
 ### Changed
-- Commerce now required Craft CMS 3.3.0 or later.
-- The “Paid Status” on an order to include an “Overpaid” status ([#945](https://github.com/craftcms/commerce/issues/945))
-- Customer customer field is now deprecated and will be removed in Commerce 3.0.
-- Edit Product page no longer shows SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
-- Added “Ignore sales when this discount is applied” option to Discounts to allow disregarding of sale prices. ([#1008](https://github.com/craftcms/commerce/issues/1008))
-- Added a new `shortNumber` order criteria param.
-- Order status now have a description field. ([#1004](https://github.com/craftcms/commerce/issues/1004))
-- Tax rates now have a code field. ([#707](https://github.com/craftcms/commerce/issues/707))
-- Added ability to specify the initial page in Commerce with the `defaultView` setting. ([#555](https://github.com/craftcms/commerce/issues/555))
-- Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
-- Customer records that are not related to a cart, order or user are now purged with expired orders. ([#1045](https://github.com/craftcms/commerce/issues/1045))
-- Addresses now have whitespace trimmed from all fields by default when saving an addresses.
-- Line items are now ordered by `dateCreated DESC` in the cart by default. ([#1055](https://github.com/craftcms/commerce/pull/1055))
+- Craft Commerce now required Craft CMS 3.3.0 or later.
+- Edit Product pages no longer show SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
+- The View Order page now shows timestamps for “Order Completed”, “Paid”, and “Last Updated”. ([#1020](https://github.com/craftcms/commerce/issues/1020))
+- The Orders index page now has unique URLs for each order status. ([#901](https://github.com/craftcms/commerce/issues/901))
+- Orders now show whether they’ve been overpaid. ([#945](https://github.com/craftcms/commerce/issues/945))
+- Carts now return their line items  `dateCreated DESC` in the cart by default. ([#1055](https://github.com/craftcms/commerce/pull/1055))
+- Leading and trailing whitespace is now trimmed from all address fields.
+- Coupon code usage is now tracked even for discounts with no limit set. ([#521](https://github.com/craftcms/commerce/issues/521))
+- Variants now always include their product’s title in their search keywords. ([#934](https://github.com/craftcms/commerce/issues/934))
+- Expired orders are now purged during garbage collection rather than when viewing the Orders index page.
+- Customer records that are not related to anything are now purged during garbage collection. ([#1045](https://github.com/craftcms/commerce/issues/1045))
+- `commerce/cart/update-cart` requests now include line item adjustment data in their JSON response. ([#1014](https://github.com/craftcms/commerce/issues/1014))
+
+### Deprecated
+- Commerce Customer Info fields are now deprecated.
 
 ### Fixed
-- Fixed a bug with the DB migration for the `taxCategoryId` when using PostgreSQL.
-- Fixed a bug where the order element index table in the CP was showing non-sortable fields in the sort dropdown. ([#933](https://github.com/craftcms/commerce/issues/993))
-- Fixed a bug where “Order Date”, “Paid Date” and “Last Updated Date” didn’t respect the user's locale.
+- Fixed a PostgreSQL migration issue.
+- Fixed a bug where the Orders index page was listing non-sortable fields as sort options. ([#933](https://github.com/craftcms/commerce/issues/993))
+- Fixed a bug where timestamps on the View Order page weren’t respecting the user’s locale.
 - Fixed a bug where product types’ site settings weren’t being added to the project config when a new site was created.
-- Fixed a bug where discounted shipping would still add tax to an order. ([#1007](https://github.com/craftcms/commerce/issues/1007))
-- `Order::datePaid` is now set to null if the order is no longer paid iun full after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
-- Fixed a bug where deleted order statuses would be taken into account when validating the handle uniqueness. ([#1027](https://github.com/craftcms/commerce/pull/1027))
-- Fixed a bug where deleted order statuses did not appear in history tab within the order edit page.
-- Fixed a bug where breadcrumbs were not displaying correcting for “Shipping” and “Tax” CP sections.
-- Fixed a bug where the order element index did not have permanent URLs for order statuses. ([#901](https://github.com/craftcms/commerce/issues/901))
-- Fixed an error that could occur when clicking “Refresh Payment History” on a cancelled/expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
-- Fixed a bug where gateways disabled in the `commerce-gateways.php` config file would continue to show in the front end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
-- Fixed a bug where zero value donations could be accepted. ([#820](https://github.com/craftcms/commerce/issues/820))
-- Fixed a bug where coupon code usage was not track because a limit was not set. ([#521](https://github.com/craftcms/commerce/issues/521))
-- Fixed a bug where `dateCreated` on line items would be reset when saving the cart.
+- Fixed a bug where order taxes weren’t accounting for discounted shipping costs. ([#1007](https://github.com/craftcms/commerce/issues/1007))
+- Fixed a bug where orders’ `datePaid` attributes weren’t getting set to `null` after a refund. ([#1026](https://github.com/craftcms/commerce/pull/1026))
+- Fixed a bug where order status handles could get a validation error if another order status with the same handle had been soft-deleted. ([#1027](https://github.com/craftcms/commerce/pull/1027))
+- Fixed a bug where soft-deleted order statuses weren’t showing up in the History tab on View Order pages.
+- Fixed a bug where breadcrumbs weren’t displaying correctly in the “Shipping” and “Tax” sections.
+- Fixed an error that could occur when clicking “Refresh Payment History” on a canceled or expired subscription. ([#871](https://github.com/craftcms/commerce/issues/871))
+- Fixed a bug where gateways that were disabled via `config/commerce-gateways.php` were still visible on the front-end. ([#1054](https://github.com/craftcms/commerce/issues/1054))
+- Fixed a bug where it was possible to submit a zero-value donation. ([#820](https://github.com/craftcms/commerce/issues/820))
+- Fixed a bug where line items’ `dateCreated` would get reset each time the cart was saved.
 - Fixed a bug where all states were shown on the Store Location page regardless of which country was selected. ([#942](https://github.com/craftcms/commerce/issues/942))
-- Fixed a bug where product title was not included in the variant search index. ([#934](https://github.com/craftcms/commerce/issues/934))
-- Fixed a bug where a subscription would show as on trial when it is expired. ([#723](https://github.com/craftcms/commerce/issues/723))
-- Fixed a bug that copied the addresses of the current cart to a newly impersonated user’s address book. ([#903](https://github.com/craftcms/commerce/issues/903))
+- Fixed a bug where expired subscriptions were being identified as trials. ([#723](https://github.com/craftcms/commerce/issues/723))
+- Fixed a bug where users’ addresses could be copied to impersonated users’ address books. ([#903](https://github.com/craftcms/commerce/issues/903))
 
 ## 2.1.13 - 2019-09-09
 
@@ -65,7 +70,7 @@
 - The “Status Email Address” and “From Name” settings now accept environment variables.
 
 ### Fixed
-- Fixed a bug where the “Download PDF” button wouldn’t show in the Edit Order page. ([#962](https://github.com/craftcms/commerce/issues/962))
+- Fixed a bug where the “Download PDF” button wouldn’t show in the View Order page. ([#962](https://github.com/craftcms/commerce/issues/962))
 - Fixed a bug where the <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in General Settings.
 - Fixed a bug where <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in Store Location settings.
 - Fixed a bug where users were forced to choose a tax category for order taxable subjects. ([#538](https://github.com/craftcms/commerce/issues/538))
@@ -90,7 +95,7 @@
 ### Fixed
 - Fixed a bug where order revenue charts weren’t showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
 - Fixed a bug where decimals were being stripped in locales that use commas as separators ([#592](https://github.com/craftcms/commerce/issues/592)) 
-- Fixed a bug where sites with a large number of variants might not update properly when updating to Commerce 2. ([#964](https://github.com/craftcms/commerce/issues/964))
+- Fixed a bug where sites with a large number of variants might not update properly when updating to Craft Commerce 2. ([#964](https://github.com/craftcms/commerce/issues/964))
 - Fixed a bug where the “Purchase Total” discount condition would only save whole numbers. ([#966](https://github.com/craftcms/commerce/pull/966))
 - Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))
 - Fixed a bug where emails would ignore the “From Name” setting. ([#939](https://github.com/craftcms/commerce/issues/939))
@@ -114,7 +119,7 @@
 - Added `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT`. ([#949](https://github.com/craftcms/commerce/pull/949))
 
 ### Changed
-- Improved the performance of Commerce 2 migrations.
+- Improved the performance of Craft Commerce 2 migrations.
 - Users’ carts are no longer merged together automatically. Instead cart merging can be manually triggered by passing a `mergeCarts` param to the `commerce/cart/get-cart` and `commerce/cart/update-cart` actions. ([#947](https://github.com/craftcms/commerce/issues/947))
 - After a logged-in user completes an order, their most recent incomplete cart is now loaded as the current cart in session.
 - Order file exports are now cached in `storage/runtime/commerce-order-exports/` instead of `storage/runtime/temp/commerce-order-exports/`.
@@ -166,7 +171,7 @@
 ## 2.1.7 - 2019-06-11
 
 ### Fixed
-- Fixed a SQL error that would occur when upgrading Commerce. ([#829](https://github.com/craftcms/commerce/issues/829))
+- Fixed a SQL error that would occur when upgrading Craft Commerce. ([#829](https://github.com/craftcms/commerce/issues/829))
 - Fixed an bug that could stop more that one sale being applied to a purchasable. ([#839](https://github.com/craftcms/commerce/issues/839))
 - Fixed a SQL error that could occur when saving a line item with an emoji in it.([#886](https://github.com/craftcms/commerce/issues/886))
 - Fixed an error that could occur on the order index page when viewing carts with certain columns enabled. ([#876](https://github.com/craftcms/commerce/issues/876))
@@ -218,18 +223,18 @@
 - Customers’ previous cart items are now merged into the active cart on login.
 
 ### Fixed
-- Fixed a bug where Commerce would create a subscription even if the card was declined.
+- Fixed a bug where Craft Commerce would create a subscription even if the card was declined.
 - Fixed an error that could occur when creating a subscription using the Dummy gateway.
 
 ## 2.1.4 - 2019-04-29
 
 ### Added
-- Added `craft\commerce\base\SubscriptionResponseInterface::isInactive().`
+- Added `craft\commerce\base\SubscriptionResponseInterface::isInactive()`.
 
 ### Changed
 - Improved performance of the Orders index page. ([#828](https://github.com/craftcms/commerce/issues/828))
 - `commerce/cart/*` action JSON responses now list cart errors under an `errors` key.
-- Commerce now correctly typecasts all boolean and integer values saved to the project config.
+- Craft Commerce now correctly typecasts all boolean and integer values saved to the project config.
 
 ### Fixed
 - Fixed a SQL error that occurred when duplicate line items were added the cart. ([#506](https://github.com/craftcms/commerce/issues/506))
@@ -264,7 +269,7 @@
 - Fixed a bug where products’ `defaultVariantId` was not getting set on the first save. ([#796](https://github.com/craftcms/commerce/issues/796))
 - Fixed a PHP error when querying for products with the `hasSales` param.
 - Fixed a bug where product metadata wasn’t available to templates on Live Preview requests.
-- Fixed a bug where the wrong Commerce subnav item could appear selected in the Control Panel.
+- Fixed a bug where the wrong Craft Commerce subnav item could appear selected in the Control Panel.
 - Fixed a bug where taxes could be incorrectly calculated if included taxes had been removed from the price.
 - Fixed a bug where additional discounts could be incorrectly applied to an order if multiple products had been added to the cart at the same time. ([#797](https://github.com/craftcms/commerce/issues/797))
 - Fixed a bug where products’ Post Dates could be incorrect on first save. ([#774](https://github.com/craftcms/commerce/issues/774))
@@ -306,12 +311,12 @@
 ## 2.1.0.2 - 2019-02-25
 
 ### Fixed
-- Fixed more template loading errors on Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
+- Fixed more template loading errors on Craft Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
 
 ## 2.1.0.1 - 2019-02-25
 
 ### Fixed
-- Fixed some template loading errors on Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
+- Fixed some template loading errors on Craft Commerce settings pages. ([#751](https://github.com/craftcms/commerce/issues/751))
 
 ## 2.1.0 - 2019-02-25
 
@@ -338,7 +343,7 @@
 - Fixed a validation error that occurred when attempting to apply a coupon with a per-email limit, if the cart didn’t have a customer email assigned to it yet.
 - `commerce/cart/*` actions’ JSON responses now encode all boolean attributes correctly.
 - `commerce/customer-addresses/*` actions’ JSON responses now include an `errors` array if there were any issues with the request.
-- Fixed a bug where the order field layout could be lost when upgrading from Commerce 1 to 2. ([#668](https://github.com/craftcms/commerce/issues/668))
+- Fixed a bug where the order field layout could be lost when upgrading from Craft Commerce 1 to 2. ([#668](https://github.com/craftcms/commerce/issues/668))
 - Fixed a bug where line item update requests could result in line items being removed if the `qty` parameter was missing.
 - Fixed a bug where coupon codes weren’t being removed from carts when no longer valid. ([#711](https://github.com/craftcms/commerce/issues/711))
 - Fixed a bug that could prevent a payment gateway from being modified. ([#656](https://github.com/craftcms/commerce/issues/656))
@@ -357,19 +362,19 @@
 ## 2.0.3 - 2019-02-02
 
 ### Added
-- Added the “Tax is included in price” tax setting for Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
+- Added the “Tax is included in price” tax setting for Craft Commerce Lite. ([#654](https://github.com/craftcms/commerce/issues/654))
 
 ### Changed
 - Soft-deleted products are now restorable.
-- Commerce project config settings are now removed when Commerce is uninstalled.
+- Craft Commerce project config settings are now removed when Craft Commerce is uninstalled.
 
 ### Fixed
-- Fixed an error that occurred when upgrading to Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
-- Fixed a bug where sale conditions could be lost when upgrading to Commerce 2. ([#626](https://github.com/craftcms/commerce/issues/626))
+- Fixed an error that occurred when upgrading to Craft Commerce 2 with a database that had missing constraints on the `commerce_orderhistories` table.
+- Fixed a bug where sale conditions could be lost when upgrading to Craft Commerce 2. ([#626](https://github.com/craftcms/commerce/issues/626))
 - Fixed a PHP error that occurred when saving a product type. ([#645](https://github.com/craftcms/commerce/issues/645))
 - Fixed a bug that prevented products from being deleted. ([#650](https://github.com/craftcms/commerce/issues/650))
-- Fixed a PHP error that occurred when deleting the cart’s line item on Commerce Lite. ([#639](https://github.com/craftcms/commerce/pull/639))
-- Fixed a bug where Commerce’s general settings weren’t saving. ([#655](https://github.com/craftcms/commerce/issues/655))
+- Fixed a PHP error that occurred when deleting the cart’s line item on Craft Commerce Lite. ([#639](https://github.com/craftcms/commerce/pull/639))
+- Fixed a bug where Craft Commerce’s general settings weren’t saving. ([#655](https://github.com/craftcms/commerce/issues/655))
 - Fixed a missing import. ([#643](https://github.com/craftcms/commerce/issues/643))
 - Fixed a bug that caused an incorrect tax rate calculation when included taxes had been removed from the price.
 - Fixed a SQL error that occurred when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
@@ -380,7 +385,7 @@
 ## 2.0.2 - 2019-01-23
 
 ### Added
-- Added the new Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Commerce Pro example templates folder `templates/shop`.
+- Added the new Craft Commerce Lite example templates folder `templates/buy`, this is in addition to the existing Craft Commerce Pro example templates folder `templates/shop`.
 
 ### Fixed
 - Fixed a PHP error raised when extending the `craft\commerce\base\ShippingMethod` class. ([#634](https://github.com/craftcms/commerce/issues/634))
@@ -390,7 +395,7 @@
 
 ### Fixed
 - Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
-- Fixed an issue where custom field validation errors did not show up on the Edit Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
+- Fixed an issue where custom field validation errors did not show up on the View Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
 
 ### Changed
 - Renamed the shipping rule condition from “Mimimum order price” to “Minimum order value” which clarifies the condition is based on item value before discounts and tax.
@@ -399,12 +404,12 @@
 ## 2.0.0 - 2019-01-15
 
 ### Added
-- Craft Commerce has been completely rewritten for Craft 3.
+- Craft Craft Commerce has been completely rewritten for Craft CMS 3.
 - Emails, gateways, order fields, order statuses, product types, and subscription fields are now stored in the project config.
 - Added support for Craft 3.1 project config support.
 - Gateways can now provide recurring subscription payments. ([#257](https://github.com/craftcms/commerce/issues/257))
 - Added the Store Location setting.
-- Customers can now save their credit cards or payment sources stored as tokens in Commerce so customers don’t need to enter their card number on subsequent checkouts. ([#21](https://github.com/craftcms/commerce/issues/21))
+- Customers can now save their credit cards or payment sources stored as tokens in Craft Commerce so customers don’t need to enter their card number on subsequent checkouts. ([#21](https://github.com/craftcms/commerce/issues/21))
 - Any custom purchasable can now have sales and discounts applied to them.
 - Sales and discounts can now be set on categories of products or purchasables.
 - Customers can now set their primary default shipping and billing addresses in their address book.
@@ -431,10 +436,10 @@
 - Variant queries now have a `price` param.
 - Variant queries now have a `hasSales` param.
 - Order queries now have a `hasTransactions` param.
-- Added `cract\commerce\services\ProductTypes::getProductTypesByShippingCategoryId().`
-- Added `cract\commerce\services\ProductTypes::getProductTypesByTaxCategoryId().`
+- Added `cract\commerce\services\ProductTypes::getProductTypesByShippingCategoryId()`.
+- Added `cract\commerce\services\ProductTypes::getProductTypesByTaxCategoryId()`.
 - Added `craft\commerce\adjustments\Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED`.
-- Added `craft\commerce\base\ShippingMethod`
+- Added `craft\commerce\base\ShippingMethod`.
 - Added `craft\commerce\elements\Order::$paidStatus`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_ADD_LINE_ITEM`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_COMPLETE_ORDER`.
@@ -459,12 +464,12 @@
 - Added `craft\commerce\services\Emails::EVENT_BEFORE_SEND_EMAIL`.
 - Added `craft\commerce\services\Gateways::EVENT_REGISTER_GATEWAY_TYPES`.
 - Added `craft\commerce\services\LineItems::EVENT_AFTER_SAVE_LINE_ITEM`.
-- Added `craft\commerce\services\LineItems::EVENT_BEFORE_POPULATE_LINE_ITEM`
+- Added `craft\commerce\services\LineItems::EVENT_BEFORE_POPULATE_LINE_ITEM`.
 - Added `craft\commerce\services\LineItems::EVENT_BEFORE_SAVE_LINE_ITEM`.
 - Added `craft\commerce\services\LineItems::EVENT_CREATE_LINE_ITEM`.
 - Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS`.
 - Added `craft\commerce\services\OrderHistories::EVENT_ORDER_STATUS_CHANGE`.
-- Added `craft\commerce\services\OrderStatuses::archiveOrderStatusById().`
+- Added `craft\commerce\services\OrderStatuses::archiveOrderStatusById()`.
 - Added `craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION`.
 - Added `craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION`.
 - Added `craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT`.
@@ -534,8 +539,8 @@
 - The `craft.commerce.taxRates` Twig variable has been replaced with `craft.commerce.taxRates.allTaxRates`.
 - The `craft.commerce.taxZones` Twig variable has been replaced with `craft.commerce.taxZones.allTaxZones`.
 - The `craft.commerce.variants` Twig variable has been replaced with `craft.variants()`.
-- `Customer::$lastUsedBillingAddress`has been replaced with `$primaryBillingAddress`.
-- `Customer::$lastUsedShippingAddress`has been replaced with `$primaryShippingAddres`.
+- `Customer::$lastUsedBillingAddress` has been replaced with `$primaryBillingAddress`.
+- `Customer::$lastUsedShippingAddress` has been replaced with `$primaryShippingAddres`.
 - `OrderAdjustment::$optionsJson` was renamed to `$sourceSnapshot`.
 - `Variant::getSalesApplied()` was renamed to `getSales()`.
 - `Variant::setSalesApplied()` was renamed to `setSales()`.
@@ -593,7 +598,7 @@
 ## 1.2.1363 - 2018-08-23
 
 ### Added
-- Added the [resaveAllCustomerOrdersOnCustomerSave](https://craftcommerce.com/docs/configuration#resaveallcustomerordersoncustomersave) config setting.
+- Added the `resaveAllCustomerOrdersOnCustomerSave` config setting.
 
 ### Fixed
 - Fixed a bug where the Date Paid column on the Orders index page could show incorrect values.
@@ -604,7 +609,7 @@
 ## 1.2.1362 - 2018-05-10
 
 ### Changed
-- Commerce will now enforce boolean types for settings that a gateway expects to be boolean.
+- Craft Commerce will now enforce boolean types for settings that a gateway expects to be boolean.
 
 ### Fixed
 - Fixed an SSL error that could when communicating with the Authorize.net payment gateway.
@@ -615,7 +620,7 @@
 - The order index page now includes the time when displaying order dates.
 
 ### Changed
-- Line item modals on Edit Order pages now include the line item total.
+- Line item modals on View Order pages now include the line item total.
 - Added Craft 2.6.3013 compatibility.
 
 ## 1.2.1359 - 2018-03-08
@@ -639,12 +644,12 @@
 ### Fixed
 - Fixed a bug where a blank order could be placed if the cart’s cookie was deleted while the customer was on the payment page.
 - Fixed a bug where a cart could be completed despite a lack of available stock, in some cases.
-- Fixed a bug where the “Capture” transaction button on Edit Order pages was still shown after a capture was completed.
+- Fixed a bug where the “Capture” transaction button on View Order pages was still shown after a capture was completed.
 
 ## 1.2.1354 - 2018-02-06
 
 ### Added
-- Commerce now adds `Craft Commerce` to the `X-Powered-By` header on requests, unless disabled by the [sendPoweredByHeader](https://craftcms.com/docs/config-settings#sendPoweredByHeader) config setting.
+- Craft Commerce now adds `Craft Commerce` to the `X-Powered-By` header on requests, unless disabled by the [sendPoweredByHeader](https://craftcms.com/docs/config-settings#sendPoweredByHeader) config setting.
 
 ### Changed
 - Updated the Authorize.net driver to 2.5.1
@@ -660,7 +665,7 @@
 ## 1.2.1353 - 2018-01-18
 
 ### Added
-- Added the [`requireShippingMethodSelectionAtCheckout`](https://craftcommerce.com/docs/configuration#requireshippingmethodselectionatcheckout) config setting.
+- Added the `requireShippingMethodSelectionAtCheckout` config setting.
 - Added new user permissions to manage shipping and tax settings without needing to be an admin.
 
 ### Fixed
@@ -671,12 +676,12 @@
 
 ### Added
 - Added the ability to update the email address of a guest order from the Control Panel.
-- Added the [`commerce_defaultCartShippingAddress`](https://craftcommerce.com/docs/hooks-reference#commerce_defaultcartshippingaddress) and [`commerce_defaultCartBillingAddress`](https://craftcommerce.com/docs/hooks-reference#commerce_defaultcartbillingaddress) plugin hooks.
+- Added the `commerce_defaultCartShippingAddress` and `commerce_defaultCartBillingAddress` plugin hooks.
 
 ## 1.2.1351 - 2017-10-31
 
 ### Added
-- Added the [`defaultSku`](https://craftcommerce.com/docs/craft-commerce-products#defaultsku) product criteria param.
+- Added the `defaultSku` product criteria param.
 - Added stock information to the Product index page.
 
 ### Fixed
@@ -712,7 +717,7 @@
 ## 1.2.1346 - 2017-07-24
 
 ### Added
-- Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
+- Added the `autoSetNewCartAddresses` config setting, which can be set to `false` to prevent Craft Commerce from automatically assigning the last-used billing and shipping addresses on new carts.
 
 ### Changed
 - Updated the Migs Omnipay driver to 2.2.2
@@ -749,10 +754,10 @@
 ## 1.2.1343 - 2017-06-09
 
 ### Added
-- Added the [`pdfPaperSize`](https://craftcommerce.com/docs/configuration#pdfpapersize) config setting.
-- Added the [`pdfPaperOrientation`](https://craftcommerce.com/docs/configuration#pdfpaperorientation) config setting.
-- Added a new Stripe gateway setting that determines whether the [`receipt_email`](https://stripe.com/docs/api#create_charge-receipt_email) param should be sent in payment requests.
-- Added the [`commerce_transactions.onCreateTransaction`](https://craftcommerce.com/docs/events-reference#commerce_transactions.oncreatetransaction) event, which enables plugins to modify a newly-created transaction model.
+- Added the `pdfPaperSize` config setting.
+- Added the `pdfPaperOrientation` config setting.
+- Added a new Stripe gateway setting that determines whether the `receipt_email` param should be sent in payment requests.
+- Added the `commerce_transactions.onCreateTransaction` event, which enables plugins to modify a newly-created transaction model.
 
 ### Changed
 - Updated the Buckeroo driver to 2.2.
@@ -777,7 +782,7 @@
 - The `CommerceDbHelper` class has be deprecated.
 
 ### Fixed
-- Fixed a bug where some characters in product names were getting double-encoded on Edit Order pages.
+- Fixed a bug where some characters in product names were getting double-encoded on View Order pages.
 - Fixed a bug where orders were incorrectly recalculating their adjustments when receiving notifications from the SagePay payment gateway.
 - Fixed a tax calculation bug that occurred when using the “Total Order Price” taxable subject.
 
@@ -785,7 +790,7 @@
 
 ### Added
 - Added new “Taxable Subject” options to Tax Rates, enabling taxes to be applied at the order level.
-- Added the [`datePaid`](https://craftcommerce.com/docs/craft-commerce-orders#datepaid) order element criteria attribute.
+- Added the `datePaid` order element criteria attribute.
 
 ### Changed
 - Updated the Dompdf package to 0.8.
@@ -799,9 +804,9 @@
 ## 1.2.1338 - 2017-04-04
 
 ### Added
-- Added the [`requireBillingAddressAtCheckout`](https://craftcommerce.com/docs/configuration#requirebillingaddressatcheckout) config setting.
-- Added the `cp.commerce.order.main-pane` template hook to the Edit Order page.
-- Added [`Commerce_VariantModel::hasStock()`](https://craftcommerce.com/docs/variant-model#hasstock).
+- Added the `requireBillingAddressAtCheckout` config setting.
+- Added the `cp.commerce.order.main-pane` template hook to the View Order page.
+- Added `Commerce_VariantModel::hasStock()`.
 
 ### Fixed
 - Fixed some PHP errors that occurred when saving products on servers running PHP 7.1.
@@ -811,12 +816,12 @@
 ## 1.2.1337 - 2017-03-08
 
 ### Added
-- Added the [commerce_sale.onBeforeMatchProductAndSale](https://craftcommerce.com/docs/events-reference#commerce_sales.onbeforematchproductandsale) event, which enables plugins to add custom matching logic to sales.
-- Added the [commerce_products.onBeforeEditProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforeeditproduct) event.
+- Added the `commerce_sale.onBeforeMatchProductAndSale` event, which enables plugins to add custom matching logic to sales.
+- Added the `commerce_products.onBeforeEditProduct` event.
 - Added the `cp.commerce.product.edit` template hook to the Edit Product page.
 
 ### Changed
-- If a product SKU can’t be generated from its product type’s Automatic SKU Format, Commerce now logs why.
+- If a product SKU can’t be generated from its product type’s Automatic SKU Format, Craft Commerce now logs why.
 
 ### Fixed
 - Fixed some PHP errors that occurred on servers running PHP 7.1.
@@ -831,7 +836,7 @@
 ## 1.2.1334 - 2017-01-30
 
 ### Added
-- Added a new [purgeInactiveCarts](https://craftcommerce.com/docs/configuration#purgeinactivecarts) config setting, which determines whether Commerce should purge inactive carts from the database (`true` by default).
+- Added a new `purgeInactiveCarts` config setting, which determines whether Craft Commerce should purge inactive carts from the database (`true` by default).
 - Added a new `commerce_modifyOrderAdjusters` hook, which enables plugins to modify the order adjusters before they are applied.
 - Added the “Shipping Method” and “Payment Method” table attribute options to the Orders index page.
 
@@ -854,8 +859,8 @@
 ## 1.2.1332 - 2017-01-03
 
 ### Added
-- Added the [commerce_modifyItemBag](https://craftcommerce.com/docs/hooks-reference#commerce_modifyitembag) hook, allowing plugins to modify cart information sent to the payment gateway.
-- Added the [requireShippingAddressAtCheckout](https://craftcommerce.com/docs/configuration#requireshippingaddressatcheckout) config setting.
+- Added the `commerce_modifyItemBag` hook, allowing plugins to modify cart information sent to the payment gateway.
+- Added the `requireShippingAddressAtCheckout` config setting.
 - Added a new `defaultHeight` product criteria param, for querying products by their default variant’s height.
 - Added a new `defaultLength` product criteria param, for querying products by their default variant’s length.
 - Added a new `defaultWidth` product criteria param, for querying products by their default variant’s width.
@@ -868,12 +873,12 @@
 ## 1.2.1331 - 2016-12-13
 
 ### Added
-- Commerce now includes a gateway adapter for Payeezy by First Data.
-- Added [Commerce_VariantModel::getSalesApplied()](https://craftcommerce.com/docs/line-item-model#salesapplied), which returns an array of the Commerce_SaleModel objects that were used to calculate the salePrice of the variant.
+- Craft Commerce now includes a gateway adapter for Payeezy by First Data.
+- Added `Commerce_VariantModel::getSalesApplied()`, which returns an array of the `Commerce_SaleModel` objects that were used to calculate the salePrice of the variant.
 
 ### Changed
-- Ajax requests to `commerce/cart/*` actions now include ‘subtotal’ and ‘shippingCategoryId’ properties in the response data.
-- The ‘commerce_orders/beforeOrderComplete’ event now gets fired a little later than before, giving plugins a chance to change the order status ID.
+- Ajax requests to `commerce/cart/*` actions now include `subtotal` and `shippingCategoryId` properties in the response data.
+- The `commerce_orders/beforeOrderComplete` event now gets fired a little later than before, giving plugins a chance to change the order status ID.
 
 ### Fixed
 - Fixed a bug where MultiSafepay was not being treated as an offsite payment gateway.
@@ -882,7 +887,7 @@
 
 ### Changed
 - Added a new `baseTax` attribute to order models, which can be modified by custom order adjusters to add taxes to the order as a whole.
-- Commerce_OrderModel::getTotalTax() now includes the new `baseTax` amount.
+- `Commerce_OrderModel::getTotalTax()` now includes the new `baseTax` amount.
 
 ### Fixed
 - Fixed a rounding error that occurred with some percentage-based discounts.
@@ -898,29 +903,29 @@
 ## 1.2.1328 - 2016-11-29
 
 ### Added
-- Commerce now includes a gateway adapter for MultiSafepay.
+- Craft Commerce now includes a gateway adapter for MultiSafepay.
 
 ### Changed
-- Ajax requests to ‘cart/updateCart’ now include a ‘cart’ object in the response data in the event of an error.
+- Ajax requests to `cart/updateCart` now include a `cart` object in the response data in the event of an error.
 
 ### Fixed
-- Fixed a bug where PayPal payments could fail due to inconsistencies between how Commerce and PayPal calculated the total payment amount for transactions.
+- Fixed a bug where PayPal payments could fail due to inconsistencies between how Craft Commerce and PayPal calculated the total payment amount for transactions.
 - Fixed a bug where First Name and Last Name customer field labels weren’t being translated for the current locale in the Control Panel.
 - Fixed a bug some offsite gateway payment requests were not getting sent with the correct return and cancel URLs.
-- Fixed a bug that prevented Commerce from updating successfully from pre-1.0 versions on case-sensitive file systems.
+- Fixed a bug that prevented Craft Commerce from updating successfully from pre-1.0 versions on case-sensitive file systems.
 - Fixed a bug where applicable VAT taxes were not being removed correctly for customers with a valid VAT ID.
 - Fixed a bug where archived payment methods were still showing up as options in Control Panel payment form modals.
 
 ## 1.2.1327 - 2016-10-25
 
 ### Changed
-- When saving a product type, if any tax/shipping categories had been deselected, Commerce will now reassign any existing products with the no-longer-available tax/shipping categories to the default categories.
+- When saving a product type, if any tax/shipping categories had been deselected, Craft Commerce will now reassign any existing products with the no-longer-available tax/shipping categories to the default categories.
 - The “HTML Email Template Path” Email setting can now contain Twig code.
 
 ### Fixed
-- Fixed a bug where Commerce was not respecting the system time zone when purging inactive carts.
+- Fixed a bug where Craft Commerce was not respecting the system time zone when purging inactive carts.
 - Fixed a bug where a no-longer-applicable shipping method could still be selected by a cart if it was the only defined shipping method.
-- Fixed a bug where the Commerce_ProductModel provided by the onSaveProduct event was not updated with the latest and greatest values based on its default variant.
+- Fixed a bug where the `Commerce_ProductModel` provided by the onSaveProduct event was not updated with the latest and greatest values based on its default variant.
 - Fixed a bug where all products were being re-saved when a product type was saved, rather than just the products that belong to that product type.
 - Fixed a PHP error that occurred when adding something to the cart, if the cart didn’t have a shipping address yet and the default tax zone’s tax rate was marked as VAT.
 - Fixed a bug where a coupon based discount could apply before its start date.
@@ -941,8 +946,8 @@
 ## 1.2.1323 - 2016-10-11
 
 ### Added
-- It is now possible to accept payments in [multiple currencies](https://craftcommerce.com/docs/payment-currencies).
-- Added [Shipping Categories](https://craftcommerce.com/docs/shipping#shipping-categories).
+- It is now possible to accept payments in multiple currencies.
+- Added Shipping Categories.
 - Discounts can now be user-sorted, which defines the order that they will be applied to carts.
 - Discounts now have the option to prevent subsequent discounts from being applied.
 - The start/end dates for Discounts and Sales can now specify the time of day.
@@ -950,41 +955,41 @@
 - Product Types now have an “Order Description Format” setting, which can be used to override the description of the products in orders’ line items.
 - Addresses now have “Attention”, “Title”, and “Business ID” fields.
 - Added the “Order PDF Filename Format” setting in Commerce → Settings → General Settings, for customizing the format of order PDF filenames.
-- Added the ‘useBillingAddressForTax’ config setting. If enabled, Commerce will calculate taxes based on orders’ billing addresses, rather than their shipping addresses.
-- Added the ‘requireEmailForAnonymousPayments’ config setting. If enabled, Commerce will require the email address of the order to be submitted in anonymous payment requests.
+- Added the `useBillingAddressForTax` config setting. If enabled, Craft Commerce will calculate taxes based on orders’ billing addresses, rather than their shipping addresses.
+- Added the `requireEmailForAnonymousPayments` config setting. If enabled, Craft Commerce will require the email address of the order to be submitted in anonymous payment requests.
 - The IP address of the customer is now stored on the order during order completion.
-- Commerce now makes all payment gateways available to unregistered installs, rather than limiting users to a single “Dummy” gateway.
+- Craft Commerce now makes all payment gateways available to unregistered installs, rather than limiting users to a single “Dummy” gateway.
 - Added support for SagePay Server.
 - Added support for the Netbanx Hosted.
-- Added the [|commerceCurrency](https://craftcommerce.com/docs/twig-filters) filter, which works identically to the |currency filter by default, but also has `convert` and `format` arguments that can be used to alter the behavior.
-- Added ‘craft.commerce.shippingMethods’.
-- Added ‘craft.commerce.shippingCategories’.
-- Added ‘craft.commerce.shippingZones’.
-- Added ‘craft.commerce.taxZones’.
-- Added OrderStatusService::getDefaultOrderStatusId().
-- Added the ‘commerce_payments.onBeforeCaptureTransaction’ and ‘onCaptureTransaction’ events.
-- Added the ‘commerce_payments.onBeforeRefundTransaction’ and ‘onRefundTransaction’ events.
-- Added the ‘commerce_email.onBeforeSendEmail’ and ‘onSendEmail’ events.
-- Added the ‘cp.commerce.order.edit’ hook to the Edit Order page template.
+- Added the `commerceCurrency` filter, which works identically to the |currency filter by default, but also has `convert` and `format` arguments that can be used to alter the behavior.
+- Added `craft.commerce.shippingMethods`.
+- Added `craft.commerce.shippingCategories`.
+- Added `craft.commerce.shippingZones`.
+- Added `craft.commerce.taxZones`.
+- Added `OrderStatusService::getDefaultOrderStatusId()`.
+- Added the `commerce_payments.onBeforeCaptureTransaction` and `onCaptureTransaction` events.
+- Added the `commerce_payments.onBeforeRefundTransaction` and `onRefundTransaction` events.
+- Added the `commerce_email.onBeforeSendEmail` and `onSendEmail` events.
+- Added the `cp.commerce.order.edit` hook to the View Order page template.
 - Added the [PHP Units of Measure](https://github.com/PhpUnitsOfMeasure/php-units-of-measure) PHP package.
 - Added the [Vat Validation](https://github.com/snowcap/vat-validation) PHP package.
 
 ### Changed
-- The tax categories returned by the template function ‘craft.commerce.getTaxCategories()’ are now represented by Commerce_TaxCategory models by default, rather than arrays. To get them returned as arrays, you can pass ‘true’ into the function.
+- The tax categories returned by the template function `craft.commerce.getTaxCategories()` are now represented by `Commerce_TaxCategory` models by default, rather than arrays. To get them returned as arrays, you can pass `true` into the function.
 - Status-change notification emails are now sent to the customer in the language they placed the order with.
 - It’s now possible to update product statuses on the Products index page.
 - The example templates folder has been renamed from “commerce” to “shop”.
-- Commerce now re-saves existing products when a Product Type’s settings are saved.
+- Craft Commerce now re-saves existing products when a Product Type’s settings are saved.
 - The Tax Rates index page now lists the Tax Categories and Tax Zones each Tax Rate uses.
 - Tax Rates now have the option to exclude themselves from orders with a valid VAT ID.
-- Transaction Info HUDs on Edit Order pages now show the transaction IDs.
-- Commerce now stores the complete response data for gateway transaction requests in the commerce_transactions table.
+- Transaction Info HUDs on View Order pages now show the transaction IDs.
+- Craft Commerce now stores the complete response data for gateway transaction requests in the commerce_transactions table.
 - The commerce/cart/updateCart action now includes all validation errors found during partial cart updates in its response.
 - Reduced the number of order recalculations performed during payment.
-- The Edit Order page no longer labels an order as paid if its total price is zero.
-- Commerce now logs invalid email addresses when attempting to send order status notification emails.
+- The View Order page no longer labels an order as paid if its total price is zero.
+- Craft Commerce now logs invalid email addresses when attempting to send order status notification emails.
 - Custom fields on an order can now only be updated during payment if it is the user’s active cart.
-- Commerce now provides Stripe with the customer’s email address to support Stripe’s receipt email feature.
+- Craft Commerce now provides Stripe with the customer’s email address to support Stripe’s receipt email feature.
 - Payment failures using PayPal Express now redirect the customer back to PayPal automatically, rather than displaying a message instructing the customer to return to PayPal.
 - Updated the Authorize.Net gateway library to 2.4.2.
 - Updated the Dummy gateway library to 2.1.2.
@@ -994,11 +999,11 @@
 - Updated the Stripe gateway library to 2.4.1.
 
 ### Deprecated
-- Deprecated the ‘update’ variable in email templates. Use ‘orderHistory’ instead, which returns the same Commerce_OrderHistoryModel.
+- Deprecated the `update` variable in email templates. Use `orderHistory` instead, which returns the same `Commerce_OrderHistoryModel`.
 
 ### Fixed
-- Fixed a bug where Commerce_OrderService::completeOrder() was not checking to make sure the order was not already completed before doing its thing.
-- Fixed a bug where addresses’ “Map” links on Edit Order pages were not passing the full address to the Google Maps window.
+- Fixed a bug where `Commerce_OrderService::completeOrder()` was not checking to make sure the order was not already completed before doing its thing.
+- Fixed a bug where addresses’ “Map” links on View Order pages were not passing the full address to the Google Maps window.
 - Fixed an bug where address validation was not respecting the country setting, “Require a state to be selected when this country is chosen”.
 - Fixed a bug where submitting new addresses to a fresh cart caused a cart update failure.
 - Fixed a bug where collapsed variants’ summary info was overlapping the “Default” button.
@@ -1009,7 +1014,7 @@
 - Craft Commerce is now translated into Portuguese.
 
 ### Fixed
-- Fixed a bug where Edit Address modals on Edit Order pages were not including custom states in the State field options.
+- Fixed a bug where Edit Address modals on View Order pages were not including custom states in the State field options.
 
 ## 1.1.1217 - 2016-08-25
 
@@ -1020,13 +1025,13 @@
 
 ### Fixed
 - Fixed a bug where eager-loading product variants wasn’t working.
-- Fixed a bug where customer addresses were not showing up in the Edit Order page if they contained certain characters.
+- Fixed a bug where customer addresses were not showing up in the View Order page if they contained certain characters.
 - Fixed a bug where orders were not getting marked as complete when they should have in some cases, due to a rounding comparison issue.
 
 ## 1.1.1215 - 2016-08-08
 
 ### Changed
-- Customer Info fields now return the user’s [CustomerModel](https://craftcommerce.com/docs/customer-model) when accessed in a template.
+- Customer Info fields now return the user’s `CustomerModel` when accessed in a template.
 
 ### Fixed
 - Fixed a bug where discounts that apply free shipping to an order were not including the shipping reduction amount in the discount order adjustment amount.
@@ -1037,13 +1042,13 @@
 
 ### Fixed
 - Fixed an error that occurred when PayPal rejected a payment completion request due to duplicate counting of included taxes.
-- Fixed a MySQL error that could occur when ElementsService::getTotalElements() was called for orders, products, or variants.
+- Fixed a MySQL error that could occur when `ElementsService::getTotalElements()` was called for orders, products, or variants.
 
 ## 1.1.1213 - 2016-07-05
 
 ### Changed
-- Transaction dates are now shown on the Edit Order page.
-- Order status change dates are now shown on the Edit Order page.
+- Transaction dates are now shown on the View Order page.
+- Order status change dates are now shown on the View Order page.
 - Updated the Authorize.Net Omnipay gateway to 2.4, fixing issues with Authorize.Net support.
 - Cart item information is now sent on gateway payment completion requests, in addition to initial payment requests.
 
@@ -1053,9 +1058,9 @@
 ## 1.1.1212 - 2016-06-21
 
 ### Changed
-- Line item detail HUDs within the Edit Order page now include the items’ subtotals.
-- Renamed Commerce_LineItemModel’s `subtotalWithSale` attribute to `subtotal`, deprecating the former.
-- Renamed Commerce_OrderModel’s `itemSubtotalWithSale` attribute to `itemSubtotal`, deprecating the former.
+- Line item detail HUDs within the View Order page now include the items’ subtotals.
+- Renamed `Commerce_LineItemModel`’s `subtotalWithSale` attribute to `subtotal`, deprecating the former.
+- Renamed `Commerce_OrderModel`’s `itemSubtotalWithSale` attribute to `itemSubtotal`, deprecating the former.
 - Each of the nested arrays returned by `craft.commerce.availableShippingMethods` now include a `method` key that holds the actual shipping method object.
 
 ### Fixed
@@ -1067,10 +1072,10 @@
 ### Added
 - Added a new “Per Email Address Limit” condition to coupon-based discounts, which will limit the coupons’ use by email address.
 - Added the ability to clear usage counters for coupon-based discounts.
-- Added a new [hasSales](https://craftcommerce.com/docs/craft-commerce-products#hassales) product criteria param, which can be used to limit the resulting products to those that have at least one applicable sale.
-- Added a new [hasPurchasables](https://craftcommerce.com/docs/craft-commerce-orders#haspurchasables) order criteria param, which can be used to limit the resulting orders to those that contain specific purchasables.
-- Added a new [commerce_lineItems.onPopulateLineItem event](https://craftcommerce.com/docs/events-reference#commerce_lineitems.onpopulatelineitem) which is called right after a line item has been populated with a purchasable, and can be used to modify the line item attributes, such as its price.
-- Added LineItemModel::getSubtotal() as an alias of the now-deprecated getSubtotalWithSale().
+- Added a new `hasSales` product criteria param, which can be used to limit the resulting products to those that have at least one applicable sale.
+- Added a new `hasPurchasables` order criteria param, which can be used to limit the resulting orders to those that contain specific purchasables.
+- Added a new `commerce_lineItems.onPopulateLineItem` event which is called right after a line item has been populated with a purchasable, and can be used to modify the line item attributes, such as its price.
+- Added `LineItemModel::getSubtotal()` as an alias of the now-deprecated `getSubtotalWithSale()`.
 
 ### Fixed
 - Fixed a bug where the “Per User Limit” discount condition was not being enforced for anonymous users.
@@ -1087,7 +1092,7 @@
 ## 1.1.1208 - 2016-05-16
 
 ### Added
-- Added [commerce_products.onBeforeDeleteProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforedeleteproduct) and [onDeleteProduct](https://craftcommerce.com/docs/events-reference#commerce_products.ondeleteproduct) events.
+- Added `commerce_products.onBeforeDeleteProduct` and `onDeleteProduct` events.
 
 ### Fixed
 - Fixed a PHP error that occurred when adding a new item to the cart.
@@ -1101,8 +1106,8 @@
 
 ### Changed
 - It is now possible to show customers’ and companies’ names on the Orders index page.
-- Commerce now sends customers’ full names to the payment gateways, pulled from the billing address.
-- Commerce now ensures that orders’ prices don’t change in the middle of payment requests, and declines any payments where the price does change.
+- Craft Commerce now sends customers’ full names to the payment gateways, pulled from the billing address.
+- Craft Commerce now ensures that orders’ prices don’t change in the middle of payment requests, and declines any payments where the price does change.
 - The onBeforeSaveProduct event is now triggered earlier to allow more modification of the product model before saving.
 - Updated the Omnipay gateway libraries to their latest versions.
 
@@ -1114,30 +1119,30 @@
 ## 1.1.1202 - 2016-05-03
 
 ### Added
-- Added the [commerce_lineItems.onCreateLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.oncreatelineitem) event.
-- Added the [hasStock](https://craftcommerce.com/docs/craft-commerce-products#hasstock) variant criteria param, which can be set to `true` to find variants that have stock (including variants with unlimited stock).
+- Added the `commerce_lineItems.onCreateLineItem` event.
+- Added the `hasStock` variant criteria param, which can be set to `true` to find variants that have stock (including variants with unlimited stock).
 
 ### Changed
 - The View Order page now shows whether a coupon code was used on the order.
 - All payment gateways support payments on the View Order page now.
 - It is now possible to delete countries that are in use by tax/shipping zones and customer addresses.
 - State-based tax/shipping zones now can match on the state abbreviation, in addition to the state name/ID.
-- Commerce now sends descriptions of the line items to gateways along with other cart info, when the [sendCartInfoToGateways](https://craftcommerce.com/docs/configuration#sendcartinfotogateways) config setting is enabled.
+- Craft Commerce now sends descriptions of the line items to gateways along with other cart info, when the `sendCartInfoToGateways` config setting is enabled.
 
 ### Fixed
 - Fixed a bug where payment method setting values that were set from config/commerce.php would get saved to the database when the payment method was resaved in the Control Panel.
-- Fixed a PHP error that occurred when calling Commerce_OrderStatusesService::getAllEmailsByOrderStatusId() if the order status ID was invalid.
+- Fixed a PHP error that occurred when calling `Commerce_OrderStatusesService::getAllEmailsByOrderStatusId()` if the order status ID was invalid.
 - Fixed a PHP error that occurred when a cart contained a disabled purchasable.
 - Fixed a bug where an order status’ sort order was forgotten when it was resaved.
-- Fixed a bug where the [hasVariant](https://craftcommerce.com/docs/craft-commerce-products#hasvariant) product criteria param was only checking the first 100 variants.
+- Fixed a bug where the `hasVariant` product criteria param was only checking the first 100 variants.
 - Fixed a bug where only logged-in users could view a tokenized product preview URL.
 - Fixed an issue where the selected shipping method was not getting removed from the cart when it was no longer available, in some cases.
 
 ## 1.1.1200 - 2016-04-13
 
 ### Added
-- Added the [commerce_products.onBeforeSaveProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onbeforesaveproduct) and [onSaveProduct](https://craftcommerce.com/docs/events-reference#commerce_products.onsaveproduct) events.
-- Added the [commerce_lineItems.onBeforeSaveLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.onbeforesavelineitem) and [onSaveLineItem](https://craftcommerce.com/docs/events-reference#commerce_lineitems.onsavelineitem) events.
+- Added the `commerce_products.onBeforeSaveProduct` and `onSaveProduct` events.
+- Added the `commerce_lineItems.onBeforeSaveLineItem` and `onSaveLineItem` events.
 
 ### Changed
 - Stock fields are now marked as required to make it more clear that they are.
@@ -1157,10 +1162,10 @@
 ## 1.1.1198 - 2016-03-22
 
 ### Added
-- Added the [sendCartInfoToGateways](https://craftcommerce.com/docs/configuration#sendcartinfotogateways) config setting, which defines whether Commerce should send info about a cart’s line items and adjustments when sending payment requests to gateways.
+- Added the `sendCartInfoToGateways` config setting, which defines whether Craft Commerce should send info about a cart’s line items and adjustments when sending payment requests to gateways.
 - Product models now have a `totalStock` property, which returns the sum of all available stock across all of a product’s variants.
 - Product models now have an `unlimitedStock` property, which returns whether any of a product’s variants have unlimited stock.
-- Added the [commerce_variants.onOrderVariant](https://craftcommerce.com/docs/events-reference#commerce_variants.onordervariant) event.
+- Added the `commerce_variants.onOrderVariant` event.
 
 ### Changed
 - Updated the Omnipay Authorize.Net driver to 2.3.1.
@@ -1186,8 +1191,8 @@
 ### Fixed
 - Fixed a credit card validation bug that occurred when using the eWay Rapid gateway.
 - Fixed an error that occurred on the Orders index page when searching for orders.
-- Fixed a bug where refreshing the browser window after refunding or paying for an order on the Edit Order page would attempt to re-submit the refund/payment request.
-- Fixed a bug where Commerce_PaymentsService::processPayment() was returning `false` when the order was already paid in full (e.g. due to a 100%-off coupon code).
+- Fixed a bug where refreshing the browser window after refunding or paying for an order on the View Order page would attempt to re-submit the refund/payment request.
+- Fixed a bug where `Commerce_PaymentsService::processPayment()` was returning `false` when the order was already paid in full (e.g. due to a 100%-off coupon code).
 - Fixed a bug where variants were defaulting to disabled for products that only had a single variant.
 
 ## 1.1.1196 - 2016-03-08
@@ -1198,9 +1203,9 @@
 - Added a “Recent Orders” Dashboard widget that shows a table of recently-placed orders.
 - Added a “Revenue” Dashboard widget that shows a chart of recent revenue history.
 - The Orders index page now shows a big, beautiful revenue chart above the order listing.
-- It is now possible to edit Billing and Shipping addresses on the Edit Order page.
-- It is now possible to manually mark orders as complete on the Edit Order page.
-- It is now possible to submit new order payments from the Edit Order page.
+- It is now possible to edit Billing and Shipping addresses on the View Order page.
+- It is now possible to manually mark orders as complete on the View Order page.
+- It is now possible to submit new order payments from the View Order page.
 - Edit Product pages now have a “Save as a new product” option in the Save button menu.
 - Edit Product pages now list any sales that are associated with the product.
 - It is now possible to sort custom order statuses.
@@ -1222,20 +1227,20 @@
 - The “commerce/payments/pay” controller action doesn’t required “redirect” and “cancelUrl” params, like its predecessor did.
 - The “commerce/payments/pay” controller action supports Ajax requests.
 - Added an abstract Purchasable class that purchasables can extend, if they want to.
-- Gateway adapters are now responsible for creating the payment form model themselves, via the new getPaymentFormModel() method.
-- Gateway adapters are now responsible for populating the CreditCard object based on payment form data themselves, via the new populateCard() method.
-- Gateway adapters now have an opportunity to modify the Omnipay payment request, via the new populateRequest() method.
-- Gateway adapters can now add support for Control Panel payments by implementing cpPaymentsEnabled() and getPaymentFormHtml().
+- Gateway adapters are now responsible for creating the payment form model themselves, via the new `getPaymentFormModel()` method.
+- Gateway adapters are now responsible for populating the CreditCard object based on payment form data themselves, via the new `populateCard()` method.
+- Gateway adapters now have an opportunity to modify the Omnipay payment request, via the new `populateRequest()` method.
+- Gateway adapters can now add support for Control Panel payments by implementing `cpPaymentsEnabled()` and `getPaymentFormHtml()`.
 
 ### Changed
-- Commerce_PaymentFormModel has been replaced by an abstract BasePaymentFormModel class and subclasses that target specific gateway types.
-- Gateway adapters must now implement the new getPaymentFormModel() and populateCard() methods, or extend CreditCardGatewayAdapter.
-- The signatures and behaviors of Commerce_PaymentsService::processPayment() and completePayment() have changed.
+- `Commerce_PaymentFormModel` has been replaced by an abstract BasePaymentFormModel class and subclasses that target specific gateway types.
+- Gateway adapters must now implement the new `getPaymentFormModel()` and `populateCard()` methods, or extend `CreditCardGatewayAdapter`.
+- The signatures and behaviors of `Commerce_PaymentsService::processPayment()` and `completePayment()` have changed.
 - New Sales and Discounts are now enabled by default.
 - The Orders index page now displays orders in chronological order by default.
 - It is no longer possible to save a product with a disabled default variant.
 - It is no longer possible to add a disabled variant, or the variant of a disabled product, to the cart.
-- Commerce_PaymentsService::processPayment() and completePayment() no longer respond to the request directly, unless the gateway requires a redirect via POST. They now return `true` or `false` indicating whether the operation was successful, and leave it up to the controller to handle the client response.
+- `Commerce_PaymentsService::processPayment()` and `completePayment()` no longer respond to the request directly, unless the gateway requires a redirect via POST. They now return `true` or `false` indicating whether the operation was successful, and leave it up to the controller to handle the client response.
 
 ### Deprecated
 - The “commerce/cartPayment/pay” controller action has been deprecated. Templates should be updated to use “commerce/payments/pay” instead.
@@ -1265,7 +1270,7 @@
 ### Changed
 - Order queries will now return zero results if the `number` criteria param is set to any empty value besides `null` (e.g. `false` or `0`).
 - Improved the behavior of the Status menu in the Update Order Status modal on View Order pages.
-- Added some `<body>` classes to some of Commerce’s Control Panel pages.
+- Added some `<body>` classes to some of Craft Commerce’s Control Panel pages.
 
 ### Fixed
 - Fixed a bug where new carts could be created with an existing order number.
@@ -1317,7 +1322,7 @@
 
 ### Fixed
 - Fixed a bug where the cart was not immediately forgotten when an order was completed.
-- Fixed a bug where Commerce_OrderModel::getTotalLength() was returning the total height of each of its line items, rather than the length.
+- Fixed a bug where `Commerce_OrderModel::getTotalLength()` was returning the total height of each of its line items, rather than the length.
 - Fixed a bug where variants’ height, length, and width were not being saved correctly on order line item snapshots.
 - Fixed a bug where order queries would return results even when the `user` or `customer` params were set to invalid values.
 - Fixed a PHP error that occurred when accessing a third party shipping method from an order object.
@@ -1336,9 +1341,9 @@
 ### Changed
 - Improved compatibility with some payment gateways.
 - Added the `shippingMethodId` attribute to front-end cart Ajax responses.
-- Users that have permission to access Commerce in the Control Panel, but not permission to manage Orders, Products, or Promotions now get a 403 error when accessing /admin/commerce, rather than a blank page.
+- Users that have permission to access Craft Commerce in the Control Panel, but not permission to manage Orders, Products, or Promotions now get a 403 error when accessing /admin/commerce, rather than a blank page.
 - The “Download PDF” button no longer appears on the View Order page if no PDF template exists yet.
-- Commerce_OrderModel::getPdfUrl() now only returns a URL if the PDF template exists; otherwise null will be returned.
+- `Commerce_OrderModel::getPdfUrl()` now only returns a URL if the PDF template exists; otherwise null will be returned.
 - Errors that occur when parsing email templates now get logged in craft/storage/runtime/logs/commerce.log.
 - Improved the wording of error messages that occur when an unsupported gateway request is made.
 
@@ -1354,14 +1359,14 @@
 
 ### Changed
 - Discounts are now entered as positive numbers in the CP (e.g. a 50% discount is defined as either “0.5” or “50%” rather than “-0.5” or “-50%”).
-- Added the [commerce_cart.onBeforeAddToCart](https://craftcommerce.com/docs/events-reference#commerce_cart.onbeforeaddtocart) event.
-- Added the [commerce_discounts.onBeforeMatchLineItem](https://craftcommerce.com/docs/events-reference#commerce_discounts.onbeforematchlineitem) event, making it possible for plugins to perform additional checks when determining if a discount should be applied to a line item.
-- Added the [commerce_payments.onBeforeGatewayRequestSend](https://craftcommerce.com/docs/events-reference#commerce_payments.onbeforegatewayrequestsend) event.
+- Added the `commerce_cart.onBeforeAddToCart` event.
+- Added the `commerce_discounts.onBeforeMatchLineItem` event, making it possible for plugins to perform additional checks when determining if a discount should be applied to a line item.
+- Added the `commerce_payments.onBeforeGatewayRequestSend` event.
 
 ### Fixed
 - Fixed a PHP error that would occur when the Payment Methods index page if any of the existing payment methods were using classes that could not be found.
 - Fixed a bug where some failed payment requests were not returning an error message.
-- Fixed a bug where PaymentsService::processPayment() was attempting to redirect to the order’s return URL even if it didn’t have one, in the event that the order was already paid in full before processPayment() was called. Now `true` is returned instead.
+- Fixed a bug where `PaymentsService::processPayment()` was attempting to redirect to the order’s return URL even if it didn’t have one, in the event that the order was already paid in full before `processPayment()` was called. Now `true` is returned instead.
 - Fixed some UI strings that were not getting properly translated.
 
 ## 1.0.1182 - 2015-12-01
@@ -1379,8 +1384,8 @@
 - It is now more obvious in the UI that you are unable to delete an order status while orders exist with that status.
 - The `commerce_orders.beforeSaveOrder` event now respects event’s `$peformAction` value.
 - The `commerce_orders.beforeSaveOrder` and `saveOrder` events trigger for carts, in addition to completed orders.
-- Commerce_PaymentsService::processPayment() no longer redirects the browser if the `$redirect` argument passed to it is `null`.
-- Renamed Commerce_VariantsService::getPrimaryVariantByProductId() to getDefaultVariantByProductId().
+- `Commerce_PaymentsService::processPayment()` no longer redirects the browser if the `$redirect` argument passed to it is `null`.
+- Renamed `Commerce_VariantsService::getPrimaryVariantByProductId()` to `getDefaultVariantByProductId()`.
 - Updated all instances of `craft.commerce.getCart()` to `craft.commerce.cart` in the example templates.
 - Customers are now redirected to the main products page when attempting to view their cart while it is empty.
 
@@ -1404,33 +1409,33 @@
 - Added a new “Manage promotions” user permission, which determines whether the current user is allowed to manage promotions.
 - Added new “Manage _[type]_ products” user permissions for each product type, which determines whether the current user is allowed to manage products of that type.
 - It is now possible to set payment method settings from craft/config/commerce.php. To do so, have the file return an array with a `'paymentMethodSettings'` key, set to a sub-array that is indexed by payment method IDs, whose sub-values are set to the payment method’s settings (e.g. `return ['paymentMethodSettings' => ['1' => ['apiKey' => getenv('STRIPE_API_KEY')]]];`).
-- Added an ‘isGuest()’ method to order models, which returns whether the order is being made by a guest account.
-- The ‘cartPayment/pay’ controller action now checks for a ‘paymentMethodId’ param, making it possible to select a payment gateway at the exact time of payment.
-- Added Commerce_TaxCategoriesService::getTaxCategoryByHandle().
+- Added an `isGuest()` method to order models, which returns whether the order is being made by a guest account.
+- The `cartPayment/pay` controller action now checks for a `paymentMethodId` param, making it possible to select a payment gateway at the exact time of payment.
+- Added `Commerce_TaxCategoriesService::getTaxCategoryByHandle()`.
 
 ### Changed
-- Ajax requests to ‘commerce/cart/*’ controller actions now get the `totalIncludedTax` amount in the response.
-- Renamed Commerce_ProductTypeService::save() to saveProductType().
-- Renamed Commerce_PurchasableService to Commerce_PurchasablesService (plural).
-- Renamed all Commerce_OrderStatusService methods to be more explicit (e.g. “save()” is now “saveOrderStatus()”).
-- Renamed Commerce_TaxCategoriesService::getAll() to getAllTaxCategories().
+- Ajax requests to `commerce/cart/*` controller actions now get the `totalIncludedTax` amount in the response.
+- Renamed `Commerce_ProductTypeService::save()` to `saveProductType()`.
+- Renamed `Commerce_PurchasableService` to `Commerce_PurchasablesService` (plural).
+- Renamed all `Commerce_OrderStatusService` methods to be more explicit (e.g. `save()` is now `saveOrderStatus()`).
+- Renamed `Commerce_TaxCategoriesService::getAll()` to `getAllTaxCategories()`.
 - Added “TYPE_” and “STATUS_” prefixes to each of the constants on TransactionRecord, to clarify their purposes.
 - Order models no longer have $billingAddressData and $shippingAddressData properties. The billing/shipping addresses chosen by the customer during checkout are now duplicated in the craft_commerce_addresses table upon order completion, and the order’s billingAddressId and shippingAddressId attributes are updated to the new address records’ IDs.
-- Purchasables must now have a ‘getTaxCategoryId()’ method, which returns the ID of the tax category that should be applied to the purchasable.
+- Purchasables must now have a `getTaxCategoryId()` method, which returns the ID of the tax category that should be applied to the purchasable.
 - Third-party purchasables can now have taxes applied to their line items when in the cart.
 - Added `totalTax`, `totalTaxIncluded`, `totalDiscount`, and `totalShippingCost` to the example templates’ order totals info.
 
 ### Fixed
 - Fixed a bug where variants were not being returned in the user-defined order on the front end.
-- Fixed a bug where Commerce_OrdersService::getOrdersByCustomer() was returning incomplete carts. It now only returns completed orders.
-- Fixed a bug where the line items’ ‘taxIncluded’ amount was not getting reset to zero before recalculating the amount of included tax.
+- Fixed a bug where `Commerce_OrdersService::getOrdersByCustomer()` was returning incomplete carts. It now only returns completed orders.
+- Fixed a bug where the line items’ `taxIncluded` amount was not getting reset to zero before recalculating the amount of included tax.
 - Fixed a bug where products of a type that had been switched from having variants to not having variants could end up with an extra Title field on the Edit Product page.
 - Fixed an issue where Craft Personal and Client installations where making user groups available to sale and discount conditions.
-- Fixed a PHP error that occurred when an order model’s ‘userId’ attribute was set to the ID of a user account that didn’t have a customer record associated with it.
+- Fixed a PHP error that occurred when an order model’s `userId` attribute was set to the ID of a user account that didn’t have a customer record associated with it.
 - Fixed a bug where quantity restrictions on a product/variant were not being applied consistently to line items that were added with custom options.
 - Fixed some language strings that were not getting static translations applied to them.
-- Fixed a bug where Price fields were displaying blank values when they had previously been set to ‘0’.
-- Fixed a bug where Commerce_TaxCategoriesService::getAllTaxCategories() could return null values if getTaxCategoryById() had been called previously with an invalid tax category ID.
+- Fixed a bug where Price fields were displaying blank values when they had previously been set to `0`.
+- Fixed a bug where `Commerce_TaxCategoriesService::getAllTaxCategories()` could return null values if `getTaxCategoryById()` had been called previously with an invalid tax category ID.
 
 ## 0.9.1177 - 2015-11-18
 
@@ -1446,23 +1451,23 @@
 - Craft Commerce is now translated into German, Dutch, French (FR and CA), and Norwegian.
 - Added the “Automatic SKU Format” Product Type setting, which defines what products’/variants’ SKUs should look like when they’re submitted without a value.
 - It is now possible to save arbitrary “options” to line items. When the same purchasable is added to the cart twice, but with different options, it will result in two separate line items rather than one line item with a quantity of 2.
-- Order models now have a ‘totalDiscount’ property, which returns the total of all discounts applied to its line items, in addition to the base discount.
+- Order models now have a `totalDiscount` property, which returns the total of all discounts applied to its line items, in addition to the base discount.
 
 ### Changed
-- The tax engine now records the amount of included tax for each line item, via a new ‘taxIncluded’ property on line item models. (This does not affect existing tax calculation behaviors in any way.)
+- The tax engine now records the amount of included tax for each line item, via a new `taxIncluded` property on line item models. (This does not affect existing tax calculation behaviors in any way.)
 - Customer data stored in session is now cleared out whenever a user logs in/out, and when a logged-out guest completes their order.
 - The example templates have been updated to demonstrate the new Line Item Options feature.
 - Address management features are now hidden for guest users in the example templates to avoid confusion.
 
 ### Fixed
 - Fixed a bug where products/variants that were out of stock would show a blank value for the “Stock” field, rather than “0”.
-- Fixed a bug where the `shippingMethod` property returned by Ajax requests to ‘commerce/cart/*’ was getting set to an incorrect value. The property is now set to the shipping method’s handle.
+- Fixed a bug where the `shippingMethod` property returned by Ajax requests to `commerce/cart/*` was getting set to an incorrect value. The property is now set to the shipping method’s handle.
 
 ## 0.9.1175 - 2015-11-11
 
 ### Added
 - Added a new “Show the Title field for variants” setting to Product Types that have variants. When checked, variants of products of that Product Type will get a new “Title” field that can be directly edited by product managers.
-- It’s now possible to update an order’s custom fields when posting to the ‘commerce/cartPayment/pay’ controller action.
+- It’s now possible to update an order’s custom fields when posting to the `commerce/cartPayment/pay` controller action.
 
 ### Changed
 - Renamed `craft.commerce.getShippingMethods()` to `getAvailableShippingMethods()`.
@@ -1485,12 +1490,12 @@
 ### Added
 - Added a “Business Name” field to customer addresses (accessible via a `businessName` attribute), which replaces the “Company” field (and `company` attribute), and can be used to store customers’ businesses’ names when purchasing on behalf of their company.
 - Added a “Business Tax ID” field to customer addresses (accessible via a `businessTaxId` attribute), which can be used to store customers’ businesses’ tax IDs (e.g. VAT) when purchasing on behalf of their company.
-- Added a getCountriesByTaxZoneId() method to the Tax Zones service.
-- Added a getStatesByTaxZoneId() method to the Tax Zones service.
+- Added a `getCountriesByTaxZoneId()` method to the Tax Zones service.
+- Added a `getStatesByTaxZoneId()` method to the Tax Zones service.
 - It is now possible to create new Tax Zones and Tax Categories directly from the Edit Tax Rate page.
 
 ### Changed
-- The ShippingMethod interface has three new methods: getType(), getId(), and getCpEditUrl(). (getId() should always return `null` for third party shipping methods.)
+- The ShippingMethod interface has three new methods: `getType()`, `getId()`, and `getCpEditUrl()`. (`getId()` should always return `null` for third party shipping methods.)
 - It is no longer necessary to have created a Tax Zone before accessing Commerce → Settings → Tax Rates and creating a tax rate.
 - The “Handle” field on Edit Tax Category pages is now automatically generated based on the “Name” field.
 - Plugin-based shipping methods are now listed in Commerce → Settings → Shipping Methods alongside the user-managed ones.
@@ -1508,18 +1513,18 @@
 
 ### Changed
 - The “Promotable” and “Free Shipping” field headings on Edit Product pages now act as labels for their respective checkboxes.
-- Commerce now logs an error message when an order’s custom status is changed and the notification email’s template cannot be found.
+- Craft Commerce now logs an error message when an order’s custom status is changed and the notification email’s template cannot be found.
 - Commerce Customer Info fields are now read-only. (Customers can still edit their own addresses from the front-end.)
-- Commerce now keeps its customers’ emails in sync with their corresponding user accounts’ emails.
-- Added a ‘shortNumber’ attribute to order models, making it easy for templates to access the short version of the order number.
+- Craft Commerce now keeps its customers’ emails in sync with their corresponding user accounts’ emails.
+- Added a `shortNumber` attribute to order models, making it easy for templates to access the short version of the order number.
 - The example templates’ product listings have new and improved icon images.
 
 ### Fixed
-- Fixed a bug where the “Craft Commerce” link in the global sidebar would direct users to the front-end site, if the ‘cpTrigger’ config setting was not set to “admin”.
+- Fixed a bug where the “Craft Commerce” link in the global sidebar would direct users to the front-end site, if the `cpTrigger` config setting was not set to `'admin'`.
 - Updated the “Post Date” and “Expiry Date” table column headings on the Products index page, which were still labeled “Available On” and “Expires On”.
 - Fixed a bug where one of the Market Commerce → Craft Commerce upgrade migrations wouldn’t run on case-sensitive file systems.
 - Fixed a PHP error that occurred when viewing an active cart without an address from the Control Panel.
-- Fixed a bug where custom field data was not saved via the ‘commerce/cart/updateCart’ controller action if it wasn’t submitted along with other cart updates.
+- Fixed a bug where custom field data was not saved via the `commerce/cart/updateCart` controller action if it wasn’t submitted along with other cart updates.
 - Added some missing CSRF inputs to the example templates, when CSRF protection is enabled for the site.
 
 ### Security
@@ -1528,11 +1533,11 @@
 ## 0.9.1170 - 2015-11-04
 
 ### Added
-- Renamed the plugin from Market Commerce to Craft Commerce. (See the [upgrade guide](https://craftcommerce.com/docs/installing-and-updating/updating#upgrading-from-market-commerce) for upgrade instructions if you’re coming from Market Commerce.)
+- Renamed the plugin from Market Commerce to Craft Commerce.
 - Craft Commerce supports One-Click Updating from the Updates page in the Control Panel.
 - Gave Craft Commerce a fancy new plugin icon.
 - Updated all of the Control Panel templates for improved consistency with Craft 2.5, and improved usability.
-- Non-admins can now access Commerce’s Control Panel pages via the “Access Craft Commerce” user permission (with the exception of its Settings section).
+- Non-admins can now access Craft Commerce’s Control Panel pages via the “Access Craft Commerce” user permission (with the exception of its Settings section).
 - Products are now localizable.
 - It’s now possible to create a new sale or discount right from the Products index page, via a new Batch Action.
 - It’s now possible to delete products from the Products index page in the Control Panel.
@@ -1547,9 +1552,9 @@
 - The View Order page now shows adjustments made on the order.
 - Renamed the `craft.market` variable to `craft.commerce`.
 - Added a new `commerce/cart/updateCart` controller action that can handle customer address/email changes, coupon application, line item additions, and shipping/payment method selections, replacing most of the old Cart actions. (The only other `commerce/cart/*` actions that remain are `updateLineItem`, `removeLineItem`, and `removeAllLineItems`.)
-- It is now possible to use token billing with some gateways, like Stripe, by passing a ‘token’ POST param to the `cartPay/pay` controller action, so your customers’ credit card info never touches your server.
+- It is now possible to use token billing with some gateways, like Stripe, by passing a `token` POST param to the `cartPay/pay` controller action, so your customers’ credit card info never touches your server.
 - It is now possible to access through all custom Order Statuses `craft.commerce.orderStatuses`.
-- Added the ‘itemSubtotalWithSale’ attribute to order models, to get the subtotal of all order items before any adjustments have been applied.
+- Added the `itemSubtotalWithSale` attribute to order models, to get the subtotal of all order items before any adjustments have been applied.
 - Renamed all class namespaces and prefixes for the Craft Commerce rename.
 - Renamed nearly all service method names to be more explicit and follow Craft CMS naming conventions (i.e. `getById()` is now `getOrderById()`).
 - All gateways must now implement the GatewayAdapterInterface interface. Craft Commerce provides a BaseGatewayAdapter class that adapts OmniPay gateway classes for this interface.
@@ -1569,10 +1574,10 @@
 - Added the `commerce_registerShippingMethods` hook.
 
 ### Changed
-- Sales rates and percentages are now entered as a positive number, and can be entered with or without a ‘%’ sign.
+- Sales rates and percentages are now entered as a positive number, and can be entered with or without a `%` sign.
 - Products are now sorted by Post Date in descending order by default.
 - All of the Settings pages have been cleaned up significantly.
-- Renamed the ‘isPaid’ order criteria param to ‘isUnpaid’.
+- Renamed the `isPaid` order criteria param to `isUnpaid`.
 - Renamed products’ `availableOn` and `expiresOn` attributes to `postDate` and `expiryDate`.
 - Craft Commerce now records all failed payment transactions and include the gateway response.
 - Reduced the number of SQL queries that get executed on order/product listing pages, depending on the attributes being accessed.
@@ -1580,14 +1585,14 @@
 - When a Product Type is changed from having variants to not having variants, all of the existing products’ variants will be deleted, save for the Default Variants.
 - If a default zone is not selected on an included tax rate, an error is displayed.
 - Improved the extendability of the shipping engine. The new `ShippingMethod` and `ShippingRule` interfaces now allow a plugin to provide their own methods and rules which can dynamically add shipping costs to the cart.
-- Added an `$error` argument to Commerce_CartService::setPaymentMethod() and setShippingMethod().
+- Added an `$error` argument to `Commerce_CartService::setPaymentMethod()` and `setShippingMethod()`.
 - The example templates have been updated for the new variable names and controller actions, and their Twig code has been simplified to be more clear for newcomers (including more detailed explanation comments).
 - The example PDF template now includes more information about the order, and a “PAID” stamp graphic.
 - The example templates now include a customer address management section.
 - Improved the customer address selection UI.
 
 ### Removed
-- The “Cart Purge Interval” and “Cart Cookie Expiry Settings” have been removed from Control Panel. You will now need to add a commerce.php file in craft/config and set those settings from there. (See commerce/config.php for the default values.)
+- The “Cart Purge Interval” and “Cart Cookie Expiry Settings” have been removed from Control Panel. You will now need to add a `commerce.php` file in craft/config and set those settings from there. (See commerce/config.php for the default values.)
 - Removed the default Shipping Method and improved the handling of blank shipping methods.
 - Removed customer listing page. Add the Commerce Customer Info field type to your User field layout instead.
 
