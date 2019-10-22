@@ -1,6 +1,6 @@
 {# Order History Tab #}
 
-<div id="orderHistoryTab" class="hidden">
+<div id="orderHistoryTab" class="hidden" xmlns="http://www.w3.org/1999/html">
     <div class="pane">
         <h3>{{ "Status History"|t('commerce') }}</h3>
         {% if order.histories|length %}
@@ -10,7 +10,6 @@
                     <th scope="col">{{ 'Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Message'|t('commerce') }}</th>
                     <th scope="col">{{ 'Date'|t('commerce') }}</th>
                 </tr>
                 </thead>
@@ -39,15 +38,25 @@
                                 {{ orderHistory.order.email }}
                             {% endif %}
                         </td>
-                        <td>
-                            {% if orderHistory.message %}
-                                <span class="info">
-                                    {{ orderHistory.message | md }}
-                                </span>
-                            {% endif %}
-                        </td>
                         <td>{{ orderHistory.dateCreated|date }}</td>
                     </tr>
+
+                        {% if orderHistory.message %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="flex fullwidth flex-nowrap" style="align-items: flex-start">
+                                <div>
+                                    <span class="extralight">{{ craft.app.locale.orientation == 'ltr' ? '&#8627;'|raw : '&#8629;'|raw }}</span>
+                                </div>
+                                <div style="max-width: 80ch">
+                                    <h5>Message</h5>
+                                    {{ orderHistory.message | md }}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                        {% endif %}
+
                 {% endfor %}
                 </tbody>
             </table>
