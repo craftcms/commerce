@@ -9,11 +9,12 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\db\Table;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\events\PaymentSourceEvent;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\PaymentSource;
-use craft\commerce\Plugin as Commerce;
+use craft\commerce\Plugin;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\db\Query;
 use Throwable;
@@ -189,7 +190,7 @@ class PaymentSources extends Component
         }
 
         if (!$this->savePaymentSource($source)) {
-            throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
+            throw new PaymentSourceException(Plugin::t( 'Could not create the payment source.'));
         }
 
         return $source;
@@ -209,7 +210,7 @@ class PaymentSources extends Component
             $record = PaymentSourceRecord::findOne($paymentSource->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Craft::t('commerce', 'No payment source exists with the ID “{id}”',
+                throw new InvalidConfigException(Plugin::t( 'No payment source exists with the ID “{id}”',
                     ['id' => $paymentSource->id]));
             }
         } else {
@@ -263,7 +264,7 @@ class PaymentSources extends Component
         $record = PaymentSourceRecord::findOne($id);
 
         if ($record) {
-            $gateway = Commerce::getInstance()->getGateways()->getGatewayById($record->gatewayId);
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($record->gatewayId);
 
             if ($gateway) {
                 $gateway->deletePaymentSource($record->token);
@@ -303,7 +304,7 @@ class PaymentSources extends Component
                 'description',
                 'response',
             ])
-            ->from(['{{%commerce_paymentsources}}']);
+            ->from([Table::PAYMENTSOURCES]);
     }
 
 }

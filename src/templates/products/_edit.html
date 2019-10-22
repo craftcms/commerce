@@ -185,7 +185,7 @@
     <hr>
     {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
         <div class="meta">
-            {{ productFields.generalVariantFields(product.defaultVariant) }}
+            {{ productFields.generalVariantFields(product.defaultVariant, product) }}
         </div>
         {% if productType.hasDimensions %}
             <hr>
@@ -196,55 +196,78 @@
     {% endnamespace %}
 {% endif %}
 
-    {% if product.id %}
-<hr>
-<div class="meta read-only">
-    <div class="data">
-        <h5 class="heading">{{ "Related Sales"|t('commerce') }}</h5>
-        <div class="value">
-            {% if not sales|length %}
-                <a class="btn small add icon"
-                   href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add
-                    Sale</a>
-            {% else %}
-                <ul class="commerce-sales">
-                    {% for sale in sales %}
-                        <li>
-                            <a href="{{ sale.getCpEditUrl() }}"><span>{{ sale.name }}</span></a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-    </div>
-    {% if sales|length %}
+{% if product.id %}
+    <hr>
+    <div class="meta read-only">
         <div class="data">
-            <h5 class="heading"></h5>
+            <h5 class="heading">{{ "Related Sales"|t('commerce') }}</h5>
             <div class="value">
-                <a class="btn small add icon"
-                   href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add
-                    Sale</a>
+                {% if not sales|length %}
+                    <a class="btn small add icon"
+                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add Sale</a>
+                {% else %}
+                    <ul class="commerce-sales">
+                        {% for sale in sales %}
+                            <li>
+                                <a href="{{ sale.getCpEditUrl() }}"><span>{{ sale.name }}</span></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
-    {% endif %}
-    <div class="data">
-        <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
-        <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
-    </div>
-    <div class="data">
-        <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
-        <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
-    </div>
+        {% if sales|length %}
+            <div class="data">
+                <h5 class="heading"></h5>
+                <div class="value">
+                    <a class="btn small add icon"
+                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">{{ 'Add Sale'|t }}</a>
+                </div>
+            </div>
+        {% endif %}
+        <div class="data">
+            <h5 class="heading">{{ "Related Discounts"|t('commerce') }}</h5>
+            <div class="value">
+                {% if not discounts|length %}
+                    <a class="btn small add icon"
+                       href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~product.id) }}">{{ 'Add Discount'|t }}</a>
+                {% else %}
+                    <ul class="commerce-sales">
+                        {% for discount in discounts %}
+                            <li>
+                                <a href="{{ discount.getCpEditUrl() }}"><span>{{ discount.name }}</span></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        {% if discounts|length %}
+            <div class="data">
+                <h5 class="heading"></h5>
+                <div class="value">
+                    <a class="btn small add icon"
+                       href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~product.id) }}">{{ 'Add Discount'|t }}</a>
+                </div>
+            </div>
+        {% endif %}
+        <div class="data">
+            <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>
+            <div class="value">{{ product.dateCreated|date('short') }} {{ product.dateCreated|time('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
+            <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
+        </div>
 
-    {% endif %}
+        {% endif %}
 
-    {% hook "cp.commerce.product.edit.details" %}
-</div>
+        {% hook "cp.commerce.product.edit.details" %}
+    </div>
 {% endblock %}
 
-
-    {% if not product.slug %}
-        {% js %}
-            window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
-        {% endjs %}
-    {% endif %}
+{% if not product.slug %}
+    {% js %}
+        window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
+    {% endjs %}
+{% endif %}

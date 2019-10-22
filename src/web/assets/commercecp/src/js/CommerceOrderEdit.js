@@ -23,11 +23,13 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.$makePayment = $('#make-payment');
 
             this.billingAddress = new Craft.Commerce.AddressBox($('#billingAddressBox'), {
-                onChange: $.proxy(this, '_updateOrderAddress', 'billingAddress')
+                onChange: $.proxy(this, '_updateOrderAddress', 'billingAddress'),
+                order: true
             });
 
             this.shippingAddress = new Craft.Commerce.AddressBox($('#shippingAddressBox'), {
-                onChange: $.proxy(this, '_updateOrderAddress', 'shippingAddress')
+                onChange: $.proxy(this, '_updateOrderAddress', 'shippingAddress'),
+                order: true
             });
 
             this.$completion.toggleClass('hidden');

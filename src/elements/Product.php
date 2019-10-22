@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\Model;
+use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
@@ -559,7 +560,7 @@ class Product extends Element
 
             $map = (new Query())
                 ->select('productId as source, id as target')
-                ->from(['{{%commerce_variants}}'])
+                ->from([Table::VARIANTS])
                 ->where(['in', 'productId', $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
@@ -693,7 +694,7 @@ class Product extends Element
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
-                ->from('{{%commerce_variants}}')
+                ->from(Table::VARIANTS)
                 ->where(['productId' => $this->id])
                 ->column();
 
@@ -712,7 +713,7 @@ class Product extends Element
                 // We already have set the default to the correct variant in beforeSave()
                 if ($variant->isDefault) {
                     $this->defaultVariantId = $variant->id;
-                    Craft::$app->getDb()->createCommand()->update('{{%commerce_products}}', ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
+                    Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS, ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
                 }
             }
 

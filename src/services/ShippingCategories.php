@@ -8,8 +8,10 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -169,7 +171,7 @@ class ShippingCategories extends Component
             $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No shipping category exists with the ID “{id}”',
                     ['id' => $shippingCategory->id]));
             }
 
@@ -203,7 +205,7 @@ class ShippingCategories extends Component
         // Product type IDs this shipping category is available to
         $currentProductTypeIds = (new Query())
             ->select(['productTypeId'])
-            ->from(['{{%commerce_producttypes_shippingcategories}}'])
+            ->from([Table::PRODUCTTYPES_SHIPPINGCATEGORIES])
             ->where(['shippingCategoryId' => $shippingCategory->id])
             ->column();
 
@@ -228,12 +230,12 @@ class ShippingCategories extends Component
         }
 
         // Remove existing Categories <-> ProductType relationships
-        Craft::$app->getDb()->createCommand()->delete('{{%commerce_producttypes_shippingcategories}}', ['shippingCategoryId' => $shippingCategory->id])->execute();
+        Craft::$app->getDb()->createCommand()->delete(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['shippingCategoryId' => $shippingCategory->id])->execute();
 
         // Add back the new categories
         foreach ($shippingCategory->getProductTypes() as $productType) {
             $data = ['productTypeId' => (int)$productType->id, 'shippingCategoryId' => (int)$shippingCategory->id];
-            Craft::$app->getDb()->createCommand()->insert('{{%commerce_producttypes_shippingcategories}}', $data)->execute();
+            Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $data)->execute();
         }
 
         // Update Service cache
@@ -274,7 +276,7 @@ class ShippingCategories extends Component
     public function getShippingCategoriesByProductTypeId($productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
-            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
+            ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
             ->where(['productTypeShippingCategories.productTypeId' => $productTypeId])
             ->all();
 
@@ -330,6 +332,6 @@ class ShippingCategories extends Component
                 'shippingCategories.description',
                 'shippingCategories.default'
             ])
-            ->from(['{{%commerce_shippingcategories}} shippingCategories']);
+            ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
 }

@@ -176,7 +176,10 @@ class Donation extends Purchasable
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
                     }
                     if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount.'));
+                    }
+                    if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
                 }
             ]

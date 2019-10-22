@@ -53,6 +53,11 @@ class OrderStatus extends Model
     public $color = 'green';
 
     /**
+     * @var string Description
+     */
+    public $description;
+
+    /**
      * @var int Sort order
      */
     public $sortOrder;
@@ -85,7 +90,11 @@ class OrderStatus extends Model
         return (string)$this->getDisplayName();
     }
 
-    public function getDisplayName()
+    /**
+     * @return string
+     * @since 2.2
+     */
+    public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null)
         {
@@ -141,6 +150,7 @@ class OrderStatus extends Model
 
     /**
      * @return bool
+     * @since 2.2
      */
     public function canDelete(): bool
     {

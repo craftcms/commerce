@@ -128,6 +128,12 @@ class LineItem extends Model
     public $shippingCategoryId;
 
     /**
+     * @var DateTime|null
+     * @since 2.2
+     */
+    public $dateCreated;
+
+    /**
      * @var PurchasableInterface Purchasable
      */
     private $_purchasable;
@@ -318,16 +324,16 @@ class LineItem extends Model
     {
         switch ($taxable) {
             case TaxRateRecord::TAXABLE_PRICE:
-                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount');
+                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
                 break;
             case TaxRateRecord::TAXABLE_SHIPPING:
-                $taxableSubtotal = $this->getAdjustmentsTotalByType('shipping');
+                $taxableSubtotal = $this->getShippingCost();
                 break;
             case TaxRateRecord::TAXABLE_PRICE_SHIPPING:
-                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount') + $this->getAdjustmentsTotalByType('shipping');
+                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost();
                 break;
             default:
-                $taxableSubtotal = $this->getSubtotal() + $this->getAdjustmentsTotalByType('discount');
+                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
         }
 
         return $taxableSubtotal;
@@ -394,7 +400,23 @@ class LineItem extends Model
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+
+        // Check to see if there is a discount applied that ignores Sales
+        $ignoreSales = false;
+        foreach ($discounts as $discount) {
+            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount)) {
+                $ignoreSales = $discount->ignoreSales;
+                if ($discount->ignoreSales) {
+                    $ignoreSales = $discount->ignoreSales;
+                    break;
+                }
+            }
+        }
+
+        $this->salePrice = $ignoreSales ? $this->price : Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+
         $this->saleAmount = $this->salePrice - $this->price;
 
         $snapshot = [
@@ -404,7 +426,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -531,11 +553,24 @@ class LineItem extends Model
     }
 
     /**
-     * @param      $type
+     * @param string $type
+     * @param bool $included
+     * @return float|int
+     * @deprecated in 2.2
+     */
+    public function getAdjustmentsTotalByType($type, $included = false)
+    {
+        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', 'LineItem::getAdjustmentsTotalByType() has been deprecated. Use LineItem::getTax(), LineItem::getDiscount(), LineItem::getShippingCost() instead.');
+
+        return $this->_getAdjustmentsTotalByType($type, $included);
+    }
+
+    /**
+     * @param string  $type
      * @param bool $included
      * @return float|int
      */
-    public function getAdjustmentsTotalByType($type, $included = false)
+    private function _getAdjustmentsTotalByType($type, $included = false)
     {
         $amount = 0;
 
@@ -550,45 +585,33 @@ class LineItem extends Model
 
     /**
      * @return float
-     * @deprecated since 2.0
      */
     public function getTax(): float
     {
-        Craft::$app->getDeprecator()->log('LineItem::getTax()', 'craft\commerce\models\LineItem::getTax() has been deprecated. Use getAdjustmentsTotalByType(\'tax\') instead.');
-
-        return $this->getAdjustmentsTotalByType('tax');
+        return $this->_getAdjustmentsTotalByType('tax');
     }
 
     /**
      * @return float
-     * @deprecated since 2.0
      */
     public function getTaxIncluded(): float
     {
-        Craft::$app->getDeprecator()->log('LineItem::getTaxIncluded()', 'craft\commerce\models\LineItem::getTaxIncluded() has been deprecated. Use getAdjustmentsTotalByType(\'taxIncluded\', true) instead.');
-
-        return $this->getAdjustmentsTotalByType('taxIncluded', true);
+        return $this->_getAdjustmentsTotalByType('tax', true);
     }
 
     /**
      * @return float
-     * @deprecated since 2.0
      */
     public function getShippingCost(): float
     {
-        Craft::$app->getDeprecator()->log('LineItem::getShippingCost()', 'craft\commerce\models\LineItem::getShippingCost() has been deprecated. Use getAdjustmentsTotalByType(\'shipping\') instead.');
-
-        return $this->getAdjustmentsTotalByType('shipping');
+        return $this->_getAdjustmentsTotalByType('shipping');
     }
 
     /**
      * @return float
-     * @deprecated since 2.0
      */
     public function getDiscount(): float
     {
-        Craft::$app->getDeprecator()->log('LineItem::getDiscount()', 'craft\commerce\models\LineItem::getDiscount() has been deprecated. Use getAdjustmentsTotalByType(\'discount\') instead.');
-
-        return $this->getAdjustmentsTotalByType('discount');
+        return $this->_getAdjustmentsTotalByType('discount');
     }
 }

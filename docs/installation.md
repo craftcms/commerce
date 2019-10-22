@@ -23,6 +23,10 @@ Run the following Composer command from within your Craft 3 project:
 composer require craftcms/commerce
 ```
 
+::: tip
+Once installed via Composer don't forget to install the plugin in Craft itself via Settings → Plugins.
+:::
+
 ## Example Templates
 
 We provide [example templates](example-templates.md) to help get you started learning how to use Commerce.

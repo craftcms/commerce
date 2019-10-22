@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
@@ -22,6 +23,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
@@ -46,6 +48,11 @@ class OrderQuery extends ElementQuery
      * @var string The order number of the resulting order.
      */
     public $number;
+
+    /**
+     * @var string The short order number of the resulting order.
+     */
+    public $shortNumber;
 
     /**
      * @var string The order reference of the resulting order.
@@ -226,6 +233,43 @@ class OrderQuery extends ElementQuery
     public function number($value = null)
     {
         $this->number = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order short number.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'xxxxxxx'` | with a matching order number
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the requested {element} #}
+     * {% set orderNumber = craft.app.request.getQueryParam('shortNumber') %}
+     * {% set {element-var} = {twig-method}
+     *     .shortNumber(orderNumber)
+     *     .one() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the requested {element}
+     * $orderNumber = Craft::$app->request->getQueryParam('shortNumber');
+     * ${element-var} = {php-method}
+     *     ->shortNumber($orderNumber)
+     *     ->one();
+     * ```
+     *
+     * @param string|array|null $value The property value.
+     * @return static self reference
+     * @since 2.2
+     */
+    public function shortNumber($value = null)
+    {
+        $this->shortNumber = $value;
         return $this;
     }
 
@@ -488,7 +532,7 @@ class OrderQuery extends ElementQuery
         } else if ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
-                ->from(['{{%commerce_orderstatuses}}'])
+                ->from([Table::ORDERSTATUSES])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
@@ -836,6 +880,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
             'commerce_orders.shippingAddressId',
+            'commerce_orders.estimatedBillingAddressId',
+            'commerce_orders.estimatedShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
@@ -855,6 +901,15 @@ class OrderQuery extends ElementQuery
             }
 
             $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
+        }
+
+        if ($this->shortNumber !== null) {
+            // If it's set to anything besides a non-empty string, abort the query
+            if (!is_string($this->shortNumber) || $this->shortNumber === '') {
+                return false;
+            }
+
+            $this->subQuery->andWhere(new Expression('LEFT([[commerce_orders.number]], 7) = :shortNumber', [':shortNumber' => $this->shortNumber]));
         }
 
         if ($this->reference) {
@@ -927,7 +982,7 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin('{{%commerce_lineitems}} lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
+            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
@@ -935,7 +990,7 @@ class OrderQuery extends ElementQuery
         if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
                 'exists', (new Query())
-                    ->from(['{{%commerce_transactions}} transactions'])
+                    ->from([Table::TRANSACTIONS . ' transactions'])
                     ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
             ]);
         }

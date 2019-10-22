@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
@@ -49,10 +50,11 @@ class Pdf extends Component
      * @param Order $order
      * @param string $option
      * @param string $templatePath
+     * @param array $variables variables available to the pdf html template. Available to template by the array keys.
      * @return string
      * @throws Exception if no template or order found.
      */
-    public function renderPdfForOrder(Order $order, $option = '', $templatePath = null): string
+    public function renderPdfForOrder(Order $order, $option = '', $templatePath = null, $variables = []): string
     {
         if (null === $templatePath) {
             $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
@@ -63,12 +65,16 @@ class Pdf extends Component
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
+            'variables' => $variables
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
         if ($event->pdf !== null) {
             return $event->pdf;
         }
+
+        $variables['order'] = $event->order;
+        $variables['option'] = $event->option;
 
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
@@ -83,12 +89,12 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->renderTemplate($templatePath, compact('order', 'option'));
+            $html = $view->renderTemplate($templatePath, $variables);
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
-            $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
+            $html = Plugin::t('An error occurred while generating this PDF.');
         }
 
         // Restore the original template mode
@@ -126,13 +132,14 @@ class Pdf extends Component
         $dompdf->render();
 
         // Trigger an 'afterRenderPdf' event
-        $event = new PdfEvent([
-            'order' => $order,
-            'option' => $option,
-            'template' => $templatePath,
+        $afterEvent = new PdfEvent([
+            'order' => $event->order,
+            'option' => $event->option,
+            'template' => $event->templatePath,
+            'variables' => $variables,
             'pdf' => $dompdf->output(),
         ]);
-        $this->trigger(self::EVENT_AFTER_RENDER_PDF, $event);
+        $this->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
 
         return $event->pdf;
     }

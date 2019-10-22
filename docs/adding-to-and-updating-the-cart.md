@@ -158,6 +158,22 @@ To remove a line item, simply send a `lineItems[LINE_ITEM_ID][remove]` param in 
 
 The example templates contain all of the above examples of adding and updating the cart within a full checkout flow.
 
+## Update cart success notice
+
+Since the `commerce/cart/update-cart` controller action can do so much, the generic success flash notice is a very generic sounding “Cart Updated”.
+
+If you want to customize the success message, submit a `cartUpdatedNotice` param to the `commerce/cart/update-cart` controller action.
+
+Example:
+
+```twig
+<input type="hidden" name="cartUpdatedNotice" value="Your cool cart was updated.">
+```
+
+```twig
+<input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title}} to the cart.">
+```
+
 ## Cart Merging
 
 By default the current cart begins blank and customers add things to it.

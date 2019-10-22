@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\Plugin;
@@ -271,6 +272,20 @@ class Carts extends Component
     }
 
     /**
+     * @return string
+     * @throws \Exception
+     * @since 2.2
+     */
+    public function getActiveCartEdgeDuration(): string
+    {
+        $edge = new DateTime();
+        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
+        $interval->invert = 1;
+        $edge->add($interval);
+        return $edge->format(DateTime::ATOM);
+    }
+
+    /**
      * Get the session cart number.
      *
      * @return string
@@ -319,7 +334,7 @@ class Carts extends Component
             ->select(['orders.id'])
             ->where(['not', ['isCompleted' => 1]])
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
-            ->from(['orders' => '{{%commerce_orders}}'])
+            ->from(['orders' => Table::ORDERS])
             ->column();
     }
 }

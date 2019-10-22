@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\commerce\base\Plan;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Subscription;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -245,7 +246,7 @@ class SubscriptionQuery extends ElementQuery
         } else if ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
-                ->from(['{{%commerce_plans}}'])
+                ->from([Table::PLANS])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
