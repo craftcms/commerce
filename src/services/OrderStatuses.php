@@ -15,6 +15,7 @@ use craft\commerce\events\EmailEvent;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
@@ -362,7 +363,12 @@ class OrderStatuses extends Component
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
-                    Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
+                    // Handball off to our queue, so we don't hold up anything related to the order
+                    Craft::$app->getQueue()->delay(10)->push(new SendEmail([
+                        'email' => $email->toArray(),
+                        'order' => $order->toArray(),
+                        'orderHistory' => $orderHistory->toArray(),
+                    ]));
                 }
             }
         }
