@@ -14,6 +14,7 @@
 - Tax rates can now have codes. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Order statuses can now have descriptions. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Added the ability to resolve payment issues for subscriptions.
 - Added the “Default View” setting, which determines which view should be shown by default when “Commerce” is selected in the global nav. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Added the `activeCartDuration` config setting. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added the `allowEmptyCartOnCheckout` config setting, which determines whether a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
@@ -21,7 +22,17 @@
 - Added the ability to override the “Cart updated” flash message by passing a `cartUpdatedNotice` parameter to the `commerce/cart/update-cart` action. ([#1038](https://github.com/craftcms/commerce/issues/1038))
 - Added the `shortNumber` order query param.
 - `commerce/cart/update-cart` requests can now specify `estimatedShippingAddress` and `estimatedBillingAddress` params.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueDescription()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueResolveFormHtml()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getHasBillingIssues()`.
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added `craft\commerce\elements\db\SubscriptionQuery::$dateSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$hasStarted`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$isSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::anyStatus()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::dateSuspended()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::hasStarted()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::isSuspended()`.
 - Added `craft\commerce\elements\Order::$estimatedBillingAddressId`.
 - Added `craft\commerce\elements\Order::$estimatedBillingSameAsShipping`.
 - Added `craft\commerce\elements\Order::$estimatedShippingAddressId`.
@@ -29,6 +40,12 @@
 - Added `craft\commerce\elements\Order::getEstimatedShippingAddress()`.
 - Added `craft\commerce\elements\Order::setEstimatedBillingAddress()`.
 - Added `craft\commerce\elements\Order::setEstimatedShippingAddress()`.
+- Added `craft\commerce\elements\Subscription::$dateSuspended`.
+- Added `craft\commerce\elements\Subscription::$hasStarted`.
+- Added `craft\commerce\elements\Subscription::$isSuspended`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueDescription()`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueResolveFormHtml()`.
+- Added `craft\commerce\elements\Subscription::getHasBillingIssues()`.
 - Added `craft\commerce\models\Address::$isEstimated`.
 - Added `craft\commerce\models\Customer::getActiveCarts()`.
 - Added `craft\commerce\models\Customer::getInactiveCarts()`.
@@ -36,6 +53,8 @@
 - Added `craft\commerce\services\Sales::EVENT_AFTER_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
+- Added the `updateBillingDetailsUrl` config setting.
+- Added the `suspended` status for Subscriptions.
 
 ### Changed
 - Craft Commerce now required Craft CMS 3.3.0 or later.
@@ -47,6 +66,8 @@
 - Leading and trailing whitespace is now trimmed from all address fields.
 - Coupon code usage is now tracked even for discounts with no limit set. ([#521](https://github.com/craftcms/commerce/issues/521))
 - Variants now always include their product’s title in their search keywords. ([#934](https://github.com/craftcms/commerce/issues/934))
+- The Subscriptions index page now includes “Failed to start” and “Payment method issue” sources.
+- Subscriptions now get suspended if there are any payment issues.
 - Expired orders are now purged during garbage collection rather than when viewing the Orders index page.
 - Customer records that are not related to anything are now purged during garbage collection. ([#1045](https://github.com/craftcms/commerce/issues/1045))
 - `commerce/cart/update-cart` requests now include line item adjustment data in their JSON response. ([#1014](https://github.com/craftcms/commerce/issues/1014))
