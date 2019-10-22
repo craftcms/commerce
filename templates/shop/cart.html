@@ -212,21 +212,18 @@
                             <br>
 
                             <br>
-                            <strong>Built in Adjustment Totals</strong>
+                            <strong>Adjustment Totals</strong>
                             <br>
-                            Total Discount: {{ cart.adjustmentsTotalByType('discount')|commerceCurrency(cart.currency) }}
+                            Total Discount: {{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}
                             <br>
-                            Total Shipping: {{ cart.adjustmentsTotalByType('shipping')|commerceCurrency(cart.currency) }}
+                            Total Shipping: {{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}
                             <br>
-                            Total Tax: {{ cart.adjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }}
+                            Total Tax: {{ cart.getTotalTax()|commerceCurrency(cart.currency) }}
                             <br>
-                            Total Tax (inc): {{ cart.adjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }}
-                            <br>
-                            Total: {{ cart.total }}
+                            Total Tax (inc): {{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}
                             <br>
 
-                            <h4>Total
-                                Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                            <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
                         {% endif %}
                     </td>
                 </tr>

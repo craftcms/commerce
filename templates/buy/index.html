@@ -199,12 +199,12 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
             Buy ${{ cart.totalPrice }}
         </button>
         <div class="text-grey text-right">
-            Includes {{ cart.getAdjustmentsTotalByType('shipping')|commerceCurrency(cart.currency) }} shipping and
-            {% if cart.getAdjustmentsTotalByType('tax') %}
-                {{ cart.getAdjustmentsTotalByType('tax')|commerceCurrency(cart.currency) }} taxes.
+            Includes {{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }} shipping and
+            {% if cart.getTotalTax() %}
+                {{ cart.getTotalTax()|commerceCurrency(cart.currency) }} taxes.
             {% endif %}
-            {% if cart.getAdjustmentsTotalByType('tax', true) %}
-                {{ cart.getAdjustmentsTotalByType('tax', true)|commerceCurrency(cart.currency) }} included taxes.
+            {% if cart.getTotalTaxIncluded() %}
+                {{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }} included taxes.
             {% endif %}
         </div>
 

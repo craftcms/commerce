@@ -187,7 +187,7 @@ class Discount extends Component implements AdjusterInterface
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
 
                 //Default is percentage off already discounted price
-                $existingLineItemDiscount = $item->getAdjustmentsTotalByType('discount');
+                $existingLineItemDiscount = $item->getDiscount();
                 $existingLineItemPrice = ($item->getSubtotal() + $existingLineItemDiscount);
                 $amountPercentage = Currency::round($this->_discount->percentDiscount * $existingLineItemPrice);
 

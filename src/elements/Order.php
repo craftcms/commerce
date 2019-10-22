@@ -648,8 +648,8 @@ class Order extends Element
         $itemTotal = $this->getItemSubtotal();
 
         $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getAdjustmentsTotalByType('tax');
-        $includedTaxAdjustments = $this->getAdjustmentsTotalByType('tax', true);
+        $taxAdjustments = $this->getTotalTax();
+        $includedTaxAdjustments = $this->getTotalTaxIncluded();
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
     }
@@ -1253,7 +1253,7 @@ class Order extends Element
         }
 
         if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
-            return Currency::round(max($this->getAdjustmentsTotalByType('shipping'), $total));
+            return Currency::round(max($this->getTotalShipping(), $total));
         }
 
         return Currency::round($total);
@@ -1379,8 +1379,21 @@ class Order extends Element
      * @param string|array $types
      * @param bool $included
      * @return float|int
+     * @deprecated in 2.2
      */
     public function getAdjustmentsTotalByType($types, $included = false)
+    {
+        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShipping() instead.');
+
+        return $this->_getAdjustmentsTotalByType($types, $included);
+    }
+
+    /**
+     * @param string|array $types
+     * @param bool $included
+     * @return float|int
+     */
+    public function _getAdjustmentsTotalByType($types, $included = false)
     {
         $amount = 0;
 
@@ -1395,6 +1408,40 @@ class Order extends Element
         }
 
         return $amount;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalTax(): float
+    {
+        return $this->_getAdjustmentsTotalByType('tax');
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalTaxIncluded(): float
+    {
+        return $this->_getAdjustmentsTotalByType('tax', true);
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalDiscount(): float
+    {
+
+        return $this->_getAdjustmentsTotalByType('discount');
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalShippingCost(): float
+    {
+
+        return $this->_getAdjustmentsTotalByType('shipping');
     }
 
     /**
@@ -1922,12 +1969,12 @@ class Order extends Element
             }
             case 'totalShippingCost':
             {
-                $amount = $this->getAdjustmentsTotalByType('shipping');
+                $amount = $this->getTotalShipping();
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             }
             case 'totalDiscount':
             {
-                $amount = $this->getAdjustmentsTotalByType('discount');
+                $amount = $this->getTotalDiscount();
                 if ($this->$attribute >= 0) {
                     return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
                 }
@@ -1936,12 +1983,12 @@ class Order extends Element
             }
             case 'totalTax':
             {
-                $amount = $this->getAdjustmentsTotalByType('tax');
+                $amount = $this->getTotalTax();
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             }
             case 'totalIncludedTax':
             {
-                $amount = $this->getAdjustmentsTotalByType('tax', true);
+                $amount = $this->getTotalTaxIncluded();
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             }
             default:

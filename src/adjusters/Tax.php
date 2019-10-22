@@ -160,7 +160,7 @@ class Tax extends Component implements AdjusterInterface
                     if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                         $orderTaxableAmount = $orderTaxableAmount = $this->_order->getTotalTaxablePrice();
                     } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
-                        $orderTaxableAmount = $this->_order->getAdjustmentsTotalByType('shipping');
+                        $orderTaxableAmount = $this->_order->getTotalShippingCost();
                     }
 
                     $amount = -($orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate)));
@@ -232,7 +232,7 @@ class Tax extends Component implements AdjusterInterface
             }
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
-                $orderTaxableAmount = $this->_order->getAdjustmentsTotalByType('shipping');
+                $orderTaxableAmount = $this->_order->getTotalShippingCost();
             }
 
             if (!$taxRate->include) {
