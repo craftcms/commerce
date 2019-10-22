@@ -59,12 +59,6 @@ class OrdersController extends BaseCpController
      */
     public function actionOrderIndex(string $orderStatusHandle = ''): Response
     {
-        // Remove all incomplete carts older than a certain date in config.
-        Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
-
-        // Deletes any customer record not related to a user or a cart.
-        Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
-
         return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
     }
 
