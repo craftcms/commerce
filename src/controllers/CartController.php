@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\Html;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
@@ -380,7 +381,11 @@ class CartController extends BaseFrontEndController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+            Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
+        }else{
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+        }
 
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart
