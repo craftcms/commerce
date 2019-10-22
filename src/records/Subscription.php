@@ -14,15 +14,18 @@ use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Product type record.
+ * Subscription record.
  *
  * @property DateTime $dateCanceled
  * @property DateTime $dateExpired
+ * @property DateTime $dateSuspended
  * @property ActiveQueryInterface $gateway
  * @property int $gatewayId
  * @property int $id
  * @property bool $isCanceled
  * @property bool $isExpired
+ * @property bool $isSuspended
+ * @property bool $hasStarted
  * @property DateTime $nextPaymentDate
  * @property int $orderId
  * @property ActiveQueryInterface $plan

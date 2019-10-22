@@ -63,6 +63,7 @@ class SettingsController extends BaseAdminController
         $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
         $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
+        $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 
         if (!$settings->validate()) {

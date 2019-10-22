@@ -172,6 +172,7 @@
 
     <div class="meta">
 
+        <h3>{{ 'Subscription information'|t('commerce') }}</h3>
         <div class="data">
             <h5 class="heading">User</h5>
             <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
@@ -209,6 +210,8 @@
             }) }}
         {% endif %}
 
+        <h3>{{ 'Billing'|t('commerce')}}</h3>
+
         {{ forms.textField({
             label: 'Next payment'|t('commerce'),
             value: subscription.nextPaymentDate|datetime,
@@ -225,6 +228,13 @@
             label: 'Cancellation'|t('commerce'),
             value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
             readonly: true
+        }) }}
+
+        {{ forms.textAreaField({
+            label: 'Billing issues'|t('commerce'),
+            value: subscription.getBillingIssueDescription(),
+            readonly: true,
+            rows: 3
         }) }}
     </div>
 {% endblock %}
