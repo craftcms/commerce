@@ -53,6 +53,8 @@ use yii\db\ActiveQueryInterface;
  * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
+ * @property int $estimatedBillingAddressId
+ * @property int $estimatedShippingAddressId
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

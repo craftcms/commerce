@@ -879,6 +879,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
             'commerce_orders.shippingAddressId',
+            'commerce_orders.estimatedBillingAddressId',
+            'commerce_orders.estimatedShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
