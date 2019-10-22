@@ -99,7 +99,7 @@
                             <tr class="adjustment">
                                 <td>{{ adjustment.type }}</td>
                                 <td>
-                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<i>{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
                                     )
                                 </td>
                                 <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
@@ -124,11 +124,12 @@
                 <tr>
                     <td colspan="2">
                       <div class="p-6 bg-grey-lightest max-w-sm">
-                        <h4 class="mt-0">{{ 'Estimated Shipping Address'|t('commerce') }}</h4>
-                        <div class="estimate-fields">
+                        <h5 class="mt-0">{{ 'Shipping Estimate'|t('commerce') }}</h5>
+
+                        <div class="estimate-fields text-sm">
                           {% set countries = craft.commerce.countries.allCountriesAsList %}
                           {% set states = craft.commerce.states.allStatesAsList %}
-                          <label for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
+                          <label class="m-0" for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
                           <select class="address-country w-full estimate-country" name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
                             {% for key, option in countries %}
                               {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryId : '') %}
@@ -137,7 +138,7 @@
                           </select>
 
                           <div class="estimate-state-box" data-modelname="estimatedShippingAddress">
-                            <label for="estimatedShippingAddress-state">{{ 'State'|t('commerce') }}</label>
+                            <label class="mb-0 mt-2" for="estimatedShippingAddress-state">{{ 'State'|t('commerce') }}</label>
                             {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
                             <select id="estimatedShippingAddress-stateId" data-modelname="estimatedShippingAddress" class="address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="estimatedShippingAddress[stateValue]">
                               {% for key, option in options %}
@@ -148,17 +149,18 @@
                             <input type="text" data-modelname="estimatedShippingAddress" id="estimatedShippingAddress-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="estimatedShippingAddress[stateValue]"{% endif %} value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}">
                           </div>
 
-                          <label for="estimatedShippingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
+                          <label class="mb-0 mt-2" for="estimatedShippingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
                           <input type="text" id="estimatedShippingAddress-zipCode" class="w-full" name="estimatedShippingAddress[zipCode]" value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}">
 
                           <div class="mt-6">
-                            <label>
+                            <label class="m-0">
                               <input type="checkbox" name="estimatedBillingAddressSameAsShipping" value="1" {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}> {{ 'Billing Same as Shipping'|t('commerce') }}
                             </label>
                           </div>
 
-                          <div class="estimate-billing mt-6">
-                            <label for="estimatedBillingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
+                          <div class="estimate-billing mt-6 text-sm">
+                            <h5 class="mt-0">{{ 'Tax Estimate'|t('commerce') }}</h5>
+                            <label class="mb-0 mt-2" for="estimatedBillingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
                             <select class="address-country w-full estimate-country" name="estimatedBillingAddress[countryId]" data-modelname="estimatedBillingAddress">
                               {% for key, option in countries %}
                                 {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryId : '') %}
@@ -167,7 +169,7 @@
                             </select>
 
                             <div class="estimate-state-box" data-modelname="estimatedBillingAddress">
-                              <label for="estimatedBillingAddress-state">{{ 'State'|t('commerce') }}</label>
+                              <label class="mb-0 mt-2" for="estimatedBillingAddress-state">{{ 'State'|t('commerce') }}</label>
                               {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
                               <select id="estimatedBillingAddress-stateId" data-modelname="estimatedBillingAddress" class="address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="estimatedBillingAddress[stateValue]">
                                 {% for key, option in options %}
@@ -178,15 +180,15 @@
                               <input type="text" data-modelname="estimatedBillingAddress" id="estimatedBillingAddress-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="estimatedBillingAddress[stateValue]"{% endif %} value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
                             </div>
 
-                            <label for="estimatedBillingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
+                            <label class="mb-0 mt-2" for="estimatedBillingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
                             <input type="text" id="estimatedBillingAddress-zipCode" class="w-full" name="estimatedBillingAddress[zipCode]" value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}">
                           </div>
                         </div>
 
                         {# Shipping Methods #}
-                          <div class="estimate-shipping-methods">
+                          <div class="estimate-shipping-methods text-sm">
                             {% if cart.availableShippingMethods|length and cart.estimatedShippingAddressId %}
-                              <div class="mt-6">
+                              <div class="mt-3">
                                 {% for handle, method in cart.availableShippingMethods %}
                                   <div class="shipping-select">
                                     <label>
