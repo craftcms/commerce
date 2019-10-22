@@ -99,7 +99,7 @@
                             <tr class="adjustment">
                                 <td>{{ adjustment.type }}</td>
                                 <td>
-                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<i>{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
+                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
                                     )
                                 </td>
                                 <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
@@ -114,7 +114,7 @@
                         <tr class="adjustment">
                             <td>{{ adjustment.type }}</td>
                             <td>
-                                <strong>{{ adjustment.name }}</strong><br>({{ adjustment.description }}
+                                <strong>{{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
                                 )
                             </td>
                             <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
