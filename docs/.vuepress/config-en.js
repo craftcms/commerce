@@ -99,7 +99,6 @@ module.exports = {
                 collapsable: false,
                 children: [
                     'products-fields',
-                    'customer-info-fields',
                 ]
             },
         ]
