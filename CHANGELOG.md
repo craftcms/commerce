@@ -50,9 +50,19 @@
 - Expired orders are now purged during garbage collection rather than when viewing the Orders index page.
 - Customer records that are not related to anything are now purged during garbage collection. ([#1045](https://github.com/craftcms/commerce/issues/1045))
 - `commerce/cart/update-cart` requests now include line item adjustment data in their JSON response. ([#1014](https://github.com/craftcms/commerce/issues/1014))
+- `craft\commerce\elements\Order::getTotalDiscount()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalShippingCost()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalTax()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalTaxIncluded()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getDiscount()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getShippingCost()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getTax()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getTaxIncluded()` is no longer deprecated.
 
 ### Deprecated
 - Commerce Customer Info fields are now deprecated.
+- Deprecated `craft\commerce\models\LineItem::getAdjustmentsTotalByType()`.
+- Deprecated `craft\commerce\elements\Order::getAdjustmentsTotalByType()`.
 
 ### Fixed
 - Fixed a PostgreSQL migration issue.
