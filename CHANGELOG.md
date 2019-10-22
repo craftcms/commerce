@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the ability to produce estimated shipping and tax costs based on incomplete shipping and billing addresses. ([#514](https://github.com/craftcms/commerce/issues/514))
 - Edit User pages now have a “Customer Info” tab.
 - It’s now possible to view and create discounts directly from from the Edit Product page.
 - It’s now possible to delete customer addresses directly from the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
@@ -19,9 +20,19 @@
 - Added the ability to pass additional variables to the PDF template. ([#599](https://github.com/craftcms/commerce/issues/599))
 - Added the ability to override the “Cart updated” flash message by passing a `cartUpdatedNotice` parameter to the `commerce/cart/update-cart` action. ([#1038](https://github.com/craftcms/commerce/issues/1038))
 - Added the `shortNumber` order query param.
+- `commerce/cart/update-cart` requests can now specify `estimatedShippingAddress` and `estimatedBillingAddress` params.
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added `craft\commerce\elements\Order::$estimatedBillingAddressId`.
+- Added `craft\commerce\elements\Order::$estimatedBillingSameAsShipping`.
+- Added `craft\commerce\elements\Order::$estimatedShippingAddressId`.
+- Added `craft\commerce\elements\Order::getEstimatedBillingAddress()`.
+- Added `craft\commerce\elements\Order::getEstimatedShippingAddress()`.
+- Added `craft\commerce\elements\Order::setEstimatedBillingAddress()`.
+- Added `craft\commerce\elements\Order::setEstimatedShippingAddress()`.
+- Added `craft\commerce\models\Address::$isEstimated`.
 - Added `craft\commerce\models\Customer::getActiveCarts()`.
 - Added `craft\commerce\models\Customer::getInactiveCarts()`.
+- Added `craft\commerce\models\OrderAdjustment::$isEstimated`.
 - Added `craft\commerce\services\Sales::EVENT_AFTER_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
