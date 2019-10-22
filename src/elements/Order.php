@@ -308,6 +308,16 @@ class Order extends Element
     public $shippingAddressId;
 
     /**
+     * @var int Billing address ID
+     */
+    public $estimatedBillingAddressId;
+
+    /**
+     * @var int Shipping address ID
+     */
+    public $estimatedShippingAddressId;
+
+    /**
      * @var bool Whether shipping address should be made primary
      */
     public $makePrimaryShippingAddress;
@@ -326,6 +336,11 @@ class Order extends Element
      * @var bool Whether billing address should be set to the same address as shipping
      */
     public $billingSameAsShipping;
+
+    /**
+     * @var bool Whether estimated billing address should be set to the same address as estimated shipping
+     */
+    public $estimatedBillingSameAsShipping;
 
     /**
      * @var string Shipping Method Handle
@@ -351,6 +366,16 @@ class Order extends Element
      * @var Address
      */
     private $_billingAddress;
+
+    /**
+     * @var Address
+     */
+    private $_estimatedShippingAddress;
+
+    /**
+     * @var Address
+     */
+    private $_estimatedBillingAddress;
 
     /**
      * @var LineItem[]
@@ -575,7 +600,7 @@ class Order extends Element
         $justPaid = $paidInFull && $this->datePaid === null;
 
         // If it is no longer paid in full, set datePaid to null
-        if(!$paidInFull) {
+        if (!$paidInFull) {
             $this->datePaid = null;
         }
 
@@ -684,6 +709,11 @@ class Order extends Element
 
         $this->isCompleted = true;
         $this->dateOrdered = Db::prepareDateForDb(new DateTime());
+
+        // Reset estimated address relations
+        $this->estimatedShippingAddressId = null;
+        $this->estimatedBillingAddressId = null;
+
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
         // If the order status returned was overridden by a plugin, use the configured default order status if they give us a bogus one with no ID.
@@ -890,6 +920,16 @@ class Order extends Element
      */
     public function afterSave(bool $isNew)
     {
+        // Make sure addresses are set before recalculation so that on the next page load
+        // the correct adjustments and totals are shown
+        if ($this->shippingSameAsBilling) {
+            $this->setShippingAddress($this->getBillingAddress());
+        }
+
+        if ($this->billingSameAsShipping) {
+            $this->setBillingAddress($this->getShippingAddress());
+        }
+
         // TODO: Move the recalculate to somewhere else. Saving should be for saving only
         // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
@@ -936,14 +976,6 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
-        if ($this->shippingSameAsBilling) {
-            $this->setShippingAddress($this->getBillingAddress());
-        }
-
-        if ($this->billingSameAsShipping) {
-            $this->setBillingAddress($this->getShippingAddress());
-        }
-
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
             // We need to only save the address to the customers address book while it is a cart
@@ -968,6 +1000,26 @@ class Order extends Element
 
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
+        }
+
+        if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
+            Plugin::getInstance()->getAddresses()->saveAddress($estimatedShippingAddress, false);
+
+            $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
+            $this->setEstimatedShippingAddress($estimatedShippingAddress);
+
+            // If estimate billing same as shipping set it here
+            if ($this->estimatedBillingSameAsShipping) {
+                $orderRecord->estimatedBillingAddressId = $estimatedShippingAddress->id;
+                $this->setEstimatedBillingAddress($estimatedShippingAddress);
+            }
+        }
+
+        if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
+            Plugin::getInstance()->getAddresses()->saveAddress($estimatedBillingAddress, false);
+
+            $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
+            $this->setEstimatedBillingAddress($estimatedBillingAddress);
         }
 
         $orderRecord->save(false);
@@ -1486,6 +1538,32 @@ class Order extends Element
     /**
      * @return Address|null
      */
+    public function getEstimatedShippingAddress()
+    {
+        if (null === $this->_estimatedShippingAddress && $this->estimatedShippingAddressId) {
+            $this->_estimatedShippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedShippingAddressId);
+        }
+
+        return $this->_estimatedShippingAddress;
+    }
+
+    /**
+     * @param Address|array $address
+     */
+    public function setEstimatedShippingAddress($address)
+    {
+        if (!$address instanceof Address) {
+            $address = new Address($address);
+        }
+        $address->isEstimated = true;
+
+        $this->estimatedShippingAddressId = $address->id;
+        $this->_estimatedShippingAddress = $address;
+    }
+
+    /**
+     * @return Address|null
+     */
     public function getBillingAddress()
     {
         if (null === $this->_billingAddress && $this->billingAddressId) {
@@ -1506,6 +1584,32 @@ class Order extends Element
 
         $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
+    }
+
+    /**
+     * @return Address|null
+     */
+    public function getEstimatedBillingAddress()
+    {
+        if (null === $this->_estimatedBillingAddress && $this->estimatedBillingAddressId) {
+            $this->_estimatedBillingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedBillingAddressId);
+        }
+
+        return $this->_estimatedBillingAddress;
+    }
+
+    /**
+     * @param Address|array $address
+     */
+    public function setEstimatedBillingAddress($address)
+    {
+        if (!$address instanceof Address) {
+            $address = new Address($address);
+        }
+        $address->isEstimated = true;
+
+        $this->estimatedBillingAddressId = $address->id;
+        $this->_estimatedBillingAddress = $address;
     }
 
     /**

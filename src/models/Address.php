@@ -185,6 +185,11 @@ class Address extends Model
     public $custom4;
 
     /**
+     * @var bool If this address is used for estimated values
+     */
+    public $isEstimated = false;
+
+    /**
      * @var int|string Can be a State ID or State Name
      */
     private $_stateValue;

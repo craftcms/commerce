@@ -56,6 +56,11 @@ class Tax extends Component implements AdjusterInterface
     private $_address;
 
     /**
+     * @var bool
+     */
+    private $_isEstimated = false;
+
+    /**
      * @var array
      */
     private $_costRemovedByLineItem = [];
@@ -71,9 +76,19 @@ class Tax extends Component implements AdjusterInterface
         $this->_order = $order;
 
         $this->_address = $this->_order->getShippingAddress();
+        if (!$this->_address) {
+            $this->_address = $this->_order->getEstimatedShippingAddress();
+            $this->_isEstimated = true;
+        }
 
         if (Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
             $this->_address = $this->_order->getBillingAddress();
+            $this->_isEstimated = false;
+
+            if (!$this->_address) {
+                $this->_address = $this->_order->getEstimatedBillingAddress();
+                $this->_isEstimated = true;
+            }
         }
 
         $adjustments = [];
@@ -326,6 +341,7 @@ class Tax extends Component implements AdjusterInterface
         $adjustment->name = $rate->name;
         $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
         $adjustment->setOrder($this->_order);
+        $adjustment->isEstimated = $this->_isEstimated;
         $adjustment->sourceSnapshot = $rate->toArray();
 
         return $adjustment;

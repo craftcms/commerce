@@ -42,6 +42,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $custom2
  * @property string $custom3
  * @property string $custom4
+ * @property bool $isEstimated
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

@@ -146,6 +146,7 @@ class OrderAdjustments extends Component
         $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
         $record->orderId = $orderAdjustment->getOrder()->id ?? null;
         $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
+        $record->isEstimated = $orderAdjustment->isEstimated;
 
         $record->save(false);
 
@@ -208,7 +209,8 @@ class OrderAdjustments extends Component
                 'included',
                 'sourceSnapshot',
                 'lineItemId',
-                'orderId'
+                'orderId',
+                'isEstimated'
             ])
             ->from([Table::ORDERADJUSTMENTS]);
     }

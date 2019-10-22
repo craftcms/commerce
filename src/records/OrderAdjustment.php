@@ -24,6 +24,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $orderId
  * @property string $sourceSnapshot
  * @property string $type
+ * @property bool $isEstimated
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
