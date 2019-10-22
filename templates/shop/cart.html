@@ -122,10 +122,89 @@
                     {% endfor %}
                 {% endif %}
                 <tr>
-                    <td>
+                    <td colspan="2">
+                      <div class="p-6 bg-grey-lightest max-w-sm">
+                        <h4 class="mt-0">{{ 'Estimated Shipping Address'|t('commerce') }}</h4>
+                        <div class="estimate-fields">
+                          {% set countries = craft.commerce.countries.allCountriesAsList %}
+                          {% set states = craft.commerce.states.allStatesAsList %}
+                          <label for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
+                          <select class="address-country w-full estimate-country" name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
+                            {% for key, option in countries %}
+                              {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryId : '') %}
+                              <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+                            {% endfor %}
+                          </select>
 
+                          <div class="estimate-state-box" data-modelname="estimatedShippingAddress">
+                            <label for="estimatedShippingAddress-state">{{ 'State'|t('commerce') }}</label>
+                            {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
+                            <select id="estimatedShippingAddress-stateId" data-modelname="estimatedShippingAddress" class="address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="estimatedShippingAddress[stateValue]">
+                              {% for key, option in options %}
+                                {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
+                                <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
+                              {% endfor %}
+                            </select>
+                            <input type="text" data-modelname="estimatedShippingAddress" id="estimatedShippingAddress-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="estimatedShippingAddress[stateValue]"{% endif %} value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}">
+                          </div>
+
+                          <label for="estimatedShippingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
+                          <input type="text" id="estimatedShippingAddress-zipCode" class="w-full" name="estimatedShippingAddress[zipCode]" value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}">
+
+                          <div class="mt-6">
+                            <label>
+                              <input type="checkbox" name="estimatedBillingAddressSameAsShipping" value="1" {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}> {{ 'Billing Same as Shipping'|t('commerce') }}
+                            </label>
+                          </div>
+
+                          <div class="estimate-billing mt-6">
+                            <label for="estimatedBillingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
+                            <select class="address-country w-full estimate-country" name="estimatedBillingAddress[countryId]" data-modelname="estimatedBillingAddress">
+                              {% for key, option in countries %}
+                                {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryId : '') %}
+                                <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+                              {% endfor %}
+                            </select>
+
+                            <div class="estimate-state-box" data-modelname="estimatedBillingAddress">
+                              <label for="estimatedBillingAddress-state">{{ 'State'|t('commerce') }}</label>
+                              {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
+                              <select id="estimatedBillingAddress-stateId" data-modelname="estimatedBillingAddress" class="address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="estimatedBillingAddress[stateValue]">
+                                {% for key, option in options %}
+                                  {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateId : '') %}
+                                  <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                              </select>
+                              <input type="text" data-modelname="estimatedBillingAddress" id="estimatedBillingAddress-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="estimatedBillingAddress[stateValue]"{% endif %} value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
+                            </div>
+
+                            <label for="estimatedBillingAddress-zipCode">{{ 'Zip Code'|t('commerce') }}</label>
+                            <input type="text" id="estimatedBillingAddress-zipCode" class="w-full" name="estimatedBillingAddress[zipCode]" value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}">
+                          </div>
+                        </div>
+
+                        {# Shipping Methods #}
+                          <div class="estimate-shipping-methods">
+                            {% if cart.availableShippingMethods|length and cart.estimatedShippingAddressId %}
+                              <div class="mt-6">
+                                {% for handle, method in cart.availableShippingMethods %}
+                                  <div class="shipping-select">
+                                    <label>
+                                      <input type="radio" name="shippingMethodHandle" value="{{ handle }}" {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+                                      <strong>{{ method.name }}</strong>
+                                      <span class="price">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
+                                    </label>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                              <div class="mt-6">
+                                <a class="estimate-show-fields" href="#">{{ 'Show Estimate Fields'|t('commerce') }}</a>
+                              </div>
+                            {% endif %}
+                          </div>
+                      </div>
                     </td>
-                    <td colspan="2" class="text-right">
+                    <td class="text-right align-text-top">
                         {% if not lineItemHasErrors %}
                             Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}
                             <br>
@@ -180,4 +259,97 @@
     {% if not cart.lineItems|length %}
         <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
     {% endif %}
+  {% js %}
+    var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
+  {% endjs %}
+  {% js %}
+    var $estimateShippingMethodsContainer = $('.estimate-shipping-methods');
+    var $estimateFieldsContainer = $('.estimate-fields');
+    var $estimateShowFieldsButton = $('.estimate-show-fields');
+    var $estimateBilling = $('.estimate-billing');
+    var $estimateBillingSameAsShipping = $('input[name="estimatedBillingAddressSameAsShipping"]');
+    var $estimateCountrySelects = $('select.estimate-country');
+
+    // Setup "same as" checkbox
+    if ($estimateBillingSameAsShipping.prop('checked')) {
+        $estimateBilling.addClass('hidden').find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');
+    }
+
+    // Handle the change event for the "same as" checkbox
+    $estimateBillingSameAsShipping.change(function(ev) {
+        var $this = $(this);
+        if ($this.prop('checked')) {
+            $estimateBilling.addClass('hidden').find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');
+        } else {
+            $estimateBilling.removeClass('hidden').find('input,select').attr('disabled', '').prop('disabled', '');
+        }
+    });
+
+    // Setup initial state Showing/hiding of the shipping method selection
+    if ($estimateShippingMethodsContainer.find('.shipping-select').length) {
+        $estimateFieldsContainer.addClass('hidden');
+        $estimateFieldsContainer.find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');
+    } else {
+        $estimateShippingMethodsContainer.addClass('hidden');
+        $estimateShippingMethodsContainer.find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');;
+    }
+
+    // Handle click event for returning to the estimate fields
+    $estimateShowFieldsButton.click(function(ev) {
+        ev.preventDefault();
+
+        if ($estimateFieldsContainer.hasClass('hidden')) {
+            $estimateFieldsContainer.removeClass('hidden');
+            $estimateFieldsContainer.find('input,select').attr('disabled', '').prop('disabled', '');
+            $estimateShippingMethodsContainer.addClass('hidden');
+            $estimateShippingMethodsContainer.find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');
+        } else {
+            $estimateFieldsContainer.addClass('hidden');
+            $estimateFieldsContainer.find('input,select').attr('disabled', 'disabled').prop('disabled', 'disabled');
+            $estimateShippingMethodsContainer.removeClass('hidden');
+            $estimateShippingMethodsContainer.find('input,select').attr('disabled', '').prop('disabled', '');
+        }
+    });
+
+    // Handle change event for country selection for both shipping and billing
+    $estimateCountrySelects.change(function () {
+        // get the value of the selected country.
+        var cid = $(this).val();
+        var $box = $('.estimate-state-box[data-modelname="'+$(this).data('modelname')+'"]');
+        var $states = $box.find('select.address-stateId');
+        var $stateName = $box.find('input.address-stateName');
+        $states.find('option').remove();
+
+        if (states.hasOwnProperty(cid))
+        {
+            // We have states for this country, show the states drop down.
+            $states.removeClass('hidden');
+            $states.attr('name', $states.data('modelname')+'[stateValue]');
+
+            // We have states for this country, hide the stateName input.
+            $stateName.removeAttr('name');
+            $stateName.addClass('hidden');
+            $stateName.val('');
+
+            // Add all states as options to drop down.
+            for (var id in states[cid])
+            {
+                var state = states[cid][id];
+                var $option = $('<option/>');
+                $option.attr('value', id).text(state);
+                $states.append($option);
+            }
+
+        }else{
+            // hide the states dropdown, since this country has none.
+            $states.addClass('hidden');
+            $states.removeAttr('name');
+
+            // show the stateName
+            $stateName.removeClass('hidden');
+            $stateName.attr('name', $stateName.data('modelname')+'[stateValue]');
+        }
+
+    });
+  {% endjs %}
 {% endblock %}
