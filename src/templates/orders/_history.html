@@ -1,7 +1,7 @@
 {# Order History Tab #}
 
-<div id="orderHistoryTab" class="hidden" xmlns="http://www.w3.org/1999/html">
-    <div class="pane">
+<div id="orderHistoryTab" class="pane hidden">
+
         <h3>{{ "Status History"|t('commerce') }}</h3>
         {% if order.histories|length %}
             <table class="data fullwidth">
@@ -63,5 +63,4 @@
         {% else %}
             <p class="light">{{ 'No order status history items will exists until the cart becomes an order.'|t('commerce') }}</p>
         {% endif %}
-    </div>
 </div>
