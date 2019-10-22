@@ -343,6 +343,7 @@ class Discounts extends Component
     /**
      * @param PurchasableInterface $purchasable
      * @return array
+     * @since 2.2
      */
     public function getDiscountsRelatedToPurchasable(PurchasableInterface $purchasable): array
     {

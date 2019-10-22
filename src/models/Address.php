@@ -86,6 +86,7 @@ class Address extends Model
 
     /**
      * @var string Full Name
+     * @since 2.2
      */
     public $fullName;
 
@@ -101,6 +102,7 @@ class Address extends Model
 
     /**
      * @var string Address Line 3
+     * @since 2.2
      */
     public $address3;
 
@@ -126,6 +128,7 @@ class Address extends Model
 
     /**
      * @var string Label
+     * @since 2.2
      */
     public $label;
 
@@ -161,31 +164,37 @@ class Address extends Model
 
     /**
      * @var string Notes
+     * @since 2.2
      */
     public $notes;
 
     /**
      * @var string Custom Field 1
+     * @since 2.2
      */
     public $custom1;
 
     /**
      * @var string Custom Field 2
+     * @since 2.2
      */
     public $custom2;
 
     /**
      * @var string Custom Field 3
+     * @since 2.2
      */
     public $custom3;
 
     /**
      * @var string Custom Field 4
+     * @since 2.2
      */
     public $custom4;
 
     /**
      * @var bool If this address is used for estimated values
+     * @since 2.2
      */
     public $isEstimated = false;
 

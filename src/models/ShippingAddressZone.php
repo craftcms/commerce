@@ -55,6 +55,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @var string The code to match the zip code.
+     * @since 2.2
      */
     public $zipCodeConditionFormula;
 
@@ -170,6 +171,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return string
+     * @since 2.2
      */
     public function getZipCodeConditionFormula(): string
     {

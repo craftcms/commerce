@@ -265,6 +265,7 @@ class OrderQuery extends ElementQuery
      *
      * @param string|array|null $value The property value.
      * @return static self reference
+     * @since 2.2
      */
     public function shortNumber($value = null)
     {
