@@ -668,7 +668,7 @@ class Customers extends Component
     public function addEditUserCustomerInfoTab(array &$context)
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        if (Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser && !$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
+        if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
                 'label' => Craft::t('commerce', 'Customer Info'),
                 'url' => '#customerInfo'
@@ -688,10 +688,6 @@ class Customers extends Component
      */
     public function addEditUserCustomerInfoTabContent(array &$context): string
     {
-        if (!Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser) {
-            return '';
-        }
-
         if (!$context['user'] || $context['isNewUser']) {
             return '';
         }
