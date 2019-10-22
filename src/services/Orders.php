@@ -302,7 +302,7 @@ class Orders extends Component
         $data['totalLineItems'] = count($lineItems);
 
         $adjustments = [];
-        foreach ($cart->adjustments as $adjustment) {
+        foreach ($cart->getAdjustments() as $adjustment) {
             $adjustmentData = [];
             $adjustmentData['id'] = $adjustment->id;
             $adjustmentData['type'] = $adjustment->type;
