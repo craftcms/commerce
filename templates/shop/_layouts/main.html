@@ -144,7 +144,7 @@
             $.ajax({
                 url: '',
                 data: {
-                    '{{ craft.config.csrfTokenName|e('js') }}': '{{ craft.request.csrfToken|e('js') }}',
+                    '{{ craft.app.config.general.csrfTokenName|e('js') }}': '{{ craft.app.request.csrfToken|e('js') }}',
                     'action': 'commerce/cart/get-cart'
                 },
                 success: function(data) {
