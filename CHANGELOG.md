@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.0 - 2019-10-22
 
 ### Added
 - Edit User pages now have a “Customer Info” tab.
