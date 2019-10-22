@@ -274,7 +274,7 @@ class Orders extends Component
             $lineItemData['discount'] = $lineItem->getDiscount();
 
             $lineItemAdjustments = [];
-            foreach ($cart->adjustments as $adjustment) {
+            foreach ($lineItem->getAdjustments() as $adjustment) {
                 $adjustmentData = [];
                 $adjustmentData['id'] = $adjustment->id;
                 $adjustmentData['type'] = $adjustment->type;
@@ -283,7 +283,8 @@ class Orders extends Component
                 $adjustmentData['amount'] = $adjustment->amount;
                 $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
                 $adjustmentData['orderId'] = $adjustment->orderId;
-                $adjustmentData['lineItemId'] = $adjustment->orderId;
+                $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+                $adjustmentData['isEstimated'] = $adjustment->isEstimated;
                 $adjustments[$adjustment->type][] = $adjustmentData;
                 $lineItemAdjustments[] = $adjustmentData;
             }
@@ -311,6 +312,7 @@ class Orders extends Component
             $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
             $adjustmentData['orderId'] = $adjustment->orderId;
             $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+            $adjustmentData['isEstimated'] = $adjustment->isEstimated;
             $adjustments[$adjustment->type][] = $adjustmentData;
         }
         $data['adjustments'] = $adjustments;
