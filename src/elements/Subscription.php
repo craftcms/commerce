@@ -183,6 +183,11 @@ class Subscription extends Element
      */
     public function getIsOnTrial()
     {
+        if($this->isExpired)
+        {
+            return false;
+        }
+
         return $this->trialDays > 0 && time() <= $this->getTrialExpires()->getTimestamp();
     }
 

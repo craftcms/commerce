@@ -19,6 +19,7 @@ use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\User;
+use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -283,6 +284,13 @@ class Customers extends Component
     {
         // Remove the old customer from the session.
         $this->forgetCustomer();
+
+        $impersonating = Craft::$app->getSession()->get(UserElement::IMPERSONATE_KEY) !== null;
+        // Don't allow transition of current cart to a user that is being impersonated.
+        if ($impersonating) {
+            Plugin::getInstance()->getCarts()->forgetCart();
+        }
+
         /** @var User $user */
         $user = $event->identity;
 
@@ -660,7 +668,7 @@ class Customers extends Component
     public function addEditUserCustomerInfoTab(array &$context)
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        if (Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser && !$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
+        if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
                 'label' => Craft::t('commerce', 'Customer Info'),
                 'url' => '#customerInfo'
@@ -680,10 +688,6 @@ class Customers extends Component
      */
     public function addEditUserCustomerInfoTabContent(array &$context): string
     {
-        if (!Plugin::getInstance()->getSettings()->showCustomerTabOnEditUser) {
-            return '';
-        }
-
         if (!$context['user'] || $context['isNewUser']) {
             return '';
         }

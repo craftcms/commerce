@@ -51,6 +51,7 @@ use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
+use craft\services\Gc;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -154,6 +155,7 @@ class Plugin extends BasePlugin
         $this->_registerElementTypes();
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
+        $this->_registerGarbageCollection();
         $this->_defineResaveCommand();
     }
 
@@ -529,6 +531,19 @@ class Plugin extends BasePlugin
                     }
                 }
             ];
+        });
+    }
+
+    /**
+     * Register the things that need to be garbage collected
+     */
+    private function _registerGarbageCollection()
+    {
+        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+            // Deletes carts that meet the purge settings
+            Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+            // Deletes customers that are not related to any cart/order or user
+            Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
         });
     }
 
