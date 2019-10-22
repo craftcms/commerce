@@ -31,12 +31,6 @@ return [
 
 Here’s the full list of config settings that Commerce supports:
 
-## `pdfAllowRemoteImages`
-
-Determines if a Dompdf PDF render will allow remote images.
-
-Default `false`
-
 ## `autoSetNewCartAddresses`
 
 Determines whether the customer’s last used shipping and billing addresses should automatically be set on new carts.
@@ -44,6 +38,14 @@ Determines whether the customer’s last used shipping and billing addresses sho
 Can be set to `true` or `false` (default is `true`).
 
 How long the cookie storing the cart should last. The cart exists independently of the Craft user’s session.
+
+## `activeCartDuration`
+
+A php [Date Interval](http://php.net/manual/en/class.dateinterval.php)
+Default: 1 hour. (`PT1H`).
+
+How long since it was last updated a cart is considered active.
+
 
 ## `gatewayPostRedirectTemplate`
 
@@ -77,6 +79,12 @@ Since this template is simply used for redirecting, it only appears for a few se
 Default: `true`
 
 When a user logs into their Craft account all line items in previous cart are merged with the current cart.
+
+## `pdfAllowRemoteImages`
+
+Determines if a Dompdf PDF render will allow remote images.
+
+Default `false`
 
 ## `pdfPaperSize`
 
