@@ -448,7 +448,7 @@ class Subscription extends Element
             ];
         }
 
-        $sources[] = ['heading' => Craft::t('commerce', 'Subscriptons on hold')];
+        $sources[] = ['heading' => Craft::t('commerce', 'Subscriptions on hold')];
 
         $criteriaFailedToStart = ['isSuspended' => true, 'hasStarted' => false];
         $sources[] = [
