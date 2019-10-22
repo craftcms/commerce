@@ -19,6 +19,7 @@ use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\User;
+use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -283,6 +284,13 @@ class Customers extends Component
     {
         // Remove the old customer from the session.
         $this->forgetCustomer();
+
+        $impersonating = Craft::$app->getSession()->get(UserElement::IMPERSONATE_KEY) !== null;
+        // Don't allow transition of current cart to a user that is being impersonated.
+        if ($impersonating) {
+            Plugin::getInstance()->getCarts()->forgetCart();
+        }
+
         /** @var User $user */
         $user = $event->identity;
 

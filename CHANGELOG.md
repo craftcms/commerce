@@ -54,6 +54,7 @@
 - Fixed a bug where all states were shown on the Store Location page regardless of which country was selected. ([#942](https://github.com/craftcms/commerce/issues/942))
 - Fixed a bug where product title was not included in the variant search index. ([#934](https://github.com/craftcms/commerce/issues/934))
 - Fixed a bug where a subscription would show as on trial when it is expired. ([#723](https://github.com/craftcms/commerce/issues/723))
+- Fixed a bug that copied the addresses of the current cart to a newly impersonated user’s address book. ([#903](https://github.com/craftcms/commerce/issues/903))
 
 ## 2.1.13 - 2019-09-09
 
