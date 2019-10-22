@@ -118,6 +118,7 @@ class CountriesController extends BaseStoreSettingsController
      * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
+     * @since 2.2
      */
     public function actionReorder(): Response
     {

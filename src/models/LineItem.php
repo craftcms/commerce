@@ -129,6 +129,7 @@ class LineItem extends Model
 
     /**
      * @var DateTime|null
+     * @since 2.2
      */
     public $dateCreated;
 

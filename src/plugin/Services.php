@@ -163,6 +163,7 @@ trait Services
      * Returns the formulas service
      *
      * @return Formulas the formulas service
+     * @since 2.2
      */
     public function getFormulas(): Formulas
     {

@@ -969,6 +969,7 @@ class Variant extends Purchasable
      * @param string $attribute
      * @return string
      * @throws InvalidConfigException
+     * @since 2.2
      */
     public function getSearchKeywords(string $attribute): string
     {

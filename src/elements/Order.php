@@ -309,11 +309,13 @@ class Order extends Element
 
     /**
      * @var int Billing address ID
+     * @since 2.2
      */
     public $estimatedBillingAddressId;
 
     /**
      * @var int Shipping address ID
+     * @since 2.2
      */
     public $estimatedShippingAddressId;
 
@@ -339,6 +341,7 @@ class Order extends Element
 
     /**
      * @var bool Whether estimated billing address should be set to the same address as estimated shipping
+     * @since 2.2
      */
     public $estimatedBillingSameAsShipping;
 
@@ -369,11 +372,13 @@ class Order extends Element
 
     /**
      * @var Address
+     * @since 2.2
      */
     private $_estimatedShippingAddress;
 
     /**
      * @var Address
+     * @since 2.2
      */
     private $_estimatedBillingAddress;
 
@@ -1537,6 +1542,7 @@ class Order extends Element
 
     /**
      * @return Address|null
+     * @since 2.2
      */
     public function getEstimatedShippingAddress()
     {
@@ -1549,6 +1555,7 @@ class Order extends Element
 
     /**
      * @param Address|array $address
+     * @since 2.2
      */
     public function setEstimatedShippingAddress($address)
     {
@@ -1588,6 +1595,7 @@ class Order extends Element
 
     /**
      * @return Address|null
+     * @since 2.2
      */
     public function getEstimatedBillingAddress()
     {
@@ -1600,6 +1608,7 @@ class Order extends Element
 
     /**
      * @param Address|array $address
+     * @since 2.2
      */
     public function setEstimatedBillingAddress($address)
     {

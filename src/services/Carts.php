@@ -274,6 +274,7 @@ class Carts extends Component
     /**
      * @return string
      * @throws \Exception
+     * @since 2.2
      */
     public function getActiveCartEdgeDuration(): string
     {

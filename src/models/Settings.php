@@ -124,6 +124,7 @@ class Settings extends Model
 
     /**
      * @var string
+     * @since 2.2
      */
     public $activeCartDuration = 'PT1H';
 
@@ -165,6 +166,7 @@ class Settings extends Model
     /**
      * @var bool Allow the cart to be empty on checkout
      * @todo Set this to false in 3.0
+     * @since 2.2
      */
     public $allowEmptyCartOnCheckout = true;
 
@@ -180,6 +182,7 @@ class Settings extends Model
 
     /**
      * @var string Default view for Commerce in the CP
+     * @since 2.2
      */
     public $defaultView = 'commerce/orders';
 
@@ -255,6 +258,7 @@ class Settings extends Model
 
     /**
      * @return array
+     * @since 2.2
      */
     public function getDefaultViewOptions(): array
     {

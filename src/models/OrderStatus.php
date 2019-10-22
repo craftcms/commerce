@@ -90,7 +90,11 @@ class OrderStatus extends Model
         return (string)$this->getDisplayName();
     }
 
-    public function getDisplayName()
+    /**
+     * @return string
+     * @since 2.2
+     */
+    public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null)
         {
@@ -146,6 +150,7 @@ class OrderStatus extends Model
 
     /**
      * @return bool
+     * @since 2.2
      */
     public function canDelete(): bool
     {

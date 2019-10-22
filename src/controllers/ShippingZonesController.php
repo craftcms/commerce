@@ -162,6 +162,7 @@ class ShippingZonesController extends BaseShippingSettingsController
     /**
      * @return Response
      * @throws \yii\web\BadRequestHttpException
+     * @since 2.2
      */
     public function actionTestZip()
     {

@@ -15,7 +15,7 @@ use craft\web\Controller;
  * Class BaseCp
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 2.2
  */
 class FormulasController extends Controller
 {

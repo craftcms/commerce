@@ -12,6 +12,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -121,6 +122,9 @@ class OrderStatusesController extends BaseAdminController
 
     /**
      * @return Response|null
+     * @throws \Throwable
+     * @throws BadRequestHttpException
+     * @since 2.2
      */
     public function actionDelete()
     {
