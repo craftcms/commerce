@@ -257,7 +257,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         $shippingZone = $this->getShippingZone();
-        $shippingAddress = $order->getShippingAddress();
+        $shippingAddress = $order->getShippingAddress() ?? $order->getEstimatedShippingAddress();
 
         if ($shippingZone && !$shippingAddress) {
             return false;
