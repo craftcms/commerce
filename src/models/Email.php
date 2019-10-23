@@ -52,6 +52,16 @@ class Email extends Model
     public $bcc;
 
     /**
+     * @var string Cc
+     */
+    public $cc;
+
+    /**
+     * @var string Reply to
+     */
+    public $replyTo;
+
+    /**
      * @var bool Is Enabled
      */
     public $enabled;

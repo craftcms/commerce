@@ -37,6 +37,11 @@ class PdfEvent extends Event
     public $template;
 
     /**
+     * @var array
+     */
+    public $variables;
+
+    /**
      * @var string|null The rendered PDF
      */
     public $pdf;

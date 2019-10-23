@@ -10,7 +10,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use craft\helpers\Json;
 use Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -110,5 +112,25 @@ class CountriesController extends BaseStoreSettingsController
         } catch (Exception $e) {
             return $this->asErrorJson($e->getMessage());
         }
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\db\Exception
+     * @throws BadRequestHttpException
+     * @since 2.2
+     */
+    public function actionReorder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+
+        if ($success = Plugin::getInstance()->getCountries()->reorderCountries($ids)) {
+            return $this->asJson(['success' => $success]);
+        }
+
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+
     }
 }

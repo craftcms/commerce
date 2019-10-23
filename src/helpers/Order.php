@@ -80,7 +80,7 @@ class Order
         }
 
         if ($deleteOther && $primaryDidPersist) {
-            Craft::$app->getElements()->deleteElementById($otherOrder->id);
+            Craft::$app->getElements()->deleteElementById($otherOrder->id, OrderElement::class, null, true);
         }
     }
 }

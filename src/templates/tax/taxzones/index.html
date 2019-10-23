@@ -17,6 +17,7 @@
                 <th scope="col">{{ 'Description'|t('commerce') }}</th>
                 <th scope="col">{{ 'Type'|t('commerce') }}</th>
                 <th scope="col">{{ 'Countries/States'|t('commerce') }}</th>
+                <th scope="col">{{ 'Has Zip Condition?'|t('commerce') }}</th>
                 <th scope="col">{{ 'Tax Rate Usage'|t('commerce') }}</th>
                 <th scope="col">{{ 'Default Zone?'|t('commerce') }}</th>
                 <td class="thin"></td>
@@ -36,6 +37,9 @@
                         {% else %}
                             {{ indexInlineList(taxZone.getStatesNames()) }}
                         {% endif %}
+                    </td>
+                    <td data-title="{{ 'Has Zip Condition?'|t('commerce') }}">
+                        {% if taxZone.zipCodeConditionFormula %}<span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                     </td>
                     <td data-title="{{ 'Used By Tax Rates'|t('commerce') }}">
                         {% for rate in taxZone.taxRates %}

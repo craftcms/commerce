@@ -57,12 +57,41 @@
         }) }}
 
         {{ forms.textField({
+            label: 'Full Name'|t('commerce'),
+            id: 'fullName',
+            name: 'fullName',
+            placeholder: storeLocation.fullName,
+            value: storeLocation.fullName,
+            errors: storeLocation.getErrors('fullName'),
+        }) }}
+
+        <hr/>
+
+        {{ forms.textField({
             label: 'Company'|t('commerce'),
             id: 'businessName',
             name: 'businessName',
             placeholder: storeLocation.businessName,
             value: storeLocation.businessName,
-            errors: storeLocation.getErrors('company'),
+            errors: storeLocation.getErrors('businessName'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Business Tax ID'|t('commerce'),
+            id: 'businessTaxId',
+            name: 'businessTaxId',
+            placeholder: storeLocation.businessTaxId,
+            value: storeLocation.businessTaxId,
+            errors: storeLocation.getErrors('businessTaxId'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Business ID'|t('commerce'),
+            id: 'businessId',
+            name: 'businessId',
+            placeholder: storeLocation.businessId,
+            value: storeLocation.businessId,
+            errors: storeLocation.getErrors('businessId'),
         }) }}
 
         <hr/>
@@ -84,6 +113,15 @@
             placeholder: storeLocation.address2,
             value: storeLocation.address2,
             errors: storeLocation.getErrors('address2'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Address 3'|t('commerce'),
+            id: 'address3',
+            name: 'address3',
+            placeholder: storeLocation.address3,
+            value: storeLocation.address3,
+            errors: storeLocation.getErrors('address3'),
         }) }}
 
         {{ forms.textField({
@@ -135,26 +173,106 @@
             errors: storeLocation.getErrors('phone'),
         }) }}
 
-        <input type="submit" class="btn submit"
-               value="{{ 'Save'|t('commerce') }}">
+        {{ forms.textField({
+            label: 'Alternative Phone Number'|t('commerce'),
+            id: 'alternativePhone',
+            name: 'alternativePhone',
+            placeholder: storeLocation.alternativePhone,
+            value: storeLocation.alternativePhone,
+            errors: storeLocation.getErrors('alternativePhone'),
+        }) }}
+
+        <hr/>
+
+        {{ forms.textField({
+            label: 'Label'|t('commerce'),
+            id: 'label',
+            name: 'label',
+            placeholder: storeLocation.label,
+            value: storeLocation.label,
+            errors: storeLocation.getErrors('label'),
+        }) }}
+
+        {{ forms.textareaField({
+            label: 'Notes'|t('commerce'),
+            id: 'notes',
+            name: 'notes',
+            placeholder: storeLocation.notes,
+            value: storeLocation.notes,
+            errors: storeLocation.getErrors('notes'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Custom 1'|t('commerce'),
+            id: 'custom1',
+            name: 'custom1',
+            placeholder: storeLocation.custom1,
+            value: storeLocation.custom1,
+            errors: storeLocation.getErrors('custom1'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Custom 2'|t('commerce'),
+            id: 'custom2',
+            name: 'custom2',
+            placeholder: storeLocation.custom2,
+            value: storeLocation.custom2,
+            errors: storeLocation.getErrors('custom2'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Custom 3'|t('commerce'),
+            id: 'custom3',
+            name: 'custom3',
+            placeholder: storeLocation.custom3,
+            value: storeLocation.custom3,
+            errors: storeLocation.getErrors('custom3'),
+        }) }}
+
+        {{ forms.textField({
+            label: 'Custom 4'|t('commerce'),
+            id: 'custom4',
+            name: 'custom4',
+            placeholder: storeLocation.custom4,
+            value: storeLocation.custom4,
+            errors: storeLocation.getErrors('custom4'),
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>
 
+    {% set statesByCountryId = craft.commerce.states.allStates|group('countryId') %}
+    {% set startingStates = statesByCountryId[storeLocation.countryId] ?? [] %}
     {% js %}
-        window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
+        window.statesByCountryId = {{ statesByCountryId|json_encode|raw }};
 
-        // add any custom state value that could not be in the standard list of states.
-        window.states.push({'name': '{{ storeLocation.stateValue }}', 'id': '{{ storeLocation.stateValue }}'});
-
-        $('#stateValue-field').find('select').selectize({
+        var stateField = $('#stateValue-field').find('select').selectize({
             valueField: 'id',
             create: true,
             items: ['{{ storeLocation.stateValue }}'],
-            options: window.states,
+            options: {{ startingStates|json_encode|raw }},
             labelField: 'name',
             searchField: ['name'],
             dropdownParent: 'body',
             inputClass: 'selectize-input text',
             allowEmptyOption: false
         });
+        var selectize = stateField[0].selectize;
+
+        var countryField = $('#countryId');
+        countryField.on('change', function(ev) {
+            selectize.clearOptions();
+
+            if (window.statesByCountryId[countryField.val()] !== undefined) {
+                selectize.addOption(window.statesByCountryId[countryField.val()]);
+            }
+
+            selectize.refreshOptions();
+        });
     {% endjs %}
+    {% css %}
+        .selectize-dropdown.single {
+            margin-bottom: 1rem;
+        }
+    {% endcss %}
 {% endblock %}

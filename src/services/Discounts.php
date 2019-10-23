@@ -8,6 +8,8 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -151,9 +153,9 @@ class Discounts extends Component
                     'dpt.categoryId',
                     'dug.userGroupId',
                 ])
-                ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
                 ->all();
 
             $allDiscountsById = [];
@@ -205,10 +207,10 @@ class Discounts extends Component
             'dp.purchasableId,
             dpt.categoryId,
             dug.userGroupId')
-            ->from('{{%commerce_discounts}} discounts')
-            ->leftJoin('{{%commerce_discount_purchasables}} dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin('{{%commerce_discount_categories}} dpt', '[[dpt.discountId]]=[[discounts.id]]')
-            ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]]=[[discounts.id]]')
+            ->from(Table::DISCOUNTS . ' discounts')
+            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
             ->where(['discounts.id' => $discount->id])
             ->all();
 
@@ -247,7 +249,7 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Craft::t('commerce', 'Coupon not valid');
+            $explanation = Plugin::t( 'Coupon not valid');
             return false;
         }
 
@@ -255,7 +257,7 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
-            $explanation = Craft::t('commerce', 'Discount use has reached its limit');
+            $explanation = Plugin::t( 'Discount use has reached its limit');
             return false;
         }
 
@@ -263,7 +265,7 @@ class Discounts extends Component
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
         if (($from && $from > $now) || ($to && $to < $now)) {
-            $explanation = Craft::t('commerce', 'Discount is out of date');
+            $explanation = Plugin::t( 'Discount is out of date');
 
             return false;
         }
@@ -271,14 +273,14 @@ class Discounts extends Component
         if (!$discount->allGroups) {
             $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
+                $explanation = Plugin::t( 'Discount is not allowed for the customer');
 
                 return false;
             }
         }
 
         if ($discount->perUserLimit > 0 && !$user) {
-            $explanation = Craft::t('commerce', 'Discount is limited to use by registered users only.');
+            $explanation = Plugin::t( 'Discount is limited to use by registered users only.');
 
             return false;
         }
@@ -287,12 +289,12 @@ class Discounts extends Component
             // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
                 ->select(['uses'])
-                ->from(['{{%commerce_customer_discountuses}}'])
+                ->from([Table::CUSTOMER_DISCOUNTUSES])
                 ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {
-                $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
+                $explanation = Plugin::t( 'This coupon limited to {limit} uses.', [
                     'limit' => $discount->perUserLimit,
                 ]);
 
@@ -303,12 +305,12 @@ class Discounts extends Component
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
-                ->from(['{{%commerce_email_discountuses}}'])
+                ->from([Table::EMAIL_DISCOUNTUSES])
                 ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perEmailLimit) {
-                $explanation = Craft::t('commerce', 'This coupon limited to {limit} uses.', [
+                $explanation = Plugin::t( 'This coupon limited to {limit} uses.', [
                     'limit' => $discount->perEmailLimit,
                 ]);
 
@@ -336,6 +338,35 @@ class Discounts extends Component
             ->one();
 
         return $result ? new Discount($result) : null;
+    }
+
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return array
+     * @since 2.2
+     */
+    public function getDiscountsRelatedToPurchasable(PurchasableInterface $purchasable): array
+    {
+        $discounts = [];
+
+        if ($purchasable->getId()) {
+            foreach ($this->getAllDiscounts() as $discount) {
+                // Get discount by related purchasable
+                $purchasableIds = $discount->getPurchasableIds();
+                $id = $purchasable->getId();
+
+                // Get discount by related category
+                $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+                $categoryIds = $discount->getCategoryIds();
+                $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
+
+                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                    $discounts[$discount->id] = $discount;
+                }
+            }
+        }
+
+        return $discounts;
     }
 
     /**
@@ -440,7 +471,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Plugin::t( 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();
@@ -479,6 +510,7 @@ class Discounts extends Component
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalUseLimit = $model->totalUseLimit;
+        $record->ignoreSales = $model->ignoreSales;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -578,15 +610,15 @@ class Discounts extends Component
         $db = Craft::$app->getDb();
 
         $db->createCommand()
-            ->delete('{{%commerce_customer_discountuses}}', ['discountId' => $id])
+            ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
 
         $db->createCommand()
-            ->delete('{{%commerce_email_discountuses}}', ['discountId' => $id])
+            ->delete(Table::EMAIL_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
 
         $db->createCommand()
-            ->update('{{%commerce_discounts}}', ['totalUses' => 0], ['id' => $id])
+            ->update(Table::DISCOUNTS, ['totalUses' => 0], ['id' => $id])
             ->execute();
     }
 
@@ -600,7 +632,7 @@ class Discounts extends Component
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_discounts}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->update(Table::DISCOUNTS, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
 
@@ -624,10 +656,11 @@ class Discounts extends Component
             return;
         }
 
-        if ($discount->totalUseLimit) {
+        // Check `couponCode` against `null` in case the code is a "falsey" string
+        if ($order->couponCode !== null) {
             // Increment total uses.
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_discounts}}', [
+                ->update(Table::DISCOUNTS, [
                     'totalUses' => new Expression('[[totalUses]] + 1')
                 ], [
                     'code' => $order->couponCode
@@ -646,7 +679,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_customer_discountuses}}', [
+                    ->update(Table::CUSTOMER_DISCOUNTUSES, [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'customerId' => $order->customerId,
@@ -667,7 +700,7 @@ class Discounts extends Component
                 $customerDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_email_discountuses}}', [
+                    ->update(Table::EMAIL_DISCOUNTUSES, [
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'email' => $order->getEmail(),
@@ -715,11 +748,12 @@ class Discounts extends Component
                 'discounts.allCategories',
                 'discounts.enabled',
                 'discounts.stopProcessing',
+                'discounts.ignoreSales',
                 'discounts.sortOrder',
                 'discounts.dateCreated',
                 'discounts.dateUpdated',
             ])
-            ->from(['discounts' => '{{%commerce_discounts}}'])
+            ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
 }

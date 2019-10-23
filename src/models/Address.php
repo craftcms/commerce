@@ -85,6 +85,12 @@ class Address extends Model
     public $lastName;
 
     /**
+     * @var string Full Name
+     * @since 2.2
+     */
+    public $fullName;
+
+    /**
      * @var string Address Line 1
      */
     public $address1;
@@ -93,6 +99,12 @@ class Address extends Model
      * @var string Address Line 2
      */
     public $address2;
+
+    /**
+     * @var string Address Line 3
+     * @since 2.2
+     */
+    public $address3;
 
     /**
      * @var string City
@@ -113,6 +125,12 @@ class Address extends Model
      * @var string Alternative Phone
      */
     public $alternativePhone;
+
+    /**
+     * @var string Label
+     * @since 2.2
+     */
+    public $label;
 
     /**
      * @var string Business Name
@@ -143,6 +161,42 @@ class Address extends Model
      * @var int Country ID
      */
     public $stateId;
+
+    /**
+     * @var string Notes
+     * @since 2.2
+     */
+    public $notes;
+
+    /**
+     * @var string Custom Field 1
+     * @since 2.2
+     */
+    public $custom1;
+
+    /**
+     * @var string Custom Field 2
+     * @since 2.2
+     */
+    public $custom2;
+
+    /**
+     * @var string Custom Field 3
+     * @since 2.2
+     */
+    public $custom3;
+
+    /**
+     * @var string Custom Field 4
+     * @since 2.2
+     */
+    public $custom4;
+
+    /**
+     * @var bool If this address is used for estimated values
+     * @since 2.2
+     */
+    public $isEstimated = false;
 
     /**
      * @var int|string Can be a State ID or State Name
@@ -198,10 +252,12 @@ class Address extends Model
         $labels = parent::attributeLabels();
         $labels['firstName'] = Craft::t('commerce', 'First Name');
         $labels['lastName'] = Craft::t('commerce', 'Last Name');
+        $labels['fullName'] = Craft::t('commerce', 'Full Name');
         $labels['attention'] = Craft::t('commerce', 'Attention');
         $labels['title'] = Craft::t('commerce', 'Title');
         $labels['address1'] = Craft::t('commerce', 'Address 1');
         $labels['address2'] = Craft::t('commerce', 'Address 2');
+        $labels['address3'] = Craft::t('commerce', 'Address 3');
         $labels['city'] = Craft::t('commerce', 'City');
         $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
         $labels['phone'] = Craft::t('commerce', 'Phone');
@@ -213,6 +269,12 @@ class Address extends Model
         $labels['stateId'] = Craft::t('commerce', 'State');
         $labels['stateName'] = Craft::t('commerce', 'State');
         $labels['stateValue'] = Craft::t('commerce', 'State');
+        $labels['custom1'] = Craft::t('commerce', 'Custom 1');
+        $labels['custom2'] = Craft::t('commerce', 'Custom 2');
+        $labels['custom3'] = Craft::t('commerce', 'Custom 3');
+        $labels['custom4'] = Craft::t('commerce', 'Custom 4');
+        $labels['notes'] = Craft::t('commerce', 'Notes');
+        $labels['label'] = Craft::t('commerce', 'Label');
         return $labels;
     }
 
@@ -224,8 +286,36 @@ class Address extends Model
         $rules = parent::rules();
         $rules[] = [['firstName'], 'required'];
         $rules[] = [['lastName'], 'required'];
-        $rules[] = ['stateId', 'validateState', 'skipOnEmpty' => false];
-        $rules[] = ['businessTaxId', 'validateBusinessTaxId', 'skipOnEmpty' => true];
+        $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
+        $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
+
+        $rules[] = [[
+            'firstName',
+            'lastName',
+            'fullName',
+            'attention',
+            'title',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'businessId',
+            'businessTaxId',
+            'countryId',
+            'stateId',
+            'stateName',
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'notes',
+            'label',
+        ], 'trim'];
 
         $event = new RegisterAddressRulesEvent([
             'rules' => $rules

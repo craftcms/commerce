@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\ShippingRuleInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
@@ -225,7 +226,7 @@ class ShippingMethods extends Component
             $record = ShippingMethodRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping method exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No shipping method exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -364,7 +365,7 @@ class ShippingMethods extends Component
                 'enabled',
                 'isLite'
             ])
-            ->from(['{{%commerce_shippingmethods}}']);
+            ->from([Table::SHIPPINGMETHODS]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $query->andWhere('[[isLite]] = true');

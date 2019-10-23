@@ -8,6 +8,7 @@
 namespace craft\commerce\helpers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Order as OrderElement;
 use craft\db\Query;
@@ -76,7 +77,7 @@ class ProjectConfigData
     {
         $gatewayData = (new Query())
             ->select(['*'])
-            ->from(['{{%commerce_gateways}}'])
+            ->from([Table::GATEWAYS])
             ->where(['isArchived' => false])
             ->all();
 
@@ -120,7 +121,7 @@ class ProjectConfigData
                 'descriptionFormat',
                 'uid'
             ])
-            ->from(['{{%commerce_producttypes}} productTypes'])
+            ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();
 
         $typeData = [];
@@ -161,9 +162,9 @@ class ProjectConfigData
                 'sites.uid AS siteUid',
                 'producttypes.uid AS typeUid',
             ])
-            ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
+            ->from([Table::PRODUCTTYPES_SITES . ' producttypes_sites'])
             ->innerJoin('{{%sites}} sites', '[[sites.id]] = [[producttypes_sites.siteId]]')
-            ->innerJoin('{{%commerce_producttypes}} producttypes', '[[producttypes.id]] = [[producttypes_sites.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES . ' producttypes', '[[producttypes.id]] = [[producttypes_sites.productTypeId]]')
             ->all();
 
         foreach ($productTypeSiteRows as $productTypeSiteRow) {
@@ -200,7 +201,7 @@ class ProjectConfigData
                 'emails.pdfTemplatePath'
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_emails}} emails'])
+            ->from([Table::EMAILS . ' emails'])
             ->indexBy('uid')
             ->all();
 
@@ -236,7 +237,7 @@ class ProjectConfigData
             ->where(['isArchived' => false])
             ->indexBy('id')
             ->orderBy('sortOrder')
-            ->from(['{{%commerce_orderstatuses}}'])
+            ->from([Table::ORDERSTATUSES])
             ->all();
 
         foreach ($statusRows as &$statusRow) {
@@ -249,8 +250,8 @@ class ProjectConfigData
                 'relations.orderStatusId AS statusId',
                 'emails.uid AS emailUid',
             ])
-            ->from(['{{%commerce_orderstatus_emails}} relations'])
-            ->leftJoin('{{%commerce_emails}} emails', '[[emails.id]] = [[relations.emailId]]')
+            ->from([Table::ORDERSTATUS_EMAILS . ' relations'])
+            ->leftJoin(Table::EMAILS . ' emails', '[[emails.id]] = [[relations.emailId]]')
             ->all();
 
         foreach ($relationRows as $relationRow) {

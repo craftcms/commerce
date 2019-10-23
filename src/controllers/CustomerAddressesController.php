@@ -71,21 +71,26 @@ class CustomerAddressesController extends BaseFrontEndController
             'title',
             'firstName',
             'lastName',
+            'fullName',
             'address1',
             'address2',
+            'address3',
             'city',
             'zipCode',
             'phone',
             'alternativePhone',
+            'label',
+            'notes',
             'businessName',
             'businessTaxId',
             'businessId',
             'countryId',
-            'stateId',
-            'stateName',
-            'stateValue'
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
         ];
-
         // Set Address attributes to new values (if provided) or use the existing ones for values that aren’t sent:
         foreach ($attrs as $attr) {
             $address->$attr = Craft::$app->getRequest()->getBodyParam("address.{$attr}", $address->$attr);

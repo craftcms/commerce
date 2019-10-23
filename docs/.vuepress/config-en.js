@@ -84,6 +84,7 @@ module.exports = {
                     'example-templates',
                     'available-variables',
                     'adding-to-and-updating-the-cart',
+                    'estimate-cart-addresses',
                     'update-cart-addresses',
                     'update-cart-customer',
                     'coupon-codes',
@@ -99,7 +100,6 @@ module.exports = {
                 collapsable: false,
                 children: [
                     'products-fields',
-                    'customer-info-fields',
                 ]
             },
         ]

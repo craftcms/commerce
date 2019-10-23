@@ -25,7 +25,6 @@ use craft\helpers\Localization;
 use craft\models\FieldLayout;
 use DateTime;
 use Throwable;
-use Twig_Error_Loader;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -53,13 +52,14 @@ class OrdersController extends BaseCpController
 
     /**
      * Index of orders
+     *
+     * @param string $orderStatusHandle
+     * @return Response
+     * @throws Throwable
      */
-    public function actionOrderIndex(): Response
+    public function actionOrderIndex(string $orderStatusHandle = ''): Response
     {
-        // Remove all incomplete carts older than a certain date in config.
-        Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
-
-        return $this->renderTemplate('commerce/orders/_index');
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
     }
 
     /**
@@ -128,7 +128,6 @@ class OrdersController extends BaseCpController
      *
      * @return Response
      * @throws Exception
-     * @throws Twig_Error_Loader
      * @throws BadRequestHttpException
      */
     public function actionGetPaymentModal(): Response
@@ -291,6 +290,7 @@ class OrdersController extends BaseCpController
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                    $child->order->updateOrderPaidInformation();
                     Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message
                     ]));

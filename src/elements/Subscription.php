@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\Plan;
 use craft\commerce\base\PlanInterface;
 use craft\commerce\base\SubscriptionGatewayInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\SubscriptionQuery;
 use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin as Commerce;
@@ -61,6 +62,11 @@ class Subscription extends Element
      * @var string
      */
     const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @var string
+     */
+    const STATUS_SUSPENDED = 'suspended';
 
     // Properties
     // =========================================================================
@@ -119,6 +125,21 @@ class Subscription extends Element
      * @var DateTime Time when subscription expired
      */
     public $dateExpired;
+
+    /**
+     * @var bool Whether the subscription has started
+     */
+    public $hasStarted;
+
+    /**
+     * @var bool Whether the subscription is on hold due to payment issues
+     */
+    public $isSuspended;
+
+    /**
+     * @var DateTime Time when subscription was put on hold
+     */
+    public $dateSuspended;
 
     /**
      * @var SubscriptionGatewayInterface
@@ -182,6 +203,11 @@ class Subscription extends Element
      */
     public function getIsOnTrial()
     {
+        if($this->isExpired)
+        {
+            return false;
+        }
+
         return $this->trialDays > 0 && time() <= $this->getTrialExpires()->getTimestamp();
     }
 
@@ -376,7 +402,11 @@ class Subscription extends Element
      */
     public function getStatus()
     {
-        return $this->isExpired ? self::STATUS_EXPIRED : self::STATUS_ACTIVE;
+        if ($this->isExpired) {
+            return self::STATUS_EXPIRED;
+        }
+
+        return $this->isSuspended ? self::STATUS_SUSPENDED : self::STATUS_ACTIVE;
     }
 
 
@@ -397,7 +427,7 @@ class Subscription extends Element
         $sources = [
             '*' => [
                 'key' => '*',
-                'label' => Craft::t('commerce', 'All subscriptions'),
+                'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
                 'defaultSort' => ['dateCreated', 'desc']
             ]
@@ -417,6 +447,24 @@ class Subscription extends Element
                 'criteria' => ['planId' => $plan->id]
             ];
         }
+
+        $sources[] = ['heading' => Craft::t('commerce', 'Subscriptions on hold')];
+
+        $criteriaFailedToStart = ['isSuspended' => true, 'hasStarted' => false];
+        $sources[] = [
+            'key' => 'carts:failed-to-start',
+            'label' => Craft::t('commerce', 'Failed to start'),
+            'criteria' => $criteriaFailedToStart,
+            'defaultSort' => ['commerce_subscriptions.dateUpdated', 'desc'],
+        ];
+
+        $criteriaPaymentIssue = ['isSuspended' => true, 'hasStarted' => true];
+        $sources[] = [
+            'key' => 'carts:payment-issue',
+            'label' => Craft::t('commerce', 'Payment method issue'),
+            'criteria' => $criteriaPaymentIssue,
+            'defaultSort' => ['commerce_subscriptions.dateUpdated', 'desc'],
+        ];
 
         return $sources;
     }
@@ -439,7 +487,7 @@ class Subscription extends Element
         if ($handle === 'subscriber') {
             $map = (new Query())
                 ->select('id as source, userId as target')
-                ->from('{{%commerce_subscriptions}}')
+                ->from(Table::SUBSCRIPTIONS)
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
@@ -504,6 +552,7 @@ class Subscription extends Element
         $attributes[] = 'nextPaymentDate';
         $attributes[] = 'dateExpired';
         $attributes[] = 'dateCanceled';
+        $attributes[] = 'dateSuspended';
         return $attributes;
     }
 
@@ -539,8 +588,11 @@ class Subscription extends Element
         $subscriptionRecord->dateCanceled = $this->dateCanceled;
         $subscriptionRecord->isExpired = $this->isExpired;
         $subscriptionRecord->dateExpired = $this->dateExpired;
+        $subscriptionRecord->hasStarted = $this->hasStarted;
+        $subscriptionRecord->isSuspended = $this->isSuspended;
+        $subscriptionRecord->dateSuspended = $this->dateSuspended;
 
-        // Some properties of the license are immutable
+        // Some properties of the subscription are immutable
         if ($isNew) {
             $subscriptionRecord->gatewayId = $this->gatewayId;
             $subscriptionRecord->orderId = $this->orderId;
@@ -552,6 +604,36 @@ class Subscription extends Element
         $subscriptionRecord->save(false);
 
         parent::afterSave($isNew);
+    }
+
+    /**
+     * Return a description of the billing issue (if any) with this subscription.
+     *
+     * @return mixed
+     * @throws InvalidConfigException if not a subscription gateway anymore
+     */
+    public function getBillingIssueDescription() {
+        return $this->getGateway()->getBillingIssueDescription($this);
+    }
+
+    /**
+     * Return the form HTML for resolving the billing issue (if any) with this subscription.
+     *
+     * @return mixed
+     * @throws InvalidConfigException if not a subscription gateway anymore
+     */
+    public function getBillingIssueResolveFormHtml() {
+        return $this->getGateway()->getBillingIssueResolveFormHtml($this);
+    }
+
+    /**
+     * Return whether this subscription has billing issues.
+     *
+     * @return mixed
+     * @throws InvalidConfigException if not a subscription gateway anymore
+     */
+    public function getHasBillingIssues() {
+        return $this->getGateway()->getHasBillingIssues($this);
     }
 
     /**

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
@@ -17,9 +18,9 @@ use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
-use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -62,31 +63,51 @@ class OrderStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
-    // Properties
+    // Public Properties
     // =========================================================================
 
     /**
-     * @var bool
-     */
-    private $_fetchedAllStatuses = false;
-
-    /**
      * @var OrderStatus[]
      */
-    private $_orderStatusesById = [];
-
-    /**
-     * @var OrderStatus[]
-     */
-    private $_orderStatusesByHandle = [];
-
-    /**
-     * @var OrderStatus
-     */
-    private $_defaultOrderStatus;
+    private $_orderStatuses;
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * Returns all Order Statuses
+     *
+     * @param bool $withTrashed
+     * @return OrderStatus[]
+     * @since 2.2
+     */
+    public function getAllOrderStatuses($withTrashed = false): array
+    {
+        // Get the caches items if we have them cached, and the request is for non-trashed items
+        if ($this->_orderStatuses !== null) {
+            return $this->_orderStatuses;
+        }
+
+        $results = $this->_createOrderStatusesQuery($withTrashed)->all();
+        $orderStatuses = [];
+
+        foreach ($results as $row) {
+            $orderStatuses[] = new OrderStatus($row);
+        }
+
+        return $orderStatuses;
+    }
+
+    /**
+     * Get an order status by ID
+     *
+     * @param int $id
+     * @return OrderStatus|null
+     */
+    public function getOrderStatusById($id)
+    {
+        return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'id', $id);
+    }
 
     /**
      * Get order status by its handle.
@@ -96,41 +117,7 @@ class OrderStatuses extends Component
      */
     public function getOrderStatusByHandle($handle)
     {
-        if (isset($this->_orderStatusesByHandle[$handle])) {
-            return $this->_orderStatusesByHandle[$handle];
-        }
-
-        if ($this->_fetchedAllStatuses) {
-            return null;
-        }
-
-        $result = $this->_createOrderStatusesQuery()
-            ->where(['handle' => $handle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeOrderStatus(new OrderStatus($result));
-
-        return $this->_orderStatusesByHandle[$handle];
-    }
-
-    /**
-     * Get default order status ID from the DB
-     *
-     * @return int|null
-     */
-    public function getDefaultOrderStatusId()
-    {
-        $defaultStatus = $this->getDefaultOrderStatus();
-
-        if ($defaultStatus && $defaultStatus->id) {
-            return $defaultStatus->id;
-        }
-
-        return null;
+        return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'handle', $handle, false);
     }
 
     /**
@@ -140,16 +127,21 @@ class OrderStatuses extends Component
      */
     public function getDefaultOrderStatus()
     {
-        if ($this->_defaultOrderStatus !== null) {
-            return $this->_defaultOrderStatus;
-        }
-
-        $result = $this->_createOrderStatusesQuery()
-            ->where(['default' => true])
-            ->one();
-
-        return new OrderStatus($result);
+        return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'default', true, false);
     }
+
+    /**
+     * Get default order status ID from the DB
+     *
+     * @return int|null
+     */
+    public function getDefaultOrderStatusId()
+    {
+        $orderStatus = $this->getDefaultOrderStatus();
+
+        return $orderStatus ? $orderStatus->id : null;
+    }
+
 
     /**
      * Get the default order status for a particular order. Defaults to the CP configured default order status.
@@ -161,11 +153,14 @@ class OrderStatuses extends Component
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
-        $event = new DefaultOrderStatusEvent();
-        $event->orderStatus = $orderStatus;
-        $event->order = $order;
+        $event = new DefaultOrderStatusEvent([
+            'orderStatus' => $orderStatus,
+            'order' => $order
+        ]);
 
-        $this->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
+        if ($this->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
+            $this->trigger(self::EVENT_DEFAULT_ORDER_STATUS, $event);
+        }
 
         return $event->orderStatus;
     }
@@ -192,27 +187,28 @@ class OrderStatuses extends Component
         if ($isNewStatus) {
             $statusUid = StringHelper::UUID();
         } else {
-            $statusUid = Db::uidById('{{%commerce_orderstatuses}}', $orderStatus->id);
+            $statusUid = Db::uidById(Table::ORDERSTATUSES, $orderStatus->id);
         }
 
         // Make sure no statuses that are not archived share the handle
         $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
 
         if ($existingStatus && (!$orderStatus->id || $orderStatus->id !== $existingStatus->id)) {
-            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
+            $orderStatus->addError('handle', Plugin::t( 'That handle is already in use'));
             return false;
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
 
-        if ($orderStatus->isArchived) {
+        if ($orderStatus->dateDeleted) {
             $configData = null;
         } else {
-            $emails = Db::uidsByIds('{{%commerce_emails}}', $emailIds);
+            $emails = Db::uidsByIds(Table::EMAILS, $emailIds);
             $configData = [
                 'name' => $orderStatus->name,
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
+                'description' => $orderStatus->description,
                 'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
                 'default' => (bool)$orderStatus->default,
                 'emails' => array_combine($emails, $emails)
@@ -223,7 +219,7 @@ class OrderStatuses extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewStatus) {
-            $orderStatus->id = Db::idByUid('{{%commerce_orderstatuses}}', $statusUid);
+            $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
         }
 
         return true;
@@ -248,6 +244,7 @@ class OrderStatuses extends Component
             $statusRecord->name = $data['name'];
             $statusRecord->handle = $data['handle'];
             $statusRecord->color = $data['color'];
+            $statusRecord->description = $data['description'];
             $statusRecord->sortOrder = $data['sortOrder'] ?? 99;
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
@@ -260,18 +257,19 @@ class OrderStatuses extends Component
             }
 
             $connection = Craft::$app->getDb();
-            $connection->createCommand()->delete('{{%commerce_orderstatus_emails}}', ['orderStatusId' => $statusRecord->id])->execute();
+            // Drop them all and we will recreate the new ones.
+            $connection->createCommand()->delete(Table::ORDERSTATUS_EMAILS, ['orderStatusId' => $statusRecord->id])->execute();
 
             if (!empty($data['emails'])) {
                 foreach ($data['emails'] as $emailUid) {
                     Craft::$app->projectConfig->processConfigChanges(Emails::CONFIG_EMAILS_KEY . '.' . $emailUid);
                 }
 
-                $emailIds = Db::idsByUids('{{%commerce_emails}}', $data['emails']);
+                $emailIds = Db::idsByUids(Table::EMAILS, $data['emails']);
 
                 foreach ($emailIds as $emailId) {
                     $connection->createCommand()
-                        ->insert('{{%commerce_orderstatus_emails}}', [
+                        ->insert(Table::ORDERSTATUS_EMAILS, [
                             'orderStatusId' => $statusRecord->id,
                             'emailId' => $emailId
                         ])
@@ -287,34 +285,35 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Archive an order status by it's id.
+     * Delete an order status by it's id.
      *
      * @param int $id
      * @return bool
      * @throws Throwable
      */
-    public function archiveOrderStatusById(int $id): bool
+    public function deleteOrderStatusById(int $id): bool
     {
         $statuses = $this->getAllOrderStatuses();
-        $status = $this->getOrderStatusById($id);
+        $orderStatus = $this->getOrderStatusById($id);
 
-        if (count($statuses) >= 2 && $status) {
-            $status->isArchived = true;
-            return $this->saveOrderStatus($status);
+        // Can only delete if we have one that can remain as the default
+        if (count($statuses) < 2 || $orderStatus == null) {
+            return false;
         }
 
-        return false;
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_STATUSES_KEY . '.' . $orderStatus->uid);
+        return true;
     }
 
 
     /**
-     * Handle order status being archived
+     * Handle order status being deleted
      *
      * @param ConfigEvent $event
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleArchivedOrderStatus(ConfigEvent $event)
+    public function handleDeletedOrderStatus(ConfigEvent $event)
     {
         $orderStatusUid = $event->tokenMatches[0];
 
@@ -322,11 +321,8 @@ class OrderStatuses extends Component
         try {
             $orderStatusRecord = $this->_getOrderStatusRecord($orderStatusUid);
 
-            $orderStatusRecord->isArchived = true;
-            $orderStatusRecord->dateArchived = Db::prepareDateForDb(new DateTime());
-
             // Save the volume
-            $orderStatusRecord->save(false);
+            $orderStatusRecord->softDelete();
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -356,26 +352,6 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Returns all Order Statuses
-     *
-     * @return OrderStatus[]
-     */
-    public function getAllOrderStatuses(): array
-    {
-        if (!$this->_fetchedAllStatuses) {
-            $results = $this->_createOrderStatusesQuery()->all();
-
-            foreach ($results as $row) {
-                $this->_memoizeOrderStatus(new OrderStatus($row));
-            }
-
-            $this->_fetchedAllStatuses = true;
-        }
-
-        return $this->_orderStatusesById;
-    }
-
-    /**
      * Handler for order status change event
      *
      * @param Order $order
@@ -394,35 +370,6 @@ class OrderStatuses extends Component
     }
 
     /**
-     * Get an order status by ID
-     *
-     * @param int $id
-     * @return OrderStatus|null
-     */
-    public function getOrderStatusById($id)
-    {
-        if (isset($this->_orderStatusesById[$id])) {
-            return $this->_orderStatusesById[$id];
-        }
-
-        if ($this->_fetchedAllStatuses) {
-            return null;
-        }
-
-        $result = $this->_createOrderStatusesQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeOrderStatus(new OrderStatus($result));
-
-        return $this->_orderStatusesById[$id];
-    }
-
-    /**
      * Reorders the order statuses.
      *
      * @param array $ids
@@ -436,7 +383,7 @@ class OrderStatuses extends Component
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        $uidsByIds = Db::uidsByIds('{{%commerce_orderstatuses}}', $ids);
+        $uidsByIds = Db::uidsByIds(Table::ORDERSTATUSES, $ids);
 
         foreach ($ids as $orderStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
@@ -452,36 +399,36 @@ class OrderStatuses extends Component
     // =========================================================================
 
     /**
-     * Memoize an order status  by its ID and handle.
-     *
-     * @param OrderStatus $orderStatus
-     */
-    private function _memoizeOrderStatus(OrderStatus $orderStatus)
-    {
-        $this->_orderStatusesById[$orderStatus->id] = $orderStatus;
-        $this->_orderStatusesByHandle[$orderStatus->handle] = $orderStatus;
-    }
-
-    /**
      * Returns a Query object prepped for retrieving order statuses
      *
+     * @param bool $withTrashed
      * @return Query
      */
-    private function _createOrderStatusesQuery(): Query
+    private function _createOrderStatusesQuery($withTrashed = false): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
                 'handle',
                 'color',
+                'description',
                 'sortOrder',
                 'default',
-                'uid',
+                'dateDeleted',
+                'uid'
             ])
-            ->where(['isArchived' => false])
             ->orderBy('sortOrder')
-            ->from(['{{%commerce_orderstatuses}}']);
+            ->from([Table::ORDERSTATUSES]);
+
+        // todo: remove schema version condition after next beakpoint
+        $schemaVersion = Plugin::getInstance()->schemaVersion;
+        if (version_compare($schemaVersion, '2.1.09', '>=')) {
+            if (!$withTrashed) {
+                $query->where(['dateDeleted' => null]);
+            }
+        }
+        return $query;
     }
 
     /**
@@ -492,7 +439,8 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        if ($orderStatus = OrderStatusRecord::findOne(['uid' => $uid])) {
+        /** @var OrderStatusRecord $orderStatus */
+        if ($orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one()) {
             return $orderStatus;
         }
 

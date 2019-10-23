@@ -47,6 +47,8 @@ class Customer extends Field
      */
     public function getInputHtml($value, ElementInterface $element = null): string
     {
+        Craft::$app->getDeprecator()->log('commerceCustomerInfoField', 'The Commerce Customer Info custom field will be removed in Commerce 3.0');
+
         if (!($element instanceof User)) {
             return '<span style="color: #da5a47">' . Craft::t('commerce', 'Commerce Customer Info field is for user profiles only.') . '</span>';
         }

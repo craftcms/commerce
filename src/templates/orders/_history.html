@@ -1,7 +1,7 @@
 {# Order History Tab #}
 
-<div id="orderHistoryTab" class="hidden">
-    <div class="pane">
+<div id="orderHistoryTab" class="pane hidden">
+
         <h3>{{ "Status History"|t('commerce') }}</h3>
         {% if order.histories|length %}
             <table class="data fullwidth">
@@ -10,7 +10,6 @@
                     <th scope="col">{{ 'Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
                     <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
-                    <th scope="col">{{ 'Message'|t('commerce') }}</th>
                     <th scope="col">{{ 'Date'|t('commerce') }}</th>
                 </tr>
                 </thead>
@@ -19,12 +18,17 @@
                     <tr data-id="{{ orderHistory.id }}">
                         <td>
                             {% if orderHistory.newStatus %}
-                                <a href="{{ orderHistory.newStatus.cpEditUrl }}">{{ orderHistory.newStatus.labelHtml|raw }}</a> {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
+                            {% if not orderHistory.newStatus.dateDeleted %}<a href="{{ orderHistory.newStatus.cpEditUrl }}">{% endif %}
+                            {{ orderHistory.newStatus.labelHtml|raw }}
+                            {% if not orderHistory.newStatus.dateDeleted %}</a>{% endif %}
+                            {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
                             {% endif %}
                         </td>
                         <td>
                             {% if orderHistory.prevStatus %}
-                                <a href="{{ orderHistory.prevStatus.cpEditUrl }}">{{ orderHistory.prevStatus.labelHtml|raw }}</a>
+                            {% if not orderHistory.prevStatus.dateDeleted %}<a href="{{ orderHistory.newStatus.cpEditUrl }}">{% endif %}
+                            {{ orderHistory.prevStatus.labelHtml|raw }}
+                            {% if not orderHistory.prevStatus.dateDeleted %}</a>{% endif %}
                             {% endif %}
                         </td>
                         <td>
@@ -34,20 +38,29 @@
                                 {{ orderHistory.order.email }}
                             {% endif %}
                         </td>
-                        <td>
-                            {% if orderHistory.message %}
-                                <span class="info">
-                                    {{ orderHistory.message | md }}
-                                </span>
-                            {% endif %}
-                        </td>
                         <td>{{ orderHistory.dateCreated|date }}</td>
                     </tr>
+
+                        {% if orderHistory.message %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="flex fullwidth flex-nowrap" style="align-items: flex-start">
+                                <div>
+                                    <span class="extralight">{{ craft.app.locale.orientation == 'ltr' ? '&#8627;'|raw : '&#8629;'|raw }}</span>
+                                </div>
+                                <div style="max-width: 80ch">
+                                    <h5>Message</h5>
+                                    {{ orderHistory.message | md }}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                        {% endif %}
+
                 {% endfor %}
                 </tbody>
             </table>
         {% else %}
             <p class="light">{{ 'No order status history items will exists until the cart becomes an order.'|t('commerce') }}</p>
         {% endif %}
-    </div>
 </div>
