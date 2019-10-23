@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
@@ -30,6 +31,7 @@ use yii\db\Connection;
  * @replace {myElement} myVariant
  * @replace {element-class} \craft\commerce\elements\Variant
  * @supports-site-params
+ * @supports-status-param
  * @supports-title-param
  */
 class VariantQuery extends ElementQuery
@@ -420,7 +422,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.maxQty'
         ]);
 
-        $this->subQuery->leftJoin('{{%commerce_products}} commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+        $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));

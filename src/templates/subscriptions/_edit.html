@@ -131,16 +131,18 @@
                 </tbody>
             </table>
 
-            <form method="POST">
-                <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
-                <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
-                {{ redirectInput(continueEditingUrl) }}
-                {{ csrfInput() }}
+            {% if not subscription.isCanceled and not subscription.isExpired %}
+                <form method="POST">
+                    <input type="hidden" name="action" value="commerce/subscriptions/refresh-payments">
+                    <input type="hidden" name="subscriptionId" value="{{ subscription.id }}" />
+                    {{ redirectInput(continueEditingUrl) }}
+                    {{ csrfInput() }}
 
-                <div class="field">
-                    <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
-                </div>
-            </form>
+                    <div class="field">
+                        <div class="btngrp"><input type="submit" class="btn submit" value="{{ 'Refresh payment history'|t('commerce') }}"></div>
+                    </div>
+                </form>
+            {% endif %}
         </div>
     </div>
 
@@ -170,6 +172,7 @@
 
     <div class="meta">
 
+        <h3>{{ 'Subscription information'|t('commerce') }}</h3>
         <div class="data">
             <h5 class="heading">User</h5>
             <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
@@ -207,6 +210,8 @@
             }) }}
         {% endif %}
 
+        <h3>{{ 'Billing'|t('commerce')}}</h3>
+
         {{ forms.textField({
             label: 'Next payment'|t('commerce'),
             value: subscription.nextPaymentDate|datetime,
@@ -223,6 +228,13 @@
             label: 'Cancellation'|t('commerce'),
             value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
             readonly: true
+        }) }}
+
+        {{ forms.textAreaField({
+            label: 'Billing issues'|t('commerce'),
+            value: subscription.getBillingIssueDescription(),
+            readonly: true,
+            rows: 3
         }) }}
     </div>
 {% endblock %}

@@ -7,23 +7,35 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\records\OrderStatus as OrderStatusRecord;
+use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
 use DateTime;
 use yii\behaviors\AttributeTypecastBehavior;
-
+use craft\validators\UniqueValidator;
 /**
  * Order status model.
  *
  * @property string $cpEditUrl
  * @property array $emailIds
+ * @property string $labelHtml
+ * @property string $displayName
  * @property Email[] $emails
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class OrderStatus extends Model
 {
+
+    // Traits
+    // =========================================================================
+
+    use SoftDeleteTrait;
+
     // Properties
     // =========================================================================
 
@@ -48,6 +60,11 @@ class OrderStatus extends Model
     public $color = 'green';
 
     /**
+     * @var string Description
+     */
+    public $description;
+
+    /**
      * @var int Sort order
      */
     public $sortOrder;
@@ -58,14 +75,9 @@ class OrderStatus extends Model
     public $default;
 
     /**
-     * @var bool Whether the order status is archived.
+     * @var bool Default status
      */
-    public $isArchived = false;
-
-    /**
-     * @var DateTime Archived Date
-     */
-    public $dateArchived;
+    public $dateDeleted;
 
     /**
      * @var string UID
@@ -75,6 +87,9 @@ class OrderStatus extends Model
     // Public Methods
     // =========================================================================
 
+    /**
+     * @return array
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -101,7 +116,21 @@ class OrderStatus extends Model
      */
     public function __toString()
     {
-        return (string)$this->name;
+        return (string)$this->getDisplayName();
+    }
+
+    /**
+     * @return string
+     * @since 2.2
+     */
+    public function getDisplayName(): string
+    {
+        if ($this->dateDeleted !== null)
+        {
+            return $this->name . Craft::t('commerce', ' (Trashed)');
+        }
+
+        return $this->name;
     }
 
     /**
@@ -109,9 +138,11 @@ class OrderStatus extends Model
      */
     public function rules()
     {
-        return [
-            [['name', 'handle'], 'required'],
-        ];
+        $rules = parent::rules();
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
+
+        return $rules;
     }
 
     /**
@@ -143,6 +174,15 @@ class OrderStatus extends Model
      */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->name);
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->getDisplayName());
+    }
+
+    /**
+     * @return bool
+     * @since 2.2
+     */
+    public function canDelete(): bool
+    {
+        return !Order::find()->trashed(null)->orderStatus($this)->one();
     }
 }

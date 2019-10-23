@@ -3,6 +3,7 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
@@ -11,8 +12,6 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use DateInterval;
-use DateTime;
 
 trait OrderElementTrait
 {
@@ -48,98 +47,98 @@ trait OrderElementTrait
     {
         switch ($attribute) {
             case 'orderStatus':
-                {
-                    if ($this->orderStatus) {
-                        return $this->orderStatus->getLabelHtml();
-                    }
-                    return '<span class="status"></span>';
+            {
+                if ($this->orderStatus) {
+                    return $this->orderStatus->getLabelHtml();
                 }
+                return '<span class="status"></span>';
+            }
             case 'shippingFullName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->getFullName();
-                    }
-                    return '';
+            {
+                if ($this->getShippingAddress()) {
+                    return $this->getShippingAddress()->getFullName();
                 }
+                return '';
+            }
             case 'billingFullName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->getFullName();
-                    }
-                    return '';
+            {
+                if ($this->getBillingAddress()) {
+                    return $this->getBillingAddress()->getFullName();
                 }
+                return '';
+            }
             case 'shippingBusinessName':
-                {
-                    if ($this->getShippingAddress()) {
-                        return $this->getShippingAddress()->businessName;
-                    }
-                    return '';
+            {
+                if ($this->getShippingAddress()) {
+                    return $this->getShippingAddress()->businessName;
                 }
+                return '';
+            }
             case 'billingBusinessName':
-                {
-                    if ($this->getBillingAddress()) {
-                        return $this->getBillingAddress()->businessName;
-                    }
-                    return '';
+            {
+                if ($this->getBillingAddress()) {
+                    return $this->getBillingAddress()->businessName;
                 }
+                return '';
+            }
             case 'shippingMethodName':
-                {
-                    if ($this->getShippingMethod()) {
-                        return $this->getShippingMethod()->name;
-                    }
-                    return '';
+            {
+                if ($this->getShippingMethod()) {
+                    return $this->getShippingMethod()->name;
                 }
+                return '';
+            }
             case 'gatewayName':
-                {
-                    if ($this->getGateway()) {
-                        return $this->getGateway()->name;
-                    }
-                    return '';
+            {
+                if ($this->getGateway()) {
+                    return $this->getGateway()->name;
                 }
+                return '';
+            }
             case 'paidStatus':
-                {
-                    return $this->getPaidStatusHtml();
-                }
+            {
+                return $this->getPaidStatusHtml();
+            }
             case 'totalPaid':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+            }
             case 'total':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
+            }
             case 'totalPrice':
-                {
-                    return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
-                }
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+            }
             case 'totalShippingCost':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('shipping');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getTotalShipping();
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             case 'totalDiscount':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('discount');
-                    if ($this->$attribute >= 0) {
-                        return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                    }
+            {
+                $amount = $this->getTotalDiscount();
+                if ($this->$attribute >= 0) {
+                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                }
 
-                    return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
-                }
+                return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
+            }
             case 'totalTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax');
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getTotalTax();
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             case 'totalIncludedTax':
-                {
-                    $amount = $this->getAdjustmentsTotalByType('tax', true);
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
+            {
+                $amount = $this->getTotalTaxIncluded();
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+            }
             default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 
@@ -220,7 +219,7 @@ trait OrderElementTrait
 
             $count = (new Query())
                 ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from(['{{%commerce_orders}} o'])
+                ->from([Table::ORDERS . ' o'])
                 ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
                 ->count();
 
@@ -230,17 +229,16 @@ trait OrderElementTrait
                 'label' => $orderStatus->name,
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
+                'badgeCount' => $count,
+                'data' => [
+                    'handle' => $orderStatus->handle
+                ]
             ];
         }
 
         $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
-        $edge = new DateTime();
-        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
-        $interval->invert = 1;
-        $edge->add($interval);
-        $edge = $edge->format(DateTime::ATOM);
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
 
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
@@ -251,6 +249,9 @@ trait OrderElementTrait
             'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => $criteriaActive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
+            'data' => [
+                'handle' => 'cartsActive'
+            ]
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
@@ -260,7 +261,10 @@ trait OrderElementTrait
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => $criteriaInactive,
-            'defaultSort' => ['commerce_orders.dateUpdated', 'desc']
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsInactive'
+            ]
         ];
 
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
@@ -269,6 +273,9 @@ trait OrderElementTrait
             'label' => Craft::t('commerce', 'Attempted Payments'),
             'criteria' => $criteriaAttemptedPayment,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsAttemptedPayment'
+            ]
         ];
 
         return $sources;

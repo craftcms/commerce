@@ -14,6 +14,7 @@ use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
+use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
@@ -157,6 +158,17 @@ trait Services
     public function getEmails(): Emails
     {
         return $this->get('emails');
+    }
+
+    /**
+     * Returns the formulas service
+     *
+     * @return Formulas the formulas service
+     * @since 2.2
+     */
+    public function getFormulas(): Formulas
+    {
+        return $this->get('formulas');
     }
 
     /**
@@ -465,6 +477,7 @@ trait Services
             'customers' => Customers::class,
             'discounts' => Discounts::class,
             'emails' => Emails::class,
+            'formulas' => Formulas::class,
             'gateways' => Gateways::class,
             'lineItems' => LineItems::class,
             'lineItemStatuses' => LineItemStatuses::class,

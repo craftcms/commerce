@@ -12,6 +12,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -84,6 +85,7 @@ class OrderStatusesController extends BaseAdminController
         $orderStatus->name = Craft::$app->getRequest()->getBodyParam('name');
         $orderStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $orderStatus->color = Craft::$app->getRequest()->getBodyParam('color');
+        $orderStatus->description = Craft::$app->getRequest()->getBodyParam('description');
         $orderStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $emailIds = Craft::$app->getRequest()->getBodyParam('emails', []);
 
@@ -120,14 +122,17 @@ class OrderStatusesController extends BaseAdminController
 
     /**
      * @return Response|null
+     * @throws \Throwable
+     * @throws BadRequestHttpException
+     * @since 2.2
      */
-    public function actionArchive()
+    public function actionDelete()
     {
         $this->requireAcceptsJson();
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->archiveOrderStatusById((int)$orderStatusId)) {
+        if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
             return $this->asJson(['success' => true]);
         }
 

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -31,7 +32,7 @@ class ShippingZoneState extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_shippingzone_states}}';
+        return Table::SHIPPINGZONE_STATES;
     }
 
     /**

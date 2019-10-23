@@ -7,21 +7,25 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\User;
 use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Product type record.
+ * Subscription record.
  *
  * @property DateTime $dateCanceled
  * @property DateTime $dateExpired
+ * @property DateTime $dateSuspended
  * @property ActiveQueryInterface $gateway
  * @property int $gatewayId
  * @property int $id
  * @property bool $isCanceled
  * @property bool $isExpired
+ * @property bool $isSuspended
+ * @property bool $hasStarted
  * @property DateTime $nextPaymentDate
  * @property int $orderId
  * @property ActiveQueryInterface $plan
@@ -44,7 +48,7 @@ class Subscription extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_subscriptions}}';
+        return Table::SUBSCRIPTIONS;
     }
 
     /**

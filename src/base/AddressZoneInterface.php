@@ -55,4 +55,12 @@ interface AddressZoneInterface
      * @return Country[]
      */
     public function getCountries(): array;
+
+    /**
+     * Return the zip code match
+     *
+     * @return string
+     * @since 2.2
+     */
+    public function getZipCodeConditionFormula(): string;
 }

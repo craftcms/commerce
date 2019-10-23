@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
@@ -62,13 +63,13 @@ class PaymentsController extends BaseFrontEndController
         $this->requirePostRequest();
 
         $customError = '';
-        $order = null;
 
         $plugin = Plugin::getInstance();
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
 
         if (($number = $request->getBodyParam('orderNumber')) !== null) {
+            /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
             if (!$order) {
@@ -82,10 +83,8 @@ class PaymentsController extends BaseFrontEndController
 
                 return null;
             }
-        }
-
-        // Get the cart if no order number was passed.
-        if (!$order) {
+        } else {
+            /** @var Order $order */
             $order = $plugin->getCarts()->getCart(true);
         }
 
@@ -119,6 +118,18 @@ class PaymentsController extends BaseFrontEndController
 
         if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
             $error = Craft::t('commerce', 'Billing address required.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            $session->setError($error);
+
+            return null;
+        }
+
+        if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
+            $error = Craft::t('commerce', 'Order can not be empty.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -278,7 +289,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethodId()) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
             $customError = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($request->getAcceptsJson()) {
@@ -377,6 +388,7 @@ class PaymentsController extends BaseFrontEndController
             if ($transaction) {
                 /** @var Transaction $transaction */
                 $response['transactionId'] = $transaction->reference;
+                $response['transactionHash'] = $transaction->hash;
             }
 
             return $this->asJson($response);

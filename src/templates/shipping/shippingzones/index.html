@@ -18,6 +18,7 @@
                 <th scope="col">{{ 'Description'|t('commerce') }}</th>
                 <th scope="col">{{ 'Type'|t('commerce') }}</th>
                 <th scope="col">{{ 'Countries/States'|t('commerce') }}</th>
+                <th scope="col">{{ 'Has Zip Condition?'|t('commerce') }}</th>
                 <td class="thin"></td>
             </tr>
             </thead>
@@ -36,6 +37,9 @@
                         {% else %}
                             {{ indexInlineList(shippingZone.getStatesNames()) }}
                         {% endif %}
+                    </td>
+                    <td data-title="{{ 'Has Zip Condition?'|t('commerce') }}">
+                        {% if shippingZone.zipCodeConditionFormula %}<span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
                     </td>
                     <td class="thin"><a class="delete icon"
                                         title="{{ 'Delete'|t('commerce') }}"

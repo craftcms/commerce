@@ -145,7 +145,7 @@ class ProductType extends Model
         return [
             [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
             [['name', 'handle', 'titleFormat'], 'required'],
-            [['name', 'handle'], 'string', 'max' => 255],
+            [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
             [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
             [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
         ];

@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
@@ -130,6 +131,6 @@ class ShippingRuleCategories extends Component
                 'weightRate',
                 'percentageRate',
             ])
-            ->from(['{{%commerce_shippingrule_categories}}']);
+            ->from([Table::SHIPPINGRULE_CATEGORIES]);
     }
 }

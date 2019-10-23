@@ -42,6 +42,15 @@
         required: true
     }) }}
 
+    {{ forms.textField({
+        label: "Description"|t('commerce'),
+        instructions: "Order Status description."|t('commerce'),
+        id: 'description',
+        name: 'description',
+        value: orderStatus.description,
+        errors: orderStatus.getErrors('description'),
+    }) }}
+
     {{ forms.hidden({
         id: 'color',
         name: 'color',

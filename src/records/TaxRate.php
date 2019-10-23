@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -17,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $include
  * @property bool $isVat
  * @property string $name
+ * @property string $code
  * @property float $rate
  * @property string $taxable
  * @property TaxCategory $taxCategory
@@ -39,6 +41,11 @@ class TaxRate extends ActiveRecord
     const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
     const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
 
+    const ORDER_TAXABALES = [
+        self::TAXABLE_ORDER_TOTAL_PRICE,
+        self::TAXABLE_ORDER_TOTAL_SHIPPING
+    ];
+
     // Public Methods
     // =========================================================================
 
@@ -47,7 +54,7 @@ class TaxRate extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_taxrates}}';
+        return Table::TAXRATES;
     }
 
     /**

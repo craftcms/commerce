@@ -14,3 +14,9 @@
     "Custom Range",
     "Apply"
 ]) %}
+
+{% if orderStatusHandle is defined and orderStatusHandle %}
+    {% js %}
+        window.defaultStatusHandle = '{{ orderStatusHandle }}';
+    {% endjs %}
+{% endif %}

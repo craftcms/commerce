@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use DateTime;
 
 /**
@@ -78,7 +79,8 @@ class OrderHistory extends Model
      */
     public function getPrevStatus()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->prevStatusId);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        return ArrayHelper::firstWhere($orderStatuses, 'id', $this->prevStatusId);
     }
 
     /**
@@ -86,7 +88,8 @@ class OrderHistory extends Model
      */
     public function getNewStatus()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->newStatusId);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        return ArrayHelper::firstWhere($orderStatuses, 'id', $this->newStatusId);
     }
 
     /**

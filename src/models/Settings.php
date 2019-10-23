@@ -32,6 +32,13 @@ class Settings extends Model
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
 
+    const VIEW_URI_ORDERS = 'commerce/orders';
+    const VIEW_URI_PRODUCTS = 'commerce/products';
+    const VIEW_URI_PROMOTIONS = 'commerce/promotions';
+    const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
+    const VIEW_URI_TAX = 'commerce/tax/taxrates';
+    const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
+
     // Properties
     // =========================================================================
 
@@ -117,6 +124,12 @@ class Settings extends Model
 
     /**
      * @var string
+     * @since 2.2
+     */
+    public $activeCartDuration = 'PT1H';
+
+    /**
+     * @var string
      */
     public $activeCartDuration = 'PT1H';
 
@@ -156,6 +169,13 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Allow the cart to be empty on checkout
+     * @todo Set this to false in 3.0
+     * @since 2.2
+     */
+    public $allowEmptyCartOnCheckout = true;
+
+    /**
      * @var bool
      */
     public $pdfAllowRemoteImages = false;
@@ -166,6 +186,12 @@ class Settings extends Model
     public $orderReferenceFormat = '{{number[:7]}}';
 
     /**
+     * @var string Default view for Commerce in the CP
+     * @since 2.2
+     */
+    public $defaultView = 'commerce/orders';
+
+    /**
      * @var string
      */
     public $cartVariable = 'cart';
@@ -174,6 +200,11 @@ class Settings extends Model
      * @var array
      */
     public $gatewaySettings = [];
+
+    /**
+     * @var string
+     */
+    public $updateBillingDetailsUrl = '';
 
     // Public Methods
     // =========================================================================
@@ -236,6 +267,22 @@ class Settings extends Model
     }
 
     /**
+     * @return array
+     * @since 2.2
+     */
+    public function getDefaultViewOptions(): array
+    {
+        return [
+            self::VIEW_URI_ORDERS => Plugin::t('Orders'),
+            self::VIEW_URI_PRODUCTS => Plugin::t('Products'),
+            self::VIEW_URI_PROMOTIONS => Plugin::t('Promotions'),
+            self::VIEW_URI_SHIPPING => Plugin::t('Shipping'),
+            self::VIEW_URI_TAX => Plugin::t('Tax'),
+            self::VIEW_URI_SUBSCRIPTIONS => Plugin::t('Subscriptions'),
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules(): array
@@ -244,11 +291,6 @@ class Settings extends Model
             [
                 ['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'],
                 'required'
-            ],
-            [
-                ['emailSenderAddress'],
-                'email',
-                'skipOnEmpty' => true // Allow the email to be blank, it then defaults to the system email
             ]
         ];
     }

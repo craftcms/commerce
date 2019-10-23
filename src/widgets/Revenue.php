@@ -9,6 +9,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\Plugin;
 use craft\commerce\web\assets\revenuewidget\RevenueWidgetAsset;
 use craft\helpers\ChartHelper;
 use craft\helpers\Json;
@@ -48,7 +49,7 @@ class Revenue extends Widget
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Revenue');
+        return Plugin::t( 'Revenue');
     }
 
     /**

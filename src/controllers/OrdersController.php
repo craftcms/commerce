@@ -66,8 +66,12 @@ class OrdersController extends Controller
 
     /**
      * Index of orders
+     *
+     * @param string $orderStatusHandle
+     * @return Response
+     * @throws Throwable
      */
-    public function actionOrderIndex(): Response
+    public function actionOrderIndex(string $orderStatusHandle = ''): Response
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
@@ -79,7 +83,7 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
-        return $this->renderTemplate('commerce/orders/_index');
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
     }
 
     /**
@@ -674,6 +678,7 @@ class OrdersController extends Controller
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                    $child->order->updateOrderPaidInformation();
                     Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message
                     ]));
