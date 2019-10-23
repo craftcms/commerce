@@ -14,6 +14,7 @@
 - Tax rates can now have codes. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Order statuses can now have descriptions. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Added support for using cards that require Strong Customer Authentication for subscriptions.
 - Added the ability to resolve payment issues for subscriptions.
 - Added the “Default View” setting, which determines which view should be shown by default when “Commerce” is selected in the global nav. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Added the `activeCartDuration` config setting. ([#959](https://github.com/craftcms/commerce/issues/959))
