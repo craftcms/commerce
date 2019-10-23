@@ -33,11 +33,26 @@ For example, you might set up a shipping rule which should not be available if t
 
 ## Shipping Zones
 
-Shipping zones are areas that you ship to. Shipping zones can be made up of one or more country, or one or more states within those countries.
+Shipping zones are areas that you ship to. Shipping zones can be made up of one or more countries, or one or more states within those countries, as well as a zip code condition formula.
 
 For example, you might make a zone for USA & Canada, and a different zone for the international countries you ship to.
 
 These zones can then be used within the shipping rules as conditions to match on the customers shipping address.
+
+Tax Zones are either country based (matching the shipping address to the list of countries in the zone) or state based (matching the shipping address to the list of states in the zone). In addition 
+to country and state matching, an address can match zip code condition formula.
+
+### Zip code condition formula
+
+A zip code condition formula is a short expression of logic that returns either `true` or `false`. The expression syntax is [powered by Twig](https://twig.symfony.com/doc/2.x/templates.html#expressions).
+
+Below are some examples of a zip code condition formula:
+
+`zipCode[0:2] == '60' or zipCode[0:2] == '70'`  
+The zip code condition will match if the zip code has `60` or `70` as it’s first 2 characters.
+
+`zipCode in ['NG102', 'NG103', 'NG102']`  
+The zip code condition will match if the zip code is any of the above values. 
 
 ## Shipping Methods
 
