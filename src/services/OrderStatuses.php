@@ -79,6 +79,7 @@ class OrderStatuses extends Component
      *
      * @param bool $withTrashed
      * @return OrderStatus[]
+     * @since 2.2
      */
     public function getAllOrderStatuses($withTrashed = false): array
     {

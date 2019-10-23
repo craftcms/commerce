@@ -3,6 +3,7 @@
 ## 2.2.0 - 2019-10-22
 
 ### Added
+- Added the ability to produce estimated shipping and tax costs based on incomplete shipping and billing addresses. ([#514](https://github.com/craftcms/commerce/issues/514))
 - Edit User pages now have a “Customer Info” tab.
 - It’s now possible to view and create discounts directly from from the Edit Product page.
 - It’s now possible to delete customer addresses directly from the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
@@ -13,18 +14,48 @@
 - Tax rates can now have codes. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Order statuses can now have descriptions. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Added support for using cards that require Strong Customer Authentication for subscriptions.
+- Added the ability to resolve payment issues for subscriptions.
 - Added the “Default View” setting, which determines which view should be shown by default when “Commerce” is selected in the global nav. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Added the `activeCartDuration` config setting. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added the `allowEmptyCartOnCheckout` config setting, which determines whether a customer can check out with an empty cart. ([#620](https://github.com/craftcms/commerce/issues/620))
 - Added the ability to pass additional variables to the PDF template. ([#599](https://github.com/craftcms/commerce/issues/599))
 - Added the ability to override the “Cart updated” flash message by passing a `cartUpdatedNotice` parameter to the `commerce/cart/update-cart` action. ([#1038](https://github.com/craftcms/commerce/issues/1038))
 - Added the `shortNumber` order query param.
+- `commerce/cart/update-cart` requests can now specify `estimatedShippingAddress` and `estimatedBillingAddress` params.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueDescription()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getBillingIssueResolveFormHtml()`.
+- Added `craft\commerce\base\SubscriptionGatewayInterface::getHasBillingIssues()`.
 - Added `craft\commerce\controllers\BaseFrontEndController::EVENT_MODIFY_CART_INFO`. ([#1002](https://github.com/craftcms/commerce/issues/1002))
+- Added `craft\commerce\elements\db\SubscriptionQuery::$dateSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$hasStarted`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::$isSuspended`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::anyStatus()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::dateSuspended()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::hasStarted()`.
+- Added `craft\commerce\elements\db\SubscriptionQuery::isSuspended()`.
+- Added `craft\commerce\elements\Order::$estimatedBillingAddressId`.
+- Added `craft\commerce\elements\Order::$estimatedBillingSameAsShipping`.
+- Added `craft\commerce\elements\Order::$estimatedShippingAddressId`.
+- Added `craft\commerce\elements\Order::getEstimatedBillingAddress()`.
+- Added `craft\commerce\elements\Order::getEstimatedShippingAddress()`.
+- Added `craft\commerce\elements\Order::setEstimatedBillingAddress()`.
+- Added `craft\commerce\elements\Order::setEstimatedShippingAddress()`.
+- Added `craft\commerce\elements\Subscription::$dateSuspended`.
+- Added `craft\commerce\elements\Subscription::$hasStarted`.
+- Added `craft\commerce\elements\Subscription::$isSuspended`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueDescription()`.
+- Added `craft\commerce\elements\Subscription::getBillingIssueResolveFormHtml()`.
+- Added `craft\commerce\elements\Subscription::getHasBillingIssues()`.
+- Added `craft\commerce\models\Address::$isEstimated`.
 - Added `craft\commerce\models\Customer::getActiveCarts()`.
 - Added `craft\commerce\models\Customer::getInactiveCarts()`.
+- Added `craft\commerce\models\OrderAdjustment::$isEstimated`.
 - Added `craft\commerce\services\Sales::EVENT_AFTER_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\services\Sales::EVENT_BEFORE_SAVE_SALE`. ([#622](https://github.com/craftcms/commerce/issues/622))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture`. ([#1009](https://github.com/craftcms/commerce/pull/1009))
+- Added the `updateBillingDetailsUrl` config setting.
+- Added the `suspended` status for Subscriptions.
 
 ### Changed
 - Craft Commerce now required Craft CMS 3.3.0 or later.
@@ -36,12 +67,24 @@
 - Leading and trailing whitespace is now trimmed from all address fields.
 - Coupon code usage is now tracked even for discounts with no limit set. ([#521](https://github.com/craftcms/commerce/issues/521))
 - Variants now always include their product’s title in their search keywords. ([#934](https://github.com/craftcms/commerce/issues/934))
+- The Subscriptions index page now includes “Failed to start” and “Payment method issue” sources.
+- Subscriptions now get suspended if there are any payment issues.
 - Expired orders are now purged during garbage collection rather than when viewing the Orders index page.
 - Customer records that are not related to anything are now purged during garbage collection. ([#1045](https://github.com/craftcms/commerce/issues/1045))
 - `commerce/cart/update-cart` requests now include line item adjustment data in their JSON response. ([#1014](https://github.com/craftcms/commerce/issues/1014))
+- `craft\commerce\elements\Order::getTotalDiscount()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalShippingCost()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalTax()` is no longer deprecated.
+- `craft\commerce\elements\Order::getTotalTaxIncluded()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getDiscount()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getShippingCost()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getTax()` is no longer deprecated.
+- `craft\commerce\models\LineItem::getTaxIncluded()` is no longer deprecated.
 
 ### Deprecated
 - Commerce Customer Info fields are now deprecated.
+- Deprecated `craft\commerce\models\LineItem::getAdjustmentsTotalByType()`.
+- Deprecated `craft\commerce\elements\Order::getAdjustmentsTotalByType()`.
 
 ### Fixed
 - Fixed a PostgreSQL migration issue.

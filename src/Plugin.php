@@ -93,6 +93,7 @@ class Plugin extends BasePlugin
 
     /**
      * @see Craft::t()
+     * @since 2.2.0
      */
     public static function t($message, $params = [], $language = null)
     {
@@ -536,6 +537,7 @@ class Plugin extends BasePlugin
 
     /**
      * Register the things that need to be garbage collected
+     * @since 2.2
      */
     private function _registerGarbageCollection()
     {
@@ -581,6 +583,7 @@ class Plugin extends BasePlugin
 
     /**
      * Registers templates hooks for inserting Commerce information in the CP
+     * @since 2.2
      */
     private function _registerTemplateHooks()
     {

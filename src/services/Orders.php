@@ -262,12 +262,19 @@ class Orders extends Component
             $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
-            $lineItemData['totalTax'] = $lineItem->getAdjustmentsTotalByType('tax');
-            $lineItemData['totalTaxIncluded'] = $lineItem->getAdjustmentsTotalByType('tax', true);
-            $lineItemData['totalShippingCost'] = $lineItem->getAdjustmentsTotalByType('shipping');
-            $lineItemData['totalDiscount'] = $lineItem->getAdjustmentsTotalByType('discount');
+
+            $lineItemData['totalTax'] = $lineItem->getTax(); // deprecate in 3.0
+            $lineItemData['totalTaxIncluded'] = $lineItem->getTaxIncluded(); // deprecate in 3.0
+            $lineItemData['totalShippingCost'] = $lineItem->getShippingCost(); // deprecate in 3.0
+            $lineItemData['totalDiscount'] = $lineItem->getDiscount(); // deprecate in 3.0
+
+            $lineItemData['tax'] = $lineItem->getTax();
+            $lineItemData['taxIncluded'] = $lineItem->getTaxIncluded();
+            $lineItemData['shippingCost'] = $lineItem->getShippingCost();
+            $lineItemData['discount'] = $lineItem->getDiscount();
+
             $lineItemAdjustments = [];
-            foreach ($cart->adjustments as $adjustment) {
+            foreach ($lineItem->getAdjustments() as $adjustment) {
                 $adjustmentData = [];
                 $adjustmentData['id'] = $adjustment->id;
                 $adjustmentData['type'] = $adjustment->type;
@@ -276,7 +283,8 @@ class Orders extends Component
                 $adjustmentData['amount'] = $adjustment->amount;
                 $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
                 $adjustmentData['orderId'] = $adjustment->orderId;
-                $adjustmentData['lineItemId'] = $adjustment->orderId;
+                $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+                $adjustmentData['isEstimated'] = $adjustment->isEstimated;
                 $adjustments[$adjustment->type][] = $adjustmentData;
                 $lineItemAdjustments[] = $adjustmentData;
             }
@@ -286,15 +294,15 @@ class Orders extends Component
                 $lineItems['errors'] = $lineItem->getErrors();
             }
         }
-        $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
-        $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
-        $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
-        $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
+        $data['totalTax'] = $cart->getTotalTax();
+        $data['totalTaxIncluded'] = $cart->getTotalTaxIncluded();
+        $data['totalShippingCost'] = $cart->getTotalShippingCost();
+        $data['totalDiscount'] = $cart->getTotalDiscount();
         $data['lineItems'] = $lineItems;
         $data['totalLineItems'] = count($lineItems);
 
         $adjustments = [];
-        foreach ($cart->adjustments as $adjustment) {
+        foreach ($cart->getAdjustments() as $adjustment) {
             $adjustmentData = [];
             $adjustmentData['id'] = $adjustment->id;
             $adjustmentData['type'] = $adjustment->type;
@@ -304,6 +312,7 @@ class Orders extends Component
             $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
             $adjustmentData['orderId'] = $adjustment->orderId;
             $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+            $adjustmentData['isEstimated'] = $adjustment->isEstimated;
             $adjustments[$adjustment->type][] = $adjustmentData;
         }
         $data['adjustments'] = $adjustments;

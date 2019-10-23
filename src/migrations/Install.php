@@ -125,6 +125,7 @@ class Install extends Migration
             'custom2' => $this->string(),
             'custom3' => $this->string(),
             'custom4' => $this->string(),
+            'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -319,6 +320,7 @@ class Install extends Migration
             'description' => $this->string(),
             'amount' => $this->decimal(14, 4)->notNull(),
             'included' => $this->boolean(),
+            'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
             'sourceSnapshot' => $this->longText(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -341,6 +343,8 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
+            'estimatedBillingAddressId' => $this->integer(),
+            'estimatedShippingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(),
@@ -672,6 +676,9 @@ class Install extends Migration
             'subscriptionData' => $this->text(),
             'trialDays' => $this->integer()->notNull(),
             'nextPaymentDate' => $this->dateTime(),
+            'hasStarted' => $this->boolean()->notNull()->defaultValue(true),
+            'isSuspended' => $this->boolean()->notNull()->defaultValue(false),
+            'dateSuspended' => $this->dateTime(),
             'isCanceled' => $this->boolean()->notNull(),
             'dateCanceled' => $this->dateTime(),
             'isExpired' => $this->boolean()->notNull(),
@@ -1002,6 +1009,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ORDERS, ['gatewayId'], Table::GATEWAYS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['paymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedShippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedBillingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['emailId'], Table::EMAILS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');

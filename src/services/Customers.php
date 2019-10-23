@@ -258,6 +258,7 @@ class Customers extends Component
 
     /**
      * Deletes any customer record not related to a user or a cart.
+     * @since 2.2
      */
     public function purgeOrphanedCustomers()
     {
@@ -664,6 +665,7 @@ class Customers extends Component
 
     /**
      * @param array $context
+     * @since 2.2
      */
     public function addEditUserCustomerInfoTab(array &$context)
     {
@@ -685,6 +687,7 @@ class Customers extends Component
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws InvalidConfigException
+     * @since 2.2
      */
     public function addEditUserCustomerInfoTabContent(array &$context): string
     {

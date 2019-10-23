@@ -42,6 +42,7 @@ class TaxRate extends Model
 
     /**
      * @var string Code
+     * @since 2.2
      */
     public $code;
 

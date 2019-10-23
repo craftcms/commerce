@@ -37,6 +37,11 @@ class Shipping extends Component implements AdjusterInterface
      */
     private $_order;
 
+    /**
+     * @var bool
+     */
+    private $_isEstimated = false;
+
     // Public Methods
     // =========================================================================
 
@@ -46,6 +51,7 @@ class Shipping extends Component implements AdjusterInterface
     public function adjust(Order $order): array
     {
         $this->_order = $order;
+        $this->_isEstimated = (!$order->shippingAddressId && $order->estimatedShippingAddressId);
 
         $shippingMethod = $order->getShippingMethod();
         $lineItems = $order->getLineItems();
@@ -166,8 +172,9 @@ class Shipping extends Component implements AdjusterInterface
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();
-        $adjustment->sourceSnapshot = $rule->toArray();
         $adjustment->description = $rule->getDescription();
+        $adjustment->isEstimated = $this->_isEstimated;
+        $adjustment->sourceSnapshot = $rule->toArray();
 
         return $adjustment;
     }

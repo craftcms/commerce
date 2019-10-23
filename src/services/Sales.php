@@ -62,11 +62,13 @@ class Sales extends Component
 
     /**
      * @event SaleEvent The event that is triggered before a sale is saved.
+     * @since 2.2
      */
     const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is saved.
+     * @since 2.2
      */
     const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 

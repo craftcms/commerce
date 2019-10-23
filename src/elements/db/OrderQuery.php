@@ -265,6 +265,7 @@ class OrderQuery extends ElementQuery
      *
      * @param string|array|null $value The property value.
      * @return static self reference
+     * @since 2.2
      */
     public function shortNumber($value = null)
     {
@@ -879,6 +880,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.cancelUrl',
             'commerce_orders.billingAddressId',
             'commerce_orders.shippingAddressId',
+            'commerce_orders.estimatedBillingAddressId',
+            'commerce_orders.estimatedShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',

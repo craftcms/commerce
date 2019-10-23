@@ -233,6 +233,7 @@ class Addresses extends Component
         $addressRecord->custom2 = $addressModel->custom2;
         $addressRecord->custom3 = $addressModel->custom3;
         $addressRecord->custom4 = $addressModel->custom4;
+        $addressRecord->isEstimated = $addressModel->isEstimated;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
             Craft::$app->getDb()->createCommand()->update(Table::ADDRESSES, ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
@@ -382,7 +383,8 @@ class Addresses extends Component
                 'addresses.custom1',
                 'addresses.custom2',
                 'addresses.custom3',
-                'addresses.custom4'
+                'addresses.custom4',
+                'addresses.isEstimated'
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

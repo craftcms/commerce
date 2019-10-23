@@ -104,6 +104,8 @@
                 <li><strong>User</strong> {{ cart.user }}</li>
                 <li><strong>Shipping Address ID</strong> {{ cart.shippingAddressId }}</li>
                 <li><strong>Billing Address ID</strong> {{ cart.billingAddressId }}</li>
+                <li><strong>Estimated Shipping Address ID</strong> {{ cart.estimatedShippingAddressId }}</li>
+                <li><strong>Estimated Billing Address ID</strong> {{ cart.estimatedBillingAddressId }}</li>
                 <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
                 <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
                 <li><strong>Currency</strong> {{ cart.currency }}</li>
@@ -142,7 +144,7 @@
             $.ajax({
                 url: '',
                 data: {
-                    '{{ craft.config.csrfTokenName|e('js') }}': '{{ craft.request.csrfToken|e('js') }}',
+                    '{{ craft.app.config.general.csrfTokenName|e('js') }}': '{{ craft.app.request.csrfToken|e('js') }}',
                     'action': 'commerce/cart/get-cart'
                 },
                 success: function(data) {

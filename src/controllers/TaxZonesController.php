@@ -152,6 +152,7 @@ class TaxZonesController extends BaseTaxSettingsController
     /**
      * @return Response
      * @throws \yii\web\BadRequestHttpException
+     * @since 2.2
      */
     public function actionTestZip()
     {

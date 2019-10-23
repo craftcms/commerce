@@ -179,6 +179,7 @@ class Customer extends Model
     /**
      * @return array
      * @throws \Exception
+     * @since 2.2
      */
     public function getActiveCarts(): array
     {
@@ -189,6 +190,7 @@ class Customer extends Model
     /**
      * @return array
      * @throws \Exception
+     * @since 2.2
      */
     public function getInactiveCarts(): array
     {
