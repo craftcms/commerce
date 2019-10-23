@@ -133,6 +133,16 @@ Determines whether a shipping method selection is required before making a payme
 
 Default: `false`
 
+## `updateBillingDetailsUrl`
+
+The URL for a user to resolve billing issues with their subscription. 
+
+Default: `''`
+
+::: tip
+The [example templates](example-templates.md) folder contains an example of this page. It can be found at `templates/shop/services/update-billing-details.html`
+:::
+
 ## `useBillingAddressForTax`
 
 Determines whether taxes should be calculated based on the billing address, as opposed to the shipping address.
