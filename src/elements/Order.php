@@ -1258,7 +1258,7 @@ class Order extends Element
         }
 
         if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
-            return Currency::round(max($this->getTotalShipping(), $total));
+            return Currency::round(max($this->getTotalShippingCost(), $total));
         }
 
         return Currency::round($total);
@@ -1388,7 +1388,7 @@ class Order extends Element
      */
     public function getAdjustmentsTotalByType($types, $included = false)
     {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShipping() instead.');
+        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShippingCost() instead.');
 
         return $this->_getAdjustmentsTotalByType($types, $included);
     }
@@ -1978,7 +1978,7 @@ class Order extends Element
             }
             case 'totalShippingCost':
             {
-                $amount = $this->getTotalShipping();
+                $amount = $this->getTotalShippingCost();
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             }
             case 'totalDiscount':
