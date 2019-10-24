@@ -197,7 +197,7 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     public function getZipCodeConditionFormula(): string
     {
-        return $this->zipCodeConditionFormula;
+        return (string)$this->zipCodeConditionFormula;
     }
 
     /**
