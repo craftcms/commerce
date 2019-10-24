@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased - 2019-10-24
+## 2.2.5 - 2019-10-24
 
 ### Fixed
 - Fixed formatting of customer info field.
