@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-## 2.2.0 - 2019-10-22
+## 2.2.1 - 2019-10-23
+
+### Fixed
+- Fixed a PostgreSQL migration issue.
+
+## 2.2.0 - 2019-10-23
 
 ### Added
 - Added the ability to produce estimated shipping and tax costs based on incomplete shipping and billing addresses. ([#514](https://github.com/craftcms/commerce/issues/514))
