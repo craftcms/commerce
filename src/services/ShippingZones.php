@@ -125,11 +125,11 @@ class ShippingZones extends Component
         $record->description = $model->description;
 
         // If the condition formula changes, clear the cache for this zone.
-        if (($record->zipCodeConditionFormula != $model->zipCodeConditionFormula) && $record->id) {
+        if (($record->zipCodeConditionFormula != $model->getZipCodeConditionFormula()) && $record->id) {
             TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
         }
 
-        $record->zipCodeConditionFormula = $model->zipCodeConditionFormula;
+        $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
         $record->isCountryBased = $model->isCountryBased;
 
         $countryIds = $model->getCountryIds();
