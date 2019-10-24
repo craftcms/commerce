@@ -17,9 +17,12 @@ class m191004_184910_orderPaidDate extends Migration
     {
         // This query looks for any order where there is an amount owing and sets the date paid to null.
         // This goes along with this fix: https://github.com/craftcms/commerce/commit/d7c9e32dfe9a5158a044e560470b627411739041
+
+        // NOTE: You CANNOT use a table alias in the SET statement of a postgres query
+        // in the example below it needs to be [[datePaid]] and NOT [[o.datePaid]]
         $sql = "
-            UPDATE {{%commerce_orders}} AS o
-            SET [[o.datePaid]] = null
+            UPDATE {{%commerce_orders}} o
+            SET [[datePaid]] = null
             WHERE (SELECT SUM(CASE WHEN [[t.type]] = 'refund' THEN amount
                                    WHEN [[t.type]] IN ('purchase', 'capture') THEN -amount
                               END)

@@ -79,7 +79,23 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
-## Unreleased (2.x)
+## 2.2.3 - 2019-10-24
+
+### Fixed
+- Fixed a PHP error when calculating shipping or taxes in the cart. ([#1076](https://github.com/craftcms/commerce/issues/1076))
+- Fixed a PHP error when saving a sale. ([#1075](https://github.com/craftcms/commerce/issues/1075))
+
+## 2.2.2 - 2019-10-23
+
+### Fixed
+- Fixed a PHP error when calculating shipping or taxes in the cart.
+
+## 2.2.1 - 2019-10-23
+
+### Fixed
+- Fixed a PostgreSQL migration issue.
+
+## 2.2.0 - 2019-10-23
 
 ### Added
 - Added the ability to produce estimated shipping and tax costs based on incomplete shipping and billing addresses. ([#514](https://github.com/craftcms/commerce/issues/514))
@@ -93,6 +109,7 @@
 - Tax rates can now have codes. ([#707](https://github.com/craftcms/commerce/issues/707))
 - Countries can now be ordered manually. ([#224](https://github.com/craftcms/commerce/issues/224))
 - Order statuses can now have descriptions. ([#1004](https://github.com/craftcms/commerce/issues/1004))
+- Added support for using cards that require Strong Customer Authentication for subscriptions.
 - Added the ability to resolve payment issues for subscriptions.
 - Added the “Default View” setting, which determines which view should be shown by default when “Commerce” is selected in the global nav. ([#555](https://github.com/craftcms/commerce/issues/555))
 - Added the `activeCartDuration` config setting. ([#959](https://github.com/craftcms/commerce/issues/959))

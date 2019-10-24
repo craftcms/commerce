@@ -31,103 +31,120 @@ return [
 
 Here’s the full list of config settings that Commerce supports:
 
-## `pdfAllowRemoteImages`
-
-Determines if a Dompdf PDF render will allow remote images.
-
-Default `false`
-
 ## `autoSetNewCartAddresses`
 
 Determines whether the customer’s last used shipping and billing addresses should automatically be set on new carts.
 
-Can be set to `true` or `false` (default is `true`).
+Default: `true`
 
-How long the cookie storing the cart should last. The cart exists independently of the Craft user’s session.
+## `activeCartDuration`
+
+A [duration interval](https://en.wikipedia.org/wiki/ISO_8601#Durations) that determines how long a cart should go without being updated before it is listed as inactive in the Orders index page.
+
+Default: `'PT1H'` (1 hour)
+
 
 ## `gatewayPostRedirectTemplate`
 
-Allows for the overriding of the template used to perform POST redirects to the payment gateway.
+The path to the template that should be used to perform POST requests to offsite payment gateways.
 
-The template path that this item points to must contain a form that submits itself to the `actionUrl` variable, and outputs all hidden inputs with the `inputs` variable. Below is an example template:
+The template must contain a form that posts to the URL supplied by the `actionUrl` variable, and outputs all hidden inputs with the `inputs` variable.
 
 ```twig
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Redirecting...</title>
 </head>
 <body onload="document.forms[0].submit();">
-<form action="{{ actionUrl|raw }}" method="post">
+<form action="{{ actionUrl }}" method="post">
     <p>Redirecting to payment page...</p>
     <p>
         {{ inputs|raw }}
-        <input type="submit" value="Continue" />
+        <input type="submit" value="Continue">
     </p>
 </form>
 </body>
 </html>
 ```
 
-Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inlined styles to reduce http requests.
+::: tip
+Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inline styles to reduce HTTP requests.
+:::
+
+A barebones template is used  by default if this setting isn’t set.
 
 ## `mergeLastCartOnLogin`
 
+Determines whether a user’s previous cart should be merged with the active cart after they log in.
+
 Default: `true`
 
-When a user logs into their Craft account all line items in previous cart are merged with the current cart.
+## `pdfAllowRemoteImages`
+
+Determines whether order PDFs can include remote images.
+
+Default `false`
 
 ## `pdfPaperSize`
 
-Default: `letter`
+The size of the paper to use for generated order PDFs. A full list of paper size values can be found [here](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
 
-The size of the paper to use for generated order PDF files (letter, legal, A4, etc.).  A full list of paper size values can be found [here](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
+Default: `'letter'`
 
 ## `pdfPaperOrientation`
 
-Default: `portrait`
+The orientation of the paper to use for generated order PDF files. Valid values are `'portrait'` or `'landscape'`.
 
-The orientation of the paper to use for generated order PDF files. Valid values are `portrait` or `landscape`.
+Default: `'portrait'`
 
 ## `purgeInactiveCarts`
 
+Whether Commerce should automatically delete inactive carts from the database during garbage collection.
+
 Default: `true`
 
-Should Commerce purge old inactive carts from the database. See the [`purgeInactiveCartsDuration`](#purgeInactiveCartsDuration) setting to control how old the cart needs to be.
+::: tip
+You can control how long a cart should go without being updated before it gets deleted [`purgeInactiveCartsDuration`](#purgeinactivecartsduration) setting.
+:::
 
 ## `purgeInactiveCartsDuration`
 
-A php [Date Interval](http://php.net/manual/en/class.dateinterval.php)
-Default: 3 months. (`P3M`).
+A [duration interval](https://en.wikipedia.org/wiki/ISO_8601#Durations) that determines how long a cart should go without being updated before it gets deleted during garbage collection.
 
-Inactive carts older than this interval from their last update will be purged (deleted).
-
-::: tip
-The interval check for purging of inactive carts is only run when visiting the Orders index page in the Control Panel.
-:::
+Default: `'P3M'` (3 months)
 
 ## `requireBillingAddressAtCheckout`
 
-Determines whether the billing address needs to exist on the cart in order to submit successfully to the `commerce/payment/pay` action.
+Determines whether a billing address is required before making a payment on an order.
 
-Can be set to `true` or `false` (default is `false`).
+Default: `false`
 
 ## `requireShippingAddressAtCheckout`
 
-Determines whether payment requests made to the `commerce/payments/pay` controller action requires a shipping address to be present on an order before attempting payment.
+Determines whether a shipping address is required before making a payment on an order.
 
-Can be set to `true` or `false` (default is `false`).
+Default: `false`
 
 ## `requireShippingMethodSelectionAtCheckout`
 
-Determines whether payment requests made to the `commerce/payments/pay` controller action requires a shipping method selection to be present on an order before attempting payment.
+Determines whether a shipping method selection is required before making a payment on an order.
 
-Can be set to `true` or `false` (default is `false`).
+Default: `false`
+
+## `updateBillingDetailsUrl`
+
+The URL for a user to resolve billing issues with their subscription. 
+
+Default: `''`
+
+::: tip
+The [example templates](example-templates.md) folder contains an example of this page. It can be found at `templates/shop/services/update-billing-details.html`
+:::
 
 ## `useBillingAddressForTax`
 
-Determines whether to use the billing address of the cart to calculate taxes. By default the shipping address is used for tax calculations.
+Determines whether taxes should be calculated based on the billing address, as opposed to the shipping address.
 
-Can be set to `true` or `false` (default is `false`).
-
+Default: `false` (use the shipping address)
