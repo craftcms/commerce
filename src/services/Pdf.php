@@ -141,6 +141,6 @@ class Pdf extends Component
         ]);
         $this->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
 
-        return $event->pdf;
+        return $afterEvent->pdf;
     }
 }
