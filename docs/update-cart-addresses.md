@@ -65,7 +65,8 @@ This will only work if the `shippingAddressId` is not supplied or sent as an emp
 ```twig
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
-    <input type="hidden" name="redirect" value="commerce/cart">
+    {{ redirectInput('commerce/cart') }}
+    <input type="hidden" name="cartUpdatedNotice" value="Updated Shipping Address.">
     <input type="hidden" name="shippingAddressId" value="">
     <input type="text" name="shippingAddress[firstName]" value="">
     <input type="text" name="shippingAddress[lastName]" value="">
@@ -89,6 +90,7 @@ If your customers have added multiple addresses, you can use radio buttons to se
 <form class="form" method="post">
     {{ csrfInput() }}
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Updated addresses.">
 
     {% set customerAddresses = craft.commerce.customer.addresses %}
 

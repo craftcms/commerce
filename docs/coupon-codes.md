@@ -21,19 +21,18 @@ Example:
 
 ```twig
 <form method="POST">
-<input type="hidden"
-       name="action"
-       value="commerce/cart/update-cart">
-{{ redirectInput('shop/cart') }}
-{{ csrfInput() }}
+    <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Added coupon code.">
+    {{ redirectInput('shop/cart') }}
+    {{ csrfInput() }}
 
-<input type="text"
+    <input type="text"
        name="couponCode"
        class="{% if cart.getFirstError('couponCode') %}has-error{% endif %}"
        value="{{ cart.couponCode }}"
        placeholder="{{ "Coupon Code"|t }}">
        
-<input type="submit" value="Update Cart"/>
+    <input type="submit" value="Update Cart"/>
 <form>
 ```
 

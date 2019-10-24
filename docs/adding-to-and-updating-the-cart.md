@@ -14,6 +14,7 @@ The following is an example of getting the first product found in your store. We
 
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
     {{ redirectInput('shop/cart') }}
     <input type="hidden" name="qty" value="1">
     <input type="hidden" name="purchasableId" value="{{ variant.id }}">
@@ -29,6 +30,7 @@ The above is a simple example, if your product’s type has multiple variants yo
 
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
     <input type="hidden" name="qty" value="1">
@@ -61,6 +63,7 @@ Here is an example of an add to cart form with both a `notes` and `options` para
 {% set variant = product.defaultVariant %}
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
     <input type="hidden" name="qty" value="1">
@@ -110,6 +113,7 @@ You can add multiple purchasables to the cart in an update cart form. You supply
 {% set product = craft.products.one() %}
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Products added to the cart.">
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
 
@@ -140,6 +144,7 @@ Example:
 ```twig
 <form method="POST">
     <input type="hidden" name="action" value="commerce/cart/update-cart">
+    <input type="hidden" name="cartUpdatedNotice" value="Updated line items.">
     {{ redirectInput('shop/cart') }}
     {{ csrfInput() }}
     <input type="text" placeholder="My Note" name="lineItems[LINE_ITEM_ID][note]" value="{{ item.note }}">
