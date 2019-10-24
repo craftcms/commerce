@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-### 2.2.4 - 2019-10-24
+## 2.2.5 - 2019-10-24
+
+### Fixed
+- Fixed formatting of customer info field.
+
+## 2.2.4 - 2019-10-24
 
 ### Fixed
 - Fixed a PHP error when loading the order in the CP. ([#1079](https://github.com/craftcms/commerce/issues/1079))
