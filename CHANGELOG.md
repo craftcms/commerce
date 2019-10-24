@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+### Unreleased - 2019-10-24
+
+### Fixed
+- Fixed a PHP error when loading the order in the CP. ([#1079](https://github.com/craftcms/commerce/issues/1079))
+- Fixed a 404 error for missing JavaScript. ([#1078](https://github.com/craftcms/commerce/issues/1078))
+
 ## 2.2.3 - 2019-10-24
 
 ### Fixed
