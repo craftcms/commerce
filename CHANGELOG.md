@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-### Unreleased - 2019-10-24
+### 2.2.4 - 2019-10-24
 
 ### Fixed
 - Fixed a PHP error when loading the order in the CP. ([#1079](https://github.com/craftcms/commerce/issues/1079))
