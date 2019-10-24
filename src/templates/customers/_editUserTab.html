@@ -90,15 +90,11 @@
       {% endif %}
 
       {% set addresses = customer.addresses %}
-      <div id="no-addresses"{% if addresses|length %} class="hidden"{% endif %}>
-        <p>{{ "No addresses exist for this user yet."|t('commerce') }}</p>
+      <hr>
+      <div class="address-heading-label">
+        <h2>{{ "Addresses"|t('commerce') }}</h2>
       </div>
-
       {% if addresses|length %}
-        <hr>
-        <div class="address-heading-label">
-          <h2>{{ "Addresses"|t('commerce') }}</h2>
-        </div>
         <div class="address-boxes">
           {% for address in addresses %}
             <div id="Address" class="address-box hidden"
@@ -111,6 +107,10 @@
               </div>
             </div>
           {% endfor %}
+        </div>
+      {% else %}
+        <div id="no-addresses">
+          <p>{{ "No addresses exist for this user yet."|t('commerce') }}</p>
         </div>
       {% endif %}
     {% endif %}
