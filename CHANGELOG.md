@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.2.2 - 2019-10-23
+
+### Fixed
+- Fixed a PHP error when calculating shipping or taxes in the cart.
+
 ## 2.2.1 - 2019-10-23
 
 ### Fixed

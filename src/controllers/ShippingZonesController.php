@@ -169,8 +169,8 @@ class ShippingZonesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $zipCodeFormula = Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
-        $testZipCode = Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
         if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {

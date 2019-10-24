@@ -325,7 +325,7 @@ class Addresses extends Component
         }
 
         // Do we have a condition formula for the zip matching? Blank condition will match all
-        if ($zone->getZipCodeConditionFormula() !== '') {
+        if (is_string($zone->getZipCodeConditionFormula()) && $zone->getZipCodeConditionFormula() !== '') {
             $formulasService = Plugin::getInstance()->getFormulas();
             $conditionFormula = $zone->getZipCodeConditionFormula();
             $zipCode = $address->zipCode;
