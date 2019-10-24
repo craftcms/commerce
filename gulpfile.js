@@ -9,13 +9,13 @@ var assetsPath = './src/web/assets/';
 function commerceSass () {
     return gulp.src(assetsPath+'commercecp/src/scss/**/*.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(concat('commerce.css'))
+        .pipe(concat('commercecp.css'))
         .pipe(gulp.dest(assetsPath+'commercecp/dist/css'));
 };
 
 function commerceJs() {
     return gulp.src(assetsPath+'commercecp/src/**/*.js')
-        .pipe(concat('commerce.js'))
+        .pipe(concat('commercecp.js'))
         .pipe(gulp.dest(assetsPath+'commercecp/dist/js'));
 };
 
