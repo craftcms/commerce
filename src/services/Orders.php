@@ -180,7 +180,6 @@ class Orders extends Component
         $data['number'] = $cart->number;
         $data['couponCode'] = $cart->couponCode;
         $data['itemTotal'] = $cart->getItemTotal();
-        $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalPaid'] = $cart->getTotalPaid();
         $data['email'] = $cart->getEmail();
         $data['isCompleted'] = (bool)$cart->isCompleted;
