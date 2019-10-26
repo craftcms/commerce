@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "keywords": [
     "cms",
     "craftcms",
