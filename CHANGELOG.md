@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.6 - 2019-10-26
 
 ### Fixed
 - Fixed a PHP error that occurred when rendering PDFs. ([#1072](https://github.com/craftcms/commerce/pull/1072))
