@@ -363,12 +363,16 @@ class OrderStatuses extends Component
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
-                    // Handball off to our queue, so we don't hold up anything related to the order
-                    Craft::$app->getQueue()->delay(10)->push(new SendEmail([
-                        'email' => $email->toArray(),
-                        'order' => $order->toArray(),
-                        'orderHistory' => $orderHistory->toArray(),
-                    ]));
+                    if (Plugin::getInstance()->getSettings()->useQueueForEmails) {
+                        // Handball off to our queue (if we want), so we don't hold up anything related to the order
+                        Craft::$app->getQueue()->delay(10)->push(new SendEmail([
+                            'email' => $email->toArray(),
+                            'order' => $order->toArray(),
+                            'orderHistory' => $orderHistory->toArray(),
+                        ]));
+                    } else {
+                        Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
+                    }
                 }
             }
         }
