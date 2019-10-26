@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a PHP error that occurred when rendering PDFs. ([#1072](https://github.com/craftcms/commerce/pull/1072))
+- Fixed a PHP error that occurred when saving order statuses. ([#1082](https://github.com/craftcms/commerce/issues/1082))
+
 ## 2.2.5 - 2019-10-24
 
 ### Fixed

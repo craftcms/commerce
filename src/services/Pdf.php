@@ -135,12 +135,12 @@ class Pdf extends Component
         $afterEvent = new PdfEvent([
             'order' => $event->order,
             'option' => $event->option,
-            'template' => $event->templatePath,
+            'template' => $event->template,
             'variables' => $variables,
             'pdf' => $dompdf->output(),
         ]);
         $this->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
 
-        return $event->pdf;
+        return $afterEvent->pdf;
     }
 }
