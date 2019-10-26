@@ -298,9 +298,13 @@ class Emails extends Component
      * @param Email $email
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @param array $orderData Since the order may have changed by the time the email sends.
      * @return bool $result
+     * @throws Exception
+     * @throws Throwable
+     * @throws \yii\base\InvalidConfigException
      */
-    public function sendEmail($email, $order, $orderHistory): bool
+    public function sendEmail($email, $order, $orderHistory, $orderData): bool
     {
         if (!$email->enabled) {
             return false;
@@ -321,7 +325,7 @@ class Emails extends Component
         }
 
         //sending emails
-        $renderVariables = compact('order', 'orderHistory', 'option');
+        $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
 
         $mailer = Craft::$app->getMailer();
         /** @var Message $newEmail */
@@ -592,7 +596,8 @@ class Emails extends Component
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
                 'order' => $order,
-                'orderHistory' => $orderHistory
+                'orderHistory' => $orderHistory,
+                'orderData' => $orderData
             ]);
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
@@ -646,7 +651,8 @@ class Emails extends Component
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
                 'order' => $order,
-                'orderHistory' => $orderHistory
+                'orderHistory' => $orderHistory,
+                'orderData' => $orderData
             ]));
         }
 

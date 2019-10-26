@@ -174,11 +174,6 @@ class Settings extends Model
      * @var bool
      */
     public $pdfAllowRemoteImages = false;
-    
-    /**
-     * @var bool Whether the send all emails using queue jobs
-     */
-    public $useQueueForEmails = false;
 
     /**
      * @var string The order reference format

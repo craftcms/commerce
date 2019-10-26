@@ -195,7 +195,7 @@ class OrderStatuses extends Component
         $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
 
         if ($existingStatus && (!$orderStatus->id || $orderStatus->id !== $existingStatus->id)) {
-            $orderStatus->addError('handle', Plugin::t( 'That handle is already in use'));
+            $orderStatus->addError('handle', Plugin::t('That handle is already in use'));
             return false;
         }
 
@@ -364,16 +364,12 @@ class OrderStatuses extends Component
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
-                    if (Plugin::getInstance()->getSettings()->useQueueForEmails) {
-                        // Handball off to our queue (if we want), so we don't hold up anything related to the order
-                        Craft::$app->getQueue()->delay(10)->push(new SendEmail([
-                            'email' => $email->toArray(),
-                            'order' => $order->toArray(),
-                            'orderHistory' => $orderHistory->toArray(),
-                        ]));
-                    } else {
-                        Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory);
-                    }
+                    Craft::$app->getQueue()->push(new SendEmail([
+                        'orderId' => $order->id,
+                        'commerceEmailId' => $email->id,
+                        'orderHistoryId' => $orderHistory->id,
+                        'orderData' => $order->toArray()
+                    ]));
                 }
             }
         }
