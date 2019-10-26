@@ -5,7 +5,7 @@
 <meta name="robots" content="noindex">
 {% endset %}
 
-{% set number = craft.app.request.param('number') %}
+{% set number = craft.app.request.getRequiredParam('number') %}
 
 {% set order = craft.orders.number(number).one() %}
 
