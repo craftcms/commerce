@@ -1031,7 +1031,19 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'hasUnlimitedStock', 'minQty', 'maxQty', 'productTitle'];
+        return [
+            'sku',
+            'price',
+            'width',
+            'height',
+            'length',
+            'weight',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+            'productTitle',
+        ];
     }
 
     /**
