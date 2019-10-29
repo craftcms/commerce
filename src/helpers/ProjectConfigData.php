@@ -234,7 +234,6 @@ class ProjectConfigData
                 'sortOrder',
                 'default',
             ])
-            ->where(['isArchived' => false])
             ->indexBy('id')
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES])

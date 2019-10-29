@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-# Unreleased (3.x)
+## Unreleased (3.x)
 
 ### Added
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
@@ -78,6 +78,20 @@
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+
+## Unreleased 2.2.x
+
+### Added
+- `commerce/cart/*` requests now include estimated address data in their JSON response. ([#1084](https://github.com/craftcms/commerce/issues/1084))
+
+### Fixed
+- Fixed a bug where changing an order status while updating Commerce would cause an update failure. ([#1085](https://github.com/craftcms/commerce/issues/1085))
+
+## 2.2.6 - 2019-10-26
+
+### Fixed
+- Fixed a PHP error that occurred when rendering PDFs. ([#1072](https://github.com/craftcms/commerce/pull/1072))
+- Fixed a PHP error that occurred when saving order statuses. ([#1082](https://github.com/craftcms/commerce/issues/1082))
 
 ## 2.2.5 - 2019-10-24
 
