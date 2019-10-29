@@ -42,5 +42,11 @@
     "roave/security-advisories": "dev-master",
     "codeception/codeception": "^3.0",
     "vlucas/phpdotenv": "^3.4"
+  },
+  "scripts": {
+    "test": [
+      "Composer\\Config::disableProcessTimeout",
+      "codecept"
+    ]
   }
 }
