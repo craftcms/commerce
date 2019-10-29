@@ -10,7 +10,7 @@ namespace craft\commerce\events;
 use yii\base\Event;
 
 /**
- * ModifyCartArray class.
+ * ModifyCartInfoEvent class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.2
