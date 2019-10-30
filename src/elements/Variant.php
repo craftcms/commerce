@@ -692,7 +692,7 @@ class Variant extends Purchasable
 
             $map = (new Query())
                 ->select('id as source, productId as target')
-                ->from('commerce_variants')
+                ->from('{{%commerce_variants}}')
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
@@ -1031,7 +1031,19 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'hasUnlimitedStock', 'minQty', 'maxQty', 'productTitle'];
+        return [
+            'sku',
+            'price',
+            'width',
+            'height',
+            'length',
+            'weight',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+            'productTitle',
+        ];
     }
 
     /**

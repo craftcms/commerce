@@ -2024,7 +2024,7 @@ class Order extends Element
             'shortNumber',
             'transactionReference',
             'username',
-            'reference'
+            'reference',
         ];
     }
 
