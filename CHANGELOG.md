@@ -9,6 +9,7 @@
 - Fixed a bug where changing an order status while updating Commerce would cause an update failure. ([#1085](https://github.com/craftcms/commerce/issues/1085))
 - Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
 - Fixed a SQL error that occurred when eager loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
+- Fixed an error on the Order index page when showing the “Shipping Business Name” column.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getFullName()`.
