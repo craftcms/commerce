@@ -692,7 +692,7 @@ class Variant extends Purchasable
 
             $map = (new Query())
                 ->select('id as source, productId as target')
-                ->from('commerce_variants')
+                ->from('{{%commerce_variants}}')
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
