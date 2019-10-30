@@ -1073,7 +1073,10 @@ class Product extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['title', 'defaultSku', 'sku'];
+        return [
+            'defaultSku',
+            'sku',
+        ];
     }
 
     /**

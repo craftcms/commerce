@@ -218,8 +218,8 @@ class Orders extends Component
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
-            $data['shippingAddress'] = $cart->shippingAddress->toArray();
-            if ($cart->shippingAddress->getErrors()) {
+            $data['shippingAddress'] = $cart->getShippingAddress()->toArray();
+            if ($cart->getShippingAddress()->getErrors()) {
                 $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
             }
         } else {
@@ -228,12 +228,32 @@ class Orders extends Component
 
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
-            $data['billingAddress'] = $cart->billingAddress->toArray();
-            if ($cart->billingAddress->getErrors()) {
+            $data['billingAddress'] = $cart->getBillingAddress()->toArray();
+            if ($cart->getBillingAddress()->getErrors()) {
                 $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
             }
         } else {
             $data['billingAddress'] = null;
+        }
+
+        $data['estimatedShippingAddressId'] = $cart->estimatedShippingAddressId;
+        if ($cart->getEstimatedShippingAddress()) {
+            $data['estimatedShippingAddress'] = $cart->getEstimatedShippingAddress()->toArray();
+            if ($cart->getEstimatedShippingAddress()->getErrors()) {
+                $lineItems['estimatedShippingAddress']['errors'] = $cart->getEstimatedShippingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedShippingAddress'] = null;
+        }
+
+        $data['estimatedBillingAddressId'] = $cart->estimatedBillingAddressId;
+        if ($cart->getEstimatedBillingAddress()) {
+            $data['estimatedBillingAddress'] = $cart->getEstimatedBillingAddress()->toArray();
+            if ($cart->getEstimatedBillingAddress()->getErrors()) {
+                $lineItems['estimatedBillingAddress']['errors'] = $cart->getEstimatedBillingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedBillingAddress'] = null;
         }
 
         $lineItems = [];

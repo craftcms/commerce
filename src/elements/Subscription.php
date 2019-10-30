@@ -671,7 +671,10 @@ class Subscription extends Element
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['subscriber', 'plan'];
+        return [
+            'subscriber',
+            'plan',
+        ];
     }
 
     /**
