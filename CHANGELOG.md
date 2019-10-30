@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where changing an order status while updating Commerce would cause an update failure. ([#1085](https://github.com/craftcms/commerce/issues/1085))
+- Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
 
 ## 2.2.6 - 2019-10-26
 
