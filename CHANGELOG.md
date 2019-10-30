@@ -10,6 +10,9 @@
 - Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
 - Fixed a SQL error that occurred when eager loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
 
+### Deprecated
+- Deprecated `craft\commerce\models\Address::getFullName()`.
+
 ## 2.2.6 - 2019-10-26
 
 ### Fixed
