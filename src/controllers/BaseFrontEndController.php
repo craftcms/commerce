@@ -28,7 +28,7 @@ class BaseFrontEndController extends BaseController
      * ---
      * ```php
      * use craft\commerce\controllers\BaseFrontEndController;
-     * use craft\commerce\events\ModifyCartArray;
+     * use craft\commerce\events\ModifyCartInfoEvent;
      * use yii\base\Event;
      *
      * Event::on(BaseFrontEndController::class, BaseFrontEndController::EVENT_MODIFY_CART_INFO, function(ModifyCartInfoEvent $e) {

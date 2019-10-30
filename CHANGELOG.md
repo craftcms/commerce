@@ -81,11 +81,19 @@
 
 ## Unreleased 2.2.x
 
-### Added
-- `commerce/cart/*` requests now include estimated address data in their JSON response. ([#1084](https://github.com/craftcms/commerce/issues/1084))
+## 2.2.7 - 2019-10-30
+
+### Changed
+- `commerce/cart/*` requests now include estimated address data in their JSON responses. ([#1084](https://github.com/craftcms/commerce/issues/1084))
 
 ### Fixed
-- Fixed a bug where changing an order status while updating Commerce would cause an update failure. ([#1085](https://github.com/craftcms/commerce/issues/1085))
+- Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
+- Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
+- Fixed a SQL error that occurred when eager-loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
+- Fixed an error that occurred on the Orders index page if the "Shipping Business Name" column was shown.
+
+### Deprecated
+- Deprecated `craft\commerce\models\Address::getFullName()`.
 
 ## 2.2.6 - 2019-10-26
 

@@ -48,52 +48,31 @@ trait OrderElementTrait
         switch ($attribute) {
             case 'orderStatus':
             {
-                if ($this->orderStatus) {
-                    return $this->orderStatus->getLabelHtml();
-                }
-                return '<span class="status"></span>';
+                return $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>';
             }
             case 'shippingFullName':
             {
-                if ($this->getShippingAddress()) {
-                    return $this->getShippingAddress()->getFullName();
-                }
-                return '';
+                return $this->getShippingAddress() ? $this->getShippingAddress()->getFullName() ?? '' : '';
             }
             case 'billingFullName':
             {
-                if ($this->getBillingAddress()) {
-                    return $this->getBillingAddress()->getFullName();
-                }
-                return '';
+                return $this->getBillingAddress() ? $this->getBillingAddress()->getFullName() ?? '' : '';
             }
             case 'shippingBusinessName':
             {
-                if ($this->getShippingAddress()) {
-                    return $this->getShippingAddress()->businessName;
-                }
-                return '';
+                return $this->getShippingAddress()->businessName ?? '';
             }
             case 'billingBusinessName':
             {
-                if ($this->getBillingAddress()) {
-                    return $this->getBillingAddress()->businessName;
-                }
-                return '';
+                return $this->getBillingAddress()->businessName ?? '';
             }
             case 'shippingMethodName':
             {
-                if ($this->getShippingMethod()) {
-                    return $this->getShippingMethod()->name;
-                }
-                return '';
+                return $this->getShippingMethod()->name ?? '';
             }
             case 'gatewayName':
             {
-                if ($this->getGateway()) {
-                    return $this->getGateway()->name;
-                }
-                return '';
+                return $this->getGateway()->name ?? '';
             }
             case 'paidStatus':
             {
@@ -113,7 +92,7 @@ trait OrderElementTrait
             }
             case 'totalShippingCost':
             {
-                $amount = $this->getTotalShipping();
+                $amount = $this->getTotalShippingCost();
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             }
             case 'totalDiscount':
