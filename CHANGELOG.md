@@ -1,5 +1,7 @@
 # Release Notes for Craft Commerce
 
+## 2.2.7 - 2019-10-30
+
 ### Changed
 - `commerce/cart/*` requests now include estimated address data in their JSON responses. ([#1084](https://github.com/craftcms/commerce/issues/1084))
 
