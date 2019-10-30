@@ -11,6 +11,9 @@
 - Fixed an SQL error that occurred when eager loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
 - Fixed an error on the Order index page when showing the “Shipping Business Name” column.
 
+### Deprecated
+- Deprecated `craft\commerce\models\Address::getFullName()`.
+
 ## 2.2.6 - 2019-10-26
 
 ### Fixed
