@@ -103,7 +103,6 @@ class OrderStatus extends Model
                 'color' => AttributeTypecastBehavior::TYPE_STRING,
                 'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
             ]
         ];
