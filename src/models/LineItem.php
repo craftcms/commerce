@@ -28,7 +28,6 @@ use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
-
 /**
  * Line Item model representing a line item on an order.
  *
