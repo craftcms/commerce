@@ -44,6 +44,7 @@ use craft\records\FieldLayout;
 use craft\records\Site;
 use Exception;
 use RuntimeException;
+use yii\base\NotSupportedException;
 
 /**
  * Installation Migration
@@ -1085,149 +1086,47 @@ class Install extends Migration
      */
     public function dropForeignKeys()
     {
-        if ($this->_tableExists(Table::ADDRESSES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::ADDRESSES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ADDRESSES, $this);
-        }
-        if ($this->_tableExists(Table::CUSTOMER_DISCOUNTUSES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::CUSTOMER_DISCOUNTUSES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::CUSTOMER_DISCOUNTUSES, $this);
-        }
-        if ($this->_tableExists(Table::EMAIL_DISCOUNTUSES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::EMAIL_DISCOUNTUSES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::EMAIL_DISCOUNTUSES, $this);
-        }
-        if ($this->_tableExists(Table::CUSTOMERS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::CUSTOMERS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::CUSTOMERS, $this);
-        }
-        if ($this->_tableExists(Table::CUSTOMERS_ADDRESSES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::CUSTOMERS_ADDRESSES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::CUSTOMERS_ADDRESSES, $this);
-        }
-        if ($this->_tableExists(Table::DISCOUNT_PURCHASABLES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::DISCOUNT_PURCHASABLES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::DISCOUNT_PURCHASABLES, $this);
-        }
-        if ($this->_tableExists(Table::DISCOUNT_CATEGORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::DISCOUNT_CATEGORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::DISCOUNT_CATEGORIES, $this);
-        }
-        if ($this->_tableExists(Table::DISCOUNT_USERGROUPS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::DISCOUNT_USERGROUPS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::DISCOUNT_USERGROUPS, $this);
-        }
-        if ($this->_tableExists(Table::DONATIONS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::DONATIONS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::DONATIONS, $this);
-        }
-        if ($this->_tableExists(Table::LINEITEMS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::LINEITEMS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::LINEITEMS, $this);
-        }
-        if ($this->_tableExists(Table::ORDERADJUSTMENTS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::ORDERADJUSTMENTS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERADJUSTMENTS, $this);
-        }
-        if ($this->_tableExists(Table::ORDERHISTORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::ORDERHISTORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERHISTORIES, $this);
-        }
-        if ($this->_tableExists(Table::ORDERS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::ORDERS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERS, $this);
-        }
-        if ($this->_tableExists(Table::ORDERSTATUS_EMAILS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::ORDERSTATUS_EMAILS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::ORDERSTATUS_EMAILS, $this);
-        }
-        if ($this->_tableExists(Table::PAYMENTSOURCES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PAYMENTSOURCES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PAYMENTSOURCES, $this);
-        }
-        if ($this->_tableExists(Table::PLANS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PLANS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PLANS, $this);
-        }
-        if ($this->_tableExists(Table::PRODUCTS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PRODUCTS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PRODUCTS, $this);
-        }
-        if ($this->_tableExists(Table::PRODUCTTYPES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PRODUCTTYPES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PRODUCTTYPES, $this);
-        }
-        if ($this->_tableExists(Table::PRODUCTTYPES_SITES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PRODUCTTYPES_SITES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PRODUCTTYPES_SITES, $this);
-        }
-        if ($this->_tableExists(Table::PRODUCTTYPES_SHIPPINGCATEGORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $this);
-        }
-        if ($this->_tableExists(Table::PRODUCTTYPES_TAXCATEGORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PRODUCTTYPES_TAXCATEGORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PRODUCTTYPES_TAXCATEGORIES, $this);
-        }
-        if ($this->_tableExists(Table::PURCHASABLES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::PURCHASABLES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::PURCHASABLES, $this);
-        }
-        if ($this->_tableExists(Table::SALE_PURCHASABLES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SALE_PURCHASABLES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SALE_PURCHASABLES, $this);
-        }
-        if ($this->_tableExists(Table::SALE_CATEGORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SALE_CATEGORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SALE_CATEGORIES, $this);
-        }
-        if ($this->_tableExists(Table::SALE_USERGROUPS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SALE_USERGROUPS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SALE_USERGROUPS, $this);
-        }
-        if ($this->_tableExists(Table::SHIPPINGRULE_CATEGORIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SHIPPINGRULE_CATEGORIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SHIPPINGRULE_CATEGORIES, $this);
-        }
-        if ($this->_tableExists(Table::SHIPPINGRULES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SHIPPINGRULES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SHIPPINGRULES, $this);
-        }
-        if ($this->_tableExists(Table::SHIPPINGZONE_COUNTRIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SHIPPINGZONE_COUNTRIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SHIPPINGZONE_COUNTRIES, $this);
-        }
-        if ($this->_tableExists(Table::SHIPPINGZONE_STATES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SHIPPINGZONE_STATES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SHIPPINGZONE_STATES, $this);
-        }
-        if ($this->_tableExists(Table::STATES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::STATES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::STATES, $this);
-        }
-        if ($this->_tableExists(Table::SUBSCRIPTIONS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::SUBSCRIPTIONS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::SUBSCRIPTIONS, $this);
-        }
-        if ($this->_tableExists(Table::TAXRATES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::TAXRATES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::TAXRATES, $this);
-        }
-        if ($this->_tableExists(Table::TAXZONE_COUNTRIES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::TAXZONE_COUNTRIES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::TAXZONE_COUNTRIES, $this);
-        }
-        if ($this->_tableExists(Table::TAXZONE_STATES)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::TAXZONE_STATES, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::TAXZONE_STATES, $this);
-        }
-        if ($this->_tableExists(Table::TRANSACTIONS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::TRANSACTIONS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::TRANSACTIONS, $this);
-        }
-        if ($this->_tableExists(Table::VARIANTS)) {
-            MigrationHelper::dropAllForeignKeysToTable(Table::VARIANTS, $this);
-            MigrationHelper::dropAllForeignKeysOnTable(Table::VARIANTS, $this);
+        $tables = [
+            Table::ADDRESSES,
+            Table::CUSTOMER_DISCOUNTUSES,
+            Table::EMAIL_DISCOUNTUSES,
+            Table::CUSTOMERS,
+            Table::CUSTOMERS_ADDRESSES,
+            Table::DISCOUNT_PURCHASABLES,
+            Table::DISCOUNT_CATEGORIES,
+            Table::DISCOUNT_USERGROUPS,
+            Table::DONATIONS,
+            Table::LINEITEMS,
+            Table::ORDERADJUSTMENTS,
+            Table::ORDERHISTORIES,
+            Table::ORDERS,
+            Table::ORDERSTATUS_EMAILS,
+            Table::PAYMENTSOURCES,
+            Table::PLANS,
+            Table::PRODUCTS,
+            Table::PRODUCTTYPES,
+            Table::PRODUCTTYPES_SITES,
+            Table::PRODUCTTYPES_SHIPPINGCATEGORIES,
+            Table::PRODUCTTYPES_TAXCATEGORIES,
+            Table::PURCHASABLES,
+            Table::SALE_PURCHASABLES,
+            Table::SALE_CATEGORIES,
+            Table::SALE_USERGROUPS,
+            Table::SHIPPINGRULE_CATEGORIES,
+            Table::SHIPPINGRULES,
+            Table::SHIPPINGZONE_COUNTRIES,
+            Table::SHIPPINGZONE_STATES,
+            Table::STATES,
+            Table::SUBSCRIPTIONS,
+            Table::TAXRATES,
+            Table::TAXZONE_COUNTRIES,
+            Table::TAXZONE_STATES,
+            Table::TRANSACTIONS,
+            Table::VARIANTS
+        ];
+
+        foreach ($tables as $table) {
+            $this->_dropForeignKeyToAndFromTable($table);
         }
     }
 
@@ -1927,6 +1826,7 @@ class Install extends Migration
      * @param string $tableName
      * @param Migration|null $migration
      * @return bool If the table exists.
+     * @throws NotSupportedException
      */
     private function _tableExists(string $tableName): bool
     {
@@ -1937,5 +1837,17 @@ class Install extends Migration
         $table = $schema->getTableSchema($rawTableName);
 
         return (bool)$table;
+    }
+
+    /**
+     * @param $tableName
+     * @throws NotSupportedException
+     */
+    private function _dropForeignKeyToAndFromTable($tableName)
+    {
+        if ($this->_tableExists($tableName)) {
+            MigrationHelper::dropAllForeignKeysToTable($tableName, $this);
+            MigrationHelper::dropAllForeignKeysOnTable($tableName, $this);
+        }
     }
 }
