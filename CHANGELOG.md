@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- It’s now possible to sort products by Date Updated, Date Created and Promotable on the Products index page. ([#1101](https://github.com/craftcms/commerce/issues/1101))
+
 ## 2.2.7 - 2019-10-30
 
 ### Changed

@@ -1088,7 +1088,18 @@ class Product extends Element
             'title' => Craft::t('commerce', 'Title'),
             'postDate' => Craft::t('commerce', 'Post Date'),
             'expiryDate' => Craft::t('commerce', 'Expiry Date'),
-            'defaultPrice' => Craft::t('commerce', 'Price')
+            'promotable' => Craft::t('commerce', 'Promotable?'),
+            'defaultPrice' => Craft::t('commerce', 'Price'),
+            [
+                'label' => Craft::t('app', 'Date Created'),
+                'orderBy' => 'elements.dateCreated',
+                'attribute' => 'dateCreated'
+            ],
+            [
+                'label' => Craft::t('app', 'Date Updated'),
+                'orderBy' => 'elements.dateUpdated',
+                'attribute' => 'dateUpdated'
+            ],
         ];
     }
 
