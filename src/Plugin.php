@@ -92,6 +92,10 @@ class Plugin extends BasePlugin
     }
 
     /**
+     * @param $message
+     * @param array $params
+     * @param null $language
+     * @return string
      * @see Craft::t()
      * @since 2.2.0
      */
