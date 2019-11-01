@@ -374,39 +374,6 @@ class Address extends Model
     }
 
     /**
-     * Returns the address full name.
-     *
-     * @return string|null
-     * @deprecated 2.2.7 in favor of using the fullName attribute
-     */
-    public function getFullName()
-    {
-        Craft::$app->getDeprecator()->log('Address::getFullName()', 'Address::getFullName() has been deprecated. Use fullName attribute instead.');
-
-        // Return the full name if it is set explicitly
-        if ($this->fullName) {
-            return $this->fullName;
-        }
-
-        $firstName = trim($this->firstName);
-        $lastName = trim($this->lastName);
-
-        if (!$firstName && !$lastName) {
-            return null;
-        }
-
-        $name = $firstName;
-
-        if ($firstName && $lastName) {
-            $name .= ' ';
-        }
-
-        $name .= $lastName;
-
-        return $name;
-    }
-
-    /**
      * @return string
      */
     public function getCountryText(): string

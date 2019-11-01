@@ -58,6 +58,7 @@
 - Removed `craft\commerce\elements\Product::getSnapshot()`.
 - Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
 - Removed `craft\commerce\elements\Variant::getSalesApplied()`.
+- Removed `craft\commerce\models\Address::getFullName()`.
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.

@@ -8,6 +8,9 @@
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 
+### Removed 
+- Removed `craft\commerce\models\Address::getFullName()`.
+
 ## 3.0.0-alpha.1 - 2019-07-24
 
 ### Added
