@@ -10,6 +10,7 @@
 - Orders now have recalculation modes to determine what should be recalculated on the order.
 - Added the `origin` order query param.
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
+- Added warnings to settings that are being overridden in the config file.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.

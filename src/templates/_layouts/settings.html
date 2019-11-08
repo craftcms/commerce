@@ -28,6 +28,21 @@
 
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
 
+
+{% macro configWarning(setting, file) -%}
+    {%- spaceless %}
+        {% set config = craft.app.config.getConfigFromFile(file) %}
+        {% if config[setting] is defined %}
+            {{ "This is being overridden by the {setting} config setting in `config/{file}.php`."|t('commerce', {
+                setting: setting,
+                file: file,
+            })|raw }}
+        {% else %}
+            {{ false }}
+        {% endif %}
+    {% endspaceless -%}
+{%- endmacro %}
+
 {% block sidebar %}
     <nav>
         <ul>
