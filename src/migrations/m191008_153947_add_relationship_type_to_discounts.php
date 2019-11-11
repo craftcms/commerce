@@ -16,7 +16,7 @@ class m191008_153947_add_relationship_type_to_discounts extends Migration
     public function safeUp()
     {
         $columnName = 'categoryRelationshipType';
-        $values = ['sourceElement', 'targetElement', 'element'];
+        $values = ['element', 'sourceElement', 'targetElement'];
 
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres

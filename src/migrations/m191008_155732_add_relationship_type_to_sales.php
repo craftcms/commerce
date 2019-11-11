@@ -16,7 +16,7 @@ class m191008_155732_add_relationship_type_to_sales extends Migration
     public function safeUp()
     {
         $columnName = 'categoryRelationshipType';
-        $values = ['sourceElement', 'targetElement', 'element'];
+        $values = ['element', 'sourceElement', 'targetElement'];
 
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
