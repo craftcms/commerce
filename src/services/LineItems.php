@@ -16,6 +16,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use DateTime;
 use Throwable;
@@ -211,9 +212,6 @@ class LineItems extends Component
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
-        // Fot existing lineItems do not reset the `dateCreated`
-        $lineItemRecord->dateCreated = $lineItem->dateCreated ?: null;
-
         if (!$lineItem->hasErrors()) {
 
             $db = Craft::$app->getDb();
@@ -223,6 +221,9 @@ class LineItems extends Component
                 $success = $lineItemRecord->save(false);
 
                 if ($success) {
+                    $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
+                    $lineItem->dateCreated = $dateCreated;
+
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
                     }
