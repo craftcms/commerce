@@ -46,6 +46,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $ignoreSales
  * @property int $totalUseLimit
  * @property int $totalUses
+ * @property string $categoryRelationshipType
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -56,6 +57,10 @@ class Discount extends ActiveRecord
 
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+
+    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     // Public Methods
     // =========================================================================

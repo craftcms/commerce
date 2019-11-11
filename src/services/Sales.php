@@ -131,6 +131,7 @@ class Sales extends Component
                 sales.allGroups,
                 sales.allPurchasables,
                 sales.allCategories,
+                sales.categoryRelationshipType,
                 sales.enabled,
                 sp.purchasableId,
                 spt.categoryId,
@@ -481,6 +482,7 @@ class Sales extends Component
             'applyAmount',
             'stopProcessing',
             'ignorePrevious',
+            'categoryRelationshipType',
             'enabled'
         ];
         foreach ($fields as $field) {
