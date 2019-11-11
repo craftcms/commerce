@@ -1,5 +1,10 @@
 {% import "_includes/forms" as forms %}
 
+{% do view.registerTranslations('commerce', [
+"Example"
+]) %}
+
+<div>
 {{ forms.textField({
     first: true,
     label: "Name"|t('commerce'),
@@ -9,8 +14,7 @@
     value: shippingZone is defined ? shippingZone.name,
     errors: shippingZone is defined ? shippingZone.getErrors('name'),
     autofocus: true,
-    required: true,
-    translatable: true
+    required: true
 }) }}
 
 {{ forms.textField({
@@ -56,32 +60,210 @@
     class: 'selectize fullwidth',
 }) }}
 
+{% embed '_includes/forms/field' with {
+    label: 'Zip Code Condition Formula'|t('commerce'),
+    id: 'zipCodeConditionFormula',
+    rows: 5,
+    instructions: 'Use a formula to match the zip code. Leave this blank to match all zip codes. Use the `zipCode` variable.',
+    tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+    errors: shippingZone is defined ? shippingZone.getErrors('zipCodeConditionFormula'),
+    } %}
+    {% block input %}
+        {% import "_includes/forms" as forms %}
+        <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
+            <div  class="zip-condition">
+                {{ forms.textarea({
+                    value: shippingZone is defined ? shippingZone.zipCodeConditionFormula,
+                    name: 'zipCodeConditionFormula',
+                    class: 'code',
+                    rows: 5,
+                    placeholder: 'Example'|t('commerce') ~ ': zipCode[0:2] == \'NG\''
+                }) }}
+            </div>
+
+            <div class="zip-test pane first">
+                {% embed '_includes/forms/field' with {
+                    label: 'Test Zip Code'|t('commerce'),
+                    class: 'zip-test-input',
+                    instructions: 'Type a test zip to see if your match works.'|t('commerce'),
+                    fieldClass: 'last'
+                } only %}
+                    {% block input %}
+                        {% import "_includes/forms" as forms %}
+                        <div class="zip-test-input">
+                            {{ forms.text({
+                                class: 'code',
+                            }) }}
+                            <div class="zip-test-status">
+                                <div class="zip-test-status-icon success hidden" title="Codition matches zip code" data-icon="check"></div>
+                                <div class="zip-test-status-icon failure hidden" title="Condition does not match the zip code" data-icon="remove"></div>
+                                <div class="zip-test-status-spinner spinner hidden"></div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                {% endembed %}
+            </div>
+        </div>
+    {% endblock %}
+{% endembed %}
+
+</div>
 {% set countriesId = 'countries'|namespaceInputId|e('js') %}
 {% set statesId = 'states'|namespaceInputId|e('js') %}
 {% set isCountryBasedName = 'isCountryBased'|namespaceInputName|e('js') %}
 
 {% js %}
     $('#{{ countriesId }}, #{{ statesId }}').selectize({
-    plugins: ['remove_button'],
-    dropdownParent: 'body'
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
     });
 
     $('[name="{{ isCountryBasedName }}"]').change(function () {
     if (!$(this).is(':checked')) {
-    return;
+        return;
     }
+
     if ($(this).val() * 1) {
-    $('#{{ countriesId }}')[0].selectize.enable();
-    $('#{{ statesId }}')[0].selectize.disable();
-    $('#{{ countriesId }}-field').show();
-    $('#{{ statesId }}-field').hide();
+        $('#{{ countriesId }}')[0].selectize.enable();
+        $('#{{ statesId }}')[0].selectize.disable();
+        $('#{{ countriesId }}-field').show();
+        $('#{{ statesId }}-field').hide();
     } else {
-    $('#{{ countriesId }}')[0].selectize.disable();
-    $('#{{ statesId }}')[0].selectize.enable();
-    $('#{{ countriesId }}-field').hide();
-    $('#{{ statesId }}-field').show();
+        $('#{{ countriesId }}')[0].selectize.disable();
+        $('#{{ statesId }}')[0].selectize.enable();
+        $('#{{ countriesId }}-field').hide();
+        $('#{{ statesId }}-field').show();
     }
     });
 
     $('[name="{{ isCountryBasedName }}"]:checked').trigger('change');
+
+    // setup for debouncing
+    var typingTimer;                //timer identifier
+    var doneTypingInterval = 1000;  //time in ms, 5 second for example
+
+    // top level fov containing the field
+    var $zipCodeField = $('#zipCodeField');
+
+    var $zipCodeConditionFormula = $zipCodeField.find('textarea[name="zipCodeConditionFormula"]').first();
+    var $testZipCode = $zipCodeField.find('.zip-test-input input').first();
+    var $zipTestStatus = $zipCodeField.find('.zip-test-status').first();
+    var $zipTestStatusSuccess = $zipTestStatus.find('.zip-test-status-icon.success');
+    var $zipTestStatusFailed = $zipTestStatus.find('.zip-test-status-icon.failure');
+    var $zipTestStatusSpinner = $zipTestStatus.find('.zip-test-status-spinner');
+
+    function startedTyping () {
+        if($zipCodeConditionFormula.val() == ''){
+            $zipTestStatusSpinner.addClass('hidden');
+            $zipTestStatusFailed.addClass('hidden');
+            $zipTestStatusSuccess.addClass('hidden');
+            return;
+        }
+        $zipTestStatusSpinner.removeClass('hidden');
+        $zipTestStatusFailed.addClass('hidden');
+        $zipTestStatusSuccess.addClass('hidden');
+    }
+
+    //on keyup, start the countdown
+    $testZipCode.on('keyup', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        startedTyping();
+    });
+
+    //on keyup, start the countdown
+    $zipCodeConditionFormula.on('keyup', function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        startedTyping();
+    });
+
+    //on keydown, clear the countdown
+    $zipCodeConditionFormula.on('keydown', function () {
+        clearTimeout(typingTimer);
+    });
+
+    //user is "finished typing," do something
+    function doneTyping () {
+
+        $.post({
+            url: Craft.getActionUrl('commerce/formulas/validate-condition'),
+            data: {
+                condition: $zipCodeConditionFormula.val(),
+                params: { zipCode : '' }
+            },
+            dataType: 'json',
+            headers: {
+                'X-CSRF-Token': Craft.csrfTokenValue
+            },
+            success: function(data){
+                if(data.hasOwnProperty('error')){
+                    $zipCodeConditionFormula.addClass('error');
+                    $zipTestStatusSpinner.addClass('hidden');
+                }else{
+                    $zipCodeConditionFormula.removeClass('error');
+                    $.post({
+                        url: Craft.getActionUrl('commerce/shipping-zones/test-zip'),
+                        data: {
+                            zipCodeConditionFormula: $zipCodeConditionFormula.val(),
+                            testZipCode : $testZipCode.val()
+                        },
+                        dataType: 'json',
+                        headers: {
+                            'X-CSRF-Token': Craft.csrfTokenValue
+                        },
+                        success: function(data){
+                            $zipTestStatusSpinner.addClass('hidden');
+
+                            if(data.hasOwnProperty('error')){
+                                $zipTestStatusFailed.removeClass('hidden');
+                            }else {
+                                $zipTestStatusSuccess.removeClass('hidden');
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 {% endjs %}
+{% css %}
+    .zip-test{
+        background-color: #f1f5f8;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        padding: 12px 14px;
+    }
+
+    .zip-test-input {
+        position: relative;
+    }
+
+    .zip-test-status {
+        position: absolute;
+        top: 0;
+    }
+
+    body.ltr .zip-test-status {
+        right: 4px;
+    }
+
+    body.rtl .zip-test-status {
+        left: 4px;
+    }
+
+    .zip-test-status-icon {
+        position: relative;
+        top: 5px;
+        width: 24px;
+        text-align: center;
+    }
+
+    .zip-test-status-icon.success {
+        color: #00b007;
+    }
+
+    .zip-test-status-icon.failure {
+        color: #da5a47;
+    }
+
+{% endcss %}

@@ -8,7 +8,9 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
+use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\commerce\records\TaxZone;
@@ -18,6 +20,7 @@ use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\caching\TagDependency;
 
 /**
  * Tax zone service.
@@ -107,7 +110,7 @@ class TaxZones extends Component
             $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No tax zone exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -126,6 +129,13 @@ class TaxZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
+
+        // If the condition formula changes, clear the cache for this zone.
+        if (($record->zipCodeConditionFormula != $model->getZipCodeConditionFormula()) && $record->id) {
+            TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
+        }
+
+        $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
         $record->isCountryBased = $model->isCountryBased;
         $record->default = $model->default;
 
@@ -134,13 +144,13 @@ class TaxZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
+                $model->addError('countries', Plugin::t('At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
+                $model->addError('states', Plugin::t('At least one state must be selected.'));
             }
         }
 
@@ -169,13 +179,13 @@ class TaxZones extends Component
                     return [$id, $model->id];
                 }, $countryIds);
                 $cols = ['countryId', 'taxZoneId'];
-                $table = '{{%commerce_taxzone_countries}}';
+                $table = Table::TAXZONE_COUNTRIES;
             } else {
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
                 $cols = ['stateId', 'taxZoneId'];
-                $table = '{{%commerce_taxzone_states}}';
+                $table = Table::TAXZONE_STATES;
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
@@ -225,9 +235,10 @@ class TaxZones extends Component
                 'name',
                 'description',
                 'isCountryBased',
+                'zipCodeConditionFormula',
                 'default',
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_taxzones}}']);
+            ->from([Table::TAXZONES]);
     }
 }

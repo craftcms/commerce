@@ -85,6 +85,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
+        $taxZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
@@ -146,5 +147,26 @@ class TaxZonesController extends BaseTaxSettingsController
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\web\BadRequestHttpException
+     * @since 2.2
+     */
+    public function actionTestZip()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+
+        $params = ['zipCode' => $testZipCode];
+        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->asErrorJson('failed');
     }
 }

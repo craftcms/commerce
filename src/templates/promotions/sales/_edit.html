@@ -60,11 +60,12 @@
             errors: sale.getErrors('description'),
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightSwitchField({
             label: "Enable this sale"|t('commerce'),
             id: 'enabled',
             name: 'enabled',
             value: 1,
+            on: sale.enabled,
             checked: sale.enabled,
             errors: sale.getErrors('enabled'),
             instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')

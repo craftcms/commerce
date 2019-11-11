@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Category;
 use craft\records\UserGroup;
@@ -42,6 +43,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $purchaseTotal
  * @property int $sortOrder
  * @property bool $stopProcessing
+ * @property bool $ignoreSales
  * @property int $totalUseLimit
  * @property int $totalUses
  * @property string $categoryRelationshipType
@@ -68,7 +70,7 @@ class Discount extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discounts}}';
+        return Table::DISCOUNTS;
     }
 
     /**

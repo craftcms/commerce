@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -17,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $isCountryBased
  * @property bool $default
  * @property string $description
+ * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
  * @property State[] $states
@@ -33,7 +35,7 @@ class TaxZone extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_taxzones}}';
+        return Table::TAXZONES;
     }
 
     /**
@@ -41,7 +43,7 @@ class TaxZone extends ActiveRecord
      */
     public function getCountries(): ActiveQueryInterface
     {
-        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable('{{%commerce_taxzone_countries}}', ['taxZoneId' => 'id']);
+        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable(Table::TAXZONE_COUNTRIES, ['taxZoneId' => 'id']);
     }
 
     /**
@@ -49,6 +51,6 @@ class TaxZone extends ActiveRecord
      */
     public function getStates(): ActiveQueryInterface
     {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable('{{%commerce_taxzone_states}}', ['taxZoneId' => 'id']);
+        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::TAXZONE_STATES, ['taxZoneId' => 'id']);
     }
 }

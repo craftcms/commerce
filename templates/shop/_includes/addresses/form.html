@@ -32,6 +32,18 @@
                 <span class="flash">{{ model.getErrors('lastName')|join }}</span>
             {% endif %}
 
+            <label for="{{ modelName }}-fullName">Full Name</label>
+            <input type="text" id="{{ modelName }}-fullName" class="w-full" name="{{ modelName }}[fullName]" value="{{ model ? model.fullName : '' }}">
+            {% if model and model.getErrors('fullName') %}
+                <span class="flash">{{ model.getErrors('fullName')|join }}</span>
+            {% endif %}
+
+            <label for="{{ modelName }}-label">Label</label>
+            <input type="text" id="{{ modelName }}-label" class="w-full" name="{{ modelName }}[label]" value="{{ model ? model.label : '' }}">
+            {% if model and model.getErrors('label') %}
+                <span class="flash">{{ model.getErrors('label')|join }}</span>
+            {% endif %}
+
             <label for="{{ modelName }}-businessName">Business Name</label>
             <input type="text" id="{{ modelName }}-businessName" class="w-full" name="{{ modelName }}[businessName]" value="{{ model ? model.businessName : '' }}">
             {% if model and model.getErrors('businessName') %}
@@ -54,6 +66,40 @@
                     {% endif %}
                 </div>
             </div>
+
+            <div class="flex -mx-4">
+                <div class="flex-1 mx-4">
+                    <label for="{{ modelName }}-custom1">Custom 1</label>
+                    <input type="text" id="{{ modelName }}-custom1" class="w-full" name="{{ modelName }}[custom1]" value="{{ model ? model.custom1 : '' }}">
+                    {% if model and model.getErrors('custom1') %}
+                        <span class="flash">{{ model.getErrors('custom1')|join }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex-1 mx-4">
+                    <label for="{{ modelName }}-custom2">Custom 2</label>
+                    <input type="text" id="{{ modelName }}-custom2" class="w-full" name="{{ modelName }}[custom2]" value="{{ model ? model.custom2 : '' }}">
+                    {% if model and model.getErrors('custom2') %}
+                        <span class="flash">{{ model.getErrors('custom2')|join }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex -mx-4">
+                <div class="flex-1 mx-4">
+                    <label for="{{ modelName }}-custom3">Custom 3</label>
+                    <input type="text" id="{{ modelName }}-custom3" class="w-full" name="{{ modelName }}[custom3]" value="{{ model ? model.custom3 : '' }}">
+                    {% if model and model.getErrors('custom3') %}
+                        <span class="flash">{{ model.getErrors('custom3')|join }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex-1 mx-4">
+                    <label for="{{ modelName }}-custom4">Custom 4</label>
+                    <input type="text" id="{{ modelName }}-custom4" class="w-full" name="{{ modelName }}[custom4]" value="{{ model ? model.custom4 : '' }}">
+                    {% if model and model.getErrors('custom4') %}
+                        <span class="flash">{{ model.getErrors('custom4')|join }}</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <div class="flex-1 mx-4">
@@ -67,6 +113,12 @@
             <input type="text" id="{{ modelName }}-address2" class="w-full" name="{{ modelName }}[address2]" value="{{ model ? model.address2 : '' }}">
             {% if model and model.getErrors('address2') %}
                 <span class="flash">{{ model.getErrors('address2')|join }}</span>
+            {% endif %}
+
+            <label for="{{ modelName }}-address3">Address 3</label>
+            <input type="text" id="{{ modelName }}-address3" class="w-full" name="{{ modelName }}[address3]" value="{{ model ? model.address3 : '' }}">
+            {% if model and model.getErrors('address3') %}
+                <span class="flash">{{ model.getErrors('address3')|join }}</span>
             {% endif %}
 
             <div class="flex -mx-4">
@@ -128,12 +180,19 @@
                 </div>
             </div>
 
+            <label for="{{ modelName }}-notes">Notes</label>
+            <textarea class="w-full" name="{{ modelName }}[notes]" id="{{ modelName }}-notes" cols="30" rows="10">{{ model ? model.notes : '' }}</textarea>
+            {% if model and model.getErrors('notes') %}
+                <span class="flash">{{ model.getErrors('notes')|join }}</span>
+            {% endif %}
+
+
         </div>
     </div>
 </div>
 
-    {% js %}
-    var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
+{% js %}
+var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
 
     $('select.address-country').change(function ()
     {

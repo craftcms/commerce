@@ -13,6 +13,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use DateInterval;
+use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
@@ -172,6 +174,28 @@ class Customer extends Model
     public function getOrders(): array
     {
         return Order::find()->customer($this)->isCompleted()->all();
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     * @since 2.2
+     */
+    public function getActiveCarts(): array
+    {
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
+        return Order::find()->customer($this)->isCompleted(false)->dateUpdated('>= ' . $edge)->orderBy('dateUpdated DESC')->all();
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     * @since 2.2
+     */
+    public function getInactiveCarts(): array
+    {
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
+        return Order::find()->customer($this)->isCompleted(false)->dateUpdated('< ' . $edge)->orderBy('dateUpdated ASC')->all();
     }
 
     /**

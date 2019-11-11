@@ -13,6 +13,18 @@
 
     <div><strong>Subscribed to {{ subscription.plan.name }}</strong></div>
 
+    {% set information = subscription.plan.getInformation() ?? null %}
+    {% if information %}
+        <div>
+            <h4>{{ 'Plan Information Entry'|t('commerce') }}</h4>
+            <ul>
+                <li>{{ 'ID'|t }}: {{ information.id }}</li>
+                <li>{{ 'Title'|t }}: {{ information.title }}</li>
+            </ul>
+            <br>
+        </div>
+    {% endif %}
+
     {% if subscription.isExpired %}
         <div>Your subscription expired on {{ subscription.dateExpired|date('Y-m-d') }}</div>
     {% else %}

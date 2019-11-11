@@ -10,6 +10,10 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\adjusters\Discount;
+use craft\commerce\adjusters\Shipping;
+use craft\commerce\adjusters\Tax;
+use craft\commerce\db\Table;
 use craft\commerce\events\ReportEvent;
 use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
@@ -65,6 +69,28 @@ class Reports extends Component
             'orderStatusId',
             'couponCode',
             'itemTotal',
+            'totalTax' => (new CraftQuery())
+                ->select('SUM([[amount]])')
+                ->from(Table::ORDERADJUSTMENTS)
+                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
+                ->andWhere(['type'=>Tax::ADJUSTMENT_TYPE])
+                ->andWhere(['included'=>0]),
+            'totalTaxIncluded' => (new CraftQuery())
+                ->select('SUM([[amount]])')
+                ->from(Table::ORDERADJUSTMENTS)
+                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
+                ->andWhere(['type'=>Tax::ADJUSTMENT_TYPE])
+                ->andWhere(['included'=>1]),
+            'totalShpping' => (new CraftQuery())
+                ->select('SUM([[amount]])')
+                ->from(Table::ORDERADJUSTMENTS)
+                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
+                ->andWhere(['type'=>Shipping::ADJUSTMENT_TYPE]),
+            'totalDiscount' => (new CraftQuery())
+                ->select('SUM([[amount]])')
+                ->from(Table::ORDERADJUSTMENTS)
+                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
+                ->andWhere(['type'=>Discount::ADJUSTMENT_TYPE]),
             'totalPrice',
             'totalPaid',
             'paidStatus',
@@ -87,7 +113,7 @@ class Reports extends Component
 
         $orderQuery = (new CraftQuery())
             ->select($columns)
-            ->from('{{%commerce_orders}}')
+            ->from(Table::ORDERS)
             ->andWhere('[[isCompleted]] = true')
             ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($endDate)]);
@@ -98,6 +124,14 @@ class Reports extends Component
         }
 
         $orders = $orderQuery->all();
+
+        // Re-key the columns array
+        foreach ($columns as $key => &$column) {
+            if (!is_numeric($key)) {
+                $column = $key;
+            }
+        }
+        unset($column);
 
         // Raise the beforeGenerateExport event
         $event = new ReportEvent([
