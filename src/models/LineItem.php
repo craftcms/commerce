@@ -183,7 +183,7 @@ class LineItem extends Model
      */
     public function getOptions(): array
     {
-        return $this->_options;
+        return is_array($this->_options) ? $this->_options : [];
     }
 
     /**
