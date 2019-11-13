@@ -50,7 +50,7 @@ class ProductFixture extends ElementFixture
         // Ensure loaded
         $commerce = Plugin::getInstance();
         if (!$commerce) {
-            throw new InvalidArgumentException('Commerce plugin needs to be loaded before using the ProductFixture'.);
+            throw new InvalidArgumentException('Commerce plugin needs to be loaded before using the ProductFixture');
         }
 
         // Get all product type id's
