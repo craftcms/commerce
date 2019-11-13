@@ -6,6 +6,7 @@
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
 - Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984)) 
+- Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
