@@ -517,11 +517,13 @@ class VariantQuery extends ElementQuery
             }
 
             if (!$allVariantsMatch) {
+                $activeSaleIds = ArrayHelper::getColumn($activeSales, 'id');
+
+                // Only force user group restriction on site requests
                 if (Craft::$app->getRequest()->isSiteRequest) {
                     $user = Craft::$app->getUser()->getIdentity();
                     $userGroups = $user->getGroups();
                     $userGroupIds = ArrayHelper::getColumn($userGroups, 'id');
-                    $activeSaleIds = ArrayHelper::getColumn($activeSales, 'id');
 
                     // If the user doesn't belong to any groups, remove sales that
                     // restrict by user group as these would never match
@@ -548,37 +550,39 @@ class VariantQuery extends ElementQuery
                             }
                         }
                     }
+                }
 
-                    $activeSales = ArrayHelper::whereMultiple($activeSales, ['id' => $activeSaleIds]);
+                $activeSales = ArrayHelper::whereMultiple($activeSales, ['id' => $activeSaleIds]);
 
-                    // Check to see if we have any sales that match all products and categories
-                    // so we can skip extra processing if needed
-                    $allProductsAndCategoriesSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 1, 'allCategories' => 1]);
+                // Check to see if we have any sales that match all products and categories
+                // so we can skip extra processing if needed
+                $allProductsAndCategoriesSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 1, 'allCategories' => 1]);
 
-                    if (empty($allProductsAndCategoriesSales)) {
-                        $purchasableRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 0]);
-                        $categoryRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allCategories' => 0]);
+                if (empty($allProductsAndCategoriesSales)) {
+                    $purchasableRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 0]);
+                    $categoryRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allCategories' => 0]);
 
-                        $purchasableRestrictedIds = (new Query())
-                            ->select('purchasableId')
-                            ->from(Table::SALE_PURCHASABLES . ' sp')
-                            ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
-                            ->column();
+                    $purchasableRestrictedIds = (new Query())
+                        ->select('purchasableId')
+                        ->from(Table::SALE_PURCHASABLES . ' sp')
+                        ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
+                        ->column();
 
-                        // TODO in 3.0 make this work with category relations that are sourceElement, targetElement or element
-                        $categoryRestrictedIds = (new Query())
-                            ->select('rel.sourceId')
-                            ->from(Table::SALE_CATEGORIES . ' sc')
-                            ->leftJoin(\craft\db\Table::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
-                            ->where(['in', 'saleId', ArrayHelper::getColumn($categoryRestrictedSales, 'id')])
-                            ->column();
+                    // TODO in 3.0 make this work with category relations that are sourceElement, targetElement or element
+                    $categoryRestrictedIds = (new Query())
+                        ->select('rel.sourceId')
+                        ->from(Table::SALE_CATEGORIES . ' sc')
+                        ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
+                        ->where(['in', 'saleId', ArrayHelper::getColumn($categoryRestrictedSales, 'id')])
+                        ->column();
 
-                        $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
-                    }
+                    $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
                 }
             }
 
-            $this->subQuery->andWhere(['in', 'commerce_variants.id', $variantIds]);
+            $includeExcludeIds = $this->hasSales ? 'in' : 'not in';
+            $this->subQuery->andWhere([$includeExcludeIds, 'commerce_variants.id', $variantIds]);
+
         }
 
         $this->_applyHasProductParam();
