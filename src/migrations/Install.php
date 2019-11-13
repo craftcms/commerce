@@ -265,6 +265,7 @@ class Install extends Migration
             'enabled' => $this->boolean(),
             'attachPdf' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),
+            'plainTextTemplatePath' => $this->string(),
             'pdfTemplatePath' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
