@@ -575,9 +575,9 @@ class VariantQuery extends ElementQuery
                         $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
                     }
                 }
-
-                $this->subQuery->andWhere(['in', 'commerce_variants.id', $variantIds]);
             }
+
+            $this->subQuery->andWhere(['in', 'commerce_variants.id', $variantIds]);
         }
 
         $this->_applyHasProductParam();
