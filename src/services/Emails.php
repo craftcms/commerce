@@ -198,6 +198,7 @@ class Emails extends Component
             'replyTo' => $email->replyTo,
             'enabled' => (bool)$email->enabled,
             'templatePath' => $email->templatePath,
+            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
             'attachPdf' => (bool)$email->attachPdf,
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
@@ -239,6 +240,7 @@ class Emails extends Component
             $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
             $emailRecord->templatePath = $data['templatePath'];
+            $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->attachPdf = $data['attachPdf'];
             $emailRecord->pdfTemplatePath = $data['pdfTemplatePath'];
             $emailRecord->uid = $emailUid;
@@ -535,6 +537,41 @@ class Emails extends Component
 
             return false;
         }
+        // Plain Text Template Path
+        $plainTextTemplatePath = null;
+        try {
+            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+        } catch (\Exception $e) {
+            $error = Plugin::t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                'email' => $email->name,
+                'order' => $order->getShortNumber(),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            Craft::error($error, __METHOD__);
+
+            Craft::$app->language = $originalLanguage;
+            $view->setTemplateMode($oldTemplateMode);
+
+            return false;
+        }
+
+        // Plain Text Body
+        if ($plainTextTemplatePath && !$view->doesTemplateExist($templatePath)) {
+            $error = Plugin::t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
+                'templatePath' => $email->plainTextTemplatePath,
+                'templateParsedPath' => $plainTextTemplatePath,
+                'email' => $email->name,
+                'order' => $order->getShortNumber()
+            ]);
+            Craft::error($error, __METHOD__);
+
+            Craft::$app->language = $originalLanguage;
+            $view->setTemplateMode($oldTemplateMode);
+
+            return false;
+        }
 
         if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
             // Email Body
@@ -586,6 +623,7 @@ class Emails extends Component
             }
         }
 
+        // Render HTML body
         try {
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
@@ -603,6 +641,28 @@ class Emails extends Component
             $view->setTemplateMode($oldTemplateMode);
 
             return false;
+        }
+
+        // Render Plain Text body
+        if ($plainTextTemplatePath) {
+            try {
+                $plainTextBody = $view->renderTemplate($plainTextTemplatePath, $renderVariables);
+                $newEmail->setTextBody($plainTextBody);
+            } catch (\Exception $e) {
+                $error = Plugin::t('Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                Craft::error($error, __METHOD__);
+
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
+
+                return false;
+            }
         }
 
         try {
@@ -725,6 +785,7 @@ class Emails extends Component
                 'emails.replyTo',
                 'emails.enabled',
                 'emails.templatePath',
+                'emails.plainTextTemplatePath',
                 'emails.attachPdf',
                 'emails.pdfTemplatePath',
                 'emails.uid',
