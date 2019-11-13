@@ -211,7 +211,99 @@ class SalesController extends BaseCpController
         return $this->asJson(['success' => true]);
     }
 
-    // Public Methods
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionGetAllSales(): Response
+    {
+        $this->requireAcceptsJson();
+        $sales = Plugin::getInstance()->getSales()->getAllSales();
+
+        return $this->asJson(array_values($sales));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionGetSalesByProductId(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Plugin::t('Product ID is required.'));
+        }
+
+        $product = Plugin::getInstance()->getProducts()->getProductById($id);
+
+        if (!$product) {
+            return $this->asErrorJson(Plugin::t('No product available.'));
+        }
+
+        $sales = [];
+        foreach ($product->getVariants() as $variant) {
+            $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
+            foreach ($variantSales as $sale) {
+                if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+                    /** @var Sale $sale */
+                    $saleArray = $sale->toArray();
+                    $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
+                    $sales[] = $saleArray;
+                }
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'sales' => $sales,
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \yii\base\Exception
+     */
+    public function actionAddProductToSale(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $productId = $request->getParam('productId', null);
+        $saleId = $request->getParam('saleId', null);
+
+        if (!$productId || !$saleId) {
+            return $this->asErrorJson(Plugin::t('Product ID and Sale ID are required.'));
+        }
+
+        $product = Plugin::getInstance()->getProducts()->getProductById($productId);
+        $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
+
+        if (!$product || !$sale) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve Sale and Product.'));
+        }
+
+        $variants = $product->getVariants();
+        $variantIds = ArrayHelper::getColumn($variants, 'id');
+        $salePurchasableIds = $sale->getPurchasableIds();
+
+        array_push($salePurchasableIds, ...$variantIds);
+        $sale->setPurchasableIds(array_unique($salePurchasableIds));
+
+        if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
+            return $this->asErrorJson(Plugin::t('Couldn’t save sale.'));
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+
+    // Private Methods
     // =========================================================================
 
     /**
