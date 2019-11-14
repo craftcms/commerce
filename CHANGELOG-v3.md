@@ -13,6 +13,7 @@
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
 - Added the ability to add a product to an existing Sale from the Product Edit page.
+- Added the ability to set a plain text template for Commerce emails.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
