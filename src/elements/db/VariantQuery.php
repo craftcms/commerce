@@ -493,17 +493,18 @@ class VariantQuery extends ElementQuery
 
             $now = new \DateTime();
             $activeSales = (new Query())->select([
-                    'sales.id',
-                    'sales.allGroups',
-                    'sales.allPurchasables',
-                    'sales.allCategories',
-                ])
+                'sales.id',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+            ])
                 ->from(Table::SALES . ' sales')
                 ->where(['[[enabled]]' => 1])
-                ->andWhere(['or',
+                ->andWhere([
+                    'or',
                     ['or', ['<>', '[[dateTo]]', null], ['>=', '[[dateTo]]', Db::prepareDateForDb($now)]],
                     ['or', ['<>', '[[dateFrom]]', null], ['<=', '[[dateFrom]]', Db::prepareDateForDb($now)]],
-                    ['[[dateFrom]]' =>  null, '[[dateTo]]' => null ],
+                    ['[[dateFrom]]' => null, '[[dateTo]]' => null],
                 ])
                 ->orderBy('sortOrder asc')
                 ->all();
@@ -582,7 +583,6 @@ class VariantQuery extends ElementQuery
 
             $includeExcludeIds = $this->hasSales ? 'in' : 'not in';
             $this->subQuery->andWhere([$includeExcludeIds, 'commerce_variants.id', $variantIds]);
-
         }
 
         $this->_applyHasProductParam();
