@@ -32,7 +32,8 @@
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` .
-
+- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
+- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.

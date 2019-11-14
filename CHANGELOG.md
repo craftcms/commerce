@@ -11,6 +11,8 @@
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
+- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 
 ### Removed 
 - Removed `craft\commerce\models\Address::getFullName()`.
@@ -43,7 +45,7 @@
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
-- `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
+- `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`. 
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
