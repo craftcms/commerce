@@ -205,7 +205,21 @@ class Discount extends Component implements AdjusterInterface
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->amount = $discount->baseDiscount;
+
+            switch ($discount->baseDiscountType) {
+                case DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL:
+                    $baseDiscountAmount = ($this->_order->getTotalPrice() / 100) * $discount->baseDiscount;
+                    $baseDiscountAdjustment->amount = $baseDiscountAmount;
+                    break;
+                case DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS:
+                    $baseDiscountAmount = ($this->_order->getItemSubtotal() / 100) * $discount->baseDiscount;
+                    $baseDiscountAdjustment->amount = $baseDiscountAmount;
+                    break;
+                default:
+                    $baseDiscountAdjustment->amount = $discount->baseDiscount;
+                    break;
+            }
+
             $adjustments[] = $baseDiscountAdjustment;
         }
 

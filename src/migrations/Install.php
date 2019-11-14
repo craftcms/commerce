@@ -225,6 +225,7 @@ class Install extends Migration
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'baseDiscountType' => $this->enum('baseDiscountType', ['value', 'percentTotal', 'percentItems'])->notNull()->defaultValue('value'),
             'perItemDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentageOffSubject' => $this->enum('percentageOffSubject', ['original', 'discounted'])->notNull(),

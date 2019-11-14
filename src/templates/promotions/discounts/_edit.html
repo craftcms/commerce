@@ -252,16 +252,38 @@
 
     </div>
     <div id="amounts" class="hidden">
-        {{ commerceForms.numberField({
+        {% set baseDiscountInput %}
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.text({
+                            id: 'baseDiscount',
+                            name: 'baseDiscount',
+                            type: 'number',
+                            step: 'any',
+                            size: 10,
+                            value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
+                        }) }}
+                    </td>
+                    <td style="padding-left: 14px;">
+                        {{ forms.select({
+                            id: 'baseDiscountType',
+                            name: 'baseDiscountType',
+                            options: baseDiscountTypes,
+                            value: discount.baseDiscountType
+                        }) }}
+                    </td>
+                </tr>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
             label: "Base Discount"|t('commerce'),
-            instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t('commerce'),
+            instructions: "The amount of discount that is applied to the order’s total price.
+Currency value: “10” for $10 off. Percent: “10” for 10% off."|t('commerce'),
             id: 'baseDiscount',
-            name: 'baseDiscount',
-            value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
-            type: 'number',
-            step: 'any',
             errors: discount.getErrors('baseDiscount'),
-        }) }}
+        }, baseDiscountInput) }}
 
         {{ commerceForms.numberField({
             label: "Per Item Discount"|t('commerce'),
