@@ -9,6 +9,7 @@
 ### Fixed
 - Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
 - Fixed an issue where purchasables were added to the cart when the qty submitted was `0` (zero).
+- Fixed a performance issue using the `craft\commerce\elements\db\VariantQuery::hasSales()` query param.
 
 ## 2.2.7 - 2019-10-30
 
