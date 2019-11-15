@@ -30,7 +30,7 @@
 
         <template v-if="originalOrderStatusId !== orderStatusId">
             <div class="order-status-message">
-                <textarea class="text" placeholder="Message" v-model="message"></textarea>
+                <textarea class="text" placeholder="Message" v-model="message" maxlength="10000"></textarea>
             </div>
         </template>
     </div>
