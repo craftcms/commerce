@@ -62,7 +62,7 @@
                     for (let orderStatusesKey in this.orderStatuses) {
                         const orderStatus = this.orderStatuses[orderStatusesKey]
 
-                        if (orderStatus.id === this.orderStatusId) {
+                        if (orderStatus.id == this.orderStatusId) {
                             return orderStatus
                         }
                     }
