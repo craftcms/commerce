@@ -13,15 +13,27 @@
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
 - Added the ability to set a plain text template for Commerce emails.
-- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. 
+- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
+- Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
+- Added `craft\commerce\models\Discount::$totalDiscountUses`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
+- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::getCustomerUsageStatsById()`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
@@ -35,10 +47,17 @@
 - Changed the default category relationship type on promotions from `sourceElement` to `element` .
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
+- `totalDiscountUses` now counts ever usage instance of a discount.
+- Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Clearing discount usage counters is now done on a per counter basis.
 
 ## Deprecated
+- Deprecated `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`. `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()` should be used instead.
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
+- Deprecated `craft\commerce\models\Discount::$totalUseLimit`. `craft\commerce\models\Discount::$totalDiscountUseLimit` should be used instead. 
+- Deprecated `craft\commerce\models\Discount::$totalUses`. `craft\commerce\models\Discount::$totalDiscountUses` should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
+- Deprecated `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`. `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()` and `craft\commerce\services\Discounts::clearEmailUsageHistoryById()` should be used instead.
 
 ## Removed
 - Removed the Customer Info field type.

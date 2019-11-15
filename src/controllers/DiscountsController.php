@@ -33,6 +33,12 @@ use function get_class;
  */
 class DiscountsController extends BaseCpController
 {
+    // Public Constants
+    // =========================================================================
+    const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
+    const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
+    const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+
     // Public Methods
     // =========================================================================
 
@@ -107,6 +113,7 @@ class DiscountsController extends BaseCpController
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
+        $discount->totalDiscountUseLimit = $request->getBodyParam('totalDiscountUseLimit');
         $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
         $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
@@ -214,6 +221,7 @@ class DiscountsController extends BaseCpController
 
     /**
      * @throws HttpException
+     * @deprecated in 3.0
      */
     public function actionClearCouponUsageHistory()
     {
@@ -223,6 +231,40 @@ class DiscountsController extends BaseCpController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
+
+        return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     * @since 3.0
+     */
+    public function actionClearDiscountUses(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
+        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
+
+        if (!in_array($type, $types, true)) {
+            return $this->asErrorJson(Plugin::t('Type not in allowed options.'));
+        }
+
+        switch ($type) {
+            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
+                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
+                break;
+            case self::DISCOUNT_COUNTER_TYPE_EMAIL:
+                Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
+                break;
+            case self::DISCOUNT_COUNTER_TYPE_TOTAL:
+                Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
+                break;
+        }
 
         return $this->asJson(['success' => true]);
     }
@@ -260,6 +302,13 @@ class DiscountsController extends BaseCpController
         if ($variables['discount']->purchaseTotal != 0) {
             $variables['discount']->purchaseTotal = Craft::$app->formatter->asDecimal((float)$variables['discount']->purchaseTotal);
         }
+
+        $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;
+        $variables['counterTypeCustomer'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
+        $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
+
+        $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
+        $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($variables['discount']->id);
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;

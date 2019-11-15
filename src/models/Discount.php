@@ -63,13 +63,27 @@ class Discount extends Model
 
     /**
      * @var int Total use limit by guests or users
+     * @deprecated im 3.0 use $totalDiscountUseLimit instead.
      */
     public $totalUseLimit = 0;
 
     /**
      * @var int Total use counter;
+     * @deprecated im 3.0 use $totalDiscountUses instead.
      */
     public $totalUses = 0;
+
+    /**
+     * @var int Total use limit by guests or users
+     * @since 3.0
+     */
+    public $totalDiscountUseLimit = 0;
+
+    /**
+     * @var int Total use counter;
+     * @since 3.0
+     */
+    public $totalDiscountUses = 0;
 
     /**
      * @var DateTime|null Date the discount is valid from

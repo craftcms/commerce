@@ -8,12 +8,33 @@
 - Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
+- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
+- Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
+- Added `craft\commerce\models\Discount::$totalDiscountUses`.
+- Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
+- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::getCustomerUsageStatsById()`.
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `totalDiscountUses` now counts ever usage instance of a discount.
+- Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Clearing discount usage counters is now done on a per counter basis.
+
+### Deprecated
+- Deprecated `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`. `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()` should be used instead.
+- Deprecated `craft\commerce\models\Discount::$totalUseLimit`. `craft\commerce\models\Discount::$totalDiscountUseLimit` should be used instead. 
+- Deprecated `craft\commerce\models\Discount::$totalUses`. `craft\commerce\models\Discount::$totalDiscountUses` should be used instead.
+- Deprecated `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`. `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()` and `craft\commerce\services\Discounts::clearEmailUsageHistoryById()` should be used instead.
 
 ### Removed 
 - Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
@@ -43,17 +64,17 @@
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
 
-## Changed
+### Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
 
-## Deprecated
+### Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
-## Removed
+### Removed
 - Removed the `craft.commerce.availableShippingMethods` Twig property.
 - Removed the `craft.commerce.cart` Twig property.
 - Removed the `craft.commerce.countriesList` Twig property.
