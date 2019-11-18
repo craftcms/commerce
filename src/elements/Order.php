@@ -1917,11 +1917,11 @@ class Order extends Element
             }
             case 'shippingFullName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->getFullName() ?? '' : '';
+                return $this->getShippingAddress() ? $this->getShippingAddress()->fullName ?? '' : '';
             }
             case 'billingFullName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->getFullName() ?? '' : '';
+                return $this->getBillingAddress() ? $this->getBillingAddress()->fullName ?? '' : '';
             }
             case 'shippingBusinessName':
             {
