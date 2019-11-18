@@ -726,9 +726,8 @@ class Discounts extends Component
             return;
         }
 
-        /* We only need to make counter updates once for each discount even though
-        many adjustments might be returned due to the fact they could be lineItem
-        adjustments */
+        /* We only need to make counter updates once for each discount. A discount
+        might be returned multiple times due to it being a lineItem adjustment */
         $discounts = [];
         /** @var OrderAdjustment $discountAdjustment */
         foreach ($discountAdjustments as $discountAdjustment) {
@@ -744,6 +743,7 @@ class Discounts extends Component
             return;
         }
 
+        $customer = $order->getCustomer();
         foreach ($discounts as $discount) {
             // Check `couponCode` against `null` in case the code is a "falsey" string
             if ($order->couponCode !== null && $order->couponCode == $discount['code']) {
@@ -757,7 +757,8 @@ class Discounts extends Component
                     ->execute();
             }
 
-            if ($discount['perUserLimit'] && $order->customerId) {
+            // Count if there was a user on this order
+            if ($customer && $customer->userId) {
                 $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount['id']])->one();
 
                 if (!$customerDiscountUseRecord) {
@@ -778,25 +779,23 @@ class Discounts extends Component
                 }
             }
 
-            if ($discount['perEmailLimit'] && $order->customerId) {
-                $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['id']])->one();
-
-                if (!$customerDiscountUseRecord) {
-                    $customerDiscountUseRecord = new EmailDiscountUseRecord();
-                    $customerDiscountUseRecord->email = $order->getEmail();
-                    $customerDiscountUseRecord->discountId = $discount['id'];
-                    $customerDiscountUseRecord->uses = 1;
-                    $customerDiscountUseRecord->save();
-                } else {
-                    Craft::$app->getDb()->createCommand()
-                        ->update(Table::EMAIL_DISCOUNTUSES, [
-                            'uses' => new Expression('[[uses]] + 1')
-                        ], [
-                            'email' => $order->getEmail(),
-                            'discountId' => $discount['id']
-                        ])
-                        ->execute();
-                }
+            // Count email usage
+            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['id']])->one();
+            if (!$customerDiscountUseRecord) {
+                $customerDiscountUseRecord = new EmailDiscountUseRecord();
+                $customerDiscountUseRecord->email = $order->getEmail();
+                $customerDiscountUseRecord->discountId = $discount['id'];
+                $customerDiscountUseRecord->uses = 1;
+                $customerDiscountUseRecord->save();
+            } else {
+                Craft::$app->getDb()->createCommand()
+                    ->update(Table::EMAIL_DISCOUNTUSES, [
+                        'uses' => new Expression('[[uses]] + 1')
+                    ], [
+                        'email' => $order->getEmail(),
+                        'discountId' => $discount['id']
+                    ])
+                    ->execute();
             }
 
             // Update the total uses
