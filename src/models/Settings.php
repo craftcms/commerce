@@ -118,15 +118,19 @@ class Settings extends Model
     public $purgeInactiveCarts = true;
 
     /**
-     * @var string
+     * @var int The default length of time before inactive carts are purged. Default: 90 days
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      */
-    public $purgeInactiveCartsDuration = 'P3M';
+    public $purgeInactiveCartsDuration = 7776000;
 
     /**
-     * @var string
+     * @var int The default length of time a cart is considered active since its last update
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      * @since 2.2
      */
-    public $activeCartDuration = 'PT1H';
+    public $activeCartDuration = 3600;
 
     /**
      * @var string
@@ -200,6 +204,11 @@ class Settings extends Model
      * @var string
      */
     public $updateBillingDetailsUrl = '';
+
+    /**
+     * @var bool
+     */
+    public $showCustomerInfoTab = true;
 
     // Public Methods
     // =========================================================================

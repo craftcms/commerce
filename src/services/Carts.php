@@ -16,6 +16,8 @@ use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\ConfigHelper;
+use craft\helpers\DateTimeHelper;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -227,13 +229,12 @@ class Carts extends Component
     public function purgeIncompleteCarts(): int
     {
         $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
-        $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
+        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
 
         if ($doPurge) {
             $edge = new DateTime();
-            $interval = new DateInterval($configInterval);
-            $interval->invert = 1;
-            $edge->add($interval);
+            $interval = DateTimeHelper::secondsToInterval($configInterval);
+            $edge->sub($interval);
 
             $cartIds = (new Query())
                 ->select(['orders.id'])
@@ -294,9 +295,9 @@ class Carts extends Component
     public function getActiveCartEdgeDuration(): string
     {
         $edge = new DateTime();
-        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
-        $interval->invert = 1;
-        $edge->add($interval);
+        $activeCartDuration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
+        $interval = DateTimeHelper::secondsToInterval($activeCartDuration);
+        $edge->sub($interval);
         return $edge->format(DateTime::ATOM);
     }
 

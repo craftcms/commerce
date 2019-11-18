@@ -14,6 +14,7 @@
 - Added the ability on promotions to choose the relationship type for related categories.
 - Added the ability to add a product to an existing Sale from the Product Edit page.
 - Added the ability to set a plain text template for Commerce emails.
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
@@ -33,13 +34,15 @@
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` .
-
+- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
+- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
 ## Removed
+- Removed the Customer Info field type.
 - Removed the `craft.commerce.availableShippingMethods` Twig property.
 - Removed the `craft.commerce.cart` Twig property.
 - Removed the `craft.commerce.countriesList` Twig property.

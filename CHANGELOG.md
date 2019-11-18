@@ -1,19 +1,23 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased (3.x)
-
+ 
 ### Added
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
-- Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984)) 
-- Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106)) 
+- Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
+- Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
+- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 
 ### Removed 
+- Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Removed `craft\commerce\models\Address::getFullName()`.
 
 ## 3.0.0-alpha.1 - 2019-07-24
