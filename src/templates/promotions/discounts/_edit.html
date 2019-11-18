@@ -274,19 +274,19 @@
             instructions: 'How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users.'|t('commerce'),
         }, emailCounterMarkup) }}
 
-        {{ commerceForms.numberField({
-            label: "Total Discount Use Limit"|t('commerce'),
-            instructions: "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
-            id: 'totalDiscountUseLimit',
-            name: 'totalDiscountUseLimit',
-            value: discount.totalDiscountUseLimit,
-            min: '0',
-            errors: discount.getErrors('totalDiscountUseLimit'),
-        }) }}
-
         {% set totalDiscountUsesWording = discount.totalDiscountUses != 1 ? '{count} times' : '{count} time' %}
-        {% set totalCounterMarkup %}
+        {% set totalDiscountLimitMarkup %}
             <div class="flex">
+                <div>
+                    {{ forms.text({
+                        id: 'totalDiscountUseLimit',
+                        name: 'totalDiscountUseLimit',
+                        value: discount.totalDiscountUseLimit,
+                        min: '0',
+                        size: 10,
+                        errors: discount.getErrors('totalDiscountUseLimit'),
+                    }) }}
+                </div>
                 <div>
                     <input id="total-discount-use-counter" disabled class="text disabled fullwidth" size="10" value="{{ totalDiscountUsesWording|t('commerce', {count: discount.totalDiscountUses}) }}">
                 </div>
@@ -297,9 +297,9 @@
             </div>
         {% endset %}
         {{ forms.field({
-            'label': 'Times Discount Used'|t('commerce'),
-            'instructions': "How many times this discount has been used."|t('commerce'),
-        }, totalCounterMarkup) }}
+            'label': 'Total Discount Use Limit'|t('commerce'),
+            'instructions': "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+        }, totalDiscountLimitMarkup) }}
 
 
         {{ forms.checkboxField({
