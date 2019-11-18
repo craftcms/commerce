@@ -100,12 +100,12 @@ class CustomerAddressesController extends BaseFrontEndController
             $request = Craft::$app->getRequest();
             $updatedCustomer = false;
 
-            if ($request->getBodyParam('makePrimaryBillingAddress') || !$customer->primaryBillingAddressId) {
+            if ($request->getBodyParam('makePrimaryBillingAddress')) {
                 $customer->primaryBillingAddressId = $address->id;
                 $updatedCustomer = true;
             }
 
-            if ($request->getBodyParam('makePrimaryShippingAddress') || !$customer->primaryShippingAddressId) {
+            if ($request->getBodyParam('makePrimaryShippingAddress')) {
                 $customer->primaryShippingAddressId = $address->id;
                 $updatedCustomer = true;
             }
