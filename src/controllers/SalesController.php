@@ -268,32 +268,73 @@ class SalesController extends BaseCpController
      * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
-     * @throws \yii\base\Exception
      */
-    public function actionAddProductToSale(): Response
+    public function actionGetSalesByPurchasableId(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
-        $productId = $request->getParam('productId', null);
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Plugin::t('Purchasable ID is required.'));
+        }
+
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+
+        if (!$purchasable) {
+            return $this->asErrorJson(Plugin::t('No purchasable available.'));
+        }
+
+        $sales = [];
+        $purchasableSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($purchasable);
+        foreach ($purchasableSales as $sale) {
+            if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+                /** @var Sale $sale */
+                $saleArray = $sale->toArray();
+                $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
+                $sales[] = $saleArray;
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'sales' => $sales,
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \yii\base\Exception
+     */
+    public function actionAddPurchasableToSale(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $ids = $request->getParam('ids', []);
         $saleId = $request->getParam('saleId', null);
 
-        if (!$productId || !$saleId) {
-            return $this->asErrorJson(Plugin::t('Product ID and Sale ID are required.'));
+        if (empty($ids) || !$saleId) {
+            return $this->asErrorJson(Plugin::t('Purchasable ID and Sale ID are required.'));
         }
 
-        $product = Plugin::getInstance()->getProducts()->getProductById($productId);
+        $purchasables = [];
+        foreach ($ids as $id) {
+            $purchasables[] = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+        }
+
         $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
 
-        if (!$product || !$sale) {
-            return $this->asErrorJson(Plugin::t('Unable to retrieve Sale and Product.'));
+        if (empty($purchasables) || count($purchasables) != count($ids) || !$sale) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve Sale and Purchasable.'));
         }
 
-        $variants = $product->getVariants();
-        $variantIds = ArrayHelper::getColumn($variants, 'id');
         $salePurchasableIds = $sale->getPurchasableIds();
 
-        array_push($salePurchasableIds, ...$variantIds);
+        array_push($salePurchasableIds, ...$ids);
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
         if (!Plugin::getInstance()->getSales()->saveSale($sale)) {

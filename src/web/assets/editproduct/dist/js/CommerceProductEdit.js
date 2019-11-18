@@ -13,6 +13,7 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     addToSaleSelector: '.product-add-to-sale',
     $salesList: null,
     salesListSelector: '.product-sales.commerce-sales',
+    saleIdsByVariantId: {},
     $container: null,
 
     init: function(settings) {
@@ -36,42 +37,69 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
 
     handleAddToSale: function(ev) {
         ev.preventDefault();
+        var el = $(ev.target);
+
         $.get({
             url: Craft.getActionUrl('commerce/sales/get-all-sales'),
             dataType: 'json',
             success: $.proxy(function(data) {
-                this.createSalesModal(data);
+                this.createSalesModal(el.data('id'), data);
             }, this)
         });
     },
 
-    createSalesModal: function(sales) {
-        var salesModal = new Craft.Commerce.ProductSalesModal(sales, {
-            productId: this.settings.id,
+    createSalesModal: function(id, sales) {
+        var data = {
+            existingSaleIds: [],
             onHide: $.proxy(this, 'populateSalesList')
-        });
+        };
+
+        if (id === 'all') {
+            data['purchasables'] = this.settings.purchasables;
+        } else {
+            data['id'] = id;
+            data['existingSaleIds'] = this.saleIdsByVariantId[id];
+        }
+
+        var salesModal = new Craft.Commerce.ProductSalesModal(sales, data);
     },
 
     populateSalesList: function() {
-        if (this.$salesList && this.$salesList.length && this.settings.id) {
-            this.$salesList.empty();
-            var data = {id: this.settings.id};
-            Craft.postActionRequest('commerce/sales/get-sales-by-product-id', data, $.proxy(function(response) {
-                if (response && response.success && response.sales.length) {
-                    for (var i = 0; i < response.sales.length; i++) {
-                        var sale = response.sales[i];
-                        $('<li>\n' +
-                        '<a href="'+sale.cpEditUrl+'"><span>'+sale.name+'</span></a>\n' +
-                        '</li>').appendTo(this.$salesList);
+        if (this.$salesList && this.$salesList.length) {
+            var _this = this;
+            this.$salesList.each(function(el) {
+                var element = $(this);
+                var id = element.data('id');
+                var data = {
+                    id: id
+                };
+
+                element.empty();
+
+                Craft.postActionRequest('commerce/sales/get-sales-by-purchasable-id', data, function(response) {
+                    if (response && response.success && response.sales.length) {
+                        for (var i = 0; i < response.sales.length; i++) {
+                            var sale = response.sales[i];
+                            if (_this.saleIdsByVariantId[id] === undefined) {
+                                _this.saleIdsByVariantId[id] = [];
+                            }
+                            _this.saleIdsByVariantId[id].push(sale.id);
+
+                            $('<li>\n' +
+                                '<a href="'+sale.cpEditUrl+'"><span>'+sale.name+'</span></a>\n' +
+                                '</li>').appendTo(element);
+                        }
                     }
-                }
-            }, this));
+                });
+            });
         }
     },
 
     defaults: {
         container: '#main-content',
         onChange: $.noop,
-        id: null
+        id: null,
+        hasVariants: false,
+        purchasables: []
     }
 });

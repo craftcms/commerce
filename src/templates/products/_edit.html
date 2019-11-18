@@ -199,22 +199,9 @@
 {% if product.id %}
   <hr>
   <div class="meta">
-    <div class="data">
-      <h5 class="heading">{{ "Related Sales"|t('commerce') }}</h5>
-      <div class="value">
-        <ul class="commerce-sales product-sales"></ul>
+    {# Related Sales #}
+    {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
 
-        <div class="commerce-sales-buttons">
-          {# Add Sale button #}
-          <a class="btn small add icon"
-             href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">{{ 'Add Sale'|t('commerce') }}</a>
-          {# Add to existing sale #}
-          {% if not product.getType().hasVariants %}
-            <a class="btn small add icon product-add-to-sale" href="#">{{ 'Add to Sale'|t('commerce') }}</a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
     <div class="data">
       <h5 class="heading">{{ "Related Discounts"|t('commerce') }}</h5>
       <div class="value">
@@ -253,6 +240,11 @@
   {% endjs %}
 {% else %}
   {% js %}
-      new Craft.Commerce.ProductEdit({id: {{ product.id }}});
+
+      new Craft.Commerce.ProductEdit({
+        id: {{ product.id|raw }},
+        hasVariants: {{ productType.hasVariants|raw }},
+        purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}
+      });
   {% endjs %}
 {% endif %}

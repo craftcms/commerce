@@ -21,13 +21,36 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                 '<p>' + Craft.t('commerce', "Add this product to an existing sale. This will change the conditions of the sale, please review the sale.") + '</p>' +
                 '</div>').appendTo($body);
 
+            if (this.settings.purchasables.length) {
+                var $checkboxField = $('<div class="field" />');
+                $('<div class="heading"><label>'+Craft.t('commerce', 'Select Variants')+'</label></div>').appendTo($checkboxField);
+                var $inputContainer = $('<div class="input ltr" />');
+                $.each(this.settings.purchasables, function(key, purchasable) {
+                    $('<div>' +
+                    '<input class="checkbox" type="checkbox" name="ids[]" id="add-to-sale-purchasable-'+purchasable.id+'" value="'+purchasable.id+'" checked /> ' +
+                    '<label for="add-to-sale-purchasable-'+purchasable.id+'">' + purchasable.title +
+                    ' <span class="extralight">'+purchasable.sku+'</span>' +
+                    '</label>' +
+                    '</div>').appendTo($inputContainer);
+                });
+
+                $inputContainer.appendTo($checkboxField);
+                $checkboxField.appendTo($inputs);
+            }
+
             if (sales && sales.length) {
                 this.$select = $('<select name="sale" />');
                 $('<option value="">----</option>').appendTo(this.$select);
 
                 for (var i = 0; i < sales.length; i++) {
                     var sale = sales[i];
-                    this.$select.append($('<option value="'+sale.id+'">'+sale.name+'</option>'));
+                    var disabled = false;
+
+                    if (this.settings.existingSaleIds && this.settings.existingSaleIds.length && this.settings.existingSaleIds.indexOf(sale.id) >= 0) {
+                        disabled = true;
+                    }
+
+                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+sale.name+'</option>'));
                 }
                 var $field = $('<div class="input ltr"></div>');
                 var $container = $('<div class="select" />');
@@ -37,7 +60,6 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                 var $fieldContainer = $('<div class="field"/>');
                 $('<div class="heading">' +
                 '<label>' + Craft.t('commerce', 'Sale') + '</label>' +
-                '</div>' +
                 '</div>').appendTo($fieldContainer);
                 $container.appendTo($fieldContainer);
 
@@ -51,6 +73,8 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
 
             // Footer and buttons
             var $footer = $('<div class="footer"/>').appendTo(this.$form);
+            var $newSaleBtnGroup = $('<div class="btngroup left"/>').appendTo($footer);
+            var $newSale = $('<a class="btn icon add" target="_blank" href="'+Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + this.settings.id)+'">'+Craft.t('commerce', 'Create Sale')+'</a>').appendTo($newSaleBtnGroup);
             var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
             this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Save') + '"/>').appendTo($mainBtnGroup);
@@ -72,16 +96,26 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
 
         saveSale: function() {
             var saleId = this.$form.find('select[name="sale"]').val();
+            var ids = [];
+
+            if (this.settings.purchasables.length) {
+                this.$form.find('input.checkbox:checked').each(function(el) {
+                    ids.push($(this).val());
+                });
+            } else if (this.settings.id) {
+                ids = [this.settings.id];
+            }
+
             var data = {
-                productId: this.settings.productId,
+                ids: ids,
                 saleId: saleId
             };
 
-            Craft.postActionRequest('commerce/sales/add-product-to-sale', data, $.proxy(function(response) {
+            Craft.postActionRequest('commerce/sales/add-purchasable-to-sale', data, $.proxy(function(response) {
                 if (response && response.error) {
                     Craft.cp.displayError(response.error);
                 } else if (response && response.success ) {
-                    Craft.cp.displayNotice(Craft.t('commerce', 'Product added to Sale.'));
+                    Craft.cp.displayNotice(Craft.t('commerce', 'Added to Sale.'));
                     this.hide();
                 }
                 this.$spinner.addClass('hidden');
@@ -98,6 +132,9 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
 
         defaults: {
             onSubmit: $.noop,
-            productId: null
+            id: null,
+            productId: null,
+            purchasables: [],
+            existingSaleIds: []
         }
     });
