@@ -23,7 +23,7 @@
                 <th scope="col">{{ "Name"|t('commerce') }}</th>
                 <th scope="col">{{ "Code"|t('commerce') }}</th>
                 <th scope="col">{{ "Duration"|t('commerce') }}</th>
-                <th scope="col">{{ "Times Used"|t('commerce') }}</th>
+                <th scope="col">{{ "Total Uses"|t('commerce') }}</th>
                 <th scope="col">{{ "Stops Processing?"|t('commerce') }}</th>
                 <th scope="col">{{ "Ignore Sales?"|t('commerce') }}</th>
                 <td class="thin"></td>
@@ -48,7 +48,7 @@
                         -
                         {{ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') }}
                     </td>
-                    <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
+                    <td data-title="{{ 'Times Discount Used'|t('commerce') }}">{{ discount.totalDiscountUses }}</td>
                     <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">
                         {% if discount.stopProcessing %}
                           <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
