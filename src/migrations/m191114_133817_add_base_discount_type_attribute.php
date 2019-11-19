@@ -16,7 +16,7 @@ class m191114_133817_add_base_discount_type_attribute extends Migration
     public function safeUp()
     {
         $columnName = 'baseDiscountType';
-        $values = ['value', 'percentTotal', 'percentItems'];
+        $values = ['value', 'percentTotal', 'percentTotalDiscounted', 'percentItems', 'percentItemsDiscounted'];
 
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres

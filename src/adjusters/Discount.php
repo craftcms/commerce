@@ -64,6 +64,11 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discount;
 
+    /*
+     * @var
+     */
+    private $_discountTotal = 0;
+
     // Public Methods
     // =========================================================================
 
@@ -198,6 +203,7 @@ class Discount extends Component implements AdjusterInterface
                 $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
+                    $this->_discountTotal += $adjustment->amount;
                     $adjustments[] = $adjustment;
                 }
             }
@@ -205,20 +211,7 @@ class Discount extends Component implements AdjusterInterface
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-
-            switch ($discount->baseDiscountType) {
-                case DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL:
-                    $baseDiscountAmount = ($this->_order->getTotalPrice() / 100) * $discount->baseDiscount;
-                    $baseDiscountAdjustment->amount = $baseDiscountAmount;
-                    break;
-                case DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS:
-                    $baseDiscountAmount = ($this->_order->getItemSubtotal() / 100) * $discount->baseDiscount;
-                    $baseDiscountAdjustment->amount = $baseDiscountAmount;
-                    break;
-                default:
-                    $baseDiscountAdjustment->amount = $discount->baseDiscount;
-                    break;
-            }
+            $baseDiscountAdjustment->amount = $this->_getBaseDiscountAmount($discount);
 
             $adjustments[] = $baseDiscountAdjustment;
         }
@@ -242,5 +235,28 @@ class Discount extends Component implements AdjusterInterface
         }
 
         return $event->adjustments;
+    }
+
+    /**
+     * @param DiscountModel $discount
+     * @return float|int
+     */
+    private function _getBaseDiscountAmount(DiscountModel $discount)
+    {
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
+            return $discount->baseDiscount;
+        }
+
+        $total = $this->_order->getItemSubtotal();
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
+            $total += $this->_discountTotal;
+        }
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
+            $total += $this->_order->getTotalShippingCost();
+        }
+
+        return ($total / 100) * $discount->baseDiscount;
     }
 }

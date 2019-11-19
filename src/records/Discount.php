@@ -61,7 +61,9 @@ class Discount extends ActiveRecord
 
     const BASE_DISCOUNT_TYPE_VALUE = 'value';
     const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
+    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
     const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
+    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
 
     const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
     const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
