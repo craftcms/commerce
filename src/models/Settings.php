@@ -205,6 +205,11 @@ class Settings extends Model
      */
     public $updateBillingDetailsUrl = '';
 
+    /**
+     * @var bool
+     */
+    public $showCustomerInfoTab = true;
+
     // Public Methods
     // =========================================================================
 

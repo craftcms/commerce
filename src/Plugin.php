@@ -14,7 +14,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
-use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\helpers\ProjectConfigData;
@@ -111,7 +110,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.1';
+    public $schemaVersion = '3.0.2';
 
     /**
      * @inheritdoc
@@ -445,7 +444,6 @@ class Plugin extends BasePlugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
-            $event->types[] = Customer::class;
         });
     }
 
@@ -607,7 +605,9 @@ class Plugin extends BasePlugin
      */
     private function _registerTemplateHooks()
     {
-        Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
-        Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        if ($this->getSettings()->showCustomerInfoTab) {
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        }
     }
 }
