@@ -13,7 +13,7 @@
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
 - Added the ability to set a plain text template for Commerce emails.
-- Added the ability to create discounts with base discounts as a percentage. 
+- Added the ability to create discounts using the order total and percentages. 
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.

@@ -7,7 +7,7 @@
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
 - Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
-- Added the ability to create discounts with base discounts as a percentage. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
