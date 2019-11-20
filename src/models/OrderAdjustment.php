@@ -72,6 +72,11 @@ class OrderAdjustment extends Model
     public $lineItemId;
 
     /**
+     * @var bool Whether the adjustment is based of estimated data
+     */
+    public $isEstimated = false;
+
+    /**
      * @var LineItem|null The line item this adjustment belongs to
      */
     private $_lineItem;

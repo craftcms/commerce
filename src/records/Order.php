@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Element;
 use DateTime;
@@ -52,6 +53,8 @@ use yii\db\ActiveQueryInterface;
  * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
+ * @property int $estimatedBillingAddressId
+ * @property int $estimatedShippingAddressId
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -66,7 +69,7 @@ class Order extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_orders}}';
+        return Table::ORDERS;
     }
 
     /**

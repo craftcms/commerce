@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Element;
 use yii\db\ActiveQueryInterface;
@@ -43,7 +44,7 @@ class Variant extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_variants}}';
+        return Table::VARIANTS;
     }
 
     /**

@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\Html;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
@@ -193,18 +194,20 @@ class CartController extends BaseFrontEndController
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
-            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+            if ($qty > 0) {
+                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
 
-            // New line items already have a qty of one.
-            if ($lineItem->id) {
-                $lineItem->qty += $qty;
-            } else {
-                $lineItem->qty = $qty;
+                // New line items already have a qty of one.
+                if ($lineItem->id) {
+                    $lineItem->qty += $qty;
+                } else {
+                    $lineItem->qty = $qty;
+                }
+
+                $lineItem->note = $note;
+
+                $this->_cart->addLineItem($lineItem);
             }
-
-            $lineItem->note = $note;
-
-            $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
@@ -380,7 +383,11 @@ class CartController extends BaseFrontEndController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+            Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
+        } else {
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+        }
 
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart
@@ -433,8 +440,11 @@ class CartController extends BaseFrontEndController
 
         $shippingIsBilling = $request->getParam('shippingAddressSameAsBilling');
         $billingIsShipping = $request->getParam('billingAddressSameAsShipping');
+        $estimatedBillingIsShipping = $request->getParam('estimatedBillingAddressSameAsShipping');
         $shippingAddress = $request->getParam('shippingAddress');
+        $estimatedShippingAddress = $request->getParam('estimatedShippingAddress');
         $billingAddress = $request->getParam('billingAddress');
+        $estimatedBillingAddress = $request->getParam('estimatedBillingAddress');
 
         // Override billing address with a particular ID
         $shippingAddressId = $request->getParam('shippingAddressId');
@@ -458,8 +468,31 @@ class CartController extends BaseFrontEndController
             $this->_cart->setBillingAddress($billingAddress);
         }
 
+        // Estimated Shipping Address
+        if ($estimatedShippingAddress) {
+            if ($this->_cart->estimatedShippingAddressId) {
+                $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->estimatedShippingAddressId);
+                $address->setAttributes($estimatedShippingAddress, false);
+                $estimatedShippingAddress = $address;
+            }
+
+            $this->_cart->setEstimatedShippingAddress($estimatedShippingAddress);
+        }
+
+        // Estimated Billing Address
+        if ($estimatedBillingAddress && !$estimatedBillingIsShipping) {
+            if ($this->_cart->estimatedBillingAddressId && ($this->_cart->estimatedBillingAddressId != $this->_cart->estimatedShippingAddressId)) {
+                $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->estimatedBillingAddressId);
+                $address->setAttributes($estimatedBillingAddress, false);
+                $estimatedBillingAddress = $address;
+            }
+
+            $this->_cart->setEstimatedBillingAddress($estimatedBillingAddress);
+        }
+
         $this->_cart->billingSameAsShipping = (bool)$billingIsShipping;
         $this->_cart->shippingSameAsBilling = (bool)$shippingIsBilling;
+        $this->_cart->estimatedBillingSameAsShipping = (bool)$estimatedBillingIsShipping;
 
         // Set primary addresses
         if ($request->getBodyParam('makePrimaryShippingAddress')) {

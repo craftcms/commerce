@@ -85,17 +85,25 @@ class AddressesController extends BaseCpController
             'title',
             'firstName',
             'lastName',
+            'fullName',
             'address1',
             'address2',
+            'address3',
             'city',
             'zipCode',
             'phone',
             'alternativePhone',
+            'label',
+            'notes',
             'businessName',
             'businessTaxId',
             'businessId',
             'countryId',
-            'stateValue'
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
         ];
         foreach ($attributes as $attr) {
             $address->$attr = Craft::$app->getRequest()->getParam($attr);

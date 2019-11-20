@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -124,7 +125,7 @@ class TaxRates extends Component
             $record = TaxRateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No tax rate exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No tax rate exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -138,6 +139,7 @@ class TaxRates extends Component
         }
 
         $record->name = $model->name;
+        $record->code = $model->code;
         $record->rate = $model->rate;
         $record->include = $model->include;
         $record->isVat = $model->isVat;
@@ -151,11 +153,11 @@ class TaxRates extends Component
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
 
             if (!$taxZone) {
-                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
+                throw new Exception(Plugin::t( 'No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));
             }
 
             if ($record->include && !$taxZone->default) {
-                $model->addError('include', Craft::t('commerce', 'Included tax rates are only allowed for the default tax zone.'));
+                $model->addError('include', Plugin::t( 'Included tax rates are only allowed for the default tax zone.'));
 
                 return false;
             }
@@ -245,6 +247,7 @@ class TaxRates extends Component
                 'taxZoneId',
                 'taxCategoryId',
                 'name',
+                'code',
                 'rate',
                 'include',
                 'isVat',
@@ -252,7 +255,7 @@ class TaxRates extends Component
                 'isLite'
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
-            ->from(['{{%commerce_taxrates}}']);
+            ->from([Table::TAXRATES]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $query->andWhere('[[isLite]] = true');

@@ -7,7 +7,9 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\db\SoftDeleteTrait;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -17,9 +19,9 @@ use yii\db\ActiveQueryInterface;
  * @property bool $default
  * @property Email[] $emails
  * @property string $handle
+ * @property string $description
  * @property int $id
- * @property bool $isArchived
- * @property bool $dateArchived
+ * @property bool $dateDeleted
  * @property string $name
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -30,12 +32,14 @@ class OrderStatus extends ActiveRecord
     // Public Methods
     // =========================================================================
 
+    use SoftDeleteTrait;
+
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_orderstatuses}}';
+        return Table::ORDERSTATUSES;
     }
 
     /**
@@ -43,6 +47,6 @@ class OrderStatus extends ActiveRecord
      */
     public function getEmails(): ActiveQueryInterface
     {
-        return $this->hasMany(Email::class, ['id' => 'emailId'])->viaTable('{{%commerce_orderstatus_emails}}', ['orderStatusId' => 'id']);
+        return $this->hasMany(Email::class, ['id' => 'emailId'])->viaTable(Table::ORDERSTATUS_EMAILS, ['orderStatusId' => 'id']);
     }
 }

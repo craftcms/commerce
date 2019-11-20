@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
@@ -84,7 +85,7 @@ class PaymentCurrencies extends Component
 
                 // TODO: Fix this with money/money package in 3.0
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
-                    throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
+                    throw new CurrencyException(Plugin::t( 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }
 
                 $paymentCurrency->setCurrency($currency);
@@ -113,7 +114,7 @@ class PaymentCurrencies extends Component
             return $this->_allCurrenciesByIso[$iso];
         }
 
-        throw new CurrencyException(Craft::t('commerce', 'No currency found with ISO code “{iso}”.', ['iso' => $iso]));
+        throw new CurrencyException(Plugin::t( 'No currency found with ISO code “{iso}”.', ['iso' => $iso]));
     }
 
     /**
@@ -171,7 +172,7 @@ class PaymentCurrencies extends Component
             $record = PaymentCurrencyRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No currency exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No currency exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -247,6 +248,6 @@ class PaymentCurrencies extends Component
                 'primary',
                 'rate',
             ])
-            ->from(['{{%commerce_paymentcurrencies}}']);
+            ->from([Table::PAYMENTCURRENCIES]);
     }
 }

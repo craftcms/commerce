@@ -86,6 +86,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
+        $shippingZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $shippingZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
@@ -156,5 +157,26 @@ class ShippingZonesController extends BaseShippingSettingsController
         }
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\web\BadRequestHttpException
+     * @since 2.2
+     */
+    public function actionTestZip()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+
+        $params = ['zipCode' => $testZipCode];
+        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->asErrorJson('failed');
     }
 }

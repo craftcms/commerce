@@ -328,14 +328,21 @@ class ProductsController extends BaseCpController
         }
 
         $sales = [];
+        $discounts = [];
         foreach ($product->getVariants() as $variant) {
             $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
             foreach ($variantSales as $sale) {
                 $sales[$sale->id] = $sale;
             }
+
+            $variantDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($variant);
+            foreach ($variantDiscounts as $discount) {
+                $discounts[$discount->id] = $discount;
+            }
         }
 
         $variables['sales'] = $sales;
+        $variables['discounts'] = $discounts;
     }
 
     /**
