@@ -1,5 +1,7 @@
 {% if customer %}
-    {% set orders = customer.orders %}
+    {# sorts the returned orders by date ordered #}
+    {% set orders = craft.orders.customer(customer).orderBy('dateOrdered desc').isCompleted().all() %}
+
 
     <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
         <p>{{ "No orders exist for this user yet."|t('commerce') }}</p>
@@ -21,7 +23,7 @@
                     <td>{{ order.link|raw }}</td>
                     <td>{% if order.isCompleted %}{{ order.dateOrdered|date('D dS M Y') }}{% endif %}</td>
                     <td>{{ order.totalPaid|currency(order.currency) }}</td>
-                    <td>{{ order.orderStatus.labelHtml|raw }}</td>
+                    <td>{{ (order.orderStatus.labelHtml ?? order.orderStatus)|raw }}</td>
                 </tr>
             {% endfor %}
             </tbody>
