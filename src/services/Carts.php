@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -156,6 +157,15 @@ class Carts extends Component
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $this->_cart->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+
+        if (defined('COMMERCE_PAYMENT_CURRENCY'))
+        {
+            $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
+            if (in_array($currency, Plugin::getInstance()->getCurrencies()->getAllCurrencies()))
+            {
+                $this->_cart->paymentCurrency = COMMERCE_PAYMENT_CURRENCY;
+            }
+        }
 
         // Has the customer in session changed?
         if ($this->_cart->customerId != $originalCustomerId) {
