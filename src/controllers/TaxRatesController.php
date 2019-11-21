@@ -75,7 +75,9 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
-        $variables['taxZones'] = [];
+        $variables['taxZones'] = [
+            ['value' => '', 'label' => '']
+        ];
 
         foreach ($taxZones as $model) {
             $variables['taxZones'][$model->id] = $model->name;

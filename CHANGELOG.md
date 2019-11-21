@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
+
 ## 2.2.8 - 2019-11-21
 
 ### Added
