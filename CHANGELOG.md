@@ -1,5 +1,18 @@
 # Release Notes for Craft Commerce
 
+## 2.2.8 - 2019-11-21
+
+### Added
+- It’s now possible to sort products by Date Updated, Date Created and Promotable on the Products index page. ([#1101](https://github.com/craftcms/commerce/issues/1101))
+- `totalTax`, `totalTaxIncluded`, `totalDiscount`, and `totalShipping` are now included on order exports. ([#719](https://github.com/craftcms/commerce/issues/719))
+- Added the `COMMERCE_PAYMENT_CURRENCY` environment variable. ([#999](https://github.com/craftcms/commerce/pull/999))
+
+### Fixed
+- Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
+- Fixed an issue where purchasables were added to the cart when the qty submitted was `0` (zero).
+- Fixed a performance issue using the `craft\commerce\elements\db\VariantQuery::hasSales()` query param.
+- Fixed an error that could occur with `dateCreated` when programmatically adding line items.
+
 ## 2.2.7 - 2019-10-30
 
 ### Changed

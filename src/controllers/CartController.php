@@ -194,18 +194,20 @@ class CartController extends BaseFrontEndController
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
-            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+            if ($qty > 0) {
+                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
 
-            // New line items already have a qty of one.
-            if ($lineItem->id) {
-                $lineItem->qty += $qty;
-            } else {
-                $lineItem->qty = $qty;
+                // New line items already have a qty of one.
+                if ($lineItem->id) {
+                    $lineItem->qty += $qty;
+                } else {
+                    $lineItem->qty = $qty;
+                }
+
+                $lineItem->note = $note;
+
+                $this->_cart->addLineItem($lineItem);
             }
-
-            $lineItem->note = $note;
-
-            $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
@@ -383,7 +385,7 @@ class CartController extends BaseFrontEndController
 
         if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
             Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
-        }else{
+        } else {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
         }
 

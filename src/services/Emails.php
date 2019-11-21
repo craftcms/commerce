@@ -218,8 +218,8 @@ class Emails extends Component
             $emailRecord->recipientType = $data['recipientType'];
             $emailRecord->to = $data['to'];
             $emailRecord->bcc = $data['bcc'];
-            $emailRecord->cc = $data['cc'];
-            $emailRecord->replyTo = $data['replyTo'];
+            $emailRecord->cc = $data['cc'] ?? null;
+            $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->attachPdf = $data['attachPdf'];

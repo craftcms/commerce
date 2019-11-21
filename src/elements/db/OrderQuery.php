@@ -989,7 +989,7 @@ class OrderQuery extends ElementQuery
         // Allow true ot false but not null
         if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->andWhere([
-                'exists', (new Query())
+                'exists', (new Query())->select(new Expression('1'))
                     ->from([Table::TRANSACTIONS . ' transactions'])
                     ->where('[[commerce_orders.id]] = [[transactions.orderId]]')
             ]);
