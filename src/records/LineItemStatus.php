@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
@@ -33,6 +34,6 @@ class LineItemStatus extends ActiveRecord
      */
     public static function tableName(): string
     {
-        return '{{%commerce_lineitemstatuses}}';
+        return Table::LINEITEMSTATUSES;
     }
 }

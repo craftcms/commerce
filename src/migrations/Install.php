@@ -316,7 +316,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_lineitemstatuses}}', [
+        $this->createTable(Table::LINEITEMSTATUSES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
