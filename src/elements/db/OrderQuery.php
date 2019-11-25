@@ -873,6 +873,12 @@ class OrderQuery extends ElementQuery
             'commerce_orders.dateUpdated'
         ]);
 
+        // Join shipping and billing address
+        $this->query->leftJoin(Table::ADDRESSES . ' billing_address', 'billing_address.id = [[commerce_orders.billingAddressId]]');
+        $this->subQuery->leftJoin(Table::ADDRESSES . ' billing_address', 'billing_address.id = [[commerce_orders.billingAddressId]]');
+        $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', 'shipping_address.id = [[commerce_orders.shippingAddressId]]');
+        $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', 'shipping_address.id = [[commerce_orders.shippingAddressId]]');
+
         // TODO: remove after next breakpoint
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 

@@ -54,9 +54,25 @@ trait OrderElementTrait
             {
                 return $this->getShippingAddress() ? $this->getShippingAddress()->fullName ?? '' : '';
             }
+            case 'shippingFirstName':
+            {
+                return $this->getShippingAddress() ? $this->getShippingAddress()->firstName ?? '' : '';
+            }
+            case 'shippingLastName':
+            {
+                return $this->getShippingAddress() ? $this->getShippingAddress()->lastName ?? '' : '';
+            }
             case 'billingFullName':
             {
                 return $this->getBillingAddress() ? $this->getBillingAddress()->fullName ?? '' : '';
+            }
+            case 'billingFirstName':
+            {
+                return $this->getBillingAddress() ? $this->getBillingAddress()->firstName ?? '' : '';
+            }
+            case 'billingLastName':
+            {
+                return $this->getBillingAddress() ? $this->getBillingAddress()->lastName ?? '' : '';
             }
             case 'shippingBusinessName':
             {
@@ -153,13 +169,13 @@ trait OrderElementTrait
             case 'billingLastName':
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
-                return ($this->billingAddress->firstName ?? '') . ($this->billingAddress->lastName ?? '');
+                return $this->billingAddress->fullName ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
-                return ($this->shippingAddress->firstName ?? '') . ($this->shippingAddress->lastName ?? '');
+                return $this->shippingAddress->fullName ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -325,7 +341,11 @@ trait OrderElementTrait
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'email' => ['label' => Craft::t('commerce', 'Email')],
             'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
+            'shippingFirstName' => ['label' => Craft::t('commerce', 'Shipping First Name')],
+            'shippingLastName' => ['label' => Craft::t('commerce', 'Shipping Last Name')],
             'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
+            'billingFirstName' => ['label' => Craft::t('commerce', 'Billing First Name')],
+            'billingLastName' => ['label' => Craft::t('commerce', 'Billing Last Name')],
             'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
@@ -371,6 +391,36 @@ trait OrderElementTrait
             'orderStatusId' => Craft::t('commerce', 'Order Status'),
             'totalPrice' => Craft::t('commerce', 'Total Payable'),
             'totalPaid' => Craft::t('commerce', 'Total Paid'),
+            [
+                'label' => Craft::t('commerce', 'Shipping First Name'),
+                'orderBy' => 'shipping_address.firstName',
+                'attribute' => 'shippingFirstName',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Shipping Last Name'),
+                'orderBy' => 'shipping_address.lastName',
+                'attribute' => 'shippingLastName',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Shipping Full Name'),
+                'orderBy' => 'shipping_address.fullName',
+                'attribute' => 'shippingFullName',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Billing First Name'),
+                'orderBy' => 'billing_address.firstName',
+                'attribute' => 'billingFirstName',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Billing Last Name'),
+                'orderBy' => 'billing_address.lastName',
+                'attribute' => 'billingLastName',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Billing Full Name'),
+                'orderBy' => 'billing_address.fullName',
+                'attribute' => 'billingFullName',
+            ],
             'dateOrdered' => Craft::t('commerce', 'Date Ordered'),
             [
                 'label' => Craft::t('commerce', 'Date Updated'),
