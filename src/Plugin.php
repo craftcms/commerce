@@ -582,6 +582,30 @@ class Plugin extends BasePlugin
                     'type' => 'The product type handle(s) of the products to resave.',
                 ],
             ];
+
+            $e->actions['orders'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(true);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves completed Commerce orders.',
+            ];
+
+            $e->actions['carts'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(false);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Commerce carts.',
+            ];
         });
     }
 

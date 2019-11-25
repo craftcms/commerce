@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `resave/orders` and `resave/carts` commands. 
+
 ### Fixed
 - Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
 
