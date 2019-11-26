@@ -64,10 +64,9 @@ class ShippingZonesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
 
-        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
         $states = Plugin::getInstance()->getStates()->getAllStates();
 
-        $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = ArrayHelper::map($states, 'id', 'name');
 
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
