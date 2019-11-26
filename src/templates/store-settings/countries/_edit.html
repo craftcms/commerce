@@ -55,6 +55,7 @@
         name: 'enabled',
         value: 1,
         on: country.enabled,
-        errors: country.getErrors('enabled')
+        errors: country.getErrors('enabled'),
+        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
     }) }}
 {% endblock %}

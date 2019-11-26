@@ -56,7 +56,8 @@
         name: 'enabled',
         value: 1,
         on: state.enabled,
-        errors: state.getErrors('enabled')
+        errors: state.getErrors('enabled'),
+        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.'|t('commerce') : null,
     }) }}
 {% endblock %}
 

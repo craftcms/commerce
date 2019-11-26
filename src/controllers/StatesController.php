@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -61,6 +63,40 @@ class StatesController extends BaseStoreSettingsController
         }
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+
+
+        // Check to see if we should show the disable warning
+        $variables['showDisableWarning'] = false;
+
+        if ($variables['id'] && $variables['state']->id == $variables['id'] && $variables['state']->enabled) {
+            $relatedAddressCount = (new Query())
+                ->select(['addresses.id',])
+                ->from([Table::ADDRESSES . ' addresses'])
+                ->where(['stateId' => $variables['id']])
+                ->count();
+
+            $variables['showDisableWarning'] = $relatedAddressCount ? true : $variables['showDisableWarning'];
+
+            if (!$variables['showDisableWarning']) {
+                $relatedShippingZoneCount = (new Query())
+                    ->select(['zone_states.id',])
+                    ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
+                    ->where(['stateId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedShippingZoneCount ? true : $variables['showDisableWarning'];
+            }
+
+            if (!$variables['showDisableWarning']) {
+                $relatedTaxZoneCount = (new Query())
+                    ->select(['zone_states.id',])
+                    ->from([Table::TAXZONE_STATES . ' zone_states'])
+                    ->where(['stateId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
+            }
+        }
 
         return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
     }
