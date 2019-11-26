@@ -684,6 +684,7 @@ class Install extends Migration
             'countryId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'abbreviation' => $this->string(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

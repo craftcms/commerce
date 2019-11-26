@@ -16,6 +16,7 @@
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added the ability to enable/disabled countries.
+- Added the ability to enable/disabled states.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
@@ -23,14 +24,20 @@
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
+- Added `craft\commerce\models\State::$enabled`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
+- Added `craft\commerce\services\States::getAllEnabledStates`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
+- Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
 
 ## Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
@@ -42,6 +49,7 @@
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
+- Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods. 
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.

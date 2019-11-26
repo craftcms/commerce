@@ -45,6 +45,11 @@ class State extends Model
      */
     public $countryId;
 
+    /**
+     * @var bool Is Enabled
+     */
+    public $enabled;
+
     // Public Methods
     // =========================================================================
 

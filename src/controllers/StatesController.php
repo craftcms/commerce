@@ -79,6 +79,7 @@ class StatesController extends BaseStoreSettingsController
         $state->name = Craft::$app->getRequest()->getBodyParam('name');
         $state->abbreviation = Craft::$app->getRequest()->getBodyParam('abbreviation');
         $state->countryId = Craft::$app->getRequest()->getBodyParam('countryId');
+        $state->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
