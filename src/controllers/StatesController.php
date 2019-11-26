@@ -60,12 +60,7 @@ class StatesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new state');
         }
 
-        $countriesModels = Plugin::getInstance()->getCountries()->getAllCountries();
-        $countries = [];
-        foreach ($countriesModels as $model) {
-            $countries[$model->id] = $model->name;
-        }
-        $variables['countries'] = $countries;
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
 
         return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
     }

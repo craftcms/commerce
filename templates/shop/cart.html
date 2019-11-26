@@ -128,7 +128,7 @@
                         <h5 class="mt-0">{{ 'Shipping Estimate'|t('commerce') }}</h5>
 
                         <div class="estimate-fields text-sm">
-                          {% set countries = craft.commerce.countries.allCountriesAsList %}
+                          {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
                           {% set states = craft.commerce.states.allStatesAsList %}
                           <label class="m-0" for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
                           <select class="address-country w-full estimate-country" name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">

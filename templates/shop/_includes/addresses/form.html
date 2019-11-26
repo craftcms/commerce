@@ -1,4 +1,4 @@
-{% set countries = craft.commerce.countries.allCountriesAsList %}
+{% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
 {% set states = craft.commerce.states.allStatesAsList %}
 
 {% set modelName = modelName is defined ? modelName : 'address' %}

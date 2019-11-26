@@ -15,14 +15,19 @@
 - Added the ability to set a plain text template for Commerce emails.
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
+- Added the ability to enable/disabled countries.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
+- Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
+- Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountries`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.

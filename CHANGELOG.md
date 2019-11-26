@@ -9,6 +9,11 @@
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
+- Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\records\Country::$enabled`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountries`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.

@@ -83,6 +83,7 @@ class CountriesController extends BaseStoreSettingsController
         $country->name = Craft::$app->getRequest()->getBodyParam('name');
         $country->iso = Craft::$app->getRequest()->getBodyParam('iso');
         $country->isStateRequired = (bool)Craft::$app->getRequest()->getBodyParam('isStateRequired');
+        $country->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {

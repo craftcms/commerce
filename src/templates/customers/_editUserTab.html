@@ -156,7 +156,7 @@
   {% endcss %}
 
   {% js %}
-  window.countries = {{ craft.commerce.countries.allCountries|values|json_encode|raw }};
+  window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
     window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
 
     $(".address-box").each(function(){

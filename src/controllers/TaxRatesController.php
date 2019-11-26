@@ -109,11 +109,11 @@ class TaxRatesController extends BaseTaxSettingsController
         $view->setNamespace('new');
 
         $view->startJsBuffer();
-        $countries = $plugin->getCountries()->getAllCountries();
+
         $states = $plugin->getStates()->getAllStates();
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
             $view->renderTemplate('commerce/tax/taxzones/_fields', [
-                'countries' => ArrayHelper::map($countries, 'id', 'name'),
+                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
                 'states' => ArrayHelper::map($states, 'id', 'name')
             ])
         );

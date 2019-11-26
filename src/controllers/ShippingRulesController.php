@@ -63,11 +63,10 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->getView()->setNamespace('new');
 
         $this->getView()->startJsBuffer();
-        $countries = $plugin->getCountries()->getAllCountries();
         $states = $plugin->getStates()->getAllStates();
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
             $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => ArrayHelper::map($countries, 'id', 'name'),
+                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
                 'states' => ArrayHelper::map($states, 'id', 'name'),
             ])
         );
