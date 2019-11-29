@@ -9,6 +9,9 @@
 - Fixed at what point the deprecation log for `craft\commerce\models\Address::getFullName()` is called. ([#1135](https://github.com/craftcms/commerce/pulls/1135))
 - Fixed typo in column name `totalShipping` on Orders export. ([#1153](https://github.com/craftcms/commerce/issues/1153))
 
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
+
 ## 2.2.8 - 2019-11-21
 
 ### Added
