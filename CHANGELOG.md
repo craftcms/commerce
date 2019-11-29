@@ -6,6 +6,7 @@
 - Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
 - Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
 - Fixed a bug where certain address fields (“Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.) would be missing after completing an order.
+- Fixed at what point the deprecation log for `craft\commerce\models\Address::getFullName()` is called. ([#1135](https://github.com/craftcms/commerce/pulls/1135))
 
 ## 2.2.8 - 2019-11-21
 
