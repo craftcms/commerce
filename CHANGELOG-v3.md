@@ -80,3 +80,4 @@
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.
