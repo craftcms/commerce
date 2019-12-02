@@ -2195,7 +2195,8 @@ class Order extends Element
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
             'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')]
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
+            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
         ];
     }
 
@@ -2242,7 +2243,8 @@ class Order extends Element
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
-            'datePaid' => Craft::t('commerce', 'Date Paid')
+            'datePaid' => Craft::t('commerce', 'Date Paid'),
+            'couponCode' => Craft::t('commerce', 'Coupon Code'),
         ];
     }
 

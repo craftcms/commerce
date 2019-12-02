@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the “Coupon Code” table attribute option to the Orders index page. 
+
 ### Fixed
 - Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
 - Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
