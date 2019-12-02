@@ -2216,7 +2216,8 @@ class Order extends Element
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
             'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')]
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
+            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')]
         ];
     }
 
@@ -2236,6 +2237,7 @@ class Order extends Element
             $attributes[] = 'totalPaid';
             $attributes[] = 'datePaid';
             $attributes[] = 'paidStatus';
+            $attributes[] = 'couponCode';
         } else {
             $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
