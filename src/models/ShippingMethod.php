@@ -53,7 +53,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getType(): string
     {
-        return Craft::t('commerce', 'Custom');
+        return Plugin::t('Custom');
     }
 
     /**

@@ -163,10 +163,10 @@ class SalesController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sale saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save sale.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save sale.'));
         }
 
         $variables = [
@@ -190,7 +190,7 @@ class SalesController extends BaseCpController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder sales.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder sales.')]);
     }
 
     /**
@@ -226,7 +226,7 @@ class SalesController extends BaseCpController
         if ($sale->id) {
             $variables['title'] = $sale->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new sale');
+            $variables['title'] = Plugin::t('Create a new sale');
         }
 
         //getting user groups map
@@ -255,9 +255,9 @@ class SalesController extends BaseCpController
         $variables['categories'] = $categories;
 
         $variables['categoryRelationshipType'] = [
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Both'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Both'),
         ];
 
         $variables['purchasables'] = null;

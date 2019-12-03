@@ -63,7 +63,7 @@ class CountriesController extends BaseStoreSettingsController
         if ($variables['country']->id) {
             $variables['title'] = $variables['country']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new country');
+            $variables['title'] = Plugin::t('Create a new country');
         }
 
         return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
@@ -86,10 +86,10 @@ class CountriesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Country saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Country saved.'));
             $this->redirectToPostedUrl($country);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save country.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save country.'));
         }
 
         // Send the model back to the template
@@ -130,7 +130,7 @@ class CountriesController extends BaseStoreSettingsController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
 
     }
 }

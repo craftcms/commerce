@@ -57,7 +57,7 @@ class StatesController extends BaseStoreSettingsController
         if ($variables['state']->id) {
             $variables['title'] = $variables['state']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new state');
+            $variables['title'] = Plugin::t('Create a new state');
         }
 
         $countriesModels = Plugin::getInstance()->getCountries()->getAllCountries();
@@ -87,10 +87,10 @@ class StatesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'State saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('State saved.'));
             $this->redirectToPostedUrl($state);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save state.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save state.'));
         }
 
         // Send the model back to the template

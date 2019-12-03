@@ -672,7 +672,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Customer Info'),
+                'label' => Plugin::t('Customer Info'),
                 'url' => '#customerInfo'
             ];
         }
