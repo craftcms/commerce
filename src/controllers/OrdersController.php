@@ -213,7 +213,7 @@ class OrdersController extends Controller
     public function actionDeleteOrder()
     {
         $this->requirePostRequest();
-        $this->requirePermission('commerce-deleteOrder');
+        $this->requirePermission('commerce-deleteOrders');
 
         $orderId = (int)Craft::$app->getRequest()->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
