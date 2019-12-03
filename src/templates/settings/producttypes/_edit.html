@@ -46,6 +46,16 @@
         }) }}
 
         {{ forms.textField({
+            label: "Title Field Label"|t('app'),
+            instructions: "What do you want the Title field to be called?"|t('app'),
+            id: 'titleLabel',
+            name: 'titleLabel',
+            value: productType.titleLabel,
+            errors: productType.getErrors('titleLabel'),
+            required: true
+        }) }}
+
+        {{ forms.textField({
             label: "Automatic SKU Format"|t('commerce'),
             instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
             id: 'skuFormat',

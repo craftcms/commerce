@@ -122,6 +122,7 @@ class ProductTypesController extends BaseAdminController
         $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
         $productType->hasVariantTitleField = (bool)$productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
         $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
+        $productType->titleLabel = Craft::$app->getRequest()->getBodyParam('titleLabel', $productType->titleLabel);
         $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');
 

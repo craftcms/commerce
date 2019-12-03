@@ -2,7 +2,7 @@
     {%- import "_includes/forms" as forms -%}
 
     {{ forms.textField({
-        label: "Title"|t('commerce'),
+        label: product.type.titleLabel|t('site')|e ?: 'Title'|t('app'),
         site: product.site,
         id: 'title',
         name: 'title',
