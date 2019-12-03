@@ -57,7 +57,7 @@ var columns = [
 new Craft.VueAdminTable({
     columns: columns,
     container: '#taxrate-vue-admin-table',
-    deleteAction: 'commerce/shipping-zones/delete',
+    deleteAction: 'commerce/tax-rates/delete',
     tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

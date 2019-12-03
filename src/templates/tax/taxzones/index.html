@@ -81,7 +81,7 @@
     new Craft.VueAdminTable({
         columns: columns,
         container: '#tax-vue-admin-table',
-        deleteAction: 'commerce/shipping-zones/delete',
+        deleteAction: 'commerce/tax-zones/delete',
         tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}
