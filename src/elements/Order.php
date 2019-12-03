@@ -1913,7 +1913,7 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
             case 'shippingFullName':
             {
