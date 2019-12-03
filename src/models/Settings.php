@@ -219,9 +219,9 @@ class Settings extends Model
     public function getWeightUnitsOptions(): array
     {
         return [
-            'g' => Craft::t('commerce', 'Grams (g)'),
-            'kg' => Craft::t('commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'Pounds (lb)')
+            'g' => Plugin::t('Grams (g)'),
+            'kg' => Plugin::t('Kilograms (kg)'),
+            'lb' => Plugin::t('Pounds (lb)')
         ];
     }
 
@@ -231,11 +231,11 @@ class Settings extends Model
     public function getDimensionUnits(): array
     {
         return [
-            'mm' => Craft::t('commerce', 'Millimeters (mm)'),
-            'cm' => Craft::t('commerce', 'Centimeters (cm)'),
-            'm' => Craft::t('commerce', 'Meters (m)'),
-            'ft' => Craft::t('commerce', 'Feet (ft)'),
-            'in' => Craft::t('commerce', 'Inches (in)'),
+            'mm' => Plugin::t('Millimeters (mm)'),
+            'cm' => Plugin::t('Centimeters (cm)'),
+            'm' => Plugin::t('Meters (m)'),
+            'ft' => Plugin::t('Feet (ft)'),
+            'in' => Plugin::t('Inches (in)'),
         ];
     }
 
@@ -245,9 +245,9 @@ class Settings extends Model
     public function getMinimumTotalPriceStrategyOptions(): array
     {
         return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 

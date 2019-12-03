@@ -126,7 +126,7 @@ class OrderStatus extends Model
     {
         if ($this->dateDeleted !== null)
         {
-            return $this->name . Craft::t('commerce', ' (Trashed)');
+            return $this->name . Plugin::t(' (Trashed)');
         }
 
         return $this->name;
