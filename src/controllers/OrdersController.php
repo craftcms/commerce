@@ -116,7 +116,7 @@ class OrdersController extends Controller
      */
     public function actionEditOrder($orderId, Order $order = null): Response
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
 
         $plugin = Plugin::getInstance();
         $variables = [];
