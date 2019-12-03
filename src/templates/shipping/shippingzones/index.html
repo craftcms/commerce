@@ -29,12 +29,6 @@
 {% endfor %}
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#shipping-zones',
-    noObjectsSelector: '#no-shipping-zones',
-    deleteAction: 'commerce/shipping-zones/delete'
-    });
-
     var columns = [
         { name: '__slot:title', title: Craft.t('app', 'Name') },
         { name: 'description', title: Craft.t('app', 'Description') },
