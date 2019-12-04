@@ -395,6 +395,32 @@ class OrderStatuses extends Component
         return true;
     }
 
+    /**
+     * @param int $id
+     * @param $position
+     * @return bool
+     */
+    public function reorderOrderStatus(int $id, $position): bool
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+        /** @var OrderStatusRecord $orderStatus */
+        $orderStatus = OrderStatusRecord::find()->where(['id' => $id])->one();
+
+        if (!$orderStatus) {
+            return false;
+        }
+
+        $orderStatus->moveToPosition($position);
+
+        if (!$orderStatus->save()) {
+            return false;
+        }
+
+        $orderStatuses = (new Query())
+            ->select(['id', 'uid'])
+            ->from(Table::ORDERSTATUSES);
+    }
+
     // Private methods
     // =========================================================================
 

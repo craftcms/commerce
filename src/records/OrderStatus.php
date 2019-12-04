@@ -11,6 +11,7 @@ use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
 use yii\db\ActiveQueryInterface;
+use yii2tech\ar\position\PositionBehavior;
 
 /**
  * Order status record.
@@ -24,6 +25,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $dateDeleted
  * @property string $name
  * @property int $sortOrder
+ * @mixin PositionBehavior
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -33,6 +35,22 @@ class OrderStatus extends ActiveRecord
     // =========================================================================
 
     use SoftDeleteTrait;
+
+    /**
+     * @inheritDoc
+     */
+    public function behaviors(): array
+    {
+
+        $bahaviors = parent::behaviors();
+
+        $bahaviors['position'] = [
+            'class' => PositionBehavior::class,
+            'positionAttribute' => 'sortOrder',
+        ];
+
+        return $bahaviors;
+    }
 
     /**
      * @inheritdoc
