@@ -85,7 +85,7 @@
 {% block actionButton %}
     <input type="hidden" name="action" value="commerce/orders/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
-    {{ redirectInput('commerce/orders') }}
+    {{ redirectInput('commerce/orders/'~order.id) }}
 
     <div id="order-secondary-actions">
         <div id="order-secondary-actions-app"></div>
