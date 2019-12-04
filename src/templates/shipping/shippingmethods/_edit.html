@@ -107,7 +107,6 @@
         container: '#rules-vue-admin-table',
         deleteAction: 'commerce/shipping-rules/delete',
         emptyMessage: Craft.t('commerce', 'No shipping rules exist yet.'),
-        tableData: {{ tableData|json_encode|raw }},
-        reorderAction: 'commerce/shipping-rules/blahahhaa'
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}
