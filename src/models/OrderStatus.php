@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
 use DateTime;
 use yii\behaviors\AttributeTypecastBehavior;
 use craft\validators\UniqueValidator;
@@ -140,6 +141,11 @@ class OrderStatus extends Model
         $rules = parent::rules();
         $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
+        $rules[] = [
+            ['handle'],
+            HandleValidator::class,
+            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        ];
 
         return $rules;
     }
