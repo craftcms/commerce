@@ -13,52 +13,6 @@
     <h2>{{ "Order Statuses"|t('commerce') }}</h2>
     <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t('commerce') }}</p>
 
-    <table id="order-statuses" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ "Name"|t('commerce') }}</th>
-            <th scope="col">{{ "Handle"|t('commerce') }}</th>
-            <th scope="col">{{ "Has Emails?"|t('commerce') }}</th>
-            <th scope="col">{{ "Default Status?"|t('commerce') }}</th>
-            <td class="thin"></td>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for orderStatus in orderStatuses %}
-            <tr data-id="{{ orderStatus.id }}"
-                data-name="{{ orderStatus.handle }}">
-                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                            href="{{ orderStatus.getCpEditUrl() }}">{{ orderStatus.labelHtml|raw }}</a>
-                </th>
-                <td data-title="{{ 'Handle'|t('commerce') }}"
-                    class="code">{{ orderStatus.handle }}</td>
-                <td data-title="{{ 'Emails'|t('commerce') }}">
-                    {% if orderStatus.emails | length %}
-                        {{ orderStatus.emails | length }}
-                    {% endif %}
-                </td>
-                <td>{% if orderStatus.default %}<span data-icon="check"
-                                                      title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                </td>
-                <td class="thin">
-                    <a class="move icon disabled"
-                       title="{{ 'Move'|t('commerce') }}"
-                       role="button"></a>
-                </td>
-                {% if orderStatus.canDelete() %}
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                {% else %}
-                    <td class="thin"></td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-
-        </tbody>
-    </table>
-
     <div id="statuses-vue-admin-table"></div>
 
     <div class="buttons">
