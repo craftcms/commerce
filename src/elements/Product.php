@@ -813,7 +813,7 @@ class Product extends Element
                 /** @var Product $model */
                 $skus = [];
                 foreach ($this->getVariants() as $variant) {
-                    $skus[] = $variant->getSku();
+                    $skus[] = $variant->sku;
                 }
 
                 if (count(array_unique($skus)) < count($skus)) {
