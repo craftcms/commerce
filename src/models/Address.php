@@ -483,6 +483,8 @@ class Address extends Model
 
             $this->_stateValue = $value;
         } else {
+            $this->stateId = null;
+            $this->stateName = null;
             $this->_stateValue = null;
         }
     }
