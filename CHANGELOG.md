@@ -16,6 +16,9 @@
 - Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
 - Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
 
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
+
 ## 2.2.8 - 2019-11-21
 
 ### Added
