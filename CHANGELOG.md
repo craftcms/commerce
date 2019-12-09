@@ -14,6 +14,7 @@
 - Fixed a SQL error that occurred when trying to save a long zip code condition formula. ([#1138](https://github.com/craftcms/commerce/issues/1138))
 - Fixed an error that could occur when viewing orders without a status on the Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
 - Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
+- Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
 
 ## 2.2.8 - 2019-11-21
 
