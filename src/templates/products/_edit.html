@@ -204,7 +204,7 @@
             <div class="value">
                 {% if not sales|length %}
                     <a class="btn small add icon"
-                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">Add Sale</a>
+                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">{{ 'Add Sale'|t('commerce') }}</a>
                 {% else %}
                     <ul class="commerce-sales">
                         {% for sale in sales %}
@@ -221,7 +221,7 @@
                 <h5 class="heading"></h5>
                 <div class="value">
                     <a class="btn small add icon"
-                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">{{ 'Add Sale'|t }}</a>
+                       href="{{ cpUrl('commerce/promotions/sales/new?purchasableIds='~product.id) }}">{{ 'Add Sale'|t('commerce') }}</a>
                 </div>
             </div>
         {% endif %}
@@ -230,7 +230,7 @@
             <div class="value">
                 {% if not discounts|length %}
                     <a class="btn small add icon"
-                       href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~product.id) }}">{{ 'Add Discount'|t }}</a>
+                       href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~product.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
                 {% else %}
                     <ul class="commerce-sales">
                         {% for discount in discounts %}

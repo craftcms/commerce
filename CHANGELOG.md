@@ -2,8 +2,22 @@
 
 ## Unreleased
 
+### Added
+- Added the “Coupon Code” table attribute option to the Orders index page. 
+
 ### Fixed
 - Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
+- Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
+- Fixed a bug where certain address fields (“Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.) would be missing after completing an order.
+- Fixed at what point the deprecation log for `craft\commerce\models\Address::getFullName()` is called. ([#1135](https://github.com/craftcms/commerce/pulls/1135))
+- Fixed typo in column name `totalShipping` on Orders export. ([#1153](https://github.com/craftcms/commerce/issues/1153))
+- Fixed a SQL error that occurred when trying to save a long zip code condition formula. ([#1138](https://github.com/craftcms/commerce/issues/1138))
+- Fixed an error that could occur when viewing orders without a status on the Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
+- Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
+- Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
+
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
 
 ## 2.2.8 - 2019-11-21
 

@@ -158,7 +158,7 @@ class Tax extends Component implements AdjusterInterface
                     $orderTaxableAmount = 0;
 
                     if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                        $orderTaxableAmount = $orderTaxableAmount = $this->_order->getTotalTaxablePrice();
+                        $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
                     } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                         $orderTaxableAmount = $this->_order->getTotalShippingCost();
                     }
@@ -228,7 +228,7 @@ class Tax extends Component implements AdjusterInterface
             $orderTaxableAmount = 0;
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                $orderTaxableAmount = $this->_order->getTotalTaxablePrice();
+                $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
             }
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
@@ -345,5 +345,22 @@ class Tax extends Component implements AdjusterInterface
         $adjustment->sourceSnapshot = $rate->toArray();
 
         return $adjustment;
+    }
+
+    /**
+     * Returns the total price of the order, minus any tax adjustments.
+     *
+     * @return float
+     */
+    private function _getOrderTotalTaxablePrice(Order $order): float
+    {
+        $itemTotal = $order->getItemSubtotal();
+
+        $allNonIncludedAdjustmentsTotal = $order->getAdjustmentsTotal();
+        $taxAdjustments = $order->getTotalTax();
+        $includedTaxAdjustments = $order->getTotalTaxIncluded();
+
+        return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
+
     }
 }
