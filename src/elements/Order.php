@@ -647,6 +647,7 @@ class Order extends Element
      * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
+     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
      */
     public function getTotalTaxablePrice(): float
     {
@@ -1913,7 +1914,7 @@ class Order extends Element
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
             case 'shippingFullName':
             {
@@ -2195,7 +2196,8 @@ class Order extends Element
             'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
             'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')]
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
+            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
         ];
     }
 
@@ -2242,7 +2244,8 @@ class Order extends Element
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
-            'datePaid' => Craft::t('commerce', 'Date Paid')
+            'datePaid' => Craft::t('commerce', 'Date Paid'),
+            'couponCode' => Craft::t('commerce', 'Coupon Code'),
         ];
     }
 
