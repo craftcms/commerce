@@ -15,6 +15,7 @@
 - Fixed an error that could occur when viewing orders without a status on the Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
 - Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
 - Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
+- Fixed a bug that would cause an error to display when marking an order as complete in the Control Panel. ([#1166](https://github.com/craftcms/commerce/issues/1166))
 
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
