@@ -92,7 +92,7 @@ class Shipping extends Component implements AdjusterInterface
             // Check for order level discounts for shipping
             $hasDiscountRemoveShippingCosts = false;
             foreach ($discounts as $discount) {
-                if ($discount->hasFreeShippingForOrder && $this->_matchOrderAndLineItems($this->_order, $discount)) {
+                if ($discount->hasFreeShippingForOrder && Plugin::getInstance()->getDiscounts()->matchOrder($this->_order, $discount)) {
                     $hasDiscountRemoveShippingCosts = true;
                 }
             }
@@ -101,9 +101,17 @@ class Shipping extends Component implements AdjusterInterface
                 //checking items shipping categories
                 foreach ($order->getLineItems() as $item) {
 
+                    // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
+                    $hasFreeShippingFromDiscount = false;
+                    foreach ($discounts as $discount) {
+                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
+                            $hasFreeShippingFromDiscount = true;
+                        }
+                    }
+
                     $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
                     $shippable =  $item->purchasable->getIsShippable();
-                    if (!$freeShippingFlagOnProduct && $shippable) {
+                    if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                         $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
                         $percentageRate = $rule->getPercentageRate($item->shippingCategoryId);
@@ -173,120 +181,5 @@ class Shipping extends Component implements AdjusterInterface
         $adjustment->sourceSnapshot = $rule->toArray();
 
         return $adjustment;
-    }
-
-    /**
-     * @param Order $order
-     * @param Discount $discount
-     * @return bool
-     * @throws \yii\base\InvalidConfigException
-     * @deprecated in 2.2.9. Matching order and lineItems for discounts will be refactored in 3.0
-     */
-    private function _matchOrderAndLineItems(Order $order, Discount $discount): bool
-    {
-        if (!$discount->enabled) {
-            return false;
-        }
-
-        if ($discount->code && $discount->code != $order->couponCode) {
-            return false;
-        }
-
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
-
-        $now = $order->dateUpdated ?? new DateTime();
-        $from = $discount->dateFrom;
-        $to = $discount->dateTo;
-        if (($from && $from > $now) || ($to && $to < $now)) {
-            return false;
-        }
-
-        if (!$discount->allGroups) {
-            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                return false;
-            }
-        }
-
-        // Coupon based checks
-        if ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0)) {
-            if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
-                return false;
-            }
-
-            if ($discount->perUserLimit > 0 && !$user) {
-                return false;
-            }
-
-            if ($discount->perUserLimit > 0 && $user) {
-                // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-                $usage = (new Query())
-                    ->select(['uses'])
-                    ->from([Table::CUSTOMER_DISCOUNTUSES])
-                    ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
-                    ->scalar();
-
-                if ($usage && $usage >= $discount->perUserLimit) {
-                    return false;
-                }
-            }
-
-            if ($discount->perEmailLimit > 0 && $order->getEmail()) {
-                $usage = (new Query())
-                    ->select(['uses'])
-                    ->from([Table::EMAIL_DISCOUNTUSES])
-                    ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
-                    ->scalar();
-
-                if ($usage && $usage >= $discount->perEmailLimit) {
-                    return false;
-                }
-            }
-        }
-
-        // Check to see if we need to match on data related to the lineItems
-        if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
-            $lineItemMatch = false;
-            foreach ($order->getLineItems() as $lineItem) {
-                if ($lineItem->onSale && $discount->excludeOnSale) {
-                    continue;
-                }
-
-                // can't match something not promotable
-                if (!$lineItem->purchasable->getIsPromotable()) {
-                    continue;
-                }
-
-                if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
-                    $purchasableId = $lineItem->purchasableId;
-                    if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
-                        continue;
-                    }
-                }
-
-                if ($discount->getCategoryIds() && !$discount->allCategories && $lineItem->getPurchasable()) {
-                    $purchasable = $lineItem->getPurchasable();
-
-                    if (!$purchasable) {
-                        continue;
-                    }
-
-                    $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
-                    $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-                    $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
-                    if (!$purchasableIsRelateToOneOrMoreCategories) {
-                        continue;
-                    }
-                }
-
-                $lineItemMatch = true;
-                break;
-            }
-
-            return $lineItemMatch;
-        }
-
-        return true;
     }
 }
