@@ -11,6 +11,7 @@
 - Fixed a bug where certain address fields (“Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.) would be missing after completing an order.
 - Fixed at what point the deprecation log for `craft\commerce\models\Address::getFullName()` is called. ([#1135](https://github.com/craftcms/commerce/pulls/1135))
 - Fixed typo in column name `totalShipping` on Orders export. ([#1153](https://github.com/craftcms/commerce/issues/1153))
+- Fixed a bug where free shipping discounts without a coupon code would not check all discount conditions. ([#1144](https://github.com/craftcms/commerce/issues/1144))
 - Fixed a SQL error that occurred when trying to save a long zip code condition formula. ([#1138](https://github.com/craftcms/commerce/issues/1138))
 - Fixed an error that could occur when viewing orders without a status on the Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
 - Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
