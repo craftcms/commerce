@@ -18,6 +18,7 @@
 - Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
 - Fixed a bug that would cause an error to display when marking an order as complete in the Control Panel. ([#1166](https://github.com/craftcms/commerce/issues/1166))
 - Fixed an error that could occur when validating a product that has variants with unset SKUs. ([#1165](https://github.com/craftcms/commerce/pull/1165))
+- Fixed a bug where payments sources could not retrieve their gateway record. ([#1121](https://github.com/craftcms/commerce/pull/1121))
 
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
