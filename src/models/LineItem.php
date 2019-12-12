@@ -147,7 +147,7 @@ class LineItem extends Model
     /**
      * @var
      */
-    private $_options;
+    private $_options = [];
 
     // Public Methods
     // =========================================================================
