@@ -109,6 +109,7 @@ class DiscountsController extends BaseCpController
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
         $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
         $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
+        $discount->baseDiscountType = $request->getBodyParam('baseDiscountType');
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;
@@ -260,6 +261,17 @@ class DiscountsController extends BaseCpController
         if ($variables['discount']->purchaseTotal != 0) {
             $variables['discount']->purchaseTotal = Craft::$app->formatter->asDecimal((float)$variables['discount']->purchaseTotal);
         }
+
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        $currencyName = $currency ? $currency->getCurrency() : '';
+
+        $variables['baseDiscountTypes'] = [
+            DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Plugin::t($currencyName . ' value'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL => Plugin::t('(%) Percent off items total (original price) and shipping total'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price) and shipping total'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS => Plugin::t('(%) Percent off items total (original price)'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price)'),
+        ];
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;

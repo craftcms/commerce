@@ -14,6 +14,7 @@
 - Added the ability on promotions to choose the relationship type for related categories.
 - Added the ability to set a plain text template for Commerce emails.
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
+- Added the ability to create discounts using the order total and percentages. 
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
