@@ -35,7 +35,7 @@ use yii\web\BadRequestHttpException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Reports extends Component
+class ShippingReports extends Component
 {
     // Constants
     // =========================================================================
@@ -81,7 +81,7 @@ class Reports extends Component
                 ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
                 ->andWhere(['type'=>Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included'=>1]),
-            'totalShpping' => (new CraftQuery())
+            'totalShipping' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
                 ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')

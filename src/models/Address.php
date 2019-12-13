@@ -381,12 +381,12 @@ class Address extends Model
      */
     public function getFullName()
     {
-        Craft::$app->getDeprecator()->log('Address::getFullName()', 'Address::getFullName() has been deprecated. Use fullName attribute instead.');
-
         // Return the full name if it is set explicitly
         if ($this->fullName) {
             return $this->fullName;
         }
+
+        Craft::$app->getDeprecator()->log('Address::getFullName()', 'Address::getFullName() has been deprecated. Use fullName attribute instead.');
 
         $firstName = trim($this->firstName);
         $lastName = trim($this->lastName);
@@ -483,6 +483,8 @@ class Address extends Model
 
             $this->_stateValue = $value;
         } else {
+            $this->stateId = null;
+            $this->stateName = null;
             $this->_stateValue = null;
         }
     }

@@ -9,12 +9,16 @@ namespace craft\commerce\adjusters;
 
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
+use craft\commerce\models\Discount;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\elements\Category;
 
 /**
  * Tax Adjustments
