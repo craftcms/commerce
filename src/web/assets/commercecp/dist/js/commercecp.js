@@ -547,6 +547,10 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
     init: function(elementType, $container, settings) {
         this.on('selectSource', $.proxy(this, 'updateSelectedSource'));
         this.base(elementType, $container, settings);
+
+        // Add the New Order button
+        var $btn = $('<a class="btn submit icon add" href="'+Craft.getUrl('commerce/orders/create-new')+'">'+Craft.t('commerce', 'New Order')+'</a>');
+        this.addButton($btn);
     },
 
     updateSelectedSource() {
