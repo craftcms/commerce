@@ -8,18 +8,17 @@
 
 ### Fixed
 - Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
-- Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
-- Fixed a bug where certain address fields (“Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.) would be missing after completing an order.
-- Fixed at what point the deprecation log for `craft\commerce\models\Address::getFullName()` is called. ([#1135](https://github.com/craftcms/commerce/pull/1135))
-- Fixed typo in column name `totalShipping` on Orders export. ([#1153](https://github.com/craftcms/commerce/issues/1153))
-- Fixed a bug where free shipping discounts without a coupon code would not check all discount conditions. ([#1144](https://github.com/craftcms/commerce/issues/1144))
+- Fixed a bug where address fields (“Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.) would be missing after completing an order.
+- Fixed typo in column heading `totalShipping` on Orders export. ([#1153](https://github.com/craftcms/commerce/issues/1153))
+- Fixed a bug where discounts without a coupon code would not check all other conditions. ([#1144](https://github.com/craftcms/commerce/issues/1144))
 - Fixed a SQL error that occurred when trying to save a long zip code condition formula. ([#1138](https://github.com/craftcms/commerce/issues/1138))
-- Fixed an error that could occur when viewing orders without a status on the Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
+- Fixed an error that could occur when on Order index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
 - Fixed an error that could occur when using `hasSales` on a variant query with logged out users.  
-- Fixed an bug that caused an address state to be set incorrectly. ([#1162](https://github.com/craftcms/commerce/issues/1162))
-- Fixed a bug that would cause an error to display when marking an order as complete in the Control Panel. ([#1166](https://github.com/craftcms/commerce/issues/1166))
+- Fixed an bug that caused the state to be set incorrectly on an address. ([#1162](https://github.com/craftcms/commerce/issues/1162))
+- Fixed an error that occurred when marking an order as complete in the Control Panel. ([#1166](https://github.com/craftcms/commerce/issues/1166))
 - Fixed an error that could occur when validating a product that has variants with unset SKUs. ([#1165](https://github.com/craftcms/commerce/pull/1165))
-- Fixed a bug where payments sources could not retrieve their gateway record. ([#1121](https://github.com/craftcms/commerce/pull/1121))
+- Fixed a bug where payments sources records could not retrieve their related gateway record. ([#1121](https://github.com/craftcms/commerce/pull/1121))
+- Fixed a JavaScript error that occurred when editing shipping rules.
 
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
