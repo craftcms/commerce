@@ -9,16 +9,20 @@
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
+- Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
 
 ### Removed 
 - Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Removed `craft\commerce\models\Address::getFullName()`.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead. ([#1031](https://github.com/craftcms/commerce/issues/1031))
 
 ## 3.0.0-alpha.1 - 2019-07-24
 
@@ -93,13 +97,22 @@
 
 ## Unreleased 2.2.x
 
+### Fixed
+- Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
+- Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
+
+## 2.2.8 - 2019-11-21
+
 ### Added
 - It’s now possible to sort products by Date Updated, Date Created and Promotable on the Products index page. ([#1101](https://github.com/craftcms/commerce/issues/1101))
 - `totalTax`, `totalTaxIncluded`, `totalDiscount`, and `totalShipping` are now included on order exports. ([#719](https://github.com/craftcms/commerce/issues/719))
+- Added the `COMMERCE_PAYMENT_CURRENCY` environment variable. ([#999](https://github.com/craftcms/commerce/pull/999))
 
 ### Fixed
 - Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
 - Fixed an issue where purchasables were added to the cart when the qty submitted was `0` (zero).
+- Fixed a performance issue using the `craft\commerce\elements\db\VariantQuery::hasSales()` query param.
+- Fixed an error that could occur with `dateCreated` when programmatically adding line items.
 
 ## 2.2.7 - 2019-10-30
 

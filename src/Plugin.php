@@ -337,18 +337,18 @@ class Plugin extends BasePlugin
             $event->permissions[self::t('Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
-                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                    'label' => self::t('Manage orders'), 'nested' => [
                         'commerce-editOrders' => [
-                            'label' => Craft::t('commerce', 'Edit orders')
+                            'label' => self::t('Edit orders')
                         ],
                         'commerce-deleteOrders' => [
-                            'label' => Craft::t('commerce', 'Delete orders')
+                            'label' => self::t('Delete orders')
                         ],
                         'commerce-capturePayment' => [
-                            'label' => Craft::t('commerce', 'Capture payment')
+                            'label' => self::t('Capture payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => Craft::t('commerce', 'Refund payment')
+                            'label' => self::t('Refund payment')
                         ],
                     ]
                 ],

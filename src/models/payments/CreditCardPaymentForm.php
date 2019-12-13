@@ -8,6 +8,7 @@
 namespace craft\commerce\models\payments;
 
 use Craft;
+use craft\commerce\Plugin;
 
 /**
  * Credit Card Payment form model.
@@ -119,7 +120,7 @@ class CreditCardPaymentForm extends BasePaymentForm
         }
 
         if (array_sum(str_split($str)) % 10 !== 0) {
-            $this->addError($attribute, Craft::t('commerce', 'Not a valid credit card number.'));
+            $this->addError($attribute, Plugin::t('Not a valid credit card number.'));
         }
     }
 }
