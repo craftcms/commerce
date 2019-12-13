@@ -45,7 +45,7 @@
     label: 'Type'|t('commerce'),
     id: 'isCountryBased',
     name: 'isCountryBased',
-    options: {1 : 'Country-based'|t('commerce'), 0 : 'State-based'|t},
+    options: {1 : 'Country-based'|t('commerce'), 0 : 'State-based'|t('commerce')},
     value: taxZone is defined ? taxZone.isCountryBased,
     errors: taxZone is defined ? taxZone.getErrors('isCountryBased'),
     required: true,

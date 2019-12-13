@@ -45,7 +45,7 @@ class PaymentSource extends ActiveRecord
      */
     public function getGateway(): ActiveQueryInterface
     {
-        return $this->hasOne(Gateway::class, ['gatewayId' => 'id']);
+        return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
 

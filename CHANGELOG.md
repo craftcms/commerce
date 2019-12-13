@@ -95,11 +95,28 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
-## Unreleased 2.2.x
+## 2.2.9 - 2019-12-13
+
+### Added
+- Order indexes can now have a “Coupon Code” column.
+- Added the `resave/orders` and `resave/carts` commands.
+
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getTotalTaxablePrice()`.
 
 ### Fixed
-- Fixed a bug that would cause the wrong tax zone to be selected when editing a tax rate.
-- Fixed a javascript error that stopped the shipping zone field from rendering when editing shipping rules.
+- Fixed a bug where the wrong tax zone could be selected when editing a tax rate.
+- Fixed a bug where some address data would be forgotten after completing an order.
+- Fixed a typo in the `totalShipping` column heading on order exports. ([#1153](https://github.com/craftcms/commerce/issues/1153))
+- Fixed a bug where discounts without a coupon code weren’t checking other discount conditions. ([#1144](https://github.com/craftcms/commerce/issues/1144))
+- Fixed a SQL error that occurred when trying to save a long zip code condition formula. ([#1138](https://github.com/craftcms/commerce/issues/1138))
+- Fixed an error that could occur on the Orders index page. ([#1160](https://github.com/craftcms/commerce/issues/1160))
+- Fixed an error that could occur when executing a variant query with the `hasSales` param, if no one was logged in.
+- Fixed an bug where it wasn’t possible to clear out the State field value on an address. ([#1162](https://github.com/craftcms/commerce/issues/1162))
+- Fixed an error that occurred when marking an order as complete in the Control Panel. ([#1166](https://github.com/craftcms/commerce/issues/1166))
+- Fixed an error that could occur when validating a product that had variants which didn’t have a SKU yet. ([#1165](https://github.com/craftcms/commerce/pull/1165))
+- Fixed a bug where payments source active records could not retrieve their related gateway record. ([#1121](https://github.com/craftcms/commerce/pull/1121))
+- Fixed a JavaScript error that occurred when editing shipping rules.
 
 ## 2.2.8 - 2019-11-21
 
@@ -119,14 +136,14 @@
 ### Changed
 - `commerce/cart/*` requests now include estimated address data in their JSON responses. ([#1084](https://github.com/craftcms/commerce/issues/1084))
 
+### Deprecated
+- Deprecated `craft\commerce\models\Address::getFullName()`.
+
 ### Fixed
 - Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
 - Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
 - Fixed a SQL error that occurred when eager-loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
 - Fixed an error that occurred on the Orders index page if the "Shipping Business Name" column was shown.
-
-### Deprecated
-- Deprecated `craft\commerce\models\Address::getFullName()`.
 
 ## 2.2.6 - 2019-10-26
 
@@ -220,7 +237,7 @@
 
 ### Changed
 - Craft Commerce now required Craft CMS 3.3.0 or later.
-- Edit Product pages no longer show SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))  
+- Edit Product pages no longer show SKU fields for new products or variants when the SKU will be automatically generated. ([#217](https://github.com/craftcms/commerce/issues/217))
 - The View Order page now shows timestamps for “Order Completed”, “Paid”, and “Last Updated”. ([#1020](https://github.com/craftcms/commerce/issues/1020))
 - The Orders index page now has unique URLs for each order status. ([#901](https://github.com/craftcms/commerce/issues/901))
 - Orders now show whether they’ve been overpaid. ([#945](https://github.com/craftcms/commerce/issues/945))
@@ -267,13 +284,11 @@
 
 ## 2.1.13 - 2019-09-09
 
-### Fixed
-- Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
-
 ### Changed
 - The “Status Email Address” and “From Name” settings now accept environment variables.
 
 ### Fixed
+- Fixed a error when requesting a PDF URL in headless mode. ([#1011](https://github.com/craftcms/commerce/pull/1011))
 - Fixed a bug where the “Download PDF” button wouldn’t show in the View Order page. ([#962](https://github.com/craftcms/commerce/issues/962))
 - Fixed a bug where the <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in General Settings.
 - Fixed a bug where <kbd>Command</kbd>/<kbd>Ctrl</kbd> + <kbd>S</kbd> shortcut didn’t work in Store Location settings.
@@ -298,7 +313,7 @@
 
 ### Fixed
 - Fixed a bug where order revenue charts weren’t showing the correct currency. ([#792](https://github.com/craftcms/commerce/issues/792))
-- Fixed a bug where decimals were being stripped in locales that use commas as separators ([#592](https://github.com/craftcms/commerce/issues/592)) 
+- Fixed a bug where decimals were being stripped in locales that use commas as separators ([#592](https://github.com/craftcms/commerce/issues/592))
 - Fixed a bug where sites with a large number of variants might not update properly when updating to Craft Commerce 2. ([#964](https://github.com/craftcms/commerce/issues/964))
 - Fixed a bug where the “Purchase Total” discount condition would only save whole numbers. ([#966](https://github.com/craftcms/commerce/pull/966))
 - Fixed a bug where products showed a blank validation error message when their variants had errors. ([#546](https://github.com/craftcms/commerce/issues/546))
@@ -597,13 +612,13 @@
 
 ## 2.0.1 - 2019-01-17
 
-### Fixed
-- Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
-- Fixed an issue where custom field validation errors did not show up on the View Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
-
 ### Changed
 - Renamed the shipping rule condition from “Mimimum order price” to “Minimum order value” which clarifies the condition is based on item value before discounts and tax.
 - Renamed the shipping rule condition from “Maximum order price” to “Maximum order value” which clarifies the condition is based on item value before discounts and tax.
+
+### Fixed
+- Fixed an issue where the “Total Paid”, “Total Price”, and “Total Shipping Cost” Order index page columns were showing incorrect values. ([#632](https://github.com/craftcms/commerce/issues/632))
+- Fixed an issue where custom field validation errors did not show up on the View Order page. ([#580](https://github.com/craftcms/commerce/issues/580))
 
 ## 2.0.0 - 2019-01-15
 
