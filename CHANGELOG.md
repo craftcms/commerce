@@ -18,6 +18,7 @@
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
+- `allowEmptyCartOnCheckout` default value is false.
 
 ### Removed 
 - Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
