@@ -15,5 +15,8 @@
         fields: variant.getFieldLayout().getFields()
     } %}
 
-    {{ productFields.relatedSales(variant.id, false) }}
+    {# TODO allow viewing of sales when a view promotions permission is introduced #}
+    {% if currentUser.can('commerce-managePromotions') %}
+        {{ productFields.relatedSales(variant.id, false) }}
+    {% endif %}
 </div>
