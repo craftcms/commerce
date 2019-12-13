@@ -174,20 +174,16 @@
     {% endif %}
 </div>
 
-<hr>
-
 <div class="meta">
     {{ productFields.behavioralMetaFields(product) }}
 </div>
 
 {% if not productType.hasVariants %}
-    <hr>
     {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
         <div class="meta">
             {{ productFields.generalVariantFields(product.defaultVariant, product) }}
         </div>
         {% if productType.hasDimensions %}
-            <hr>
             <div class="meta">
                 {{ productFields.dimensionVariantFields(product.defaultVariant) }}
             </div>
@@ -196,7 +192,6 @@
 {% endif %}
 
 {% if product.id %}
-  <hr>
   <div class="meta">
     {# Related Sales #}
     {# TODO allow viewing of sales when a view promotions permission is introduced #}
