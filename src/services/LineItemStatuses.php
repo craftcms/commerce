@@ -8,9 +8,11 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\events\DefaultLineItemStatusEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\LineItemStatus;
+use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
@@ -188,14 +190,14 @@ class LineItemStatuses extends Component
         if ($isNewStatus) {
             $statusUid = StringHelper::UUID();
         } else {
-            $statusUid = Db::uidById('{{%commerce_lineitemstatuses}}', $lineItemStatus->id);
+            $statusUid = Db::uidById(Table::LINEITEMSTATUSES, $lineItemStatus->id);
         }
 
         // Make sure no statuses that are not archived share the handle
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
-            $lineItemStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
+            $lineItemStatus->addError('handle', Plugin::t('That handle is already in use'));
             return false;
         }
 
@@ -217,7 +219,7 @@ class LineItemStatuses extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewStatus) {
-            $lineItemStatus->id = Db::idByUid('{{%commerce_lineitemstatuses}}', $statusUid);
+            $lineItemStatus->id = Db::idByUid(Table::LINEITEMSTATUSES, $statusUid);
         }
 
         return true;
@@ -371,7 +373,7 @@ class LineItemStatuses extends Component
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        $uidsByIds = Db::uidsByIds('{{%commerce_lineitemstatuses}}', $ids);
+        $uidsByIds = Db::uidsByIds(Table::LINEITEMSTATUSES, $ids);
 
         foreach ($ids as $lineItemStatus => $statusId) {
             if (!empty($uidsByIds[$statusId])) {
@@ -416,7 +418,7 @@ class LineItemStatuses extends Component
             ])
             ->where(['isArchived' => false])
             ->orderBy('sortOrder')
-            ->from(['{{%commerce_lineitemstatuses}}']);
+            ->from([Table::LINEITEMSTATUSES]);
     }
 
     /**

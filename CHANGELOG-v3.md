@@ -15,6 +15,7 @@
 - Added the ability to set a plain text template for Commerce emails.
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
 - Added the ability to create discounts using the order total and percentages. 
+- Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
@@ -80,3 +81,4 @@
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.

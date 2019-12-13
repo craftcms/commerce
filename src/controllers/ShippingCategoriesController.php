@@ -62,7 +62,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         if ($variables['shippingCategory']->id) {
             $variables['title'] = $variables['shippingCategory']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
+            $variables['title'] = Plugin::t('Create a new shipping category');
         }
 
         return $this->renderTemplate('commerce/shipping/shippingcategories/_edit', $variables);
@@ -102,7 +102,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
                     'errors' => $shippingCategory->getErrors()
                 ]);
             }
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping category.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping category.'));
 
             // Send the shipping category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -120,7 +120,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping category saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Shipping category saved.'));
         $this->redirectToPostedUrl($shippingCategory);
 
         // Send the shipping category back to the template
@@ -145,6 +145,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
+        return $this->asErrorJson(Plugin::t('Could not delete shipping category'));
     }
 }

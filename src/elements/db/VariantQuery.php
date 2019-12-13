@@ -13,7 +13,10 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 
@@ -483,24 +486,103 @@ class VariantQuery extends ElementQuery
                 $query->$attribute = $this->$attribute;
             }
 
+            $query->andWhere(['commerce_products.promotable' => 1]);
             $query->hasSales = null;
             $query->limit = null;
-            $variants = $query->all();
+            $variantIds = $query->ids();
 
-            $ids = [];
-            foreach ($variants as $variant) {
-                $sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($variant);
+            $now = new \DateTime();
+            $activeSales = (new Query())->select([
+                'sales.id',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+            ])
+                ->from(Table::SALES . ' sales')
+                ->where(['[[enabled]]' => 1])
+                ->andWhere([
+                    'or',
+                    ['or', ['<>', '[[dateTo]]', null], ['>=', '[[dateTo]]', Db::prepareDateForDb($now)]],
+                    ['or', ['<>', '[[dateFrom]]', null], ['<=', '[[dateFrom]]', Db::prepareDateForDb($now)]],
+                    ['[[dateFrom]]' => null, '[[dateTo]]' => null],
+                ])
+                ->orderBy('sortOrder asc')
+                ->all();
 
-                if ($this->hasSales === true && count($sales) > 0) {
-                    $ids[] = $variant->id;
-                }
-
-                if ($this->hasSales === false && count($sales) == 0) {
-                    $ids[] = $variant->id;
+            $allVariantsMatch = false;
+            foreach ($activeSales as $activeSale) {
+                if ($activeSale['allGroups'] == 1 && $activeSale['allPurchasables'] == 1 && $activeSale['allCategories'] == 1) {
+                    $allVariantsMatch = true;
+                    break;
                 }
             }
 
-            $this->subQuery->andWhere(['in', 'commerce_variants.id', $ids]);
+            if (!$allVariantsMatch) {
+                $activeSaleIds = ArrayHelper::getColumn($activeSales, 'id');
+
+                // Only force user group restriction on site requests
+                if (Craft::$app->getRequest()->isSiteRequest) {
+                    $user = Craft::$app->getUser()->getIdentity();
+                    $userGroups = $user->getGroups();
+                    $userGroupIds = ArrayHelper::getColumn($userGroups, 'id');
+
+                    // If the user doesn't belong to any groups, remove sales that
+                    // restrict by user group as these would never match
+                    if (empty($userGroupIds)) {
+                        foreach ($activeSales as $activeSale) {
+                            if ($activeSale['allGroups'] == 0) {
+                                ArrayHelper::removeValue($activeSaleIds, $activeSale['id']);
+                                break;
+                            }
+                        }
+                    } else {
+                        // Exclude any sales that have a user group restriction that the current user is not part of
+                        $userGroupSalesIds = (new Query())
+                            ->select('sales.id')
+                            ->from(Table::SALES . ' sales')
+                            ->leftJoin(Table::SALE_USERGROUPS . ' su', '[[su.saleId]] = [[sales.id]]')
+                            ->where(['[[sales.id]]' => $activeSaleIds])
+                            ->andWhere(['in', 'userGroupId', $userGroupIds])
+                            ->column();
+
+                        foreach ($activeSales as $activeSale) {
+                            if ($activeSale['allGroups'] == 0 && !in_array($activeSale['id'], $userGroupSalesIds)) {
+                                ArrayHelper::removeValue($activeSaleIds, $activeSale['id']);
+                            }
+                        }
+                    }
+                }
+
+                $activeSales = ArrayHelper::whereMultiple($activeSales, ['id' => $activeSaleIds]);
+
+                // Check to see if we have any sales that match all products and categories
+                // so we can skip extra processing if needed
+                $allProductsAndCategoriesSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 1, 'allCategories' => 1]);
+
+                if (empty($allProductsAndCategoriesSales)) {
+                    $purchasableRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allPurchasables' => 0]);
+                    $categoryRestrictedSales = ArrayHelper::whereMultiple($activeSales, ['allCategories' => 0]);
+
+                    $purchasableRestrictedIds = (new Query())
+                        ->select('purchasableId')
+                        ->from(Table::SALE_PURCHASABLES . ' sp')
+                        ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
+                        ->column();
+
+                    // TODO in 3.0 make this work with category relations that are sourceElement, targetElement or element
+                    $categoryRestrictedIds = (new Query())
+                        ->select('rel.sourceId')
+                        ->from(Table::SALE_CATEGORIES . ' sc')
+                        ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
+                        ->where(['in', 'saleId', ArrayHelper::getColumn($categoryRestrictedSales, 'id')])
+                        ->column();
+
+                    $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
+                }
+            }
+
+            $includeExcludeIds = $this->hasSales ? 'in' : 'not in';
+            $this->subQuery->andWhere([$includeExcludeIds, 'commerce_variants.id', $variantIds]);
         }
 
         $this->_applyHasProductParam();
