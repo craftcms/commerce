@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.9 - 2019-12-13
 
 ### Added
 - Order indexes can now have a “Coupon Code” column.
