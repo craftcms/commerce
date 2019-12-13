@@ -207,6 +207,9 @@ ul.commerce-sales li a span {
   text-overflow: ellipsis;
   max-width: 105px; }
 
+.commerce-sales-buttons a {
+  margin-top: 5px; }
+
 .order-details {
   margin-top: 20px; }
 

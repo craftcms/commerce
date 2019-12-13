@@ -211,7 +211,140 @@ class SalesController extends BaseCpController
         return $this->asJson(['success' => true]);
     }
 
-    // Public Methods
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionGetAllSales(): Response
+    {
+        $this->requireAcceptsJson();
+        $sales = Plugin::getInstance()->getSales()->getAllSales();
+
+        return $this->asJson(array_values($sales));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionGetSalesByProductId(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Plugin::t('Product ID is required.'));
+        }
+
+        $product = Plugin::getInstance()->getProducts()->getProductById($id);
+
+        if (!$product) {
+            return $this->asErrorJson(Plugin::t('No product available.'));
+        }
+
+        $sales = [];
+        foreach ($product->getVariants() as $variant) {
+            $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
+            foreach ($variantSales as $sale) {
+                if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+                    /** @var Sale $sale */
+                    $saleArray = $sale->toArray();
+                    $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
+                    $sales[] = $saleArray;
+                }
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'sales' => $sales,
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionGetSalesByPurchasableId(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Plugin::t('Purchasable ID is required.'));
+        }
+
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+
+        if (!$purchasable) {
+            return $this->asErrorJson(Plugin::t('No purchasable available.'));
+        }
+
+        $sales = [];
+        $purchasableSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($purchasable);
+        foreach ($purchasableSales as $sale) {
+            if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
+                /** @var Sale $sale */
+                $saleArray = $sale->toArray();
+                $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
+                $sales[] = $saleArray;
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'sales' => $sales,
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \yii\base\Exception
+     */
+    public function actionAddPurchasableToSale(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $ids = $request->getParam('ids', []);
+        $saleId = $request->getParam('saleId', null);
+
+        if (empty($ids) || !$saleId) {
+            return $this->asErrorJson(Plugin::t('Purchasable ID and Sale ID are required.'));
+        }
+
+        $purchasables = [];
+        foreach ($ids as $id) {
+            $purchasables[] = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+        }
+
+        $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
+
+        if (empty($purchasables) || count($purchasables) != count($ids) || !$sale) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve Sale and Purchasable.'));
+        }
+
+        $salePurchasableIds = $sale->getPurchasableIds();
+
+        array_push($salePurchasableIds, ...$ids);
+        $sale->setPurchasableIds(array_unique($salePurchasableIds));
+
+        if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
+            return $this->asErrorJson(Plugin::t('Couldn’t save sale.'));
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+
+    // Private Methods
     // =========================================================================
 
     /**
