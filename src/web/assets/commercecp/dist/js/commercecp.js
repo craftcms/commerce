@@ -547,6 +547,10 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
     init: function(elementType, $container, settings) {
         this.on('selectSource', $.proxy(this, 'updateSelectedSource'));
         this.base(elementType, $container, settings);
+
+        // Add the New Order button
+        var $btn = $('<a class="btn submit icon add" href="'+Craft.getUrl('commerce/orders/create-new')+'">'+Craft.t('commerce', 'New Order')+'</a>');
+        this.addButton($btn);
     },
 
     updateSelectedSource() {
@@ -977,10 +981,12 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
             var $footer = $('<div class="footer"/>').appendTo(this.$form);
             var $newSaleBtnGroup = $('<div class="btngroup left"/>').appendTo($footer);
             var $newSale = $('<a class="btn icon add" target="_blank" href="'+Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + this.settings.id)+'">'+Craft.t('commerce', 'Create Sale')+'</a>').appendTo($newSaleBtnGroup);
-            var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
+
+            var $rightWrapper = $('<div class="right"/>').appendTo($footer);
+            var $mainBtnGroup = $('<div class="btngroup"/>').appendTo($rightWrapper);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
             this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Save') + '"/>').appendTo($mainBtnGroup);
-            this.$spinner = $('<div class="spinner hidden" />').appendTo($mainBtnGroup);
+            this.$spinner = $('<div class="spinner hidden" />').appendTo($rightWrapper);
 
             this.$saveBtn.addClass('disabled');
 

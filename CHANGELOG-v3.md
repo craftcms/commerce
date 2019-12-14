@@ -39,6 +39,7 @@
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
+- `allowEmptyCartOnCheckout` default value is false.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.

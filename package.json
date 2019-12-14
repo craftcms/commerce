@@ -2,7 +2,7 @@
   "private": true,
   "main": "gulpfile.js",
   "devDependencies": {
-    "craftcms-sass": "^1.4.0",
+    "craftcms-sass": "^3.4.0-alpha.2",
     "gulp": "^4.0.2",
     "gulp-sass": "^4.0.2",
     "markdown-it-deflist": "^2.0.3",
