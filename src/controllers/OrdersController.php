@@ -1034,6 +1034,25 @@ class OrdersController extends Controller
         $user = Craft::$app->getUser()->getIdentity();
         foreach ($transactions as $transaction) {
             if (!ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
+                $refundCapture = '';
+                if ($user->can('commerce-capturePayment') && $transaction->canCapture()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_capture',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                } else if ($user->can('commerceRefundPayment') && $transaction->canRefund()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_refund',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                }
+
                 $return[] = [
                     'id' => $transaction->id,
                     'level' => $level,
@@ -1059,7 +1078,7 @@ class OrdersController extends Controller
                         ['label' => Plugin::t('Converted Price'), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
                         ['label' => Plugin::t('Gateway Response'), 'type' => 'response', 'value' => $transaction->response ],
                     ],
-                    'refund' => $user->can('commerce-capturePayment') && $transaction->canCapture(),
+                    'actions' => $refundCapture,
                 ];
 
                 if (!empty($transaction->childTransactions)) {

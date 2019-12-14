@@ -1,0 +1,11 @@
+{% if currentUser.can('commerce-capturePayment') and transaction.canCapture() %}
+  <form method="post">
+    {{ csrfInput() }}
+    <a class="small btn submit formsubmit"
+       data-action="commerce/orders/transaction-capture"
+       data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
+       data-redirect="{{ transaction.order.cpEditUrl|hash }}"
+       data-param="id"
+       data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
+  </form>
+{% endif %}
