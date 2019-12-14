@@ -160,7 +160,10 @@
                     bodyHtml = this.getParsedVariantHtml(this.fieldBodyHtml, id),
                     footHtml = this.getParsedVariantHtml(this.fieldFootHtml, id);
 
-                $(bodyHtml).appendTo($fieldsContainer);
+                var $body = $(bodyHtml);
+                $body.find('#related-sales-field').remove();
+
+                $body.appendTo($fieldsContainer);
 
                 if (this.singleColumnMode) {
                     this.setVariantsToSingleColMode($variant);

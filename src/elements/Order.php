@@ -1091,6 +1091,7 @@ class Order extends Element
      * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
+     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
      */
     public function getTotalTaxablePrice(): float
     {

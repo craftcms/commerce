@@ -1,5 +1,5 @@
 {% import "commerce/products/_fields" as productFields %}
-
+{%- import "_includes/forms" as forms -%}
 <div class="variant-properties meta">
     {% namespace namespace %}
         {{ productFields.generalVariantFields(variant, product) }}
@@ -14,4 +14,9 @@
         element: variant,
         fields: variant.getFieldLayout().getFields()
     } %}
+
+    {# TODO allow viewing of sales when a view promotions permission is introduced #}
+    {% if currentUser.can('commerce-managePromotions') %}
+        {{ productFields.relatedSales(variant.id, false) }}
+    {% endif %}
 </div>

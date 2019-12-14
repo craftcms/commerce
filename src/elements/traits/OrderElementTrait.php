@@ -48,7 +48,7 @@ trait OrderElementTrait
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
             case 'shippingFullName':
             {
@@ -350,7 +350,8 @@ trait OrderElementTrait
             'billingBusinessName' => ['label' => Plugin::t('Billing Business Name')],
             'shippingMethodName' => ['label' => Plugin::t('Shipping Method')],
             'gatewayName' => ['label' => Plugin::t('Gateway')],
-            'paidStatus' => ['label' => Plugin::t('Paid Status')]
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
+            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
         ];
     }
 
@@ -427,7 +428,8 @@ trait OrderElementTrait
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
-            'datePaid' => Plugin::t('Date Paid')
+            'datePaid' => Craft::t('commerce', 'Date Paid'),
+            'couponCode' => Craft::t('commerce', 'Coupon Code'),
         ];
     }
 }

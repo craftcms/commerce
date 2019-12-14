@@ -5,8 +5,7 @@ paths:
     data: tests/_data
     support: tests/_support
     envs: tests/_envs
-settings:
-    bootstrap: _bootstrap.php
+bootstrap: _bootstrap.php
 coverage:
     enabled: true
     include:
@@ -27,7 +26,7 @@ modules:
     config:
         \craft\test\Craft:
             configFile: 'tests/_craft/config/test.php'
-            entryUrl: 'http://craft-test.test/'
+            entryUrl: 'http://test.craftcms.test/'
             entryScript: 'index.php'
             projectConfig: {}
             migrations: []

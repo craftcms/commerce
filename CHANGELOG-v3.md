@@ -12,8 +12,10 @@
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
+- Added the ability to add a product to an existing Sale from the Product Edit page.
 - Added the ability to set a plain text template for Commerce emails.
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
+- Added the ability to create discounts using the order total and percentages. 
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
@@ -37,6 +39,7 @@
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
+- `allowEmptyCartOnCheckout` default value is false.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.

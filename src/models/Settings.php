@@ -169,10 +169,9 @@ class Settings extends Model
 
     /**
      * @var bool Allow the cart to be empty on checkout
-     * @todo Set this to false in 3.0
      * @since 2.2
      */
-    public $allowEmptyCartOnCheckout = true;
+    public $allowEmptyCartOnCheckout = false;
 
     /**
      * @var bool
