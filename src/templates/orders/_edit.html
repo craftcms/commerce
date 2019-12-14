@@ -100,7 +100,7 @@
 
 {% block details %}
     <div id="order-meta-app"></div>
-    <div class="meta">
+    <div class="meta read-only">
       <div class="address-boxes">
         {% set address = order.shippingAddress %}
         <div id="shippingAddressBox" class="address-box address-box--full hidden"
@@ -114,7 +114,7 @@
       </div>
     </div>
 
-    <div class="meta">
+    <div class="meta read-only">
       <div class="address-boxes">
         {% set address = order.billingAddress %}
         <div id="billingAddressBox" class="address-box address-box--full hidden"
@@ -134,9 +134,9 @@
 
     <div id="orderDetailsTab">
       <div id="order-details-app"></div>
-      <br><br>
+
       {% hook "cp.commerce.order.edit.main-pane" %}
-      <br><br><br><br><br><br><br><br>
+
     </div>
 
     {% include 'commerce/orders/_customFields' %}
