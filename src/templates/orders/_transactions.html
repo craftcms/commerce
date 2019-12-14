@@ -1,3 +1,7 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+
+]) %}
 
 <div id="transactionsTab" class="hidden">
     {% macro transactionRow(transaction, level) %}
@@ -113,4 +117,44 @@
         </div>
     {% endif %}
 
+    <div id="transactions-vue-admin-table"></div>
 </div>
+
+
+{% js %}
+var columns = [
+    { name: 'type', title: Craft.t('commerce', 'Type'),
+        callback: function(value) {
+            return '<span style="padding-left: '+value.level+'em;">'+
+                ((value.level) ? '<span class="extralight">&#8627;</span> ' : '') +
+                value.label+'</span>';
+        }
+    },
+    { name: 'status', title: Craft.t('commerce', 'Status'),
+        callback: function(value) {
+            return '<span class="transaction-status transaction-status-'+value.key+'">'+value.label+'</span>';
+        }
+    },
+    { name: 'amount', title: Craft.t('commerce', 'Amount'),
+        callback: function(value) {
+            return value;
+        }
+    },
+    { name: 'paymentAmount', title: Craft.t('commerce', 'Payment Amount') },
+    { name: 'gateway', title: Craft.t('commerce', 'Gateway') },
+    { name: 'date', title: Craft.t('commerce', 'Date') },
+    { name: 'info', title: Craft.t('commerce', 'info'),
+        callback: function(value) {
+            return '<span class="infoRow" data-info=\''+JSON.stringify(value)+'\'>' +
+                '<span class="tableRowInfo" data-icon="info"></span></span>';
+        }
+    },
+    { name: 'refund', title: '' }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#transactions-vue-admin-table',
+    tableData: {{ orderTransactions|json_encode|raw }},
+});
+{% endjs %}

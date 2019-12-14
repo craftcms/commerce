@@ -19,6 +19,7 @@ use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -31,6 +32,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
@@ -132,6 +134,10 @@ class OrdersController extends Controller
         $variables['order'] = $order;
         $variables['orderId'] = $order->id;
         $variables['fieldLayout'] = Craft::$app->getFields()->getLayoutByType(Order::class);
+
+        $transactions = $order->getTransactions();
+
+        $variables['orderTransactions'] = $this->_getTransactionsWIthLevelsTableArray($transactions);
 
         $this->_updateTemplateVariables($variables);
         $this->_registerJavascript($variables);
@@ -1015,5 +1021,57 @@ class OrdersController extends Controller
             // add all the updated adjustments to the order
             $order->setAdjustments($adjustments);
         }
+    }
+
+    /**
+     * @param Transaction[] $transactions
+     * @param int $level
+     * @return array
+     */
+    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0)
+    {
+        $return = [];
+        $user = Craft::$app->getUser()->getIdentity();
+        foreach ($transactions as $transaction) {
+            if (!ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
+                $return[] = [
+                    'id' => $transaction->id,
+                    'level' => $level,
+                    'type' => [
+                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->type)),
+                        'level' => $level,
+                    ],
+                    'status' => [
+                        'key' => $transaction->status,
+                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->status))
+                    ],
+                    'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'gateway' => $transaction->gateway->name ?? Plugin::t('Missing Gateway'),
+                    'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
+                    'info' => [
+                        ['label' => Plugin::t('Transaction ID'), 'type' => 'code', 'value' => $transaction->id ],
+                        ['label' => Plugin::t('Transaction Hash'), 'type' => 'code', 'value' => $transaction->hash ],
+                        ['label' => Plugin::t('Gateway Reference'), 'type' => 'code', 'value' => $transaction->reference ],
+                        ['label' => Plugin::t('Gateway Message'), 'type' => 'text', 'value' => $transaction->message ],
+                        ['label' => Plugin::t('Note'), 'type' => 'text', 'value' => $transaction->note ?? '' ],
+                        ['label' => Plugin::t('Gateway Code'), 'type' => 'code', 'value' => $transaction->code ],
+                        ['label' => Plugin::t('Converted Price'), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
+                        ['label' => Plugin::t('Gateway Response'), 'type' => 'response', 'value' => $transaction->response ],
+                    ],
+                    'refund' => $user->can('commerce-capturePayment') && $transaction->canCapture(),
+                ];
+
+                if (!empty($transaction->childTransactions)) {
+                    $childTransactions = $this->_getTransactionsWIthLevelsTableArray($transaction->childTransactions, $level + 1);
+
+                    foreach ($childTransactions as $childTransaction) {
+                        $return[] = $childTransaction;
+                    }
+                }
+            }
+        }
+
+        return $return;
     }
 }
