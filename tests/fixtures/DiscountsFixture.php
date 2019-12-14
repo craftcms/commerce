@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommerce\tests\fixtures;
+namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\Discount;
 use \craft\test\Fixture;

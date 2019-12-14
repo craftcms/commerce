@@ -54,7 +54,7 @@ class AddressesController extends BaseCpController
             }
         }
 
-        $variables['title'] = Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']]);
+        $variables['title'] = Plugin::t('Edit Address', ['id' => $variables['addressId']]);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
@@ -115,17 +115,17 @@ class AddressesController extends BaseCpController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
+                    'error' => Plugin::t('Couldn’t save address.'),
                     'errors' => $address->errors
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save address.'));
         }
 
         // Send the model back to the template

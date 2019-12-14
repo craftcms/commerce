@@ -255,15 +255,15 @@ class Sales extends Component
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
         $sales = [];
+        $id = $purchasable->getId();
 
-        if ($purchasable->getId()) {
+        if ($id) {
             foreach ($this->getAllSales() as $sale) {
                 // Get related by product specifically
                 $purchasableIds = $sale->getPurchasableIds();
-                $id = $purchasable->getId();
 
                 // Get related via category
-                $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+                $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
                 $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 

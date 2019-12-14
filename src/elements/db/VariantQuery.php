@@ -523,8 +523,11 @@ class VariantQuery extends ElementQuery
                 // Only force user group restriction on site requests
                 if (Craft::$app->getRequest()->isSiteRequest) {
                     $user = Craft::$app->getUser()->getIdentity();
-                    $userGroups = $user->getGroups();
-                    $userGroupIds = ArrayHelper::getColumn($userGroups, 'id');
+                    $userGroupIds = [];
+
+                    if ($user) {
+                        $userGroupIds = ArrayHelper::getColumn($user->getGroups(), 'id');
+                    }
 
                     // If the user doesn't belong to any groups, remove sales that
                     // restrict by user group as these would never match

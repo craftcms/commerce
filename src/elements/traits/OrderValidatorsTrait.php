@@ -27,7 +27,7 @@ trait OrderValidatorsTrait
             /** @var GatewayInterface $gateway */
             $this->getGateway();
         } catch (InvalidConfigException $e) {
-            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid gateway: {value}'));
+            $validator->addError($this, $attribute, Plugin::t('Invalid gateway: {value}'));
         }
     }
 
@@ -43,7 +43,7 @@ trait OrderValidatorsTrait
             $this->getPaymentSource();
         } catch (InvalidConfigException $e) {
             Craft::error($e->getMessage());
-            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
+            $validator->addError($this, $attribute, Plugin::t('Invalid payment source ID: {value}'));
         }
     }
 
@@ -58,7 +58,7 @@ trait OrderValidatorsTrait
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentCurrency();
         } catch (InvalidConfigException $e) {
-            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
+            $validator->addError($this, $attribute, Plugin::t('Invalid payment source ID: {value}'));
         }
     }
 
@@ -92,7 +92,7 @@ trait OrderValidatorsTrait
             $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
 
             if ($address->id && !in_array($address->id, $addressesIds, false)) {
-                $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
+                $address->addError($attribute, Plugin::t('Address does not belong to customer.'));
                 $this->addModelErrors($address, $attribute);
             }
         }
@@ -106,7 +106,7 @@ trait OrderValidatorsTrait
     public function validateAddressReuse($attribute)
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
-            $this->addError($attribute, Craft::t('commerce', 'shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
+            $this->addError($attribute, Plugin::t('shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
         }
     }
 

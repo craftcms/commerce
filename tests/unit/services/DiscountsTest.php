@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommerce\tests\unit;
+namespace craftcommercetests\unit;
 
 use Codeception\Stub;
 use Codeception\Test\Unit;
@@ -16,8 +16,8 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
-use craftcommerce\tests\fixtures\CustomerFixture;
-use craftcommerce\tests\fixtures\DiscountsFixture;
+use craftcommercetests\fixtures\CustomerFixture;
+use craftcommercetests\fixtures\DiscountsFixture;
 use UnitTester;
 use DateTime;
 use DateInterval;
@@ -53,7 +53,7 @@ class DiscountsTest extends Unit
     /**
      * @return array
      */
-    public function _fixtures() : array
+    public function _fixtures(): array
     {
         return [
             'discounts' => [
@@ -201,9 +201,9 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @throws Exception
      * @todo Replace stub with fixture data.
      *
-     * @throws Exception
      */
     public function testCouponPerEmailLimit()
     {
@@ -377,7 +377,7 @@ class DiscountsTest extends Unit
      *
      * @return Discount
      */
-    protected function getDiscountById(int $discountId) : Discount
+    protected function getDiscountById(int $discountId): Discount
     {
         return Plugin::getInstance()->discounts->getDiscountById($discountId);
     }

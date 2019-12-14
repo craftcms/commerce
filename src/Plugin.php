@@ -337,18 +337,18 @@ class Plugin extends BasePlugin
             $event->permissions[self::t('Craft Commerce')] = [
                 'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
-                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                    'label' => self::t('Manage orders'), 'nested' => [
                         'commerce-editOrders' => [
-                            'label' => Craft::t('commerce', 'Edit orders')
+                            'label' => self::t('Edit orders')
                         ],
                         'commerce-deleteOrders' => [
-                            'label' => Craft::t('commerce', 'Delete orders')
+                            'label' => self::t('Delete orders')
                         ],
                         'commerce-capturePayment' => [
-                            'label' => Craft::t('commerce', 'Capture payment')
+                            'label' => self::t('Capture payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => Craft::t('commerce', 'Refund payment')
+                            'label' => self::t('Refund payment')
                         ],
                     ]
                 ],
@@ -594,6 +594,30 @@ class Plugin extends BasePlugin
                 'optionsHelp' => [
                     'type' => 'The product type handle(s) of the products to resave.',
                 ],
+            ];
+
+            $e->actions['orders'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(true);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves completed Commerce orders.',
+            ];
+
+            $e->actions['carts'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(false);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Commerce carts.',
             ];
         });
     }

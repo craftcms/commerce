@@ -59,7 +59,7 @@ class TaxZonesController extends BaseTaxSettingsController
         if ($variables['taxZone']->id) {
             $variables['title'] = $variables['taxZone']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a tax zone');
+            $variables['title'] = Plugin::t('Create a tax zone');
         }
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
@@ -114,7 +114,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax zone saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Tax zone saved.'));
             $this->redirectToPostedUrl($taxZone);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -123,7 +123,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax zone.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax zone.'));
         }
 
         // Send the model back to the template
