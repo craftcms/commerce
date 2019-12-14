@@ -407,7 +407,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {
@@ -466,7 +466,7 @@ class Discounts extends Component
         if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
             $lineItemMatch = false;
             foreach ($order->getLineItems() as $lineItem) {
-                if ($this->matchesLineItem($lineItem, $discount, false)) {
+                if ($this->matchLineItem($lineItem, $discount, false)) {
                     $lineItemMatch = true;
                     break;
                 }

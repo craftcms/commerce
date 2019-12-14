@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommerce\tests\unit;
+namespace craftcommercetests\unit;
 
 use Codeception\Stub;
 use Codeception\Test\Unit;
@@ -16,8 +16,8 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
-use craft\commerce\tests\fixtures\CustomerFixture;
-use craft\commerce\tests\fixtures\DiscountsFixture;
+use craftcommercetests\fixtures\CustomerFixture;
+use craftcommercetests\fixtures\DiscountsFixture;
 use UnitTester;
 use DateTime;
 use DateInterval;

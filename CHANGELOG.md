@@ -96,6 +96,11 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
+## 2.2.10 - 2019-12-14
+
+### Fixed
+- Fixed an issue where discounts matching an order were referencing a missing method.
+
 ## 2.2.9 - 2019-12-13
 
 ### Added
