@@ -117,6 +117,7 @@
             background: transparent;
             border: 0;
             padding: 0;
+            box-shadow: none;
         }
     }
 </style>
