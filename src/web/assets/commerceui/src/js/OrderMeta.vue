@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <div id="meta" class="meta">
+        <div id="meta" class="meta read-only">
             <div class="data">
                 <h5 class="heading">{{"ID"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.id}}</p>
