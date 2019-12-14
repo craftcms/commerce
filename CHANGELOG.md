@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.10 - 2019-12-14
 
 ### Fixed
 - Fixed an issue where discounts matching an order were referencing a missing method.
