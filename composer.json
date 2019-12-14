@@ -28,7 +28,8 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src/"
+      "craft\\commerce\\": "src/",
+      "craftcommercetests\\fixtures\\": "tests/fixtures/"
     }
   },
   "extra": {
