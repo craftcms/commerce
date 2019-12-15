@@ -516,6 +516,15 @@ class Product extends Element
 
     /**
      * @inheritdoc
+     * @since 3.3.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this->getType());
+    }
+
+    /**
+     * @inheritdoc
      */
     public function setEagerLoadedElements(string $handle, array $elements)
     {
