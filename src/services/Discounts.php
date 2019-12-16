@@ -380,7 +380,7 @@ class Discounts extends Component
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
-        if (!$this->matchOrder($lineItem->order, $discount) && $matchOrder) {
+        if ($matchOrder && !$this->matchOrder($lineItem->order, $discount)) {
             return false;
         }
 
