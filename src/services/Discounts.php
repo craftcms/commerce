@@ -415,7 +415,12 @@ class Discounts extends Component
             }
         }
 
-        return true;
+        // Raise the 'beforeMatchLineItem' event
+        $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
+
+        $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
+
+        return $event->isValid;
     }
 
     /**
