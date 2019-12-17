@@ -13,6 +13,7 @@ use craft\commerce\models\Country;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\db\Query;
+use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use Exception;
 use yii\web\BadRequestHttpException;
@@ -173,7 +174,7 @@ class CountriesController extends BaseStoreSettingsController
 
     /**
      * @throws BadRequestHttpException
-     * @throws \craft\errors\MissingComponentException
+     * @throws MissingComponentException
      * @throws \yii\db\Exception
      */
     public function actionUpdateStatus()
@@ -183,7 +184,7 @@ class CountriesController extends BaseStoreSettingsController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t updated countries status'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update countries status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();

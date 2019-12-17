@@ -7,13 +7,12 @@
     "Couldn’t reorder countries.",
 ]) %}
 
+{% block actionButton %}
+        <a href="{{ url('commerce/store-settings/countries/new') }}"class="btn submit add icon">{{ 'New country'|t('commerce') }}</a>
+{% endblock %}
+
 {% block content %}
     <div id="countries-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/store-settings/countries/new') }}"
-           class="btn submit add icon">{{ 'New country'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
