@@ -9,16 +9,15 @@
     'Default Status?',
 ]) %}
 
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit add icon">{{ 'New order status'|t('commerce') }}</a>
+{% endblock %}
+
 {% block content %}
     <h2>{{ "Order Statuses"|t('commerce') }}</h2>
     <p>{{ "Define the statuses that can be set on orders once they’ve been completed."|t('commerce') }}</p>
 
     <div id="statuses-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/orderstatuses/new') }}"
-           class="btn submit add icon">{{ 'New order status'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
@@ -74,6 +73,7 @@
         container: '#statuses-vue-admin-table',
         deleteAction: 'commerce/order-statuses/delete',
         minItems: 1,
+        padded: true,
         reorderAction: 'commerce/order-statuses/reorder',
         reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.'),
         reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.'),

@@ -8,16 +8,12 @@
     'Template Path',
 ]) %}
 
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
+{% endblock %}
 
 {% block content %}
-    <h2>{{ "Emails"|t('commerce') }}</h2>
-
     <div id="emails-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/emails/new') }}"
-           class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
