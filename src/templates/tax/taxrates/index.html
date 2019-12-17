@@ -1,15 +1,19 @@
 {% extends "commerce/_layouts/tax" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Rate',
+    'Include in Price?',
+    'Is VAT?',
+    'Tax Zone',
+    'Tax Category',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/tax/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+{% endblock %}
 
 {% block content %}
-    <h2>{{ "Tax Rates"|t('commerce') }}</h2>
-
     <div id="taxrate-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/tax/taxrates/new') }}"
-           class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
@@ -35,7 +39,7 @@ var columns = [
           return '<span class="check"></span>';
       }
     } },
-    { name: 'vat', title: Craft.t('commerce', 'Is Vat?'), callback: function(value) {
+    { name: 'vat', title: Craft.t('commerce', 'Is VAT?'), callback: function(value) {
         if (value) {
             return '<span class="check"></span>';
         }
