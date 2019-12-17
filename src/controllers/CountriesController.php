@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\helpers\Json;
 use Exception;
 use yii\web\BadRequestHttpException;
@@ -66,6 +68,39 @@ class CountriesController extends BaseStoreSettingsController
             $variables['title'] = Plugin::t('Create a new country');
         }
 
+        // Check to see if we should show the disable warning
+        $variables['showDisableWarning'] = false;
+
+        if ($variables['id'] && $variables['country']->id == $variables['id'] && $variables['country']->enabled) {
+            $relatedAddressCount = (new Query())
+                ->select(['addresses.id',])
+                ->from([Table::ADDRESSES . ' addresses'])
+                ->where(['countryId' => $variables['id']])
+                ->count();
+
+            $variables['showDisableWarning'] = $relatedAddressCount ? true : $variables['showDisableWarning'];
+
+            if (!$variables['showDisableWarning']) {
+                $relatedShippingZoneCount = (new Query())
+                    ->select(['zone_countries.id',])
+                    ->from([Table::SHIPPINGZONE_COUNTRIES . ' zone_countries'])
+                    ->where(['countryId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedShippingZoneCount ? true : $variables['showDisableWarning'];
+            }
+
+            if (!$variables['showDisableWarning']) {
+                $relatedTaxZoneCount = (new Query())
+                    ->select(['zone_countries.id',])
+                    ->from([Table::TAXZONE_COUNTRIES . ' zone_countries'])
+                    ->where(['countryId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
+            }
+        }
+
         return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
     }
 
@@ -83,6 +118,7 @@ class CountriesController extends BaseStoreSettingsController
         $country->name = Craft::$app->getRequest()->getBodyParam('name');
         $country->iso = Craft::$app->getRequest()->getBodyParam('iso');
         $country->isStateRequired = (bool)Craft::$app->getRequest()->getBodyParam('isStateRequired');
+        $country->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {

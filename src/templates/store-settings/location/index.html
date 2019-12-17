@@ -148,7 +148,7 @@
                 id: 'countryId',
                 name: 'countryId',
                 value: storeLocation.countryId,
-                options: craft.commerce.countries.allCountriesAsList,
+                options: craft.commerce.countries.allEnabledCountriesAsList,
                 errors: storeLocation.getErrors('countryId'),
                 required: true,
                 class: 'fullwidth'
@@ -241,7 +241,7 @@
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>
 
-    {% set statesByCountryId = craft.commerce.states.allStates|group('countryId') %}
+    {% set statesByCountryId = craft.commerce.states.allEnabledStates|group('countryId') %}
     {% set startingStates = statesByCountryId[storeLocation.countryId] ?? [] %}
     {% js %}
         window.statesByCountryId = {{ statesByCountryId|json_encode|raw }};

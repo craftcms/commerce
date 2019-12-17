@@ -56,8 +56,8 @@ class AddressesController extends BaseCpController
 
         $variables['title'] = Plugin::t('Edit Address', ['id' => $variables['addressId']]);
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllStatesAsList();
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }

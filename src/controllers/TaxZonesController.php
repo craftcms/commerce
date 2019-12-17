@@ -62,11 +62,8 @@ class TaxZonesController extends BaseTaxSettingsController
             $variables['title'] = Plugin::t('Create a tax zone');
         }
 
-        $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $states = Plugin::getInstance()->getStates()->getAllStates();
-
-        $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
-        $variables['states'] = ArrayHelper::map($states, 'id', 'name');
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
