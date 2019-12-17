@@ -11,7 +11,11 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
+use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
+use craft\errors\MissingComponentException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -143,5 +147,35 @@ class StatesController extends BaseStoreSettingsController
 
         Plugin::getInstance()->getStates()->deleteStateById($id);
         return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update states status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $states = StateRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var StateRecord $state */
+        foreach ($states as $state) {
+            $state->enabled = ($status == 'enabled');
+            $state->save();
+        }
+        $transaction->commit();
+
+        Craft::$app->getSession()->setNotice(Plugin::t('States updated.'));
     }
 }
