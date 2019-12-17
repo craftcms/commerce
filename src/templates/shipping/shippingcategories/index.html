@@ -2,16 +2,14 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 
-{% block content %}
-    <h2>{{ "Shipping Categories"|t('commerce') }}</h2>
-
-    <div id="shipping-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/shipping/shippingcategories/new') }}"
-           class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
 {% endblock %}
+
+{% block content %}
+    <div id="shipping-vue-admin-table"></div>
+{% endblock %}
+
 {% set tableData = [] %}
 {% for shippingCategory in shippingCategories %}
     {% set tableData = tableData|merge([{

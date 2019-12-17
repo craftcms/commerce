@@ -1,15 +1,12 @@
 {% extends "commerce/_layouts/shipping" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+{% endblock %}
+
 {% block content %}
-    <h2>{{ "Shipping Methods"|t('commerce') }}</h2>
-
     <div id="shipping-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/shipping/shippingmethods/new') }}"
-           class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}

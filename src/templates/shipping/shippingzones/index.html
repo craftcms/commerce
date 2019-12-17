@@ -3,16 +3,17 @@
 {% from "commerce/_includes/settings" import indexInlineList %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Countries/States',
+  'Has Zip Condition?',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingzones/new') }}" class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
+{% endblock %}
 
 {% block content %}
-    <h2>{{ "Shipping Zones"|t('commerce') }}</h2>
-
     <div id="shipping-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/shipping/shippingzones/new') }}"
-           class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
