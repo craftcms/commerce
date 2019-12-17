@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use craft\commerce\records\Country as CountryRecord;
 use craft\db\Query;
 use craft\helpers\Json;
 use Exception;
@@ -168,5 +169,35 @@ class CountriesController extends BaseStoreSettingsController
 
         return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
 
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     * @throws \craft\errors\MissingComponentException
+     * @throws \yii\db\Exception
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t updated countries status'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $countries = CountryRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var CountryRecord $country */
+        foreach ($countries as $country) {
+            $country->enabled = ($status == 'enabled');
+            $country->save();
+        }
+        $transaction->commit();
+
+        Craft::$app->getSession()->setNotice(Plugin::t('Countries updated.'));
     }
 }

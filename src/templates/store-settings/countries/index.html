@@ -21,6 +21,7 @@
     {% set tableData = tableData|merge([{
         id: country.id,
         title: country.name,
+        status: country.enabled ? true : false,
         url: url('commerce/store-settings/countries/'~country.id),
         countryCode: country.iso,
         stateRequired: country.isStateRequired ? true : false,
@@ -47,14 +48,14 @@
             actions: [
                 {
                     label: Craft.t('app', 'Enabled'),
-                    action: 'commerce/countries/update-statuses',
+                    action: 'commerce/countries/update-status',
                     param: 'status',
                     value: 'enabled',
                     status: 'enabled'
                 },
                 {
                     label: Craft.t('app', 'Disabled'),
-                    action: 'commerce/countries/update-statuses',
+                    action: 'commerce/countries/update-status',
                     param: 'status',
                     value: 'disabled',
                     status: 'disabled'
@@ -71,9 +72,10 @@
         deleteAction: 'commerce/countries/delete',
         deleteConfirmationMessage: Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
         emptyMessage: Craft.t('commerce', 'No countries exist yet.'),
+        padded: true,
         reorderAction: 'commerce/countries/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Countries reordered.'),
         reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder countries.'),
-        tableData: {{ tableData|json_encode|raw }},
+        reorderSuccessMessage: Craft.t('commerce', 'Countries reordered.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}
