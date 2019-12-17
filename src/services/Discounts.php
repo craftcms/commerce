@@ -380,7 +380,7 @@ class Discounts extends Component
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
-        if (!$this->matchOrder($lineItem->order, $discount) && $matchOrder) {
+        if ($matchOrder && !$this->matchOrder($lineItem->order, $discount)) {
             return false;
         }
 
@@ -415,7 +415,12 @@ class Discounts extends Component
             }
         }
 
-        return true;
+        // Raise the 'beforeMatchLineItem' event
+        $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
+
+        $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
+
+        return $event->isValid;
     }
 
     /**

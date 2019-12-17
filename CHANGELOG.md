@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.2.11 - 2019-12-16
+
+### Fixed
+- Fixed an infinite recursion bug that could occur when calculating discounts. ([#1182](https://github.com/craftcms/commerce/issues/1182))
+
 ## 2.2.10 - 2019-12-14
 
 ### Fixed
