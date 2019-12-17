@@ -37,16 +37,6 @@
 {% endfor %}
 
 {% js %}
-    new Craft.AdminTable({
-    tableSelector: '#order-statuses',
-    deleteAction: 'commerce/order-statuses/delete',
-    minObjects: 1,
-    sortable: true,
-    reorderAction: 'commerce/order-statuses/reorder',
-    reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.') ,
-    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.')
-    });
-
     var columns = [
         {
             name: 'labelHtml',
