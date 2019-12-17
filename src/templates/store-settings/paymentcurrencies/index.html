@@ -9,15 +9,12 @@
     'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?',
 ]) %}
 
+{% block actionButton %}
+    <a href="{{ url('commerce/store-settings/paymentcurrencies/new') }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
+{% endblock %}
+
 {% block content %}
-    <h2>{{ "Payment Currencies"|t('commerce') }}</h2>
-
     <div id="currencies-vue-admin-table"></div>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/store-settings/paymentcurrencies/new') }}"
-           class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
-    </div>
 {% endblock %}
 
 {% set tableData = [] %}
