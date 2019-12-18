@@ -22,6 +22,7 @@
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`

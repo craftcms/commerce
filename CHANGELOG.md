@@ -14,6 +14,7 @@
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
