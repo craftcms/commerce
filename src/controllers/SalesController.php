@@ -344,6 +344,36 @@ class SalesController extends BaseCpController
         return $this->asJson(['success' => true]);
     }
 
+    /**
+     * @throws BadRequestHttpException
+     * @throws \craft\errors\MissingComponentException
+     * @throws \yii\db\Exception
+     * @since 3.0
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t updated sales status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $sales = SaleRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var SaleRecord $sale */
+        foreach ($sales as $sale) {
+            $sale->enabled = ($status == 'enabled');
+            $sale->save();
+        }
+        $transaction->commit();
+
+        Craft::$app->getSession()->setNotice(Plugin::t('Sales updated.'));
+    }
     // Private Methods
     // =========================================================================
 
