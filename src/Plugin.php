@@ -531,7 +531,7 @@ class Plugin extends BasePlugin
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
-            $queries = $even->queries;
+            $queries = $event->queries;
             $queries['products'] = [
                 'type' => GqlTypeDefinition::listOf(GqlProductInterface::getType()),
                 'args' => GqlProductArgument::getArguments(),
