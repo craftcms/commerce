@@ -35,7 +35,7 @@
         { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'),
             callback: function(value) {
                 if (value) {
-                    return '<span class="check"></span>';
+                    return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
                 }
             }
         }
