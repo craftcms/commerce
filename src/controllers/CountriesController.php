@@ -176,6 +176,7 @@ class CountriesController extends BaseStoreSettingsController
      * @throws BadRequestHttpException
      * @throws MissingComponentException
      * @throws \yii\db\Exception
+     * @since 3.0
      */
     public function actionUpdateStatus()
     {

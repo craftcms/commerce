@@ -153,6 +153,7 @@ class StatesController extends BaseStoreSettingsController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
+     * @since 3.0
      */
     public function actionUpdateStatus()
     {
