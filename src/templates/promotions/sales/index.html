@@ -33,7 +33,7 @@
     title: sale.name,
     url: url('commerce/promotions/sales/' ~ sale.id),
     status: sale.enabled ? true : false,
-    duration: (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ sale.dateTo ? sale.dateTo|datetime('short') : '∞',
+    duration: (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞'),
     effect: effect,
     ignore: sale.ignorePrevious ? true : false,
     stop: sale.stopProcessing ? true : false,
@@ -85,7 +85,7 @@ var columns = [
 
             return '';
         }
-    },
+    }
 ];
 
 new Craft.VueAdminTable({
