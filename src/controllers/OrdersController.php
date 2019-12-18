@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
@@ -38,6 +39,9 @@ use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -520,9 +524,9 @@ class OrdersController extends Controller
      *
      * @return Response
      * @throws BadRequestHttpException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function actionGetPaymentModal(): Response
     {
@@ -1027,8 +1031,14 @@ class OrdersController extends Controller
      * @param Transaction[] $transactions
      * @param int $level
      * @return array
+     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws CurrencyException
+     * @since 3.0
      */
-    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0)
+    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
