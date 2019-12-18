@@ -49,7 +49,7 @@ class Product extends ElementResolver
             return [];
         }
 
-        $query->andWhere(['in', 'products.productTypeId', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['producttypes']))]);
+        $query->andWhere(['in', 'typeId', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
 
         return $query;
     }

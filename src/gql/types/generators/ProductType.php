@@ -15,7 +15,7 @@ use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\gql\TypeManager;
-use craft\gql\types\elements\Product as ProductTypeElement;
+use craft\commerce\gql\types\elements\Product as ProductTypeElement;
 use craft\commerce\helpers\Gql as CommmerceGqlHelper;
 use craft\commerce\models\ProductType as ProductTypeModel;
 

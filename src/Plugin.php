@@ -531,6 +531,7 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlTypes()
     {
+
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
             $queries = $event->queries;
@@ -560,7 +561,7 @@ class Plugin extends BasePlugin
                 $productPermissions = [];
 
                 foreach ($productTypes as $productType) {
-                    $suffix = 'producttype.' . $productType->uid;
+                    $suffix = 'productTypes.' . $productType->uid;
                     $productPermissions[$suffix . ':read'] = ['label' => Craft::t('app', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
                 }
 
