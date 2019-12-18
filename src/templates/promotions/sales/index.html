@@ -94,6 +94,7 @@ new Craft.VueAdminTable({
   columns: columns,
   container: '#sales-vue-admin-table',
   deleteAction: 'commerce/sales/delete',
+  emptyMessage: Craft.t('commerce', 'No sales exist yet.'),
   padded: true,
   reorderAction: 'commerce/sales/reorder',
   reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,

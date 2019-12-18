@@ -374,6 +374,7 @@ class SalesController extends BaseCpController
 
         Craft::$app->getSession()->setNotice(Plugin::t('Sales updated.'));
     }
+
     // Private Methods
     // =========================================================================
 
