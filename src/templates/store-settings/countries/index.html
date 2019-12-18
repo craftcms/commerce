@@ -21,8 +21,9 @@
             <tbody>
             {% for country in countries %}
                 <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/store-settings/countries/'~country.id) }}">{{ country.name }}</a>
+                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
+                        <span class="status {{ country.enabled ? 'enabled' : '' }}"></span>
+                        <a href="{{ url('commerce/store-settings/countries/'~country.id) }}">{{ country.name }}</a>
                     </th>
                     <td data-title="{{ 'ISO'|t('commerce') }}">{{ country.iso }}</td>
                     <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.isStateRequired %}

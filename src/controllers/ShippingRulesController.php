@@ -57,18 +57,18 @@ class ShippingRulesController extends BaseShippingSettingsController
             }
         }
 
-        $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
-        $variables['states'] = $plugin->getStates()->getAllStatesAsList();
+        // TODO: check if the following two lines can be removed
+        // $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
+        // $variables['states'] = $plugin->getStates()->getAllStatesAsList();
 
         $this->getView()->setNamespace('new');
 
         $this->getView()->startJsBuffer();
-        $countries = $plugin->getCountries()->getAllCountries();
-        $states = $plugin->getStates()->getAllStates();
+
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
             $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => ArrayHelper::map($countries, 'id', 'name'),
-                'states' => ArrayHelper::map($states, 'id', 'name'),
+                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
+                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
             ])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
