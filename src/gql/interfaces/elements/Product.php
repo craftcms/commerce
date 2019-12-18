@@ -7,7 +7,7 @@
 
 namespace craft\commerce\gql\interfaces\elements;
 
-use craft\elements\Product as ProductElement;
+use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\gql\GqlEntityRegistry;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
