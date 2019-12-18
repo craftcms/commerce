@@ -8,9 +8,9 @@
 namespace craft\commerce\gql\queries;
 
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
-use craft\gql\base\Query;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
+use craft\gql\base\Query;
 use craft\helpers\Gql as GqlHelper;
 use GraphQL\Type\Definition\Type;
 

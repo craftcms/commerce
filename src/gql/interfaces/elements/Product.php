@@ -8,12 +8,10 @@
 namespace craft\commerce\gql\interfaces\elements;
 
 use craft\commerce\elements\Product as ProductElement;
-use craft\commerce\gql\arguments\elements\Product as ProductArguments;
+use craft\commerce\gql\types\generators\ProductType;
 use craft\gql\GqlEntityRegistry;
-use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\gql\interfaces\Element;
 use craft\gql\TypeManager;
-use craft\commerce\gql\types\generators\ProductType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
