@@ -21,6 +21,10 @@
 - Added the ability to enable/disabled states.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
+- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
+- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\models\Country::$enabled`.
