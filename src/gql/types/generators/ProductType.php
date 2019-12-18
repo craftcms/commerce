@@ -15,7 +15,7 @@ use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\gql\TypeManager;
-use craft\gql\types\elements\Product;
+use craft\gql\types\elements\Product as ProductTypeElement;
 use craft\commerce\helpers\Gql as CommmerceGqlHelper;
 use craft\commerce\models\ProductType as ProductTypeModel;
 
@@ -55,7 +55,7 @@ class ProductType implements GeneratorInterface
             $productTypeFields = TypeManager::prepareFieldDefinitions(array_merge(ProductInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
 
             // Generate a type for each entry type
-            $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new Product([
+            $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new ProductTypeElement([
                 'name' => $typeName,
                 'fields' => function() use ($productTypeFields) {
                     return $productTypeFields;

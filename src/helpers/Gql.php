@@ -8,28 +8,28 @@
 namespace craft\commerce\helpers;
 
 use Craft;
+use craft\helpers\Gql as GqlHelper;
 use craft\errors\GqlException;
 use craft\gql\GqlEntityRegistry;
 use craft\models\GqlSchema;
 use GraphQL\Type\Definition\UnionType;
-use \craft\helpers\Gql as CraftGqlHelper;
 
 /**
- * Class Commerce Gql Helper
+ * Class Commerce Gql
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class Gql extends CraftGqlHelper
+class Gql extends GqlHelper
 {
-
     /**
-     * Return true if active schema can query categories.
+     * Return true if active schema can query entries.
      *
      * @return bool
      */
     public static function canQueryProducts(): bool
     {
-        return isset(self::extractAllowedEntitiesFromSchema()['producttypes']);
+        $allowedEntities = self::extractAllowedEntitiesFromSchema();
+        return isset($allowedEntities['productTypes']);
     }
 }

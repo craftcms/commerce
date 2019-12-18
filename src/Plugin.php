@@ -44,6 +44,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlPermissionsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
@@ -165,6 +166,7 @@ class Plugin extends BasePlugin
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
         $this->_registerGqlTypes();
+        $this->_registerGqlPermissions();
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
         $this->_registerGarbageCollection();
@@ -539,6 +541,33 @@ class Plugin extends BasePlugin
             ];
 
             $event->queries = $queries;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlPermissions()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
+
+            $permissions = [];
+
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+            if (!empty($productTypes)) {
+                $label = Craft::t('commerce', 'Products');
+                $productPermissions = [];
+
+                foreach ($productTypes as $productType) {
+                    $suffix = 'producttype.' . $productType->uid;
+                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('app', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                }
+
+                $permissions[$label] = $productPermissions;
+            }
+
+            $event->permissions = array_merge($event->permissions, $permissions);
         });
     }
 
