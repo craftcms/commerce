@@ -1,3 +1,20 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Cancellation date',
+  'Cart',
+  'Expiration date',
+  'Is subscription active?',
+  'No subscriptions exist for this user yet.',
+  'No active carts exist for this customer.',
+  'No inactive carts exist for this customer.',
+  'No',
+  'Subscription date',
+  'Subscription',
+  'Subscription',
+  'Yes',
+]) %}
+
+
 <div id="customerInfo" class="hidden">
   {% if customer %}
 
@@ -34,59 +51,35 @@
         <h2>{{ 'Active Carts'|t('commerce') }}</h2>
         {% set activeCarts = customer.getActiveCarts() %}
 
-        {% if activeCarts %}
-          <table class="data fullwidth collapsible">
-            <thead>
-            <tr>
-              <th scope="col">{{ 'Cart'|t('commerce') }}</th>
-              <th scope="col">{{ 'Date Updated'|t('commerce') }}</th>
-              <th scope="col">{{ 'total'|t('commerce') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for order in activeCarts %}
-              <tr>
-                <td>{{ order.link|raw }}</td>
-                <td>{{ craft.app.formatter.asTimestamp(order.dateUpdated, 'short') }}</td>
-                <td>{{ order.totalPrice|currency(order.currency) }}</td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div>
-            <p>{{ 'No active carts exist for this customer.'|t('commerce') }}</p>
-          </div>
-        {% endif %}
+        {% set activeTableData = [] %}
+        {% for order in activeCarts %}
+          {% set activeTableData = activeTableData|merge([{
+            id: order.id,
+            title: order.reference ?? order.shortNumber,
+            url: order.cpEditUrl,
+            date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
+            total: order.totalPrice|currency(order.currency),
+          }]) %}
+        {% endfor %}
+
+        <div id="active-vue-admin-table"></div>
 
         <br>
         <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
         {% set inactiveCarts = customer.getInactiveCarts() %}
 
-        {% if inactiveCarts %}
-          <table class="data fullwidth collapsible">
-            <thead>
-            <tr>
-              <th scope="col">{{ 'Cart'|t('commerce') }}</th>
-              <th scope="col">{{ 'Date Updated'|t('commerce') }}</th>
-              <th scope="col">{{ 'total'|t('commerce') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for order in inactiveCarts %}
-              <tr>
-                <td>{{ order.link|raw }}</td>
-                <td>{{ craft.app.formatter.asTimestamp(order.dateUpdated, 'short') }}</td>
-                <td>{{ order.totalPrice|currency(order.currency) }}</td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <div>
-            <p>{{ 'No active carts exist for this customer.'|t('commerce') }}</p>
-          </div>
-        {% endif %}
+        {% set inactiveTableData = [] %}
+        {% for order in inactiveCarts %}
+        	{% set inactiveTableData = inactiveTableData|merge([{
+              id: order.id,
+              title: order.reference ?? order.shortNumber,
+              url: order.cpEditUrl,
+              date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
+              total: order.totalPrice|currency(order.currency),
+            }]) %}
+        {% endfor %}
+
+        <div id="inactive-vue-admin-table"></div>
       {% endif %}
 
       {% set addresses = customer.addresses %}
@@ -119,48 +112,77 @@
       <hr>
       <h2>{{ 'Subscriptions'|t('commerce') }}</h2>
       {% set subscriptions = customer.subscriptions %}
-      <div id="no-subscriptions"{% if subscriptions|length %} class="hidden"{% endif %}>
-        <p>{{ "No subscriptions exist for this user yet."|t('commerce') }}</p>
-      </div>
 
-      {% if subscriptions|length %}
-        <br>
-        <table class="data fullwidth collapsible">
-          <thead>
-          <tr>
-            <th scope="col">{{ 'Subscription'|t('commerce') }}</th>
-            <th scope="col">{{ 'Subscription date'|t('commerce') }}</th>
-            <th scope="col">{{ 'Cancellation date'|t('commerce') }}</th>
-            <th scope="col">{{ 'Expiration date'|t('commerce') }}</th>
-            <th scope="col">{{ 'Is subscription active?'|t('commerce') }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          {% for subscription in subscriptions %}
-            <tr>
-              <td><a href="{{ subscription.cpEditUrl }}">{{ subscription }}</a></td>
-              <td>{{ subscription.dateCreated|date('D dS M Y') }}</td>
-              <td>{{ subscription.dateCanceled ? subscription.dateCanceled|date('D dS M Y') : '' }}</td>
-              <td>{{ subscription.dateExpired ? subscription.dateExpired|date('D dS M Y') : '' }}</td>
-              <td>{{ subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      {% endif %}
+      {% set subsTableData = [] %}
+      {% for subscription in subscriptions %}
+      	{% set subsTableData = subsTableData|merge([{
+          id: subscription.id,
+          title: subscription.__toString(),
+          url: subscription.cpEditUrl,
+          subDate: subscription.dateCreated|date('D jS M Y'),
+          canDate: subscription.dateCanceled ? subscription.dateCanceled|date('D jS M Y') : '',
+          expDate: subscription.dateExpired ? subscription.dateExpired|date('D jS M Y') : '',
+          active: subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce'),
+        }]) %}
+      {% endfor %}
+      <div id="subscriptions-vue-admin-table"></div>
     {% endif %}
   {% endif %}
-
-  {% css %}
-    .address-heading-label { margin-bottom:4px; }
-  {% endcss %}
-
-  {% js %}
-  window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
-    window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
-
-    $(".address-box").each(function(){
-    new Craft.Commerce.AddressBox($(this),{});
-    });
-{% endjs %}
 </div>
+
+{% css %}
+  .address-heading-label { margin-bottom:4px; }
+{% endcss %}
+
+{% js %}
+  window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
+  window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
+
+  $(".address-box").each(function(){
+    new Craft.Commerce.AddressBox($(this),{});
+  });
+
+  var cartColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Cart') },
+    { name: 'date', title: Craft.t('commerce', 'Date Updated') },
+    { name: 'total', title: Craft.t('commerce', 'Total') }
+  ];
+
+  if (document.querySelector('#active-vue-admin-table')) {
+    new Craft.VueAdminTable({
+      columns: cartColumns,
+      container: '#active-vue-admin-table',
+      emptyMessage: Craft.t('commerce', 'No active carts exist for this customer.'),
+      padded: true,
+      tableData: {{ activeTableData|json_encode|raw }}
+    });
+  }
+
+  if (document.querySelector('#inactive-vue-admin-table')) {
+    new Craft.VueAdminTable({
+      columns: cartColumns,
+      container: '#inactive-vue-admin-table',
+      emptyMessage: Craft.t('commerce', 'No inactive carts exist for this customer.'),
+      padded: true,
+      tableData: {{ inactiveTableData|json_encode|raw }}
+    });
+  }
+
+  var subColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Subscription') },
+    { name: 'subDate', title: Craft.t('commerce', 'Subscription date') },
+    { name: 'canDate', title: Craft.t('commerce', 'Cancellation date') },
+    { name: 'expDate', title: Craft.t('commerce', 'Expiration date') },
+    { name: 'active', title: Craft.t('commerce', 'Is subscription active?') }
+  ];
+
+  if (document.querySelector('#subscriptions-vue-admin-table')) {
+    new Craft.VueAdminTable({
+      columns: subColumns,
+      container: '#subscriptions-vue-admin-table',
+      emptyMessage: Craft.t('commerce', 'No subscriptions exist for this user yet.'),
+      padded: true,
+      tableData: {{ subsTableData|json_encode|raw }}
+    });
+  }
+{% endjs %}
