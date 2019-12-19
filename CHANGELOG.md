@@ -4,8 +4,8 @@
 
 ### Fixed
 - Fixed a PHP error that could occur when using coupon codes.
-- Fixed a incorrect tax calculation when shipping costs were marked as having included taxes.
- 
+- Fixed a bug where taxes were getting calculated incorrectly when shipping costs were marked as having taxes included.
+
 ## 2.2.11 - 2019-12-16
 
 ### Fixed
