@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that could occur with coupon codes when checking discount conditions.
+
 ## 2.2.11 - 2019-12-16
 
 ### Fixed
