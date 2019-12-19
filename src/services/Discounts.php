@@ -438,7 +438,6 @@ class Discounts extends Component
             return false;
         }
 
-
         if (!$this->_isDiscountDateValid($order, $discount)) {
             return false;
         }
