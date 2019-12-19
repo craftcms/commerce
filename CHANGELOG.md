@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.2.13 - 2019-12-19
+
+### Fixed
+- Fixed a bug where discounts were getting calculated incorrectly when using a “Per Email Limit” condition.
+
 ## 2.2.12 - 2019-12-19
 
 ### Fixed
