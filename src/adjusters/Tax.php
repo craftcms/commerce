@@ -61,9 +61,25 @@ class Tax extends Component implements AdjusterInterface
     private $_isEstimated = false;
 
     /**
+     * Track the additional discounts created inside the tax adjuster per line item
+     *
      * @var array
      */
     private $_costRemovedByLineItem = [];
+
+    /**
+     * Track the additional discounts created inside the tax adjuster for order shipping costs
+     *
+     * @var float
+     */
+    private $_costRemovedForOrderShipping = 0;
+
+    /**
+     * Track the additional discounts created inside the tax adjuster for order total price
+     *
+     * @var array
+     */
+    private $_costRemovedForOrderTotalPrice = 0;
 
     // Public Methods
     // =========================================================================
@@ -166,6 +182,12 @@ class Tax extends Component implements AdjusterInterface
                     $amount = -($orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate)));
                     $amount = Currency::round($amount);
 
+                    if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                        $this->_costRemovedForOrderTotalPrice += $amount;
+                    } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                        $this->_costRemovedForOrderShipping += $amount;
+                    }
+
                     $adjustment = $this->_createAdjustment($taxRate);
                     // We need to display the adjustment that removed the included tax
                     $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
@@ -229,10 +251,12 @@ class Tax extends Component implements AdjusterInterface
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                 $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
+                $orderTaxableAmount += $this->_costRemovedForOrderTotalPrice;
             }
 
             if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                 $orderTaxableAmount = $this->_order->getTotalShippingCost();
+                $orderTaxableAmount += $this->_costRemovedForOrderShipping;
             }
 
             if (!$taxRate->include) {
@@ -361,6 +385,5 @@ class Tax extends Component implements AdjusterInterface
         $includedTaxAdjustments = $order->getTotalTaxIncluded();
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
-
     }
 }

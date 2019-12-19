@@ -145,7 +145,11 @@ class Customer extends Model
      */
     public function getAddresses(): array
     {
-        return Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        if ($this->id) {
+            return Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        }
+
+        return [];
     }
 
     /**

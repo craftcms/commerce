@@ -457,7 +457,11 @@ class Discounts extends Component
                 return false;
             }
 
-            if (!$this->_isDiscountCouponPerUserLimitValid($discount, $user) || !$this->_isDiscountCouponPerUserUsageValid($discount, $user)) {
+            if (!$this->_isDiscountCouponPerUserLimitValid($discount, $user)) {
+                return false;
+            }
+
+            if ($this->_isDiscountCouponPerUserLimitValid($discount, $user) && !$this->_isDiscountCouponPerUserUsageValid($discount, $user, $customer)) {
                 return false;
             }
 
@@ -813,11 +817,16 @@ class Discounts extends Component
 
     /**
      * @param Discount $discount
+     * @param $user
      * @param $customer
      * @return bool
      */
-    private function _isDiscountCouponPerUserUsageValid(Discount $discount, $customer): bool
+    private function _isDiscountCouponPerUserUsageValid(Discount $discount, $user, $customer): bool
     {
+        if (!$user) {
+            return false;
+        }
+
         // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
         $usage = (new Query())
             ->select(['uses'])
