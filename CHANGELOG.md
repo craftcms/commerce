@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.12 - 2019-12-19
 
 ### Fixed
 - Fixed a PHP error that could occur when using coupon codes.
