@@ -97,7 +97,7 @@ class OrdersController extends Controller
      */
     public function actionNewOrder(): Response
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
 
         $order = new Order();
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
@@ -158,7 +158,7 @@ class OrdersController extends Controller
      */
     public function actionSave()
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
         $this->requirePostRequest();
 
         $data = Craft::$app->getRequest()->getBodyParam('orderData');
@@ -250,7 +250,7 @@ class OrdersController extends Controller
      */
     public function actionRefresh()
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
 
         $data = Craft::$app->getRequest()->getRawBody();
         $orderRequestData = Json::decodeIfJson($data);
