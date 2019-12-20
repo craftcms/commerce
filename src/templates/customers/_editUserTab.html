@@ -26,7 +26,6 @@
 
     {% if currentUser.can('commerce-manageOrders') %}
       <h2>{{ 'Orders'|t('commerce') }}</h2>
-      {% set orders = customer.orders %}
 
       <div id="orders-vue-admin-table"></div>
 
