@@ -280,8 +280,8 @@
                             id: 'percentageOffSubject',
                             name: 'percentageOffSubject',
                             options: [
-                                {label: "off the discounted item price"|t, value: 'discounted'},
-                                {label: "off the original item price"|t, value: 'original'}
+                                {label: "off the discounted item price"|t('commerce'), value: 'discounted'},
+                                {label: "off the original item price"|t('commerce'), value: 'original'}
                             ],
                             value: discount.percentageOffSubject
                         }) }}
@@ -291,8 +291,8 @@
         {% endset %}
 
         {{ forms.field({
-            label: "Percent Discount"|t,
-            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places."|t,
+            label: "Percent Discount"|t('commerce'),
+            instructions: "The percentile value which should discount each item in the cart. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places."|t('commerce'),
             id: 'percentDiscount',
             errors: discount.getErrors('percentDiscount'),
         }, pctDiscountInput) }}
