@@ -29,6 +29,7 @@ use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -45,6 +46,7 @@ use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -283,6 +285,79 @@ class OrdersController extends Controller
 
         return $this->asJson($response);
     }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
+     */
+    public function actionUserOrdersTable(): Response
+    {
+        $this->requirePermission('commerce-manageOrders');
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        $userId = $request->getQueryParam('userId', null);
+
+        if (!$userId) {
+            return $this->asErrorJson(Plugin::t('User ID is required.'));
+        }
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($userId);
+
+        if (!$customer) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
+        }
+
+        $orderQuery = Order::find()
+         ->customer($customer)
+         ->isCompleted();
+
+        if ($search) {
+            $orderQuery->search($search);
+        }
+
+        if ($sort) {
+            list($field, $direction) = explode('|', $sort);
+
+            if ($field && $direction) {
+                $orderQuery->orderBy($field . ' ' . $direction);
+            }
+        }
+
+        $total = $orderQuery->count();
+
+        $orderQuery->offset($offset);
+        $orderQuery->limit($limit);
+        $orders = $orderQuery->all();
+
+        $rows = [];
+        foreach ($orders as $order) {
+            $rows[] = [
+                'id' => $order->id,
+                'title' => $order->reference,
+                'url' => $order->getCpEditUrl(),
+                'date' => $order->dateOrdered->format('D jS M Y'),
+                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'orderStatus' => $order->getOrderStatusHtml(),
+            ];
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
+    }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * @param Order $order

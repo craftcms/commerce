@@ -4,13 +4,19 @@
   'Cart',
   'Expiration date',
   'Is subscription active?',
-  'No subscriptions exist for this user yet.',
   'No active carts exist for this customer.',
   'No inactive carts exist for this customer.',
+  'No orders exist for this user yet.',
+  'No subscriptions exist for this user yet.',
   'No',
+  'Order Date',
+  'Order',
+  'Search user orders',
+  'Status',
   'Subscription date',
   'Subscription',
   'Subscription',
+  'Total Paid',
   'Yes',
 ]) %}
 
@@ -21,66 +27,42 @@
     {% if currentUser.can('commerce-manageOrders') %}
       <h2>{{ 'Orders'|t('commerce') }}</h2>
       {% set orders = customer.orders %}
-      <div id="no-orders"{% if orders|length %} class="hidden"{% endif %}>
-        <p>{{ "No orders exist for this user yet."|t('commerce') }}</p>
-      </div>
 
-      {% if orders|length %}
-        <table class="data fullwidth collapsible">
-          <thead>
-          <tr>
-            <th scope="col">{{ 'Order'|t('commerce') }}</th>
-            <th scope="col">{{ 'Order Date'|t('commerce') }}</th>
-            <th scope="col">{{ 'Total Paid'|t('commerce') }}</th>
-            <th scope="col">{{ 'Status'|t('commerce') }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          {% for order in orders %}
-            <tr>
-              <td>{{ order.link|raw }}</td>
-              <td>{% if order.isCompleted %}{{ order.dateOrdered|date('D dS M Y') }}{% endif %}</td>
-              <td>{{ order.totalPaid|currency(order.currency) }}</td>
-              <td>{{ order.orderStatus.labelHtml|raw }}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+      <div id="orders-vue-admin-table"></div>
 
-        <br>
-        <h2>{{ 'Active Carts'|t('commerce') }}</h2>
-        {% set activeCarts = customer.getActiveCarts() %}
+      <br>
+      <h2>{{ 'Active Carts'|t('commerce') }}</h2>
+      {% set activeCarts = customer.getActiveCarts() %}
 
-        {% set activeTableData = [] %}
-        {% for order in activeCarts %}
-          {% set activeTableData = activeTableData|merge([{
+      {% set activeTableData = [] %}
+      {% for order in activeCarts %}
+        {% set activeTableData = activeTableData|merge([{
+          id: order.id,
+          title: order.reference ?? order.shortNumber,
+          url: order.cpEditUrl,
+          date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
+          total: order.totalPrice|currency(order.currency),
+        }]) %}
+      {% endfor %}
+
+      <div id="active-vue-admin-table"></div>
+
+      <br>
+      <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
+      {% set inactiveCarts = customer.getInactiveCarts() %}
+
+      {% set inactiveTableData = [] %}
+      {% for order in inactiveCarts %}
+          {% set inactiveTableData = inactiveTableData|merge([{
             id: order.id,
             title: order.reference ?? order.shortNumber,
             url: order.cpEditUrl,
             date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
             total: order.totalPrice|currency(order.currency),
           }]) %}
-        {% endfor %}
+      {% endfor %}
 
-        <div id="active-vue-admin-table"></div>
-
-        <br>
-        <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
-        {% set inactiveCarts = customer.getInactiveCarts() %}
-
-        {% set inactiveTableData = [] %}
-        {% for order in inactiveCarts %}
-        	{% set inactiveTableData = inactiveTableData|merge([{
-              id: order.id,
-              title: order.reference ?? order.shortNumber,
-              url: order.cpEditUrl,
-              date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
-              total: order.totalPrice|currency(order.currency),
-            }]) %}
-        {% endfor %}
-
-        <div id="inactive-vue-admin-table"></div>
-      {% endif %}
+      <div id="inactive-vue-admin-table"></div>
 
       {% set addresses = customer.addresses %}
       <hr>
@@ -140,6 +122,28 @@
 
   $(".address-box").each(function(){
     new Craft.Commerce.AddressBox($(this),{});
+  });
+
+  var orderColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
+    { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
+    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
+    { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
+      callback: function(value) {
+          return value;
+      }
+    }
+  ];
+
+  new Craft.VueAdminTable({
+    columns: orderColumns,
+    container: '#orders-vue-admin-table',
+    emptyMessage: Craft.t('commerce', 'No orders exist for this user yet.'),
+    padded: true,
+    perPage: 10,
+    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?userId={{ userId }}'),
+    search: true,
+    searchPlaceholder: Craft.t('commerce', 'Search user orders')
   });
 
   var cartColumns = [
