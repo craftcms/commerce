@@ -108,8 +108,7 @@
 
     {% if not order.isPaid() %}
         <div class="footer">
-            <a class="btn" id="make-payment" data-order-id="{{ order.id }}">Make
-                Payment</a>
+            <a class="btn" id="make-payment" data-order-id="{{ order.id }}">{{ 'Make Payment'|t('commerce') }}</a>
         </div>
     {% endif %}
 
