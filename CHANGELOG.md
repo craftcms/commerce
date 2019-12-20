@@ -114,6 +114,17 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
+## 2.2.13 - 2019-12-19
+
+### Fixed
+- Fixed a bug where discounts were getting calculated incorrectly when using a “Per Email Limit” condition.
+
+## 2.2.12 - 2019-12-19
+
+### Fixed
+- Fixed a PHP error that could occur when using coupon codes.
+- Fixed a bug where taxes were getting calculated incorrectly when shipping costs were marked as having taxes included.
+
 ## 2.2.11 - 2019-12-16
 
 ### Fixed
