@@ -2052,7 +2052,10 @@ class Order extends Element
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
+                'badgeCount' => $count,
+                'data' => [
+                    'date-attr' => 'dateOrdered',
+                ],
             ]
         ];
 
@@ -2076,8 +2079,9 @@ class Order extends Element
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => $count,
                 'data' => [
-                    'handle' => $orderStatus->handle
-                ]
+                    'handle' => $orderStatus->handle,
+                    'date-attr' => 'dateOrdered',
+                ],
             ];
         }
 
@@ -2095,7 +2099,8 @@ class Order extends Element
             'criteria' => $criteriaActive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
-                'handle' => 'cartsActive'
+                'handle' => 'cartsActive',
+                'date-attr' => 'dateUpdated',
             ]
         ];
         $updatedBefore = [];
@@ -2108,7 +2113,8 @@ class Order extends Element
             'criteria' => $criteriaInactive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
-                'handle' => 'cartsInactive'
+                'handle' => 'cartsInactive',
+                'date-attr' => 'dateUpdated',
             ]
         ];
 
@@ -2119,7 +2125,8 @@ class Order extends Element
             'criteria' => $criteriaAttemptedPayment,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
-                'handle' => 'cartsAttemptedPayment'
+                'handle' => 'cartsAttemptedPayment',
+                'date-attr' => 'dateUpdated',
             ]
         ];
 

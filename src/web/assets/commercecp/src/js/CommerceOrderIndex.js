@@ -7,9 +7,20 @@ if (typeof Craft.Commerce === typeof undefined) {
  */
 Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
+    startDate: null,
+    endDate: null,
+
     init: function(elementType, $container, settings) {
         this.on('selectSource', $.proxy(this, 'updateSelectedSource'));
         this.base(elementType, $container, settings);
+
+        Craft.ui.createDateRangePicker({
+            onChange: function(startDate, endDate) {
+                this.startDate = startDate;
+                this.endDate = endDate;
+                this.updateElements();
+            }.bind(this),
+        }).appendTo(this.$toolbar);
     },
 
     updateSelectedSource() {
@@ -56,7 +67,26 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
             default:
                 return this.base(mode);
         }
-    }
+    },
+
+    getViewParams: function() {
+        var params = this.base();
+
+        if (this.startDate || this.endDate) {
+            var dateAttr = this.$source.data('date-attr') || 'dateUpdated';
+            params.criteria[dateAttr] = ['and'];
+
+            if (this.startDate) {
+                params.criteria[dateAttr].push('>=' + (this.startDate.getTime() / 1000));
+            }
+
+            if (this.endDate) {
+                params.criteria[dateAttr].push('<' + (this.endDate.getTime() / 1000 + 86400));
+            }
+        }
+
+        return params;
+    },
 });
 
 // Register the Commerce order index class
