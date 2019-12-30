@@ -46,6 +46,7 @@ use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlPermissionsEvent;
 use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
@@ -163,7 +164,8 @@ class Plugin extends BasePlugin
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
-        $this->_registerGqlTypes();
+        $this->_registerGqlInterfaces();
+        $this->_registerGqlQueries();
         $this->_registerGqlPermissions();
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
@@ -527,7 +529,20 @@ class Plugin extends BasePlugin
     /**
      * Register the Gql things
      */
-    private function _registerGqlTypes()
+    private function _registerGqlInterfaces()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            // Add my GraphQL types
+            $types = $event->types;
+            $types[] = GqlProductInterface::class;
+            $event->types = $types;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlQueries()
     {
 
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
