@@ -85,8 +85,6 @@ class Plugin extends BasePlugin
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-    const HANDLE = 'commerce';
-
     // Static
     // =========================================================================
 
@@ -109,7 +107,7 @@ class Plugin extends BasePlugin
      */
     public static function t($message, $params = [], $language = null)
     {
-        return Craft::t(self::HANDLE, $message, $params, $language);
+        return Craft::t('commerce', $message, $params, $language);
     }
 
     // Public Properties

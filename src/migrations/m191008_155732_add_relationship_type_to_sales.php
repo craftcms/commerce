@@ -18,20 +18,7 @@ class m191008_155732_add_relationship_type_to_sales extends Migration
         $columnName = 'categoryRelationshipType';
         $values = ['element', 'sourceElement', 'targetElement'];
 
-        if ($this->db->getIsPgsql()) {
-            // Manually construct the SQL for Postgres
-            $check = '[['.$columnName.']] in (';
-            foreach ($values as $i => $value) {
-                if ($i != 0) {
-                    $check .= ',';
-                }
-                $check .= $this->db->quoteValue($value);
-            }
-            $check .= ')';
-            $this->execute("alter table {{%commerce_sales}} drop constraint {{%commerce_sales_".$columnName."_check}}, add check ({$check})");
-        } else {
-            $this->addColumn('{{%commerce_sales}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
-        }
+        $this->addColumn('{{%commerce_sales}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
     }
 
     /**
