@@ -42,6 +42,11 @@ class Countries extends Component
     private $_countriesById = [];
 
     /**
+     * @var Country[]
+     */
+    private $_enabledCountriesById;
+
+    /**
      * @var Country[][]
      */
     private $_countriesByTaxZoneId = [];
@@ -100,23 +105,23 @@ class Countries extends Component
      * Returns all country names, indexed by ID.
      *
      * @return array
-     * @deprecated as of 2.0
      */
-    public function getAllCountriesListData(): array
+    public function getAllCountriesAsList(): array
     {
-        Craft::$app->getDeprecator()->log('Countries::getAllCountriesListData()', 'Countries::getAllCountriesListData() has been deprecated. Use Countries::getAllCountriesAsList() instead');
+        $countries = $this->getAllCountries();
 
-        return $this->getAllCountriesAsList();
+        return ArrayHelper::map($countries, 'id', 'name');
     }
 
     /**
      * Returns all country names, indexed by ID.
      *
      * @return array
+     * @since 3.0
      */
-    public function getAllCountriesAsList(): array
+    public function getAllEnabledCountriesAsList(): array
     {
-        $countries = $this->getAllCountries();
+        $countries = $this->getAllEnabledCountries();
 
         return ArrayHelper::map($countries, 'id', 'name');
     }
@@ -133,11 +138,28 @@ class Countries extends Component
             $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row) {
-                $this->_countriesById[$row['id']] = new Country($row);
+                $country = new Country($row);
+                $this->_countriesById[$country->id] = $country;
+
+                if ($country->enabled) {
+                    $this->_enabledCountriesById[$country->id] = $country;
+                }
             }
         }
 
         return $this->_countriesById;
+    }
+
+    /**
+     * Returns an array of all enabled countries
+     *
+     * @return array
+     * @since 3.0
+     */
+    public function getAllEnabledCountries(): array
+    {
+        $this->getAllCountries();
+        return $this->_enabledCountriesById;
     }
 
     /**
@@ -219,7 +241,7 @@ class Countries extends Component
         $record->name = $country->name;
         $record->iso = strtoupper($country->iso);
         $record->isStateRequired = $country->isStateRequired;
-
+        $record->enabled = (bool)$country->enabled;
 
         // Save it!
         $record->save(false);
@@ -279,7 +301,8 @@ class Countries extends Component
                 'countries.id',
                 'countries.name',
                 'countries.iso',
-                'countries.isStateRequired'
+                'countries.isStateRequired',
+                'countries.enabled',
             ])
             ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);

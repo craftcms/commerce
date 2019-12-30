@@ -72,6 +72,7 @@ class ShippingMethods extends Component
 
             foreach ($results as $result) {
                 $shippingMethod = new ShippingMethod($result);
+                $shippingMethod->typecastAttributes();
                 $this->_memoizeShippingMethod($shippingMethod);
             }
 
@@ -137,18 +138,6 @@ class ShippingMethods extends Component
         $this->_memoizeShippingMethod(new ShippingMethod($result));
 
         return $this->_shippingMethodsById[$shippingMethodId];
-    }
-
-    /**
-     * @param Order $cart
-     * @return array
-     * @deprecated as of 2.0
-     */
-    public function getOrderedAvailableShippingMethods(Order $cart): array
-    {
-        Craft::$app->getDeprecator()->log('ShippingMethods::getOrderedAvailableShippingMethods', 'ShippingMethods::getOrderedAvailableShippingMethods us has been deprecated. Use ShippingMethods::getAvailableShippingMethods instead. Shipping Methods are now always returned in price order.');
-
-        return $this->getAvailableShippingMethods($cart);
     }
 
     /**

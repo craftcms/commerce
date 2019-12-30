@@ -111,6 +111,15 @@
         required: true,
     }) }}
 
+    {{ forms.textField({
+        label: 'Plain Text Email Template Path'|t('commerce'),
+        instructions: 'The template to be used for plain text emails. Twig code can be used here.'|t('commerce'),
+        id: 'plainTextTemplatePath',
+        name: 'plainTextTemplatePath',
+        value: email.plainTextTemplatePath,
+        errors: email.getErrors('plainTextTemplatePath'),
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Attach PDF"|t('commerce'),
         instructions: 'This email should render the order PDF template and include it as an attachment.'|t('commerce'),

@@ -407,7 +407,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {
@@ -530,6 +530,7 @@ class Discounts extends Component
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
+        $record->baseDiscountType = $model->baseDiscountType;
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
@@ -540,6 +541,7 @@ class Discounts extends Component
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalUseLimit = $model->totalUseLimit;
         $record->ignoreSales = $model->ignoreSales;
+        $record->categoryRelationshipType = $model->categoryRelationshipType;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -879,6 +881,7 @@ class Discounts extends Component
                 'discounts.purchaseQty',
                 'discounts.maxPurchaseQty',
                 'discounts.baseDiscount',
+                'discounts.baseDiscountType',
                 'discounts.perItemDiscount',
                 'discounts.percentDiscount',
                 'discounts.percentageOffSubject',
@@ -888,6 +891,7 @@ class Discounts extends Component
                 'discounts.allGroups',
                 'discounts.allPurchasables',
                 'discounts.allCategories',
+                'discounts.categoryRelationshipType',
                 'discounts.enabled',
                 'discounts.stopProcessing',
                 'discounts.ignoreSales',

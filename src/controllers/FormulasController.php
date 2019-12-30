@@ -41,7 +41,7 @@ class FormulasController extends Controller
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($condition, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid condition syntax'));
+            return $this->asErrorJson(Plugin::t('Invalid condition syntax'));
         }
 
         return $this->asJson(['success' => 'true']);
@@ -66,7 +66,7 @@ class FormulasController extends Controller
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateFormulaSyntax($formula, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid formula syntax'));
+            return $this->asErrorJson(Plugin::t('Invalid formula syntax'));
         }
 
         return $this->asJson(['success' => 'true']);

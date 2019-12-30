@@ -50,6 +50,9 @@ trait Routes
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
+
+            $event->rules['commerce/orders/create-new'] = 'commerce/orders/new-order';
+
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
@@ -70,6 +73,9 @@ trait Routes
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
             $event->rules['commerce/settings/orderstatuses/<id:\d+>'] = 'commerce/order-statuses/edit';
 
+            $event->rules['commerce/settings/lineitemstatuses'] = 'commerce/line-item-statuses/index';
+            $event->rules['commerce/settings/lineitemstatuses/new'] = 'commerce/line-item-statuses/edit';
+            $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
             $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
@@ -120,7 +126,6 @@ trait Routes
             $event->rules['commerce/tax/taxrates'] = 'commerce/tax-rates/index';
             $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
-
 
             // Promotions
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';

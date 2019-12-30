@@ -53,102 +53,6 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Updates a single line item
-     *
-     * @throws Exception
-     * @throws HttpException
-     * @throws Throwable
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionUpdateLineItem()
-    {
-        $this->requirePostRequest();
-
-        Craft::$app->getDeprecator()->log('CartController::actionUpdateLineItem()', 'craft\commerce\controllers\CartController::actionUpdateLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $request = Craft::$app->getRequest();
-
-        $lineItemId = $request->getParam('lineItemId');
-
-        $this->_cart = $this->_getCart();
-
-        $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-        // Line item not found, or does not belong to their order
-        if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-            throw new NotFoundHttpException('Line item not found');
-        }
-
-        if ($qty = $request->getParam('qty')) {
-            $lineItem->qty = $qty;
-        }
-
-        if ($note = LitEmoji::unicodeToShortcode($request->getParam('note'))) {
-            $lineItem->note = $note;
-        }
-
-        if ($options = $request->getParam('options')) {
-            $lineItem->setOptions($options);
-        }
-
-        $this->_cart->addLineItem($lineItem);
-
-        return $this->_returnCart();
-    }
-
-    /**
-     * Removes a line item
-     *
-     * @throws Exception
-     * @throws NotFoundHttpException
-     * @throws Throwable
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionRemoveLineItem()
-    {
-        $this->requirePostRequest();
-
-        // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
-
-        Craft::$app->getDeprecator()->log('CartController::actionRemoveLineItem()', 'craft\commerce\controllers\CartController::actionRemoveLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $request = Craft::$app->getRequest();
-
-        $lineItemId = $request->getParam('lineItemId');
-
-        $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-        // Line item not found, or does not belong to their order
-        if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-            throw new NotFoundHttpException('Line item not found');
-        }
-
-        $this->_cart->removeLineItem($lineItem);
-
-        return $this->_returnCart();
-    }
-
-    /**
-     * Remove all line items
-     *
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionRemoveAllLineItems()
-    {
-        $this->requirePostRequest();
-
-        // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
-
-        Craft::$app->getDeprecator()->log('CartController::actionRemoveAllLineItems()', 'craft\commerce\controllers\CartController::actionRemoveAllLineItems() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $this->_cart->setLineItems([]);
-
-        return $this->_returnCart();
-    }
-
-    /**
      * Returns the cart as JSON
      */
     public function actionGetCart()
@@ -356,7 +260,7 @@ class CartController extends BaseFrontEndController
 
         if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
 
-            $error = Craft::t('commerce', 'Unable to update cart.');
+            $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
@@ -386,7 +290,7 @@ class CartController extends BaseFrontEndController
         if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
             Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
         } else {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Cart updated.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams([

@@ -57,7 +57,12 @@ class BaseFrontEndController extends BaseController
      */
     protected function cartArray(Order $cart): array
     {
-        $cartInfo = Plugin::getInstance()->getOrders()->cartArray($cart);
+        // Typecast order attributes
+        $cart->typeCastAttributes();
+
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+
+        $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([

@@ -77,6 +77,19 @@ class ShippingCategories extends Component
     }
 
     /**
+     * Returns all Shipping category names, by ID.
+     *
+     * @return array
+     */
+    public function getAllShippingCategoriesAsList(): array
+    {
+        $categories = $this->getAllShippingCategories();
+
+        return ArrayHelper::map($categories, 'id', 'name');
+    }
+
+
+    /**
      * Get a shipping category by its ID.
      *
      * @param int $shippingCategoryId
