@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -58,6 +60,12 @@ class AddressesController extends BaseCpController
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllStatesAsList();
+
+    $variables['customerId'] = (new Query())
+            ->from(Table::CUSTOMERS_ADDRESSES)
+            ->select(['customerId'])
+            ->where(['addressId' => $variables['address']->id])
+            ->scalar();
 
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
