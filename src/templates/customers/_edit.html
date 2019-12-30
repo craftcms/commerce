@@ -1,0 +1,119 @@
+{% extends "commerce/_layouts/cp" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'No Addresses available.',
+  'Set as Primary Billing',
+  'Set as Primary Shipping',
+  'Are you sure you want to delete this address?',
+]) %}
+
+{% set crumbs = [
+  { label: 'Customers'|t('commerce'), url: url('commerce/customers') },
+] %}
+
+{% set selectedSubnavItem = 'customers' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% set addresses = customer.getAddresses() ?? null %}
+{% set tableData = [] %}
+{% for address in addresses %}
+  {% set addressLines = [
+    address.attention,
+    address.title,
+    address.firstName ~ ' ' ~ address.lastName|trim,
+    address.fullName,
+    address.address1,
+    address.address2,
+    address.address3,
+    address.city,
+    address.zipCode,
+    address.phone,
+    address.alternativePhone,
+    address.label,
+    address.notes,
+    address.businessName,
+    address.stateName,
+    address.custom1,
+    address.custom2,
+    address.custom3,
+    address.custom4,
+  ]|filter(v => v) %}
+
+  {% set tableData = tableData|merge([{
+    id: address.id,
+    title: address.address1,
+    url: cpUrl('commerce/addresses/' ~ address.id),
+    zipCode: address.zipCode,
+    billing: (customer.primaryBillingAddressId == address.id),
+    shipping: (customer.primaryShippingAddressId == address.id),
+    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce') }) , content: addressLines|join('<br>') }
+  }]) %}
+{% endfor %}
+
+{% block content %}
+  {# Hidden fields #}
+  <input type="hidden" name="id" value="{{ customer.id }}">
+  <input type="hidden" name="action" value="commerce/customers/save">
+
+
+  <h2>{{ 'Addresses'|t('commerce') }}</h2>
+  <div id="addresses-vue-admin-table"></div>
+{% endblock %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
+    { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
+    { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) {
+        if (!value) {
+            return '';
+        }
+
+        return '<span data-icon="check"></span>';
+    } },
+    { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
+        if (!value) {
+            return '';
+        }
+
+        return '<span data-icon="check"></span>';
+    } },
+    { name: '__slot:detail', title: '', titleClass: 'thin' },
+];
+
+var actions = [
+    {
+        label: '',
+        icon: 'settings',
+        actions: [
+            {
+                label: Craft.t('commerce', 'Set as Primary Billing'),
+                action: 'commerce/addresses/set-primary',
+                param: 'type',
+                value: 'billing',
+            },
+            {
+                label: Craft.t('commerce', 'Set as Primary Shipping'),
+                action: 'commerce/addresses/set-primary',
+                param: 'type',
+                value: 'shipping',
+            }
+        ]
+    }
+];
+
+new Craft.VueAdminTable({
+    actions: actions,
+    checkboxes: true,
+    columns: columns,
+    container: '#addresses-vue-admin-table',
+    deleteAction: 'commerce/addresses/delete',
+    deleteConfirmationMessage: Craft.t('commerece', 'Are you sure you want to delete this address?'),
+    emptyMessage: Craft.t('commerce', 'No Addresses available.'),
+    padded: true,
+    tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}
