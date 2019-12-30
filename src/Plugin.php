@@ -214,6 +214,13 @@ class Plugin extends BasePlugin
             ];
         }
 
+        if (Craft::$app->getUser()->checkPermission('commerce-manageCustomers')) {
+            $ret['subnav']['customers'] = [
+                'label' => self::t('Customers'),
+                'url' => 'commerce/customers',
+            ];
+        }
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
             $ret['subnav']['subscriptions'] = [
                 'label' => self::t('Subscriptions'),
