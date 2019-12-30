@@ -1,0 +1,193 @@
+{% extends "commerce/_layouts/cp" %}
+{% do view.registerTranslations('commerce', []) %}
+
+{% set crumbs = [
+  { label: 'Customers'|t('commerce'), url: url('commerce/customers') },
+] %}
+{% if customerId is defined and customerId %}
+  {% set crumbs = crumbs|merge([{ label: 'Customer #{id}'|t('commerce', { id: customerId }), url: cpUrl('commerce/customers/' ~ customerId) }]) %}
+{% endif %}
+
+{% set selectedSubnavItem = 'customers' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+  {# Hidden fields #}
+  <input type="hidden" name="id" value="{{ address.id }}">
+  <input type="hidden" name="action" value="commerce/customers/save">
+  {% if customerId %}
+    {{ redirectInput('commerce/customers/' ~ customerId) }}
+  {% endif %}
+
+  {{ forms.textField({
+    label: 'Attention'|t('commerce'),
+    name: 'attention',
+    id: 'attention',
+    value : address.attention,
+    errors: address.getErrors('attention'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Title'|t('commerce'),
+    name: 'title',
+    id: 'title',
+    value : address.title,
+    errors: address.getErrors('title'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'First Name'|t('commerce'),
+    name: 'firstName',
+    id: 'firstName',
+    value : address.firstName,
+    errors: address.getErrors('firstName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Last Name'|t('commerce'),
+    name: 'lastName',
+    id: 'lastName',
+    value : address.lastName,
+    errors: address.getErrors('lastName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Full Name'|t('commerce'),
+    name: 'fullName',
+    id: 'fullName',
+    value : address.fullName,
+    errors: address.getErrors('fullName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 1'|t('commerce'),
+    name: 'address1',
+    id: 'address1',
+    value : address.address1,
+    errors: address.getErrors('address1'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 2'|t('commerce'),
+    name: 'address2',
+    id: 'address2',
+    value : address.address2,
+    errors: address.getErrors('address2'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 3'|t('commerce'),
+    name: 'address3',
+    id: 'address3',
+    value : address.address3,
+    errors: address.getErrors('address3'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'City'|t('commerce'),
+    name: 'city',
+    id: 'city',
+    value : address.city,
+    errors: address.getErrors('city'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Zip Code'|t('commerce'),
+    name: 'zipCode',
+    id: 'zipCode',
+    value : address.zipCode,
+    errors: address.getErrors('zipCode'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Phone'|t('commerce'),
+    name: 'phone',
+    id: 'phone',
+    value : address.phone,
+    errors: address.getErrors('phone'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Phone (Alt)'|t('commerce'),
+    name: 'alternativePhone',
+    id: 'alternativePhone',
+    value : address.alternativePhone,
+    errors: address.getErrors('alternativePhone'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Label'|t('commerce'),
+    name: 'label',
+    id: 'label',
+    value : address.label,
+    errors: address.getErrors('label'),
+  }) }}
+
+  {{ forms.textareaField({
+    label: 'Notes'|t('commerce'),
+    name: 'notes',
+    id: 'notes',
+    value : address.notes,
+    errors: address.getErrors('notes'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business Name'|t('commerce'),
+    name: 'businessName',
+    id: 'businessName',
+    value : address.businessName,
+    errors: address.getErrors('businessName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business Tax ID'|t('commerce'),
+    name: 'businessTaxId',
+    id: 'businessTaxId',
+    value : address.businessTaxId,
+    errors: address.getErrors('businessTaxId'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business ID'|t('commerce'),
+    name: 'businessId',
+    id: 'businessId',
+    value : address.businessId,
+    errors: address.getErrors('businessId'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 1'|t('commerce'),
+    name: 'custom1',
+    id: 'custom1',
+    value : address.custom1,
+    errors: address.getErrors('custom1'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 2'|t('commerce'),
+    name: 'custom2',
+    id: 'custom2',
+    value : address.custom2,
+    errors: address.getErrors('custom2'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 3'|t('commerce'),
+    name: 'custom3',
+    id: 'custom3',
+    value : address.custom3,
+    errors: address.getErrors('custom3'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 4'|t('commerce'),
+    name: 'custom4',
+    id: 'custom4',
+    value : address.custom4,
+    errors: address.getErrors('custom4'),
+  }) }}
+
+{% endblock %}
