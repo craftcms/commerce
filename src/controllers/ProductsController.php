@@ -103,7 +103,7 @@ class ProductsController extends BaseCpController
         if (!empty($product->id)) {
             $variables['title'] = $product->title;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new product');
+            $variables['title'] = Plugin::t('Create a new product');
         }
 
         // Can't just use the entry's getCpEditUrl() because that might include the site handle when we don't want it
@@ -171,7 +171,7 @@ class ProductsController extends BaseCpController
         $product = Plugin::getInstance()->getProducts()->getProductById($productId);
 
         if (!$product) {
-            throw new Exception(Craft::t('commerce', 'No product exists with the ID “{id}”.',
+            throw new Exception(Plugin::t('No product exists with the ID “{id}”.',
                 ['id' => $productId]));
         }
 
@@ -183,7 +183,7 @@ class ProductsController extends BaseCpController
                 return $this->asJson(['success' => false]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t delete product.'));
             Craft::$app->getUrlManager()->setRouteParams([
                 'product' => $product
             ]);
@@ -193,7 +193,7 @@ class ProductsController extends BaseCpController
             return $this->asJson(['success' => true]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Product deleted.'));
         return $this->redirectToPostedUrl($product);
     }
 
@@ -234,7 +234,7 @@ class ProductsController extends BaseCpController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product.'));
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -255,7 +255,7 @@ class ProductsController extends BaseCpController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Product saved.'));
 
         return $this->redirectToPostedUrl($product);
     }
@@ -302,7 +302,7 @@ class ProductsController extends BaseCpController
             }
 
             $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
+                'label' => Plugin::t($tab->name),
                 'url' => '#tab' . ($index + 1),
                 'class' => $hasErrors ? 'error' : null
             ];
@@ -321,7 +321,7 @@ class ProductsController extends BaseCpController
             }
 
             $variables['tabs'][] = [
-                'label' => Craft::t('commerce', 'Variants'),
+                'label' => Plugin::t('Variants'),
                 'url' => '#variants-container',
                 'class' => $hasErrors ? 'error' : null
             ];
@@ -401,7 +401,7 @@ class ProductsController extends BaseCpController
         }
 
         if (empty($variables['productType'])) {
-            throw new HttpException(400, craft::t('commerce', 'Wrong product type specified'));
+            throw new HttpException(400, Plugin::t('Wrong product type specified'));
         }
 
         // Get the product

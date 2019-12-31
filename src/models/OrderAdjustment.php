@@ -7,15 +7,19 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order adjustment model.
  *
+ * @property Order|null $order
+ * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -89,25 +93,90 @@ class OrderAdjustment extends Model
     // Public Methods
     // =========================================================================
 
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'type' => AttributeTypecastBehavior::TYPE_STRING,
+                'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'name' => AttributeTypecastBehavior::TYPE_STRING,
+                'description' => AttributeTypecastBehavior::TYPE_STRING
+            ]
+        ];
+
+        return $behaviors;
+    }
+
+
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required']
+            [
+                [
+                    'type',
+                    'amount',
+                    'sourceSnapshot',
+                    'orderId'
+                ], 'required'
+            ],
+            [['amount'], 'number'],
+            [['orderId'], 'integer'],
+            [['lineItemId'], 'integer']
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $attributes = parent::attributes();
         $attributes[] = 'sourceSnapshot';
 
         return $attributes;
+    }
+
+    /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'amount';
+        return $attributes;
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+                if (!empty($model->$attribute)) {
+                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        return $fields;
     }
 
     /**
@@ -176,5 +245,6 @@ class OrderAdjustment extends Model
     public function setOrder(Order $order)
     {
         $this->_order = $order;
+        $this->orderId = $order->id;
     }
 }

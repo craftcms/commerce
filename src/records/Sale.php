@@ -27,6 +27,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $ignorePrevious
  * @property bool $stopProcessing
  * @property string $apply
+ * @property string $categoryRelationshipType
  * @property bool $enabled
  * @property UserGroup[] $groups
  * @property int $id
@@ -43,6 +44,10 @@ class Sale extends ActiveRecord
     const APPLY_BY_FLAT = 'byFlat';
     const APPLY_TO_PERCENT = 'toPercent';
     const APPLY_TO_FLAT = 'toFlat';
+
+    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     // Public Methods
     // =========================================================================

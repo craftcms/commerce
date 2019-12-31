@@ -274,17 +274,6 @@ class Product extends Element
     }
 
     /**
-     * Allows the variant to ask the product what data to snapshot.
-     *
-     * @return array
-     * @deprecated as of 2.1.5.3 Not needed as products are not purchasables.
-     */
-    public function getSnapshot(): array
-    {
-        return [];
-    }
-
-    /**
      * @return string|null
      */
     public function getName()
@@ -507,19 +496,6 @@ class Product extends Element
         }
 
         return $stock;
-    }
-
-    /**
-     * Returns whether at least one variant has unlimited stock.
-     *
-     * @return bool
-     * @deprecated as of 2.0
-     */
-    public function getUnlimitedStock()
-    {
-        Craft::$app->getDeprecator()->log('Product::getUnlimitedStock()', 'Product::getUnlimitedStock() has been deprecated. Use Product::getHasUnlimitedStock() instead');
-
-        return $this->getHasUnlimitedStock();
     }
 
     /**

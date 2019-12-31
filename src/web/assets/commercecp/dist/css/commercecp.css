@@ -11,15 +11,27 @@
     width: 100%;
 }
 
+.address-box.address-box--full {
+    width: 100%;
+}
+
 @media only screen and (min-width: 768px) {
     .address-box {
         width: 50%;
+    }
+
+    .address-box.address-box--full {
+        width: 100%;
     }
 }
 
 @media only screen and (min-width: 1200px) {
     .address-box {
         width: 33%;
+    }
+
+    .address-box.address-box--full {
+        width: 100%;
     }
 }
 
@@ -241,6 +253,10 @@ ul.commerce-sales li a span {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 105px;
+}
+
+.commerce-sales-buttons a {
+    margin-top: 5px;
 }
 
 .order-details {

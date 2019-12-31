@@ -48,4 +48,14 @@
         checked: country.isStateRequired,
         errors: country.getErrors('isStateRequired')
     }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: country.enabled,
+        errors: country.getErrors('enabled'),
+        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
+    }) }}
 {% endblock %}

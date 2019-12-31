@@ -9,16 +9,28 @@
     padding: 0 10px;
     margin-bottom: 1em;
     width: 100%;
+
+    &.address-box--full {
+        width: 100%;
+    }
 }
 
 @media only screen and (min-width: 768px) {
     .address-box {
         width: 50%;
+
+        &.address-box--full {
+            width: 100%;
+        }
     }
 }
 
 @media only screen and (min-width: 1200px) {
     .address-box {
         width: 33%;
+
+        &.address-box--full {
+            width: 100%;
+        }
     }
 }

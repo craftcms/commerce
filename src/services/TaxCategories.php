@@ -136,7 +136,7 @@ class TaxCategories extends Component
     }
 
     /**
-     * Returns all Tax categories, indexed by ID.
+     * Returns all Tax category names, indexed by ID.
      *
      * @return array
      */

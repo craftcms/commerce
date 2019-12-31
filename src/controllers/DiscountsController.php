@@ -13,6 +13,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
+use craft\commerce\records\Discount as DiscountRecord;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -107,6 +108,8 @@ class DiscountsController extends BaseCpController
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
         $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
+        $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
+        $discount->baseDiscountType = $request->getBodyParam('baseDiscountType');
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;
@@ -164,10 +167,10 @@ class DiscountsController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
         ) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discount saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Discount saved.'));
             $this->redirectToPostedUrl($discount);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save discount.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save discount.'));
         }
 
         // Send the model back to the template
@@ -192,7 +195,7 @@ class DiscountsController extends BaseCpController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder discounts.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder discounts.')]);
     }
 
     /**
@@ -236,7 +239,7 @@ class DiscountsController extends BaseCpController
         if ($variables['discount']->id) {
             $variables['title'] = $variables['discount']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a Discount');
+            $variables['title'] = Plugin::t('Create a Discount');
         }
 
         //getting user groups map
@@ -259,6 +262,17 @@ class DiscountsController extends BaseCpController
             $variables['discount']->purchaseTotal = Craft::$app->formatter->asDecimal((float)$variables['discount']->purchaseTotal);
         }
 
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        $currencyName = $currency ? $currency->getCurrency() : '';
+
+        $variables['baseDiscountTypes'] = [
+            DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Plugin::t($currencyName . ' value'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL => Plugin::t('(%) Percent off items total (original price) and shipping total'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price) and shipping total'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS => Plugin::t('(%) Percent off items total (original price)'),
+            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price)'),
+        ];
+
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;
         $categories = $categoryIds = [];
@@ -276,8 +290,13 @@ class DiscountsController extends BaseCpController
 
         $variables['categories'] = $categories;
 
-        $variables['purchasables'] = null;
+        $variables['categoryRelationshipType'] = [
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Both'),
+        ];
 
+        $variables['purchasables'] = null;
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));

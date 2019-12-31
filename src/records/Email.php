@@ -22,6 +22,7 @@ use craft\db\ActiveRecord;
  * @property string $recipientType
  * @property string $subject
  * @property string $templatePath
+ * @property string $plainTextTemplatePath
  * @property bool $attachPdf
  * @property string $pdfTemplatePath
  * @property string $to
