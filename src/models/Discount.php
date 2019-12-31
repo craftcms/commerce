@@ -102,6 +102,11 @@ class Discount extends Model
     public $baseDiscount = 0;
 
     /**
+     * @var string Type of discount for the base discount e.g. currency value or percentage
+     */
+    public $baseDiscountType;
+
+    /**
      * @var float Amount of discount per item
      */
     public $perItemDiscount;
@@ -145,6 +150,11 @@ class Discount extends Model
      * @var bool Match all product types
      */
     public $allCategories;
+
+    /**
+     * @var string Type of relationship between Categories and Products
+     */
+    public $categoryRelationshipType;
 
     /**
      * @var bool Discount enabled?
@@ -282,28 +292,6 @@ class Discount extends Model
 
     /**
      * @param bool $value
-     * @deprecated in 2.1
-     */
-    public function setFreeShipping($value)
-    {
-        Craft::$app->getDeprecator()->log('Discount::setFreeShipping()', 'Discount::setFreeShipping() has been deprecated. Use Discount::setHasFreeShippingForMatchingItems() instead');
-
-        $this->setHasFreeShippingForMatchingItems($value);
-    }
-
-    /**
-     * @return bool
-     * @deprecated in 2.1
-     */
-    public function getFreeShipping(): bool
-    {
-        Craft::$app->getDeprecator()->log('Discount::getFreeShipping()', 'Discount::getFreeShipping() or discount.freeShipping has been deprecated. Use Discount::getHasFreeShippingForMatchingItems() or discount.hasFreeShippingForMatchingItems instead');
-
-        return $this->getHasFreeShippingForMatchingItems();
-    }
-
-    /**
-     * @param bool $value
      */
     public function setHasFreeShippingForMatchingItems($value)
     {
@@ -363,6 +351,7 @@ class Discount extends Model
             }
             ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [['categoryRelationshipType'], 'in', 'range' => [DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH]],
         ];
     }
 

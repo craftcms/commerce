@@ -49,12 +49,22 @@
         options: countries,
         class: 'selectize fullwidth',
     }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: state.enabled,
+        errors: state.getErrors('enabled'),
+        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.'|t('commerce') : null,
+    }) }}
 {% endblock %}
 
 {% js %}
     $(function() {
-    $('#countryId').selectize({
-    dropdownParent: 'body'
-    });
+        $('#countryId').selectize({
+            dropdownParent: 'body'
+        });
     });
 {% endjs %}

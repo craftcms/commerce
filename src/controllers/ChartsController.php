@@ -46,7 +46,7 @@ class ChartsController extends ElementIndexesController
         // Get the chart data table
         $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', 'sum', '[[commerce_orders.totalPrice]]', [
             'intervalUnit' => $intervalUnit,
-            'valueLabel' => Craft::t('commerce', 'Revenue'),
+            'valueLabel' => Plugin::t('Revenue'),
             'valueType' => 'currency',
         ]);
 

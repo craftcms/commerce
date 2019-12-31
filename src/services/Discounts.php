@@ -25,6 +25,7 @@ use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use DateTime;
+use phpDocumentor\Reflection\Types\Boolean;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\db\Expression;
@@ -249,7 +250,7 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t( 'Coupon not valid');
+            $explanation = Plugin::t('Coupon not valid');
             return false;
         }
 
@@ -257,7 +258,7 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
-            $explanation = Plugin::t( 'Discount use has reached its limit');
+            $explanation = Plugin::t('Discount use has reached its limit');
             return false;
         }
 
@@ -265,7 +266,7 @@ class Discounts extends Component
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
         if (($from && $from > $now) || ($to && $to < $now)) {
-            $explanation = Plugin::t( 'Discount is out of date');
+            $explanation = Plugin::t('Discount is out of date');
 
             return false;
         }
@@ -273,14 +274,14 @@ class Discounts extends Component
         if (!$discount->allGroups) {
             $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                $explanation = Plugin::t( 'Discount is not allowed for the customer');
+                $explanation = Plugin::t('Discount is not allowed for the customer');
 
                 return false;
             }
         }
 
         if ($discount->perUserLimit > 0 && !$user) {
-            $explanation = Plugin::t( 'Discount is limited to use by registered users only.');
+            $explanation = Plugin::t('Discount is limited to use by registered users only.');
 
             return false;
         }
@@ -294,7 +295,7 @@ class Discounts extends Component
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {
-                $explanation = Plugin::t( 'This coupon limited to {limit} uses.', [
+                $explanation = Plugin::t('This coupon limited to {limit} uses.', [
                     'limit' => $discount->perUserLimit,
                 ]);
 
@@ -310,7 +311,7 @@ class Discounts extends Component
                 ->scalar();
 
             if ($usage && $usage >= $discount->perEmailLimit) {
-                $explanation = Plugin::t( 'This coupon limited to {limit} uses.', [
+                $explanation = Plugin::t('This coupon limited to {limit} uses.', [
                     'limit' => $discount->perEmailLimit,
                 ]);
 
@@ -374,11 +375,12 @@ class Discounts extends Component
      *
      * @param LineItem $lineItem
      * @param Discount $discount
+     * @param bool $matchOrder
      * @return bool
      */
-    public function matchLineItem(LineItem $lineItem, Discount $discount): bool
+    public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
-        if (!$this->matchOrder($lineItem->order, $discount)) {
+        if ($matchOrder && !$this->matchOrder($lineItem->order, $discount)) {
             return false;
         }
 
@@ -405,7 +407,7 @@ class Discounts extends Component
                 return false;
             }
 
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {
@@ -428,32 +430,59 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-        // If the discount is no longer enabled don't use
         if (!$discount->enabled) {
             return false;
         }
 
-        // If the discount does not have a coupon code, it is available
-        if ($discount->code == null) {
-            return true;
+        if (!$this->_isDiscountCouponCodeValid($order, $discount)) {
+            return false;
         }
 
-        // If we have a coupon code on the order and it matches the discount coupon code
-        if ($order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0)) {
-            $explanation = '';
+        if (!$this->_isDiscountDateValid($order, $discount)) {
+            return false;
+        }
 
-            // Only use the discount is it it still available (it may have expired since being valid on the order)
-            if (Plugin::getInstance()->getDiscounts()->orderCouponAvailable($order, $explanation)) {
-                return true;
+        $customer = $order->getCustomer();
+        $user = $customer ? $customer->getUser() : null;
+
+        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+            return false;
+        }
+
+        // Coupon based checks
+        if ($discount->code && $this->_isDiscountCouponCodeValid($order, $discount)) {
+
+            if (!$this->_isDiscountCouponLimitValid($discount)) {
+                return false;
             }
 
-            // Remove it from the order if it is no longer valid.
-            // Yes, this is an order mutation, which we normally shouldn't do in an adjuster
-            $order->couponCode = null;
+            if (!$this->_isDiscountCouponPerUserUsageValid($discount, $user, $customer)) {
+                return false;
+            }
+
+            if (!$this->_isDiscountCouponPerEmailLimitValid($discount, $order)) {
+                return false;
+            }
         }
 
-        return false;
+        // Check to see if we need to match on data related to the lineItems
+        if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
+            $lineItemMatch = false;
+            foreach ($order->getLineItems() as $lineItem) {
+                if ($this->matchLineItem($lineItem, $discount, false)) {
+                    $lineItemMatch = true;
+                    break;
+                }
+            }
+
+            if (!$lineItemMatch) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
 
     /**
      * Save a discount.
@@ -471,7 +500,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();
@@ -501,6 +530,7 @@ class Discounts extends Component
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
+        $record->baseDiscountType = $model->baseDiscountType;
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
@@ -511,6 +541,7 @@ class Discounts extends Component
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalUseLimit = $model->totalUseLimit;
         $record->ignoreSales = $model->ignoreSales;
+        $record->categoryRelationshipType = $model->categoryRelationshipType;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -715,6 +746,119 @@ class Discounts extends Component
     // =========================================================================
 
     /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
+    {
+        if (!$discount->code) {
+            return true;
+        }
+
+        return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     * @throws \Exception
+     */
+    private function _isDiscountDateValid(Order $order, Discount $discount): bool
+    {
+        $now = $order->dateUpdated ?? new DateTime();
+        $from = $discount->dateFrom;
+        $to = $discount->dateTo;
+
+        return !(($from && $from > $now) || ($to && $to < $now));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @param $user
+     * @return bool
+     */
+    private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
+    {
+        if (!$discount->allGroups) {
+            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountCouponLimitValid(Discount $discount): bool
+    {
+        if ($discount->totalUseLimit > 0) {
+            if ($discount->totalUses >= $discount->totalUseLimit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @param $user
+     * @param $customer
+     * @return bool
+     */
+    private function _isDiscountCouponPerUserUsageValid(Discount $discount, $user, $customer): bool
+    {
+        if ($discount->perUserLimit > 0) {
+
+            if (!$user) {
+                return false;
+            }
+
+            // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
+            $usage = (new Query())
+                ->select(['uses'])
+                ->from([Table::CUSTOMER_DISCOUNTUSES])
+                ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
+                ->scalar();
+
+            if ($usage && $usage >= $discount->perUserLimit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @param Order $order
+     * @return bool
+     */
+    private function _isDiscountCouponPerEmailLimitValid(Discount $discount, Order $order): bool
+    {
+        if ($discount->perEmailLimit > 0 && $order->getEmail()) {
+            $usage = (new Query())
+                ->select(['uses'])
+                ->from([Table::EMAIL_DISCOUNTUSES])
+                ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
+                ->scalar();
+
+            if ($usage && $usage >= $discount->perEmailLimit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Returns a Query object prepped for retrieving discounts
      *
      * @return Query
@@ -737,6 +881,7 @@ class Discounts extends Component
                 'discounts.purchaseQty',
                 'discounts.maxPurchaseQty',
                 'discounts.baseDiscount',
+                'discounts.baseDiscountType',
                 'discounts.perItemDiscount',
                 'discounts.percentDiscount',
                 'discounts.percentageOffSubject',
@@ -746,6 +891,7 @@ class Discounts extends Component
                 'discounts.allGroups',
                 'discounts.allPurchasables',
                 'discounts.allCategories',
+                'discounts.categoryRelationshipType',
                 'discounts.enabled',
                 'discounts.stopProcessing',
                 'discounts.ignoreSales',

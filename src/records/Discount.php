@@ -21,6 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allGroups
  * @property bool $allPurchasables
  * @property float $baseDiscount
+ * @property string $baseDiscountType
  * @property string $code
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
@@ -46,6 +47,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $ignoreSales
  * @property int $totalUseLimit
  * @property int $totalUses
+ * @property string $categoryRelationshipType
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -56,6 +58,16 @@ class Discount extends ActiveRecord
 
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+
+    const BASE_DISCOUNT_TYPE_VALUE = 'value';
+    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
+    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
+    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
+    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
+
+    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     // Public Methods
     // =========================================================================

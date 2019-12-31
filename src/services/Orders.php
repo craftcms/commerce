@@ -171,7 +171,7 @@ class Orders extends Component
     /**
      * @param Order $cart
      * @return array
-     * @deprecated 2.2 use `$order->toArray()` instead
+     * @deprecated 3.0 use `$order->toArray()` instead
      */
     public function cartArray($cart)
     {
@@ -192,6 +192,7 @@ class Orders extends Component
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
+        $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
@@ -208,6 +209,7 @@ class Orders extends Component
         $data['totalWeight'] = $cart->getTotalWeight();
         $data['total'] = $cart->getTotal();
         $data['totalPrice'] = $cart->getTotalPrice();
+        $data['recalculationMode'] = $cart->getRecalculationMode();
 
         $availableShippingMethods = $cart->getAvailableShippingMethods();
         $data['availableShippingMethods'] = [];
@@ -218,8 +220,8 @@ class Orders extends Component
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
-            $data['shippingAddress'] = $cart->shippingAddress->toArray();
-            if ($cart->shippingAddress->getErrors()) {
+            $data['shippingAddress'] = $cart->getShippingAddress()->toArray();
+            if ($cart->getShippingAddress()->getErrors()) {
                 $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
             }
         } else {
@@ -228,12 +230,32 @@ class Orders extends Component
 
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
-            $data['billingAddress'] = $cart->billingAddress->toArray();
-            if ($cart->billingAddress->getErrors()) {
+            $data['billingAddress'] = $cart->getBillingAddress()->toArray();
+            if ($cart->getBillingAddress()->getErrors()) {
                 $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
             }
         } else {
             $data['billingAddress'] = null;
+        }
+
+        $data['estimatedShippingAddressId'] = $cart->estimatedShippingAddressId;
+        if ($cart->getEstimatedShippingAddress()) {
+            $data['estimatedShippingAddress'] = $cart->getEstimatedShippingAddress()->toArray();
+            if ($cart->getEstimatedShippingAddress()->getErrors()) {
+                $lineItems['estimatedShippingAddress']['errors'] = $cart->getEstimatedShippingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedShippingAddress'] = null;
+        }
+
+        $data['estimatedBillingAddressId'] = $cart->estimatedBillingAddressId;
+        if ($cart->getEstimatedBillingAddress()) {
+            $data['estimatedBillingAddress'] = $cart->getEstimatedBillingAddress()->toArray();
+            if ($cart->getEstimatedBillingAddress()->getErrors()) {
+                $lineItems['estimatedBillingAddress']['errors'] = $cart->getEstimatedBillingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedBillingAddress'] = null;
         }
 
         $lineItems = [];

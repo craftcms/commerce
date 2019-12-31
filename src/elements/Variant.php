@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\Purchasable;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
@@ -21,7 +22,7 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
-use craft\db\Table;
+use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use Throwable;
@@ -223,7 +224,7 @@ class Variant extends Purchasable
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Product Variant');
+        return Plugin::t('Product Variant');
     }
 
     /**
@@ -268,19 +269,6 @@ class Variant extends Purchasable
         $names = parent::extraFields();
         $names[] = 'product';
         return $names;
-    }
-
-    /**
-     * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @return Sale[]
-     * @deprecated
-     */
-    public function getSalesApplied(): array
-    {
-        Craft::$app->getDeprecator()->log('Variant::getSalesApplied()', 'The getSalesApplied() function has been deprecated. Use getSales() instead.');
-
-        return $this->getSales();
     }
 
     /**
@@ -450,7 +438,7 @@ class Variant extends Purchasable
      */
     public function getPrice(): float
     {
-        return (float) $this->price;
+        return (float)$this->price;
     }
 
     /**
@@ -628,7 +616,7 @@ class Variant extends Purchasable
                     /** @var Purchasable $purchasable */
                     $purchasable = $lineItem->getPurchasable();
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
+                        $validator->addError($lineItem, $attribute, Plugin::t('The item is not enabled for sale.'));
                     }
                 }
             ],
@@ -636,22 +624,22 @@ class Variant extends Purchasable
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
                     if (!$this->hasStock()) {
-                        $error = Craft::t('commerce', '"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $error = Plugin::t('"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $error = Plugin::t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $error = Plugin::t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
                 },
@@ -692,7 +680,7 @@ class Variant extends Purchasable
 
             $map = (new Query())
                 ->select('id as source, productId as target')
-                ->from('commerce_variants')
+                ->from(Table::VARIANTS)
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
 
@@ -794,14 +782,14 @@ class Variant extends Purchasable
         // Don't reduce stock of unlimited items.
         if (!$this->hasUnlimitedStock) {
             // Update the qty in the db directly
-            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::VARIANTS,
+            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
                 ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
                 ['id' => $this->id])->execute();
 
             // Update the stock
             $this->stock = (new Query())
                 ->select(['stock'])
-                ->from(\craft\commerce\db\Table::VARIANTS)
+                ->from(Table::VARIANTS)
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
@@ -913,7 +901,7 @@ class Variant extends Purchasable
         }
 
         Craft::$app->getDb()->createCommand()
-            ->update(\craft\commerce\db\Table::VARIANTS, [
+            ->update(Table::VARIANTS, [
                 'deletedWithProduct' => $this->deletedWithProduct,
             ], ['id' => $this->id], [], false)
             ->execute();
@@ -932,8 +920,8 @@ class Variant extends Purchasable
 
         // Check to see if any other purchasable has the same SKU and update this one before restore
         $found = (new Query())->select(['[[p.sku]]', '[[e.id]]'])
-            ->from(\craft\commerce\db\Table::PURCHASABLES . ' p')
-            ->leftJoin(Table::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
+            ->from(Table::PURCHASABLES . ' p')
+            ->leftJoin(CraftTable::ELEMENTS . ' e', '[[p.id]]=[[e.id]]')
             ->where(['[[e.dateDeleted]]' => null, '[[p.sku]]' => $this->getSku()])
             ->andWhere(['not', ['[[e.id]]' => $this->getId()]])
             ->count();
@@ -943,20 +931,20 @@ class Variant extends Purchasable
             $this->sku = $this->getSku() . '-1';
 
             // Update variant table with new SKU
-            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::VARIANTS,
+            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
                 ['sku' => $this->sku],
                 ['id' => $this->getId()]
             )->execute();
 
             if ($this->isDefault) {
-                Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::PRODUCTS,
+                Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
                     ['defaultSku' => $this->sku],
                     ['id' => $this->productId]
                 )->execute();
             }
 
             // Update purchasable table with new SKU
-            Craft::$app->getDb()->createCommand()->update(\craft\commerce\db\Table::PURCHASABLES,
+            Craft::$app->getDb()->createCommand()->update(Table::PURCHASABLES,
                 ['sku' => $this->sku],
                 ['id' => $this->getId()]
             )->execute();
@@ -998,16 +986,16 @@ class Variant extends Purchasable
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => Craft::t('commerce', 'Title'),
-            'product' => Craft::t('commerce', 'Product'),
-            'sku' => Craft::t('commerce', 'SKU'),
-            'price' => Craft::t('commerce', 'Price'),
-            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities')
+            'title' => Plugin::t('Title'),
+            'product' => Plugin::t('Product'),
+            'sku' => Plugin::t('SKU'),
+            'price' => Plugin::t('Price'),
+            'width' => Plugin::t('Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Plugin::t('Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Plugin::t('Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Plugin::t('Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Plugin::t('Stock'),
+            'minQty' => Plugin::t('Quantities')
         ];
     }
 
@@ -1031,7 +1019,19 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return ['sku', 'price', 'width', 'height', 'length', 'weight', 'stock', 'hasUnlimitedStock', 'minQty', 'maxQty', 'productTitle'];
+        return [
+            'sku',
+            'price',
+            'width',
+            'height',
+            'length',
+            'weight',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+            'productTitle',
+        ];
     }
 
     /**
@@ -1040,7 +1040,7 @@ class Variant extends Purchasable
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Craft::t('commerce', 'Title')
+            'title' => Plugin::t('Title')
         ];
     }
 
@@ -1054,41 +1054,41 @@ class Variant extends Purchasable
 
         switch ($attribute) {
             case 'sku':
-                {
-                    return $this->sku;
-                }
+            {
+                return $this->sku;
+            }
             case 'product':
-                {
-                    return $this->product->title;
-                }
+            {
+                return $this->product->title;
+            }
             case 'price':
-                {
-                    $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+            {
+                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
-                    return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
-                }
+                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+            }
             case 'weight':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
-                    }
-
-                    return '';
+            {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
                 }
+
+                return '';
+            }
             case 'length':
             case 'width':
             case 'height':
-                {
-                    if ($productType->hasDimensions) {
-                        return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
-                    }
+            {
+                if ($productType->hasDimensions) {
+                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
+                }
 
-                    return '';
-                }
+                return '';
+            }
             default:
-                {
-                    return parent::tableAttributeHtml($attribute);
-                }
+            {
+                return parent::tableAttributeHtml($attribute);
+            }
         }
     }
 }

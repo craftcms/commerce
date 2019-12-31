@@ -14,18 +14,17 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
-use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
-use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
@@ -78,8 +77,6 @@ class Plugin extends BasePlugin
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-    const HANDLE = 'commerce';
-
     // Static
     // =========================================================================
 
@@ -92,12 +89,17 @@ class Plugin extends BasePlugin
     }
 
     /**
+     * @param $message
+     * @param array $params
+     * @param null $language
+     * @return string
      * @see Craft::t()
+     *
      * @since 2.2.0
      */
     public static function t($message, $params = [], $language = null)
     {
-        return Craft::t(self::HANDLE, $message, $params, $language);
+        return Craft::t('commerce', $message, $params, $language);
     }
 
     // Public Properties
@@ -106,7 +108,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.2.0';
+    public $schemaVersion = '3.0.2';
 
     /**
      * @inheritdoc
@@ -128,7 +130,6 @@ class Plugin extends BasePlugin
 
     use CommerceServices;
     use Variables;
-    use DeprecatedVariables;
     use Routes;
 
     // Public Methods
@@ -335,11 +336,17 @@ class Plugin extends BasePlugin
                 'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
                     'label' => self::t('Manage orders'), 'nested' => [
+                        'commerce-editOrders' => [
+                            'label' => self::t('Edit orders')
+                        ],
+                        'commerce-deleteOrders' => [
+                            'label' => self::t('Delete orders')
+                        ],
                         'commerce-capturePayment' => [
-                            'label' => self::t('Capture Payment')
+                            'label' => self::t('Capture payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => self::t('Refund Payment')
+                            'label' => self::t('Refund payment')
                         ],
                     ]
                 ],
@@ -401,6 +408,11 @@ class Plugin extends BasePlugin
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
 
+        $lineItemStatusService = $this->getLineItemStatuses();
+        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
+            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
+            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleArchivedLineItemStatus']);
+
         $emailService = $this->getEmails();
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
@@ -430,7 +442,6 @@ class Plugin extends BasePlugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
-            $event->types[] = Customer::class;
         });
     }
 
@@ -503,6 +514,9 @@ class Plugin extends BasePlugin
         });
     }
 
+    /**
+     * Register the cache types
+     */
     private function _registerCacheTypes()
     {
         // create the directory if it doesn't exist
@@ -537,6 +551,7 @@ class Plugin extends BasePlugin
 
     /**
      * Register the things that need to be garbage collected
+     *
      * @since 2.2
      */
     private function _registerGarbageCollection()
@@ -578,16 +593,43 @@ class Plugin extends BasePlugin
                     'type' => 'The product type handle(s) of the products to resave.',
                 ],
             ];
+
+            $e->actions['orders'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(true);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves completed Commerce orders.',
+            ];
+
+            $e->actions['carts'] = [
+                'action' => function(): int {
+                    /** @var ResaveController $controller */
+                    $controller = Craft::$app->controller;
+                    $query = Order::find();
+                    $query->isCompleted(false);
+                    return $controller->saveElements($query);
+                },
+                'options' => [],
+                'helpSummary' => 'Re-saves Commerce carts.',
+            ];
         });
     }
 
     /**
      * Registers templates hooks for inserting Commerce information in the CP
+     *
      * @since 2.2
      */
     private function _registerTemplateHooks()
     {
-        Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
-        Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        if ($this->getSettings()->showCustomerInfoTab) {
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        }
     }
 }

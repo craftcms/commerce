@@ -28,7 +28,7 @@ class BaseFrontEndController extends BaseController
      * ---
      * ```php
      * use craft\commerce\controllers\BaseFrontEndController;
-     * use craft\commerce\events\ModifyCartArray;
+     * use craft\commerce\events\ModifyCartInfoEvent;
      * use yii\base\Event;
      *
      * Event::on(BaseFrontEndController::class, BaseFrontEndController::EVENT_MODIFY_CART_INFO, function(ModifyCartInfoEvent $e) {
@@ -57,7 +57,12 @@ class BaseFrontEndController extends BaseController
      */
     protected function cartArray(Order $cart): array
     {
-        $cartInfo = Plugin::getInstance()->getOrders()->cartArray($cart);
+        // Typecast order attributes
+        $cart->typeCastAttributes();
+
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+
+        $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([

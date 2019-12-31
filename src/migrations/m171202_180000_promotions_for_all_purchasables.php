@@ -361,7 +361,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $group->name = 'Commerce Promotion Categories';
         $fieldsService->saveGroup($group);
 
-        $settings = ['source' => 'group:' . $categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
+        $settings = ['source' => 'group:' . $categoryGroup->uid, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
 
         /** @var Categories $field */
         $field = $fieldsService->createField([
