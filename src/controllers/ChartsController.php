@@ -31,20 +31,43 @@ class ChartsController extends ElementIndexesController
      */
     public function actionGetRevenueData()
     {
-        $startDateParam = Craft::$app->getRequest()->getRequiredParam('startDate');
-        $endDateParam = Craft::$app->getRequest()->getRequiredParam('endDate');
+        $source = $this->source;
+        $data = $source['data'];
+        $dateAttr = $data['date-attr'] ?? null;
 
-        $startDate = DateTimeHelper::toDateTime($startDateParam, true);
-        $endDate = DateTimeHelper::toDateTime($endDateParam, true);
-        $endDate->modify('+1 day');
+        // set default date columm
+        if (!$dateAttr) {
+            $dateAttr = 'dateUpdated';
+        }
+
+        // set default time period of 30 days for the chart
+        $startDate = new \DateTime();
+        $startDate->modify('-30 day');
+        $endDate = new \DateTime();
+
+        $dateParam = Craft::$app->getRequest()->getParam('criteria.' . $dateAttr);
+
+        if ($dateParam) {
+            // $dateParam[0] is the AND condition
+            $startDate = substr($dateParam[1], 2);
+            $endDate = substr($dateParam[2], 1);
+            $startDate = DateTimeHelper::toDateTime($startDate, true);
+            $endDate = DateTimeHelper::toDateTime($endDate, true);
+        }
 
         $intervalUnit = ChartHelper::getRunChartIntervalUnit($startDate, $endDate);
+
+        // always add 24 hours to the end date
+        $endDate->modify('+1 day');
 
         /** @var ElementQuery $query */
         $query = clone $this->getElementQuery()->search(null);
 
+        // Remove the date range in the element query, we have already extracted it.
+         $query->$dateAttr = null;
+
         // Get the chart data table
-        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.dateOrdered', 'sum', '[[commerce_orders.totalPrice]]', [
+        $dataTable = ChartHelper::getRunChartDataFromQuery($query, $startDate, $endDate, 'commerce_orders.' . $dateAttr, 'sum', '[[commerce_orders.totalPrice]]', [
             'intervalUnit' => $intervalUnit,
             'valueLabel' => Plugin::t('Revenue'),
             'valueType' => 'currency',
@@ -61,7 +84,7 @@ class ChartsController extends ElementIndexesController
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $totalHtml = Craft::$app->getFormatter()->asCurrency($total, strtoupper($currency));
 
-        $data =  $this->asJson([
+        $data = $this->asJson([
             'dataTable' => $dataTable,
             'total' => $total,
             'totalHtml' => $totalHtml,
