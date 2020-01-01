@@ -31,6 +31,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
+use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -512,6 +513,35 @@ class Product extends Element
         }
 
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this->getType());
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public static function gqlTypeNameByContext($context): string
+    {
+        /** @var ProductType $context */
+        return $context->handle . '_Product';
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.3.0
+     */
+    public static function gqlScopesByContext($context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
     }
 
     /**

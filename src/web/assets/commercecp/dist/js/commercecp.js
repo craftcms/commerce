@@ -544,9 +544,20 @@ if (typeof Craft.Commerce === typeof undefined) {
  */
 Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
+    startDate: null,
+    endDate: null,
+
     init: function(elementType, $container, settings) {
         this.on('selectSource', $.proxy(this, 'updateSelectedSource'));
         this.base(elementType, $container, settings);
+
+        Craft.ui.createDateRangePicker({
+            onChange: function(startDate, endDate) {
+                this.startDate = startDate;
+                this.endDate = endDate;
+                this.updateElements();
+            }.bind(this),
+        }).appendTo(this.$toolbar);
 
         // Add the New Order button
         var $btn = $('<a class="btn submit icon add" href="'+Craft.getUrl('commerce/orders/create-new')+'">'+Craft.t('commerce', 'New Order')+'</a>');
@@ -594,10 +605,31 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         switch (mode) {
             case 'table':
                 return Craft.Commerce.OrderTableView;
+            case 'thumbs':
+                return Craft.Commerce.OrderTableView;
             default:
-                return this.base(mode);
+                throw 'View mode "' + mode + '" not supported.';
         }
-    }
+    },
+
+    getViewParams: function() {
+        var params = this.base();
+
+        if (this.startDate || this.endDate) {
+            var dateAttr = this.$source.data('date-attr') || 'dateUpdated';
+            params.criteria[dateAttr] = ['and'];
+
+            if (this.startDate) {
+                params.criteria[dateAttr].push('>=' + (this.startDate.getTime() / 1000));
+            }
+
+            if (this.endDate) {
+                params.criteria[dateAttr].push('<' + (this.endDate.getTime() / 1000 + 86400));
+            }
+        }
+
+        return params;
+    },
 });
 
 // Register the Commerce order index class
@@ -612,227 +644,79 @@ if (typeof Craft.Commerce === typeof undefined) {
  */
 Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
-        startDate: null,
-        endDate: null,
+    $chartExplorer: null,
+    $totalValue: null,
+    $chartContainer: null,
+    $spinner: null,
+    $error: null,
+    $chart: null,
 
-        startDatepicker: null,
-        endDatepicker: null,
+    afterInit: function() {
+        this.$explorerContainer = $('<div class="chart-container"></div>').prependTo(this.$container);
 
-        $chartExplorer: null,
-        $totalValue: null,
-        $chartContainer: null,
-        $spinner: null,
-        $error: null,
-        $chart: null,
-        $startDate: null,
-        $endDate: null,
-        $exportButton: null,
+        this.createChart();
 
-        afterInit: function() {
-            this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
-
-            this.createChartExplorer();
-
-            this.base();
-        },
-
-        getStorage: function(key) {
-            return Craft.Commerce.OrderTableView.getStorage(this.elementIndex._namespace, key);
-        },
-
-        setStorage: function(key, value) {
-            Craft.Commerce.OrderTableView.setStorage(this.elementIndex._namespace, key, value);
-        },
-
-        createChartExplorer: function() {
-            // chart explorer
-            var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
-                $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-                $exportButton = $('<div class="btn menubtn export-menubtn">' + Craft.t('commerce', 'Export') + '</div>').appendTo($chartHeader),
-                $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
-                $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
-                $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $to = $('<span class="to light">-</span>').appendTo($dateRange),
-                $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $total = $('<div class="total"></div>').appendTo($chartHeader),
-                $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
-                $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
-                $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
-
-            this.$exportButton = $exportButton;
-            this.$chartExplorer = $chartExplorer;
-            this.$totalValue = $totalValue;
-            this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
-            this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
-            this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
-            this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
-
-            this.$startDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
-            this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
-
-            this.$startDate.datepicker($.extend({
-                onSelect: $.proxy(this, 'handleStartDateChange')
-            }, Craft.datepickerOptions));
-
-            this.$endDate.datepicker($.extend({
-                onSelect: $.proxy(this, 'handleEndDateChange')
-            }, Craft.datepickerOptions));
-
-            this.startDatepicker = this.$startDate.data('datepicker');
-            this.endDatepicker = this.$endDate.data('datepicker');
-
-            this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
-            this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
-
-            new Garnish.MenuBtn(this.$exportButton, {
-                onOptionSelect: $.proxy(this, 'handleClickExport')
-            });
-
-            // Set the start/end dates
-            var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
-                endTime = this.getStorage('endTime') || ((new Date()).getTime());
-
-            this.setStartDate(new Date(startTime));
-            this.setEndDate(new Date(endTime));
-
-            // Load the report
-            this.loadReport();
-        },
-        handleClickExport: function(option) {
-            var data = {};
-            data.source = this.settings.params.source;
-            data.format = option.dataset.format;
-            data.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
-            data.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
-            location.href = Craft.getActionUrl('commerce/downloads/export-order', data);
-
-        },
-        handleStartDateChange: function() {
-            if (this.setStartDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
-                this.loadReport();
-            }
-        },
-
-        handleEndDateChange: function() {
-            if (this.setEndDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.endDatepicker))) {
-                this.loadReport();
-            }
-        },
-
-        setStartDate: function(date) {
-            // Make sure it has actually changed
-            if (this.startDate && date.getTime() === this.startDate.getTime()) {
-                return false;
-            }
-
-            this.startDate = date;
-            this.setStorage('startTime', this.startDate.getTime());
-            this.$startDate.val(Craft.formatDate(this.startDate));
-
-            // If this is after the current end date, set the end date to match it
-            if (this.endDate && this.startDate.getTime() > this.endDate.getTime()) {
-                this.setEndDate(new Date(this.startDate.getTime()));
-            }
-
-            return true;
-        },
-
-        setEndDate: function(date) {
-            // Make sure it has actually changed
-            if (this.endDate && date.getTime() === this.endDate.getTime()) {
-                return false;
-            }
-
-            this.endDate = date;
-            this.setStorage('endTime', this.endDate.getTime());
-            this.$endDate.val(Craft.formatDate(this.endDate));
-
-            // If this is before the current start date, set the start date to match it
-            if (this.startDate && this.endDate.getTime() < this.startDate.getTime()) {
-                this.setStartDate(new Date(this.endDate.getTime()));
-            }
-
-            return true;
-        },
-
-        loadReport: function() {
-            var requestData = this.settings.params;
-
-            requestData.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
-            requestData.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
-
-            if (requestData.source.includes('carts:')) {
-                this.$exportButton.addClass('hidden');
-            } else {
-                this.$exportButton.removeClass('hidden');
-            }
-
-            this.$spinner.removeClass('hidden');
-            this.$error.addClass('hidden');
-            this.$chart.removeClass('error');
-
-
-            Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
-                this.$spinner.addClass('hidden');
-
-                if (textStatus === 'success' && typeof (response.error) === 'undefined') {
-                    if (!this.chart) {
-                        this.chart = new Craft.charts.Area(this.$chart);
-                    }
-
-                    var chartDataTable = new Craft.charts.DataTable(response.dataTable);
-
-                    var chartSettings = {
-                        formatLocaleDefinition: response.formatLocaleDefinition,
-                        orientation: response.orientation,
-                        formats: response.formats,
-                        dataScale: response.scale
-                    };
-
-                    this.chart.draw(chartDataTable, chartSettings);
-
-                    this.$totalValue.html(response.totalHtml);
-                } else {
-                    var msg = Craft.t('commerce', 'An unknown error occurred.');
-
-                    if (typeof (response) !== 'undefined' && response && typeof (response.error) !== 'undefined') {
-                        msg = response.error;
-                    }
-
-                    this.$error.html(msg);
-                    this.$error.removeClass('hidden');
-                    this.$chart.addClass('error');
-                }
-            }, this));
-        }
+        this.base();
     },
-    {
-        storage: {},
 
-        getStorage: function(namespace, key) {
-            if (Craft.Commerce.OrderTableView.storage[namespace] && Craft.Commerce.OrderTableView.storage[namespace][key]) {
-                return Craft.Commerce.OrderTableView.storage[namespace][key];
+    createChart: function() {
+        var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer);
+        var $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer);
+        var $total = $('<div class="total"></div>').appendTo($chartHeader);
+        var $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total);
+        var $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total);
+        var $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
+
+        this.$chartExplorer = $chartExplorer;
+        this.$totalValue = $totalValue;
+        this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
+        this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
+        this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
+        this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
+
+        this.loadChart();
+    },
+    
+    loadChart: function() {
+        var requestData = this.settings.params;
+
+        this.$spinner.removeClass('hidden');
+        this.$error.addClass('hidden');
+        this.$chart.removeClass('error');
+
+        Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
+            this.$spinner.addClass('hidden');
+
+            if (textStatus === 'success' && typeof (response.error) === 'undefined') {
+                if (!this.chart) {
+                    this.chart = new Craft.charts.Area(this.$chart);
+                }
+
+                var chartDataTable = new Craft.charts.DataTable(response.dataTable);
+                var chartSettings = {
+                    formatLocaleDefinition: response.formatLocaleDefinition,
+                    orientation: response.orientation,
+                    formats: response.formats,
+                    dataScale: response.scale
+                };
+
+                this.chart.draw(chartDataTable, chartSettings);
+                this.$totalValue.html(response.totalHtml);
+
+            } else {
+                var msg = Craft.t('commerce', 'An unknown error occurred.');
+
+                if (typeof (response) !== 'undefined' && response && typeof (response.error) !== 'undefined') {
+                    msg = response.error;
+                }
+
+                this.$error.html(msg);
+                this.$error.removeClass('hidden');
+                this.$chart.addClass('error');
             }
-
-            return null;
-        },
-
-        setStorage: function(namespace, key, value) {
-            if (typeof Craft.Commerce.OrderTableView.storage[namespace] === typeof undefined) {
-                Craft.Commerce.OrderTableView.storage[namespace] = {};
-            }
-
-            Craft.Commerce.OrderTableView.storage[namespace][key] = value;
-        },
-
-        getDateFromDatepickerInstance: function(inst) {
-            return new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-        },
-
-        getDateValue: function(date) {
-            return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        }
-    });
+        }, this));
+    }
+});
 
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
@@ -1047,208 +931,6 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
         }
     });
 
-(function($) {
-
-    if (typeof Craft.Commerce === typeof undefined) {
-        Craft.Commerce = {};
-    }
-
-    /**
-     * Registration Form class
-     */
-    Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
-        licenseKey: null,
-        licenseKeyStatus: null,
-
-        $headers: null,
-        $views: null,
-
-        $validLicenseHeader: null,
-        $invalidLicenseHeader: null,
-        $mismatchedLicenseHeader: null,
-        $unknownLicenseHeader: null,
-
-        $validLicenseView: null,
-        $updateLicenseView: null,
-
-        $updateLicenseForm: null,
-
-        $unregisterLicenseSpinner: null,
-        $updateLicenseSpinner: null,
-        $transferLicenseSpinner: null,
-
-        $licenseKeyLabel: null,
-        $licenseKeyInput: null,
-        $updateBtn: null,
-        $clearBtn: null,
-        $licenseKeyError: null,
-
-        init: function(hasLicenseKey) {
-            this.$headers = $('.reg-header');
-            this.$views = $('.reg-view');
-
-            this.$validLicenseHeader = $('#valid-license-header');
-            this.$invalidLicenseHeader = $('#invalid-license-header');
-            this.$mismatchedLicenseHeader = $('#mismatched-license-header');
-            this.$unknownLicenseHeader = $('#unknown-license-header');
-
-            this.$validLicenseView = $('#valid-license-view');
-            this.$updateLicenseView = $('#update-license-view');
-
-            this.$updateLicenseForm = $('#update-license-form');
-
-            this.$unregisterLicenseSpinner = $('#unregister-license-spinner');
-            this.$updateLicenseSpinner = $('#update-license-spinner');
-            this.$transferLicenseSpinner = $('#transfer-license-spinner');
-
-            this.$licenseKeyLabel = $('#license-key-label');
-            this.$licenseKeyInput = $('#license-key-input');
-            this.$updateBtn = $('#update-license-btn');
-            this.$clearBtn = $('#clear-license-btn');
-            this.$licenseKeyError = $('#license-key-error');
-
-            this.addListener(this.$updateLicenseForm, 'submit', 'handleUpdateLicenseFormSubmit');
-
-            this.addListener(this.$licenseKeyInput, 'focus', 'handleLicenseKeyFocus');
-            this.addListener(this.$licenseKeyInput, 'textchange', 'handleLicenseKeyTextChange');
-            this.addListener(this.$clearBtn, 'click', 'handleClearButtonClick');
-
-            if (hasLicenseKey) {
-                this.loadLicenseInfo();
-            } else {
-                this.unloadLoadingUi();
-                this.setLicenseKey(null);
-                this.setLicenseKeyStatus('unknown');
-            }
-        },
-
-        unloadLoadingUi: function() {
-            $('#loading-license-info').remove();
-            $('#license-view-hr').removeClass('hidden');
-        },
-
-        loadLicenseInfo: function() {
-            Craft.postActionRequest('commerce/registration/get-license-info', $.proxy(function(response, textStatus) {
-                if (textStatus === 'success') {
-                    this.unloadLoadingUi();
-                    this.setLicenseKey(response.licenseKey);
-                    this.setLicenseKeyStatus(response.licenseKeyStatus);
-                } else {
-                    $('#loading-graphic').addClass('error');
-                    $('#loading-status').removeClass('light').text(Craft.t('commerce', 'Unable to load registration status at this time. Please try again later.'));
-                }
-            }, this));
-        },
-
-        setLicenseKey: function(licenseKey) {
-            this.licenseKey = this.normalizeLicenseKey(licenseKey);
-            var formattedLicenseKey = this.formatLicenseKey(this.licenseKey);
-            this.$licenseKeyLabel.text(formattedLicenseKey);
-            this.$licenseKeyInput.val(formattedLicenseKey);
-            this.handleLicenseKeyTextChange();
-        },
-
-        setLicenseKeyStatus: function(licenseKeyStatus) {
-            this.$headers.addClass('hidden');
-            this.$views.addClass('hidden');
-
-            this.licenseKeyStatus = licenseKeyStatus;
-
-            // Show the proper header
-            this['$' + licenseKeyStatus + 'LicenseHeader'].removeClass('hidden');
-
-            // Show the proper form view
-            if (this.licenseKeyStatus === 'valid') {
-                this.$validLicenseView.removeClass('hidden');
-            } else {
-                this.$updateLicenseView.removeClass('hidden');
-                this.$licenseKeyError.addClass('hidden');
-
-                if (this.licenseKeyStatus === 'invalid') {
-                    this.$licenseKeyInput.addClass('error');
-                } else {
-                    this.$licenseKeyInput.removeClass('error');
-                }
-            }
-        },
-
-        normalizeLicenseKey: function(licenseKey) {
-            if (licenseKey) {
-                return licenseKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            }
-
-            return '';
-        },
-
-        formatLicenseKey: function(licenseKey) {
-            if (licenseKey) {
-                return licenseKey.match(/.{1,4}/g).join('-');
-            }
-
-            return '';
-        },
-
-        validateLicenseKey: function(licenseKey) {
-            return (licenseKey.length === 24);
-        },
-
-        handleUpdateLicenseFormSubmit: function(ev) {
-            ev.preventDefault();
-            var licenseKey = this.normalizeLicenseKey(this.$licenseKeyInput.val());
-
-            if (licenseKey && !this.validateLicenseKey(licenseKey)) {
-                return;
-            }
-
-            this.$updateLicenseSpinner.removeClass('hidden');
-
-            var data = {
-                licenseKey: licenseKey
-            };
-
-            Craft.postActionRequest('commerce/registration/update-license-key', data, $.proxy(function(response, textStatus) {
-                this.$updateLicenseSpinner.addClass('hidden');
-                if (textStatus === 'success') {
-                    if (response.success) {
-                        this.setLicenseKey(response.licenseKey);
-                        this.setLicenseKeyStatus(response.licenseKeyStatus);
-                    } else {
-                        this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('commerce', 'An unknown error occurred.'));
-                    }
-                }
-            }, this));
-        },
-
-        handleLicenseKeyFocus: function() {
-            this.$licenseKeyInput.get(0).setSelectionRange(0, this.$licenseKeyInput.val().length);
-        },
-
-        handleLicenseKeyTextChange: function() {
-            this.$licenseKeyInput.removeClass('error');
-
-            var licenseKey = this.normalizeLicenseKey(this.$licenseKeyInput.val());
-
-            if (licenseKey) {
-                this.$clearBtn.removeClass('hidden');
-            } else {
-                this.$clearBtn.addClass('hidden');
-            }
-
-            if (licenseKey !== this.licenseKey && (!licenseKey || this.validateLicenseKey(licenseKey))) {
-                this.$updateBtn.removeClass('disabled');
-            } else {
-                this.$updateBtn.addClass('disabled');
-            }
-        },
-
-        handleClearButtonClick: function() {
-            this.$licenseKeyInput.val('').focus();
-            this.handleLicenseKeyTextChange();
-        }
-    });
-
-})(jQuery);
-
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
@@ -1432,7 +1114,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 /**
- * Class Craft.Commerce.RevenueWidget
+ * Class Craft.Commerce.VariantValuesInput
  */
 Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     startListening: function() {

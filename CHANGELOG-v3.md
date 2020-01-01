@@ -2,6 +2,7 @@
 
 ### Added
 - Added the ability to create and edit orders from the Control Panel.
+- Added GraphQL support for products.
 - Added the ability to send emails from the Edit Order page.
 - Added “Edit Orders” and “Delete Orders” user permissions.
 - Line items now have a status that can be changed on the Edit Order page.
