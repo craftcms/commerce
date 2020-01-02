@@ -26,7 +26,7 @@
 - Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
-- `totalDiscountUses` now counts ever usage instance of a discount.
+- `totalDiscountUses` now counts all usage instances of a discount.
 - Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
 - Clearing discount usage counters is now done on a per counter basis.
 
