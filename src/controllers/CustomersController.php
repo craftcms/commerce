@@ -149,18 +149,19 @@ class CustomersController extends BaseCpController
             ]);
 
         if ($search) {
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
             $customersQuery->andWhere([
                 'or',
-                ['like', '[[billing.firstName]]', $search],
-                ['like', '[[billing.lastName]]', $search],
-                ['like', '[[billing.fullName]]', $search],
-                ['like', '[[billing.address1]]', $search],
-                ['like', '[[shipping.firstName]]', $search],
-                ['like', '[[shipping.lastName]]', $search],
-                ['like', '[[shipping.fullName]]', $search],
-                ['like', '[[shipping.address1]]', $search],
-                ['like', '[[users.email]]', $search],
-                ['like', '[[users.username]]', $search],
+                [$likeOperator, '[[billing.firstName]]', $search],
+                [$likeOperator, '[[billing.lastName]]', $search],
+                [$likeOperator, '[[billing.fullName]]', $search],
+                [$likeOperator, '[[billing.address1]]', $search],
+                [$likeOperator, '[[shipping.firstName]]', $search],
+                [$likeOperator, '[[shipping.lastName]]', $search],
+                [$likeOperator, '[[shipping.fullName]]', $search],
+                [$likeOperator, '[[shipping.address1]]', $search],
+                [$likeOperator, '[[users.email]]', $search],
+                [$likeOperator, '[[users.username]]', $search],
             ]);
         }
 
