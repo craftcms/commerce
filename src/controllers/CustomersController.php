@@ -118,7 +118,7 @@ class CustomersController extends BaseCpController
             ->select([
                 'customers.id as id',
                 'userId',
-                'email',
+                'orders.email as email',
                 'primaryBillingAddressId',
                 'billing.firstName as billingFirstName',
                 'billing.lastName as billingLastName',
@@ -131,6 +131,7 @@ class CustomersController extends BaseCpController
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
+            ->innerJoin(Table::ORDERS . ' orders' , '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -146,21 +147,21 @@ class CustomersController extends BaseCpController
                         ['not', ['primaryShippingAddressId' => null]],
                     ]
                 ]
-            ]);
+            ])->andWhere('[[orders.isCompleted]] = 1');
 
         if ($search) {
             $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
             $customersQuery->andWhere([
                 'or',
-                [$likeOperator, '[[billing.firstName]]', $search],
-                [$likeOperator, '[[billing.lastName]]', $search],
-                [$likeOperator, '[[billing.fullName]]', $search],
                 [$likeOperator, '[[billing.address1]]', $search],
-                [$likeOperator, '[[shipping.firstName]]', $search],
-                [$likeOperator, '[[shipping.lastName]]', $search],
-                [$likeOperator, '[[shipping.fullName]]', $search],
+                [$likeOperator, '[[billing.firstName]]', $search],
+                [$likeOperator, '[[billing.fullName]]', $search],
+                [$likeOperator, '[[billing.lastName]]', $search],
+                [$likeOperator, '[[orders.email]]', $search],
                 [$likeOperator, '[[shipping.address1]]', $search],
-                [$likeOperator, '[[users.email]]', $search],
+                [$likeOperator, '[[shipping.firstName]]', $search],
+                [$likeOperator, '[[shipping.fullName]]', $search],
+                [$likeOperator, '[[shipping.lastName]]', $search],
                 [$likeOperator, '[[users.username]]', $search],
             ]);
         }
@@ -201,6 +202,8 @@ class CustomersController extends BaseCpController
 
             $rows[] = [
                 'id' => $customer['id'],
+                'title' => $customer['email'],
+                'url' => UrlHelper::cpUrl('commerce/customers/' . $customer['id']),
                 'user' => $user ? [
                     'title' => $user ? $user->__toString() : null,
                     'url' => $user ? $user->getCpEditUrl() : null,
@@ -209,13 +212,6 @@ class CustomersController extends BaseCpController
                 'addresses' => $addressCountByCustomerId[$customer['id']] ?? 0,
                 'billing' => $billingName . '<br>' . $customer['billingAddress'],
                 'shipping' => $shippingName . '<br>' . $customer['shippingAddress'],
-                'menu' => [
-                    'showItems' => false,
-                    'menuBtnTitle' => Plugin::t('Edit Customer'),
-                    'label' => Plugin::t('Edit Customer'),
-                    'url' => UrlHelper::cpUrl('commerce/customers/' . $customer['id']),
-                    'items' => null,
-                ]
             ];
         }
 

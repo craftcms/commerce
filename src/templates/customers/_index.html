@@ -15,6 +15,10 @@
 
 {% js %}
 var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Email') },
+    { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) { return value } },
+    { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) { return value } },
+    { name: 'addresses', title: Craft.t('commerce', 'No. of Addresses') },
     { name: 'user', title: Craft.t('app', 'User'), callback: function(value) {
         if (!value) {
             return '';
@@ -32,11 +36,7 @@ var columns = [
         }
 
         return $html;
-    } },
-    { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) { return value } },
-    { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) { return value } },
-    { name: 'addresses', title: Craft.t('commerce', 'No. of Addresses') },
-    { name: '__slot:menu', title: '' }
+    } }
 ];
 
 new Craft.VueAdminTable({
