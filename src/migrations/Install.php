@@ -493,6 +493,7 @@ class Install extends Migration
             'hasVariantTitleField' => $this->boolean(),
             'titleFormat' => $this->string()->notNull(),
             'titleLabel' => $this->string()->defaultValue('Title'),
+            'variantTitleLabel' => $this->string()->defaultValue('Title'),
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),

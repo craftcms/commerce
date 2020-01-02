@@ -9,7 +9,9 @@
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
-- Added the ability to set the title label for product types. ([#244](https://github.com/craftcms/commerce/issues/244))
+- Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
+- Added `craft\commerce\models\ProductType::$titleLabel`.
+- Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 
 ### Changed
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.

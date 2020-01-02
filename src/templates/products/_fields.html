@@ -120,7 +120,7 @@
 
     {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
         {{ forms.textField({
-            label: "Title"|t('commerce'),
+            label: product.type.variantTitleLabel|t('site')|e ?: 'Title'|t('app'),
             site: variant.site,
             id: 'title',
             name: 'title',
