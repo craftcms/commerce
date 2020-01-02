@@ -1,10 +1,12 @@
 {% extends "commerce/_layouts/cp" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+  'Are you sure you want to delete this address?',
   'No Addresses available.',
+  'No orders exist for this customer.',
+  'Search customer orders',
   'Set as Primary Billing',
   'Set as Primary Shipping',
-  'Are you sure you want to delete this address?',
 ]) %}
 
 {% set crumbs = [
@@ -54,16 +56,43 @@
 {% endfor %}
 
 {% block content %}
-  {# Hidden fields #}
-  <input type="hidden" name="id" value="{{ customer.id }}">
-  <input type="hidden" name="action" value="commerce/customers/save">
+  <h2>{{ 'Orders'|t('commerce') }}</h2>
+  <div id="orders-vue-admin-table"></div>
 
+  <hr>
 
   <h2>{{ 'Addresses'|t('commerce') }}</h2>
   <div id="addresses-vue-admin-table"></div>
+
+  {# Hidden fields #}
+  <input type="hidden" name="id" value="{{ customer.id }}">
+  <input type="hidden" name="action" value="commerce/customers/save">
 {% endblock %}
 
 {% js %}
+var orderColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
+    { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
+    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
+    { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
+        callback: function(value) {
+            return value;
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+    columns: orderColumns,
+    container: '#orders-vue-admin-table',
+    emptyMessage: Craft.t('commerce', 'No orders exist for this customer.'),
+    padded: true,
+    perPage: 10,
+    tableData: [],
+    // tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?customerId={{ customer.id }}'),
+    search: true,
+    searchPlaceholder: Craft.t('commerce', 'Search customer orders')
+});
+
 var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
     { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
