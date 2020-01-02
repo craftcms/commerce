@@ -5,7 +5,6 @@ namespace craft\commerce\migrations;
 use Craft;
 use craft\commerce\records\Order;
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m200102_114323_update_order_customer_ids migration.
