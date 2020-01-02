@@ -61,14 +61,11 @@ class ShippingZonesController extends BaseShippingSettingsController
         if ($variables['shippingZone']->id) {
             $variables['title'] = $variables['shippingZone']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
+            $variables['title'] = Plugin::t('Create a shipping zone');
         }
 
-        $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $states = Plugin::getInstance()->getStates()->getAllStates();
-
-        $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
-        $variables['states'] = ArrayHelper::map($states, 'id', 'name');
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }
@@ -118,7 +115,7 @@ class ShippingZonesController extends BaseShippingSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping zone.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping zone.'));
             Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
 
             return null;
@@ -133,7 +130,7 @@ class ShippingZonesController extends BaseShippingSettingsController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping zone saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Shipping zone saved.'));
         $this->redirectToPostedUrl($shippingZone);
 
         // Send the model back to the template
@@ -156,7 +153,7 @@ class ShippingZonesController extends BaseShippingSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
+        return $this->asErrorJson(Plugin::t('Could not delete shipping zone'));
     }
 
     /**

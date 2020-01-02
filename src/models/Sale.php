@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Sale as SaleRecord;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -91,6 +92,11 @@ class Sale extends Model
     public $allCategories = false;
 
     /**
+     * @var string Type of relationship between Categories and Products
+     */
+    public $categoryRelationshipType;
+
+    /**
      * @var bool Enabled
      */
     public $enabled = true;
@@ -136,6 +142,7 @@ class Sale extends Model
             ],
             [['enabled'], 'boolean'],
             [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
+            [['categoryRelationshipType'], 'in', 'range' => [SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE, SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET, SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH]]
         ];
     }
 

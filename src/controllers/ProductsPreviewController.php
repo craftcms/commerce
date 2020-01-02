@@ -151,7 +151,7 @@ class ProductsPreviewController extends Controller
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product.'));
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -172,7 +172,7 @@ class ProductsPreviewController extends Controller
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Product saved.'));
 
         return $this->redirectToPostedUrl($product);
     }

@@ -1,0 +1,97 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
+    { label: 'Line Item Statuses'|t('commerce'), url: url('commerce/settings/lineitemstatuses') }
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/line-item-statuses/save">
+    {{ redirectInput('commerce/settings/lineitemstatuses') }}
+    {% if lineItemStatus.id %}
+        <input type="hidden" name="sortOrder" value="{{ lineItemStatus.sortOrder }}">
+        <input type="hidden" name="id" value="{{ lineItemStatus.id }}">
+    {% endif %}
+
+    {{ forms.textField({
+        label: "Name"|t('commerce'),
+        first: true,
+        instructions: "What this status will be called in the CP."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: lineItemStatus.name,
+        errors: lineItemStatus.getErrors('name'),
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t('commerce'),
+        instructions: "How you’ll refer to this status in the templates."|t('commerce'),
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: lineItemStatus.handle,
+        errors: lineItemStatus.getErrors('handle'),
+        required: true
+    }) }}
+
+    {{ forms.hidden({
+        id: 'color',
+        name: 'color',
+        value: lineItemStatus.color
+    }) }}
+
+    {% set colorField %}
+        <div>
+            <a id="color-menu-btn" class="btn menubtn" href="#">
+                <span class="status {{ lineItemStatus.color }}"></span>{{ lineItemStatus.color|t('commerce')|title }}
+            </a>
+            <div class="menu">
+                <ul class="padded">
+                    {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                        <li>
+                            <a data-val="{{ color }}" {% if lineItemStatus.color == color %}class="sel"{% endif %} href="#">
+                                <span class="status {{ color }}"></span>{{ color|t('commerce')|title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Color'|t('commerce'),
+        instructions: 'Choose a color to represent the order’s status'|t
+    },colorField) }}
+
+    {{ forms.checkboxField({
+        label: "New line items get this status by default"|t('commerce'),
+        name: 'default',
+        value: 1,
+        checked: lineItemStatus.default,
+        errors: lineItemStatus.getErrors('default')
+    }) }}
+{% endblock %}
+
+{% js %}
+    {% if not lineItemStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+    $(function () {
+        $colorSelect = $('#color-menu-btn');
+        new Garnish.MenuBtn($colorSelect, {
+            onOptionSelect: function(data){
+                var val = $(data).data('val');
+                $('#color').val(val);
+                var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+                $colorSelect.html(html);
+            }
+        });
+    });
+{% endjs %}

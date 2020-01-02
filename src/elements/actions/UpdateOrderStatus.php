@@ -45,7 +45,7 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerLabel(): string
     {
-        return Craft::t('commerce', 'Update Order Status…');
+        return Plugin::t('Update Order Status…');
     }
 
     /**

@@ -14,8 +14,10 @@ use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
+use DateTime;
+use yii\behaviors\AttributeTypecastBehavior;
 use craft\validators\UniqueValidator;
-
 /**
  * Order status model.
  *
@@ -29,6 +31,12 @@ use craft\validators\UniqueValidator;
  */
 class OrderStatus extends Model
 {
+
+    // Traits
+    // =========================================================================
+
+    use SoftDeleteTrait;
+
     // Properties
     // =========================================================================
 
@@ -80,7 +88,28 @@ class OrderStatus extends Model
     // Public Methods
     // =========================================================================
 
-    use SoftDeleteTrait;
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'name' => AttributeTypecastBehavior::TYPE_STRING,
+                'handle' => AttributeTypecastBehavior::TYPE_STRING,
+                'color' => AttributeTypecastBehavior::TYPE_STRING,
+                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'uid' => AttributeTypecastBehavior::TYPE_STRING,
+            ]
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * @return string
@@ -98,7 +127,7 @@ class OrderStatus extends Model
     {
         if ($this->dateDeleted !== null)
         {
-            return $this->name . Craft::t('commerce', ' (Trashed)');
+            return $this->name . Plugin::t(' (Trashed)');
         }
 
         return $this->name;
@@ -112,6 +141,11 @@ class OrderStatus extends Model
         $rules = parent::rules();
         $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
+        $rules[] = [
+            ['handle'],
+            HandleValidator::class,
+            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        ];
 
         return $rules;
     }

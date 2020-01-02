@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -57,15 +59,44 @@ class StatesController extends BaseStoreSettingsController
         if ($variables['state']->id) {
             $variables['title'] = $variables['state']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new state');
+            $variables['title'] = Plugin::t('Create a new state');
         }
 
-        $countriesModels = Plugin::getInstance()->getCountries()->getAllCountries();
-        $countries = [];
-        foreach ($countriesModels as $model) {
-            $countries[$model->id] = $model->name;
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+
+
+        // Check to see if we should show the disable warning
+        $variables['showDisableWarning'] = false;
+
+        if ($variables['id'] && $variables['state']->id == $variables['id'] && $variables['state']->enabled) {
+            $relatedAddressCount = (new Query())
+                ->select(['addresses.id',])
+                ->from([Table::ADDRESSES . ' addresses'])
+                ->where(['stateId' => $variables['id']])
+                ->count();
+
+            $variables['showDisableWarning'] = $relatedAddressCount ? true : $variables['showDisableWarning'];
+
+            if (!$variables['showDisableWarning']) {
+                $relatedShippingZoneCount = (new Query())
+                    ->select(['zone_states.id',])
+                    ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
+                    ->where(['stateId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedShippingZoneCount ? true : $variables['showDisableWarning'];
+            }
+
+            if (!$variables['showDisableWarning']) {
+                $relatedTaxZoneCount = (new Query())
+                    ->select(['zone_states.id',])
+                    ->from([Table::TAXZONE_STATES . ' zone_states'])
+                    ->where(['stateId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
+            }
         }
-        $variables['countries'] = $countries;
 
         return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
     }
@@ -84,13 +115,14 @@ class StatesController extends BaseStoreSettingsController
         $state->name = Craft::$app->getRequest()->getBodyParam('name');
         $state->abbreviation = Craft::$app->getRequest()->getBodyParam('abbreviation');
         $state->countryId = Craft::$app->getRequest()->getBodyParam('countryId');
+        $state->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'State saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('State saved.'));
             $this->redirectToPostedUrl($state);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save state.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save state.'));
         }
 
         // Send the model back to the template

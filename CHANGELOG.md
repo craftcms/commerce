@@ -1,5 +1,114 @@
 # Release Notes for Craft Commerce
 
+## Unreleased (3.x)
+ 
+### Added
+- Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
+- Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
+- Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
+- Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
+- Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
+- Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
+- Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\records\Country::$enabled`.
+- Added `craft\commerce\records\State::$enabled`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountries`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
+- Added `craft\commerce\services\States::getAllEnabledStates`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
+- Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
+
+### Changed
+- Customer records that are anonymous and orphaned are now deleted during garbage collection.
+- Changed the default category relationship type on promotions from `sourceElement` to `element` . ([#984](https://github.com/craftcms/commerce/issues/984))
+- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
+- Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods.
+- `allowEmptyCartOnCheckout` default value is false.
+
+### Removed 
+- Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
+- Removed `craft\commerce\models\Address::getFullName()`.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead. ([#1031](https://github.com/craftcms/commerce/issues/1031))
+
+## 3.0.0-alpha.1 - 2019-07-24
+
+### Added
+- Added the ability to create and edit orders from the Control Panel.
+- Added the ability to send emails from the Edit Order page.
+- Added “Edit Orders” and “Delete Orders” user permissions.
+- Line items now have a status that can be changed on the Edit Order page.
+- Line items now have a Private Note field for store managers.
+- Inactive carts are now purged during garbage collection.
+- Orders now have recalculation modes to determine what should be recalculated on the order.
+- Added the `origin` order query param.
+- `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
+- Added `craft\commerce\controllers\LineItemStatuses`.
+- Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
+- Added `craft\commerce\elements\Order::$origin`.
+- Added `craft\commerce\elements\Order::$recalculationMode`.
+- Added `craft\commerce\models\LineItem::$lineItemStatusId`.
+- Added `craft\commerce\models\LineItem::$privateNote`.
+- Added `craft\commerce\records\LineItemStatus`.
+- Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
+- Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
+- Added `craft\commerce\services\LineItemStatuses`.
+
+## Changed
+- The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
+- If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
+- Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
+- `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
+
+## Deprecated
+- Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
+- Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
+
+## Removed
+- Removed the `craft.commerce.availableShippingMethods` Twig property.
+- Removed the `craft.commerce.cart` Twig property.
+- Removed the `craft.commerce.countriesList` Twig property.
+- Removed the `craft.commerce.customer` Twig property.
+- Removed the `craft.commerce.discountByCode` Twig property.
+- Removed the `craft.commerce.primaryPaymentCurrency` Twig property.
+- Removed the `craft.commerce.statesArray` Twig property.
+- Removed the `commerce/cart/remove-all-line-items` action.
+- Removed the `commerce/cart/remove-line-item` action.
+- Removed the `commerce/cart/update-line-item` action.
+- Removed `craft\commerce\base\Purchasable::getPurchasableId()`.
+- Removed `craft\commerce\elements\db\OrderQuery::updatedAfter()`.
+- Removed `craft\commerce\elements\db\OrderQuery::updatedBefore()`.
+- Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedAfter()`.
+- Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedBefore()`.
+- Removed `craft\commerce\elements\Order::getOrderLocale()`.
+- Removed `craft\commerce\elements\Order::getTotalDiscount()`.
+- Removed `craft\commerce\elements\Order::getTotalShippingCost()`.
+- Removed `craft\commerce\elements\Order::getTotalTax()`.
+- Removed `craft\commerce\elements\Order::getTotalTaxIncluded()`.
+- Removed `craft\commerce\elements\Order::updateOrderPaidTotal()`.
+- Removed `craft\commerce\elements\Product::getSnapshot()`.
+- Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
+- Removed `craft\commerce\elements\Variant::getSalesApplied()`.
+- Removed `craft\commerce\models\Discount::getFreeShipping()`.
+- Removed `craft\commerce\models\Discount::setFreeShipping()`.
+- Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
+- Removed `craft\commerce\models\Order::getDiscount()`.
+- Removed `craft\commerce\models\Order::getShippingCost()`.
+- Removed `craft\commerce\models\Order::getTax()`.
+- Removed `craft\commerce\models\Order::getTaxIncluded()`.
+- Removed `craft\commerce\models\ShippingMethod::$amount`.
+- Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
+- Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
+- Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+
 ## 2.2.13 - 2019-12-19
 
 ### Fixed

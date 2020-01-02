@@ -163,31 +163,37 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
         {% if showPaymentForm %}
         <div class="flex flex-wrap">
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
-                <label for="payment" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}text-red{% endif %}">First Name</label>
+                <label for="payment" class="block text-sm mb-2">First Name</label>
                 <input id="payment" type="text" name="firstName" value="{{ paymentForm.firstName ?? '' }}"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}border border-red-500{% endif %}">
+                {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('firstName') }}</span>{% endif %}
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
-                <label for="lastName" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
+                <label for="lastName" class="block text-sm mb-2}">Last Name</label>
                 <input id="lastName" type="text" name="lastName" value="{{ paymentForm.lastName ?? '' }}"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}border border-red-500{% endif %}">
+                {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('lastName') }}</span>{% endif %}
             </div>
 
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
-                <label for="number" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('number') %}text-red{% endif %}">Credit Card</label>
+                <label for="number" class="block text-sm mb-2">Credit Card</label>
                 <input id="number" type="text" name="number"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('number') %}border border-red-500{% endif %}">
+                {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('number') }}</span>{% endif %}
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
                 <label for="cvv" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}text-red{% endif %}">CVV</label>
                 <input id="cvv" type="text" name="cvv"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
+                {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}<span class="text-red-500">{{ paymentForm.getFirstError('cvv') }}</span>{% endif %}
             </div>
 
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
-                <label for="exp_month" class="block text-sm mb-2 {% if paymentForm is defined and (paymentForm.getFirstError('year') or paymentForm.getFirstError('month')) %}text-red{% endif %}">Expiry</label>
+                <label for="exp_month" class="block text-sm mb-2">Expiry</label>
                 <input id="exp_month" type="text" name="expiry" placeholder="02/2021"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
+                {% if paymentForm is defined and paymentForm.getFirstError('month') %}<span class="text-red-500">{{ paymentForm.getFirstError('month') }}</span>{% endif %}
+                {% if paymentForm is defined and paymentForm.getFirstError('year') %}<span class="text-red-500">{{ paymentForm.getFirstError('year') }}</span>{% endif %}
             </div>
         </div>
         {% endif %}

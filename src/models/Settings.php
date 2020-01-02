@@ -118,15 +118,19 @@ class Settings extends Model
     public $purgeInactiveCarts = true;
 
     /**
-     * @var string
+     * @var int The default length of time before inactive carts are purged. Default: 90 days
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      */
-    public $purgeInactiveCartsDuration = 'P3M';
+    public $purgeInactiveCartsDuration = 7776000;
 
     /**
-     * @var string
+     * @var int The default length of time a cart is considered active since its last update
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      * @since 2.2
      */
-    public $activeCartDuration = 'PT1H';
+    public $activeCartDuration = 3600;
 
     /**
      * @var string
@@ -165,10 +169,9 @@ class Settings extends Model
 
     /**
      * @var bool Allow the cart to be empty on checkout
-     * @todo Set this to false in 3.0
      * @since 2.2
      */
-    public $allowEmptyCartOnCheckout = true;
+    public $allowEmptyCartOnCheckout = false;
 
     /**
      * @var bool
@@ -201,6 +204,11 @@ class Settings extends Model
      */
     public $updateBillingDetailsUrl = '';
 
+    /**
+     * @var bool
+     */
+    public $showCustomerInfoTab = true;
+
     // Public Methods
     // =========================================================================
 
@@ -210,9 +218,9 @@ class Settings extends Model
     public function getWeightUnitsOptions(): array
     {
         return [
-            'g' => Craft::t('commerce', 'Grams (g)'),
-            'kg' => Craft::t('commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'Pounds (lb)')
+            'g' => Plugin::t('Grams (g)'),
+            'kg' => Plugin::t('Kilograms (kg)'),
+            'lb' => Plugin::t('Pounds (lb)')
         ];
     }
 
@@ -222,11 +230,11 @@ class Settings extends Model
     public function getDimensionUnits(): array
     {
         return [
-            'mm' => Craft::t('commerce', 'Millimeters (mm)'),
-            'cm' => Craft::t('commerce', 'Centimeters (cm)'),
-            'm' => Craft::t('commerce', 'Meters (m)'),
-            'ft' => Craft::t('commerce', 'Feet (ft)'),
-            'in' => Craft::t('commerce', 'Inches (in)'),
+            'mm' => Plugin::t('Millimeters (mm)'),
+            'cm' => Plugin::t('Centimeters (cm)'),
+            'm' => Plugin::t('Meters (m)'),
+            'ft' => Plugin::t('Feet (ft)'),
+            'in' => Plugin::t('Inches (in)'),
         ];
     }
 
@@ -236,9 +244,9 @@ class Settings extends Model
     public function getMinimumTotalPriceStrategyOptions(): array
     {
         return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 

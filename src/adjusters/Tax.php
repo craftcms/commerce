@@ -190,7 +190,7 @@ class Tax extends Component implements AdjusterInterface
 
                     $adjustment = $this->_createAdjustment($taxRate);
                     // We need to display the adjustment that removed the included tax
-                    $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
+                    $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
                     $adjustment->amount = $amount;
                     $adjustment->type = 'discount'; // @TODO Not use a discount adjustment, but modify the price of the item instead.
                     $adjustment->included = false;
@@ -207,7 +207,7 @@ class Tax extends Component implements AdjusterInterface
 
                         $adjustment = $this->_createAdjustment($taxRate);
                         // We need to display the adjustment that removed the included tax
-                        $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
+                        $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
                         $adjustment->amount = $amount;
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';

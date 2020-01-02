@@ -11,6 +11,7 @@ use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\Plugin;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -89,8 +90,8 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function getPaymentTypeOptions(): array
     {
         return [
-            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
-            'purchase' => Craft::t('commerce', 'Purchase (Authorize and Capture Immediately)'),
+            'authorize' => Plugin::t('Authorize Only (Manually Capture)'),
+            'purchase' => Plugin::t('Purchase (Authorize and Capture Immediately)'),
         ];
     }
 

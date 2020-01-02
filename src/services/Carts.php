@@ -14,8 +14,11 @@ use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\ConfigHelper;
 use craft\helpers\StringHelper;
+use craft\helpers\DateTimeHelper;
 use DateInterval;
 use DateTime;
 use Throwable;
@@ -95,6 +98,7 @@ class Carts extends Component
                 $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
                 // If the current cart in the session doesn't belong to the logged in user, assign it to the logged in user.
                 if ($customer && $customer->id && ($cart->customerId != $customer->id)) {
+
                     $cart->customerId = $customer->id;
                     $forceSave = true;
                 }
@@ -196,6 +200,8 @@ class Carts extends Component
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
+        $this->_cart->origin = Order::ORIGIN_WEB;
+
         return $this->_cart;
     }
 
@@ -233,9 +239,19 @@ class Carts extends Component
     public function purgeIncompleteCarts(): int
     {
         $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
+        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
 
         if ($doPurge) {
-            $cartIds = $this->_getCartsIdsToPurge();
+            $edge = new DateTime();
+            $interval = DateTimeHelper::secondsToInterval($configInterval);
+            $edge->sub($interval);
+
+            $cartIds = (new Query())
+                ->select(['orders.id'])
+                ->where(['not', ['isCompleted' => 1]])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->from(['orders' => Table::ORDERS])
+                ->column();
 
             // Taken from craft\services\Elements::deleteElement(); Using the method directly
             // takes too much resources since it retrieves the order before deleting it.
@@ -289,9 +305,9 @@ class Carts extends Component
     public function getActiveCartEdgeDuration(): string
     {
         $edge = new DateTime();
-        $interval = new DateInterval(Plugin::getInstance()->getSettings()->activeCartDuration);
-        $interval->invert = 1;
-        $edge->add($interval);
+        $activeCartDuration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
+        $interval = DateTimeHelper::secondsToInterval($activeCartDuration);
+        $edge->sub($interval);
         return $edge->format(DateTime::ATOM);
     }
 
@@ -299,6 +315,7 @@ class Carts extends Component
      * Get the session cart number.
      *
      * @return string
+     * @throws MissingComponentException
      */
     private function getSessionCartNumber(): string
     {
@@ -324,27 +341,5 @@ class Carts extends Component
     ) {
         $session = Craft::$app->getSession();
         $session->set($this->cartName, $cartNumber);
-    }
-
-    /**
-     * Return cart IDs to be deleted
-     *
-     * @return int[]
-     * @throws \Exception
-     */
-    private function _getCartsIdsToPurge(): array
-    {
-        $configInterval = Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration;
-        $edge = new DateTime();
-        $interval = new DateInterval($configInterval);
-        $interval->invert = 1;
-        $edge->add($interval);
-
-        return (new Query())
-            ->select(['orders.id'])
-            ->where(['not', ['isCompleted' => 1]])
-            ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
-            ->from(['orders' => Table::ORDERS])
-            ->column();
     }
 }

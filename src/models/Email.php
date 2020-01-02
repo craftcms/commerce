@@ -72,6 +72,11 @@ class Email extends Model
     public $templatePath;
 
     /**
+     * @var string Plain Text Template path
+     */
+    public $plainTextTemplatePath;
+
+    /**
      * @var bool Whether the email should attach a pdf template
      */
     public $attachPdf;

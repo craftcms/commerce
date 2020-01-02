@@ -31,6 +31,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
+use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -274,17 +275,6 @@ class Product extends Element
     }
 
     /**
-     * Allows the variant to ask the product what data to snapshot.
-     *
-     * @return array
-     * @deprecated as of 2.1.5.3 Not needed as products are not purchasables.
-     */
-    public function getSnapshot(): array
-    {
-        return [];
-    }
-
-    /**
      * @return string|null
      */
     public function getName()
@@ -513,19 +503,6 @@ class Product extends Element
      * Returns whether at least one variant has unlimited stock.
      *
      * @return bool
-     * @deprecated as of 2.0
-     */
-    public function getUnlimitedStock()
-    {
-        Craft::$app->getDeprecator()->log('Product::getUnlimitedStock()', 'Product::getUnlimitedStock() has been deprecated. Use Product::getHasUnlimitedStock() instead');
-
-        return $this->getHasUnlimitedStock();
-    }
-
-    /**
-     * Returns whether at least one variant has unlimited stock.
-     *
-     * @return bool
      */
     public function getHasUnlimitedStock(): bool
     {
@@ -536,6 +513,35 @@ class Product extends Element
         }
 
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this->getType());
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public static function gqlTypeNameByContext($context): string
+    {
+        /** @var ProductType $context */
+        return $context->handle . '_Product';
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.3.0
+     */
+    public static function gqlScopesByContext($context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
     }
 
     /**

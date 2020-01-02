@@ -14,18 +14,20 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
-use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\gql\arguments\elements\Product as GqlProductArgument;
+use craft\commerce\gql\resolvers\elements\Product as GqlProductResolver;
+use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
-use craft\commerce\plugin\DeprecatedVariables;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
@@ -42,6 +44,9 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlPermissionsEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
@@ -52,6 +57,8 @@ use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gc;
+use craft\services\Gql;
+use craft\services\GraphQl;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -60,6 +67,7 @@ use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
+use GraphQL\Type\Definition\Type as GqlTypeDefinition;
 
 /**
  * @property array $cpNavItem the control panel navigation menu
@@ -78,8 +86,6 @@ class Plugin extends BasePlugin
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-    const HANDLE = 'commerce';
-
     // Static
     // =========================================================================
 
@@ -97,11 +103,12 @@ class Plugin extends BasePlugin
      * @param null $language
      * @return string
      * @see Craft::t()
+     *
      * @since 2.2.0
      */
     public static function t($message, $params = [], $language = null)
     {
-        return Craft::t(self::HANDLE, $message, $params, $language);
+        return Craft::t('commerce', $message, $params, $language);
     }
 
     // Public Properties
@@ -110,7 +117,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '2.2.1';
+    public $schemaVersion = '3.0.2';
 
     /**
      * @inheritdoc
@@ -132,7 +139,6 @@ class Plugin extends BasePlugin
 
     use CommerceServices;
     use Variables;
-    use DeprecatedVariables;
     use Routes;
 
     // Public Methods
@@ -158,6 +164,9 @@ class Plugin extends BasePlugin
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
+        $this->_registerGqlInterfaces();
+        $this->_registerGqlQueries();
+        $this->_registerGqlPermissions();
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
         $this->_registerGarbageCollection();
@@ -339,11 +348,17 @@ class Plugin extends BasePlugin
                 'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
                     'label' => self::t('Manage orders'), 'nested' => [
+                        'commerce-editOrders' => [
+                            'label' => self::t('Edit orders')
+                        ],
+                        'commerce-deleteOrders' => [
+                            'label' => self::t('Delete orders')
+                        ],
                         'commerce-capturePayment' => [
-                            'label' => self::t('Capture Payment')
+                            'label' => self::t('Capture payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => self::t('Refund Payment')
+                            'label' => self::t('Refund payment')
                         ],
                     ]
                 ],
@@ -405,6 +420,11 @@ class Plugin extends BasePlugin
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
 
+        $lineItemStatusService = $this->getLineItemStatuses();
+        $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
+            ->onUpdate(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
+            ->onRemove(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleArchivedLineItemStatus']);
+
         $emailService = $this->getEmails();
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
@@ -434,7 +454,6 @@ class Plugin extends BasePlugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
-            $event->types[] = Customer::class;
         });
     }
 
@@ -507,6 +526,68 @@ class Plugin extends BasePlugin
         });
     }
 
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlInterfaces()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            // Add my GraphQL types
+            $types = $event->types;
+            $types[] = GqlProductInterface::class;
+            $event->types = $types;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlQueries()
+    {
+
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
+            // Add my GraphQL queries
+            $queries = $event->queries;
+            $queries['products'] = [
+                'type' => GqlTypeDefinition::listOf(GqlProductInterface::getType()),
+                'args' => GqlProductArgument::getArguments(),
+                'resolve' => GqlProductResolver::class . '::resolve'
+            ];
+
+            $event->queries = $queries;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlPermissions()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
+
+            $permissions = [];
+
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+            if (!empty($productTypes)) {
+                $label = Craft::t('commerce', 'Products');
+                $productPermissions = [];
+
+                foreach ($productTypes as $productType) {
+                    $suffix = 'productTypes.' . $productType->uid;
+                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('app', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                }
+
+                $permissions[$label] = $productPermissions;
+            }
+
+            $event->permissions = array_merge($event->permissions, $permissions);
+        });
+    }
+
+    /**
+     * Register the cache types
+     */
     private function _registerCacheTypes()
     {
         // create the directory if it doesn't exist
@@ -541,6 +622,7 @@ class Plugin extends BasePlugin
 
     /**
      * Register the things that need to be garbage collected
+     *
      * @since 2.2
      */
     private function _registerGarbageCollection()
@@ -611,11 +693,14 @@ class Plugin extends BasePlugin
 
     /**
      * Registers templates hooks for inserting Commerce information in the CP
+     *
      * @since 2.2
      */
     private function _registerTemplateHooks()
     {
-        Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
-        Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        if ($this->getSettings()->showCustomerInfoTab) {
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        }
     }
 }
