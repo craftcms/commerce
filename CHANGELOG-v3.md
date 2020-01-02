@@ -20,6 +20,7 @@
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
+- Added consolidation of guest orders after an order is completed.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
@@ -28,6 +29,7 @@
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
 - Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\queue\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.

@@ -13,8 +13,10 @@
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\queue\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
