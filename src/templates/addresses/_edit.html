@@ -15,13 +15,6 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-  {# Hidden fields #}
-  <input type="hidden" name="id" value="{{ address.id }}">
-  <input type="hidden" name="action" value="commerce/customers/save">
-  {% if customerId %}
-    {{ redirectInput('commerce/customers/' ~ customerId) }}
-  {% endif %}
-
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',
@@ -102,17 +95,32 @@
     errors: address.getErrors('zipCode'),
   }) }}
 
+  {{ forms.textField({
+    label: 'State'|t('commerce'),
+    name: 'stateName',
+    id: 'stateValue',
+    value : address.stateName,
+    errors: address.getErrors('stateValue'),
+  }) }}
+
+  {{ forms.selectField({
+    label: 'State'|t('commerce'),
+    id: 'stateId',
+    name: 'stateValue',
+    options: craft.commerce.states.allEnabledStatesAsList,
+    value: address.stateId,
+    errors: address.getErrors('stateValue'),
+  }) }}
+
   {{ forms.selectField({
     label: 'Country'|t('commerce'),
     id: 'country',
-    name: 'country',
+    name: 'countryId',
     options: craft.commerce.countries.allEnabledCountriesAsList,
     value: address.countryId,
-    errors: address.getErrors('country'),
+    errors: address.getErrors('countryId'),
     class: 'selectize fullwidth',
   }) }}
-
-  <pre>{{ dump(address.countryId) }}</pre>
 
   {{ forms.textField({
     label: 'Phone'|t('commerce'),
@@ -202,52 +210,61 @@
     errors: address.getErrors('custom4'),
   }) }}
 
+  {# Hidden fields #}
+  <input type="hidden" name="id" value="{{ address.id }}">
+  <input type="hidden" name="action" value="commerce/addresses/save">
+  {% if customerId %}
+    {{ redirectInput('commerce/customers/' ~ customerId) }}
+  {% endif %}
+
 {% endblock %}
 
 {% js %}
+var selectedStateId = {{ address.stateId ?: 'null' }};
   var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   $('#country').selectize();
 
-  $('select.address-country').change(function ()  {
+  $('select#country').change(function ()  {
     // get the value of the selected country.
     var cid = $(this).val();
-    var $states = $(this).closest('.addressBox').find('select.address-stateId');
-    var $stateName = $(this).closest('.addressBox').find('input.address-stateName');
+    var $states = $('#stateId');
+    var $stateName = $('#stateValue');
     $states.find('option').remove();
 
     if (states.hasOwnProperty(cid))
     {
-    // We have states for this country, show the states drop down.
-    $states.removeClass('hidden');
-    $states.attr('name', $states.data('modelname')+'[stateValue]');
+      // We have states for this country, show the states drop down.
+      $states.parents('#stateId-field').removeClass('hidden');
+      $states.attr('name', 'stateValue');
 
-    // We have states for this country, hide the stateName input.
-    $stateName.removeAttr('name');
-    $stateName.addClass('hidden');
-    $stateName.val('');
+      // We have states for this country, hide the stateName input.
+      $stateName.removeAttr('name');
+      $stateName.parents('#stateValue-field').addClass('hidden');
+      $stateName.val('');
 
-    // Add all states as options to drop down.
-    for (var id in states[cid])
-    {
-    var state = states[cid][id];
-    var $option = $('<option/>');
-    $option.attr('value', id).text(state);
-    $states.append($option);
+      // Add all states as options to drop down.
+      for (var id in states[cid])
+      {
+        var state = states[cid][id];
+        var $option = $('<option/>');
+        $option.attr('value', id).text(state);
+        if (id == selectedStateId) {
+          $option.attr('selected', 'selected');
+        }
+        $states.append($option);
+      }
+
+    } else {
+      // hide the states dropdown, since this country has none.
+      $states.parents('#stateId-field').addClass('hidden');
+      $states.removeAttr('name');
+
+      // show the stateName
+      $stateName.parents('#stateValue-field').removeClass('hidden');
+      $stateName.attr('name', 'stateValue');
     }
-
-    }else{
-    // hide the states dropdown, since this country has none.
-    $states.addClass('hidden');
-    $states.removeAttr('name');
-
-    // show the stateName
-    $stateName.removeClass('hidden');
-    $stateName.attr('name', $stateName.data('modelname')+'[stateValue]');
-    }
-
-
   });
 
-  $('select').addClass('form-control input-sm');
+  $('select#country').trigger('change');
 
 {% endjs %}
