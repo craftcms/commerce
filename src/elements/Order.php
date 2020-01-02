@@ -33,6 +33,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\queue\ConsolidateGuestOrders;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
@@ -773,6 +774,11 @@ class Order extends Element
                 $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
             }
         }
+
+        // Consolidate guest orders
+        Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+            'email' => $this->email
+        ]));
 
         // Raising the 'afterCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
