@@ -59,6 +59,7 @@
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
+- Deprecated `craft\commerce\serviced\Customers::consolidateOrdersToUser()`. `craft\commerce\queue\ConsolidateGuestOrders` job should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
 ## Removed
