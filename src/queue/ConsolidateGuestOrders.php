@@ -56,8 +56,14 @@ class ConsolidateGuestOrders extends BaseJob
 
         foreach ($orders as $order) {
             $this->setProgress($queue, $step / $total, Plugin::t('Order {step} of {total}', compact('step', 'total')));
-            $order->customerId = $customerId;
-            Craft::$app->elements->saveElement($order, false);
+
+            $belongsToAnotherUser = $order->getCustomer() && $order->getCustomer()->getUser();
+
+            if (!$belongsToAnotherUser) {
+                $order->customerId = $customerId;
+                Craft::$app->elements->saveElement($order, false);
+            }
+
             $step++;
         }
     }
