@@ -1,5 +1,5 @@
 <template>
-    <div class="v-select-btn">
+    <div class="v-select-btn btn">
         <v-select
                 ref="vSelect"
                 :clearable="clearable"

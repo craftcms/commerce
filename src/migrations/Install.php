@@ -138,6 +138,7 @@ class Install extends Migration
             'iso' => $this->string(2)->notNull(),
             'isStateRequired' => $this->boolean(),
             'sortOrder' => $this->integer(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -227,6 +228,7 @@ class Install extends Migration
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'baseDiscountType' => $this->enum('baseDiscountType', ['value', 'percentTotal', 'percentTotalDiscounted', 'percentItems', 'percentItemsDiscounted'])->notNull()->defaultValue('value'),
             'perItemDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentageOffSubject' => $this->enum('percentageOffSubject', ['original', 'discounted'])->notNull(),
@@ -318,7 +320,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_lineitemstatuses}}', [
+        $this->createTable(Table::LINEITEMSTATUSES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
@@ -674,7 +676,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'isCountryBased' => $this->boolean(),
-            'zipCodeConditionFormula' => $this->string(),
+            'zipCodeConditionFormula' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -685,6 +687,7 @@ class Install extends Migration
             'countryId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'abbreviation' => $this->string(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -763,7 +766,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'isCountryBased' => $this->boolean(),
-            'zipCodeConditionFormula' => $this->string(),
+            'zipCodeConditionFormula' => $this->text(),
             'default' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -813,6 +816,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
     }
 

@@ -30,6 +30,7 @@ abstract class Table
     const EMAILS = '{{%commerce_emails}}';
     const GATEWAYS = '{{%commerce_gateways}}';
     const LINEITEMS = '{{%commerce_lineitems}}';
+    const LINEITEMSTATUSES = '{{%commerce_lineitemstatuses}}';
     const ORDERADJUSTMENTS = '{{%commerce_orderadjustments}}';
     const ORDERHISTORIES = '{{%commerce_orderhistories}}';
     const ORDERS = '{{%commerce_orders}}';

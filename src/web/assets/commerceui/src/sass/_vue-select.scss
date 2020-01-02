@@ -20,7 +20,6 @@ $vs-state-active-color: $textColor;
 /* VSelect */
 
 .v-select-btn {
-  @extend .btn;
   display: flex;
   min-width: 0;
   padding: 0;

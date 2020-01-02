@@ -260,7 +260,7 @@ class CartController extends BaseFrontEndController
 
         if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
 
-            $error = Craft::t('commerce', 'Unable to update cart.');
+            $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
@@ -290,7 +290,7 @@ class CartController extends BaseFrontEndController
         if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
             Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
         } else {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Cart updated.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams([

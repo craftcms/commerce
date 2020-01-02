@@ -2,6 +2,7 @@
 
 ### Added
 - Added the ability to create and edit orders from the Control Panel.
+- Added GraphQL support for products.
 - Added the ability to send emails from the Edit Order page.
 - Added “Edit Orders” and “Delete Orders” user permissions.
 - Line items now have a status that can be changed on the Edit Order page.
@@ -12,8 +13,13 @@
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
+- Added the ability to add a product to an existing Sale from the Product Edit page.
 - Added the ability to set a plain text template for Commerce emails.
-- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. 
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
+- Added the ability to create discounts using the order total and percentages. 
+- Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
+- Added the ability to enable/disabled countries.
+- Added the ability to enable/disabled states.
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
@@ -23,12 +29,18 @@
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
 - Added `craft\commerce\models\Discount::$totalDiscountUses`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
+- Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\records\State::$enabled`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountries`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 - Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
@@ -37,6 +49,10 @@
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
+- Added `craft\commerce\services\States::getAllEnabledStates`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
+- Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
 
 ## Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
@@ -47,6 +63,9 @@
 - Changed the default category relationship type on promotions from `sourceElement` to `element` .
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
+- `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
+- Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods. 
+- `allowEmptyCartOnCheckout` default value is false.
 - `totalDiscountUses` now counts all usage instances of a discount.
 - Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
 - Clearing discount usage counters is now done on a per counter basis.
@@ -97,3 +116,4 @@
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.

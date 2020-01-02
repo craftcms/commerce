@@ -16,122 +16,100 @@
     {{ selectField(selectParams) }}
 
     {% js %}
-        (function () {
+    (function () {
         var $select = $('#{{ selectParams.id }}').selectize({
-        dropdownParent: 'body'
-        });
+                dropdownParent: 'body'
+            });
 
-        var selectize = $select.get(0).selectize;
+            var selectize = $select.get(0).selectize;
 
-        selectize.addOption({
-        value: 'new',
-        text: '{{ newOptionLabel|e("js") }}'
-        });
+            selectize.addOption({
+                value: 'new',
+                text: '{{ newOptionLabel|e("js") }}'
+            });
 
-        selectize.on('item_add', function (value, $item) {
-        if (value == 'new') {
-        // Not a real option
-        selectize.clear();
+            selectize.on('item_add', function (value, $item) {
+                if (value == 'new') {
+                    // Not a real option
+                    selectize.clear();
 
-        var $form = $(
-        '
-        <form class="modal fitted lazy-create-modal">' +
-            '
-            <div class="header">' +
-                '<h1 class="centeralign">{{ modalHeading }}</h1>' +
-                '
-            </div>
-            ' +
-            '
-            <div class="body">' +
-                '{{ html|e("js") }}' +
-                '
-            </div>
-            ' +
-            '
-            <div class="footer">' +
-                '
-                <div class="buttons right">' +
-                    '
-                    <div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>
-                    ' +
-                    '<input type="submit" class="btn submit"
-                            value="{{ 'Save'|t('commerce') }}"/>' +
-                    '
-                    <div class="spinner hidden"/>
-                    ' +
-                    '
-                </div>
-                ' +
-                '
-            </div>
-            ' +
-            '
-        </form>'
-        );
+                    var $form = $('<form class="modal fitted lazy-create-modal">' +
+                        '<div class="header">' +
+                            '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+                        '</div>' +
+                        '<div class="body">' +
+                            '{{ html|e("js") }}' +
+                        '</div>' +
+                        '<div class="footer">' +
+                            '<div class="buttons right">' +
+                                '<div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>' +
+                                '<input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}"/>' +
+                                '<div class="spinner hidden"/>' +
+                            '</div>' +
+                        '</div>' +
+                    '</form>');
 
-        var modal = new Garnish.Modal($form, {
-        onHide: function () {
-        modal.destroy();
-        delete modal;
-        }
-        });
+                    var modal = new Garnish.Modal($form, {
+                        onHide: function () {
+                            modal.destroy();
+                            delete modal;
+                        }
+                    });
 
-        eval('{{ js|e("js") }}');
+                    eval('{{ js|e("js") }}');
 
-        setTimeout(function () {
-        $form.find('.text:first').focus();
+                    setTimeout(function () {
+                        $form.find('.text:first').focus();
 
-        modal.updateSizeAndPosition();
-        $form.find('.body:first').on('resize', function () {
-        modal.updateSizeAndPosition();
-        });
-        }, 100);
+                        modal.updateSizeAndPosition();
+                        $form.find('.body:first').on('resize', function () {
+                            modal.updateSizeAndPosition();
+                        });
+                    }, 100);
 
-        $form.on('submit', function (ev) {
-        ev.preventDefault();
-        $form.find('.spinner').removeClass('hidden');
-        var namespacedData = Garnish.getPostData($form),
-        data = {};
+                    $form.on('submit', function (ev) {
+                        ev.preventDefault();
+                        $form.find('.spinner').removeClass('hidden');
+                        var namespacedData = Garnish.getPostData($form),
+                        data = {};
 
-        for (var name in namespacedData) {
-        data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
-        }
+                        for (var name in namespacedData) {
+                            data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+                        }
 
-        Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
-        $form.find('.spinner').addClass('hidden');
-        if (textStatus == 'success') {
-        if (response.success) {
-        Craft.cp.displayNotice('{{ successText|e("js") }}');
-        selectize.addOption({
-        value: response.id,
-        text: response.name,
-        $order: selectize.order - 1
-        });
-        selectize.setValue(response.id);
-        modal.hide();
-        } else {
-        Craft.ui.clearErrorsFromField($form.find('.field'));
+                        Craft.postActionRequest('{{ action|e("js") }}', data, function (response, textStatus) {
+                            $form.find('.spinner').addClass('hidden');
+                            if (textStatus == 'success') {
+                                if (response.success) {
+                                    Craft.cp.displayNotice('{{ successText|e("js") }}');
+                                    selectize.addOption({
+                                        value: response.id,
+                                        text: response.name,
+                                        $order: selectize.order - 1
+                                    });
+                                    selectize.setValue(response.id);
+                                    modal.hide();
+                                } else {
+                                    Craft.ui.clearErrorsFromField($form.find('.field'));
 
-        for (var attribute in response.errors) {
-        Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
-        }
+                                    for (var attribute in response.errors) {
+                                        Craft.ui.addErrorsToField($('#new-' + attribute + '-field'), response.errors[attribute]);
+                                    }
 
-        modal.updateSizeAndPosition();
-        Garnish.shake($form);
-        }
-        }
-        });
-        });
+                                    modal.updateSizeAndPosition();
+                                    Garnish.shake($form);
+                                }
+                            }
+                        });
+                    });
 
-        $form.find('.cancel-btn').on('click', function () {
-        modal.hide();
-        });
-        }
-        });
+                    $form.find('.cancel-btn').on('click', function () {
+                        modal.hide();
+                    });
+                }
+            });
         })();
     {% endjs %}
-
 {% endmacro %}
 
 
@@ -414,7 +392,7 @@
                     {% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
-                            class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
+                        class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                             {{ shippingCategory.name }}
                         </th>
