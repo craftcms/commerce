@@ -102,6 +102,18 @@
     errors: address.getErrors('zipCode'),
   }) }}
 
+  {{ forms.selectField({
+    label: 'Country'|t('commerce'),
+    id: 'country',
+    name: 'country',
+    options: craft.commerce.countries.allEnabledCountriesAsList,
+    value: address.countryId,
+    errors: address.getErrors('country'),
+    class: 'selectize fullwidth',
+  }) }}
+
+  <pre>{{ dump(address.countryId) }}</pre>
+
   {{ forms.textField({
     label: 'Phone'|t('commerce'),
     name: 'phone',
@@ -191,3 +203,51 @@
   }) }}
 
 {% endblock %}
+
+{% js %}
+  var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+  $('#country').selectize();
+
+  $('select.address-country').change(function ()  {
+    // get the value of the selected country.
+    var cid = $(this).val();
+    var $states = $(this).closest('.addressBox').find('select.address-stateId');
+    var $stateName = $(this).closest('.addressBox').find('input.address-stateName');
+    $states.find('option').remove();
+
+    if (states.hasOwnProperty(cid))
+    {
+    // We have states for this country, show the states drop down.
+    $states.removeClass('hidden');
+    $states.attr('name', $states.data('modelname')+'[stateValue]');
+
+    // We have states for this country, hide the stateName input.
+    $stateName.removeAttr('name');
+    $stateName.addClass('hidden');
+    $stateName.val('');
+
+    // Add all states as options to drop down.
+    for (var id in states[cid])
+    {
+    var state = states[cid][id];
+    var $option = $('<option/>');
+    $option.attr('value', id).text(state);
+    $states.append($option);
+    }
+
+    }else{
+    // hide the states dropdown, since this country has none.
+    $states.addClass('hidden');
+    $states.removeAttr('name');
+
+    // show the stateName
+    $stateName.removeClass('hidden');
+    $stateName.attr('name', $stateName.data('modelname')+'[stateValue]');
+    }
+
+
+  });
+
+  $('select').addClass('form-control input-sm');
+
+{% endjs %}
