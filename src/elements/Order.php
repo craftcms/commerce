@@ -1680,14 +1680,11 @@ class Order extends Element
      * Customer represented as HTML
      *
      * @return string
+     * @since 3.0
      */
     public function getCustomerLinkHtml(): string
     {
-        if ($this->getUser()) {
-            return '<span><a href="' . $this->getUser()->getCpEditUrl() . '">' . $this->getUser()->email . '</a></span>';
-        }
-
-        if (!$this->getUser() && $this->getCustomer() && $this->isCompleted) {
+        if ($this->getCustomer() && $this->isCompleted) {
             return '<span><a href="' . UrlHelper::cpUrl('commerce/customers/' . $this->getCustomer()->id) . '">' . $this->email . '</a></span>';
         }
 
