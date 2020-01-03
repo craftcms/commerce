@@ -11,7 +11,7 @@ return [
         'name' => 'Discount 1',
         'code' => 'discount_1',
         'perUserLimit' => '1',
-        'totalUseLimit' => '2',
+        'totalDiscountUseLimit' => '2',
         'baseDiscount' => '10',
         'perItemDiscount' => '5',
         'percentDiscount' => '15.25',

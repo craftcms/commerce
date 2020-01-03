@@ -14,19 +14,33 @@
 - Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
 - Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
+- Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
 - Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
+- Added `craft\commerce\models\Discount::$totalDiscountUses`.
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\queue\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
+- Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
+- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::getCustomerUsageStatsById()`.
 - Added `craft\commerce\services\States::getAllEnabledStates`.
 - Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
 - Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
@@ -40,6 +54,15 @@
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
 - Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods.
 - `allowEmptyCartOnCheckout` default value is false.
+- `totalDiscountUses` now counts all usage instances of a discount.
+- Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Clearing discount usage counters is now done on a per counter basis.
+
+### Deprecated
+- Deprecated `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`. `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()` should be used instead.
+- Deprecated `craft\commerce\models\Discount::$totalUseLimit`. `craft\commerce\models\Discount::$totalDiscountUseLimit` should be used instead. 
+- Deprecated `craft\commerce\models\Discount::$totalUses`. `craft\commerce\models\Discount::$totalDiscountUses` should be used instead.
+- Deprecated `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`. `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()` and `craft\commerce\services\Discounts::clearEmailUsageHistoryById()` should be used instead.
 
 ### Removed 
 - Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
@@ -70,17 +93,17 @@
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
 
-## Changed
+### Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
 
-## Deprecated
+### Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
-## Removed
+### Removed
 - Removed the `craft.commerce.availableShippingMethods` Twig property.
 - Removed the `craft.commerce.cart` Twig property.
 - Removed the `craft.commerce.countriesList` Twig property.
