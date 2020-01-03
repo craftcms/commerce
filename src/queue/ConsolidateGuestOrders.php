@@ -50,7 +50,7 @@ class ConsolidateGuestOrders extends BaseJob
             ->customerId('not ' . $customerId)
             ->email($this->email);
 
-        $total = $ordersQuery->count();
+        $total = $ordersQuery->count() + 1;
         $orders = $ordersQuery->all();
         $step = 1;
 
@@ -66,6 +66,9 @@ class ConsolidateGuestOrders extends BaseJob
 
             $step++;
         }
+
+        $this->setProgress($queue, $step / $total, Plugin::t('Purging orphaned customers.'));
+        Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
     }
 
     // Protected Methods
