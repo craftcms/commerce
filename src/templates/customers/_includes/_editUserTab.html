@@ -1,0 +1,5 @@
+<div id="customerInfo" class="hidden">
+  {% if customer %}
+    {% include 'commerce/customers/_includes/_customerTables' with { customer: customer, addressRedirect: addressRedirect } %}
+  {% endif %}
+</div>

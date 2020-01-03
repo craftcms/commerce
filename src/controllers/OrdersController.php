@@ -101,10 +101,16 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-editOrders');
 
+        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+
         $order = new Order();
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-        $customer = new Customer();
-        Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+
+        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $customer = new Customer();
+            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        }
+
         $order->customerId = $customer->id;
         $order->origin = Order::ORIGIN_CP;
 
