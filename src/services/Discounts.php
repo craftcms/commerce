@@ -875,6 +875,10 @@ class Discounts extends Component
      */
     private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
     {
+        if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
+            return false;
+        }
+
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
