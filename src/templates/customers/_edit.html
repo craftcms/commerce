@@ -41,13 +41,28 @@
     <h5 class="heading">{{ 'Total Orders'|t('commerce') }}</h5>
     <div class="value">{{ craft.orders({ customerId: customer.id, isCompleted: 1, limit: null }).count() }}</div>
   </div>
-  <div class="data">
-    <h5 class="heading">{{ 'Last Order'|t('commerce') }}</h5>
-    <div class="value">
-      {% set lastOrder = craft.orders({ customerId: customer.id, isCompleted: 1, limit: 1, orderBy: 'dateOrdered DESC' }).one() ?? null %}
-      {{ lastOrder ? lastOrder.dateOrdered|date('D jS M Y') : '' }}
+  {% set lastOrder = craft.orders({ customerId: customer.id, isCompleted: 1, limit: 1, orderBy: 'dateOrdered DESC' }).one() ?? null %}
+  {% if lastOrder %}
+    <div class="data">
+      <h5 class="heading">{{ 'Last Order'|t('commerce') }}</h5>
+      <div class="value">
+        {% if currentUser.can('commerce-manageOrders') %}
+          {{ tag('a', {
+            href: lastOrder.cpEditUrl,
+            text: lastOrder.__toString(),
+          }) }}
+        {% else %}
+          {{ lastOrder.__toString() }}
+        {% endif %}
+      </div>
     </div>
-  </div>
+    <div class="data">
+      <h5 class="heading">{{ 'Last Order Date'|t('commerce') }}</h5>
+      <div class="value">
+        {{ lastOrder ? lastOrder.dateOrdered|date('D jS M Y') : '' }}
+      </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
 
