@@ -45,7 +45,7 @@
   {% set tableData = tableData|merge([{
     id: address.id,
     title: address.address1,
-    url: cpUrl('commerce/addresses/' ~ address.id),
+    url: address.cpEditUrl,
     zipCode: address.zipCode,
     billing: (customer.primaryBillingAddressId == address.id),
     shipping: (customer.primaryShippingAddressId == address.id),
