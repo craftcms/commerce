@@ -25,7 +25,16 @@
                 </template>
             </template>
             <template v-else>
-                <prism-editor ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+                <line-item-options-input
+                    v-if="optionsConfig"
+                    :config="optionsConfig"
+                    :current-values="currentOptionValues"
+                    ref="lineItemOptions"
+                    class="line-item-options"
+                    v-on:validated="onOptionsValidated">
+                </line-item-options-input>
+
+                <prism-editor v-else ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                 <ul v-if="errors.length > 0" class="errors">
                     <li v-for="(error, key) in errors" :key="key">{{error}}</li>
@@ -38,10 +47,12 @@
 <script>
     import debounce from 'lodash.debounce'
     import PrismEditor from 'vue-prism-editor'
+    import LineItemOptionsInput from './LineItemOptionsInput'
 
     export default {
         components: {
             PrismEditor,
+            LineItemOptionsInput,
         },
 
         props: {
@@ -56,7 +67,37 @@
         data() {
             return {
                 options: null,
-                errors: [],
+                errors: []
+            }
+        },
+
+        computed: {
+            optionsConfig() {
+                const optionsConfig = this.$store.getters.lineItemOptionsConfig;
+
+                if (!this.lineItem.purchasableType) {
+                    return false
+                }
+
+                if (optionsConfig.hasOwnProperty(this.lineItem.purchasableType)) {
+                    return optionsConfig[this.lineItem.purchasableType];
+                }
+
+                return false
+            },
+
+            currentOptionValues() {
+                if (this.options) {
+                    let optionsObject = JSON.parse(this.options);
+
+                    if (Array.isArray(optionsObject)) {
+                        optionsObject = {}
+                    }
+
+                    return optionsObject;
+                }
+
+                return {};
             }
         },
 
@@ -64,13 +105,21 @@
             lineItem() {
                 if (this.lineItem) {
                     this.options = JSON.stringify(this.lineItem.options, null, '\t')
+
+                    this.$nextTick(() => {
+                        if (this.$refs.lineItemOptions) {
+                            this.$refs.lineItemOptions.setValues()
+                        }
+                    })
                 }
             },
 
             editing(value) {
                 if (value) {
                     this.$nextTick(() => {
-                        this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                        if (this.$refs.prismEditor) {
+                            this.$refs.prismEditor.$el.children[0].setAttribute('tabindex', '-1')
+                        }
                     })
                 }
             }
@@ -96,15 +145,41 @@
                 }
             },
 
+            onOptionsValidated(event) {
+                this.errors = []
+
+                if (event.valid) {
+                    let newOptions = JSON.stringify(this.$refs.lineItemOptions.values, null, '\t');
+                    if (newOptions !== this.options) {
+
+                        try {
+                            newOptions = JSON.parse(newOptions);
+                            this.onOptionsChangeWithValidJson(newOptions)
+                        } catch(e) {
+                            this.errors = ['Invalid JSON']
+                        }
+
+                    }
+                } else {
+                    this.errors = [event.error]
+                }
+            },
+
             onOptionsChangeWithValidJson: debounce(function(options) {
                 const lineItem = this.lineItem
                 lineItem.options = options
                 this.$emit('updateLineItem', lineItem)
             }, 2000)
+
         },
 
         mounted() {
             this.options = JSON.stringify(this.lineItem.options, null, '\t')
+            this.$nextTick(() => {
+                if (this.$refs.lineItemOptions) {
+                    this.$refs.lineItemOptions.setValues()
+                }
+            })
         }
     }
 </script>

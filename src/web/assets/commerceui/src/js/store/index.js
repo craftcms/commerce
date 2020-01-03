@@ -107,6 +107,10 @@ export default new Vuex.Store({
             return window.orderEdit.orderStatuses
         },
 
+        lineItemOptionsConfig() {
+            return window.orderEdit.lineItemOptionsConfig
+        },
+
         getErrors(state) {
             return (errorKey) => {
                 if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {

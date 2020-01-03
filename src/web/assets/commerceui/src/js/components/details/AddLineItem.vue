@@ -2,13 +2,13 @@
     <div>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <btn-link @click="showForm = true">{{"Add a line item"|t('commerce')}}</btn-link>
+                <btn-link @click="handleShowForm">{{"Add a line item"|t('commerce')}}</btn-link>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <btn-link @click="showForm = true">{{"Create your first line item"|t('commerce')}}</btn-link>
+                    <btn-link @click="handleShowForm">{{"Create your first line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
         </template>
@@ -38,8 +38,20 @@
                     </template>
                 </select-input>
 
+                <line-item-options-input
+                    v-if="validPurchasable"
+                    :config="lineItemOptionsConfig"
+                    ref="lineItemOptions"
+                    class="line-item-options"
+                    v-on:validated="onLineItemOptionsValidated">
+                </line-item-options-input>
+
+                <ul v-if="lineItemOptionsErrors.length > 0" class="errors">
+                    <li v-for="(error, key) in lineItemOptionsErrors" :key="key">{{error}}</li>
+                </ul>
+
                 <div class="buttons">
-                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false" />
+                    <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled" :value="$options.filters.t('Cancel', 'commerce')" @click="handleHideForm" />
                     <input type="submit" class="btn submit" :class="{disabled: submitDisabled}" :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" />
                 </div>
             </form>
@@ -52,16 +64,20 @@
     import debounce from 'lodash.debounce'
     import ordersApi from '../../api/orders'
     import SelectInput from '../SelectInput'
+    import LineItemOptionsInput from './LineItemOptionsInput'
 
     export default {
         components: {
             SelectInput,
+            LineItemOptionsInput
         },
 
         data() {
             return {
                 showForm: false,
                 selectedPurchasable: null,
+                validLineItemOptions: false,
+                lineItemOptionsErrors: []
             }
         },
 
@@ -80,14 +96,26 @@
                 return !this.canAddLineItem
             },
 
-            submitDisabled() {
+            validPurchasable() {
                 if (!this.canAddLineItem || !this.selectedPurchasable) {
-                    return true
+                    return false
                 }
 
                 if(this.selectedPurchasable.isAvailable == false)
                 {
-                    return true;
+                    return false;
+                }
+
+                return true;
+            },
+
+            submitDisabled() {
+                if (!this.validPurchasable) {
+                    return true
+                }
+
+                if (!this.lineItemOptionsConfig || !this.validLineItemOptions) {
+                    return true
                 }
 
                 return false
@@ -95,6 +123,36 @@
 
             lineItems() {
                 return this.$store.state.draft.order.lineItems
+            },
+
+            lineItemOptionsConfig() {
+                if (!this.validPurchasable) {
+                    return {}
+                }
+
+                const lineItemOptionsConfig = this.$store.getters.lineItemOptionsConfig;
+
+                if (lineItemOptionsConfig.hasOwnProperty(this.selectedPurchasable.type)) {
+                    return lineItemOptionsConfig[this.selectedPurchasable.type];
+                }
+
+                return {}
+            }
+        },
+
+        watch: {
+            // When the selectedPurchasable changes, reset the line item options
+            // validation and internal values
+            selectedPurchasable: {
+                handler() {
+                    this.validLineItemOptions = false
+
+                    this.$nextTick(() => {
+                        if (this.$refs.lineItemOptions) {
+                            this.$refs.lineItemOptions.setValues()
+                        }
+                    })
+                }
             }
         },
 
@@ -103,16 +161,51 @@
                 'displayError',
             ]),
 
+            handleShowForm() {
+                this.showForm = true
+            },
+
+            handleHideForm() {
+                this.showForm = false
+                this.selectedPurchasable = null
+            },
+
+            onLineItemOptionsValidated(event) {
+                this.validLineItemOptions = event.valid
+
+                if (!event.valid) {
+                    this.lineItemOptionsErrors = [event.error]
+                } else {
+                    this.lineItemOptionsErrors = []
+                }
+            },
+
             lineItemAdd() {
                 if (!this.canAddLineItem) {
                     this.displayError(this.$options.filters.t("You are not allowed to add a line item.", 'commerce'));
                     return
                 }
 
-                this.addLineItem(this.selectedPurchasable)
+                if (this.lineItemOptionsConfig) {
+                    if (!this.$refs.lineItemOptions.values) {
+                        return
+                    }
+
+                    this.addLineItem(this.$refs.lineItemOptions.values)
+                    return
+                }
+
+                this.addLineItem()
             },
 
-            addLineItem() {
+            addLineItem(options) {
+
+                if (options) {
+                    options = JSON.parse(JSON.stringify(options))
+                } else {
+                    options = []
+                }
+
                 const lineItem = {
                     id: null,
                     lineItemStatusId: null,
@@ -123,13 +216,12 @@
                     orderId: this.orderId,
                     purchasableId: this.selectedPurchasable.id,
                     sku: this.selectedPurchasable.sku,
-                    options: [],
+                    options: options,
                     adjustments: [],
                 }
 
                 this.$emit('addLineItem', lineItem)
-                this.selectedPurchasable = null
-                this.showForm = false
+                this.handleHideForm()
             },
 
             onSearch({searchText, loading}) {
@@ -197,5 +289,11 @@
             width: 10%;
             text-align: right;
         }
+    }
+
+    /* Line item options */
+
+    .line-item-options {
+        margin-top: 20px;
     }
 </style>

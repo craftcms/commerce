@@ -60,7 +60,7 @@ class BaseFrontEndController extends BaseController
         // Typecast order attributes
         $cart->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        $extraFields = ['lineItems.snapshot', 'lineItems.purchasableType', 'availableShippingMethods'];
 
         $cartInfo = $cart->toArray([], $extraFields);
 

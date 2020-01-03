@@ -313,7 +313,7 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        $extraFields = ['lineItems.snapshot', 'lineItems.purchasableType', 'availableShippingMethods'];
         return $order->toArray($orderFields, $extraFields);
     }
 
@@ -327,8 +327,9 @@ class OrdersController extends Controller
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['id', 'price', 'description', 'sku'])
-            ->from('{{%commerce_purchasables}}');
+            ->select(['p.id', 'p.price', 'p.description', 'p.sku', 'e.type'])
+            ->from('{{%commerce_purchasables}} p')
+            ->leftJoin('{{%elements}} e', '[[p.id]] = [[e.id]]');
 
         // Are they searching for a purchasable ID?
         if (is_numeric($query)) {
@@ -860,6 +861,8 @@ class OrdersController extends Controller
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemOptionsConfig = ' . Json::encode(Plugin::getInstance()->getSettings()->lineItemOptionsConfig) . ';', View::POS_BEGIN);
     }
 
     /**
