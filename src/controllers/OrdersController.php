@@ -14,11 +14,13 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -27,18 +29,24 @@ use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -132,6 +140,10 @@ class OrdersController extends Controller
         $variables['order'] = $order;
         $variables['orderId'] = $order->id;
         $variables['fieldLayout'] = Craft::$app->getFields()->getLayoutByType(Order::class);
+
+        $transactions = $order->getTransactions();
+
+        $variables['orderTransactions'] = $this->_getTransactionsWIthLevelsTableArray($transactions);
 
         $this->_updateTemplateVariables($variables);
         $this->_registerJavascript($variables);
@@ -275,6 +287,79 @@ class OrdersController extends Controller
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
+     */
+    public function actionUserOrdersTable(): Response
+    {
+        $this->requirePermission('commerce-manageOrders');
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        $userId = $request->getQueryParam('userId', null);
+
+        if (!$userId) {
+            return $this->asErrorJson(Plugin::t('User ID is required.'));
+        }
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($userId);
+
+        if (!$customer) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
+        }
+
+        $orderQuery = Order::find()
+         ->customer($customer)
+         ->isCompleted();
+
+        if ($search) {
+            $orderQuery->search($search);
+        }
+
+        if ($sort) {
+            list($field, $direction) = explode('|', $sort);
+
+            if ($field && $direction) {
+                $orderQuery->orderBy($field . ' ' . $direction);
+            }
+        }
+
+        $total = $orderQuery->count();
+
+        $orderQuery->offset($offset);
+        $orderQuery->limit($limit);
+        $orders = $orderQuery->all();
+
+        $rows = [];
+        foreach ($orders as $order) {
+            $rows[] = [
+                'id' => $order->id,
+                'title' => $order->reference,
+                'url' => $order->getCpEditUrl(),
+                'date' => $order->dateOrdered->format('D jS M Y'),
+                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'orderStatus' => $order->getOrderStatusHtml(),
+            ];
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
+    }
+
+    // Private Methods
+    // =========================================================================
+
+    /**
      * @param Order $order
      * @return array
      */
@@ -387,14 +472,16 @@ class OrdersController extends Controller
                 'count([[orders.id]]) as totalOrders',
             ])
             ->from('{{%commerce_customers}} customers')
-        ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-        ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
-        ->groupBy(['customerId', 'email', 'userId']);
+            ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+            ->groupBy(['customerId', 'email', 'userId'])
+            ->where(['not', ['customerId' => null]])
+            ->andWhere(['isCompleted' => 1]);
 
         // Are they searching for a customer ID?
         $results = [];
         if (is_numeric($query)) {
-            $result = $sqlQuery->where(['[[customers.id]]' => $query])->one();
+            $result = $sqlQuery->andWhere(['[[customers.id]]' => $query])->one();
             if ($result) {
                 $results[] = $result;
             }
@@ -403,7 +490,7 @@ class OrdersController extends Controller
         // Are they searching for an email address?
         if (!is_numeric($query)) {
             if ($query) {
-                $sqlQuery->where(
+                $sqlQuery->andWhere(
                     [$likeOperator, '[[orders.email]]', $query]
                 );
             }
@@ -514,9 +601,9 @@ class OrdersController extends Controller
      *
      * @return Response
      * @throws BadRequestHttpException
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function actionGetPaymentModal(): Response
     {
@@ -1015,5 +1102,82 @@ class OrdersController extends Controller
             // add all the updated adjustments to the order
             $order->setAdjustments($adjustments);
         }
+    }
+
+    /**
+     * @param Transaction[] $transactions
+     * @param int $level
+     * @return array
+     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws CurrencyException
+     * @since 3.0
+     */
+    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0): array
+    {
+        $return = [];
+        $user = Craft::$app->getUser()->getIdentity();
+        foreach ($transactions as $transaction) {
+            if (!ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
+                $refundCapture = '';
+                if ($user->can('commerce-capturePayment') && $transaction->canCapture()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_capture',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                } else if ($user->can('commerceRefundPayment') && $transaction->canRefund()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_refund',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                }
+
+                $return[] = [
+                    'id' => $transaction->id,
+                    'level' => $level,
+                    'type' => [
+                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->type)),
+                        'level' => $level,
+                    ],
+                    'status' => [
+                        'key' => $transaction->status,
+                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->status))
+                    ],
+                    'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'gateway' => $transaction->gateway->name ?? Plugin::t('Missing Gateway'),
+                    'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
+                    'info' => [
+                        ['label' => Plugin::t('Transaction ID'), 'type' => 'code', 'value' => $transaction->id ],
+                        ['label' => Plugin::t('Transaction Hash'), 'type' => 'code', 'value' => $transaction->hash ],
+                        ['label' => Plugin::t('Gateway Reference'), 'type' => 'code', 'value' => $transaction->reference ],
+                        ['label' => Plugin::t('Gateway Message'), 'type' => 'text', 'value' => $transaction->message ],
+                        ['label' => Plugin::t('Note'), 'type' => 'text', 'value' => $transaction->note ?? '' ],
+                        ['label' => Plugin::t('Gateway Code'), 'type' => 'code', 'value' => $transaction->code ],
+                        ['label' => Plugin::t('Converted Price'), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
+                        ['label' => Plugin::t('Gateway Response'), 'type' => 'response', 'value' => $transaction->response ],
+                    ],
+                    'actions' => $refundCapture,
+                ];
+
+                if (!empty($transaction->childTransactions)) {
+                    $childTransactions = $this->_getTransactionsWIthLevelsTableArray($transaction->childTransactions, $level + 1);
+
+                    foreach ($childTransactions as $childTransaction) {
+                        $return[] = $childTransaction;
+                    }
+                }
+            }
+        }
+
+        return $return;
     }
 }

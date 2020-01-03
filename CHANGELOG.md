@@ -14,10 +14,16 @@
 - Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
+- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
+- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
@@ -25,6 +31,7 @@
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\queue\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.

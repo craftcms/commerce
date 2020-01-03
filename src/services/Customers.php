@@ -291,12 +291,6 @@ class Customers extends Component
         if ($impersonating) {
             Plugin::getInstance()->getCarts()->forgetCart();
         }
-
-        /** @var User $user */
-        $user = $event->identity;
-
-        // Consolidates completed orders to the user
-        $this->consolidateOrdersToUser($user);
     }
 
     /**
@@ -318,6 +312,7 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
+     * @deprecated in 3.0 use ConsolidateGuestOrders job instead
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
@@ -718,7 +713,8 @@ class Customers extends Component
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
-            'customer' => $customer
+            'customer' => $customer,
+            'userId' => $context['user']->id,
         ]);
     }
 }

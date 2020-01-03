@@ -15,11 +15,14 @@ use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\elements\Category;
+use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\i18n\Locale;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
@@ -251,6 +254,37 @@ class DiscountsController extends BaseCpController
         }
 
         return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     * @since 3.0
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t updated discounts status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $discounts = DiscountRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var DiscountRecord $discount */
+        foreach ($discounts as $discount) {
+            $discount->enabled = ($status == 'enabled');
+            $discount->save();
+        }
+        $transaction->commit();
+
+        Craft::$app->getSession()->setNotice(Plugin::t('Discounts updated.'));
     }
 
     // Private Methods

@@ -111,8 +111,8 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+
         if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
             return $this->asJson(['success' => $success]);
         }

@@ -21,12 +21,18 @@
 - Added the ability to set the title label for Products and Variants per product type.
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
+- Added consolidation of guest orders after an order is completed.
+- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
 - Added `craft\commerce\controllers\LineItemStatuses`.
+- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
+- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
@@ -38,6 +44,7 @@
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\queue\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
@@ -76,6 +83,7 @@
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
+- Deprecated `craft\commerce\serviced\Customers::consolidateOrdersToUser()`. `craft\commerce\queue\ConsolidateGuestOrders` job should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
 ## Removed
