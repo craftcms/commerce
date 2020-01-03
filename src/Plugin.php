@@ -16,6 +16,9 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
+use craft\commerce\gql\arguments\elements\Product as GqlProductArgument;
+use craft\commerce\gql\resolvers\elements\Product as GqlProductResolver;
+use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
@@ -41,6 +44,9 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlPermissionsEvent;
+use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
@@ -51,6 +57,8 @@ use craft\services\Dashboard;
 use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gc;
+use craft\services\Gql;
+use craft\services\GraphQl;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -59,6 +67,7 @@ use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
+use GraphQL\Type\Definition\Type as GqlTypeDefinition;
 
 /**
  * @property array $cpNavItem the control panel navigation menu
@@ -155,6 +164,9 @@ class Plugin extends BasePlugin
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
         $this->_registerElementTypes();
+        $this->_registerGqlInterfaces();
+        $this->_registerGqlQueries();
+        $this->_registerGqlPermissions();
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
         $this->_registerGarbageCollection();
@@ -519,6 +531,65 @@ class Plugin extends BasePlugin
             $e->types[] = Product::class;
             $e->types[] = Order::class;
             $e->types[] = Subscription::class;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlInterfaces()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+            // Add my GraphQL types
+            $types = $event->types;
+            $types[] = GqlProductInterface::class;
+            $event->types = $types;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlQueries()
+    {
+
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
+            // Add my GraphQL queries
+            $queries = $event->queries;
+            $queries['products'] = [
+                'type' => GqlTypeDefinition::listOf(GqlProductInterface::getType()),
+                'args' => GqlProductArgument::getArguments(),
+                'resolve' => GqlProductResolver::class . '::resolve'
+            ];
+
+            $event->queries = $queries;
+        });
+    }
+
+    /**
+     * Register the Gql things
+     */
+    private function _registerGqlPermissions()
+    {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
+
+            $permissions = [];
+
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+            if (!empty($productTypes)) {
+                $label = Craft::t('commerce', 'Products');
+                $productPermissions = [];
+
+                foreach ($productTypes as $productType) {
+                    $suffix = 'productTypes.' . $productType->uid;
+                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('app', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                }
+
+                $permissions[$label] = $productPermissions;
+            }
+
+            $event->permissions = array_merge($event->permissions, $permissions);
         });
     }
 

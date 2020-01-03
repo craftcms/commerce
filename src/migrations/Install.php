@@ -494,6 +494,8 @@ class Install extends Migration
             'hasVariants' => $this->boolean(),
             'hasVariantTitleField' => $this->boolean(),
             'titleFormat' => $this->string()->notNull(),
+            'titleLabel' => $this->string()->defaultValue('Title'),
+            'variantTitleLabel' => $this->string()->defaultValue('Title'),
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -814,6 +816,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
     }
 

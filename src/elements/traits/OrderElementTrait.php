@@ -202,7 +202,10 @@ trait OrderElementTrait
                 'label' => Plugin::t('All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count
+                'badgeCount' => $count,
+                'data' => [
+                    'date-attr' => 'dateOrdered',
+                ],
             ]
         ];
 
@@ -226,7 +229,8 @@ trait OrderElementTrait
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => $count,
                 'data' => [
-                    'handle' => $orderStatus->handle
+                    'handle' => $orderStatus->handle,
+                    'date-attr' => 'dateOrdered',
                 ]
             ];
         }
@@ -245,7 +249,8 @@ trait OrderElementTrait
             'criteria' => $criteriaActive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
-                'handle' => 'cartsActive'
+                'handle' => 'cartsActive',
+                'date-attr' => 'dateUpdated',
             ]
         ];
         $updatedBefore = [];
@@ -258,7 +263,8 @@ trait OrderElementTrait
             'criteria' => $criteriaInactive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
-                'handle' => 'cartsInactive'
+                'handle' => 'cartsInactive',
+                'date-attr' => 'dateUpdated',
             ]
         ];
 
@@ -269,7 +275,8 @@ trait OrderElementTrait
             'criteria' => $criteriaAttemptedPayment,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
-                'handle' => 'cartsAttemptedPayment'
+                'handle' => 'cartsAttemptedPayment',
+                'date-attr' => 'dateUpdated',
             ]
         ];
 

@@ -6,7 +6,7 @@
     "gulp": "^4.0.2",
     "gulp-sass": "^4.0.2",
     "markdown-it-deflist": "^2.0.3",
-    "node-sass": "^4.12.0"
+    "node-sass": "^4.13.0"
   },
   "scripts": {
     "build": "./node_modules/.bin/gulp",

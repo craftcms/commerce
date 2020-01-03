@@ -27,8 +27,10 @@
                         </li>
                     </ul>
                 </div>
-
-                <div v-if="emailLoading" class="spinner"></div>
+            </div>
+            <div v-if="emailLoading">
+            <div class="spacer"></div>
+            <div class="spinner"></div>
             </div>
         </template>
     </div>

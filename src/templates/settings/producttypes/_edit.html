@@ -46,6 +46,16 @@
         }) }}
 
         {{ forms.textField({
+            label: "Title Field Label"|t('app'),
+            instructions: "What do you want the Title field to be called?"|t('app'),
+            id: 'titleLabel',
+            name: 'titleLabel',
+            value: productType.titleLabel,
+            errors: productType.getErrors('titleLabel'),
+            required: true
+        }) }}
+
+        {{ forms.textField({
             label: "Automatic SKU Format"|t('commerce'),
             instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
             id: 'skuFormat',
@@ -118,8 +128,21 @@
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
                     reverseToggle: 'titleFormat-container',
+                    toggle: 'variantTitleLabel-container',
                     checked: productType.hasVariantTitleField
                 }) }}
+
+                <div id="variantTitleLabel-container" {% if not productType.hasVariantTitleField %}class="hidden"{% endif %}>
+                    {{ forms.textField({
+                        label: "Variant Title Field Label"|t('app'),
+                        instructions: "What do you want the Variant Title field to be called?"|t('app'),
+                        id: 'variantTitleLabel',
+                        name: 'variantTitleLabel',
+                        value: productType.variantTitleLabel,
+                        errors: productType.getErrors('variantTitleLabel'),
+                        required: true
+                    }) }}
+                </div>
 
                 <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ textField({
@@ -268,7 +291,12 @@
         $('#tab-variantFields').parent().addClass('hidden');
     }
 
+    if (document.getElementById('hasVariants').checked){
+        $('#tab-variantFields').parent().removeClass('hidden');
+    }
+
     $('#hasVariants').on('change', function() {
+        $('#tab-variantFields').parent().toggleClass('hidden');
         $('#tab-variantFields').parent().toggleClass('hidden');
     });
 {% endjs %}
