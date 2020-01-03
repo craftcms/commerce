@@ -1684,11 +1684,17 @@ class Order extends Element
      */
     public function getCustomerLinkHtml(): string
     {
-        if ($this->getCustomer() && $this->isCompleted) {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser) {
+            return '';
+        }
+
+        if ($this->getCustomer() && $this->isCompleted && $currentUser->can('commerce-manageCustomers')) {
             return '<span><a href="' . UrlHelper::cpUrl('commerce/customers/' . $this->getCustomer()->id) . '">' . $this->email . '</a></span>';
         }
 
-        if ($this->getCustomer() && $this->email) {
+        if ($this->getCustomer() && $this->email && $currentUser->can('commerce-manageOrders')) {
             return '<span>' . $this->email . '</span>';
         }
 
