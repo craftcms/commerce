@@ -60,6 +60,11 @@
     <tr>
         <td><strong>Paid Status: </strong>{{ order.paidStatus|title }}</td>
     </tr>
+    {% if order.couponCode %}
+    <tr>
+        <td><strong>Coupon Code: </strong>{{ order.couponCode }}</td>
+    </tr>
+    {% endif %}
 </table>
 
 <table width="100%">
