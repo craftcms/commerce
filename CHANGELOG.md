@@ -11,6 +11,7 @@
 - Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
 - Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
+- Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
@@ -19,6 +20,8 @@
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\models\ProductType::$titleLabel`.
+- Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\State::$enabled`.
