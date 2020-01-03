@@ -180,6 +180,16 @@ class Settings extends Model
      */
     public $lineItemOptionsConfig = [];
 
+    /**
+     * @var bool
+     */
+    public $showCustomerInfoTab = true;
+
+    /**
+     * @var bool
+     */
+    public $defaultView = 'commerce/orders';
+
     // Public Methods
     // =========================================================================
 
