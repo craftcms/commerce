@@ -34,6 +34,7 @@ class Settings extends Model
 
     const VIEW_URI_ORDERS = 'commerce/orders';
     const VIEW_URI_PRODUCTS = 'commerce/products';
+    const VIEW_URI_CUSTOMERS = 'commerce/customers';
     const VIEW_URI_PROMOTIONS = 'commerce/promotions';
     const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
     const VIEW_URI_TAX = 'commerce/tax/taxrates';
@@ -278,6 +279,7 @@ class Settings extends Model
         return [
             self::VIEW_URI_ORDERS => Plugin::t('Orders'),
             self::VIEW_URI_PRODUCTS => Plugin::t('Products'),
+            self::VIEW_URI_CUSTOMERS => Plugin::t('Customers'),
             self::VIEW_URI_PROMOTIONS => Plugin::t('Promotions'),
             self::VIEW_URI_SHIPPING => Plugin::t('Shipping'),
             self::VIEW_URI_TAX => Plugin::t('Tax'),

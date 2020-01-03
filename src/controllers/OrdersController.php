@@ -101,10 +101,16 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-editOrders');
 
+        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+
         $order = new Order();
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-        $customer = new Customer();
-        Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+
+        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $customer = new Customer();
+            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        }
+
         $order->customerId = $customer->id;
         $order->origin = Order::ORIGIN_CP;
 
@@ -304,13 +310,13 @@ class OrdersController extends Controller
         $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
 
-        $userId = $request->getQueryParam('userId', null);
+        $customerId = $request->getQueryParam('customerId', null);
 
-        if (!$userId) {
-            return $this->asErrorJson(Plugin::t('User ID is required.'));
+        if (!$customerId) {
+            return $this->asErrorJson(Plugin::t('Customer ID is required.'));
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($userId);
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
             return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
@@ -336,6 +342,7 @@ class OrdersController extends Controller
 
         $orderQuery->offset($offset);
         $orderQuery->limit($limit);
+        $orderQuery->orderBy('dateOrdered DESC');
         $orders = $orderQuery->all();
 
         $rows = [];

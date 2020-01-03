@@ -51,6 +51,10 @@ trait OrderElementTrait
             {
                 return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
+            case 'customer':
+            {
+                return $this->getCustomerLinkHtml();
+            }
             case 'shippingFullName':
             {
                 return $this->getShippingAddress() ? $this->getShippingAddress()->fullName ?? '' : '';
@@ -355,6 +359,7 @@ trait OrderElementTrait
             'dateCreated' => ['label' => Plugin::t('Date Created')],
             'dateUpdated' => ['label' => Plugin::t('Date Updated')],
             'email' => ['label' => Plugin::t('Email')],
+            'customer' => ['label' => Plugin::t('Customer')],
             'shippingFullName' => ['label' => Plugin::t('Shipping Full Name')],
             'shippingFirstName' => ['label' => Plugin::t('Shipping First Name')],
             'shippingLastName' => ['label' => Plugin::t('Shipping Last Name')],

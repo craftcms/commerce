@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\helpers\UrlHelper;
 use DateInterval;
 use DateTime;
 use yii\base\InvalidConfigException;
@@ -168,6 +169,16 @@ class Customer extends Model
         }
 
         return null;
+    }
+
+    /**
+     * @return string
+     * @since 3.0
+     */
+    public function getCpEditUrl(): string
+    {
+        $id = $this->id ?? '';
+        return UrlHelper::cpUrl('commerce/customers/' . $id);
     }
 
     /**

@@ -22,6 +22,8 @@
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
 - Added consolidation of guest orders after an order is completed.
+- Added the ability to manager Customers and Customer Addresses.
+- Added the ability to show the customer on the Order index table.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
@@ -36,7 +38,9 @@
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\elements\Order::getCustomerLinkHtml()`.
 - Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\models\Customer::getCpEditUrl()`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
 - Added `craft\commerce\models\Discount::$totalDiscountUses`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.

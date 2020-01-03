@@ -1675,19 +1675,21 @@ class Order extends Element
      * Customer represented as HTML
      *
      * @return string
+     * @since 3.0
      */
     public function getCustomerLinkHtml(): string
     {
-        if ($this->getUser()) {
-            return '<span><a href="' . $this->getUser()->getCpEditUrl() . '">' . $this->getUser()->email . '</a></span>';
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if (!$currentUser) {
+            return '';
         }
 
-        // TODO change this to the link to the customer edit screen when we have customer management
-        if (!$this->getUser() && $this->getCustomer()) {
-            return '<span>' . $this->email . '</span>';
+        if ($this->getCustomer() && $this->isCompleted && $currentUser->can('commerce-manageCustomers')) {
+            return '<span><a href="' . $this->getCustomer()->getCpEditUrl() . '">' . $this->email . '</a></span>';
         }
 
-        if ($this->getCustomer() && $this->email) {
+        if ($this->getCustomer() && $this->email && $currentUser->can('commerce-manageOrders')) {
             return '<span>' . $this->email . '</span>';
         }
 

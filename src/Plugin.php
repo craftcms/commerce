@@ -223,6 +223,13 @@ class Plugin extends BasePlugin
             ];
         }
 
+        if (Craft::$app->getUser()->checkPermission('commerce-manageCustomers')) {
+            $ret['subnav']['customers'] = [
+                'label' => self::t('Customers'),
+                'url' => 'commerce/customers',
+            ];
+        }
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
             $ret['subnav']['subscriptions'] = [
                 'label' => self::t('Subscriptions'),
@@ -362,6 +369,7 @@ class Plugin extends BasePlugin
                         ],
                     ]
                 ],
+                'commerce-manageCustomers' => ['label' => self::t('Manage Customers')],
                 'commerce-managePromotions' => ['label' => self::t('Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => self::t('Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => self::t('Manage shipping (Pro edition Only)')],
