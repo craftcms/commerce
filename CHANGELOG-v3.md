@@ -21,6 +21,7 @@
 - Added the ability to set the title label for Products and Variants per product type.
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
+- Added the ability to show the customer on the Order index table.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
