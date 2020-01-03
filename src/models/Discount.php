@@ -102,6 +102,11 @@ class Discount extends Model
     public $baseDiscount = 0;
 
     /**
+     * @var string Type of discount for the base discount e.g. currency value or percentage
+     */
+    public $baseDiscountType;
+
+    /**
      * @var float Amount of discount per item
      */
     public $perItemDiscount;

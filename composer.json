@@ -20,7 +20,7 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.3.0",
+    "craftcms/cms": "^3.4.0-beta.1",
     "dompdf/dompdf": "^0.8.3",
     "moneyphp/money": "^3.2.1",
     "ibericode/vat": "^1.1.2",
@@ -28,7 +28,8 @@
   },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src/"
+      "craft\\commerce\\": "src/",
+      "craftcommercetests\\fixtures\\": "tests/fixtures/"
     }
   },
   "extra": {
@@ -44,9 +45,9 @@
     "vlucas/phpdotenv": "^3.4"
   },
   "scripts": {
-    "test": [
+    "testunit": [
       "Composer\\Config::disableProcessTimeout",
-      "codecept"
+      "codecept run unit"
     ]
   }
 }

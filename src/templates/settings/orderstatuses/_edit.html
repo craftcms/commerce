@@ -77,14 +77,14 @@
     {% endset %}
     {{ forms.field({
         label: 'Color'|t('commerce'),
-        instructions: 'Choose a color to represent the order’s status'|t
+        instructions: 'Choose a color to represent the order’s status'|t('commerce')
     },colorField) }}
 
 
     {% if not emails|length %}
         {{ forms.field({
             label: 'Status Emails'|t('commerce'),
-            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t~'</span>',
+            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t('commerce')~'</span>',
             disabled: true
         }) }}
     {% else %}

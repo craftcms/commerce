@@ -2,6 +2,7 @@
 
 ### Added
 - Added the ability to create and edit orders from the Control Panel.
+- Added GraphQL support for products.
 - Added the ability to send emails from the Edit Order page.
 - Added “Edit Orders” and “Delete Orders” user permissions.
 - Line items now have a status that can be changed on the Edit Order page.
@@ -12,26 +13,41 @@
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
 - Added warnings to settings that are being overridden in the config file.
 - Added the ability on promotions to choose the relationship type for related categories.
+- Added the ability to add a product to an existing Sale from the Product Edit page.
 - Added the ability to set a plain text template for Commerce emails.
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
+- Added the ability to create discounts using the order total and percentages. 
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
 - Added the ability to set the title label for Products and Variants per product type.
+- Added the ability to enable/disabled countries.
+- Added the ability to enable/disabled states.
 - Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
+- Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
+- Added `craft\commerce\models\State::$enabled`.
+- Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.
 - Added `craft\commerce\records\Purchasable::$description`.
+- Added `craft\commerce\records\State::$enabled`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountries`.
+- Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
+- Added `craft\commerce\services\States::getAllEnabledStates`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
+- Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
+- Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
 
 ## Changed
 - The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
+- Order status change emails are triggered by a job on the queue for faster checkout.
 - If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
 - Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
@@ -40,6 +56,8 @@
 - `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
+- Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods. 
+- `allowEmptyCartOnCheckout` default value is false.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.

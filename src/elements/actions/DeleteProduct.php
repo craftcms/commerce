@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\actions;
 
 use Craft;
+use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\db\ElementQueryInterface;
 
@@ -35,7 +36,7 @@ class DeleteProduct extends Delete
             Craft::$app->getElements()->deleteElement($product);
         }
 
-        $this->setMessage(Craft::t('commerce', 'Products deleted.'));
+        $this->setMessage(Plugin::t('Products deleted.'));
 
         return true;
     }

@@ -529,18 +529,26 @@ class Customers extends Component
                     'title',
                     'firstName',
                     'lastName',
+                    'fullName',
                     'countryId',
                     'stateId',
                     'address1',
                     'address2',
+                    'address3',
                     'city',
                     'zipCode',
                     'phone',
                     'alternativePhone',
+                    'label',
+                    'notes',
                     'businessName',
                     'businessTaxId',
                     'businessId',
-                    'stateName'
+                    'stateName',
+                    'custom1',
+                    'custom2',
+                    'custom3',
+                    'custom4',
                 ]
             ));
             $originalBillingAddressId = $snapshotBillingAddress->id;
@@ -561,18 +569,26 @@ class Customers extends Component
                     'title',
                     'firstName',
                     'lastName',
+                    'fullName',
                     'countryId',
                     'stateId',
                     'address1',
                     'address2',
+                    'address3',
                     'city',
                     'zipCode',
                     'phone',
                     'alternativePhone',
+                    'label',
+                    'notes',
                     'businessName',
                     'businessTaxId',
                     'businessId',
-                    'stateName'
+                    'stateName',
+                    'custom1',
+                    'custom2',
+                    'custom3',
+                    'custom4',
                 ]
             ));
             $originalShippingAddressId = $snapshotShippingAddress->id;
@@ -672,7 +688,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Customer Info'),
+                'label' => Plugin::t('Customer Info'),
                 'url' => '#customerInfo'
             ];
         }

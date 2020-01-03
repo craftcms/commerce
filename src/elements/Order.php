@@ -831,7 +831,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Orders');
+        return Plugin::t('Orders');
     }
 
     /**
@@ -1091,6 +1091,7 @@ class Order extends Element
      * Returns the total price of the order, minus any tax adjustments.
      *
      * @return float
+     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
      */
     public function getTotalTaxablePrice(): float
     {
@@ -1180,7 +1181,7 @@ class Order extends Element
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
-            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            Craft::error(Plugin::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
                 ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
             $mutex->release($lockName);
@@ -1313,7 +1314,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Plugin::t('Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -1714,19 +1715,19 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_OVERPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Plugin::t('Overpaid') . '</span>';
             }
             case self::PAID_STATUS_PAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Plugin::t('Paid') . '</span>';
             }
             case self::PAID_STATUS_PARTIAL:
             {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Plugin::t('Partial') . '</span>';
             }
             case self::PAID_STATUS_UNPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Plugin::t('Unpaid') . '</span>';
             }
         }
 
@@ -2385,7 +2386,7 @@ class Order extends Element
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
-    
+
     // Private Methods
     // =========================================================================
 

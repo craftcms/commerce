@@ -85,7 +85,7 @@
 {% block actionButton %}
     <input type="hidden" name="action" value="commerce/orders/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
-    {{ redirectInput('commerce/orders') }}
+    {{ redirectInput('commerce/orders/'~order.id) }}
 
     <div id="order-secondary-actions">
         <div id="order-secondary-actions-app"></div>
@@ -100,10 +100,10 @@
 
 {% block details %}
     <div id="order-meta-app"></div>
-    <div class="meta">
+    <div class="meta read-only">
       <div class="address-boxes">
         {% set address = order.shippingAddress %}
-        <div id="shippingAddressBox" class="address-box hidden"
+        <div id="shippingAddressBox" class="address-box address-box--full hidden"
              data-title='{{ "Shipping Address"|t("commerce") }}'
              data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
           <div class="address-box-content">
@@ -114,10 +114,10 @@
       </div>
     </div>
 
-    <div class="meta">
+    <div class="meta read-only">
       <div class="address-boxes">
         {% set address = order.billingAddress %}
-        <div id="billingAddressBox" class="address-box hidden"
+        <div id="billingAddressBox" class="address-box address-box--full hidden"
              data-title='{{ "Billing Address"|t("commerce") }}'
              data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
           <div class="address-box-content">
@@ -134,9 +134,9 @@
 
     <div id="orderDetailsTab">
       <div id="order-details-app"></div>
-      <br><br>
+
       {% hook "cp.commerce.order.edit.main-pane" %}
-      <br><br><br><br><br><br><br><br>
+
     </div>
 
     {% include 'commerce/orders/_customFields' %}
@@ -146,8 +146,8 @@
 {% endblock %}
 
 {% js %}
-    window.countries = {{ craft.commerce.countries.allCountries|values|json_encode|raw }};
-    window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
+    window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
+    window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
 
     $(document).ready(function () {
         {% if paymentForm is defined and paymentForm %}
