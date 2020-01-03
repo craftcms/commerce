@@ -76,7 +76,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'invalid_coupon'],
             false,
-            'Coupon not valid'
+            'Coupon not valid.'
         );
     }
 
@@ -105,7 +105,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
             false,
-            'Coupon not valid'
+            'Coupon not valid.'
         );
     }
 
@@ -122,7 +122,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
             false,
-            'Discount is out of date'
+            'Discount is out of date.'
         );
     }
 
@@ -141,7 +141,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
             false,
-            'Discount is out of date'
+            'Discount is out of date.'
         );
     }
 
@@ -151,13 +151,13 @@ class DiscountsTest extends Unit
     public function testCouponThatHasBeenUsedTooMuch()
     {
         $this->updateOrderCoupon([
-            'totalUses' => '2'
+            'totalDiscountUses' => 2
         ]);
 
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
             false,
-            'Discount use has reached its limit'
+            'Discount use has reached its limit.'
         );
     }
 
@@ -173,7 +173,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1001'],
             false,
-            'Discount is limited to use by registered users only.'
+            'This coupon is for registered users and limited to 1 uses.'
         );
     }
 
@@ -196,7 +196,7 @@ class DiscountsTest extends Unit
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
             false,
-            'This coupon limited to 1 uses.'
+            'This coupon is for registered users and limited to 1 uses.'
         );
     }
 
@@ -283,11 +283,11 @@ class DiscountsTest extends Unit
      */
     public function testOrderCompleteHandler()
     {
+        // TODO: Update this test to create a full real order that saves.
+
         $this->updateOrderCoupon([
-            'totalUseLimit' => '2',
-            'totalUses' => '2',
-            'perUserLimit' => '1',
-            'perEmailLimit' => '1'
+            'perUserLimit' => '0',
+            'perEmailLimit' => '0'
         ]);
 
         $order = new Order(['couponCode' => 'discount_1', 'customerId' => '1000']);
@@ -296,7 +296,7 @@ class DiscountsTest extends Unit
 
         // Get thew new Total uses.
         $totalUses = (int)(new Query())
-            ->select('totalUses')
+            ->select('totalDiscountUses')
             ->from('{{%commerce_discounts}}')
             ->where(['code' => 'discount_1'])
             ->scalar();

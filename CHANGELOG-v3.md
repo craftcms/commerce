@@ -22,16 +22,23 @@
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
 - Added consolidation of guest orders after an order is completed.
-- Added `craft\commerce\controllers\LineItemStatuses`.
-- Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
+- Added `craft\commerce\controllers\LineItemStatuses`.
 - Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
+- Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
+- Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
 - Added `craft\commerce\models\Country::$enabled`.
+- Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
+- Added `craft\commerce\models\Discount::$totalDiscountUses`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
 - Added `craft\commerce\models\ProductType::$titleLabel`.
@@ -44,6 +51,11 @@
 - Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
+- Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
+- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::getCustomerUsageStatsById()`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
@@ -65,6 +77,9 @@
 - `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
 - Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods. 
 - `allowEmptyCartOnCheckout` default value is false.
+- `totalDiscountUses` now counts all usage instances of a discount.
+- Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Clearing discount usage counters is now done on a per counter basis.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
@@ -84,6 +99,7 @@
 - Removed the `commerce/cart/remove-line-item` action.
 - Removed the `commerce/cart/update-line-item` action.
 - Removed `craft\commerce\base\Purchasable::getPurchasableId()`.
+- Removed `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedAfter()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedBefore()`.
 - Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedAfter()`.
@@ -98,6 +114,8 @@
 - Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
 - Removed `craft\commerce\elements\Variant::getSalesApplied()`.
 - Removed `craft\commerce\models\Address::getFullName()`.
+- Removed `craft\commerce\models\Discount::$totalUses`.
+- Removed `craft\commerce\models\Discount::$totalUseLimit`.
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
@@ -107,6 +125,7 @@
 - Removed `craft\commerce\models\Order::getTaxIncluded()`.
 - Removed `craft\commerce\models\ShippingMethod::$amount`.
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
+- Removed `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.

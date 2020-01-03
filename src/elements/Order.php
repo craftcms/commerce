@@ -2040,6 +2040,24 @@ class Order extends Element
     }
 
     /**
+     * @param string $type
+     * @return array
+     * @since 3.0
+     */
+    public function getAdjustmentsByType(string $type): array
+    {
+        $adjustments = [];
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->type === $type) {
+                $adjustments[] = $adjustment;
+            }
+        }
+
+        return $adjustments;
+    }
+
+    /**
      * @return array
      */
     public function getOrderAdjustments(): array
