@@ -14,6 +14,11 @@
 - Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
+- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
