@@ -4,6 +4,7 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\elements\actions\DeleteOrder;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
@@ -292,32 +293,39 @@ trait OrderElementTrait
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
-            $deleteAction = $elementService->createAction(
-                [
-                    'type' => Delete::class,
-                    'confirmationMessage' => Plugin::t('Are you sure you want to delete the selected orders?'),
-                    'successMessage' => Plugin::t('Orders deleted.'),
-                ]
-            );
-            $actions[] = $deleteAction;
-
-            // Only allow mass updating order status when all selected are of the same status, and not carts.
-            $isStatus = strpos($source, 'orderStatus:');
-
-            if ($isStatus === 0) {
-                $updateOrderStatusAction = $elementService->createAction([
-                    'type' => UpdateOrderStatus::class
-                ]);
-                $actions[] = $updateOrderStatusAction;
+            if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
+                $deleteAction = $elementService->createAction(
+                    [
+                        'type' => DeleteOrder::class,
+                        'confirmationMessage' => Plugin::t('Are you sure you want to delete the selected orders?'),
+                        'successMessage' => Plugin::t('Orders deleted.'),
+                    ]
+                );
+                $actions[] = $deleteAction;
             }
 
-            // Restore
-            $actions[] = Craft::$app->getElements()->createAction([
-                'type' => Restore::class,
-                'successMessage' => Plugin::t('Orders restored.'),
-                'partialSuccessMessage' => Plugin::t('Some orders restored.'),
-                'failMessage' => Plugin::t('Orders not restored.'),
-            ]);
+            if (Craft::$app->getUser()->checkPermission('commerce-editOrders')) {
+                // Only allow mass updating order status when all selected are of the same status, and not carts.
+                $isStatus = strpos($source, 'orderStatus:');
+
+
+                if ($isStatus === 0) {
+                    $updateOrderStatusAction = $elementService->createAction([
+                        'type' => UpdateOrderStatus::class
+                    ]);
+                    $actions[] = $updateOrderStatusAction;
+                }
+            }
+
+            if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
+                // Restore
+                $actions[] = Craft::$app->getElements()->createAction([
+                    'type' => Restore::class,
+                    'successMessage' => Plugin::t('Orders restored.'),
+                    'partialSuccessMessage' => Plugin::t('Some orders restored.'),
+                    'failMessage' => Plugin::t('Orders not restored.'),
+                ]);
+            }
         }
 
         return $actions;

@@ -1527,11 +1527,6 @@ class Order extends Element
      */
     public function getIsEditable(): bool
     {
-        // Still a cart, allow full editing.
-        if (!$this->isCompleted) {
-            return true;
-        }
-
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
