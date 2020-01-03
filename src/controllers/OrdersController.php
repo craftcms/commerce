@@ -342,6 +342,7 @@ class OrdersController extends Controller
 
         $orderQuery->offset($offset);
         $orderQuery->limit($limit);
+        $orderQuery->orderBy('dateOrdered DESC');
         $orders = $orderQuery->all();
 
         $rows = [];
