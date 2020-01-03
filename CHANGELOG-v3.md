@@ -18,6 +18,7 @@
 - Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
 - Added the ability to create discounts using the order total and percentages. 
 - Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
+- Added the ability to set the title label for Products and Variants per product type.
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
 - Added `craft\commerce\controllers\LineItemStatuses`.
@@ -27,6 +28,8 @@
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\LineItem::$lineItemStatusId`.
 - Added `craft\commerce\models\LineItem::$privateNote`.
+- Added `craft\commerce\models\ProductType::$titleLabel`.
+- Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\LineItemStatus`.

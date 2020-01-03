@@ -67,6 +67,11 @@ class ProductType extends Model
     public $hasVariants;
 
     /**
+     * @var string Title label
+     */
+    public $variantTitleLabel = 'Title';
+
+    /**
      * @var bool Has variant title field
      */
     public $hasVariantTitleField = true;
@@ -75,6 +80,11 @@ class ProductType extends Model
      * @var string Title format
      */
     public $titleFormat = '{product.title}';
+
+    /**
+     * @var string Title label
+     */
+    public $titleLabel = 'Title';
 
     /**
      * @var string SKU format
@@ -144,8 +154,8 @@ class ProductType extends Model
     {
         return [
             [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
-            [['name', 'handle', 'titleFormat'], 'required'],
-            [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
+            [['name', 'handle', 'titleFormat', 'titleLabel', 'variantTitleLabel'], 'required'],
+            [['name', 'handle', 'descriptionFormat', 'titleLabel', 'variantTitleLabel'], 'string', 'max' => 255],
             [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
             [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
         ];
