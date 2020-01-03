@@ -18,7 +18,7 @@
 
                 {% if not cart.email %}
                     <label for="email">Email</label>
-                    <input id="email" class="w-full" type="text" value="{{ cart.email }}" name="email"
+                    <input id="email" class="w-full" type="email" value="{{ cart.email }}" name="email"
                            placeholder="email@site.com"/>
 
                     <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
