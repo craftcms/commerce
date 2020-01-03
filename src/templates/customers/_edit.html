@@ -26,10 +26,14 @@
     <div class="data">
       <h5 class="heading">{{ 'User'|t('app') }}</h5>
       <div class="value">
-        {{ tag('a', {
-          href: customerUser.getCpEditUrl(),
-          text: customerUser.__toString(),
-        }) }}
+        {% if currentUser.can('editUsers') %}
+          {{ tag('a', {
+            href: customerUser.getCpEditUrl(),
+            text: customerUser.__toString(),
+          }) }}
+        {% else %}
+          <span>{{ customerUser.__toString() }}</span>
+        {% endif %}
       </div>
     </div>
   {% endif %}
