@@ -218,8 +218,6 @@ class Install extends Migration
             'code' => $this->string(),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
-            'totalUseLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
-            'totalUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUseLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'dateFrom' => $this->dateTime(),

@@ -90,35 +90,6 @@
             errors: discount.getErrors('code'),
         }) }}
 
-        <div id="coupon-fields"
-             class="{% if not discount.code|length %}hidden{% endif %}">
-            {{ commerceForms.numberField({
-                label: "Total Coupon Use Limit"|t('commerce'),
-                instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
-                id: 'totalUseLimit',
-                name: 'totalUseLimit',
-                value: discount.totalUseLimit,
-                min: '0',
-                errors: discount.getErrors('totalUseLimit'),
-            }) }}
-
-            {{ forms.field({
-                'label': 'Times Coupon Used'|t('commerce'),
-                'id': 'total-coupon-use-counter',
-                'instructions': "How many times this discount has been used with a coupon code."|t('commerce'),
-            }, '<input disabled class="text disabled fullwidth" value="' ~ discount.totalUses ~ ' times">') }}
-
-            {% if discount.id and discount.code|length %}
-                <div id="clear-coupon-history">
-                    {{ forms.field({
-                        'label': 'Clear all coupon usage history for this discount'|t('commerce'),
-                        'id': 'clear-coupon',
-                        'instructions': "This will clear the “Total Coupon Use Limit” counter."|t('commerce'),
-                    }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t('commerce') ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>') }}
-                </div>
-            {% endif %}
-
-        </div>
     </div>
 
     <div id="conditions" class="hidden">
@@ -449,32 +420,6 @@ Currency value: “10” for $10 off. Percent: “10” for 10% off."|t('commerc
                     $("#hasFreeShippingForMatchingItems").prop("disabled", true);
                 }else{
                     $("#hasFreeShippingForMatchingItems").prop("disabled", false);
-                }
-            });
-
-            $('#clear-coupon-btn').click(function(event) {
-                var r = confirm("Are you sure you want to clear all usage history for this discount?");
-
-                if (r == true) {
-                    $('#clear-coupon-history-spinner').toggleClass('hidden');
-                    $.ajax({
-                        type: "POST",
-                        dataType: 'json',
-                        headers: {
-                            "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
-                        },
-                        url: '',
-                        data: {
-                            'action' : 'commerce/discounts/clear-coupon-usage-history',
-                            'id': '{{ discount.id ?? '' }}'
-                        },
-                        success: function(data){
-                            $('#clear-coupon-history-spinner').toggleClass('hidden');
-                            $('#total-coupon-use-counter').val(0);
-                            alert(Craft.t('commerce', 'All coupon usage counters have been cleared'));
-                            $('#clear-coupon-history').hide();
-                        }
-                    });
                 }
             });
 

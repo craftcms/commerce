@@ -71,12 +71,8 @@
 - Clearing discount usage counters is now done on a per counter basis.
 
 ## Deprecated
-- Deprecated `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`. `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()` should be used instead.
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
-- Deprecated `craft\commerce\models\Discount::$totalUseLimit`. `craft\commerce\models\Discount::$totalDiscountUseLimit` should be used instead. 
-- Deprecated `craft\commerce\models\Discount::$totalUses`. `craft\commerce\models\Discount::$totalDiscountUses` should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
-- Deprecated `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`. `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()` and `craft\commerce\services\Discounts::clearEmailUsageHistoryById()` should be used instead.
 
 ## Removed
 - Removed the Customer Info field type.
@@ -91,6 +87,7 @@
 - Removed the `commerce/cart/remove-line-item` action.
 - Removed the `commerce/cart/update-line-item` action.
 - Removed `craft\commerce\base\Purchasable::getPurchasableId()`.
+- Removed `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedAfter()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedBefore()`.
 - Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedAfter()`.
@@ -105,6 +102,8 @@
 - Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
 - Removed `craft\commerce\elements\Variant::getSalesApplied()`.
 - Removed `craft\commerce\models\Address::getFullName()`.
+- Removed `craft\commerce\models\Discount::$totalUses`.
+- Removed `craft\commerce\models\Discount::$totalUseLimit`.
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
@@ -114,6 +113,7 @@
 - Removed `craft\commerce\models\Order::getTaxIncluded()`.
 - Removed `craft\commerce\models\ShippingMethod::$amount`.
 - Removed `craft\commerce\services\Countries::getAllCountriesListData()`.
+- Removed `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.

@@ -112,7 +112,6 @@ class DiscountsController extends BaseCpController
         $discount->code = trim($request->getBodyParam('code')) ?: null;
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
-        $discount->totalUseLimit = $request->getBodyParam('totalUseLimit');
         $discount->totalDiscountUseLimit = $request->getBodyParam('totalDiscountUseLimit');
         $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
         $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
@@ -216,22 +215,6 @@ class DiscountsController extends BaseCpController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
-
-        return $this->asJson(['success' => true]);
-    }
-
-    /**
-     * @throws HttpException
-     * @deprecated in 3.0
-     */
-    public function actionClearCouponUsageHistory()
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
-
-        Plugin::getInstance()->getDiscounts()->clearCouponUsageHistoryById($id);
 
         return $this->asJson(['success' => true]);
     }

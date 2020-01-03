@@ -63,18 +63,6 @@ class Discount extends Model
 
     /**
      * @var int Total use limit by guests or users
-     * @deprecated im 3.0 use $totalDiscountUseLimit instead.
-     */
-    public $totalUseLimit = 0;
-
-    /**
-     * @var int Total use counter;
-     * @deprecated im 3.0 use $totalDiscountUses instead.
-     */
-    public $totalUses = 0;
-
-    /**
-     * @var int Total use limit by guests or users
      * @since 3.0
      */
     public $totalDiscountUseLimit = 0;
@@ -347,8 +335,8 @@ class Discount extends Model
                     'purchaseTotal',
                     'perUserLimit',
                     'perEmailLimit',
-                    'totalUseLimit',
-                    'totalUses',
+                    'totalDiscountUseLimit',
+                    'totalDiscountUses',
                     'purchaseTotal',
                     'purchaseQty',
                     'maxPurchaseQty',

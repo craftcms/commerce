@@ -45,8 +45,6 @@ use yii\db\ActiveQueryInterface;
  * @property int $sortOrder
  * @property bool $stopProcessing
  * @property bool $ignoreSales
- * @property int $totalUseLimit
- * @property int $totalUses
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses
  * @property string $categoryRelationshipType

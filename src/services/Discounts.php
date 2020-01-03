@@ -252,15 +252,15 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid');
+            $explanation = Plugin::t('Coupon not valid.');
             return false;
         }
 
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if ($discount->totalUseLimit > 0 && $discount->totalUses >= $discount->totalUseLimit) {
-            $explanation = Plugin::t('Discount use has reached its limit');
+        if ($discount->totalDiscountUseLimit > 0 && $discount->totalDiscountUses >= $discount->totalDiscountUseLimit) {
+            $explanation = Plugin::t('Discount use has reached its limit.');
             return false;
         }
 
@@ -451,20 +451,16 @@ class Discounts extends Component
             return false;
         }
 
-        // Coupon based checks
-        if ($discount->code && $this->_isDiscountCouponCodeValid($order, $discount)) {
+        if (!$this->_isDiscountTotalUseLimitValid($discount)) {
+            return false;
+        }
 
-            if (!$this->_isDiscountCouponLimitValid($discount)) {
-                return false;
-            }
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+            return false;
+        }
 
-            if (!$this->_isDiscountCouponPerUserUsageValid($discount, $user, $customer)) {
-                return false;
-            }
-
-            if (!$this->_isDiscountCouponPerEmailLimitValid($discount, $order)) {
-                return false;
-            }
+        if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
+            return false;
         }
 
         // Check to see if we need to match on data related to the lineItems
@@ -541,7 +537,6 @@ class Discounts extends Component
         $record->excludeOnSale = $model->excludeOnSale;
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
-        $record->totalUseLimit = $model->totalUseLimit;
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignoreSales = $model->ignoreSales;
         $record->categoryRelationshipType = $model->categoryRelationshipType;
@@ -632,21 +627,6 @@ class Discounts extends Component
         }
 
         return $result;
-    }
-
-    /**
-     * Clears a coupon's usage history.
-     *
-     * @param int $id the coupon's ID
-     * @deprecated in 3.0 use [[clearCustomerUsageHistoryById()]] and [[clearEmailUsageHistoryById()]] instead.
-     */
-    public function clearCouponUsageHistoryById(int $id)
-    {
-        $db = Craft::$app->getDb();
-
-        $db->createCommand()
-            ->update(Table::DISCOUNTS, ['totalUses' => 0], ['id' => $id])
-            ->execute();
     }
 
     /**
@@ -775,18 +755,6 @@ class Discounts extends Component
 
         $customer = $order->getCustomer();
         foreach ($discounts as $discount) {
-            // Check `couponCode` against `null` in case the code is a "falsey" string
-            if ($order->couponCode !== null && $order->couponCode == $discount['code']) {
-                // Increment total uses.
-                Craft::$app->getDb()->createCommand()
-                    ->update(Table::DISCOUNTS, [
-                        'totalUses' => new Expression('[[totalUses]] + 1')
-                    ], [
-                        'code' => $order->couponCode
-                    ])
-                    ->execute();
-            }
-
             // Count if there was a user on this order
             if ($customer && $customer->userId) {
                 $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount['id']])->one();
@@ -893,10 +861,10 @@ class Discounts extends Component
      * @param Discount $discount
      * @return bool
      */
-    private function _isDiscountCouponLimitValid(Discount $discount): bool
+    private function _isDiscountTotalUseLimitValid(Discount $discount): bool
     {
-        if ($discount->totalUseLimit > 0) {
-            if ($discount->totalUses >= $discount->totalUseLimit) {
+        if ($discount->totalDiscountUseLimit > 0) {
+            if ($discount->totalDiscountUses >= $discount->totalDiscountUseLimit) {
                 return false;
             }
         }
@@ -910,7 +878,7 @@ class Discounts extends Component
      * @param $customer
      * @return bool
      */
-    private function _isDiscountCouponPerUserUsageValid(Discount $discount, $user, $customer): bool
+    private function _isDiscountPerUserUsageValid(Discount $discount, $user, $customer): bool
     {
         if ($discount->perUserLimit > 0) {
 
@@ -938,7 +906,7 @@ class Discounts extends Component
      * @param Order $order
      * @return bool
      */
-    private function _isDiscountCouponPerEmailLimitValid(Discount $discount, Order $order): bool
+    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
@@ -970,8 +938,6 @@ class Discounts extends Component
                 'discounts.code',
                 'discounts.perUserLimit',
                 'discounts.perEmailLimit',
-                'discounts.totalUseLimit',
-                'discounts.totalUses',
                 'discounts.totalDiscountUseLimit',
                 'discounts.totalDiscountUses',
                 'discounts.dateFrom',
