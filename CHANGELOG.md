@@ -15,6 +15,7 @@
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- Added the ability to manager Customers and Customer Addresses. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added the ability to show the customer on the Order index table.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
