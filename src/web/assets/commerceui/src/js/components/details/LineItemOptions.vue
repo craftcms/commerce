@@ -25,7 +25,7 @@
                 </template>
             </template>
             <template v-else>
-                <prism-editor ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
+                <prism-editor class="text" ref="prismEditor" v-model="options" language="js" @change="onOptionsChange"></prism-editor>
 
                 <ul v-if="errors.length > 0" class="errors">
                     <li v-for="(error, key) in errors" :key="key">{{error}}</li>
@@ -63,7 +63,8 @@
         watch: {
             lineItem() {
                 if (this.lineItem) {
-                    this.options = JSON.stringify(this.lineItem.options, null, '\t')
+                    let options = this.normalizeOptions(this.lineItem.options);
+                    this.options = JSON.stringify(options, null, '\t')
                 }
             },
 
@@ -77,6 +78,14 @@
         },
 
         methods: {
+            normalizeOptions(options) {
+                if (Array.isArray(options) && options.length === 0) {
+                    options = {};
+                }
+
+                return options;
+            },
+
             onOptionsChange() {
                 this.errors = []
 
@@ -104,7 +113,9 @@
         },
 
         mounted() {
-            this.options = JSON.stringify(this.lineItem.options, null, '\t')
+            let options = this.normalizeOptions(this.lineItem.options);
+
+            this.options = JSON.stringify(options, null, '\t')
         }
     }
 </script>
@@ -113,6 +124,16 @@
     /* PrismJS fix for .token conflict with Craft’s styles */
 
     .prism-editor-wrapper {
+
+        &.text {
+            padding: 0;
+        }
+
+        pre[class*="language-"] {
+            padding: 6px 13px;
+            background: transparent;
+        }
+
         .token {
             background: transparent;
             border: 0;

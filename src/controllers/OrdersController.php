@@ -472,14 +472,16 @@ class OrdersController extends Controller
                 'count([[orders.id]]) as totalOrders',
             ])
             ->from('{{%commerce_customers}} customers')
-        ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-        ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
-        ->groupBy(['customerId', 'email', 'userId']);
+            ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+            ->groupBy(['customerId', 'email', 'userId'])
+            ->where(['not', ['customerId' => null]])
+            ->andWhere(['isCompleted' => 1]);
 
         // Are they searching for a customer ID?
         $results = [];
         if (is_numeric($query)) {
-            $result = $sqlQuery->where(['[[customers.id]]' => $query])->one();
+            $result = $sqlQuery->andWhere(['[[customers.id]]' => $query])->one();
             if ($result) {
                 $results[] = $result;
             }
@@ -488,7 +490,7 @@ class OrdersController extends Controller
         // Are they searching for an email address?
         if (!is_numeric($query)) {
             if ($query) {
-                $sqlQuery->where(
+                $sqlQuery->andWhere(
                     [$likeOperator, '[[orders.email]]', $query]
                 );
             }

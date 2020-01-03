@@ -33,6 +33,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\queue\ConsolidateGuestOrders;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
@@ -1210,6 +1211,11 @@ class Order extends Element
             }
         }
 
+        // Consolidate guest orders
+        Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+            'email' => $this->email
+        ]));
+
         // Raising the 'afterCompleteOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_ORDER)) {
             $this->trigger(self::EVENT_AFTER_COMPLETE_ORDER);
@@ -2030,6 +2036,24 @@ class Order extends Element
         }
 
         return $this->_orderAdjustments;
+    }
+
+    /**
+     * @param string $type
+     * @return array
+     * @since 3.0
+     */
+    public function getAdjustmentsByType(string $type): array
+    {
+        $adjustments = [];
+
+        foreach ($this->getAdjustments() as $adjustment) {
+            if ($adjustment->type === $type) {
+                $adjustments[] = $adjustment;
+            }
+        }
+
+        return $adjustments;
     }
 
     /**

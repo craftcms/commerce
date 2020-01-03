@@ -7,7 +7,7 @@
             :filterable="false"
             :clearable="false"
             :create-option="createOption"
-            :placeholder="$options.filters.t('Search customer…', 'commerce')"
+            :placeholder="$options.filters.t('Search…', 'commerce')"
             taggable
             @input="onChange"
             @search="onSearch">

@@ -30,7 +30,7 @@
         url: url('commerce/promotions/discounts/' ~ discount.id),
         status: discount.enabled ? true : false,
         duration: (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞'),
-        timesUsed: discount.totalUses,
+        timesUsed: discount.totalDiscountUses,
         handle: discount.code,
         ignore: discount.ignoreSales ? true : false,
         stop: discount.stopProcessing ? true : false,
