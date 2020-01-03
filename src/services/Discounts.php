@@ -256,69 +256,36 @@ class Discounts extends Component
             return false;
         }
 
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
+        if (!$this->_isDiscountDateValid($order, $discount)) {
+            $explanation = Plugin::t('Discount is out of date.');
+            return false;
+        }
 
-        if ($discount->totalDiscountUseLimit > 0 && $discount->totalDiscountUses >= $discount->totalDiscountUseLimit) {
+        if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             $explanation = Plugin::t('Discount use has reached its limit.');
             return false;
         }
 
-        $now = $order->dateUpdated ?? new DateTime();
-        $from = $discount->dateFrom;
-        $to = $discount->dateTo;
-        if (($from && $from > $now) || ($to && $to < $now)) {
-            $explanation = Plugin::t('Discount is out of date');
+        $customer = $order->getCustomer();
+        $user = $customer ? $customer->getUser() : null;
 
+        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+            $explanation = Plugin::t('Discount is not allowed for the customer');
             return false;
         }
 
-        if (!$discount->allGroups) {
-            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                $explanation = Plugin::t('Discount is not allowed for the customer');
-
-                return false;
-            }
-        }
-
-        if ($discount->perUserLimit > 0 && !$user) {
-            $explanation = Plugin::t('Discount is limited to use by registered users only.');
-
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+                'limit' => $discount->perUserLimit,
+            ]);
             return false;
         }
 
-        if ($discount->perUserLimit > 0 && $user) {
-            // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
-            $usage = (new Query())
-                ->select(['uses'])
-                ->from([Table::CUSTOMER_DISCOUNTUSES])
-                ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
-                ->scalar();
-
-            if ($usage && $usage >= $discount->perUserLimit) {
-                $explanation = Plugin::t('This coupon limited to {limit} uses.', [
-                    'limit' => $discount->perUserLimit,
-                ]);
-
-                return false;
-            }
-        }
-
-        if ($discount->perEmailLimit > 0 && $order->getEmail()) {
-            $usage = (new Query())
-                ->select(['uses'])
-                ->from([Table::EMAIL_DISCOUNTUSES])
-                ->where(['email' => $order->getEmail(), 'discountId' => $discount->id])
-                ->scalar();
-
-            if ($usage && $usage >= $discount->perEmailLimit) {
-                $explanation = Plugin::t('This coupon limited to {limit} uses.', [
-                    'limit' => $discount->perEmailLimit,
-                ]);
-
-                return false;
-            }
+        if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
+            $explanation = Plugin::t('This coupon limited to {limit} uses.', [
+                'limit' => $discount->perEmailLimit,
+            ]);
+            return false;
         }
 
         return true;
