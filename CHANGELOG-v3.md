@@ -37,6 +37,7 @@
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\elements\Order::getCustomerLinkHtml()`.
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
 - Added `craft\commerce\models\Discount::$totalDiscountUses`.

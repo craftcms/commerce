@@ -26,6 +26,7 @@
 - Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
+- Added `craft\commerce\elements\Order::getCustomerLinkHtml()`.
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.
 - Added `craft\commerce\models\Discount::$totalDiscountUses`.
