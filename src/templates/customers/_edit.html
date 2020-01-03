@@ -3,8 +3,6 @@
 {% do view.registerTranslations('commerce', [
   'Are you sure you want to delete this address?',
   'No Addresses available.',
-  'No orders exist for this customer.',
-  'Search customer orders',
   'Set as Primary Billing',
   'Set as Primary Shipping',
 ]) %}
@@ -15,7 +13,7 @@
 
 {% set selectedSubnavItem = 'customers' %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = false %}
 
 {% import "_includes/forms" as forms %}
 
@@ -55,9 +53,18 @@
   }]) %}
 {% endfor %}
 
+{% block actionButton %}
+  <form action="" method="post">
+    {{ csrfInput() }}
+    <input type="hidden" name="customerId" value="{{ customer.id }}">
+    <input type="hidden" name="action" value="commerce/orders/new-order">
+    <input class="btn submit" type="submit" name="submit" value="{{ 'Create New Order for Customer'|t('commerce') }}">
+  </form>
+{% endblock %}
+
 {% block content %}
   <h2>{{ 'Orders'|t('commerce') }}</h2>
-  <div id="orders-vue-admin-table"></div>
+  {% include 'commerce/customers/_includes/_ordersTable.html' with { customer: customer } %}
 
   <hr>
 
@@ -70,28 +77,6 @@
 {% endblock %}
 
 {% js %}
-var orderColumns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
-    { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
-    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
-    { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
-        callback: function(value) {
-            return value;
-        }
-    }
-];
-
-new Craft.VueAdminTable({
-    columns: orderColumns,
-    container: '#orders-vue-admin-table',
-    emptyMessage: Craft.t('commerce', 'No orders exist for this customer.'),
-    padded: true,
-    perPage: 10,
-    tableData: [],
-    // tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?customerId={{ customer.id }}'),
-    search: true,
-    searchPlaceholder: Craft.t('commerce', 'Search customer orders')
-});
 
 var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },

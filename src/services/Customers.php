@@ -719,7 +719,6 @@ class Customers extends Component
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
             'customer' => $customer,
-            'userId' => $context['user']->id,
         ]);
     }
 }

@@ -304,13 +304,13 @@ class OrdersController extends Controller
         $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
 
-        $userId = $request->getQueryParam('userId', null);
+        $customerId = $request->getQueryParam('customerId', null);
 
-        if (!$userId) {
-            return $this->asErrorJson(Plugin::t('User ID is required.'));
+        if (!$customerId) {
+            return $this->asErrorJson(Plugin::t('Customer ID is required.'));
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($userId);
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
             return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));

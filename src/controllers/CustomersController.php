@@ -158,6 +158,8 @@ class CustomersController extends BaseCpController
                 [$likeOperator, '[[billing.fullName]]', $search],
                 [$likeOperator, '[[billing.lastName]]', $search],
                 [$likeOperator, '[[orders.email]]', $search],
+                [$likeOperator, '[[orders.reference]]', $search],
+                [$likeOperator, '[[orders.number]]', $search],
                 [$likeOperator, '[[shipping.address1]]', $search],
                 [$likeOperator, '[[shipping.firstName]]', $search],
                 [$likeOperator, '[[shipping.fullName]]', $search],

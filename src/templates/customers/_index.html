@@ -5,6 +5,7 @@
     'Primary Billing Address',
     'Primary Shipping Address',
     'No. of Addresses',
+    'Search customers by name, email, address or order reference/number…',
 ]) %}
 
 {% set title = 'Customers'|t('commerce') %}
@@ -46,6 +47,7 @@ new Craft.VueAdminTable({
     emptyMessage: Craft.t('commerce', 'No Customers available.'),
     padded: true,
     search: true,
+    searchPlaceholder: Craft.t('commerce', 'Search customers by name, email, address or order reference/number…'),
     tableDataEndpoint: Craft.getActionUrl('commerce/customers/customers-table')
 });
 {% endjs %}

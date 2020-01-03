@@ -6,17 +6,12 @@
   'Is subscription active?',
   'No active carts exist for this customer.',
   'No inactive carts exist for this customer.',
-  'No orders exist for this user yet.',
   'No subscriptions exist for this user yet.',
   'No',
-  'Order Date',
-  'Order',
-  'Search user orders',
   'Status',
   'Subscription date',
   'Subscription',
   'Subscription',
-  'Total Paid',
   'Yes',
 ]) %}
 
@@ -27,7 +22,7 @@
     {% if currentUser.can('commerce-manageOrders') %}
       <h2>{{ 'Orders'|t('commerce') }}</h2>
 
-      <div id="orders-vue-admin-table"></div>
+      {% include 'commerce/customers/_includes/_ordersTable' with { customer: customer } %}
 
       <br>
       <h2>{{ 'Active Carts'|t('commerce') }}</h2>
@@ -121,28 +116,6 @@
 
   $(".address-box").each(function(){
     new Craft.Commerce.AddressBox($(this),{});
-  });
-
-  var orderColumns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
-    { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
-    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
-    { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
-      callback: function(value) {
-          return value;
-      }
-    }
-  ];
-
-  new Craft.VueAdminTable({
-    columns: orderColumns,
-    container: '#orders-vue-admin-table',
-    emptyMessage: Craft.t('commerce', 'No orders exist for this user yet.'),
-    padded: true,
-    perPage: 10,
-    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?userId={{ userId }}'),
-    search: true,
-    searchPlaceholder: Craft.t('commerce', 'Search user orders')
   });
 
   var cartColumns = [
