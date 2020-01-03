@@ -291,8 +291,13 @@ class DiscountsController extends BaseCpController
         $variables['counterTypeCustomer'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
         $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
 
-        $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
-        $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($variables['discount']->id);
+        if ($variables['discount']->id) {
+            $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
+            $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($variables['discount']->id);
+        } else {
+            $variables['emailUsage'] = 0;
+            $variables['customerUsage'] = 0;
+        }
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
         $currencyName = $currency ? $currency->getCurrency() : '';
