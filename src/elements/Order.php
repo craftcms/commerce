@@ -1691,7 +1691,7 @@ class Order extends Element
         }
 
         if ($this->getCustomer() && $this->isCompleted && $currentUser->can('commerce-manageCustomers')) {
-            return '<span><a href="' . UrlHelper::cpUrl('commerce/customers/' . $this->getCustomer()->id) . '">' . $this->email . '</a></span>';
+            return '<span><a href="' . $this->getCustomer()->getCpEditUrl() . '">' . $this->email . '</a></span>';
         }
 
         if ($this->getCustomer() && $this->email && $currentUser->can('commerce-manageOrders')) {
