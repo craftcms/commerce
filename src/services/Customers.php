@@ -712,8 +712,9 @@ class Customers extends Component
         }
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
+        return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
             'customer' => $customer,
+            'addressRedirect' => $context['user']->getCpEditUrl(),
         ]);
     }
 }

@@ -213,8 +213,8 @@
   {# Hidden fields #}
   <input type="hidden" name="id" value="{{ address.id }}">
   <input type="hidden" name="action" value="commerce/addresses/save">
-  {% if customerId %}
-    {{ redirectInput('commerce/customers/' ~ customerId) }}
+  {% if redirect %}
+    {{ redirectInput(redirect) }}
   {% endif %}
 
 {% endblock %}

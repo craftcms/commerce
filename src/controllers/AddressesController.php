@@ -61,11 +61,15 @@ class AddressesController extends BaseCpController
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
-    $variables['customerId'] = (new Query())
+        $variables['customerId'] = (new Query())
             ->from(Table::CUSTOMERS_ADDRESSES)
             ->select(['customerId'])
             ->where(['addressId' => $variables['address']->id])
             ->scalar();
+
+        $redirect = Craft::$app->getRequest()->getParam('redirect', null);
+
+        $variables['redirect'] = $redirect ?: 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '' );
 
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
