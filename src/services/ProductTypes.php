@@ -323,6 +323,8 @@ class ProductTypes extends Component
             'hasVariants' => $productType->hasVariants,
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'titleFormat' => $productType->titleFormat,
+            'titleLabel' => $productType->titleLabel,
+            'variantTitleLabel' => $productType->variantTitleLabel,
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
             'siteSettings' => []
@@ -412,6 +414,8 @@ class ProductTypes extends Component
             $productTypeRecord->hasVariants = $data['hasVariants'];
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
             $productTypeRecord->titleFormat = $data['titleFormat'] ?: '{product.title}';
+            $productTypeRecord->titleLabel = $data['titleLabel'];
+            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'];
             $productTypeRecord->skuFormat = $data['skuFormat'];
             $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
 
@@ -883,7 +887,9 @@ class ProductTypes extends Component
                 'productTypes.hasDimensions',
                 'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
+                'productTypes.variantTitleLabel',
                 'productTypes.titleFormat',
+                'productTypes.titleLabel',
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
                 'productTypes.uid'

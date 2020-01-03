@@ -65,7 +65,7 @@ class Settings extends Model
     /**
      * @var string Order PDF Path
      */
-    public $orderPdfPath = 'shop/_pdf/order';
+    public $orderPdfPath = 'shop/receipt';
 
     /**
      * @var string Order PDF Size
