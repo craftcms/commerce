@@ -31,12 +31,27 @@ class m190528_161915_description_on_purchasable extends Migration
 
         foreach ($variantIds as $variantId) {
             $variant = Variant::find()->id($variantId)->one();
-            // Just in case
+
             if ($variant) {
-                $this->update('{{%commerce_purchasables}}', ['description' => $variant->getDescription()], ['id' => $variantId]);
-            } else {
-                // If there is no element for this variant log it
-                Craft::error(['Variant ID not found in element table:', $variantId], 'commerce');
+                $productTypeId = (new Query())
+                    ->select(['[[products.typeId]]'])
+                    ->from(['{{%commerce_products}} products'])
+                    ->leftJoin('{{%commerce_variants}} variants', '[[variants.productId]] = [[products.id]]')
+                    ->where('[[variants.id]] = 12')
+                    ->scalar();
+
+                $productTypeDescriptionFormat = (new Query())
+                    ->select(['[[producttypes.descriptionFormat]]'])
+                    ->from(['{{%commerce_producttypes}} producttypes'])
+                    ->where('[[producttypes.id]] = ' . $productTypeId)
+                    ->scalar();
+
+                try {
+                    $description = Craft::$app->getView()->renderObjectTemplate($productTypeDescriptionFormat, $variant);
+                    $this->update('{{%commerce_purchasables}}', ['description' => $description], ['id' => $variantId]);
+                } catch (\Exception $e){
+                    // A Re-save or variants will update the purchasable descriptions - so don't worry about it.
+                }
             }
         }
     }
