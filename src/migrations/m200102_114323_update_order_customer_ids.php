@@ -35,20 +35,23 @@ class m200102_114323_update_order_customer_ids extends Migration
             ->from('{{%commerce_orders}} orders')
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['[[orders.isCompleted]]' => true])
-            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC');
+            ->all();
 
-        foreach ($allCustomers->batch() as $customers) {
-            foreach ($customers as $customer) {
-                $this->update(
-                    '{{%commerce_orders}} orders',
-                    ['customerId' => $customer['customerId']],
-                    [
-                        'and',
-                        ['not', ['[[orders.customerId]]' => $customer['customerId']]],
-                        ['[[email]]' => $customer['email']],
-                        ['[[orders.isCompleted]]' => true],
-                    ]
-                );
+        foreach ($allCustomers as $customer) {
+
+            $ids = (new Query())
+                ->select('[[orders.id]] id')
+                ->from('{{%commerce_orders}} orders')
+                ->where([
+                    'and',
+                    ['not', ['[[orders.customerId]]' => $customer['customerId']]],
+                    ['[[email]]' => $customer['email']],
+                    ['[[orders.isCompleted]]' => true],
+                ])
+                ->column();
+
+            if ($ids) {
+                $this->update('{{%commerce_orders}} orders', ['customerId' => $customer['customerId']], ['id' => $ids]);
             }
         }
     }
