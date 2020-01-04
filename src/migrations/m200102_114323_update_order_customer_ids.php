@@ -38,7 +38,7 @@ class m200102_114323_update_order_customer_ids extends Migration
                     'and',
                     ['not', ['[[orders.customerId]]' => $customer['customerId']]],
                     ['[[email]]' => $customer['email']],
-                    ['[[orders.isCompleted]]' => 1],
+                    ['[[orders.isCompleted]]' => true],
                 ]
             );
         }
