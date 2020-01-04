@@ -40,17 +40,19 @@ class m190528_161915_description_on_purchasable extends Migration
                     ->where('[[variants.id]] = 12')
                     ->scalar();
 
-                $productTypeDescriptionFormat = (new Query())
-                    ->select(['[[producttypes.descriptionFormat]]'])
-                    ->from(['{{%commerce_producttypes}} producttypes'])
-                    ->where('[[producttypes.id]] = ' . $productTypeId)
-                    ->scalar();
+                if ($productTypeId) {
+                    $productTypeDescriptionFormat = (new Query())
+                        ->select(['[[producttypes.descriptionFormat]]'])
+                        ->from(['{{%commerce_producttypes}} producttypes'])
+                        ->where('[[producttypes.id]] = ' . $productTypeId)
+                        ->scalar();
 
-                try {
-                    $description = Craft::$app->getView()->renderObjectTemplate($productTypeDescriptionFormat, $variant);
-                    $this->update('{{%commerce_purchasables}}', ['description' => $description], ['id' => $variantId]);
-                } catch (\Exception $e){
-                    // A Re-save or variants will update the purchasable descriptions - so don't worry about it.
+                    try {
+                        $description = Craft::$app->getView()->renderObjectTemplate($productTypeDescriptionFormat, $variant);
+                        $this->update('{{%commerce_purchasables}}', ['description' => $description], ['id' => $variantId]);
+                    } catch (\Exception $e) {
+                        // A Re-save or variants will update the purchasable descriptions - so don't worry about it.
+                    }
                 }
             }
         }
