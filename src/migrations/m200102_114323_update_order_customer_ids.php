@@ -22,7 +22,8 @@ class m200102_114323_update_order_customer_ids extends Migration
             ->select('[[orders.email]], [[orders.customerId]]')
             ->from('{{%commerce_orders}} orders')
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.isCompleted]]' => 1])
+            ->where(['[[orders.isCompleted]]' => true])
+            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
             ->all();
 
         if (empty($customers)) {
