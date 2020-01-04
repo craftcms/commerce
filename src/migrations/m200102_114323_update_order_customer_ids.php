@@ -19,21 +19,29 @@ class m200102_114323_update_order_customer_ids extends Migration
     public function safeUp()
     {
         $allCustomers = (new Query())
-            ->select('[[orders.email]], [[orders.customerId]]')
+            ->select('[[orders.email]] email, [[orders.customerId]] customerId')
             ->from('{{%commerce_orders}} orders')
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
+            ->orderBy('[[orders.dateOrdered]] DESC')
             ->where(['[[orders.isCompleted]]' => true])
             ->all();
 
+        $emails = [];
         foreach ($allCustomers as $customer) {
+            $email = $customer['email'];
+            $customerId = $customer['customerId'];
+            // uses the last order email as the customerId
+            $emails[$email] = $customerId;
+        }
 
+        foreach ($emails as $email => $customerId) {
             $ids = (new Query())
                 ->select('[[orders.id]] id')
                 ->from('{{%commerce_orders}} orders')
                 ->where([
                     'and',
-                    ['not', ['[[orders.customerId]]' => $customer['customerId']]],
-                    ['[[email]]' => $customer['email']],
+                    ['not', ['[[orders.customerId]]' => $customerId]],
+                    ['[[email]]' => $email],
                     ['[[orders.isCompleted]]' => true],
                 ])
                 ->column();
