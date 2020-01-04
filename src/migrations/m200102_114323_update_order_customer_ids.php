@@ -31,7 +31,7 @@ class m200102_114323_update_order_customer_ids extends Migration
         foreach ($allCustomers as $customer) {
             // Consolidate guest orders
             Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-                'email' => $customer['email']
+                'email' => $customer
             ]));
         }
     }
