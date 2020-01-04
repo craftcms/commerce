@@ -30,18 +30,16 @@ class ConsolidateGuestOrders extends BaseJob
     public function execute($queue)
     {
         $customerId = (new Query())
-            ->select('orders.customerId')
+            ->select('[[orders.customerId]]')
             ->from(Table::ORDERS . ' orders')
-            ->innerJoin(Table::CUSTOMERS . ' customers', 'customers.id = orders.customerId')
+            ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['email' => $this->email])
             ->andWhere(['isCompleted' => 1])
-            // If they have a user account make sure we associate the orders
-            // to that customer
-            ->orderBy('userId DESC, dateOrdered ASC')
+            // we want the customers related to a userId to be listed first, then by latest order
+            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
             ->scalar();
 
-        if (!$customerId)
-        {
+        if (!$customerId) {
             return;
         }
 
