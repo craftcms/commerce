@@ -43,13 +43,14 @@ class ConsolidateGuestOrders extends BaseJob
             return;
         }
 
-        $ordersQuery = Order::find()
+        // Get completed orders for other customers with the same email
+        $orders = Order::find()
             ->isCompleted(1)
             ->customerId('not ' . $customerId)
-            ->email($this->email);
+            ->email($this->email)
+            ->all();
 
-        $total = $ordersQuery->count() + 1;
-        $orders = $ordersQuery->all();
+        $total = count($orders) + 1;
         $step = 1;
 
         foreach ($orders as $order) {
@@ -58,8 +59,8 @@ class ConsolidateGuestOrders extends BaseJob
             $belongsToAnotherUser = $order->getCustomer() && $order->getCustomer()->getUser();
 
             if (!$belongsToAnotherUser) {
-                $order->customerId = $customerId;
-                Craft::$app->elements->saveElement($order, false);
+                // Dont use element save, just update DB directly
+                Craft::$app->getDb()->createCommand()->update('{{%commerce_orders}} orders', ['customerId' => $customerId], ['[[orders.id]]' => $order->id]);
             }
 
             $step++;
