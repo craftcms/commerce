@@ -20,20 +20,52 @@ class ConsolidateGuestOrders extends BaseJob
 {
 
     /**
-     * @var string
+     * @var array
      */
-    public $email;
+    public $emails;
+
+    /**
+     * @var
+     */
+    private $_queue;
 
     /**
      * @inheritDoc
      */
     public function execute($queue)
     {
+        $this->_queue = $queue;
+
+        $total = count($this->emails) + 1;
+
+        $step = 1;
+
+        foreach ($this->emails as $email) {
+            $this->setProgress($this->_queue, $step / $total, Plugin::t('Customer {step} of {total}', compact('step', 'total')));
+            try {
+                $this->consolidate($email);
+            } catch (\Throwable $e) {
+                Craft::warning('Could not consolidate orders for guest email'.$email, 'commerce');
+            }
+
+            $step++;
+        }
+
+        $this->setProgress($queue, $step / $total, Plugin::t('Purging orphaned customers.'));
+        Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function consolidate($email)
+    {
+
         $customerId = (new Query())
             ->select('[[orders.customerId]]')
             ->from(Table::ORDERS . ' orders')
             ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.email]]' => $this->email])
+            ->where(['[[orders.email]]' => $email])
             ->andWhere(['[[orders.isCompleted]]' => true])
             // we want the customers related to a userId to be listed first, then by their latest order
             ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
@@ -46,20 +78,15 @@ class ConsolidateGuestOrders extends BaseJob
         // Get completed orders for other customers with the same email but not the same customer
         $orders = (new Query())
             ->select(['[[orders.id]] id ', '[[customers.userId]] userId'])
-            ->where(['and', ['[[orders.email]]' => $this->email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
+            ->where(['and', ['[[orders.email]]' => $email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
             ->leftJoin(Table::CUSTOMERS . ' customers', '[[orders.customerId]] = [[customers.id]]')
             ->from(Table::ORDERS . ' orders')
             ->all();
-
-        $total = count($orders) + 1;
-        $step = 1;
 
         foreach ($orders as $order) {
 
             $userId = $order['userId'];
             $orderId = $order['id'];
-
-            $this->setProgress($queue, $step / $total, Plugin::t('Order {step} of {total}', compact('step', 'total')));
 
             if (!$userId) {
                 // Dont use element save, just update DB directly
@@ -67,13 +94,7 @@ class ConsolidateGuestOrders extends BaseJob
                     ->update('{{%commerce_orders}} orders', ['[[orders.customerId]]' => $customerId], ['[[orders.id]]' => $orderId])
                     ->execute();
             }
-
-            $step++;
         }
-
-        // Now that we have a much of customers that no longer have an order, clean up the orphaned customers.
-        $this->setProgress($queue, $step / $total, Plugin::t('Purging orphaned customers.'));
-        Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
     }
 
     // Protected Methods
@@ -84,6 +105,6 @@ class ConsolidateGuestOrders extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Plugin::t('Consolidate all guest orders for customer.');
+        return Plugin::t('Consolidate all guest orders.');
     }
 }

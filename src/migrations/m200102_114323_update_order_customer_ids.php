@@ -28,12 +28,10 @@ class m200102_114323_update_order_customer_ids extends Migration
             ->distinct()
             ->column();
 
-        foreach ($allCustomers as $customer) {
-            // Consolidate guest orders
-            Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-                'email' => $customer
-            ]));
-        }
+        // Consolidate guest orders
+        Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+            'emails' => $allCustomers
+        ]));
     }
 
     /**

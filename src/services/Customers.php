@@ -271,10 +271,12 @@ class Customers extends Component
             ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
             ->column();
 
-        // This will also remove all addresses related to the customer.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_customers}}', ['id' => $customers])
-            ->execute();
+        if ($customers) {
+            // This will also remove all addresses related to the customer.
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%commerce_customers}}', ['id' => $customers])
+                ->execute();
+        }
     }
 
     /**
@@ -430,7 +432,7 @@ class Customers extends Component
 
         // Consolidate guest orders
         Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-            'email' => $this->email
+            'emails' => [$this->email]
         ]));
     }
 
