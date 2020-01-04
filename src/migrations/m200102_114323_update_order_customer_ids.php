@@ -18,29 +18,26 @@ class m200102_114323_update_order_customer_ids extends Migration
      */
     public function safeUp()
     {
-        $customers = (new Query())
+        $allCustomers = (new Query())
             ->select('[[orders.email]], [[orders.customerId]]')
             ->from('{{%commerce_orders}} orders')
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['[[orders.isCompleted]]' => true])
-            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
-            ->all();
+            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC');
 
-        if (empty($customers)) {
-            return;
-        }
-
-        foreach ($customers as $customer) {
-            $this->update(
-                '{{%commerce_orders}} orders',
-                ['customerId' => $customer['customerId']],
-                [
-                    'and',
-                    ['not', ['[[orders.customerId]]' => $customer['customerId']]],
-                    ['[[email]]' => $customer['email']],
-                    ['[[orders.isCompleted]]' => true],
-                ]
-            );
+        foreach ($allCustomers->batch() as $customers) {
+            foreach ($customers as $customer) {
+                $this->update(
+                    '{{%commerce_orders}} orders',
+                    ['customerId' => $customer['customerId']],
+                    [
+                        'and',
+                        ['not', ['[[orders.customerId]]' => $customer['customerId']]],
+                        ['[[email]]' => $customer['email']],
+                        ['[[orders.isCompleted]]' => true],
+                    ]
+                );
+            }
         }
     }
 
