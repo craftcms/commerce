@@ -16,7 +16,7 @@ class m200102_185704_update_totalDiscountUseLimit_with_current_totalUseLimit ext
      */
     public function safeUp()
     {
-        $this->update('{{%commerce_discounts}}', ['totalDiscountUseLimit' => new Expression('totalUseLimit')], ['>', 'totalUseLimit', 0]);
+        $this->update('{{%commerce_discounts}}', ['[[totalDiscountUseLimit]]' => new Expression('[[totalUseLimit]]')], ['>', '[[totalUseLimit]]', 0]);
     }
 
     /**

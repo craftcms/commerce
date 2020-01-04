@@ -15,8 +15,8 @@ class m200102_185839_remove_totalUses_and_totalUseLimit extends Migration
      */
     public function safeUp()
     {
-        $this->dropColumn('{{%commerce_discounts}}', 'totalUses');
-        $this->dropColumn('{{%commerce_discounts}}', 'totalUseLimit');
+        $this->dropColumn('{{%commerce_discounts}}', '[[totalUses]]');
+        $this->dropColumn('{{%commerce_discounts}}', '[[totalUseLimit]]');
     }
 
     /**

@@ -16,7 +16,7 @@ class m191115_103501_update_totalDiscountUses_with_current_uses extends Migratio
      */
     public function safeUp()
     {
-        $this->update('{{%commerce_discounts}}', ['totalDiscountUses' => new Expression('totalUses')], ['>', 'totalUses', 0]);
+        $this->update('{{%commerce_discounts}}', ['totalDiscountUses' => new Expression('[[totalUses]]')], ['>', 'totalUses', 0]);
     }
 
     /**
