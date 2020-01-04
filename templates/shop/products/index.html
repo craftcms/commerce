@@ -56,7 +56,7 @@
                     </form>
 
                     {% if currentUser %}
-                    {% set order = craft.orders.user(currentUser).hasPurchasables(product.defaultVariant).all() %}
+                    {% set order = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(product.defaultVariant).all() %}
                     {% if order|length %}
                         <strong>I already own this product: </strong> <a href="/shop/customer/order?number={{ order[0].number }}">Order #{{ order[0].shortNumber }}</a>
                     {% endif %}
