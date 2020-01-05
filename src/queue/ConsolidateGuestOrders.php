@@ -41,7 +41,7 @@ class ConsolidateGuestOrders extends BaseJob
         $step = 1;
 
         foreach ($this->emails as $email) {
-            $this->setProgress($this->_queue, $step / $total, Plugin::t('Customer {step} of {total}', compact('step', 'total')));
+            $this->setProgress($this->_queue, $step / $total, Plugin::t('Email {step} of {total}', compact('step', 'total')));
             try {
                 $this->consolidate($email);
             } catch (\Throwable $e) {
