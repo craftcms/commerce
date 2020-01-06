@@ -147,6 +147,12 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when calling `toArray()` on a payment currency model. ([#1200](https://github.com/craftcms/commerce/issues/1200))
+
+
 ## 2.2.13 - 2019-12-19
 
 ### Fixed
