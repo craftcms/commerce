@@ -432,7 +432,7 @@ class Customers extends Component
 
         // Consolidate guest orders
         Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-            'emails' => [$this->email]
+            'emails' => [$order->email]
         ]));
     }
 

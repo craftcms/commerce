@@ -13,6 +13,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
@@ -497,6 +498,7 @@ class VariantQuery extends ElementQuery
                 'sales.allGroups',
                 'sales.allPurchasables',
                 'sales.allCategories',
+                'sales.categoryRelationshipType',
             ])
                 ->from(Table::SALES . ' sales')
                 ->where(['[[enabled]]' => 1])
@@ -572,13 +574,45 @@ class VariantQuery extends ElementQuery
                         ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
                         ->column();
 
-                    // TODO in 3.0 make this work with category relations that are sourceElement, targetElement or element
-                    $categoryRestrictedIds = (new Query())
-                        ->select('rel.sourceId')
-                        ->from(Table::SALE_CATEGORIES . ' sc')
-                        ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
-                        ->where(['in', 'saleId', ArrayHelper::getColumn($categoryRestrictedSales, 'id')])
-                        ->column();
+                    $categoryRestrictedIds = [];
+                    if (!empty($categoryRestrictedSales)) {
+                        $sourceSales = ArrayHelper::whereMultiple($categoryRestrictedSales, [
+                            'categoryRelationshipType' => [
+                                Sale::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                                Sale::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                            ],
+                        ]);
+                        $targetSales = ArrayHelper::whereMultiple($categoryRestrictedSales, [
+                            'categoryRelationshipType' => [
+                                Sale::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                                Sale::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                            ]
+                        ]);
+
+                        // Source relationships
+                        $sourceSalesVariantIds = [];
+                        if (!empty($sourceSales)) {
+                            $sourceSalesVariantIds = (new Query())
+                                ->select('rel.sourceId')
+                                ->from(Table::SALE_CATEGORIES . ' sc')
+                                ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
+                                ->where(['in', 'saleId', ArrayHelper::getColumn($sourceSales, 'id')])
+                                ->column();
+                        }
+
+                        // Target relationships
+                        $targetSalesVariantIds = [];
+                        if (!empty($targetSales)) {
+                            $targetSalesVariantIds = (new Query())
+                                ->select('rel.targetId')
+                                ->from(Table::SALE_CATEGORIES . ' sc')
+                                ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.sourceId]] = [[sc.categoryId]]')
+                                ->where(['in', 'saleId', ArrayHelper::getColumn($targetSales, 'id')])
+                                ->column();
+                        }
+
+                        $categoryRestrictedIds = array_merge($sourceSalesVariantIds, $targetSalesVariantIds);
+                    }
 
                     $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
                 }
