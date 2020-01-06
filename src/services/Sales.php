@@ -382,7 +382,7 @@ class Sales extends Component
 
         // Category match
         if (!$sale->allCategories) {
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
