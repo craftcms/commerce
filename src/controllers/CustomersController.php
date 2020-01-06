@@ -135,7 +135,7 @@ class CustomersController extends BaseCpController
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
-            ->groupBy('[[customers.id]]')
+            ->groupBy(['[[customers.id]]','[[orders.email]]'])
 
             // Exclude customer records without a user or where there isn't any data
             ->where(['or',
