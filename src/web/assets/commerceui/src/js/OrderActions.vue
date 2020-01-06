@@ -19,7 +19,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters, mapActions} from 'vuex'
+    import {mapActions, mapGetters, mapState} from 'vuex'
     import UpdateOrderBtn from './components/actions/UpdateOrderBtn'
 
     export default {

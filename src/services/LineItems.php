@@ -18,7 +18,6 @@ use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;

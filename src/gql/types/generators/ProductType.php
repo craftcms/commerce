@@ -7,17 +7,15 @@
 
 namespace craft\commerce\gql\types\generators;
 
-use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
+use craft\commerce\gql\types\elements\Product as ProductTypeElement;
+use craft\commerce\helpers\Gql as CommmerceGqlHelper;
 use craft\commerce\Plugin;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
-use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\gql\TypeManager;
-use craft\commerce\gql\types\elements\Product as ProductTypeElement;
-use craft\commerce\helpers\Gql as CommmerceGqlHelper;
-use craft\commerce\models\ProductType as ProductTypeModel;
 
 /**
  * Class ProductType

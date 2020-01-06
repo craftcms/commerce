@@ -71,7 +71,7 @@
 </style>
 
 <script>
-    import {mapState, mapActions} from 'vuex'
+    import {mapActions, mapState} from 'vuex'
     import LineItems from './components/details/LineItems'
     import AddLineItem from './components/details/AddLineItem'
     import OrderAdjustments from './components/details/OrderAdjustments'

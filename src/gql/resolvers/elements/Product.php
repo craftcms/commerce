@@ -8,8 +8,8 @@
 namespace craft\commerce\gql\resolvers\elements;
 
 use craft\commerce\db\Table;
-use craft\commerce\helpers\Gql as GqlHelper;
 use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\helpers\Gql as GqlHelper;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
 

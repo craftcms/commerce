@@ -48,7 +48,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters, mapActions} from 'vuex'
+    import {mapActions, mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import ordersApi from '../../api/orders'
     import SelectInput from '../SelectInput'

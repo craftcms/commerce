@@ -39,7 +39,7 @@
 <script>
     /* global Garnish */
 
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
     import mixins from '../../mixins'
 

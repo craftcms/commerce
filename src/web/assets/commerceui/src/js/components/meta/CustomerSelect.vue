@@ -28,8 +28,8 @@
     import {mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
-    import { validationMixin } from 'vuelidate'
-    import { required, email } from 'vuelidate/lib/validators'
+    import {validationMixin} from 'vuelidate'
+    import {email, required} from 'vuelidate/lib/validators'
 
     export default {
         mixins: [validationMixin],

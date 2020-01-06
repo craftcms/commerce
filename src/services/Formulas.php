@@ -8,10 +8,8 @@
 namespace craft\commerce\services;
 
 use craft\base\Component;
-use Craft;
 use craft\commerce\Plugin;
 use craft\web\twig\Environment;
-use Twig\Error\Error;
 use Twig\Error\SyntaxError;
 
 /**

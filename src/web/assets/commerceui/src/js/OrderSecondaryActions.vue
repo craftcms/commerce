@@ -39,7 +39,7 @@
 <script>
     /* global Garnish */
 
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
 
     export default {
         data() {

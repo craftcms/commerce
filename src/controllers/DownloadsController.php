@@ -12,7 +12,6 @@ use craft\commerce\Plugin;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
-use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
@@ -47,7 +46,7 @@ class DownloadsController extends BaseFrontEndController
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
-            throw new HttpException('404','Order not found');
+            throw new HttpException('404', 'Order not found');
         }
 
         $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);

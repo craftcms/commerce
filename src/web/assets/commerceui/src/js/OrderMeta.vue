@@ -196,7 +196,7 @@
 
 <script>
     import debounce from 'lodash.debounce'
-    import {mapState, mapGetters, mapActions} from 'vuex'
+    import {mapActions, mapGetters, mapState} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
     import CustomerSelect from './components/meta/CustomerSelect'

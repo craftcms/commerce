@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Field;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
@@ -18,7 +19,6 @@ use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\commerce\db\Table;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;

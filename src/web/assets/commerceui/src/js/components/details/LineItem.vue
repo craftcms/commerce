@@ -87,7 +87,7 @@
 </template>
 
 <script>
-    import {mapState, mapGetters} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import InputError from '../InputError'
     import Field from '../Field'
