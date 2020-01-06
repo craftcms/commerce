@@ -8,12 +8,15 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
+use craft\commerce\exports\LineItemExport;
+use craft\commerce\exports\OrderExport;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\gql\arguments\elements\Product as GqlProductArgument;
@@ -44,6 +47,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterElementExportersEvent;
 use craft\events\RegisterGqlPermissionsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlTypesEvent;
@@ -170,6 +174,7 @@ class Plugin extends BasePlugin
         $this->_registerCacheTypes();
         $this->_registerTemplateHooks();
         $this->_registerGarbageCollection();
+        $this->_registerElementExports();
         $this->_defineResaveCommand();
     }
 
@@ -640,6 +645,19 @@ class Plugin extends BasePlugin
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
             // Deletes customers that are not related to any cart/order or user
             Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
+        });
+    }
+
+    /**
+     * Register the element exportables
+     *
+     * @since 2.2
+     */
+    public function _registerElementExports()
+    {
+        Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
+            $e->exporters[] = OrderExport::class;
+            $e->exporters[] = LineItemExport::class;
         });
     }
 

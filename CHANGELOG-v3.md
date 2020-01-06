@@ -4,6 +4,7 @@
 - Added the ability to create and edit orders from the Control Panel.
 - Added GraphQL support for products.
 - Added the ability to send emails from the Edit Order page.
+- Line items can now be exported from the Order index page.
 - Added “Edit Orders” and “Delete Orders” user permissions.
 - Line items now have a status that can be changed on the Edit Order page.
 - Line items now have a Private Note field for store managers.
@@ -105,6 +106,7 @@
 - Removed the `commerce/cart/update-line-item` action.
 - Removed `craft\commerce\base\Purchasable::getPurchasableId()`.
 - Removed `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`.
+- Removed `craft\commerce\controllers\DownloadController::actionExportOrder()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedAfter()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedBefore()`.
 - Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedAfter()`.
@@ -133,4 +135,6 @@
 - Removed `craft\commerce\services\Discounts::clearCouponUsageHistoryById()`.
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
+- Removed `craft\commerce\services\Reports::getOrdersExportFile()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.
+- Removed `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT` event. Use `craft\base\Element::EVENT_REGISTER_EXPORTERS` to create your own exports.
