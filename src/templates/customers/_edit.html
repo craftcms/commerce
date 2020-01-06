@@ -11,11 +11,11 @@
 {% import "_includes/forms" as forms %}
 
 {% block actionButton %}
-  <form action="" method="post">
+  <form action="" id="new-order" method="post">
     {{ csrfInput() }}
     <input type="hidden" name="customerId" value="{{ customer.id }}">
     <input type="hidden" name="action" value="commerce/orders/new-order">
-    <input class="btn" type="submit" name="submit" value="{{ 'Create New Order for Customer'|t('commerce') }}">
+    <a href="javascript:$('#new-order').submit();" class="btn icon add" onclick="">{{ 'New Order'|t('commerce') }}</a>
   </form>
 {% endblock %}
 
