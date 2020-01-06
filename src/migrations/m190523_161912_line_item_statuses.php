@@ -19,7 +19,9 @@ class m190523_161912_line_item_statuses extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_lineitems}}', 'lineItemStatusId', $this->integer());
+        if (!$this->db->columnExists('{{%commerce_lineitems}}', 'lineItemStatusId')) {
+            $this->addColumn('{{%commerce_lineitems}}', 'lineItemStatusId', $this->integer());
+        }
 
         $this->createTable('{{%commerce_lineitemstatuses}}', [
             'id' => $this->primaryKey(),
