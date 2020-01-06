@@ -20,13 +20,13 @@
                 <span class="flash">{{ model.getErrors('title')|join }}</span>
             {% endif %}
 
-            <label for="{{ modelName }}-firstName">First Name *</label>
+            <label for="{{ modelName }}-firstName">First Name</label>
             <input type="text" id="{{ modelName }}-firstName" class="w-full" name="{{ modelName }}[firstName]" value="{{ model ? model.firstName : '' }}">
             {% if model and model.getErrors('firstName') %}
                 <span class="flash">{{ model.getErrors('firstName')|join }}</span>
             {% endif %}
 
-            <label for="{{ modelName }}-lastName">Last Name *</label>
+            <label for="{{ modelName }}-lastName">Last Name</label>
             <input type="text" id="{{ modelName }}-lastName" class="w-full" name="{{ modelName }}[lastName]" value="{{ model ? model.lastName : '' }}">
             {% if model and model.getErrors('lastName') %}
                 <span class="flash">{{ model.getErrors('lastName')|join }}</span>

@@ -83,6 +83,7 @@
 - `allowEmptyCartOnCheckout` default value is false.
 - `totalDiscountUses` now counts all usage instances of a discount.
 - Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Addresses no longer require a first and last name.
 - Clearing discount usage counters is now done on a per counter basis.
 
 ## Deprecated

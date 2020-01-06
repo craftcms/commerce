@@ -264,8 +264,6 @@ class Address extends Model
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['firstName'], 'required'];
-        $rules[] = [['lastName'], 'required'];
         $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
         $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
