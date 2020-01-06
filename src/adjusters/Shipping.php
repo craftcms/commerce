@@ -82,7 +82,7 @@ class Shipping extends Component implements AdjusterInterface
 
         $adjustments = [];
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts();
 
         /** @var ShippingRule $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);

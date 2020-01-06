@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\services\Discounts::getAllActiveDiscounts()`.
+
+### Fixed
+- Fixed a bug where adding to cart was slow due to lots of disabled or outdated discounts.
+
 ## 2.2.13 - 2019-12-19
 
 ### Fixed
