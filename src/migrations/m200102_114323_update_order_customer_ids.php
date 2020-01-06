@@ -25,12 +25,15 @@ class m200102_114323_update_order_customer_ids extends Migration
             ->select('[[orders.email]] email')
             ->from('{{%commerce_orders}} orders')
             ->where(['[[orders.isCompleted]]' => true])
-            ->distinct()
             ->column();
+
+        $appearMoreThanOnce = array_keys(array_filter(array_count_values($allCustomers), static function($v){
+            return $v > 1;
+        }));
 
         // Consolidate guest orders
         Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-            'emails' => $allCustomers
+            'emails' => $appearMoreThanOnce
         ]));
     }
 
