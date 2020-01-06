@@ -13,6 +13,7 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use DateTime;
 
 trait OrderElementTrait
 {
@@ -54,6 +55,15 @@ trait OrderElementTrait
             case 'customer':
             {
                 return $this->getCustomerLinkHtml();
+            }
+            case 'dateOrdered':
+            {
+                $format = Plugin::getInstance()->getSettings()->orderTableDateOrderedFormat;
+                if (!$format || !$this->dateOrdered instanceof DateTime) {
+                    return parent::tableAttributeHtml($attribute);
+                }
+
+                return $this->dateOrdered ? $this->dateOrdered->format($format) : '';
             }
             case 'shippingFullName':
             {
