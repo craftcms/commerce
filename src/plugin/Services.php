@@ -322,16 +322,6 @@ trait Services
     }
 
     /**
-     * Returns the reporting service
-     *
-     * @return Reports The reports service
-     */
-    public function getReports(): Reports
-    {
-        return $this->get('reports');
-    }
-
-    /**
      * Returns the sales service
      *
      * @return Sales The sales service
@@ -494,7 +484,6 @@ trait Services
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
-            'reports' => Reports::class,
             'sales' => Sales::class,
             'shippingMethods' => ShippingMethods::class,
             'shippingRules' => ShippingRules::class,
