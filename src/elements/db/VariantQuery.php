@@ -492,6 +492,11 @@ class VariantQuery extends ElementQuery
             $query->limit = null;
             $variantIds = $query->ids();
 
+            $productIds = Product::find()
+                ->andWhere(['promotable' => 1])
+                ->limit(null)
+                ->ids();
+
             $now = new \DateTime();
             $activeSales = (new Query())->select([
                 'sales.id',
@@ -574,7 +579,8 @@ class VariantQuery extends ElementQuery
                         ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
                         ->column();
 
-                    $categoryRestrictedIds = [];
+                    $categoryRestrictedVariantIds = [];
+                    $categoryRestrictedProductIds = [];
                     if (!empty($categoryRestrictedSales)) {
                         $sourceSales = ArrayHelper::whereMultiple($categoryRestrictedSales, [
                             'categoryRelationshipType' => [
@@ -590,36 +596,71 @@ class VariantQuery extends ElementQuery
                         ]);
 
                         // Source relationships
-                        $sourceSalesVariantIds = [];
+                        $sourceVariantIds = [];
+                        $sourceProductIds = [];
                         if (!empty($sourceSales)) {
-                            $sourceSalesVariantIds = (new Query())
-                                ->select('rel.sourceId')
+                            $sourceRows = (new Query())
+                                ->select('elements.type, rel.sourceId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
+                                ->leftJoin(CraftTable::ELEMENTS . ' elements', '[[elements.id]] = [[rel.sourceId]]')
                                 ->where(['in', 'saleId', ArrayHelper::getColumn($sourceSales, 'id')])
-                                ->column();
+                                ->all();
+
+                            $sourceProductIds = ArrayHelper::getColumn($sourceRows, function($row) {
+                                if ($row['type'] == Product::class) {
+                                    return $row['sourceId'];
+                                }
+                            });
+                            $sourceVariantIds = ArrayHelper::getColumn($sourceRows, function($row) {
+                                if ($row['type'] == Variant::class) {
+                                    return $row['sourceId'];
+                                }
+                            });
+
+                            $sourceProductIds = array_filter($sourceProductIds);
+                            $sourceVariantIds = array_filter($sourceVariantIds);
                         }
 
                         // Target relationships
-                        $targetSalesVariantIds = [];
+                        $targetVariantIds = [];
+                        $targetProductIds = [];
                         if (!empty($targetSales)) {
-                            $targetSalesVariantIds = (new Query())
-                                ->select('rel.targetId')
+                            $targetRows = (new Query())
+                                ->select('elements.type, rel.targetId')
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.sourceId]] = [[sc.categoryId]]')
+                                ->leftJoin(CraftTable::ELEMENTS . ' elements', '[[elements.id]] = [[rel.targetId]]')
                                 ->where(['in', 'saleId', ArrayHelper::getColumn($targetSales, 'id')])
-                                ->column();
+                                ->all();
+
+                            $targetProductIds = ArrayHelper::getColumn($targetRows, function($row) {
+                                if ($row['type'] == Product::class) {
+                                    return $row['targetId'];
+                                }
+                            });
+                            $targetVariantIds = ArrayHelper::getColumn($targetRows, function($row) {
+                                if ($row['type'] == Variant::class) {
+                                    return $row['targetId'];
+                                }
+                            });
+
+                            $targetProductIds = array_filter($targetProductIds);
+                            $targetVariantIds = array_filter($targetVariantIds);
                         }
 
-                        $categoryRestrictedIds = array_merge($sourceSalesVariantIds, $targetSalesVariantIds);
+                        $categoryRestrictedVariantIds = array_merge($sourceVariantIds, $targetVariantIds);
+                        $categoryRestrictedProductIds = array_merge($sourceProductIds, $targetProductIds);
                     }
 
-                    $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedIds));
+                    $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedVariantIds));
+                    $productIds = $categoryRestrictedProductIds;
                 }
             }
 
-            $includeExcludeIds = $this->hasSales ? 'in' : 'not in';
-            $this->subQuery->andWhere([$includeExcludeIds, 'commerce_variants.id', $variantIds]);
+            $includeExcludePhrase = $this->hasSales ? 'in' : 'not in';
+            $this->subQuery->andWhere([$includeExcludePhrase, 'commerce_variants.id', $variantIds]);
+            $this->subQuery->orWhere([$includeExcludePhrase, 'commerce_variants.productId', $productIds]);
         }
 
         $this->_applyHasProductParam();
