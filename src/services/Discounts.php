@@ -174,13 +174,16 @@ class Discounts extends Component
     /**
      * Get all currently active discounts
      *
+     * @param Order|null $order
      * @return array
      * @throws \Exception
      * @since 2.2.14
      */
-    public function getAllActiveDiscounts(): array
+    public function getAllActiveDiscounts($order = null): array
     {
         if (null === $this->_allActiveDiscounts) {
+            $date = $order && $order->dateOrdered ? $order->dateOrdered : new DateTime();
+
             $discounts = $this->_createDiscountQuery()
                 ->addSelect([
                     'dp.purchasableId',
@@ -197,11 +200,11 @@ class Discounts extends Component
                 // Restrict by things that a definitely not in date
                 ->andWhere(['or',
                     ['dateFrom' => null],
-                    ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]
+                    ['<=', 'dateFrom', Db::prepareDateForDb($date)]
                 ])
                 ->andWhere(['or',
                     ['dateTo' => null],
-                    ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]
+                    ['>=', 'dateTo', Db::prepareDateForDb($date)]
                 ])
                 ->all();
 
