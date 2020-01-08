@@ -21,7 +21,7 @@
 {% for currency in currencies %}
 	{% set tableData = tableData|merge([{
         id: currency.id,
-        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name,
+        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site'),
         url: currency.cpEditUrl,
         handle: currency.iso,
         rate: currency.primary ? 'base' : currency.rate|number,
@@ -38,7 +38,7 @@
             title: Craft.t('commerce', 'Conversion Rate'),
             callback: function(value) {
                 if (value == 'base') {
-                    return '<span class="token">'+Craft.t('commerce', 'Base')+'</span>'
+                    return '<span class="token">'+Craft.escapeHtml(Craft.t('commerce', 'Base'))+'</span>'
                 }
 
                 return value;

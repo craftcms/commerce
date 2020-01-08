@@ -2,9 +2,13 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    "No countries exist yet.",
-    "Countries reordered.",
-    "Couldn’t reorder countries.",
+    'Couldn’t reorder countries.',
+    'Countries reordered.',
+    'Country Code',
+    'Name',
+    'No countries exist yet.',
+    'State Required?',
+    'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
 ]) %}
 
 {% block actionButton %}
@@ -19,10 +23,10 @@
 {% for country in countries %}
     {% set tableData = tableData|merge([{
         id: country.id,
-        title: country.name,
+        title: country.name|t('site'),
         status: country.enabled ? true : false,
         url: url('commerce/store-settings/countries/'~country.id),
-        countryCode: country.iso,
+        countryCode: country.iso|e,
         stateRequired: country.isStateRequired ? true : false,
     }]) %}
 
@@ -35,7 +39,7 @@
         { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
             }
         }

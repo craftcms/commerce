@@ -204,7 +204,7 @@ class CustomersController extends BaseCpController
 
             $rows[] = [
                 'id' => $customer['id'],
-                'title' => $customer['email'],
+                'title' => htmlspecialchars($customer['email']),
                 'url' => UrlHelper::cpUrl('commerce/customers/' . $customer['id']),
                 'user' => $user ? [
                     'title' => $user ? $user->__toString() : null,
@@ -212,8 +212,8 @@ class CustomersController extends BaseCpController
                     'status' => $user ? $user->getStatus() : null,
                 ] : null,
                 'addresses' => $addressCountByCustomerId[$customer['id']] ?? 0,
-                'billing' => $billingName . '<br>' . $customer['billingAddress'],
-                'shipping' => $shippingName . '<br>' . $customer['shippingAddress'],
+                'billing' => htmlspecialchars($billingName) . '<br>' . htmlspecialchars($customer['billingAddress']),
+                'shipping' => htmlspecialchars($shippingName) . '<br>' . htmlspecialchars($customer['shippingAddress']),
             ];
         }
 

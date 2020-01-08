@@ -20,13 +20,13 @@
 {% for taxRate in taxRates %}
     {% set tableData = tableData|merge([{
         id: taxRate.id,
-        title: taxRate.name,
+        title: taxRate.name|t('site'),
         url: url('commerce/tax/taxrates/'~taxRate.id),
         rate: taxRate.rateAsPercent,
         included: taxRate.include ? true : false,
         vat: taxRate.isVat ? true : false,
-        zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name, url: taxRate.taxZone.cpEditUrl },
-        category: taxRate.taxCategory ? { label: taxRate.taxCategory.name, url: taxRate.taxCategory.cpEditUrl } : false,
+        zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name|t('site')|e, url: taxRate.taxZone.cpEditUrl },
+        category: taxRate.taxCategory ? { label: taxRate.taxCategory.name|t('site')|e, url: taxRate.taxCategory.cpEditUrl } : false,
     }]) %}
 {% endfor %}
 
@@ -36,12 +36,12 @@ var columns = [
     { name: 'rate', title: Craft.t('commerce', 'Rate') },
     { name: 'included', title: Craft.t('commerce', 'Include in Price?'), callback: function(value) {
       if (value) {
-          return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
       }
     } },
     { name: 'vat', title: Craft.t('commerce', 'Is VAT?'), callback: function(value) {
         if (value) {
-            return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
         }
     } },
     { name: 'zone', title: Craft.t('commerce', 'Tax Zone'), callback: function(value) {

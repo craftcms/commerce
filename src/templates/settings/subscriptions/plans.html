@@ -28,13 +28,13 @@
 {% for plan in plans %}
 	{% set tableData = tableData|merge([{
         id: plan.id,
-        title: plan.name,
+        title: plan.name|t('site'),
         url: url('commerce/settings/subscriptions/plan/'~plan.id),
         status: plan.enabled ? true : false,
-        handle: plan.handle,
-        gateway: plan.gateway.name,
+        handle: plan.handle|e,
+        gateway: plan.gateway.name|t('site')|e,
         subscriptions: plan.subscriptionCount,
-        information: plan.planInformationId ? 'Yes'|t('commerce') : 'No'|t('commerce'),
+        information: plan.planInformationId ? 'Yes'|t('commerce')|e : 'No'|t('commerce')|e,
     }]) %}
 {% endfor %}
 
