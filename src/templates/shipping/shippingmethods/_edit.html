@@ -84,10 +84,10 @@
 {% for shippingRule in shippingRules %}
 	{% set tableData = tableData|merge([{
         id: shippingRule.id,
-        title: shippingRule.name,
+        title: shippingRule.name|t('site')|e,
         url: url('commerce/shipping/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id),
         status: shippingRule.enabled ? true : false,
-        description: shippingRule.description,
+        description: shippingRule.description|t('site')|e,
     }]) %}
 {% endfor %}
 

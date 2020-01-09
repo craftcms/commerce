@@ -4,7 +4,9 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?',
+    'Couldn’t reorder statuses.',
     'Default status?',
+    'Line item statuses reordered.',
 ]) %}
 
 {% block actionButton %}
@@ -26,9 +28,9 @@
             url: lineItemStatus.cpEditUrl,
             html: lineItemStatus.labelHtml|raw
         },
-        title: lineItemStatus.name,
+        title: lineItemStatus.name|t('site'),
         url: lineItemStatus.cpEditUrl,
-        handle: lineItemStatus.handle,
+        handle: lineItemStatus.handle|e,
         default: lineItemStatus.default ? true : false,
     }]) %}
 {% endfor %}
@@ -48,7 +50,7 @@ var columns = [
         title: Craft.t('commerce', 'Default Status?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
             }
         }
     }

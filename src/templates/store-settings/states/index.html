@@ -2,6 +2,9 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+    'Name',
+    'Abbreviation',
+    'Country',
     'No states exist yet.',
     'Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
 ]) %}
@@ -18,13 +21,13 @@
 {% for state in states %}
 	{% set tableData = tableData|merge([{
         id: state.id,
-        title: state.name,
+        title: state.name|t('site'),
         url: url('commerce/store-settings/states/'~state.id),
         status: state.enabled ? true : false,
-        abbreviation: state.abbreviation,
+        abbreviation: state.abbreviation|e,
         country: {
             status: state.country.enabled ? true : false,
-            country: state.country.name
+            country: state.country.name|t('site')|e
         }
     }]) %}
 {% endfor %}

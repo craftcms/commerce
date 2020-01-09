@@ -22,16 +22,16 @@
     {% set taxRates = [] %}
     {% for taxRate in taxZone.taxRates %}
         {% set taxRates = taxRates|merge([{
-            label: taxRate.name,
+            label: taxRate.name|t('site')|e,
             url: taxRate.cpEditUrl,
         }]) %}
     {% endfor %}
 
 	{% set tableData = tableData|merge([{
         id: taxZone.id,
-        title: taxZone.name,
+        title: taxZone.name|t('site'),
         url: taxZone.cpEditUrl,
-        description: taxZone.description,
+        description: taxZone.description|t('site')|e,
         type: taxZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce'),
         countryState: taxZone.isCountryBased ? indexInlineList(taxZone.getCountriesNames()) : indexInlineList(taxZone.getStatesNames()),
         zipCondition: taxZone.zipCodeConditionFormula ? true : false,

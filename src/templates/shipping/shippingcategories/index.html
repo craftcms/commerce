@@ -14,10 +14,10 @@
 {% for shippingCategory in shippingCategories %}
     {% set tableData = tableData|merge([{
         id: shippingCategory.id,
-        title: shippingCategory.name,
+        title: shippingCategory.name|t('site'),
         url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
-        handle: shippingCategory.handle,
-        description: shippingCategory.description,
+        handle: shippingCategory.handle|e,
+        description: shippingCategory.description|t('site')|e,
         default: shippingCategory.default,
     }]) %}
 {% endfor %}
@@ -32,7 +32,7 @@
             title: Craft.t('app', 'Default'),
             callback: function(value) {
                 if (value) {
-                    return '<div data-icon="check"></div>';
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app','Yes'))+'"></div>';
                 }
             }
         },

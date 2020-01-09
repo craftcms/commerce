@@ -32,6 +32,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
@@ -331,7 +332,7 @@ class OrdersController extends Controller
         }
 
         if ($sort) {
-            list($field, $direction) = explode('|', $sort);
+            [$field, $direction] = explode('|', $sort);
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -1151,26 +1152,26 @@ class OrdersController extends Controller
                     'id' => $transaction->id,
                     'level' => $level,
                     'type' => [
-                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->type)),
+                        'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->type))),
                         'level' => $level,
                     ],
                     'status' => [
                         'key' => $transaction->status,
-                        'label' => Plugin::t(StringHelper::toTitleCase($transaction->status))
+                        'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
                     'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
                     'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
-                    'gateway' => $transaction->gateway->name ?? Plugin::t('Missing Gateway'),
+                    'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
-                        ['label' => Plugin::t('Transaction ID'), 'type' => 'code', 'value' => $transaction->id ],
-                        ['label' => Plugin::t('Transaction Hash'), 'type' => 'code', 'value' => $transaction->hash ],
-                        ['label' => Plugin::t('Gateway Reference'), 'type' => 'code', 'value' => $transaction->reference ],
-                        ['label' => Plugin::t('Gateway Message'), 'type' => 'text', 'value' => $transaction->message ],
-                        ['label' => Plugin::t('Note'), 'type' => 'text', 'value' => $transaction->note ?? '' ],
-                        ['label' => Plugin::t('Gateway Code'), 'type' => 'code', 'value' => $transaction->code ],
-                        ['label' => Plugin::t('Converted Price'), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
-                        ['label' => Plugin::t('Gateway Response'), 'type' => 'response', 'value' => $transaction->response ],
+                        ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id ],
+                        ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash ],
+                        ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference ],
+                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message ],
+                        ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? '' ],
+                        ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code ],
+                        ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
+                        ['label' => Html::encode (Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transaction->response ],
                     ],
                     'actions' => $refundCapture,
                 ];

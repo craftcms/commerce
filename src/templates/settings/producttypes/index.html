@@ -20,21 +20,21 @@
 {% for type in productTypes %}
     {% set shipping = null %}
     {% for cat in type.getShippingCategories() %}
-    	{% set shipping = shipping ~ '<li>' ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    	{% set shipping = shipping ~ '<li>' ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
     {% endfor %}
     {% set shipping = shipping ? tag('ul', { html: shipping }) : '' %}
 
     {% set tax = null %}
     {% for cat in type.getTaxCategories() %}
-    	{% set tax = tax ~ '<li>' ~ (currentUser.can('commerce-manageTax') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    	{% set tax = tax ~ '<li>' ~ (currentUser.can('commerce-manageTax') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
     {% endfor %}
     {% set tax = tax ? tag('ul', { html: tax }) : '' %}
 
     {% set tableData = tableData|merge([{
         id: type.id,
-        title: type.name,
+        title: type.name|t('site'),
         url: type.cpEditUrl,
-        handle: type.handle,
+        handle: type.handle|e,
         hasVariants: type.hasVariants ? true : false,
         shipping: shipping,
         tax: tax,
@@ -48,7 +48,7 @@
         { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
             }
         },

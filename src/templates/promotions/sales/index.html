@@ -23,14 +23,14 @@
 {% set tableData = [] %}
 {% for sale in sales %}
   {% set effect = (sale.apply == 'byPercent' or sale.apply == 'toPercent') ?
-    sale.applyAmountAsPercent ~ ' ' ~ (sale.apply == 'byPercent' ? 'off original price'|t('commerce') : 'of original price'|t('commerce') )
+    sale.applyAmountAsPercent ~ ' ' ~ (sale.apply == 'byPercent' ? 'off original price'|t('commerce')|e : 'of original price'|t('commerce')|e )
     :
-    sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) ~ ' ' ~ (sale.apply == 'byFlat' ? 'off original price'|t('commerce') : '(new price)'|t('commerce') )
+    sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) ~ ' ' ~ (sale.apply == 'byFlat' ? 'off original price'|t('commerce')|e : '(new price)'|t('commerce')|e )
   %}
 
   {% set tableData = tableData|merge([{
     id: sale.id,
-    title: sale.name,
+    title: sale.name|t('site'),
     url: url('commerce/promotions/sales/' ~ sale.id),
     status: sale.enabled ? true : false,
     duration: (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞'),
@@ -71,7 +71,7 @@ var columns = [
     { name: 'ignore', title: Craft.t('commerce', 'Overrides previous?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
             }
 
             return '';
@@ -80,7 +80,7 @@ var columns = [
     { name: 'stop', title: Craft.t('commerce', 'Stops subsequent?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
             }
 
             return '';
