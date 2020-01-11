@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\services\Discounts::getAllActiveDiscounts()`.
+
 ### Fixed
 - Fixed an error that occurred when calling `toArray()` on a payment currency model. ([#1200](https://github.com/craftcms/commerce/issues/1200))
+- Fixed a bug where adding to cart was slow due to lots of disabled or outdated discounts.
 
 ## 2.2.13 - 2019-12-19
 

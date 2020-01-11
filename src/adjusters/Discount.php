@@ -76,7 +76,7 @@ class Discount extends Component implements AdjusterInterface
 
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
         foreach ($discounts as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchOrder($order, $discount)) {

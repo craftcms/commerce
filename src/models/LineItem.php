@@ -402,7 +402,7 @@ class LineItem extends Model
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder());
 
         // Check to see if there is a discount applied that ignores Sales
         $ignoreSales = false;
