@@ -831,7 +831,31 @@ class Order extends Element
      */
     public static function displayName(): string
     {
+        return Plugin::t('Order');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('order');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
         return Plugin::t('Orders');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('orders');
     }
 
     /**

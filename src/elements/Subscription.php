@@ -170,6 +170,38 @@ class Subscription extends Element
     // =========================================================================
 
     /**
+     * @inheritdoc
+     */
+    public static function displayName(): string
+    {
+        return Plugin::t('Subscription');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('subscription');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Plugin::t('Subscriptions');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('subscriptions');
+    }
+
+    /**
      * @return null|string
      */
     public function __toString()

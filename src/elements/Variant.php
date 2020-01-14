@@ -230,6 +230,30 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('product variant');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Plugin::t('Product Variants');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('product variants');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function refHandle()
     {
         return 'variant';
