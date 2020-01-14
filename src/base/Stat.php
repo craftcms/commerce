@@ -334,7 +334,7 @@ abstract class Stat implements StatInterface
             $orderLastUpdatedString = $orderLastUpdated->format('Y-m-d-H-i-s');
         }
 
-        return implode('-', [$this->getHandle(), $this->dateRange, $orderLastUpdatedString]);
+        return implode('-', [$this->getHandle(), $this->dateRange, $this->_startDate->format('U'), $this->_endDate->format('U'), $orderLastUpdatedString]);
     }
 
     // Protected Methods
