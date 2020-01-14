@@ -5,6 +5,7 @@
 > {warning} Plugins and modules that modify the Edit Order page are likely to break with this update.
 
 ### Added
+- Commerce 3.0 requires Craft 3.4 or later.
 - Added the ability to create and edit orders from the control panel.
 - Added the ability to manage customers and customer addresses from the control panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added GraphQL support for products. ([#1092](https://github.com/craftcms/commerce/issues/1092))
