@@ -1,43 +1,43 @@
 # Running Release Notes for Craft Commerce 3.0
 
+> {warning} Order notification emails are now sent via a queue job, so running a queue worker as a daemon is highly recommended to avoid notification delays.
+
+> {warning} Plugins and modules that modify the Edit Order page are likely to break with this update.
+
 ### Added
-- Added the ability to create and edit orders from the Control Panel.
-- Added the ability to manage Customers and Customer Addresses from the Control Panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
+- Added the ability to create and edit orders from the control panel.
+- Added the ability to manage customers and customer addresses from the control panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added GraphQL support for products. ([#1092](https://github.com/craftcms/commerce/issues/1092))
 - Added the ability to send emails from the Edit Order page.
-- Line items can now be exported from the Order index page. ([#976](https://github.com/craftcms/commerce/issues/976))
-- Orders can be filtered by date range on the order index page.
-- Added “Edit Orders” and “Delete Orders” user permissions.
-- Line items now have a status that can be changed on the Edit Order page.
+- Line items can now be exported from the Orders index page. ([#976](https://github.com/craftcms/commerce/issues/976))
+- Added the “Edit orders” and “Delete orders” user permissions.
+- Line items now have a status that can be changed on Edit Order pages.
 - Line items now have a Private Note field for store managers.
 - Inactive carts are now purged during garbage collection.
 - Orders now have recalculation modes to determine what should be recalculated on the order.
 - Added the `origin` order query param.
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
-- Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
-- Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
+- Promotions can now specify which elements are the source vs. target on category relations added by the promotion. ([#984](https://github.com/craftcms/commerce/issues/984))
+- Added the ability to add products existing sales from Edit Product pages. ([#594](https://github.com/craftcms/commerce/issues/594))
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
-- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
-- Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
-- Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
-- Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
-- Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
-- Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
-- Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
-- Added the ability to manager Customers and Customer Addresses. ([#1043](https://github.com/craftcms/commerce/issues/1043))
-- Added the ability to show the customer on the Order index table.
-- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
-- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
-- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
-- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`
-- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`
-- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`
+- Added the `showCustomerInfoTab` config setting, which determines whether Edit User pages should show a “Customer Info” tab. ([#1037](https://github.com/craftcms/commerce/issues/1037))
+- Added the ability to create discounts based on the order total. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to sort by customer attributes on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
+- Added the ability to set the title label for products and variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
+- Added the ability to enable/disabled countries and states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added the ability to show customer info on the Orders index page.
+- Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`.
+- Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`.
+- Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\LineItemStatuses`.
-- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`
+- Added `craft\commerce\controllers\OrdersController::_getTransactionsWIthLevelsTableArray()`.
 - Added `craft\commerce\controllers\OrdersController::actionNewOrder()`.
-- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`
-- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`
+- Added `craft\commerce\controllers\SalesController::actionUpdateStatus()`.
+- Added `craft\commerce\controllers\StatesController::actionUpdateStatus()`.
 - Added `craft\commerce\elements\Order::$origin`.
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
@@ -59,10 +59,10 @@
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountriesAsList`.
 - Added `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`.
-- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearDiscountUsesById()`.
-- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::clearEmailUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getCustomerUsageStatsById()`.
+- Added `craft\commerce\services\Discounts::getEmailUsageStatsById()`.
 - Added `craft\commerce\services\Emails::getAllEnabledEmails()`.
 - Added `craft\commerce\services\LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS`.
 - Added `craft\commerce\services\LineItemStatuses`.
@@ -72,22 +72,22 @@
 - Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
 
 ## Changed
-- The Edit Order page is now a Vue app. This is likely to break any plugins that use JavaScript to modify the DOM on that page.
-- Order status change emails are triggered by a job on the queue for faster checkout.
-- If no `donationAmount` line item option parameter is submitted when adding a donation to the cart, the donation amount will default to zero.
-- Controller actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
+- The date range picker on the Orders index page has been moved to the page toolbar, and now affects which orders are shown in the order listing and which orders are included in order exports, rather than just affecting the chart.
+- The Edit Order page is now a Vue app.
+- Order status change emails are triggered by a queue job for faster checkout.
+- When adding a donation to the cart, supplying a `donationAmount` parameter is no longer required. (Donations will default to zero if omitted.)
+- `commerce/cart/*` actions now call `craft\commerce\elements\Order::toArray()` when generating the cart array for JSON responses.
 - `commerce/payments/pay` JSON responses now list payment form errors under `paymentFormErrors` rather than `paymentForm`.
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
-- Changed the default category relationship type on promotions from `sourceElement` to `element` .
-- `purgeInactiveCartsDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
-- `activeCartDuration` default value is number of seconds as an integer and is now being passed through `craft\cms\helpers\ConfigHelper::durationInSeconds()`.
-- `craft\commerce\controllers\CustomerAddressesController::actionSave()` no long forces primary shipping and billing addresses if they do not exist.
-- Moved `craft\commerce\services\States::getAllStatesAsList` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId` to be consistent with other service methods. 
-- `allowEmptyCartOnCheckout` default value is false.
-- `totalDiscountUses` now counts all usage instances of a discount.
-- Discount uses for `perUserLimit` and `perEmailLimit` are now counted on every discount use instead of only when a coupon code is used.
+- Changed the default category relationship type on promotions from `sourceElement` to `element`. ([#984](https://github.com/craftcms/commerce/issues/984))
+- The `purgeInactiveCartsDuration` and `activeCartDuration` config settings now support all value formats supported by `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
+- The `commerce/customer-addresses/save` action no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
+- Moved `craft\commerce\services\States::getAllStatesAsList()` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId()` to be consistent with other service methods.
+- The `allowEmptyCartOnCheckout` config setting is now set to `false` by default.
+- Discount usage conditions now apply to the discount as a whole, rather than just the coupon code.
+- Discounts’ user and email usage counters can be cleared individually.
 - Addresses no longer require a first and last name.
-- Clearing discount usage counters is now done on a per counter basis.
+- Guest orders are now consolidated with other orders from the same customer immediately after an order is completed, rather than when a user logs in.Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
@@ -95,7 +95,7 @@
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
 ## Removed
-- Removed the Customer Info field type.
+- Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Removed the `craft.commerce.availableShippingMethods` Twig property.
 - Removed the `craft.commerce.cart` Twig property.
 - Removed the `craft.commerce.countriesList` Twig property.
