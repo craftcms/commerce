@@ -24,6 +24,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\helpers\Db;
 use DateTime;
 use phpDocumentor\Reflection\Types\Boolean;
 use yii\base\Component;
@@ -120,6 +121,11 @@ class Discounts extends Component
      */
     private $_allDiscounts;
 
+    /**
+     * @var Discount[]
+     */
+    private $_allActiveDiscounts;
+
     // Public Methods
     // =========================================================================
 
@@ -159,42 +165,53 @@ class Discounts extends Component
                 ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
                 ->all();
 
-            $allDiscountsById = [];
-            $purchasables = [];
-            $categories = [];
-            $userGroups = [];
-
-            foreach ($discounts as $discount) {
-                $id = $discount['id'];
-                if ($discount['purchasableId']) {
-                    $purchasables[$id][] = $discount['purchasableId'];
-                }
-
-                if ($discount['categoryId']) {
-                    $categories[$id][] = $discount['categoryId'];
-                }
-
-                if ($discount['userGroupId']) {
-                    $userGroups[$id][] = $discount['userGroupId'];
-                }
-
-                unset($discount['purchasableId'], $discount['userGroupId'], $discount['categoryId']);
-
-                if (!isset($allDiscountsById[$id])) {
-                    $allDiscountsById[$id] = new Discount($discount);
-                }
-            }
-
-            foreach ($allDiscountsById as $id => $discount) {
-                $discount->setPurchasableIds($purchasables[$id] ?? []);
-                $discount->setCategoryIds($categories[$id] ?? []);
-                $discount->setUserGroupIds($userGroups[$id] ?? []);
-            }
-
-            $this->_allDiscounts = $allDiscountsById;
+            $this->_allDiscounts = $this->_populateDiscountsRelations($discounts);
         }
 
         return $this->_allDiscounts;
+    }
+
+    /**
+     * Get all currently active discounts
+     *
+     * @param Order|null $order
+     * @return array
+     * @throws \Exception
+     * @since 2.2.14
+     */
+    public function getAllActiveDiscounts($order = null): array
+    {
+        if (null === $this->_allActiveDiscounts) {
+            $date = $order && $order->dateOrdered ? $order->dateOrdered : new DateTime();
+
+            $discounts = $this->_createDiscountQuery()
+                ->addSelect([
+                    'dp.purchasableId',
+                    'dpt.categoryId',
+                    'dug.userGroupId',
+                ])
+                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
+                // Restricted by enabled discounts
+                ->where([
+                    'enabled' => 1,
+                ])
+                // Restrict by things that a definitely not in date
+                ->andWhere(['or',
+                    ['dateFrom' => null],
+                    ['<=', 'dateFrom', Db::prepareDateForDb($date)]
+                ])
+                ->andWhere(['or',
+                    ['dateTo' => null],
+                    ['>=', 'dateTo', Db::prepareDateForDb($date)]
+                ])
+                ->all();
+
+            $this->_allActiveDiscounts = $this->_populateDiscountsRelations($discounts);
+        }
+
+        return $this->_allActiveDiscounts;
     }
 
     /**
@@ -854,6 +871,53 @@ class Discounts extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @param $discounts
+     * @return array
+     * @since 2.2.14
+     */
+    private function _populateDiscountsRelations($discounts): array
+    {
+        $allDiscountsById = [];
+
+        if (empty($discounts)) {
+            return $allDiscountsById;
+        }
+
+        $purchasables = [];
+        $categories = [];
+        $userGroups = [];
+
+        foreach ($discounts as $discount) {
+            $id = $discount['id'];
+            if ($discount['purchasableId']) {
+                $purchasables[$id][] = $discount['purchasableId'];
+            }
+
+            if ($discount['categoryId']) {
+                $categories[$id][] = $discount['categoryId'];
+            }
+
+            if ($discount['userGroupId']) {
+                $userGroups[$id][] = $discount['userGroupId'];
+            }
+
+            unset($discount['purchasableId'], $discount['userGroupId'], $discount['categoryId']);
+
+            if (!isset($allDiscountsById[$id])) {
+                $allDiscountsById[$id] = new Discount($discount);
+            }
+        }
+
+        foreach ($allDiscountsById as $id => $discount) {
+            $discount->setPurchasableIds($purchasables[$id] ?? []);
+            $discount->setCategoryIds($categories[$id] ?? []);
+            $discount->setUserGroupIds($userGroups[$id] ?? []);
+        }
+
+        return $allDiscountsById;
     }
 
     /**

@@ -1,6 +1,4 @@
-<?php /** @noinspection ArgumentEqualsDefaultValueInspection */
-/** @noinspection ArgumentEqualsDefaultValueInspection */
-
+<?php
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -35,7 +33,7 @@ use yii\web\BadRequestHttpException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingReports extends Component
+class Reports extends Component
 {
     // Constants
     // =========================================================================
@@ -72,25 +70,25 @@ class ShippingReports extends Component
             'totalTax' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
-                ->andWhere(['type'=>Tax::ADJUSTMENT_TYPE])
-                ->andWhere(['included'=>0]),
+                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
+                ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
+                ->andWhere(['included' => 0]),
             'totalTaxIncluded' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
-                ->andWhere(['type'=>Tax::ADJUSTMENT_TYPE])
-                ->andWhere(['included'=>1]),
+                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
+                ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
+                ->andWhere(['included' => 1]),
             'totalShipping' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
-                ->andWhere(['type'=>Shipping::ADJUSTMENT_TYPE]),
+                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
+                ->andWhere(['type' => Shipping::ADJUSTMENT_TYPE]),
             'totalDiscount' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS)
-                ->where('[[orderId]] = '.Table::ORDERS.'.[[id]]')
-                ->andWhere(['type'=>Discount::ADJUSTMENT_TYPE]),
+                ->where('[[orderId]] = ' . Table::ORDERS . '.[[id]]')
+                ->andWhere(['type' => Discount::ADJUSTMENT_TYPE]),
             'totalPrice',
             'totalPaid',
             'paidStatus',

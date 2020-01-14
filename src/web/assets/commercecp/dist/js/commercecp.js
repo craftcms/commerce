@@ -700,7 +700,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
                 $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
                 $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
                 $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $to = $('<span class="to light">to</span>').appendTo($dateRange),
+                $to = $('<span class="to light">-</span>').appendTo($dateRange),
                 $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
                 $total = $('<div class="total"></div>').appendTo($chartHeader),
                 $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
