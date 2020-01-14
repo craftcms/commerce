@@ -25,7 +25,7 @@ class TotalRevenue extends Stat
     /**
      * @inheritdoc
      */
-    public $handle = 'totalRevenue';
+    protected $_handle = 'totalRevenue';
 
     // Public Methods
     // =========================================================================

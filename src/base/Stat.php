@@ -60,7 +60,7 @@ abstract class Stat implements StatInterface
      */
     public function getHandle(): string
     {
-        return $this->handle;
+        return $this->_handle;
     }
 
     /**

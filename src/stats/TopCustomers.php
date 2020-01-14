@@ -25,7 +25,7 @@ class TopCustomers extends Stat
     /**
      * @inheritdoc
      */
-    public $handle = 'topCustomers';
+    protected $_handle = 'topCustomers';
 
     /**
      * @var string Type of start either 'total' or 'average'.
@@ -81,7 +81,7 @@ class TopCustomers extends Stat
      */
     public function getHandle(): string
     {
-        return $this->handle . $this->type;
+        return $this->_handle . $this->type;
     }
 
     /**

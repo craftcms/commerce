@@ -15,11 +15,6 @@ namespace craft\commerce\base;
 trait StatTrait
 {
     /**
-     * @var string
-     */
-    public $handle;
-
-    /**
      * @var bool
      */
     public $cache = false;
@@ -38,6 +33,11 @@ trait StatTrait
      * @var int
      */
     public $weekStartDay = 1; // Monday
+
+    /**
+     * @var string
+     */
+    protected $_handle;
 
     /**
      * @var null|\DateTime

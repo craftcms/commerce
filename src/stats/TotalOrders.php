@@ -24,7 +24,7 @@ class TotalOrders extends Stat
     /**
      * @inheritdoc
      */
-    public $handle = 'totalOrders';
+    protected $_handle = 'totalOrders';
 
     // Public Methods
     // =========================================================================

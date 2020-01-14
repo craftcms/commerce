@@ -26,7 +26,7 @@ class TopPurchasables extends Stat
     /**
      * @inheritdoc
      */
-    public $handle = 'topPurchasables';
+    protected $_handle = 'topPurchasables';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
@@ -83,6 +83,6 @@ class TopPurchasables extends Stat
      */
     public function getHandle(): string
     {
-        return $this->handle . $this->type;
+        return $this->_handle . $this->type;
     }
 }
