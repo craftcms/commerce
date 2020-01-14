@@ -47,9 +47,13 @@ interface StatInterface
         6 => 'Friday',
     ];
 
-
     // Public Methods
     // =========================================================================
+
+    /**
+     * @return string
+     */
+    public function getHandle(): string;
 
     /**
      * @return mixed
@@ -82,4 +86,15 @@ interface StatInterface
      * @return mixed
      */
     public function setEndDate($date);
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function processData($data);
+
+    /**
+     * @return string
+     */
+    public function getDateRangeWording(): string;
 }

@@ -8,9 +8,11 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use craft\i18n\Locale;
 use yii\base\Exception;
 
 /**
@@ -54,6 +56,14 @@ abstract class Stat implements StatInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getHandle(): string
+    {
+        return $this->handle;
+    }
+
+    /**
      * @return array|false|mixed|null
      * @throws Exception
      */
@@ -62,7 +72,8 @@ abstract class Stat implements StatInterface
         $this->_setDates();
 
         if (!$this->cache) {
-            return $this->getData();
+            $data = $this->getData();
+            return $this->processData($data);
         }
 
         $this->_cacheKey = $this->_getCacheKey();
@@ -78,6 +89,14 @@ abstract class Stat implements StatInterface
             Craft::$app->getCache()->set($this->_cacheKey, $data, $this->cacheDuration);
         }
 
+        return $this->processData($data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function processData($data)
+    {
         return $data;
     }
 
@@ -111,6 +130,76 @@ abstract class Stat implements StatInterface
     public function getEndDate()
     {
         return $this->_endDate;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDateRangeWording(): string
+    {
+        switch ($this->dateRange) {
+            case self::DATE_RANGE_TODAY:
+            {
+                return Plugin::t('Today');
+                break;
+            }
+            case self::DATE_RANGE_THISWEEK:
+            {
+                return Plugin::t('This week');
+                break;
+            }
+            case self::DATE_RANGE_THISMONTH:
+            {
+                return Plugin::t('This month');
+                break;
+            }
+            case self::DATE_RANGE_THISYEAR:
+            {
+                return Plugin::t('This year');
+                break;
+            }
+            case self::DATE_RANGE_PAST7DAYS:
+            {
+                return Plugin::t('Past 7 days');
+                break;
+            }
+            case self::DATE_RANGE_PAST30DAYS:
+            {
+                return Plugin::t('Past 30 days');
+                break;
+            }
+            case self::DATE_RANGE_PAST90DAYS:
+            {
+                return Plugin::t('Past 90 days');
+                break;
+            }
+            case self::DATE_RANGE_PASTYEAR:
+            {
+                return Plugin::t('Past year');
+                break;
+            }
+            case self::DATE_RANGE_CUSTOM:
+            {
+                if (!$this->_startDate || !$this->_endDate) {
+                    return '';
+                }
+
+                $startDate = Craft::$app->getFormatter()->asDate($this->_startDate, Locale::LENGTH_SHORT);
+                $endDate = Craft::$app->getFormatter()->asDate($this->_endDate, Locale::LENGTH_SHORT);
+
+                if (Craft::$app->getLocale()->getOrientation() == 'rtl') {
+                    return $endDate . ' - ' . $startDate;
+                }
+
+                return $startDate . ' - ' . $endDate;
+                break;
+            }
+            default:
+            {
+                return '';
+                break;
+            }
+        }
     }
 
     // Private Methods
@@ -245,7 +334,7 @@ abstract class Stat implements StatInterface
             $orderLastUpdatedString = $orderLastUpdated->format('Y-m-d-H-i-s');
         }
 
-        return implode('-', [$this->handle, $this->dateRange, $orderLastUpdatedString]);
+        return implode('-', [$this->getHandle(), $this->dateRange, $orderLastUpdatedString]);
     }
 
     // Protected Methods
