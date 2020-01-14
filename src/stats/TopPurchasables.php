@@ -62,9 +62,6 @@ class TopPurchasables extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        if ($this->type == 'revenue') {
-        }
-
         $topProducts = $this->_createStatQuery()
             ->select([
                 '[[li.purchasableId]]',
