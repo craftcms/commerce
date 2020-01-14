@@ -3,6 +3,7 @@
 ## Unreleased (3.x)
  
 ### Added
+- Added GraphQL support for products.
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
 - Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
