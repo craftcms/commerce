@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased (3.x)
+## 3.0.0-RC1 - 2020-01-14
  
 ### Added
 - Added the ability to manage customers and customer addresses from the control panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
