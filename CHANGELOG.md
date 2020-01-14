@@ -3,6 +3,7 @@
 ## Unreleased (3.x)
  
 ### Added
+- Added the ability to manage Customers and Customer Addresses from the Control Panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added GraphQL support for products. ([#1092](https://github.com/craftcms/commerce/issues/1092))
 - Added the `activeCartDuration` setting to determine if a cart should show as inactive on the Order index page. ([#959](https://github.com/craftcms/commerce/issues/959))
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
@@ -16,7 +17,6 @@
 - Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
-- Added the ability to manager Customers and Customer Addresses. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added the ability to show the customer on the Order index table.
 - Line items can now be exported from the Order index page.
 - Added the `orderTableDateOrderedFormat` setting to allow format control of date ordered on the order index table. ([#1179](https://github.com/craftcms/commerce/issues/1179))
