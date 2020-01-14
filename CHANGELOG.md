@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.14 - 2020-01-14
 
 ### Added
 - Added `craft\commerce\services\Discounts::getAllActiveDiscounts()`.
