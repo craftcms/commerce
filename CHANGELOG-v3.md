@@ -139,3 +139,4 @@
 - Removed `craft\commerce\services\Reports::getOrdersExportFile()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.
 - Removed `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT` event. Use `craft\base\Element::EVENT_REGISTER_EXPORTERS` to create your own exports.
+- Removed the `phpoffice/phpspreadsheet` package dependency.

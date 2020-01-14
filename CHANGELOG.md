@@ -76,6 +76,7 @@
 - Removed the Customer Info field type. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Removed `craft\commerce\models\Address::getFullName()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead. ([#1031](https://github.com/craftcms/commerce/issues/1031))
+- Removed the `phpoffice/phpspreadsheet` package dependency.
 
 ## 3.0.0-alpha.1 - 2019-07-24
 
