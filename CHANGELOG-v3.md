@@ -2,6 +2,7 @@
 
 ### Added
 - Added the ability to create and edit orders from the Control Panel.
+- Added the ability to manage Customers and Customer Addresses from the Control Panel.
 - Added GraphQL support for products.
 - Added the ability to send emails from the Edit Order page.
 - Line items can now be exported from the Order index page.
@@ -22,8 +23,7 @@
 - Added the ability to set the title label for Products and Variants per product type.
 - Added the ability to enable/disabled countries.
 - Added the ability to enable/disabled states.
-- Added consolidation of guest orders after an order is completed.
-- Added the ability to manager Customers and Customer Addresses.
+- Added consolidation of guest orders after an order is completed as a queue job.
 - Added the ability to show the customer on the Order index table.
 - Added the `orderTableDateOrderedFormat` setting to allow format control of date ordered on the order index table.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
