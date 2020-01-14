@@ -2,10 +2,11 @@
 
 ### Added
 - Added the ability to create and edit orders from the Control Panel.
-- Added the ability to manage Customers and Customer Addresses from the Control Panel.
-- Added GraphQL support for products.
+- Added the ability to manage Customers and Customer Addresses from the Control Panel. ([#1043](https://github.com/craftcms/commerce/issues/1043))
+- Added GraphQL support for products. ([#1092](https://github.com/craftcms/commerce/issues/1092))
 - Added the ability to send emails from the Edit Order page.
-- Line items can now be exported from the Order index page.
+- Line items can now be exported from the Order index page. ([#976](https://github.com/craftcms/commerce/issues/976))
+- Orders can be filtered by date range on the order index page.
 - Added “Edit Orders” and “Delete Orders” user permissions.
 - Line items now have a status that can be changed on the Edit Order page.
 - Line items now have a Private Note field for store managers.
@@ -13,19 +14,20 @@
 - Orders now have recalculation modes to determine what should be recalculated on the order.
 - Added the `origin` order query param.
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
-- Added warnings to settings that are being overridden in the config file.
-- Added the ability on promotions to choose the relationship type for related categories.
-- Added the ability to add a product to an existing Sale from the Product Edit page.
-- Added the ability to set a plain text template for Commerce emails.
-- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page.
-- Added the ability to create discounts using the order total and percentages. 
-- Added the ability to sort by shipping and billing first, last and full name on the Orders index page.
-- Added the ability to set the title label for Products and Variants per product type.
-- Added the ability to enable/disabled countries.
-- Added the ability to enable/disabled states.
-- Added consolidation of guest orders after an order is completed as a queue job.
+- Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
+- Added the ability on promotions to choose the relationship type for related categories. ([#984](https://github.com/craftcms/commerce/issues/984))
+- Added the ability to add a product to an existing Sale from the Product Edit page. ([#594](https://github.com/craftcms/commerce/issues/594))
+- Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
+- Added the `showCustomerInfoTab` setting to allow control over showing the customer info tab on the User Edit page. ([#1037](https://github.com/craftcms/commerce/issues/1037))
+- Added the ability to create discounts using the order total and percentages. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to sort by shipping and billing first, last and full name on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
+- Added the ability to set the title label for Products and Variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
+- Added the ability to enable/disabled countries. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added the ability to enable/disabled states. ([#213](https://github.com/craftcms/commerce/issues/213))
+- Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- Added the ability to manager Customers and Customer Addresses. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added the ability to show the customer on the Order index table.
-- Added the `orderTableDateOrderedFormat` setting to allow format control of date ordered on the order index table.
+- Added the `orderTableDateOrderedFormat` setting to allow format control of date ordered on the order index table. ([#1179](https://github.com/craftcms/commerce/issues/1179))
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`
