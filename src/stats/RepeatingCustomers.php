@@ -25,7 +25,7 @@ class RepeatingCustomers extends Stat
     /**
      * @inheritdoc
      */
-    public $handle = 'repeatingCustomers';
+    protected $_handle = 'repeatingCustomers';
 
     // Public Methods
     // =========================================================================
