@@ -19,7 +19,7 @@ class OrderExport extends ElementExporter
      */
     public static function displayName(): string
     {
-        return Plugin::t('Orders');
+        return Plugin::t('Orders (Legacy)');
     }
 
     /**
