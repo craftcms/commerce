@@ -210,12 +210,6 @@ class Settings extends Model
      */
     public $showCustomerInfoTab = true;
 
-    /**
-     * @var string|null Ability to pass a date format to be used for dateOrdered on the order index table e.g. 'Y-m-d H:i:s'
-     * @since 3.0
-     */
-    public $orderTableDateOrderedFormat = null;
-
     // Public Methods
     // =========================================================================
 

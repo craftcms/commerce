@@ -27,7 +27,6 @@
 - Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
 - Added the ability to manager Customers and Customer Addresses. ([#1043](https://github.com/craftcms/commerce/issues/1043))
 - Added the ability to show the customer on the Order index table.
-- Added the `orderTableDateOrderedFormat` setting to allow format control of date ordered on the order index table. ([#1179](https://github.com/craftcms/commerce/issues/1179))
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`

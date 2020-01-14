@@ -56,15 +56,6 @@ trait OrderElementTrait
             {
                 return $this->getCustomerLinkHtml();
             }
-            case 'dateOrdered':
-            {
-                $format = Plugin::getInstance()->getSettings()->orderTableDateOrderedFormat;
-                if (!$format || !$this->dateOrdered instanceof DateTime) {
-                    return parent::tableAttributeHtml($attribute);
-                }
-
-                return $this->dateOrdered ? $this->dateOrdered->format($format) : '';
-            }
             case 'shippingFullName':
             {
                 return $this->getShippingAddress() ? $this->getShippingAddress()->fullName ?? '' : '';
