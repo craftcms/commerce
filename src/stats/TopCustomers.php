@@ -79,15 +79,20 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function get()
+    public function getHandle(): string
     {
-        $this->handle .= $this->type;
-        $topCustomers = parent::get();
+        return $this->handle . $this->type;
+    }
 
-        foreach ($topCustomers as &$topCustomer) {
+    /**
+     * @inheritDoc
+     */
+    public function processData($data)
+    {
+        foreach ($data as &$topCustomer) {
             $topCustomer['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
         }
 
-        return $topCustomers;
+        return $data;
     }
 }

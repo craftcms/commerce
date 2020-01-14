@@ -62,7 +62,7 @@ class TopPurchasables extends Stat
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
 
-        $topProducts = $this->_createStatQuery()
+        $topPurchasables = $this->_createStatQuery()
             ->select([
                 '[[li.purchasableId]]',
                 '[[p.description]]',
@@ -75,15 +75,14 @@ class TopPurchasables extends Stat
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);
 
-        return $topProducts->all();
+        return $topPurchasables->all();
     }
 
     /**
      * @inheritDoc
      */
-    public function get()
+    public function getHandle(): string
     {
-        $this->handle .= $this->type;
-        return parent::get();
+        return $this->handle . $this->type;
     }
 }
