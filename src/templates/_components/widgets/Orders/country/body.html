@@ -1,0 +1,41 @@
+{% do view.registerTranslations('commerce', []) %}
+<div>
+    <canvas id="{{ namespaceId }}" height="250"></canvas>
+</div>
+{% js %}
+    var revChart = new Craft.Commerce.Chart('{{ namespaceId }}', {
+        chart: {
+            type: 'doughnut',
+            data: {
+                labels: {{ labels|json_encode|raw }},
+                datasets: [
+                    {
+                        label: Craft.t('commerce', 'Order count'),
+                        data: {{ totalOrders|json_encode|raw }},
+                        backgroundColor: [
+                            Craft.Commerce.ChartColors.yellow.bg,
+                            Craft.Commerce.ChartColors.cyan.bg,
+                            Craft.Commerce.ChartColors.red.bg,
+                            Craft.Commerce.ChartColors.blue.bg
+                        ],
+                        borderColor: [
+                            Craft.Commerce.ChartColors.yellow.border,
+                            Craft.Commerce.ChartColors.cyan.border,
+                            Craft.Commerce.ChartColors.red.border,
+                            Craft.Commerce.ChartColors.blue.border
+                        ],
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                cutoutPercentage: 33,
+                rotation: 10,
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+{% endjs %}
