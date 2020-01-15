@@ -65,8 +65,9 @@ class TotalRevenue extends Stat
             }
         }
 
-        $dateKeyDate = DateTimeHelper::toDateTime($this->getEndDate()->format('U'));
-        while ($dateKeyDate->format($dateKeyFormat) != $this->getStartDate()->format($dateKeyFormat)) {
+        $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
+        while ($dateKeyDate->format($dateKeyFormat) != $this->getEndDate()->format($dateKeyFormat)) {
+            $dateKeyDate->add(new \DateInterval($interval));
             $key = $dateKeyDate->format($dateKeyFormat);
 
             $totalSales[$key] = [
@@ -74,7 +75,6 @@ class TotalRevenue extends Stat
                 'orderCount' => 0,
                 'date' => $key,
             ];
-            $dateKeyDate->sub(new \DateInterval($interval));
         }
 
         $totalSalesResults = $this->_createStatQuery()
@@ -84,7 +84,7 @@ class TotalRevenue extends Stat
                 $dateLabel,
             ])
             ->groupBy($groupBy)
-            ->orderBy('dateOrdered DESC')
+            ->orderBy('dateOrdered ASC')
             ->indexBy('date')
             ->all();
 
