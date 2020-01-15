@@ -180,7 +180,7 @@ class CartController extends BaseFrontEndController
         $this->requirePostRequest();
 
         // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
+        $this->_cart = $this->_getCart(true);
 
         // Services we will be using.
         $request = Craft::$app->getRequest();
@@ -397,14 +397,15 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * @param bool $forceSave Force the cart to save to the DB
      * @return Order|null
      *
+     * @throws ElementNotFoundException
      * @throws Exception
      * @throws NotFoundHttpException
      * @throws Throwable
-     * @throws ElementNotFoundException
      */
-    private function _getCart()
+    private function _getCart($forceSave = false)
     {
         $request = Craft::$app->getRequest();
 
@@ -420,14 +421,12 @@ class CartController extends BaseFrontEndController
 
             return $cart;
         }
+        
+        $requestMerge = (bool)$request->getBodyParam('mergeCarts');
+        $requestForceSave = (bool)$request->getBodyParam('forceSave');
+        $doForceSave = ($requestForceSave || $forceSave);
 
-        // Get the cart from the current users session, or return a new cart attached to the session
-        // Merge previous carts if any are found
-        if ($merge = $request->getBodyParam('mergeCarts')) {
-            return Plugin::getInstance()->getCarts()->getMergedCart();
-        }
-
-        return Plugin::getInstance()->getCarts()->getCart(true);
+        return Plugin::getInstance()->getCarts()->getCart($doForceSave, $requestMerge);
     }
 
     /**
