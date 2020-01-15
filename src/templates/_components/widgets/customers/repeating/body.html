@@ -1,0 +1,7 @@
+<div class="commerce-widget-numberstat">
+{% spaceless %}
+    <strong class="commerce-widget-numberstat-number">{{ numbers['percentage'] ?? 0 }}</strong><span>%</span><br>
+    <span>{{ 'repeating customers'|t('commerce') }}</span><br>
+    <span class="extralight">{{ timeFrame }}</span>
+{% endspaceless %}
+</div>

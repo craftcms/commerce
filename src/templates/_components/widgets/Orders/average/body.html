@@ -1,0 +1,7 @@
+<div class="commerce-widget-numberstat">
+{% spaceless %}
+    <strong class="commerce-widget-numberstat-number">{{ (number ?? 0)|commerceCurrency(craft.commerce.settings.getPaymentCurrency()) }}</strong><br>
+    <span>{{ 'average order total'|t('commerce') }}</span><br>
+    <span class="extralight">{{ timeFrame }}</span>
+{% endspaceless %}
+</div>

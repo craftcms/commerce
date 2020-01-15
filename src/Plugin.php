@@ -37,8 +37,13 @@ use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
+use craft\commerce\widgets\AverageOrderTotal;
+use craft\commerce\widgets\NewCustomers;
 use craft\commerce\widgets\Orders;
+use craft\commerce\widgets\RepeatingCustomers;
 use craft\commerce\widgets\Revenue;
+use craft\commerce\widgets\TotalOrders;
+use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
@@ -476,8 +481,13 @@ class Plugin extends BasePlugin
     private function _registerWidgets()
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = AverageOrderTotal::class;
+            $event->types[] = NewCustomers::class;
             $event->types[] = Orders::class;
+            $event->types[] = RepeatingCustomers::class;
             $event->types[] = Revenue::class;
+            $event->types[] = TotalOrders::class;
+            $event->types[] = TotalRevenue::class;
         });
     }
 

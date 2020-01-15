@@ -1,0 +1,89 @@
+{% do view.registerTranslations('commerce', [
+    'Revenue',
+    'Order count',
+]) %}
+{% css %}
+    #{{ namespaceId }} {
+        width: 100%;
+    }
+
+    .{{ namespaceId }}-wrapper {
+        border-radius: 5px;
+        margin-left: -24px;
+        margin-right: -24px;
+        margin-bottom: -31px;
+        overflow: hidden;
+    }
+{% endcss %}
+<div class="{{ namespaceId }}-wrapper">
+    <canvas id="{{ namespaceId }}" height="250"></canvas>
+</div>
+{% js %}
+console.log({{ revenue|json_encode|raw }});
+    var ctx = document.getElementById('{{ namespaceId }}').getContext('2d');
+    var revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|json_encode|raw }},
+            datasets: [
+                {
+                    label: Craft.t('commerce', 'Order count'),
+                    yAxisID: 'count',
+                    data: {{ orderCount|json_encode|raw }},
+                    backgroundColor: [
+                        'rgba(255, 99, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 255, 1)'
+                    ],
+                    borderWidth: 1
+                },
+                {
+                    label: Craft.t('commerce', 'Revenue'),
+                    yAxisID: 'revenue',
+                    data: {{ revenue|json_encode|raw }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            legend: {
+{#                rtl: true#}
+            },
+            tooltips: {
+                rtl: true
+            },
+            scales: {
+                yAxes: [{
+                    id: 'revenue',
+{#                    display: false,#}
+
+                    gridLines: {
+                        drawBorder: false,
+                        drawTicks: true,
+                        color: 'rgba(155, 155, 155, 0.1)'
+                    },
+                    ticks: {
+{#                        display: false,#}
+                        mirror: true
+                    },
+                    position: 'left'
+                },
+                {
+                    id: 'count',
+                    display: false,
+                    position: 'right'
+                }],
+                xAxes: [{
+                    display: false
+                }]
+            }
+        }
+    });
+{% endjs %}

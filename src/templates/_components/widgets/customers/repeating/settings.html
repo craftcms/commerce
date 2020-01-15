@@ -1,0 +1,47 @@
+{% import "_includes/forms" as forms %}
+
+<div id="{{ id }}">
+
+{#    <div class="field">#}
+{#        <div class="heading">#}
+{#            <label>{{ "Order Status"|t('commerce') }}</label>#}
+{#        </div>#}
+{#        <div class="input ltr">#}
+
+{#            <input type="hidden" class="status-input" name="orderStatusId"#}
+{#                   value="{{ widget.orderStatusId }}"/>#}
+
+{#            <a class="btn menubtn"><span#}
+{#                        class="status"></span> {{ "All"|t('commerce') }}#}
+{#            </a>#}
+
+{#            <div class="menu">#}
+{#                <ul class="padded">#}
+{#                    <li><a><span class="commerceStatusLabel"><span#}
+{#                                        class="status"></span> {{ "All"|t('commerce') }}</span></a>#}
+{#                    </li>#}
+
+{#                    {% for status in orderStatuses %}#}
+{#                        <li>#}
+{#                            <a data-id="{{ status.id }}">{{ status.labelHtml|raw }}</a>#}
+{#                        </li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+{#            </div>#}
+
+{#        </div>#}
+{#    </div>#}
+
+{#    {{ forms.textField({#}
+{#        label: "Limit"|t('commerce'),#}
+{#        name: 'limit',#}
+{#        value: widget.limit,#}
+{#        size: 2,#}
+{#        errors: widget.getErrors('limit')#}
+{#    }) }}#}
+</div>
+
+{% js %}
+var $picker = Craft.ui.createDateRangePicker().appendTo($('#{{ namespaceId }}'));
+console.log($('#{{ namespaceId }}'));
+{% endjs %}

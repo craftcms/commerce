@@ -1,0 +1,8 @@
+<div class="commerce-widget-numberstat">
+{% spaceless %}
+    {% set total = number ?? 0 %}
+    <strong class="commerce-widget-numberstat-number">{{ total }}</strong><br>
+    <span>{{ (total == 1 ? 'order' : 'orders')|t('commerce') }}</span><br>
+    <span class="extralight">{{ timeFrame }}</span>
+{% endspaceless %}
+</div>
