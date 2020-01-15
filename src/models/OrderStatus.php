@@ -35,7 +35,9 @@ class OrderStatus extends Model
     // Traits
     // =========================================================================
 
-    use SoftDeleteTrait;
+    use SoftDeleteTrait {
+        behaviors as softDeleteBehaviors;
+    }
 
     // Properties
     // =========================================================================
@@ -88,12 +90,13 @@ class OrderStatus extends Model
     // Public Methods
     // =========================================================================
 
+
     /**
      * @return array
      */
     public function behaviors(): array
     {
-        $behaviors = parent::behaviors();
+        $behaviors = $this->softDeleteBehaviors();
 
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::className(),
