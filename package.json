@@ -13,7 +13,10 @@
     "watch": "./node_modules/.bin/gulp watch"
   },
   "dependencies": {
+    "chart.js": "^2.9.3",
+    "event-stream": "^4.0.1",
     "gulp-concat": "^2.6.1",
-    "gulp-sourcemaps": "^2.6.5"
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2"
   }
 }
