@@ -10,6 +10,7 @@ namespace craft\commerce\stats;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use yii\db\Expression;
 
 /**
@@ -36,7 +37,7 @@ class TotalOrdersByCountry extends Stat
     /**
      * @var int
      */
-    public $limit = 5;
+    public $limit = 3;
 
     // Public Methods
     // =========================================================================
@@ -63,11 +64,14 @@ class TotalOrdersByCountry extends Stat
             new Expression('COUNT([[orders.id]]) as totalOrders'),
             '[[sc.id]] as shippingCountryId',
             '[[bc.id]] as billingCountryId',
+            ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]' ) . ' as name',
         ]);
         $query->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
         $query->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');
         $query->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]');
         $query->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]');
+        $query->andWhere(['not', ['[[bc.id]]' => null]]);
+        $query->andWhere(['not', ['[[sc.id]]' => null]]);
 
         if ($this->type == 'billing') {
             $query->groupBy('[[bc.id]]');
@@ -78,7 +82,35 @@ class TotalOrdersByCountry extends Stat
         $query->orderBy(new Expression('COUNT([[orders.id]]) DESC'));
         $query->limit($this->limit);
 
-        return $query->all();
+        $rows = $query->all();
+
+        if (count($rows) < $this->limit) {
+            return $rows;
+        }
+
+        $countryIds = ArrayHelper::getColumn($rows, ($this->type == 'billing' ? 'billingCountryId' : 'shippingCountryId'));
+
+        $otherCountries = $this->_createStatQuery()
+            ->select([
+                new Expression('COUNT([[orders.id]]) as totalOrders'),
+                new Expression('NULL as shippingCountryId'),
+                new Expression('NULL as billingCountryId'),
+            ])
+            ->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
+            ->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')
+            ->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]')
+            ->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]')
+            ->andWhere(['not', [($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') => array_values($countryIds)]])
+            ->one();
+
+        if (!$otherCountries || empty($otherCountries)) {
+            return $rows;
+        }
+
+        $otherCountries['name'] = Plugin::t('Other countries');
+        $rows[] = $otherCountries;
+
+        return $rows;
     }
 
     /**
