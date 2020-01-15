@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a validation error that occurred when saving an order status.
+
 ## 3.0.0-RC1 - 2020-01-14
  
 ### Added
