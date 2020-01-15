@@ -68,7 +68,6 @@ class TotalRevenue extends Widget
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
-        $view->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js');
 
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

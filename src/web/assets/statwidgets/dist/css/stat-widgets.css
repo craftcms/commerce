@@ -1,3 +1,15 @@
+.commerce-widget-linechart-wrapper {
+    border-radius: 5px;
+    margin-left: -24px;
+    margin-right: -24px;
+    margin-bottom: -31px;
+    overflow: hidden;
+}
+
+.commerce-widget-linechart-wrapper canvas {
+    width: 100%;
+}
+
 .commerce-widget-numberstat {
     text-align: center;
 }
