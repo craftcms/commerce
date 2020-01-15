@@ -151,7 +151,10 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
-## Unreleased
+## Unreleased 2.2.x
+
+### Fixed
+- Fixed a validation error that occurred when saving an order status.
 
 ## 2.2.14 - 2020-01-14
 
