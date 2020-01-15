@@ -20,11 +20,11 @@
 {% for shippingZone in shippingZones %}
 	{% set tableData = tableData|merge([{
         id: shippingZone.id,
-        title: shippingZone.name,
+        title: shippingZone.name|t('site'),
         url: url('commerce/shipping/shippingzones/'~shippingZone.id),
-        description: shippingZone.description,
-        type: shippingZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce'),
-        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ') : shippingZone.getStatesNames()|join(', '),
+        description: shippingZone.description|t('site')|e,
+        type: shippingZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
+        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ')|e : shippingZone.getStatesNames()|join(', ')|e,
         zipCondition: shippingZone.zipCodeConditionFormula ? true : false,
     }]) %}
 {% endfor %}

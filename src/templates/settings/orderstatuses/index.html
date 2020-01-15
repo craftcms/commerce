@@ -28,9 +28,9 @@
             url: orderStatus.cpEditUrl,
             html: orderStatus.labelHtml|raw
         },
-        title: orderStatus.name,
+        title: orderStatus.name|t('site'),
         url: orderStatus.cpEditUrl,
-        handle: orderStatus.handle,
+        handle: orderStatus.handle|e,
         hasEmails: orderStatus.emails|length ?:'',
         default: orderStatus.default ? true : false,
         _showDelete: orderStatus.canDelete(),
@@ -53,7 +53,7 @@
             title: Craft.t('commerce', 'Default Status?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
             }
         }

@@ -26,7 +26,7 @@
 {% for discount in discounts %}
     {% set tableData = tableData|merge([{
         id: discount.id,
-        title: discount.name,
+        title: discount.name|t('site'),
         url: url('commerce/promotions/discounts/' ~ discount.id),
         status: discount.enabled ? true : false,
         duration: (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞'),
@@ -70,7 +70,7 @@
         { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
 
                 return '';
@@ -79,7 +79,7 @@
         { name: 'ignore', title: Craft.t('commerce', 'Ignore Sales?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
 
                 return '';

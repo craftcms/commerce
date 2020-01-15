@@ -48,10 +48,10 @@
     id: address.id,
     title: address.address1,
     url: address.cpEditUrl ~ (addressRedirect is defined and addressRedirect ? '?redirect=' ~ addressRedirect : ''),
-    zipCode: address.zipCode,
+    zipCode: address.zipCode|e,
     billing: (customer.primaryBillingAddressId == address.id),
     shipping: (customer.primaryShippingAddressId == address.id),
-    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce') }) , content: addressLines|join('<br>') }
+    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: addressLines|e|join('<br>') }
   }]) %}
 {% endfor %}
 
@@ -65,10 +65,11 @@
   {% set activeCarts = customer.getActiveCarts() %}
 
   {% set activeTableData = [] %}
+
   {% for order in activeCarts %}
     {% set activeTableData = activeTableData|merge([{
       id: order.id,
-      title: order.reference ?? order.shortNumber,
+      title: (order.reference ?? order.shortNumber)|e,
       url: order.cpEditUrl,
       date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
       total: order.totalPrice|currency(order.currency),
@@ -85,7 +86,7 @@
   {% for order in inactiveCarts %}
     {% set inactiveTableData = inactiveTableData|merge([{
       id: order.id,
-      title: order.reference ?? order.shortNumber,
+      title: (order.reference ?? order.shortNumber)|e,
       url: order.cpEditUrl,
       date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
       total: order.totalPrice|currency(order.currency),
@@ -114,7 +115,7 @@
       subDate: subscription.dateCreated|date('D jS M Y'),
       canDate: subscription.dateCanceled ? subscription.dateCanceled|date('D jS M Y') : '',
       expDate: subscription.dateExpired ? subscription.dateExpired|date('D jS M Y') : '',
-      active: subscription.status == 'active' ? 'Yes'|t('commerce') : 'No'|t('commerce'),
+      active: subscription.status == 'active' ? 'Yes'|t('commerce')|e : 'No'|t('commerce')|e,
     }]) %}
   {% endfor %}
   <div id="subscriptions-vue-admin-table"></div>
@@ -131,14 +132,14 @@ var columns = [
                 return '';
             }
 
-            return '<span data-icon="check"></span>';
+            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
         } },
     { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
             if (!value) {
                 return '';
             }
 
-            return '<span data-icon="check"></span>';
+            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
         } },
     { name: '__slot:detail', title: '', titleClass: 'thin' },
 ];

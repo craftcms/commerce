@@ -69,6 +69,30 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('donation');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Plugin::t('Donations');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('donations');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function refHandle()
     {
         return 'donation';

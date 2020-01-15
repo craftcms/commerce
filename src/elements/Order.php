@@ -831,7 +831,31 @@ class Order extends Element
      */
     public static function displayName(): string
     {
+        return Plugin::t('Order');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('order');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
         return Plugin::t('Orders');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('orders');
     }
 
     /**
@@ -886,17 +910,18 @@ class Order extends Element
     public function attributes()
     {
         $names = parent::attributes();
-        $names[] = 'recalculationMode';
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
+        $names[] = 'paymentCurrency';
         $names[] = 'email';
         $names[] = 'isPaid';
-        $names[] = 'paidStatus';
         $names[] = 'itemSubtotal';
         $names[] = 'itemTotal';
         $names[] = 'lineItems';
         $names[] = 'orderAdjustments';
         $names[] = 'outstandingBalance';
+        $names[] = 'paidStatus';
+        $names[] = 'recalculationMode';
         $names[] = 'shortNumber';
         $names[] = 'totalPaid';
         $names[] = 'total';

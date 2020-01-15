@@ -19,17 +19,17 @@
     {% set taxRates = [] %}
     {% for taxRate in taxCategory.taxRates %}
     	{% set taxRates = taxRates|merge([{
-            label: taxRate.name,
+            label: taxRate.name|t('site')|e,
             url: taxRate.cpEditUrl,
         }]) %}
     {% endfor %}
 
     {% set tableData = tableData|merge([{
         id: taxCategory.id,
-        title: taxCategory.name,
+        title: taxCategory.name|t('site'),
         url: taxCategory.cpEditUrl,
         handle: taxCategory.handle,
-        description: taxCategory.description,
+        description: taxCategory.description|t('site')|e,
         taxRates: taxRates,
         default: taxCategory.default ? true : false,
 

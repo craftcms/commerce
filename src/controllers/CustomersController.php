@@ -15,6 +15,7 @@ use craft\commerce\records\CustomerAddress;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\AdminTable;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -204,7 +205,7 @@ class CustomersController extends BaseCpController
 
             $rows[] = [
                 'id' => $customer['id'],
-                'title' => $customer['email'],
+                'title' => Html::encode($customer['email']),
                 'url' => UrlHelper::cpUrl('commerce/customers/' . $customer['id']),
                 'user' => $user ? [
                     'title' => $user ? $user->__toString() : null,
@@ -212,8 +213,8 @@ class CustomersController extends BaseCpController
                     'status' => $user ? $user->getStatus() : null,
                 ] : null,
                 'addresses' => $addressCountByCustomerId[$customer['id']] ?? 0,
-                'billing' => $billingName . '<br>' . $customer['billingAddress'],
-                'shipping' => $shippingName . '<br>' . $customer['shippingAddress'],
+                'billing' => Html::encode($billingName) . '<br>' . Html::encode($customer['billingAddress']),
+                'shipping' => Html::encode($shippingName) . '<br>' . Html::encode($customer['shippingAddress']),
             ];
         }
 

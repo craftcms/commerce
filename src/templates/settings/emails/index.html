@@ -1,11 +1,11 @@
 {% extends "commerce/_layouts/settings" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'No emails exist yet.',
-    'subject',
-    'To',
     'Bcc',
+    'No emails exist yet.',
+    'Subject',
     'Template Path',
+    'To',
 ]) %}
 
 {% block actionButton %}
@@ -20,13 +20,13 @@
 {% for email in emails %}
     {% set tableData = tableData|merge([{
         id: email.id,
-        title: email.name,
+        title: email.name|t('site'),
         status: email.enabled ? true : false,
         url: url('commerce/settings/emails/'~email.id),
-        subject: email.subject,
-        to: email.recipientType == 'custom' ? email.to : 'Customer'|t('commmerce'),
-        bcc: email.bcc,
-        template: email.templatePath,
+        subject: email.subject|t('site')|e,
+        to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
+        bcc: email.bcc|e,
+        template: email.templatePath|e,
     }]) %}
 {% endfor %}
 

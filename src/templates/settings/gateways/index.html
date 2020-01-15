@@ -4,13 +4,13 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'ID',
-    'Name',
-    'Handle',
-    'Type',
+    'Couldn’t reorder gateways.',
     'Customer Enabled?',
     'Gateways reordered.',
-    'Couldn’t reorder gateways.',
+    'Handle',
+    'ID',
+    'Name',
+    'Type',
 ]) %}
 
 {% block actionButton %}
@@ -25,9 +25,9 @@
 {% for gateway in gateways %}
     {% set tableData = tableData|merge([{
         id: gateway.id,
-        title: gateway.name,
+        title: gateway.name|t('site'),
         url: gateway.cpEditUrl,
-        handle: gateway.handle,
+        handle: gateway.handle|e,
         type: {
             missing: gateway is missing ? true : false,
             name: gateway is missing? gateway.expectedType : gateway.displayName()
@@ -57,7 +57,7 @@
             title: Craft.t('commerce', 'Customer Enabled?'),
             callback: function(value) {
                 if (value) {
-                    return '<div data-icon="check"></div>';
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></div>';
                 }
             }
         }
