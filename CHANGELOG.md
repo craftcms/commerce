@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a validation error that occurred when saving an order status.
+- Added the `hasLineItems` order query param.
 
 ## 3.0.0-RC1 - 2020-01-14
  
