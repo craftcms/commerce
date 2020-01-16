@@ -7,9 +7,11 @@ var uglify = require('gulp-uglify');
 sass.compiler = require('node-sass');
 
 var assetsPath = './src/web/assets/';
+var libPath = './lib/';
 
 var jsDeps = [
-    { srcGlob: 'node_modules/chart.js/dist/Chart.js', dest: assetsPath + '/statwidgets/dist/js/chart-js' },
+    { srcGlob: 'node_modules/chart.js/dist/Chart.js', dest: libPath + 'chart-js' },
+    { srcGlob: 'node_modules/deepmerge/dist/umd.js', dest: libPath + 'deepmerge' },
 ];
 
 function commerceSass () {

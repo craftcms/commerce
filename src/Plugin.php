@@ -182,6 +182,9 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerElementExports();
         $this->_defineResaveCommand();
+
+        $libPath = str_replace('/cms/', '/commerce/', Craft::getAlias('@lib'));
+        Craft::setAlias('@commerceLib', $libPath);
     }
 
     /**
