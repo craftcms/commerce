@@ -20,8 +20,6 @@ use yii\web\JqueryAsset;
  */
 class CommerceCpAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

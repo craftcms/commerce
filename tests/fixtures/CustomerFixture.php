@@ -19,8 +19,6 @@ use craft\test\Fixture;
  */
 class CustomerFixture extends Fixture
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @inheritdoc

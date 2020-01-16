@@ -50,8 +50,6 @@ use yii\base\InvalidConfigException;
  */
 class Subscription extends Element
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @var string
@@ -68,8 +66,6 @@ class Subscription extends Element
      */
     const STATUS_SUSPENDED = 'suspended';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var int User id
@@ -166,8 +162,6 @@ class Subscription extends Element
      */
     public $_subscriptionData;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -751,8 +745,6 @@ class Subscription extends Element
     }
 
 
-    // Protected methods
-    // =========================================================================
 
     /**
      * @inheritdoc

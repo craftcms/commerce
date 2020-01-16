@@ -23,8 +23,6 @@ use yii\base\InvalidConfigException;
  */
 class ProductTypeSite extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -71,8 +69,6 @@ class ProductTypeSite extends Model
      */
     public $uriFormatIsRequired = true;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the Product Type.

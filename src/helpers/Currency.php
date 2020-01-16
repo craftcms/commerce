@@ -18,8 +18,6 @@ use craft\commerce\Plugin;
  */
 class Currency
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Rounds the amount as per the currency minor unit information. Not passing

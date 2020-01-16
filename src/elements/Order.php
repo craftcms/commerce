@@ -117,8 +117,6 @@ class Order extends Element
     use OrderDeprecatedTrait;
     use OrderElementTrait;
 
-    // Constants
-    // =========================================================================
 
     const PAID_STATUS_OVERPAID = 'overPaid';
     const PAID_STATUS_PAID = 'paid';
@@ -242,8 +240,6 @@ class Order extends Element
      */
     const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
-    // Properties
-    // =========================================================================
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -744,8 +740,6 @@ class Order extends Element
      */
     private $_email;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -2435,8 +2429,6 @@ class Order extends Element
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Updates the adjustments, including deleting the old ones.

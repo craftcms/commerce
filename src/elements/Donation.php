@@ -26,8 +26,6 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool Is the product available for purchase.
@@ -39,8 +37,6 @@ class Donation extends Purchasable
      */
     private $_sku;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

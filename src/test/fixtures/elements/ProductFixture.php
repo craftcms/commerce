@@ -24,8 +24,6 @@ use yii\base\InvalidArgumentException;
  */
 class ProductFixture extends ElementFixture
 {
-    // Properties
-    // =========================================================================
 
     /**
      * {@inheritdoc}
@@ -37,8 +35,6 @@ class ProductFixture extends ElementFixture
      */
     protected $productTypeIds = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * {@inheritdoc}
@@ -60,8 +56,6 @@ class ProductFixture extends ElementFixture
         }
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * {@inheritdoc}

@@ -22,8 +22,6 @@ use yii\base\InvalidConfigException;
  */
 class State extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -50,8 +48,6 @@ class State extends Model
      */
     public $enabled;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

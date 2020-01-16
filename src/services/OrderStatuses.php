@@ -41,8 +41,6 @@ use function count;
  */
 class OrderStatuses extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event DefaultOrderStatusEvent The event that is triggered when getting a default status for an order.
@@ -64,16 +62,12 @@ class OrderStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
-    // Public Properties
-    // =========================================================================
 
     /**
      * @var OrderStatus[]
      */
     private $_orderStatuses;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all Order Statuses
@@ -401,8 +395,6 @@ class OrderStatuses extends Component
         return true;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving order statuses

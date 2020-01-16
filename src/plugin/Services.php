@@ -87,8 +87,6 @@ use craft\commerce\services\Variants;
  */
 trait Services
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the address service
@@ -451,8 +449,6 @@ trait Services
         return $this->get('variants');
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Sets the components of the commerce plugin

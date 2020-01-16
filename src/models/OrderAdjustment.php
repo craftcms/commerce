@@ -27,8 +27,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class OrderAdjustment extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -90,8 +88,6 @@ class OrderAdjustment extends Model
      */
     private $_order;
 
-    // Public Methods
-    // =========================================================================
 
     public function behaviors(): array
     {

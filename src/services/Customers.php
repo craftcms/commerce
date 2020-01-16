@@ -44,21 +44,15 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-    // Constants
-    // =========================================================================
 
     const SESSION_CUSTOMER = 'commerce_customer';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Customer
      */
     private $_customer;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all customers.
@@ -473,8 +467,6 @@ class Customers extends Component
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get the current customer.

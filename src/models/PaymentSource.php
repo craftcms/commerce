@@ -25,8 +25,6 @@ use craft\validators\UniqueValidator;
  */
 class PaymentSource extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int Payment source ID
@@ -68,8 +66,6 @@ class PaymentSource extends Model
      */
     private $_gateway;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the payment source token.

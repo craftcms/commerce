@@ -29,8 +29,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatusesController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

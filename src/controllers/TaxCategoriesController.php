@@ -21,8 +21,6 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

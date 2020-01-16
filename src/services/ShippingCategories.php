@@ -29,8 +29,6 @@ use yii\base\Exception;
  */
 class ShippingCategories extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -52,8 +50,6 @@ class ShippingCategories extends Component
      */
     private $_defaultShippingCategory;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all Shipping Categories
@@ -316,8 +312,6 @@ class ShippingCategories extends Component
         return $shippingCategories;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a shipping category model by its ID and handle.

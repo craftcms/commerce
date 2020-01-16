@@ -28,8 +28,6 @@ use yii\base\Exception;
  */
 class States extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -66,8 +64,6 @@ class States extends Component
      */
     private $_statesByShippingZoneId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a state by its ID.
@@ -330,8 +326,6 @@ class States extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving States.
      *

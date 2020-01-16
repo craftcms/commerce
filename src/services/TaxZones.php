@@ -31,8 +31,6 @@ use yii\caching\TagDependency;
  */
 class TaxZones extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -44,8 +42,6 @@ class TaxZones extends Component
      */
     private $_allTaxZones;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all tax zones.
@@ -219,8 +215,6 @@ class TaxZones extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving tax zones.

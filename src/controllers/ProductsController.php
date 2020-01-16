@@ -40,8 +40,6 @@ use yii\web\Response;
  */
 class ProductsController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -260,8 +258,6 @@ class ProductsController extends BaseCpController
         return $this->redirectToPostedUrl($product);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @param Product $product
@@ -273,8 +269,6 @@ class ProductsController extends BaseCpController
         $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param array $variables

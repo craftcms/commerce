@@ -29,8 +29,6 @@ use yii\web\Response;
  */
 class CartController extends BaseFrontEndController
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var Order The cart element
@@ -42,8 +40,6 @@ class CartController extends BaseFrontEndController
      */
     private $_cartVariable;
 
-    // Public Methods
-    // =========================================================================
 
     public function init()
     {
@@ -244,8 +240,6 @@ class CartController extends BaseFrontEndController
         return $this->_returnCart();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @return Response

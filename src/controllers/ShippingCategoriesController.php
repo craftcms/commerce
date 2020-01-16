@@ -21,8 +21,6 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseShippingSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

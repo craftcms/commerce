@@ -18,8 +18,6 @@ use craft\web\AssetBundle;
  */
 class EditProductAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

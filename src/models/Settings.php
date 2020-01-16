@@ -26,8 +26,6 @@ use yii\base\InvalidConfigException;
 class Settings extends Model
 {
 
-    // Constants
-    // =========================================================================
     const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
@@ -40,8 +38,6 @@ class Settings extends Model
     const VIEW_URI_TAX = 'commerce/tax/taxrates';
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var string Weight Units
@@ -210,8 +206,6 @@ class Settings extends Model
      */
     public $showCustomerInfoTab = true;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return array

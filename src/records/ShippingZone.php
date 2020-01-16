@@ -26,8 +26,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingZone extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

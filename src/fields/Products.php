@@ -22,8 +22,6 @@ use craft\fields\BaseRelationField;
  */
 class Products extends BaseRelationField
 {
-    // Public Methods
-    // =========================================================================
 
     public function __construct(array $config = [])
     {
@@ -54,8 +52,6 @@ class Products extends BaseRelationField
         return parent::getInputHtml($value, $element);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

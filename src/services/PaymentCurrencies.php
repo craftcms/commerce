@@ -30,8 +30,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentCurrencies extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var PaymentCurrency[]
@@ -43,8 +41,6 @@ class PaymentCurrencies extends Component
      */
     private $_allCurrenciesById;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get payment currency by its ID.
@@ -229,8 +225,6 @@ class PaymentCurrencies extends Component
         return false;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Memoize a payment currency

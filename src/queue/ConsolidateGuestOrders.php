@@ -97,8 +97,6 @@ class ConsolidateGuestOrders extends BaseJob
         }
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

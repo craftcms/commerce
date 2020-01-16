@@ -24,8 +24,6 @@ use yii\web\Response;
  */
 class DownloadsController extends BaseFrontEndController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

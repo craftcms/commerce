@@ -19,8 +19,6 @@ use \craft\test\Fixture;
  */
 class DiscountsFixture extends Fixture
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @inheritdoc

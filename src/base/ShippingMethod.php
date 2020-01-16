@@ -20,8 +20,6 @@ use craft\commerce\errors\NotImplementedException;
  */
 abstract class ShippingMethod extends Model implements ShippingMethodInterface
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -48,8 +46,6 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public $isLite = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

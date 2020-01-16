@@ -31,8 +31,6 @@ use Exception;
  */
 class Address extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int Address ID
@@ -188,8 +186,6 @@ class Address extends Model
      */
     private $_vatValidator;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

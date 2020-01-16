@@ -34,8 +34,6 @@ use yii\db\Exception;
  */
 class DiscountsTest extends Unit
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var UnitTester
@@ -47,8 +45,6 @@ class DiscountsTest extends Unit
      */
     protected $discounts;
 
-    // Public methods
-    // =========================================================================
 
     /**
      * @return array
@@ -65,8 +61,6 @@ class DiscountsTest extends Unit
         ];
     }
 
-    // Tests
-    // =========================================================================
 
     /**
      *
@@ -346,8 +340,6 @@ class DiscountsTest extends Unit
         );
     }
 
-    // Protected methods
-    // =========================================================================
 
     protected function matchLineItems(
         array $orderConfig,

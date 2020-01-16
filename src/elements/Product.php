@@ -55,15 +55,11 @@ use yii\base\InvalidConfigException;
  */
 class Product extends Element
 {
-    // Constants
-    // =========================================================================
 
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var DateTime Post date
@@ -170,8 +166,6 @@ class Product extends Element
      */
     private $_cheapestVariant;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -920,8 +914,6 @@ class Product extends Element
         return parent::beforeSave($isNew);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

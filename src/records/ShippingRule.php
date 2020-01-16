@@ -40,8 +40,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

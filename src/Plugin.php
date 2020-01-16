@@ -83,15 +83,11 @@ use GraphQL\Type\Definition\Type as GqlTypeDefinition;
  */
 class Plugin extends BasePlugin
 {
-    // Constants
-    // =========================================================================
 
     // Edition constants
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-    // Static
-    // =========================================================================
 
     public static function editions(): array
     {
@@ -115,8 +111,6 @@ class Plugin extends BasePlugin
         return Craft::t('commerce', $message, $params, $language);
     }
 
-    // Public Properties
-    // =========================================================================
 
     /**
      * @inheritDoc
@@ -138,15 +132,11 @@ class Plugin extends BasePlugin
      */
     public $minVersionRequired = '1.2.1360';
 
-    // Traits
-    // =========================================================================
 
     use CommerceServices;
     use Variables;
     use Routes;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -282,8 +272,6 @@ class Plugin extends BasePlugin
         return $ret;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -293,8 +281,6 @@ class Plugin extends BasePlugin
         return new Settings();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Register Commerce’s twig extensions

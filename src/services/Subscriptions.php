@@ -46,8 +46,6 @@ use yii\base\InvalidConfigException;
  */
 class Subscriptions extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event SubscriptionEvent The event that is triggered when a subscription is expired.
@@ -244,8 +242,6 @@ class Subscriptions extends Component
 
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.subscriptions.fieldLayouts';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Handle field layout change

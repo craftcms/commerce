@@ -52,8 +52,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class LineItem extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int|null ID
@@ -166,8 +164,6 @@ class LineItem extends Model
      */
     private $_options = [];
 
-    // Public Methods
-    // =========================================================================
 
     public function behaviors(): array
     {

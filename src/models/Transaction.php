@@ -27,8 +27,6 @@ use DateTime;
  */
 class Transaction extends Model
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -150,8 +148,6 @@ class Transaction extends Model
      */
     private $_children;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

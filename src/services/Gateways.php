@@ -50,8 +50,6 @@ class Gateways extends Component
      */
     private $_overrides;
 
-    // Constants
-    // =========================================================================
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering gateways.
@@ -72,8 +70,6 @@ class Gateways extends Component
 
     const CONFIG_GATEWAY_KEY = 'commerce.gateways';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all registered gateway types.
@@ -407,8 +403,6 @@ class Gateways extends Component
         return $this->_overrides[$handle] ?? null;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving gateways.

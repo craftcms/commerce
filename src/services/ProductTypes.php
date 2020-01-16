@@ -46,8 +46,6 @@ use yii\base\Exception;
  */
 class ProductTypes extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event ProductTypeEvent The event that is triggered before a category group is saved.
@@ -85,8 +83,6 @@ class ProductTypes extends Component
 
     const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -123,8 +119,6 @@ class ProductTypes extends Component
      */
     private $_savingProductTypes = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all editable product types.
@@ -856,8 +850,6 @@ class ProductTypes extends Component
         }
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a product type

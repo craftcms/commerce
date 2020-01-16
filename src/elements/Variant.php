@@ -43,8 +43,6 @@ use yii\validators\Validator;
  */
 class Variant extends Purchasable
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised before a variant's snapshot is captured
@@ -120,8 +118,6 @@ class Variant extends Purchasable
     const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var int $productId
@@ -201,8 +197,6 @@ class Variant extends Purchasable
      */
     private $_product;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -993,8 +987,6 @@ class Variant extends Purchasable
     }
 
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

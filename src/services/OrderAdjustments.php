@@ -31,8 +31,6 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event RegisterComponentTypesEvent This event is raised when compiling the list of adjusters for an order
@@ -51,8 +49,6 @@ class OrderAdjustments extends Component
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all order adjusters.
@@ -178,8 +174,6 @@ class OrderAdjustments extends Component
         return true;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Delete all adjustments belonging to an order by its ID.
@@ -209,8 +203,6 @@ class OrderAdjustments extends Component
         return $orderAdjustment->delete();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Order Adjustment.

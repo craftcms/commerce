@@ -19,8 +19,6 @@ use craft\web\View;
  */
 class VariantMatrixAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

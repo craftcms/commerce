@@ -32,15 +32,11 @@ use craft\validators\UniqueValidator;
 class OrderStatus extends Model
 {
 
-    // Traits
-    // =========================================================================
 
     use SoftDeleteTrait {
         behaviors as softDeleteBehaviors;
     }
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -87,8 +83,6 @@ class OrderStatus extends Model
      */
     public $uid;
 
-    // Public Methods
-    // =========================================================================
 
 
     /**

@@ -18,8 +18,6 @@ use craft\web\assets\cp\CpAsset;
  */
 class OrdersWidgetAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

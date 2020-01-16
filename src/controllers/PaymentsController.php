@@ -31,8 +31,6 @@ class PaymentsController extends BaseFrontEndController
 
     private $_cartVariableName;
 
-    // Public Methods
-    // =========================================================================
 
     public function init()
     {

@@ -30,8 +30,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderAdjustment extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

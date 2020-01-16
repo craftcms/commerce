@@ -28,8 +28,6 @@ use yii\web\Response;
  */
 class PlansController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

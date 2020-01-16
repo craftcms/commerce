@@ -24,8 +24,6 @@ use Throwable;
  */
 interface GatewayInterface extends SavableComponentInterface
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Makes an authorize request.

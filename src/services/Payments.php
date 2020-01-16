@@ -36,8 +36,6 @@ use yii\base\Component;
  */
 class Payments extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event TransactionEvent The event that is triggered after a payment transaction is made
@@ -159,8 +157,6 @@ class Payments extends Component
      */
     const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Process a payment.
@@ -433,8 +429,6 @@ class Payments extends Component
         return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Handles a redirect.

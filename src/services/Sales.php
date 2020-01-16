@@ -39,8 +39,6 @@ use function in_array;
  */
 class Sales extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
@@ -72,8 +70,6 @@ class Sales extends Component
      */
     const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Sale[]
@@ -90,8 +86,6 @@ class Sales extends Component
      */
     private $_purchasableSaleMatch = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get a sale by its ID.
@@ -589,8 +583,6 @@ class Sales extends Component
         return false;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get all enabled sales.

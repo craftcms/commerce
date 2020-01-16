@@ -41,8 +41,6 @@ use yii\db\Expression;
  */
 class OrderQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string The order number of the resulting order.
@@ -135,8 +133,6 @@ class OrderQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -868,8 +864,6 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -23,8 +23,6 @@ use yii\web\Response;
  */
 class SettingsController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Commerce Settings Form

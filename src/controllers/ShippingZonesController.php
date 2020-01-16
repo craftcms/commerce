@@ -22,8 +22,6 @@ use yii\web\Response;
  */
 class ShippingZonesController extends BaseShippingSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @throws HttpException

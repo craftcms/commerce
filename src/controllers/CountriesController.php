@@ -28,8 +28,6 @@ use yii\web\Response;
  */
 class CountriesController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @throws HttpException

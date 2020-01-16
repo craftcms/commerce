@@ -42,8 +42,6 @@ use function in_array;
  */
 class Discounts extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event DiscountEvent The event that is raised before an discount is saved.
@@ -114,8 +112,6 @@ class Discounts extends Component
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Discount[]
@@ -127,8 +123,6 @@ class Discounts extends Component
      */
     private $_allActiveDiscounts;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get a discount by its ID.
@@ -790,8 +784,6 @@ class Discounts extends Component
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param Order $order

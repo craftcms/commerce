@@ -24,13 +24,9 @@ use craft\commerce\Plugin;
  */
 class Shipping extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
 
     const ADJUSTMENT_TYPE = 'shipping';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var
@@ -42,8 +38,6 @@ class Shipping extends Component implements AdjusterInterface
      */
     private $_isEstimated = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -157,8 +151,6 @@ class Shipping extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param ShippingMethod $shippingMethod

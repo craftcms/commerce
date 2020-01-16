@@ -191,8 +191,6 @@ trait OrderElementTrait
         }
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -17,8 +17,6 @@ use DateTime;
  */
 trait GatewayTrait
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string Name

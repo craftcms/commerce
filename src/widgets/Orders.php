@@ -25,8 +25,6 @@ use craft\helpers\StringHelper;
  */
 class Orders extends Widget
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var int|null
@@ -38,8 +36,6 @@ class Orders extends Widget
      */
     public $limit = 10;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -116,8 +112,6 @@ class Orders extends Widget
         ]);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns the recent entries, based on the widget settings and user permissions.

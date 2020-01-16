@@ -23,8 +23,6 @@ use craft\i18n\Locale;
  */
 class ChartsController extends ElementIndexesController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the data needed to display a Revenue chart.
@@ -100,8 +98,6 @@ class ChartsController extends ElementIndexesController
         return $data;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns D3 currency format locale definition.

@@ -19,8 +19,6 @@ use craft\web\Controller;
  */
 class FormulasController extends Controller
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return \yii\web\Response

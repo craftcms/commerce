@@ -19,16 +19,12 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var
      */
     private $_allCurrencies;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get a currency by it's ISO code.

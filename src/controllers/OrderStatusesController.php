@@ -24,8 +24,6 @@ use yii\web\Response;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

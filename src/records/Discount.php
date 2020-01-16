@@ -53,8 +53,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
 
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
@@ -69,8 +67,6 @@ class Discount extends ActiveRecord
     const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
     const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -19,8 +19,6 @@ use yii\base\Event;
  */
 trait Routes
 {
-    // Private Methods
-    // =========================================================================
 
     private function _registerCpRoutes()
     {

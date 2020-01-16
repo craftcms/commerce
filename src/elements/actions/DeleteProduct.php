@@ -20,8 +20,6 @@ use craft\elements\db\ElementQueryInterface;
  */
 class DeleteProduct extends Delete
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

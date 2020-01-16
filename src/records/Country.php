@@ -25,8 +25,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Country extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

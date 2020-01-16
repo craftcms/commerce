@@ -20,8 +20,6 @@ use craft\fields\BaseRelationField;
  */
 class Variants extends BaseRelationField
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -39,8 +37,6 @@ class Variants extends BaseRelationField
         return Plugin::t('Add a variant');
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

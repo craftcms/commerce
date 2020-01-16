@@ -26,8 +26,6 @@ use yii\web\Response;
  */
 class PaymentSourcesController extends BaseFrontEndController
 {
-    // Public Methods
-    // =========================================================================
 
 
     /**

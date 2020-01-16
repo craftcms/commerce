@@ -31,13 +31,9 @@ use craft\helpers\UrlHelper;
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
-    // Traits
-    // =========================================================================
 
     use GatewayTrait;
 
-    // Public methods
-    // =========================================================================
 
     /**
      * Returns the name of this payment method.

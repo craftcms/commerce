@@ -30,13 +30,9 @@ use yii\base\InvalidConfigException;
  */
 abstract class Plan extends Model implements PlanInterface
 {
-    // Traits
-    // =========================================================================
 
     use PlanTrait;
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var SubscriptionGatewayInterface|null the gateway
@@ -48,8 +44,6 @@ abstract class Plan extends Model implements PlanInterface
      */
     private $_data;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the billing plan friendly name

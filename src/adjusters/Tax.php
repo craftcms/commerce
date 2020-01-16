@@ -32,13 +32,9 @@ use function in_array;
  */
 class Tax extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
 
     const ADJUSTMENT_TYPE = 'tax';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var
@@ -81,8 +77,6 @@ class Tax extends Component implements AdjusterInterface
      */
     private $_costRemovedForOrderTotalPrice = 0;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -125,8 +119,6 @@ class Tax extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param TaxRate $taxRate

@@ -35,8 +35,6 @@ use function count;
  */
 class Carts extends Component
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string Session key for storing the cart number
@@ -48,8 +46,6 @@ class Carts extends Component
      */
     private $_cart;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get the current cart for this session.
@@ -281,8 +277,6 @@ class Carts extends Component
         return md5(uniqid(mt_rand(), true));
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns whether there is a cart number in the session.

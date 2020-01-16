@@ -37,8 +37,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatuses extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event DefaultLineItemStatusEvent The event that is triggered when getting a default status for a line item.
@@ -60,8 +58,6 @@ class LineItemStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -83,8 +79,6 @@ class LineItemStatuses extends Component
      */
     private $_defaultLineItemStatus;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get line item status by its handle.
@@ -385,8 +379,6 @@ class LineItemStatuses extends Component
         return true;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize an line item status by its ID and handle.

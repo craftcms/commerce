@@ -24,16 +24,12 @@ use craft\helpers\Json;
  */
 class Revenue extends Widget
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string
      */
     public $dateRange;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -50,8 +50,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     private $_sales;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

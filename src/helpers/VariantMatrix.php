@@ -22,8 +22,6 @@ use craft\web\View;
  */
 class VariantMatrix
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the HTML for a given product’s variant matrix.
@@ -63,8 +61,6 @@ class VariantMatrix
         return $html;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns info about each variant field type for a variant matrix.

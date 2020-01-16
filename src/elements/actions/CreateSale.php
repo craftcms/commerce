@@ -22,8 +22,6 @@ use craft\helpers\Json;
  */
 class CreateSale extends ElementAction
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

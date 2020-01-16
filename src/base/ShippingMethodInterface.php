@@ -17,8 +17,6 @@ use craft\commerce\elements\Order;
  */
 interface ShippingMethodInterface
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the type of Shipping Method. This might be the name of the plugin or provider.

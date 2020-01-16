@@ -21,8 +21,6 @@ use yii\web\Response;
  */
 class PaymentCurrenciesController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

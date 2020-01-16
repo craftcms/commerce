@@ -40,8 +40,6 @@ use yii\db\Connection;
  */
 class VariantQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string the SKU of the variant
@@ -113,8 +111,6 @@ class VariantQuery extends ElementQuery
      */
     public $maxQty;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -399,8 +395,6 @@ class VariantQuery extends ElementQuery
     }
 
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

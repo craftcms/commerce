@@ -22,8 +22,6 @@ use craft\db\ActiveRecord;
  */
 class PaymentCurrency extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

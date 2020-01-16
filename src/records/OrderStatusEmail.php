@@ -23,8 +23,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderStatusEmail extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

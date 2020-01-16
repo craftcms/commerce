@@ -23,8 +23,6 @@ use yii\web\Response;
  */
 class LiteTaxController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @throws WrongEditionException

@@ -59,8 +59,6 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @throws HttpException
@@ -364,8 +362,6 @@ class OrdersController extends Controller
         ]);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param Order $order

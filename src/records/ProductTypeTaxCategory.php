@@ -23,8 +23,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeTaxCategory extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -22,8 +22,6 @@ use Twig\TwigFilter;
  */
 class Extension extends AbstractExtension
 {
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -109,8 +107,6 @@ class Extension extends AbstractExtension
         return $sanitized;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * @param $currency

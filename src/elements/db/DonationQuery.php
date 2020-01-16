@@ -23,16 +23,12 @@ use yii\db\Connection;
  */
 class DonationQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
 
     /**
      * @var string The sku of the donation purchasable
      */
     public $sku;
 
-    // Public Methods
-    // =========================================================================
 
 
     /**
@@ -71,8 +67,6 @@ class DonationQuery extends ElementQuery
         return $this;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

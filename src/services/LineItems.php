@@ -31,8 +31,6 @@ use yii\base\InvalidArgumentException;
  */
 class LineItems extends Component
 {
-    // Constants
-    // =========================================================================
 
     /**
      * @event LineItemEvent The event that is raised before a line item is saved.
@@ -78,16 +76,12 @@ class LineItems extends Component
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var LineItem[]
      */
     private $_lineItemsByOrderId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an order's line items, per the order's ID.
@@ -322,8 +316,6 @@ class LineItems extends Component
         return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving line items.
