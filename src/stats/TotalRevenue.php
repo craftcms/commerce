@@ -35,61 +35,15 @@ class TotalRevenue extends Stat
      */
     public function getData()
     {
-        $totalSales = [];
-
-        switch ($this->dateRange) {
-            case 'pastYear':
-            case 'thisYear':
-            {
-                $dateLabel = new Expression('CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]])) as date');
-                $groupBy = new Expression('YEAR([[dateOrdered]]), MONTH([[dateOrdered]])');
-                $dateKeyFormat = 'n Y';
-                $interval = 'P1M';
-                break;
-            }
-            case 'past30Days':
-            {
-                $dateLabel = new Expression('YEARWEEK([[dateOrdered]], 3) as date');
-                $groupBy = new Expression('YEARWEEK([[dateOrdered]], 3)');
-                $dateKeyFormat = 'oW';
-                $interval = 'P1W';
-                break;
-            }
-            default:
-            {
-                $dateLabel = new Expression('DATE([[dateOrdered]]) as date');
-                $groupBy = new Expression('DATE([[dateOrdered]])');
-                $dateKeyFormat = 'Y-m-d';
-                $interval = 'P1D';
-                break;
-            }
-        }
-
-        $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
-        while ($dateKeyDate->format($dateKeyFormat) != $this->getEndDate()->format($dateKeyFormat)) {
-            $dateKeyDate->add(new \DateInterval($interval));
-            $key = $dateKeyDate->format($dateKeyFormat);
-
-            $totalSales[$key] = [
-                'revenue' => 0,
-                'orderCount' => 0,
-                'date' => $key,
-            ];
-        }
-
-        $totalSalesResults = $this->_createStatQuery()
-            ->select([
+        return $this->_createChartQuery(
+            [
                 new Expression('SUM([[total]]) as revenue'),
                 new Expression('COUNT([[id]]) as orderCount'),
-                $dateLabel,
-            ])
-            ->groupBy($groupBy)
-            ->orderBy('dateOrdered ASC')
-            ->indexBy('date')
-            ->all();
-
-        $totalSales = array_replace($totalSales, $totalSalesResults);
-
-        return $totalSales;
+            ],
+            [
+                'revenue' => 0,
+                'orderCount' => 0,
+            ]
+        );
     }
 }
