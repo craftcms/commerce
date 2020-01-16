@@ -22,10 +22,16 @@
     {{ block('contextMenu') }}
   </div>
   <div class="flex">
-    <div class="btngroup">
-      <div id="preview-btn" class="btn livepreviewbtn">{{ 'Preview'|t('app') }}</div>
-      <a id="share-btn" href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share'|t('app') }}</a>
-    </div>
+    {% if showPreviewBtn or shareUrl is defined %}
+      <div class="btngroup">
+        {% if showPreviewBtn %}
+          <div id="preview-btn" class="btn livepreviewbtn">{{ 'Preview'|t('app') }}</div>
+        {% endif %}
+        {% if shareUrl %}
+          <a id="share-btn" href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share'|t('app') }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
 
     {{ block('actionButton') }}
   </div>
