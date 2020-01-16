@@ -33,7 +33,29 @@ Craft.Commerce.ChartColors = {
     },
 
     gridLines: 'rgba(155, 155, 155, 0.1)',
-    text: 'hsl(209, 18%, 30%)'
+    text: 'hsl(209, 18%, 30%)',
+
+    bgColors: function() {
+        return [
+            this.blue.bg,
+            this.cyan.bg,
+            this.pink.bg,
+            this.red.bg,
+            this.teal.bg,
+            this.yellow.bg
+        ];
+    },
+
+    borderColors: function() {
+        return [
+            this.blue.border,
+            this.cyan.border,
+            this.pink.border,
+            this.red.border,
+            this.teal.border,
+            this.yellow.border
+        ];
+    }
 };
 
 Craft.Commerce.Chart = Garnish.Base.extend({
