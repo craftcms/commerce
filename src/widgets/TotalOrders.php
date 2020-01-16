@@ -12,6 +12,7 @@ use craft\base\Widget;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -27,6 +28,7 @@ class TotalOrders extends Widget
 {
     // Properties
     // =========================================================================
+    public $showChart;
 
     // Public Methods
     // =========================================================================
@@ -69,15 +71,32 @@ class TotalOrders extends Widget
      */
     public function getBodyHtml()
     {
+        $showChart = $this->showChart;
         $stat = new TotalOrdersStat(TotalOrdersStat::DATE_RANGE_PASTYEAR);
-        $number = $stat->get();
+        $stats = $stat->get();
+        $number = $stats['total'] ?? 0;
+        $chart = $stats['chart'] ?? [];
+
+        $labels = array_values(ArrayHelper::getColumn($chart, 'date'));
+        $data = array_values(ArrayHelper::getColumn($chart, 'totalOrders'));
+
         $timeFrame = $stat->getDateRangeWording();
-        $number = Craft::$app->getFormatter()->asInteger($number ?? 0);
+        $number = Craft::$app->getFormatter()->asInteger($number);
+
+        $id = 'total-orders' . StringHelper::randomString();
+        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
-        return $view->renderTemplate('commerce/_components/widgets/Orders/total/body', compact('number', 'timeFrame'));
+        return $view->renderTemplate('commerce/_components/widgets/Orders/total/body', compact(
+            'namespaceId',
+            'number',
+            'timeFrame',
+            'labels',
+            'data',
+            'showChart'
+        ));
     }
 
     /**

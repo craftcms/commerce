@@ -6,6 +6,10 @@
     overflow: hidden;
 }
 
+.commerce-widget-linechart-wrapper--no-x-axis {
+    margin-bottom: -24px;
+}
+
 .commerce-widget-linechart-wrapper canvas {
     width: 100%;
 }

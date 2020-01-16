@@ -6,3 +6,50 @@
     <span class="extralight">{{ timeFrame }}</span>
 {% endspaceless %}
 </div>
+
+{% if showChart is defined and showChart %}
+    <div class="commerce-widget-linechart-wrapper commerce-widget-linechart-wrapper--no-x-axis">
+        <canvas id="{{ namespaceId }}" height="75"></canvas>
+    </div>
+
+    {% js %}
+        new Craft.Commerce.Chart('{{ namespaceId }}', {
+            chart: {
+                type: 'line',
+                data: {
+                    labels: {{ labels|json_encode|raw }},
+                    datasets: [
+                        {
+                            label: Craft.t('commerce', 'Order count'),
+                            yAxisID: 'count',
+                            data: {{ data|json_encode|raw }},
+                            backgroundColor: Craft.Commerce.ChartColors.blue.bg,
+                            borderColor: Craft.Commerce.ChartColors.blue.border,
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        yAxes: [{
+                            id: 'count',
+                            gridLines: {
+                                display: false
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                display: false
+                            }
+                        }],
+                        xAxes: [{
+                            display: false
+                        }]
+                    }
+                }
+            }
+        });
+    {% endjs %}
+{% endif %}

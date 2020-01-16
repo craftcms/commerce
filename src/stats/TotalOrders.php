@@ -36,7 +36,15 @@ class TotalOrders extends Stat
     {
         $query = $this->_createStatQuery();
         $query->select([new Expression('COUNT([[id]]) as totalOrders')]);
+        $chartData = $this->_createChartQuery([
+            new Expression('COUNT([[id]]) as totalOrders'),
+        ], [
+            'totalOrders' => 0,
+        ]);
 
-        return $query->scalar();
+        return [
+            'total' => $query->scalar(),
+            'chart' => $chartData,
+        ];
     }
 }
