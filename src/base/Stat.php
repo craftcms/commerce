@@ -14,6 +14,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
 use yii\base\Exception;
+use yii\db\Expression;
 
 /**
  * Stat
@@ -352,5 +353,53 @@ abstract class Stat implements StatInterface
             ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
             ->andWhere(['isCompleted' => 1]);
+    }
+
+    /**
+     * @param array $select
+     * @param array $resultsDefaults
+     * @param null|Query $query
+     * @return array|null
+     * @throws \Exception
+     */
+    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null)
+    {
+        // Allow the passing in of a custom query in case we need to add extra logic
+        $query = $query ?: $this->_createStatQuery();
+
+        $defaults = [];
+        $options = self::CHART_QUERY_OPTIONS[$this->dateRange] ?? null;
+
+        if ($this->dateRange != self::DATE_RANGE_CUSTOM && !$options) {
+            return null;
+        }
+
+        if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
+            // TODO custom data implementation, overwrite $options
+        }
+
+        $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
+        while ($dateKeyDate->format($options['dateKeyFormat']) != $this->getEndDate()->format($options['dateKeyFormat'])) {
+            $dateKeyDate->add(new \DateInterval($options['interval']));
+            $key = $dateKeyDate->format($options['dateKeyFormat']);
+
+            // Setup default results values
+            $tmp = $resultsDefaults;
+            $tmp['date'] = $key;
+
+            $defaults[$key] = $tmp;
+        }
+
+        // Add defaults to select
+        $select[] = new Expression($options['dateLabel'] . ' as date');
+
+        $results = $query
+            ->select($select)
+            ->groupBy(new Expression($options['groupBy']))
+            ->orderBy('dateOrdered ASC')
+            ->indexBy('date')
+            ->all();
+
+        return array_replace($defaults, $results);
     }
 }
