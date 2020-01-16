@@ -4,6 +4,7 @@
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
+
 namespace craft\commerce\helpers;
 
 use Craft;
