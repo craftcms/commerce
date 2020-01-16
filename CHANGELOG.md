@@ -1,10 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## Unreleased 3.x
 
 ### Fixed
 - Fixed a validation error that occurred when saving an order status.
 - Added the `hasLineItems` order query param.
+- Added `craft\commerce\elements\Order::hasLineItems()`.
 
 ## 3.0.0-RC1 - 2020-01-14
  

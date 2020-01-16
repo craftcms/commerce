@@ -1860,6 +1860,14 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     */
+    public function hasLineItems(): bool
+    {
+        return (bool) $this->getLineItems();
+    }
+
+    /**
      * Returns total number of items.
      *
      * @return int
