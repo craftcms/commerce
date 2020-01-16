@@ -1,4 +1,4 @@
-/* globals Craft, Garnish, Chart */
+/* globals Craft, Garnish, Chart, deepmerge */
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
@@ -60,16 +60,33 @@ Craft.Commerce.ChartColors = {
 
 Craft.Commerce.Chart = Garnish.Base.extend({
 
-    options: {
-      tooltips: {
-          bodyFontColor: Craft.Commerce.ChartColors.text,
-          backgroundColor: '#fff',
-          borderColor: Craft.Commerce.ChartColors.gridLines,
-          borderWidth: 1,
-          titleFontColor: Craft.Commerce.ChartColors.text
-      }
+    defaults: {
+        options: {
+            legend: {
+                labels: {
+                    boxWidth: 16
+                }
+            },
+            tooltips: {
+                bodyFontColor: Craft.Commerce.ChartColors.text,
+                backgroundColor: '#fff',
+                borderColor: Craft.Commerce.ChartColors.gridLines,
+                borderWidth: 1,
+                titleFontColor: Craft.Commerce.ChartColors.text
+            }
+        }
     },
     rtl: false,
+    rtlDefaults: {
+        options: {
+            legend: {
+                rtl: true
+            },
+            tooltips: {
+                rtl: true
+            }
+        }
+    },
     chart: null,
 
     init: function(id, settings) {
@@ -77,18 +94,11 @@ Craft.Commerce.Chart = Garnish.Base.extend({
         this.rtl = $('body').hasClass('rtl');
 
         if (this.$container.length && settings.chart) {
-            var options = this.mergeDefaults(settings.chart);
+            var options = deepmerge(this.defaults, settings.chart);
             options = this.mergeRtlOptions(options);
 
             this.renderChart(options);
         }
-    },
-
-    mergeDefaults: function(chart) {
-        var options = chart.options;
-        chart.options = Object.assign({}, this.options, options);
-
-        return chart;
     },
 
     mergeRtlOptions: function(chart) {
@@ -96,24 +106,11 @@ Craft.Commerce.Chart = Garnish.Base.extend({
             return chart;
         }
 
-        var options = Object.assign({}, chart.options);
-
-        if (options.legend) {
-            options.legend = Object.assign({}, options.legend, { rtl: true });
-        } else {
-            options.legend = { rtl: true };
-        }
-
-        if (options.tooltips) {
-            options.tooltips = Object.assign({}, options.tooltips, { rtl: true });
-        } else {
-            options.tooltips = { rtl: true };
-        }
-
-        return Object.assign({}, chart, { options: options });
+        return deepmerge(chart, this.rtlDefaults);
     },
 
     renderChart: function(options) {
+        Chart.defaults.global.defaultFontFamily = "system-ui, BlinkMacSystemFont, -apple-system, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif";
         this.chart = new Chart(this.$container, options);
     }
 });
