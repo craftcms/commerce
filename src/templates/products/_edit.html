@@ -16,22 +16,25 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/products/_fields" as productFields %}
 
-
 {% block header %}
+  <div class="flex flex-nowrap">
     {{ block('pageTitle') }}
     {{ block('contextMenu') }}
-    <div class="flex-grow"></div>
+  </div>
+  <div class="flex">
     {% if showPreviewBtn or shareUrl is defined %}
+      <div class="btngroup">
         {% if showPreviewBtn %}
-            <div class="btn livepreviewbtn">{{ "Live Preview"|t('app') }}</div>
+          <div id="preview-btn" class="btn livepreviewbtn">{{ 'Preview'|t('app') }}</div>
         {% endif %}
-        {% if shareUrl is defined %}
-            <a href="{{ shareUrl }}" class="btn sharebtn"
-               target="_blank">{{ 'Share'|t('app') }}</a>
+        {% if shareUrl %}
+          <a id="share-btn" href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share'|t('app') }}</a>
         {% endif %}
-        <div class="flex-grow"></div>
+      </div>
     {% endif %}
+
     {{ block('actionButton') }}
+  </div>
 {% endblock %}
 
 
