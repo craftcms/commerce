@@ -24,7 +24,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Donation extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

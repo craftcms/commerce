@@ -15,7 +15,6 @@ class m190923_131716_update_overpaid_status extends Migration
      */
     public function safeUp()
     {
-
         $values = ['paid', 'partial', 'unpaid', 'overPaid'];
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres

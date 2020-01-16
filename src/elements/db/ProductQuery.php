@@ -42,7 +42,6 @@ use yii\db\Connection;
  */
 class ProductQuery extends ElementQuery
 {
-
     /**
      * @var bool Whether the product is available for purchase
      */

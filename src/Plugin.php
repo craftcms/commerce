@@ -83,7 +83,6 @@ use GraphQL\Type\Definition\Type as GqlTypeDefinition;
  */
 class Plugin extends BasePlugin
 {
-
     // Edition constants
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
@@ -543,7 +542,6 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlQueries()
     {
-
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
             $queries = $event->queries;
@@ -563,7 +561,6 @@ class Plugin extends BasePlugin
     private function _registerGqlPermissions()
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
-
             $permissions = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -600,7 +597,6 @@ class Plugin extends BasePlugin
         }
 
         Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
-
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {

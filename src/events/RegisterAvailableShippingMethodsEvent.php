@@ -19,7 +19,6 @@ use yii\base\Event;
  */
 class RegisterAvailableShippingMethodsEvent extends Event
 {
-
     /**
      * @var Order The order the shipping method should be available for
      */

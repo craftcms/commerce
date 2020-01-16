@@ -28,7 +28,6 @@ use DateTime;
  */
 class Sale extends Model
 {
-
     /**
      * @var int ID
      */

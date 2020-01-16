@@ -24,7 +24,6 @@ use craft\helpers\Json;
  */
 class Revenue extends Widget
 {
-
     /**
      * @var string
      */

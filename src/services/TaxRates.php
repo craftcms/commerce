@@ -27,7 +27,6 @@ use yii\base\Exception;
  */
 class TaxRates extends Component
 {
-
     /**
      * @var bool
      */

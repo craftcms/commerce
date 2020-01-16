@@ -22,7 +22,6 @@ use yii\web\Response;
  */
 class ShippingZonesController extends BaseShippingSettingsController
 {
-
     /**
      * @throws HttpException
      */
@@ -106,7 +105,6 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         // Save it
         if (!$shippingZone->validate() || !Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
-
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'errors' => $shippingZone->getErrors()

@@ -25,5 +25,4 @@ class DummyPlan extends Plan
     {
         return true;
     }
-
 }

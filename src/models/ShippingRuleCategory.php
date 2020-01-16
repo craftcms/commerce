@@ -20,7 +20,6 @@ use craft\commerce\Plugin;
  */
 class ShippingRuleCategory extends Model
 {
-
     /**
      * @var int ID
      */

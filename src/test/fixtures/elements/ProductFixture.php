@@ -24,7 +24,6 @@ use yii\base\InvalidArgumentException;
  */
 class ProductFixture extends ElementFixture
 {
-
     /**
      * {@inheritdoc}
      */

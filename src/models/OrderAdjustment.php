@@ -27,7 +27,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class OrderAdjustment extends Model
 {
-
     /**
      * @var int ID
      */

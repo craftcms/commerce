@@ -28,7 +28,6 @@ use yii\web\Response;
  */
 class CustomersController extends BaseCpController
 {
-
     /**
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\ForbiddenHttpException

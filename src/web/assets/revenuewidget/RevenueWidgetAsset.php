@@ -18,7 +18,6 @@ use craft\web\assets\cp\CpAsset;
  */
 class RevenueWidgetAsset extends AssetBundle
 {
-
     /**
      * @inheritdoc
      */

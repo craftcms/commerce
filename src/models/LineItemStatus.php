@@ -23,7 +23,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class LineItemStatus extends Model
 {
-
     /**
      * @var int ID
      */

@@ -35,7 +35,6 @@ use yii\web\Response;
  */
 class SubscriptionsController extends BaseController
 {
-
     /**
      * @return Response
      */

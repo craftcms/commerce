@@ -37,7 +37,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatuses extends Component
 {
-
     /**
      * @event DefaultLineItemStatusEvent The event that is triggered when getting a default status for a line item.
      * You may set [[DefaultLineItemStatusEvent::lineItemStatus]] to a desired LineItemStatus to override the default status set in CP

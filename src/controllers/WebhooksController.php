@@ -21,7 +21,6 @@ use yii\web\Response;
  */
 class WebhooksController extends BaseController
 {
-
     /**
      * @inheritdoc
      */

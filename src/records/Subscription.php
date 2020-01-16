@@ -40,7 +40,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Subscription extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

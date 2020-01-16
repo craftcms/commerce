@@ -15,7 +15,6 @@ namespace craft\commerce\base;
  */
 interface PlanInterface
 {
-
     /**
      * Returns whether it's possible to switch to this plan from a different plan.
      *

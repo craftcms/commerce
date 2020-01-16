@@ -17,5 +17,4 @@ use yii\base\Exception;
  */
 class RefundException extends Exception
 {
-
 }

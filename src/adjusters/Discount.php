@@ -26,7 +26,6 @@ use DateTime;
  */
 class Discount extends Component implements AdjusterInterface
 {
-
     /**
      * The discount adjustment type.
      */

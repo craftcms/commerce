@@ -24,7 +24,6 @@ use yii\web\Response;
  */
 class GatewaysController extends BaseAdminController
 {
-
     /**
      * @return Response
      */

@@ -31,7 +31,6 @@ use Exception;
  */
 class Address extends Model
 {
-
     /**
      * @var int Address ID
      */

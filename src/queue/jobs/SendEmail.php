@@ -8,7 +8,6 @@ use craft\queue\BaseJob;
 
 class SendEmail extends BaseJob
 {
-
     /**
      * @var int Order ID
      */

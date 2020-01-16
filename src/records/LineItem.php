@@ -45,7 +45,6 @@ use yii\db\ActiveQueryInterface;
  */
 class LineItem extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

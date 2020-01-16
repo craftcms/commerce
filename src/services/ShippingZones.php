@@ -30,7 +30,6 @@ use yii\caching\TagDependency;
  */
 class ShippingZones extends Component
 {
-
     /**
      * @var bool
      */

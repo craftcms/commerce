@@ -24,7 +24,6 @@ use craft\helpers\Json;
  */
 class UpdateOrderStatus extends ElementAction
 {
-
     /**
      * @var int
      */

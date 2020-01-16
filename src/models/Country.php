@@ -19,7 +19,6 @@ use craft\helpers\UrlHelper;
  */
 class Country extends Model
 {
-
     /**
      * @var int ID
      */

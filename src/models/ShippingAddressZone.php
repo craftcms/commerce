@@ -30,7 +30,6 @@ use craft\validators\UniqueValidator;
  */
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
-
     /**
      * @var int ID
      */

@@ -44,7 +44,6 @@ use function get_class;
  */
 class Gateways extends Component
 {
-
     /**
      * @var array|null Gateway setting overrides
      */
@@ -359,7 +358,6 @@ class Gateways extends Component
 
         // Are they overriding any settings?
         if (!empty($config['handle']) && ($override = $this->getGatewayOverrides($config['handle'])) !== null) {
-
             // Save a reference to the original config in case the gateway type is missing
             $originalConfig = $config;
 
@@ -368,7 +366,6 @@ class Gateways extends Component
         }
 
         try {
-
             if ($config['type'] == MissingGateway::class) {
                 throw new MissingComponentException('Missing Gateway Class.');
             }

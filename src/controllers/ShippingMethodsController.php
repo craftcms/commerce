@@ -21,7 +21,6 @@ use yii\web\Response;
  */
 class ShippingMethodsController extends BaseShippingSettingsController
 {
-
     /**
      * @return Response
      */

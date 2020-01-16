@@ -20,7 +20,6 @@ use yii\web\JqueryAsset;
  */
 class CommerceCpAsset extends AssetBundle
 {
-
     /**
      * @inheritdoc
      */

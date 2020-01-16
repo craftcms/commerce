@@ -31,7 +31,6 @@ use craft\helpers\UrlHelper;
  */
 abstract class Gateway extends SavableComponent implements GatewayInterface
 {
-
     use GatewayTrait;
 
 

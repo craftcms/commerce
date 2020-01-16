@@ -26,7 +26,6 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
-
     /**
      * @var bool Is the product available for purchase.
      */

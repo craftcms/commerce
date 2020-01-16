@@ -19,8 +19,6 @@ use yii\base\Component;
  */
 class Variants extends Component
 {
-
-
     /**
      * Returns a product's variants, per the product's ID.
      *

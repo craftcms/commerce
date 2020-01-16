@@ -25,7 +25,6 @@ use yii\db\ActiveQueryInterface;
  */
 class State extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

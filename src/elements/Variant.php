@@ -43,7 +43,6 @@ use yii\validators\Validator;
  */
 class Variant extends Purchasable
 {
-
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised before a variant's snapshot is captured
      *

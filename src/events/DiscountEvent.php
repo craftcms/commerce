@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class DiscountEvent extends Event
 {
-
     /**
      * @var Discount The discount model
      */

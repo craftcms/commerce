@@ -35,7 +35,6 @@ use function count;
  */
 class Carts extends Component
 {
-
     /**
      * @var string Session key for storing the cart number
      */
@@ -61,7 +60,6 @@ class Carts extends Component
     {
         // If there is no cart set for this request already
         if (null === $this->_cart) {
-
             $cart = null;
 
             // If the user is logged in, but no cart number is in session, get the last cart for the user
@@ -93,7 +91,6 @@ class Carts extends Component
                 $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
                 // If the current cart in the session doesn't belong to the logged in user, assign it to the logged in user.
                 if ($customer && $customer->id && ($cart->customerId != $customer->id)) {
-
                     $cart->customerId = $customer->id;
                     $forceSave = true;
                 }
@@ -102,7 +99,6 @@ class Carts extends Component
             // Recover previous carts of the current user and merge them
             // Get all previous carts for this current user
             if ($user && $mergeAllCartsForUser) {
-
                 // Get all carts in DB belonging to the current user
                 $allUsersCarts = Order::find()->isCompleted(false)->trashed(false)->user($user)->inReverse()->all();
 
@@ -168,7 +164,6 @@ class Carts extends Component
 
         // Has the customer in session changed?
         if ($this->_cart->customerId != $originalCustomerId) {
-
             // Don't lose the data from the address, just drop the ID
             if ($this->_cart->billingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
                 $address->id = null;

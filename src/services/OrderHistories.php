@@ -26,7 +26,6 @@ use yii\base\Exception;
  */
 class OrderHistories extends Component
 {
-
     /**
      * @event OrderStatusEvent The event that is triggered when order status is changed
      *

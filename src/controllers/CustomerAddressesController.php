@@ -25,7 +25,6 @@ use yii\web\Response;
  */
 class CustomerAddressesController extends BaseFrontEndController
 {
-
     /**
      * Add New Address
      *

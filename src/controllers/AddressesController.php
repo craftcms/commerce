@@ -25,7 +25,6 @@ use yii\web\Response;
  */
 class AddressesController extends BaseCpController
 {
-
     /**
      * @inheritdoc
      */

@@ -17,7 +17,6 @@ use yii\base\Event;
  */
 class ModifyCartInfoEvent extends Event
 {
-
     /**
      * @var array The cart as an array
      */

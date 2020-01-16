@@ -28,7 +28,6 @@ use yii\base\Exception;
  */
 class Countries extends Component
 {
-
     /**
      * @var bool
      */

@@ -26,7 +26,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Purchasable extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

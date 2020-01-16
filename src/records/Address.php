@@ -48,7 +48,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Address extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

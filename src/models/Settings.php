@@ -25,7 +25,6 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
-
     const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';

@@ -22,7 +22,6 @@ use yii\web\Response;
  */
 class LiteShippingController extends BaseStoreSettingsController
 {
-
     /**
      * @throws WrongEditionException
      */

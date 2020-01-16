@@ -52,7 +52,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class LineItem extends Model
 {
-
     /**
      * @var int|null ID
      */

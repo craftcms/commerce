@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class CustomizeProductSnapshotDataEvent extends Event
 {
-
     /**
      * @var Product The product
      */

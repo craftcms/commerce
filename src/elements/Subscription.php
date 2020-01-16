@@ -50,7 +50,6 @@ use yii\base\InvalidConfigException;
  */
 class Subscription extends Element
 {
-
     /**
      * @var string
      */

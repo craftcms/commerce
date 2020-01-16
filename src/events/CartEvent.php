@@ -19,7 +19,6 @@ use craft\events\CancelableEvent;
  */
 class CartEvent extends CancelableEvent
 {
-
     /**
      * @var LineItem The line item model.
      */

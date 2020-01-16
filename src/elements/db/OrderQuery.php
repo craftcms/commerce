@@ -41,7 +41,6 @@ use yii\db\Expression;
  */
 class OrderQuery extends ElementQuery
 {
-
     /**
      * @var string The order number of the resulting order.
      */

@@ -8,7 +8,6 @@ use yii\base\InvalidConfigException;
 
 trait OrderDeprecatedTrait
 {
-
     /**
      * @param bool $value
      * @throws \craft\errors\DeprecationException

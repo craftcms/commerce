@@ -25,7 +25,6 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
-
     /**
      * @var int ID
      */

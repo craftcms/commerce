@@ -18,7 +18,6 @@ use craft\events\CancelableEvent;
  */
 class ProductEvent extends CancelableEvent
 {
-
     /**
      * @var Product The address model
      */

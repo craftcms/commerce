@@ -46,7 +46,6 @@ use yii\base\InvalidConfigException;
  */
 class Subscriptions extends Component
 {
-
     /**
      * @event SubscriptionEvent The event that is triggered when a subscription is expired.
      *
@@ -659,7 +658,6 @@ class Subscriptions extends Component
      */
     public function receivePayment(Subscription $subscription, SubscriptionPayment $payment, DateTime $paidUntil): bool
     {
-
         if ($this->hasEventHandlers(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT)) {
             $this->trigger(self::EVENT_RECEIVE_SUBSCRIPTION_PAYMENT, new SubscriptionPaymentEvent(compact('subscription', 'payment', 'paidUntil')));
         }

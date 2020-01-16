@@ -17,7 +17,6 @@ use yii\base\Event;
  */
 class ReportEvent extends Event
 {
-
     public $startDate;
     public $endDate;
     public $status;

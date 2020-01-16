@@ -32,7 +32,6 @@ use function in_array;
  */
 class Tax extends Component implements AdjusterInterface
 {
-
     const ADJUSTMENT_TYPE = 'tax';
 
 
@@ -135,7 +134,6 @@ class Tax extends Component implements AdjusterInterface
         // Do not bother checking VAT ID if the address doesn't match the zone anyway.
         $useZone = ($zone && $this->_matchAddress($zone));
         if ($taxRate->isVat && $vatIdOnAddress && ($useZone || $taxRate->getIsEverywhere())) {
-
             // Do we have a valid VAT ID in our cache?
             $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
 
@@ -226,7 +224,6 @@ class Tax extends Component implements AdjusterInterface
 
         // Is this an order level tax rate?
         if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
-
             $allItemsTaxFree = true;
             foreach ($this->_order->getLineItems() as $item) {
                 if ($item->getPurchasable()->getIsTaxable()) {

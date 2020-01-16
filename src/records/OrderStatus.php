@@ -29,7 +29,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderStatus extends ActiveRecord
 {
-
     use SoftDeleteTrait;
 
     /**

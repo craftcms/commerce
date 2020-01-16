@@ -30,7 +30,6 @@ use yii\base\Exception;
  */
 class TaxCategories extends Component
 {
-
     /**
      * @var bool
      */

@@ -32,7 +32,6 @@ use yii\base\InvalidConfigException;
  */
 class Customer extends Model
 {
-
     /**
      * @var int|null Customer ID
      */

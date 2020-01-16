@@ -31,7 +31,6 @@ use yii\caching\TagDependency;
  */
 class TaxZones extends Component
 {
-
     /**
      * @var bool
      */

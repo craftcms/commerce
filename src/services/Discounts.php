@@ -42,7 +42,6 @@ use function in_array;
  */
 class Discounts extends Component
 {
-
     /**
      * @event DiscountEvent The event that is raised before an discount is saved.
      *
@@ -856,7 +855,6 @@ class Discounts extends Component
     private function _isDiscountPerUserUsageValid(Discount $discount, $user, $customer): bool
     {
         if ($discount->perUserLimit > 0) {
-
             if (!$user) {
                 return false;
             }

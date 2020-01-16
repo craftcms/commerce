@@ -30,7 +30,6 @@ use yii\db\Exception;
  */
 class Addresses extends Component
 {
-
     /**
      * @event AddressEvent The event that is raised before an address is saved.
      *

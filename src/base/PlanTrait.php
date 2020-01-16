@@ -17,7 +17,6 @@ use DateTime;
  */
 trait PlanTrait
 {
-
     /**
      * @var int Plan ID
      */

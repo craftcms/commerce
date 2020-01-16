@@ -18,7 +18,6 @@ use craft\commerce\models\OrderAdjustment;
  */
 interface AdjusterInterface
 {
-
     /**
      * Returns adjustments to add to the order
      *

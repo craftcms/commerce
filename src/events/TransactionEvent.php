@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class TransactionEvent extends Event
 {
-
     /**
      * @var Transaction The transaction model
      */

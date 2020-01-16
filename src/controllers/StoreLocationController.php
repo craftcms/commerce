@@ -14,7 +14,6 @@ use craft\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
-
     /**
      * @return Response
      */
@@ -83,7 +82,6 @@ class StoreLocationController extends BaseStoreSettingsController
         $address->isStoreLocation = true;
 
         if ($address->validate() && Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-
             Craft::$app->getSession()->setNotice(Plugin::t('Store Location saved.'));
 
             return $this->redirectToPostedUrl();

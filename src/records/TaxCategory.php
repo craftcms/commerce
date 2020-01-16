@@ -23,7 +23,6 @@ use craft\db\ActiveRecord;
  */
 class TaxCategory extends ActiveRecord
 {
-
     /**
      * @return string
      */

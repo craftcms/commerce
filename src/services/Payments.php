@@ -36,7 +36,6 @@ use yii\base\Component;
  */
 class Payments extends Component
 {
-
     /**
      * @event TransactionEvent The event that is triggered after a payment transaction is made
      *

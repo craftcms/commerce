@@ -26,7 +26,6 @@ use craft\db\ActiveRecord;
  */
 class LineItemStatus extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

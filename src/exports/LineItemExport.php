@@ -13,7 +13,6 @@ use craft\elements\db\ElementQueryInterface;
 
 class LineItemExport extends ElementExporter
 {
-
     /**
      * @inheritDoc
      */

@@ -18,7 +18,6 @@ use craft\commerce\Plugin;
  */
 class CreditCardPaymentForm extends BasePaymentForm
 {
-
     /**
      * @var string First name
      */

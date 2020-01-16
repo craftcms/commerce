@@ -23,7 +23,6 @@ use craft\i18n\Locale;
  */
 class ChartsController extends ElementIndexesController
 {
-
     /**
      * Returns the data needed to display a Revenue chart.
      */

@@ -41,7 +41,6 @@ use yii\web\ServerErrorHttpException;
  */
 class Emails extends Component
 {
-
     /**
      * @event MailEvent The event that is raised before an email is sent.
      * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
@@ -807,5 +806,4 @@ class Emails extends Component
 
         return new EmailRecord();
     }
-
 }

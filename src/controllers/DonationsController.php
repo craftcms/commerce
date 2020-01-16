@@ -25,7 +25,6 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-
     /**
      * @param array $variables
      * @return Response

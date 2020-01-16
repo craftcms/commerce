@@ -22,7 +22,6 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-
     /**
      * @return Response
      */

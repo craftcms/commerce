@@ -25,13 +25,11 @@ use yii\base\NotSupportedException;
  */
 class MissingGateway extends Gateway implements MissingComponentInterface
 {
-
     use MissingComponentTrait;
 
 
     public function __set($name, $value)
     {
-
     }
 
     /**

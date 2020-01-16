@@ -41,7 +41,6 @@ use function count;
  */
 class OrderStatuses extends Component
 {
-
     /**
      * @event DefaultOrderStatusEvent The event that is triggered when getting a default status for an order.
      * You may set [[DefaultOrderStatusEvent::orderStatus]] to a desired OrderStatus to override the default status set in CP

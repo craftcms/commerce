@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class CustomizeProductSnapshotFieldsEvent extends Event
 {
-
     /**
      * @var Product The product
      */

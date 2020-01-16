@@ -31,7 +31,6 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
-
     /**
      * @event RegisterComponentTypesEvent This event is raised when compiling the list of adjusters for an order
      *
@@ -134,7 +133,6 @@ class OrderAdjustments extends Component
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
-
         $isNewOrderAdjustment = !$orderAdjustment->id;
 
         if ($orderAdjustment->id) {

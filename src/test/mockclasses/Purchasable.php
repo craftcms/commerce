@@ -18,7 +18,6 @@ use craft\commerce\base\Purchasable as BasePurchasable;
  */
 class Purchasable extends BasePurchasable
 {
-
     public $isPromotable = true;
 
     /**

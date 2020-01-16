@@ -29,7 +29,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentSources extends Component
 {
-
     /**
      * @event PaymentSourceEvent The event that is triggered when a payment source is deleted
      *
@@ -300,5 +299,4 @@ class PaymentSources extends Component
             ])
             ->from([Table::PAYMENTSOURCES]);
     }
-
 }

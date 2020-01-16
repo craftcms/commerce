@@ -24,7 +24,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingZoneCountry extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

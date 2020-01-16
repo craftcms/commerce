@@ -30,7 +30,6 @@ use yii\base\InvalidConfigException;
  */
 abstract class Plan extends Model implements PlanInterface
 {
-
     use PlanTrait;
 
 

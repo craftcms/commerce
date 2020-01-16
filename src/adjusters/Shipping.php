@@ -24,7 +24,6 @@ use craft\commerce\Plugin;
  */
 class Shipping extends Component implements AdjusterInterface
 {
-
     const ADJUSTMENT_TYPE = 'shipping';
 
 
@@ -90,7 +89,6 @@ class Shipping extends Component implements AdjusterInterface
             if (!$hasDiscountRemoveShippingCosts) {
                 //checking items shipping categories
                 foreach ($order->getLineItems() as $item) {
-
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                     $hasFreeShippingFromDiscount = false;
                     foreach ($discounts as $discount) {

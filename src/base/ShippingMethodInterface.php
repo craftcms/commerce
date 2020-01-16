@@ -17,7 +17,6 @@ use craft\commerce\elements\Order;
  */
 interface ShippingMethodInterface
 {
-
     /**
      * Returns the type of Shipping Method. This might be the name of the plugin or provider.
      * The core shipping methods have type: `Custom`. This is shown in the control panel only.

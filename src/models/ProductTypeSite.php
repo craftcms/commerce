@@ -23,7 +23,6 @@ use yii\base\InvalidConfigException;
  */
 class ProductTypeSite extends Model
 {
-
     /**
      * @var int ID
      */

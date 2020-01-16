@@ -44,7 +44,6 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-
     const SESSION_CUSTOMER = 'commerce_customer';
 
 
@@ -367,7 +366,6 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-
         $row = $this->_createCustomerQuery()
             ->where(['userId' => $id])
             ->one();

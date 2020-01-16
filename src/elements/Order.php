@@ -970,7 +970,6 @@ class Order extends Element
         foreach ($this->datetimeAttributes() as $attribute) {
             $fields[$attribute] = function($model, $attribute) {
                 if (!empty($model->$attribute)) {
-
                     $formatter = Craft::$app->getFormatter();
 
                     return [
@@ -1088,7 +1087,6 @@ class Order extends Element
         if (!$this->isCompleted) {
             $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
-
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
                 // Payment information is still stored in the transactions.
@@ -1327,7 +1325,6 @@ class Order extends Element
      */
     public function recalculate()
     {
-
         if (!$this->id) {
             throw new InvalidCallException('Do not recalculate an order that has not been saved');
         }
@@ -1342,7 +1339,6 @@ class Order extends Element
         }
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
-
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
                 if (!$item->refreshFromPurchasable()) {
@@ -1972,7 +1968,6 @@ class Order extends Element
      */
     public function getTotalDiscount(): float
     {
-
         return $this->_getAdjustmentsTotalByType('discount');
     }
 
@@ -1981,7 +1976,6 @@ class Order extends Element
      */
     public function getTotalShippingCost(): float
     {
-
         return $this->_getAdjustmentsTotalByType('shipping');
     }
 

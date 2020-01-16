@@ -23,8 +23,6 @@ use yii\base\Component;
  */
 class Purchasables extends Component
 {
-
-
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering element types.
      *

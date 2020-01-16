@@ -24,7 +24,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-
     /**
      * @return Response
      */

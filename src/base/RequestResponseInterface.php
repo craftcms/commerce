@@ -15,7 +15,6 @@ namespace craft\commerce\base;
  */
 interface RequestResponseInterface
 {
-
     /**
      * Returns whether or not the payment was successful.
      *

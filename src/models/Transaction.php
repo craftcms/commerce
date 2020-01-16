@@ -27,7 +27,6 @@ use DateTime;
  */
 class Transaction extends Model
 {
-
     /**
      * @var int ID
      */

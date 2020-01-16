@@ -42,7 +42,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Product extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

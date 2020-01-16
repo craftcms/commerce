@@ -31,7 +31,6 @@ use craft\validators\UniqueValidator;
  */
 class TaxAddressZone extends Model implements AddressZoneInterface
 {
-
     /**
      * @var int ID
      */

@@ -25,7 +25,6 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
  */
 class ShippingRule extends Model implements ShippingRuleInterface
 {
-
     /**
      * @var int ID
      */

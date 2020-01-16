@@ -19,7 +19,6 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
-
     /**
      * @var
      */

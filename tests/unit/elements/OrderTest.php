@@ -22,7 +22,6 @@ use UnitTester;
  */
 class OrderTest extends Unit
 {
-
     /**
      * @var UnitTester
      */

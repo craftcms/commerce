@@ -87,7 +87,6 @@ use craft\commerce\services\Variants;
  */
 trait Services
 {
-
     /**
      * Returns the address service
      *

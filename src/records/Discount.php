@@ -53,7 +53,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
-
     const TYPE_ORIGINAL_SALEPRICE = 'original';
     const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 

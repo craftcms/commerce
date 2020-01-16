@@ -20,7 +20,6 @@ use craft\events\CancelableEvent;
  */
 class DiscountAdjustmentsEvent extends CancelableEvent
 {
-
     /**
      * @var Order The order the discount generated the adjustments for. Do not mutate.
      */

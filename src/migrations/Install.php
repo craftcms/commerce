@@ -54,8 +54,6 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-
-
     private $_variantFieldLayoutId;
     private $_productFieldLayoutId;
 
@@ -1648,7 +1646,6 @@ class Install extends Migration
         $allSiteSettings = [];
 
         foreach ($siteIds as $siteId) {
-
             $siteSettings = new ProductTypeSiteModel();
 
             $siteSettings->siteId = $siteId;

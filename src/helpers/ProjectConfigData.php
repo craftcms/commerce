@@ -22,9 +22,6 @@ use craft\helpers\Json;
  */
 class ProjectConfigData
 {
-
-
-
     /**
      * Return a rebuilt project config array
      *

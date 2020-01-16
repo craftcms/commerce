@@ -40,7 +40,6 @@ use yii\web\Response;
  */
 class ProductsController extends BaseCpController
 {
-
     /**
      * @inheritdoc
      */
@@ -176,7 +175,6 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
-
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['success' => false]);
             }

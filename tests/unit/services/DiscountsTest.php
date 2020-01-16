@@ -34,7 +34,6 @@ use yii\db\Exception;
  */
 class DiscountsTest extends Unit
 {
-
     /**
      * @var UnitTester
      */

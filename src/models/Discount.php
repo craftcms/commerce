@@ -28,7 +28,6 @@ use DateTime;
  */
 class Discount extends Model
 {
-
     /**
      * @var int ID
      */

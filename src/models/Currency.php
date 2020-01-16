@@ -17,7 +17,6 @@ use craft\commerce\base\Model;
  */
 class Currency extends Model
 {
-
     /**
      * @var string Alphabetic code
      */

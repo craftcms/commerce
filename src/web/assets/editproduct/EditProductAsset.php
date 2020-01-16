@@ -18,7 +18,6 @@ use craft\web\AssetBundle;
  */
 class EditProductAsset extends AssetBundle
 {
-
     /**
      * @inheritdoc
      */

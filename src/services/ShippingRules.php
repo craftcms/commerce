@@ -28,7 +28,6 @@ use yii\base\Exception;
  */
 class ShippingRules extends Component
 {
-
     /**
      * @var bool
      */

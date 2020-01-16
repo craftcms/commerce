@@ -28,7 +28,6 @@ use yii\base\Exception;
  */
 class States extends Component
 {
-
     /**
      * @var bool
      */

@@ -17,7 +17,6 @@ use craft\commerce\base\RequestResponseInterface;
  */
 class Manual implements RequestResponseInterface
 {
-
     /**
      * @inheritdoc
      */

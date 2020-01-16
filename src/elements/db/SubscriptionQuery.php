@@ -37,7 +37,6 @@ use yii\db\Expression;
  */
 class SubscriptionQuery extends ElementQuery
 {
-
     /**
      * @var int|int[] The user id of the subscriber
      */

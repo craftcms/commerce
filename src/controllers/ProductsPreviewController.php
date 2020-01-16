@@ -32,7 +32,6 @@ use yii\web\ServerErrorHttpException;
  */
 class ProductsPreviewController extends Controller
 {
-
     /**
      * @inheritdoc
      */

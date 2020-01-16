@@ -55,7 +55,6 @@ use yii\base\InvalidConfigException;
  */
 class Product extends Element
 {
-
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
@@ -713,7 +712,6 @@ class Product extends Element
 
         // Only save variants once (since they will propagate themselves the first time.
         if (!$this->propagating) {
-
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
@@ -723,7 +721,6 @@ class Product extends Element
 
             /** @var Variant $variant */
             foreach ($this->getVariants() as $variant) {
-
                 if ($isNew) {
                     $variant->productId = $this->id;
                     $variant->siteId = $this->siteId;

@@ -30,7 +30,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentCurrencies extends Component
 {
-
     /**
      * @var PaymentCurrency[]
      */
@@ -103,7 +102,6 @@ class PaymentCurrencies extends Component
      */
     public function getPaymentCurrencyByIso($iso)
     {
-
         if ($this->_allCurrenciesByIso === null) {
             $this->getAllPaymentCurrencies();
         }
@@ -195,7 +193,6 @@ class PaymentCurrencies extends Component
         $model->id = $record->id;
 
         if ($record->primary) {
-
             // The store wll not usually change primary currency in production, this fix is mainly for developers
             // who had a cart created before they started setting up their currencies.
             if ($originalIso != $record->iso){

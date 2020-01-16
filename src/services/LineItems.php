@@ -31,7 +31,6 @@ use yii\base\InvalidArgumentException;
  */
 class LineItems extends Component
 {
-
     /**
      * @event LineItemEvent The event that is raised before a line item is saved.
      *
@@ -206,7 +205,6 @@ class LineItems extends Component
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
         if (!$lineItem->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 

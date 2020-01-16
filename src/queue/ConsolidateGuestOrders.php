@@ -18,7 +18,6 @@ use craft\queue\QueueInterface;
  */
 class ConsolidateGuestOrders extends BaseJob
 {
-
     /**
      * @var array
      */
@@ -60,7 +59,6 @@ class ConsolidateGuestOrders extends BaseJob
      */
     public function consolidate($email)
     {
-
         $customerId = (new Query())
             ->select('[[orders.customerId]]')
             ->from(Table::ORDERS . ' orders')
@@ -84,7 +82,6 @@ class ConsolidateGuestOrders extends BaseJob
             ->all();
 
         foreach ($orders as $order) {
-
             $userId = $order['userId'];
             $orderId = $order['id'];
 

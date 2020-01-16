@@ -31,8 +31,6 @@ use craft\validators\UniqueValidator;
  */
 class OrderStatus extends Model
 {
-
-
     use SoftDeleteTrait {
         behaviors as softDeleteBehaviors;
     }

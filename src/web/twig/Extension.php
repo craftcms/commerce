@@ -22,7 +22,6 @@ use Twig\TwigFilter;
  */
 class Extension extends AbstractExtension
 {
-
     /**
      * @return string
      */

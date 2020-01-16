@@ -18,7 +18,6 @@ use craft\commerce\Plugin;
  */
 class Currency
 {
-
     /**
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.

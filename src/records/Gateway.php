@@ -29,7 +29,6 @@ use DateTime;
  */
 class Gateway extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

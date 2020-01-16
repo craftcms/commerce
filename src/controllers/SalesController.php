@@ -37,7 +37,6 @@ use yii\web\Response;
  */
 class SalesController extends BaseCpController
 {
-
     /**
      * @inheritdoc
      */

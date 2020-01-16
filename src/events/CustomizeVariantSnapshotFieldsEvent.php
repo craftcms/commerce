@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class CustomizeVariantSnapshotFieldsEvent extends Event
 {
-
     /**
      * @var Variant The variant
      */

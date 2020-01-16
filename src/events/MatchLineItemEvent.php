@@ -19,7 +19,6 @@ use craft\events\CancelableEvent;
  */
 class MatchLineItemEvent extends CancelableEvent
 {
-
     /**
      * @var LineItem The matched line item.
      */

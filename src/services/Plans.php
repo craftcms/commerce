@@ -31,7 +31,6 @@ use yii\base\InvalidConfigException;
  */
 class Plans extends Component
 {
-
     /**
      * @event PlanEvent The event that is triggered when a plan is archived.
      *

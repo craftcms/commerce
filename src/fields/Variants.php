@@ -20,7 +20,6 @@ use craft\fields\BaseRelationField;
  */
 class Variants extends BaseRelationField
 {
-
     /**
      * @inheritdoc
      */

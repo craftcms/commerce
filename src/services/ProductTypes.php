@@ -46,7 +46,6 @@ use yii\base\Exception;
  */
 class ProductTypes extends Component
 {
-
     /**
      * @event ProductTypeEvent The event that is triggered before a category group is saved.
      *

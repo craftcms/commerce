@@ -19,7 +19,6 @@ use craft\commerce\Plugin;
  */
 class BaseFrontEndController extends BaseController
 {
-
     /**
      * @event Event The event that is triggered when an cart is returned as an array (for ajax cart update requests)
      *

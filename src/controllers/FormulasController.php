@@ -19,7 +19,6 @@ use craft\web\Controller;
  */
 class FormulasController extends Controller
 {
-
     /**
      * @return \yii\web\Response
      * @throws \yii\web\BadRequestHttpException

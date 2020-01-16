@@ -38,7 +38,6 @@ use craft\validators\UniqueValidator;
  */
 class ProductType extends Model
 {
-
     /**
      * @var int ID
      */

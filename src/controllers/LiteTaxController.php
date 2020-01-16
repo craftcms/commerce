@@ -23,7 +23,6 @@ use yii\web\Response;
  */
 class LiteTaxController extends BaseStoreSettingsController
 {
-
     /**
      * @throws WrongEditionException
      */
@@ -41,7 +40,6 @@ class LiteTaxController extends BaseStoreSettingsController
      */
     public function actionEdit(): Response
     {
-
         $settings = new LiteTaxSettings([
             'taxRate' => 0,
             'taxName' => 'Tax',

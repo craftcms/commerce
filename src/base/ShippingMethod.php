@@ -20,7 +20,6 @@ use craft\commerce\errors\NotImplementedException;
  */
 abstract class ShippingMethod extends Model implements ShippingMethodInterface
 {
-
     /**
      * @var int ID
      */

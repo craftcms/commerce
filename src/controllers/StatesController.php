@@ -27,7 +27,6 @@ use yii\web\Response;
  */
 class StatesController extends BaseStoreSettingsController
 {
-
     /**
      * @return Response
      */

@@ -20,7 +20,6 @@ use craft\helpers\UrlHelper;
  */
 class ShippingCategory extends Model
 {
-
     /**
      * @var int ID
      */

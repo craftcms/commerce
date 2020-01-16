@@ -15,7 +15,6 @@ namespace craft\commerce\controllers;
  */
 class BaseTaxSettingsController extends BaseCpController
 {
-
     /**
      * @inheritdoc
      */

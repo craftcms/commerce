@@ -22,7 +22,6 @@ use craft\db\ActiveRecord;
  */
 class PaymentCurrency extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

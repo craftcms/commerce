@@ -31,7 +31,6 @@ use yii\base\Exception;
  */
 class ShippingMethods extends Component
 {
-
     /**
      * @event RegisterShippingMethods The event that is triggered when registering additional shipping methods for the cart.
      */
@@ -157,11 +156,9 @@ class ShippingMethods extends Component
 
         /** @var ShippingMethod $method */
         foreach ($event->shippingMethods as $method) {
-
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
-
                 $availableMethods[$method->getHandle()] = [
                     'method' => $method,
                     'price' => $totalPrice, // Store the price so we can sort on it before returning

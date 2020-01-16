@@ -22,7 +22,6 @@ use yii\base\Component;
  */
 class ShippingRuleCategories extends Component
 {
-
     /**
      * @var ShippingRuleCategory[][]
      */

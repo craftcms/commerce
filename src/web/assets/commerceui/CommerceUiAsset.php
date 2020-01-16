@@ -22,7 +22,6 @@ use craft\web\assets\vue\VueAsset;
  */
 class CommerceUiAsset extends AssetBundle
 {
-
     /**
      * @inheritdoc
      */

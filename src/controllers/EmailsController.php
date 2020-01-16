@@ -21,7 +21,6 @@ use yii\web\Response;
  */
 class EmailsController extends BaseAdminController
 {
-
     /**
      * @return Response
      */

@@ -19,7 +19,6 @@ class m180209_115000_plan_description extends Migration
      */
     public function safeUp(): bool
     {
-
         $this->addColumn('{{%commerce_plans}}', 'planInformationId', $this->integer()->null());
         $this->addForeignKey(null, '{{%commerce_plans}}', 'planInformationId', '{{%elements}}', 'id', 'SET NULL');
 

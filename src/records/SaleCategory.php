@@ -25,7 +25,6 @@ use yii\db\ActiveQueryInterface;
  */
 class SaleCategory extends ActiveRecord
 {
-
     /**
      * @inheritdoc
      */

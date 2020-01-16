@@ -23,7 +23,6 @@ use yii\db\Connection;
  */
 class DonationQuery extends ElementQuery
 {
-
     /**
      * @var string The sku of the donation purchasable
      */

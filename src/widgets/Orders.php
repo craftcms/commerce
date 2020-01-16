@@ -25,7 +25,6 @@ use craft\helpers\StringHelper;
  */
 class Orders extends Widget
 {
-
     /**
      * @var int|null
      */

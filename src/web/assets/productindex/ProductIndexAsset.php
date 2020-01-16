@@ -18,7 +18,6 @@ use craft\web\AssetBundle;
  */
 class ProductIndexAsset extends AssetBundle
 {
-
     /**
      * @inheritdoc
      */
