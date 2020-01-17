@@ -14,7 +14,7 @@ use craft\db\Table as CraftTable;
 use yii\db\Expression;
 
 /**
- * Top purchasables Stat
+ * Top Products Stat
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
