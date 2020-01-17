@@ -26,12 +26,10 @@ use craft\helpers\StringHelper;
  */
 class TotalOrders extends Widget
 {
-    // Properties
-    // =========================================================================
+    /**
+     * @var int|bool
+     */
     public $showChart;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

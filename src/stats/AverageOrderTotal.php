@@ -18,9 +18,6 @@ use yii\db\Expression;
  */
 class AverageOrderTotal extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -30,9 +27,6 @@ class AverageOrderTotal extends Stat
      * @inheritdoc
      */
     public $cache = true;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

@@ -25,12 +25,6 @@ use craft\helpers\StringHelper;
  */
 class NewCustomers extends Widget
 {
-    // Properties
-    // =========================================================================
-
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

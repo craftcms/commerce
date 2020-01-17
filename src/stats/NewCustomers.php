@@ -18,16 +18,10 @@ use yii\db\Expression;
  */
 class NewCustomers extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     protected $_handle = 'newCustomers';
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

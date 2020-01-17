@@ -20,9 +20,6 @@ use yii\db\Expression;
  */
 class TopPurchasables extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -37,9 +34,6 @@ class TopPurchasables extends Stat
      * @var int Number of customers to show.
      */
     public $limit = 5;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

@@ -25,9 +25,6 @@ use craft\helpers\StringHelper;
  */
 class Orders extends Widget
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|null
      */
@@ -37,9 +34,6 @@ class Orders extends Widget
      * @var int
      */
     public $limit = 10;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

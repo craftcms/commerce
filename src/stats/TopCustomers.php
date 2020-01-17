@@ -19,9 +19,6 @@ use yii\db\Expression;
  */
 class TopCustomers extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -36,9 +33,6 @@ class TopCustomers extends Stat
      * @var int Number of customers to show.
      */
     public $limit = 5;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

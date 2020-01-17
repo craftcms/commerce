@@ -21,9 +21,6 @@ use yii\db\Expression;
  */
 class TotalOrdersByCountry extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -38,10 +35,6 @@ class TotalOrdersByCountry extends Stat
      * @var int
      */
     public $limit = 3;
-
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritDoc
      */

@@ -24,13 +24,7 @@ use yii\db\Expression;
  */
 abstract class Stat implements StatInterface
 {
-    // Properties
-    // =========================================================================
-
     use StatTrait;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * Stat constructor.
@@ -203,9 +197,6 @@ abstract class Stat implements StatInterface
         }
     }
 
-    // Private Methods
-    // =========================================================================
-
     /**
      * @throws Exception
      */
@@ -337,9 +328,6 @@ abstract class Stat implements StatInterface
 
         return implode('-', [$this->getHandle(), $this->dateRange, $this->_startDate->format('U'), $this->_endDate->format('U'), $orderLastUpdatedString]);
     }
-
-    // Protected Methods
-    // =========================================================================
 
     /**
      * Generate base stat query

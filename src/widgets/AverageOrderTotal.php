@@ -25,12 +25,6 @@ use craft\helpers\StringHelper;
  */
 class AverageOrderTotal extends Widget
 {
-    // Properties
-    // =========================================================================
-
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

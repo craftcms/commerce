@@ -19,16 +19,10 @@ use yii\db\Expression;
  */
 class TotalRevenue extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     protected $_handle = 'totalRevenue';
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

@@ -14,9 +14,6 @@ namespace craft\commerce\base;
  */
 interface StatInterface
 {
-    // Constants
-    // =========================================================================
-
     public const DATE_RANGE_TODAY = 'today';
     public const DATE_RANGE_THISWEEK = 'thisWeek';
     public const DATE_RANGE_THISMONTH = 'thisMonth';
@@ -97,9 +94,6 @@ interface StatInterface
             'groupBy' => 'YEAR([[dateOrdered]]), MONTH([[dateOrdered]])',
         ],
     ];
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

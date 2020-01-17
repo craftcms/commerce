@@ -26,13 +26,15 @@ use craft\helpers\StringHelper;
  */
 class TotalOrdersByCountry extends Widget
 {
-    // Properties
-    // =========================================================================
+    /**
+     * @var string
+     */
     public $dateRange = TotalOrdersByCountryStat::DATE_RANGE_PASTYEAR;
 
+    /**
+     * @var TotalOrdersByCountryStat
+     */
     private $_stat;
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc

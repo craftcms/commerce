@@ -26,12 +26,6 @@ use craft\helpers\StringHelper;
  */
 class TotalRevenue extends Widget
 {
-    // Properties
-    // =========================================================================
-
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

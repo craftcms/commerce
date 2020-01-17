@@ -18,16 +18,10 @@ use yii\db\Expression;
  */
 class TotalOrders extends Stat
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     protected $_handle = 'totalOrders';
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritDoc
