@@ -26,12 +26,27 @@ use craft\helpers\StringHelper;
  */
 class TotalRevenue extends Widget
 {
+
+    /**
+     * @var TotalRevenueStat
+     */
+    private $_stat;
+
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        $this->_stat = new TotalRevenueStat(TotalRevenueStat::DATE_RANGE_PASTYEAR);
+    }
+
     /**
      * @inheritdoc
      */
     public static function isSelectable(): bool
     {
-        // This widget is only available to users that can manage customers
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
@@ -41,6 +56,14 @@ class TotalRevenue extends Widget
     public static function displayName(): string
     {
         return Plugin::t( 'Total Revenue');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSubtitle()
+    {
+        return $this->_stat->getDateRangeWording();
     }
 
     /**
@@ -56,9 +79,8 @@ class TotalRevenue extends Widget
      */
     public function getBodyHtml()
     {
-        $stat = new TotalRevenueStat(TotalRevenueStat::DATE_RANGE_PASTYEAR);
-        $stats = $stat->get();
-        $timeFrame = $stat->getDateRangeWording();
+        $stats = $this->_stat->get();
+        $timeFrame = $this->_stat->getDateRangeWording();
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
