@@ -40,7 +40,6 @@ class Orders extends Widget
      */
     public static function isSelectable(): bool
     {
-        // This widget is only available to users that can manage orders
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
