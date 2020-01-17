@@ -53,12 +53,13 @@ class TopCustomers extends Stat
     {
         $topCustomers = $this->_createStatQuery()
             ->select([
-                new Expression('SUM([[total]]) as orderTotal'),
-                new Expression('(SUM([[total]]) / COUNT([[id]])) as orderTotalAverage'),
+                new Expression('SUM([[total]]) as total'),
+                new Expression('(SUM([[total]]) / COUNT([[id]])) as average'),
                 'customerId',
-                new Expression('COUNT([[id]]) as orderCount'),
+                '[[orders.email]] as email',
+                new Expression('COUNT([[id]]) as count'),
             ])
-            ->groupBy('customerId')
+            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {
@@ -84,7 +85,12 @@ class TopCustomers extends Stat
     public function processData($data)
     {
         foreach ($data as &$topCustomer) {
-            $topCustomer['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
+            $customer = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
+            $topCustomer['customer'] = $customer;
+
+            if ($customer && $user = $customer->getUser()) {
+                $topCustomer['email'] = $user->email;
+            }
         }
 
         return $data;

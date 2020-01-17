@@ -1,0 +1,26 @@
+<div class="commerce-widget-table-wrapper">
+  <div id="{{ id }}"></div>
+</div>
+
+{% set tableData = [] %}
+{% for stat in stats %}
+  {% set tableData = tableData|merge([{
+    title: stat.email,
+    url: cpUrl('commerce/customers/' ~ stat.customerId),
+    total: stat.total|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
+    average: stat.average|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
+  }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Email') },
+    { name: '{{ type }}', title: '{{ typeLabel }}' }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#{{ id }}',
+    tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}
