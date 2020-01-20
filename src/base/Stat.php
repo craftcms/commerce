@@ -160,17 +160,17 @@ abstract class Stat implements StatInterface
             }
             case self::DATE_RANGE_PAST7DAYS:
             {
-                return Plugin::t('Past 7 days');
+                return Plugin::t('Past {num} days', ['num' => 7]);
                 break;
             }
             case self::DATE_RANGE_PAST30DAYS:
             {
-                return Plugin::t('Past 30 days');
+                return Plugin::t('Past {num} days', ['num' => 30]);
                 break;
             }
             case self::DATE_RANGE_PAST90DAYS:
             {
-                return Plugin::t('Past 90 days');
+                return Plugin::t('Past {num} days', ['num' => 90]);
                 break;
             }
             case self::DATE_RANGE_PASTYEAR:
