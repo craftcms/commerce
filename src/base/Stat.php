@@ -37,11 +37,11 @@ abstract class Stat implements StatInterface
     public function __construct(string $dateRange = null, $startDate = null, $endDate = null)
     {
         $this->dateRange = $dateRange;
-        $this->setStartDate($startDate);
-        $this->setEndDate($endDate);
-
-        if ($this->dateRange) {
+        if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
             $this->_setDates();
+        } else {
+            $this->setStartDate($startDate);
+            $this->setEndDate($endDate);
         }
 
         $user = Craft::$app->getUser()->getIdentity();
@@ -380,12 +380,12 @@ abstract class Stat implements StatInterface
         }
 
         if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
-            // TODO custom data implementation, overwrite $options
+            $interval = date_diff($this->_startDate, $this->_endDate);
+            $options = $this->_getCustomDateChartQueryOptions($interval->days);
         }
 
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
         while ($dateKeyDate->format($options['dateKeyFormat']) != $this->getEndDate()->format($options['dateKeyFormat'])) {
-            $dateKeyDate->add(new \DateInterval($options['interval']));
             $key = $dateKeyDate->format($options['dateKeyFormat']);
 
             // Setup default results values
@@ -393,6 +393,7 @@ abstract class Stat implements StatInterface
             $tmp['date'] = $key;
 
             $defaults[$key] = $tmp;
+            $dateKeyDate->add(new \DateInterval($options['interval']));
         }
 
         // Add defaults to select
@@ -406,5 +407,21 @@ abstract class Stat implements StatInterface
             ->all();
 
         return array_replace($defaults, $results);
+    }
+
+    /**
+     * @param int $days
+     * @return mixed
+     */
+    private function _getCustomDateChartQueryOptions(int $days) {
+        if ($days > 90) {
+            return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_PASTYEAR];
+        }
+
+        if ($days > 27) {
+            return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_PAST90DAYS];
+        }
+
+        return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_TODAY];
     }
 }
