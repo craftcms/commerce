@@ -133,6 +133,11 @@ abstract class Stat implements StatInterface
     public function getDateRangeWording(): string
     {
         switch ($this->dateRange) {
+            case self::DATE_RANGE_ALL:
+            {
+                return Plugin::t('All');
+                break;
+            }
             case self::DATE_RANGE_TODAY:
             {
                 return Plugin::t('Today');
@@ -230,6 +235,18 @@ abstract class Stat implements StatInterface
 
         $date = new \DateTime();
         switch ($dateRange) {
+            case self::DATE_RANGE_ALL:
+            {
+                $firstCompletedOrder = (new Query())
+                    ->select(['dateOrdered'])
+                    ->from(Table::ORDERS)
+                    ->where(['isCompleted' => 1])
+                    ->orderBy('dateOrdered ASC')
+                    ->scalar();
+
+                $date = $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new \DateTime();
+                break;
+            }
             case self::DATE_RANGE_THISMONTH:
             {
                 $date = DateTimeHelper::toDateTime(strtotime('first day of this month'));

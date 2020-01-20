@@ -14,6 +14,7 @@ namespace craft\commerce\base;
  */
 interface StatInterface
 {
+    public const DATE_RANGE_ALL = 'all';
     public const DATE_RANGE_TODAY = 'today';
     public const DATE_RANGE_THISWEEK = 'thisWeek';
     public const DATE_RANGE_THISMONTH = 'thisMonth';
@@ -88,6 +89,12 @@ interface StatInterface
             'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
             ],
         self::DATE_RANGE_PASTYEAR => [
+            'interval' => 'P1M',
+            'dateKeyFormat' => 'n Y',
+            'dateLabel' => 'CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]]))',
+            'groupBy' => 'YEAR([[dateOrdered]]), MONTH([[dateOrdered]])',
+        ],
+        self::DATE_RANGE_ALL => [
             'interval' => 'P1M',
             'dateKeyFormat' => 'n Y',
             'dateLabel' => 'CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]]))',
