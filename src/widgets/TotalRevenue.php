@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -28,6 +29,21 @@ class TotalRevenue extends Widget
 {
 
     /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
+    /**
      * @var TotalRevenueStat
      */
     private $_stat;
@@ -39,7 +55,11 @@ class TotalRevenue extends Widget
     {
         parent::init();
 
-        $this->_stat = new TotalRevenueStat(TotalRevenueStat::DATE_RANGE_PASTYEAR);
+        $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
+        $startDate = DateTimeHelper::toDateTime($this->startDate);
+        $endDate = DateTimeHelper::toDateTime($this->endDate);
+
+        $this->_stat = new TotalRevenueStat($this->dateRange, $startDate, $endDate);
     }
 
     /**
@@ -94,8 +114,8 @@ class TotalRevenue extends Widget
         }
 
         $labels = array_keys($stats);
-        $revenue = array_values(ArrayHelper::getColumn($stats, 'revenue'));
-        $orderCount = array_values(ArrayHelper::getColumn($stats, 'orderCount'));
+        $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
+        $orderCount = ArrayHelper::getColumn($stats, 'orderCount', false);
 
         return $view->renderTemplate('commerce/_components/widgets/Orders/revenue/body',
             compact(
