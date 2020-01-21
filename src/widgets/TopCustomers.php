@@ -12,6 +12,7 @@ use craft\base\Widget;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TopCustomers as TopCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
 
@@ -26,6 +27,21 @@ use craft\web\assets\admintable\AdminTableAsset;
  */
 class TopCustomers extends Widget
 {
+    /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
     /**
      * @var string Options 'total', 'average'.
      */
@@ -73,8 +89,14 @@ class TopCustomers extends Widget
                 break;
             }
         }
+        $this->dateRange = !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
-        $this->_stat = new TopCustomersStat(TopCustomersStat::DATE_RANGE_PASTYEAR, $this->type);
+        $this->_stat = new TopCustomersStat(
+            $this->dateRange,
+            $this->type,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
 
         parent::init();
     }

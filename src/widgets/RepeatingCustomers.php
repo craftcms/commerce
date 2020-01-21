@@ -12,6 +12,7 @@ use craft\base\Widget;
 use craft\commerce\Plugin;
 use craft\commerce\stats\RepeatingCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -25,11 +26,40 @@ use craft\helpers\StringHelper;
  */
 class RepeatingCustomers extends Widget
 {
-    // Properties
-    // =========================================================================
+    /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
 
-    // Public Methods
-    // =========================================================================
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
+    /**
+     * @var null|RepeatingCustomersStat
+     */
+    private $_stat;
+
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->dateRange = !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+
+        $this->_stat = new RepeatingCustomersStat(
+            $this->dateRange,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
+    }
 
     /**
      * @inheritdoc
@@ -68,9 +98,8 @@ class RepeatingCustomers extends Widget
      */
     public function getBodyHtml()
     {
-        $stat = new RepeatingCustomersStat(RepeatingCustomersStat::DATE_RANGE_PASTYEAR);
-        $numbers = $stat->get();
-        $timeFrame = $stat->getDateRangeWording();
+        $numbers = $this->_stat->get();
+        $timeFrame = $this->_stat->getDateRangeWording();
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);

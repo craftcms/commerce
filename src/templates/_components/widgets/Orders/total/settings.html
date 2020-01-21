@@ -1,6 +1,8 @@
 {% import "_includes/forms" as forms %}
 
 <div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+
   {{ forms.lightswitchField({
     label: "Show Chart?"|t('commerce'),
     id: 'showChart',
@@ -9,7 +11,3 @@
     on: widget.showChart
   }) }}
 </div>
-
-{% js %}
-var $picker = Craft.ui.createDateRangePicker().appendTo($('#{{ namespaceId }}'));
-{% endjs %}

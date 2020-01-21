@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -27,9 +28,19 @@ use craft\helpers\StringHelper;
 class TotalOrdersByCountry extends Widget
 {
     /**
-     * @var string
+     * @var int|\DateTime|null
      */
-    public $dateRange = TotalOrdersByCountryStat::DATE_RANGE_PASTYEAR;
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
 
     /**
      * @var TotalOrdersByCountryStat
@@ -42,8 +53,13 @@ class TotalOrdersByCountry extends Widget
     public function init()
     {
         parent::init();
+        $this->dateRange = !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
 
-        $this->_stat = new TotalOrdersByCountryStat($this->dateRange);
+        $this->_stat = new TotalOrdersByCountryStat(
+            $this->dateRange,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
     }
 
     public function getSubtitle()
@@ -114,7 +130,7 @@ class TotalOrdersByCountry extends Widget
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/revenue/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/country/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,

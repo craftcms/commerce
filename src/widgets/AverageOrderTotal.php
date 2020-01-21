@@ -12,6 +12,7 @@ use craft\base\Widget;
 use craft\commerce\Plugin;
 use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -25,6 +26,42 @@ use craft\helpers\StringHelper;
  */
 class AverageOrderTotal extends Widget
 {
+    /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
+    /**
+     * @var null|AverageOrderTotalStat
+     */
+    private $_stat;
+
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        parent::init();
+
+        $this->dateRange = !$this->dateRange ? AverageOrderTotalStat::DATE_RANGE_TODAY : $this->dateRange;
+
+        $this->_stat = new AverageOrderTotalStat(
+            $this->dateRange,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
+    }
+
     /**
      * @inheritdoc
      */
@@ -62,9 +99,8 @@ class AverageOrderTotal extends Widget
      */
     public function getBodyHtml()
     {
-        $stat = new AverageOrderTotalStat(AverageOrderTotalStat::DATE_RANGE_PASTYEAR);
-        $number = $stat->get();
-        $timeFrame = $stat->getDateRangeWording();
+        $number = $this->_stat->get();
+        $timeFrame = $this->_stat->getDateRangeWording();
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);

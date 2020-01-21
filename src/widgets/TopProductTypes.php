@@ -12,6 +12,7 @@ use craft\base\Widget;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TopProductTypes as TopProductTypesStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
 
@@ -26,6 +27,21 @@ use craft\web\assets\admintable\AdminTableAsset;
  */
 class TopProductTypes extends Widget
 {
+    /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
     /**
      * @var string Options 'revenue', 'qty'.
      */
@@ -73,8 +89,14 @@ class TopProductTypes extends Widget
                 break;
             }
         }
+        $this->dateRange = !$this->dateRange ? TopProductTypesStat::DATE_RANGE_TODAY : $this->dateRange;
 
-        $this->_stat = new TopProductTypesStat(TopProductTypesStat::DATE_RANGE_PASTYEAR, $this->type);
+        $this->_stat = new TopProductTypesStat(
+            $this->dateRange,
+            $this->type,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
 
         parent::init();
     }

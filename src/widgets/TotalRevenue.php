@@ -54,12 +54,13 @@ class TotalRevenue extends Widget
     public function init()
     {
         parent::init();
-
         $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
-        $startDate = DateTimeHelper::toDateTime($this->startDate);
-        $endDate = DateTimeHelper::toDateTime($this->endDate);
 
-        $this->_stat = new TotalRevenueStat($this->dateRange, $startDate, $endDate);
+        $this->_stat = new TotalRevenueStat(
+            $this->dateRange,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
     }
 
     /**

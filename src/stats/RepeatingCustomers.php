@@ -40,7 +40,7 @@ class RepeatingCustomers extends Stat
 
         $repeat = (int)count(ArrayHelper::removeValue($repeatRows, '1'));
 
-        $percentage = ($repeat / $total) * 100;
+        $percentage = $total ? ($repeat / $total) * 100 : 0;
 
         return compact('total', 'repeat', 'percentage');
     }

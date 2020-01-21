@@ -1,8 +1,5 @@
 {% import "_includes/forms" as forms %}
 
-<div id="{{ id }}"></div>
-
-{% js %}
-var $picker = Craft.ui.createDateRangePicker().appendTo($('#{{ namespaceId }}'));
-console.log($('#{{ namespaceId }}'));
-{% endjs %}
+<div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+</div>

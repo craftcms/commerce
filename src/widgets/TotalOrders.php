@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
@@ -27,9 +28,41 @@ use craft\helpers\StringHelper;
 class TotalOrders extends Widget
 {
     /**
+     * @var int|\DateTime|null
+     */
+    public $startDate;
+
+    /**
+     * @var int|\DateTime|null
+     */
+    public $endDate;
+
+    /**
+     * @var string|null
+     */
+    public $dateRange;
+
+    /**
      * @var int|bool
      */
     public $showChart;
+
+    /**
+     * @var null|TotalOrdersStat
+     */
+    private $_stat;
+
+    public function init()
+    {
+        parent::init();
+        $this->dateRange = !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
+
+        $this->_stat = new TotalOrdersStat(
+            $this->dateRange,
+            DateTimeHelper::toDateTime($this->startDate),
+            DateTimeHelper::toDateTime($this->endDate)
+        );
+    }
 
     /**
      * @inheritdoc
@@ -69,15 +102,14 @@ class TotalOrders extends Widget
     public function getBodyHtml()
     {
         $showChart = $this->showChart;
-        $stat = new TotalOrdersStat(TotalOrdersStat::DATE_RANGE_PASTYEAR);
-        $stats = $stat->get();
+        $stats = $this->_stat->get();
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
         $labels = array_values(ArrayHelper::getColumn($chart, 'date'));
         $data = array_values(ArrayHelper::getColumn($chart, 'totalOrders'));
 
-        $timeFrame = $stat->getDateRangeWording();
+        $timeFrame = $this->_stat->getDateRangeWording();
         $number = Craft::$app->getFormatter()->asInteger($number);
 
         $id = 'total-orders' . StringHelper::randomString();
