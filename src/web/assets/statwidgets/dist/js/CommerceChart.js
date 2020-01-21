@@ -91,7 +91,12 @@ Craft.Commerce.Chart = Garnish.Base.extend({
         },
         doughnut: {
             options: {
-                aspectRatio: 1
+                aspectRatio: 1,
+                cutoutPercentage: 60,
+                legend: {
+                    position: 'bottom'
+                },
+                rotation: 10
             }
         }
     },
