@@ -3,7 +3,11 @@
 }
 
 .commerce-widget-linechart-wrapper {
-    border-radius: 5px;
+    margin-left: -12px;
+    margin-right: -12px;
+}
+
+.commerce-widget-linechart-wrapper--full {
     margin-left: -24px;
     margin-right: -24px;
     margin-bottom: -31px;
