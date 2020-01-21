@@ -28,9 +28,6 @@ use yii\web\Response;
  */
 class CountriesController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @throws HttpException
      */
@@ -169,7 +166,6 @@ class CountriesController extends BaseStoreSettingsController
         }
 
         return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
-
     }
 
     /**

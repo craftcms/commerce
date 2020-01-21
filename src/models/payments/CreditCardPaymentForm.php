@@ -18,9 +18,6 @@ use craft\commerce\Plugin;
  */
 class CreditCardPaymentForm extends BasePaymentForm
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string First name
      */
@@ -66,8 +63,6 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public $threeDSecure = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -28,11 +28,8 @@ use yii\web\Response;
  */
 class PaymentsController extends BaseFrontEndController
 {
-
     private $_cartVariableName;
 
-    // Public Methods
-    // =========================================================================
 
     public function init()
     {
@@ -317,7 +314,6 @@ class PaymentsController extends BaseFrontEndController
         $order->recalculate();
         // Save the orders new values.
         if (Craft::$app->getElements()->saveElement($order)) {
-
             $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
             $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
             $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
@@ -413,7 +409,6 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionCompletePayment(): Response
     {
-
         $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($hash);

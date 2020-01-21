@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\exports;
 
@@ -13,7 +18,6 @@ use craft\elements\db\ElementQueryInterface;
 
 class LineItemExport extends ElementExporter
 {
-
     /**
      * @inheritDoc
      */

@@ -22,9 +22,6 @@ use craft\i18n\Locale;
  */
 class LiteTaxSettings extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var float Tax rate
      */

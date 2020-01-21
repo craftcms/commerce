@@ -29,8 +29,6 @@ class Orders extends Component
 {
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Handle field layout change

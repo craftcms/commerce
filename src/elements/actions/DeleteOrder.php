@@ -20,9 +20,6 @@ use craft\elements\db\ElementQueryInterface;
  */
 class DeleteOrder extends Delete
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

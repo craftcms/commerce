@@ -29,9 +29,6 @@ use DateTime;
  */
 class Gateway extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

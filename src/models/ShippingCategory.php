@@ -20,9 +20,6 @@ use craft\helpers\UrlHelper;
  */
 class ShippingCategory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -53,8 +50,6 @@ class ShippingCategory extends Model
      */
     private $_productTypes;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the name of this shipping category.

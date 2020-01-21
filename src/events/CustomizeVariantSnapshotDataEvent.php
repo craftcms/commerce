@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class CustomizeVariantSnapshotDataEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Variant The variant
      */

@@ -37,9 +37,6 @@ use yii\web\Response;
  */
 class SalesController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -375,8 +372,6 @@ class SalesController extends BaseCpController
         Craft::$app->getSession()->setNotice(Plugin::t('Sales updated.'));
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param $variables

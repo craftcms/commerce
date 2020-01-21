@@ -27,9 +27,6 @@ use craft\validators\UniqueValidator;
  */
 class PaymentCurrency extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -55,8 +52,6 @@ class PaymentCurrency extends Model
      */
     private $_currency;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

@@ -41,9 +41,6 @@ use yii\web\ServerErrorHttpException;
  */
 class Emails extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event MailEvent The event that is raised before an email is sent.
      * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
@@ -101,8 +98,6 @@ class Emails extends Component
 
     const CONFIG_EMAILS_KEY = 'commerce.emails';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get an email by its ID.
@@ -767,8 +762,6 @@ class Emails extends Component
         return $emails;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Emails.
@@ -813,5 +806,4 @@ class Emails extends Component
 
         return new EmailRecord();
     }
-
 }

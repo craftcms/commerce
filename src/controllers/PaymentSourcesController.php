@@ -26,10 +26,6 @@ use yii\web\Response;
  */
 class PaymentSourcesController extends BaseFrontEndController
 {
-    // Public Methods
-    // =========================================================================
-
-
     /**
      * Adds a payment source.
      *

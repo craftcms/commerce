@@ -54,15 +54,9 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-
-    // Private properties
-    // =========================================================================
-
     private $_variantFieldLayoutId;
     private $_productFieldLayoutId;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -91,8 +85,6 @@ class Install extends Migration
         return true;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * Creates the tables for Craft Commerce
@@ -1165,8 +1157,6 @@ class Install extends Migration
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Insert default countries data.
@@ -1656,7 +1646,6 @@ class Install extends Migration
         $allSiteSettings = [];
 
         foreach ($siteIds as $siteId) {
-
             $siteSettings = new ProductTypeSiteModel();
 
             $siteSettings->siteId = $siteId;

@@ -28,9 +28,6 @@ use DateTime;
  */
 class Discount extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -203,8 +200,6 @@ class Discount extends Model
      */
     private $_userGroupIds;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -357,8 +352,6 @@ class Discount extends Model
         ];
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Loads the sale relations

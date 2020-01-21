@@ -28,9 +28,6 @@ use yii\web\Response;
  */
 class PlansController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -184,5 +181,4 @@ class PlansController extends BaseAdminController
 
         return $this->asJson(['error' => Plugin::t('Couldn’t reorder plans.')]);
     }
-
 }

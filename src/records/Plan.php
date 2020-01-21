@@ -32,9 +32,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Plan extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

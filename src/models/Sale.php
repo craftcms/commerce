@@ -28,9 +28,6 @@ use DateTime;
  */
 class Sale extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -121,8 +118,6 @@ class Sale extends Model
      */
     private $_userGroupIds;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -254,8 +249,6 @@ class Sale extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Loads the sale relations

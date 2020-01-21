@@ -26,9 +26,6 @@ use DateTime;
  */
 class Discount extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
-
     /**
      * The discount adjustment type.
      */
@@ -51,8 +48,6 @@ class Discount extends Component implements AdjusterInterface
     const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Order
@@ -69,8 +64,6 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discountTotal = 0;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -103,8 +96,6 @@ class Discount extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param DiscountModel $discount

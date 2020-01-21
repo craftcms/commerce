@@ -27,9 +27,6 @@ use craft\i18n\Locale;
  */
 class TaxRate extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -91,8 +88,6 @@ class TaxRate extends Model
      */
     private $_taxZone;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

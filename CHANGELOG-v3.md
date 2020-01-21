@@ -17,6 +17,7 @@
 - Inactive carts are now purged during garbage collection.
 - Orders now have recalculation modes to determine what should be recalculated on the order.
 - Added the `origin` order query param.
+- Added the `hasLineItems` order query param.
 - `commerce/payments/pay` JSON responses now include an `orderErrors` array if there were any errors on the order.
 - Added warnings to settings that are being overridden in the config file. ([#746](https://github.com/craftcms/commerce/issues/746))
 - Promotions can now specify which elements are the source vs. target on category relations added by the promotion. ([#984](https://github.com/craftcms/commerce/issues/984))
@@ -43,6 +44,7 @@
 - Added `craft\commerce\elements\Order::$recalculationMode`.
 - Added `craft\commerce\elements\Order::getAdjustmentsByType()`.
 - Added `craft\commerce\elements\Order::getCustomerLinkHtml()`.
+- Added `craft\commerce\elements\Order::hasLineItems()`.
 - Added `craft\commerce\models\Country::$enabled`.
 - Added `craft\commerce\models\Customer::getCpEditUrl()`.
 - Added `craft\commerce\models\Discount::$totalDiscountUseLimit`.

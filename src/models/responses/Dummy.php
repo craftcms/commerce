@@ -22,8 +22,6 @@ class Dummy implements RequestResponseInterface
 {
     private $_success = true;
 
-    // Public Methods
-    // =========================================================================
 
     public function __construct(CreditCardPaymentForm $form = null)
     {

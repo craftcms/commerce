@@ -31,14 +31,10 @@ use craft\validators\UniqueValidator;
  */
 class OrderStatus extends Model
 {
+    use SoftDeleteTrait {
+        behaviors as softDeleteBehaviors;
+    }
 
-    // Traits
-    // =========================================================================
-
-    use SoftDeleteTrait;
-
-    // Properties
-    // =========================================================================
 
     /**
      * @var int ID
@@ -85,15 +81,14 @@ class OrderStatus extends Model
      */
     public $uid;
 
-    // Public Methods
-    // =========================================================================
+
 
     /**
      * @return array
      */
     public function behaviors(): array
     {
-        $behaviors = parent::behaviors();
+        $behaviors = $this->softDeleteBehaviors();
 
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::className(),

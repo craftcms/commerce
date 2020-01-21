@@ -18,9 +18,6 @@ use craft\commerce\records\Email as EmailRecord;
  */
 class Email extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -91,8 +88,6 @@ class Email extends Model
      */
     public $uid;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

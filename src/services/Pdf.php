@@ -26,9 +26,6 @@ use yii\base\Exception;
  */
 class Pdf extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event PdfEvent The event that is triggered before a PDF is rendered
      * Event handlers can override Commerce's PDF generation by setting [[PdfEvent::pdf]] to a custom-rendered PDF.
@@ -40,8 +37,6 @@ class Pdf extends Component
      */
     const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a rendered PDF object for the order.

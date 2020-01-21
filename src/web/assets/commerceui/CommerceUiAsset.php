@@ -22,9 +22,6 @@ use craft\web\assets\vue\VueAsset;
  */
 class CommerceUiAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -54,8 +51,6 @@ class CommerceUiAsset extends AssetBundle
         parent::init();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @return string

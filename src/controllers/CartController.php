@@ -29,9 +29,6 @@ use yii\web\Response;
  */
 class CartController extends BaseFrontEndController
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Order The cart element
      */
@@ -42,8 +39,6 @@ class CartController extends BaseFrontEndController
      */
     private $_cartVariable;
 
-    // Public Methods
-    // =========================================================================
 
     public function init()
     {
@@ -116,11 +111,9 @@ class CartController extends BaseFrontEndController
 
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
-
             // Initially combine same purchasables
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
-
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
                 $note = LitEmoji::unicodeToShortcode($request->getParam("purchasables.{$key}.note", ''));
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
@@ -244,8 +237,6 @@ class CartController extends BaseFrontEndController
         return $this->_returnCart();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @return Response
@@ -259,7 +250,6 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
-
             $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {

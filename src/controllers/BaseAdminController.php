@@ -15,9 +15,6 @@ namespace craft\commerce\controllers;
  */
 class BaseAdminController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

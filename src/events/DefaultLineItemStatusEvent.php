@@ -19,9 +19,6 @@ use yii\base\Event;
  */
 class DefaultLineItemStatusEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var LineItemStatus The default line item status based on the line item
      */

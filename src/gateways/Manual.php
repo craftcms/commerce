@@ -28,9 +28,6 @@ use craft\web\Response as WebResponse;
  */
 class Manual extends Gateway
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @var bool
      */

@@ -27,9 +27,6 @@ use yii\web\Response;
  */
 class ProductTypesController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */

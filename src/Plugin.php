@@ -93,15 +93,10 @@ use GraphQL\Type\Definition\Type as GqlTypeDefinition;
  */
 class Plugin extends BasePlugin
 {
-    // Constants
-    // =========================================================================
-
     // Edition constants
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-    // Static
-    // =========================================================================
 
     public static function editions(): array
     {
@@ -125,8 +120,6 @@ class Plugin extends BasePlugin
         return Craft::t('commerce', $message, $params, $language);
     }
 
-    // Public Properties
-    // =========================================================================
 
     /**
      * @inheritDoc
@@ -148,15 +141,11 @@ class Plugin extends BasePlugin
      */
     public $minVersionRequired = '1.2.1360';
 
-    // Traits
-    // =========================================================================
 
     use CommerceServices;
     use Variables;
     use Routes;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -295,8 +284,6 @@ class Plugin extends BasePlugin
         return $ret;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -306,8 +293,6 @@ class Plugin extends BasePlugin
         return new Settings();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Register Commerce’s twig extensions
@@ -580,7 +565,6 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlQueries()
     {
-
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
             $queries = $event->queries;
@@ -600,7 +584,6 @@ class Plugin extends BasePlugin
     private function _registerGqlPermissions()
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
-
             $permissions = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -637,7 +620,6 @@ class Plugin extends BasePlugin
         }
 
         Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
-
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {

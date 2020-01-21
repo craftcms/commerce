@@ -27,9 +27,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class ShippingMethod extends BaseShippingMethod
 {
-    // Public Methods
-    // =========================================================================
-
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();

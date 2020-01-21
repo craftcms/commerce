@@ -28,9 +28,6 @@ use yii\base\Exception;
  */
 class Countries extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -56,8 +53,6 @@ class Countries extends Component
      */
     private $_countriesByShippingZoneId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a country by its ID.
@@ -286,8 +281,6 @@ class Countries extends Component
         return true;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Countries.

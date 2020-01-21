@@ -32,16 +32,11 @@ use yii\web\ServerErrorHttpException;
  */
 class ProductsPreviewController extends Controller
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     protected $allowAnonymous = true;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Previews a product.
@@ -177,8 +172,6 @@ class ProductsPreviewController extends Controller
         return $this->redirectToPostedUrl($product);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @param Product $product

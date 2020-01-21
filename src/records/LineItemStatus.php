@@ -26,9 +26,6 @@ use craft\db\ActiveRecord;
  */
 class LineItemStatus extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

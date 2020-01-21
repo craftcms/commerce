@@ -37,9 +37,6 @@ use yii\db\Expression;
  */
 class SubscriptionQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|int[] The user id of the subscriber
      */
@@ -120,8 +117,6 @@ class SubscriptionQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -706,8 +701,6 @@ class SubscriptionQuery extends ElementQuery
         return parent::status($value);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

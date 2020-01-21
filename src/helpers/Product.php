@@ -23,9 +23,6 @@ use yii\web\HttpException;
  */
 class Product
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Populates all Variant Models from HUD or POST data
      *

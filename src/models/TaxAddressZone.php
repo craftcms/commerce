@@ -31,9 +31,6 @@ use craft\validators\UniqueValidator;
  */
 class TaxAddressZone extends Model implements AddressZoneInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -75,8 +72,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     private $_states;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

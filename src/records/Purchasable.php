@@ -26,9 +26,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Purchasable extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

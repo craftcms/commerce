@@ -36,14 +36,10 @@ use function get_class;
  */
 class DiscountsController extends BaseCpController
 {
-    // Public Constants
-    // =========================================================================
     const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
     const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -287,8 +283,6 @@ class DiscountsController extends BaseCpController
         Craft::$app->getSession()->setNotice(Plugin::t('Discounts updated.'));
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param array $variables

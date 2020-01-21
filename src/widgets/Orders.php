@@ -109,8 +109,6 @@ class Orders extends Widget
         ]);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns the recent entries, based on the widget settings and user permissions.

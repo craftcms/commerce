@@ -40,9 +40,6 @@ use yii\web\Response;
  */
 class ProductsController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -178,7 +175,6 @@ class ProductsController extends BaseCpController
         $this->enforceProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
-
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['success' => false]);
             }
@@ -260,8 +256,6 @@ class ProductsController extends BaseCpController
         return $this->redirectToPostedUrl($product);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @param Product $product
@@ -273,8 +267,6 @@ class ProductsController extends BaseCpController
         $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param array $variables

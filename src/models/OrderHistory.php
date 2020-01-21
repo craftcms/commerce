@@ -25,9 +25,6 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -63,8 +60,6 @@ class OrderHistory extends Model
      */
     public $dateCreated;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Order|null

@@ -21,9 +21,6 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseShippingSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -96,7 +93,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         // Save it
         if (!Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
-
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'errors' => $shippingCategory->getErrors()

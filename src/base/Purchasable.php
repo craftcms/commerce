@@ -50,8 +50,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     private $_sales;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -241,7 +239,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function afterSave(bool $isNew)
     {
-
         $purchasable = PurchasableRecord::findOne($this->id);
 
         if (!$purchasable) {

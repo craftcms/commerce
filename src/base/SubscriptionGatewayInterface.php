@@ -26,9 +26,6 @@ use craft\elements\User;
  */
 interface SubscriptionGatewayInterface extends SavableComponentInterface
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Cancels a subscription.
      *

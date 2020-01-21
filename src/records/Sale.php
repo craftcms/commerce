@@ -37,9 +37,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Sale extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const APPLY_BY_PERCENT = 'byPercent';
     const APPLY_BY_FLAT = 'byFlat';
     const APPLY_TO_PERCENT = 'toPercent';
@@ -49,8 +46,6 @@ class Sale extends ActiveRecord
     const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
     const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -40,9 +40,6 @@ use yii\db\Connection;
  */
 class VariantQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string the SKU of the variant
      */
@@ -113,8 +110,6 @@ class VariantQuery extends ElementQuery
      */
     public $maxQty;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -399,8 +394,6 @@ class VariantQuery extends ElementQuery
     }
 
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -479,7 +472,6 @@ class VariantQuery extends ElementQuery
         }
 
         if (null !== $this->hasSales) {
-
             // We can't just clone the query as it may be modifying the select statement etc (i.e in the product query‘s hasVariant param)
             // But we want to use the same conditions so that we improve performance over searching all variants
             $query = Variant::find();

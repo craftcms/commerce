@@ -41,9 +41,6 @@ use yii\db\Expression;
  */
 class OrderQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string The order number of the resulting order.
      */
@@ -111,7 +108,7 @@ class OrderQuery extends ElementQuery
     public $isPaid;
 
     /**
-     * @var bool The payment status the resulting orders must belong to.
+     * @var bool Whether the order is unpaid
      */
     public $isUnpaid;
 
@@ -126,12 +123,15 @@ class OrderQuery extends ElementQuery
     public $hasTransactions;
 
     /**
+     * @var bool Whether the order has any line items.
+     */
+    public $hasLineItems;
+
+    /**
      * @inheritdoc
      */
     protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -788,6 +788,34 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only orders that have line items.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch orders that do or do not have line items #}
+     * {% set {elements-var} = {twig-function}
+     *     .hasLineItems()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch unpaid orders
+     * ${elements-var} = {element-class}::find()
+     *     ->hasLineItems()
+     *     ->all();
+     * ```
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     */
+    public function hasLineItems(bool $value = true)
+    {
+        $this->hasLineItems = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only carts that have at least one transaction.
      *
      * ---
@@ -835,8 +863,6 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -989,10 +1015,16 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(['in', '[[lineitems.purchasableId]]', $purchasableIds]);
         }
 
-        // Allow true ot false but not null
+        // Allow true or false but not null
         if (($this->hasTransactions !== null) && $this->hasTransactions) {
             $this->subQuery->leftJoin(Table::TRANSACTIONS . ' transactions', '[[transactions.orderId]] = [[commerce_orders.id]]');
             $this->subQuery->andWhere(['not', ['[[transactions.id]]' => null]]);
+        }
+
+        // Allow true or false but not null
+        if (($this->hasLineItems !== null) && $this->hasLineItems) {
+            $this->subQuery->leftJoin(Table::LINEITEMS . ' lineItems', '[[lineItems.orderId]] = [[commerce_orders.id]]');
+            $this->subQuery->andWhere(['not', ['[[lineItems.id]]' => null]]);
         }
 
         return parent::beforePrepare();

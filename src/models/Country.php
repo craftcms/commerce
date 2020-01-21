@@ -19,9 +19,6 @@ use craft\helpers\UrlHelper;
  */
 class Country extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -47,8 +44,6 @@ class Country extends Model
      */
     public $enabled;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

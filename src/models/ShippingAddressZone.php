@@ -30,9 +30,6 @@ use craft\validators\UniqueValidator;
  */
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -74,8 +71,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     private $_states;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

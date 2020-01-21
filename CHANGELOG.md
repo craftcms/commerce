@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## Unreleased 3.x
+
+### Fixed
+- Fixed a validation error that occurred when saving an order status.
+- Added the `hasLineItems` order query param.
+- Added `craft\commerce\elements\Order::hasLineItems()`.
+
 ## 3.0.0-RC1 - 2020-01-14
  
 ### Added
@@ -146,7 +153,10 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 
-## Unreleased
+## Unreleased 2.2.x
+
+### Fixed
+- Fixed a validation error that occurred when saving an order status.
 
 ## 2.2.14 - 2020-01-14
 

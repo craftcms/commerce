@@ -22,9 +22,6 @@ use yii\web\Response;
  */
 class OrderSettingsController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @param array $variables
      * @return Response

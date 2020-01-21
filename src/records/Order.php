@@ -64,9 +64,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

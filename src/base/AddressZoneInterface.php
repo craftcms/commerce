@@ -18,9 +18,6 @@ use craft\commerce\models\State;
  */
 interface AddressZoneInterface
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Whether this zone is based on countries only.
      *

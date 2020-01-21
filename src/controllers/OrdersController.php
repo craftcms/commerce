@@ -59,9 +59,6 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @throws HttpException
      * @throws InvalidConfigException
@@ -364,8 +361,6 @@ class OrdersController extends Controller
         ]);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param Order $order
@@ -743,7 +738,6 @@ class OrdersController extends Controller
         if (!$transaction) {
             $error = Plugin::t('Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-
                 return $this->asErrorJson($error);
             } else {
                 Craft::$app->getSession()->setError($error);
@@ -824,7 +818,6 @@ class OrdersController extends Controller
         /** @var FieldLayout $fieldLayout */
         $fieldLayout = $variables['fieldLayout'];
         foreach ($fieldLayout->getTabs() as $index => $tab) {
-
             // Do any of the fields on this tab have errors?
             $hasErrors = false;
 
@@ -1009,7 +1002,6 @@ class OrdersController extends Controller
         $adjustments = [];
 
         foreach ($orderRequestData['order']['lineItems'] as $lineItemData) {
-
             // Normalize data
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
@@ -1054,9 +1046,7 @@ class OrdersController extends Controller
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-
                 foreach ($lineItemData['adjustments'] as $adjustmentData) {
-
                     $id = $adjustmentData['id'];
 
                     $adjustment = null;
@@ -1084,9 +1074,7 @@ class OrdersController extends Controller
 
         // Only update the adjustments if the recalculation mode is none (manually updating adjustments)
         if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-
             foreach ($orderRequestData['order']['orderAdjustments'] as $adjustmentData) {
-
                 $id = $adjustmentData['id'];
 
                 $adjustment = null;

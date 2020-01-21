@@ -22,9 +22,6 @@ use UnitTester;
  */
 class OrderTest extends Unit
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var UnitTester
      */
@@ -45,11 +42,7 @@ class OrderTest extends Unit
      */
     protected $pluginInstance;
 
-    // Public Methods
-    // =========================================================================
 
-    // Tests
-    // =========================================================================
 
     /**
      *
@@ -70,8 +63,6 @@ class OrderTest extends Unit
         $this->assertEquals($this->order->totalPrice,  80);
     }
 
-    // Protected methods
-    // =========================================================================
 
     /**
      *

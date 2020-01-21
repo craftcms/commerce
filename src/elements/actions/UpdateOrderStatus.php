@@ -24,9 +24,6 @@ use craft\helpers\Json;
  */
 class UpdateOrderStatus extends ElementAction
 {
-    // Public Properties
-    // =========================================================================
-
     /**
      * @var int
      */
@@ -37,8 +34,6 @@ class UpdateOrderStatus extends ElementAction
      */
     public $message;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

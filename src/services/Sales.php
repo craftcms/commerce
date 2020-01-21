@@ -39,9 +39,6 @@ use function in_array;
  */
 class Sales extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the application of the matched sale.
@@ -72,8 +69,6 @@ class Sales extends Component
      */
     const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Sale[]
@@ -90,8 +85,6 @@ class Sales extends Component
      */
     private $_purchasableSaleMatch = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get a sale by its ID.
@@ -234,7 +227,6 @@ class Sales extends Component
         $matchedSales = [];
 
         foreach ($this->_getAllEnabledSales() as $sale) {
-
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
 
@@ -293,7 +285,6 @@ class Sales extends Component
 
         /** @var Sale $sale */
         foreach ($sales as $sale) {
-
             switch ($sale->apply) {
                 case SaleRecord::APPLY_BY_PERCENT:
                     // applyAmount is stored as a negative already
@@ -589,8 +580,6 @@ class Sales extends Component
         return false;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get all enabled sales.

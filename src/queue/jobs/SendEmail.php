@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\queue\jobs;
 
@@ -8,9 +13,6 @@ use craft\queue\BaseJob;
 
 class SendEmail extends BaseJob
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int Order ID
      */
@@ -32,8 +34,6 @@ class SendEmail extends BaseJob
     public $orderHistoryId;
 
 
-    // Public Methods
-    // =========================================================================
 
     public function execute($queue)
     {
@@ -50,8 +50,6 @@ class SendEmail extends BaseJob
         $this->setProgress($queue, 1);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     protected function defaultDescription(): string
     {

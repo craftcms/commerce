@@ -44,14 +44,11 @@ use function get_class;
  */
 class Gateways extends Component
 {
-
     /**
      * @var array|null Gateway setting overrides
      */
     private $_overrides;
 
-    // Constants
-    // =========================================================================
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered when registering gateways.
@@ -72,8 +69,6 @@ class Gateways extends Component
 
     const CONFIG_GATEWAY_KEY = 'commerce.gateways';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all registered gateway types.
@@ -363,7 +358,6 @@ class Gateways extends Component
 
         // Are they overriding any settings?
         if (!empty($config['handle']) && ($override = $this->getGatewayOverrides($config['handle'])) !== null) {
-
             // Save a reference to the original config in case the gateway type is missing
             $originalConfig = $config;
 
@@ -372,7 +366,6 @@ class Gateways extends Component
         }
 
         try {
-
             if ($config['type'] == MissingGateway::class) {
                 throw new MissingComponentException('Missing Gateway Class.');
             }
@@ -407,8 +400,6 @@ class Gateways extends Component
         return $this->_overrides[$handle] ?? null;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving gateways.

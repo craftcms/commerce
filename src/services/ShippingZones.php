@@ -30,9 +30,6 @@ use yii\caching\TagDependency;
  */
 class ShippingZones extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -43,8 +40,6 @@ class ShippingZones extends Component
      */
     private $_allShippingZones = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all shipping zones.
@@ -205,8 +200,6 @@ class ShippingZones extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving shipping zones.
