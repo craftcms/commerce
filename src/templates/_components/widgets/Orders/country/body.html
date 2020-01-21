@@ -11,19 +11,9 @@
                 datasets: [
                     {
                         label: Craft.t('commerce', 'Order count'),
-                        data: {{ totalOrders|json_encode|raw }},
-                        backgroundColor: Craft.Commerce.ChartColors.bgColors(),
-                        borderColor: Craft.Commerce.ChartColors.borderColors(),
-                        borderWidth: 1
+                        data: {{ totalOrders|json_encode|raw }}
                     }
                 ]
-            },
-            options: {
-                cutoutPercentage: 33,
-                rotation: 10,
-                legend: {
-                    position: 'bottom'
-                }
             }
         }
     });

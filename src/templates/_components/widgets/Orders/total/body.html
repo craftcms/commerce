@@ -8,7 +8,7 @@
 </div>
 
 {% if showChart is defined and showChart %}
-    <div class="commerce-widget-linechart-wrapper commerce-widget-linechart-wrapper--no-x-axis">
+    <div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-wrapper--no-x-axis">
         <canvas id="{{ namespaceId }}" height="75"></canvas>
     </div>
 
@@ -22,10 +22,7 @@
                         {
                             label: Craft.t('commerce', 'Order count'),
                             yAxisID: 'count',
-                            data: {{ data|json_encode|raw }},
-                            backgroundColor: Craft.Commerce.ChartColors.blue.bg,
-                            borderColor: Craft.Commerce.ChartColors.blue.border,
-                            borderWidth: 1
+                            data: {{ data|json_encode|raw }}
                         }
                     ]
                 },

@@ -3,11 +3,12 @@
     'Order count',
 ]) %}
 <div class="commerce-widget-linechart-wrapper">
-    <canvas id="{{ namespaceId }}" height="250"></canvas>
+    <canvas id="{{ namespaceId }}"></canvas>
 </div>
 {% js %}
     var revChart = new Craft.Commerce.Chart('{{ namespaceId }}', {
         chart: {
+
             type: 'line',
             data: {
                 labels: {{ labels|json_encode|raw }},
@@ -15,18 +16,12 @@
                     {
                         label: Craft.t('commerce', 'Order count'),
                         yAxisID: 'count',
-                        data: {{ orderCount|json_encode|raw }},
-                        backgroundColor: Craft.Commerce.ChartColors.yellow.bg,
-                        borderColor: Craft.Commerce.ChartColors.yellow.border,
-                        borderWidth: 1
+                        data: {{ orderCount|json_encode|raw }}
                     },
                     {
                         label: Craft.t('commerce', 'Revenue'),
                         yAxisID: 'revenue',
-                        data: {{ revenue|json_encode|raw }},
-                        backgroundColor: Craft.Commerce.ChartColors.red.bg,
-                        borderColor: Craft.Commerce.ChartColors.red.border,
-                        borderWidth: 1
+                        data: {{ revenue|json_encode|raw }}
                     }
                 ]
             },
@@ -35,14 +30,13 @@
                     yAxes: [{
                         id: 'revenue',
                         gridLines: {
+                            color: Craft.Commerce.ChartColors.gridLines,
                             drawBorder: false,
-                            drawTicks: true,
-                            color: Craft.Commerce.ChartColors.gridLines
+                            drawTicks: false
                         },
                         ticks: {
                             beginAtZero: true,
-                            labelOffset: -4,
-                            mirror: true
+                            padding: 8
                         },
                         position: 'left'
                     },
@@ -55,7 +49,11 @@
                         }
                     }],
                     xAxes: [{
-                        display: false
+                        autoSkipPadding: 4,
+                        gridLines: {
+                            display: false
+                        },
+                        offset: false
                     }]
                 }
             }
