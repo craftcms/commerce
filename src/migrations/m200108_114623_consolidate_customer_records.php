@@ -31,20 +31,15 @@ class m200108_114623_consolidate_customer_records extends Migration
             ->from('{{%commerce_orders}}')
             ->where(['isCompleted' => true])
             ->groupBy('[[email]]')
+            ->having(new Expression('COUNT(DISTINCT [[customerId]]) > 1'))
             ->orderBy(new Expression('COUNT(DISTINCT [[customerId]]) DESC'))
             ->all();
 
         if (!empty($customers)) {
-            $consolidateCustomers = array_filter($customers, static function($customer){
-                return $customer['customerIdCount'] > 1;
-            });
-
-            if (!empty($consolidateCustomers)) {
-                foreach ($consolidateCustomers as $consolidateCustomer) {
-                    Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-                        'emails' => [$consolidateCustomer['email']]
-                    ]));
-                }
+            foreach ($customers as $customer) {
+                Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+                    'emails' => [$customer['email']]
+                ]));
             }
         }
     }
