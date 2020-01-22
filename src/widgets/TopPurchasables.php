@@ -48,6 +48,11 @@ class TopPurchasables extends Widget
     public $type;
 
     /**
+     * @var string options 'description', 'sku'.
+     */
+    public $nameField;
+
+    /**
      * @var TopProductsStat
      */
     private $_stat;
@@ -63,10 +68,22 @@ class TopPurchasables extends Widget
     private $_typeOptions;
 
     /**
+     * @var array
+     */
+    private $_nameFieldOptions;
+
+    /**
      * @inheritDoc
      */
     public function init()
     {
+        $this->nameField = $this->nameField ?: 'description';
+
+        $this->_nameFieldOptions = [
+            'description' => Plugin::t('Description'),
+            'sku' => Plugin::t('SKU'),
+        ];
+
         $this->_typeOptions = [
             'qty' => Plugin::t('Qty'),
             'revenue' => Plugin::t('Revenue'),
@@ -155,6 +172,7 @@ class TopPurchasables extends Widget
         return $view->renderTemplate('commerce/_components/widgets/purchasables/top/body', [
             'stats' => $stats,
             'type' => $this->type,
+            'nameField' => $this->nameField,
             'typeLabel' => $this->_typeOptions[$this->type] ?? '',
             'id' => 'top-purchasables' . StringHelper::randomString(),
         ]);
@@ -173,6 +191,7 @@ class TopPurchasables extends Widget
             'namespaceId' => $namespaceId,
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
+            'nameFieldOptions' => $this->_nameFieldOptions,
         ]);
     }
 }

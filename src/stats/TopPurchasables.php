@@ -60,12 +60,13 @@ class TopPurchasables extends Stat
             ->select([
                 '[[li.purchasableId]]',
                 '[[p.description]]',
+                '[[p.sku]]',
                 $selectTotalQty,
                 $selectTotalRevenue
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
-            ->groupBy('[[li.purchasableId]]')
+            ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);
 
