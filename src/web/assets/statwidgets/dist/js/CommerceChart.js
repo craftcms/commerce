@@ -95,8 +95,7 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                 cutoutPercentage: 60,
                 legend: {
                     position: 'bottom'
-                },
-                rotation: 10
+                }
             }
         }
     },
@@ -117,7 +116,7 @@ Craft.Commerce.Chart = Garnish.Base.extend({
             borderWidth: 2,
             pointRadius: 0,
             pointHitRadius: 4,
-            lineTension: 0
+            lineTension: 0.3
         }
     },
 
