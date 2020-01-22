@@ -10,13 +10,13 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\Plugin;
-use craft\commerce\stats\RepeatingCustomers as RepeatingCustomersStat;
+use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 
 /**
- * Repeating Customers widget
+ * Repeat Customers widget
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
@@ -24,7 +24,7 @@ use craft\helpers\StringHelper;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class RepeatingCustomers extends Widget
+class RepeatCustomers extends Widget
 {
     /**
      * @var int|\DateTime|null
@@ -104,7 +104,7 @@ class RepeatingCustomers extends Widget
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
-        return $view->renderTemplate('commerce/_components/widgets/customers/repeating/body', compact('numbers', 'timeFrame'));
+        return $view->renderTemplate('commerce/_components/widgets/customers/repeat/body', compact('numbers', 'timeFrame'));
     }
 
     /**
@@ -120,10 +120,10 @@ class RepeatingCustomers extends Widget
      */
     public function getSettingsHtml(): string
     {
-        $id = 'repeating' . StringHelper::randomString();
+        $id = 'repeat' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/customers/repeating/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/customers/repeat/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
