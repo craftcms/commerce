@@ -68,8 +68,9 @@ class TopProducts extends Stat
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
             ->leftJoin(CraftTable::CONTENT . ' content', '[[content.elementId]] = [[v.productId]]')
-            ->groupBy('[[v.productId]]')
+            ->groupBy('[[v.productId]], [[content.title]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
+            ->andWhere(['not', ['[[v.productId]]' => null]])
             ->limit($this->limit);
 
         return $topProducts->all();
