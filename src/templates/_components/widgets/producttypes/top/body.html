@@ -14,7 +14,7 @@
 {% js %}
 var columns = [
     { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Name')) },
-    { name: '{{ type }}', title: Craft.escapeHtml('{{ typeLabel }}') }
+    { name: '{{ type }}', title: '{{ typeLabel|e }}' }
 ];
 
 new Craft.VueAdminTable({

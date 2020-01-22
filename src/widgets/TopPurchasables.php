@@ -173,6 +173,7 @@ class TopPurchasables extends Widget
             'stats' => $stats,
             'type' => $this->type,
             'nameField' => $this->nameField,
+            'nameFieldLabel' => $this->_nameFieldOptions[$this->nameField] ?? '',
             'typeLabel' => $this->_typeOptions[$this->type] ?? '',
             'id' => 'top-purchasables' . StringHelper::randomString(),
         ]);
