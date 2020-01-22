@@ -116,7 +116,7 @@ class TotalRevenue extends Widget
 
         $labels = array_keys($stats);
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
-        $orderCount = ArrayHelper::getColumn($stats, 'orderCount', false);
+        $orderCount = ArrayHelper::getColumn($stats, 'count', false);
 
         return $view->renderTemplate('commerce/_components/widgets/Orders/revenue/body',
             compact(

@@ -29,11 +29,12 @@ class TotalOrders extends Stat
     public function getData()
     {
         $query = $this->_createStatQuery();
-        $query->select([new Expression('COUNT([[id]]) as totalOrders')]);
+        $query->select([new Expression('COUNT([[id]]) as total')]);
+
         $chartData = $this->_createChartQuery([
-            new Expression('COUNT([[id]]) as totalOrders'),
+            new Expression('COUNT([[id]]) as total'),
         ], [
-            'totalOrders' => 0,
+            'total' => 0,
         ]);
 
         return [

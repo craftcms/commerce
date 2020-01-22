@@ -347,6 +347,59 @@ abstract class Stat implements StatInterface
     }
 
     /**
+     * @param string $interval
+     * @return array|null
+     */
+    public function getChartQueryOptionsByInterval(string $interval)
+    {
+        switch ($interval) {
+            case 'month':
+            {
+                return [
+                    'interval' => 'P1M',
+                    'dateKeyFormat' => 'nY',
+                    'dateLabel' => 'CONCAT(EXTRACT(MONTH FROM [[dateOrdered]]), EXTRACT(YEAR FROM [[dateOrdered]]))',
+                    'groupBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]), EXTRACT(MONTH FROM [[dateOrdered]])',
+                    'orderBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]) ASC, EXTRACT(MONTH FROM [[dateOrdered]]) ASC',
+                ];
+                break;
+            }
+            case 'week':
+            {
+                $return = [
+                    'interval' => 'P1W',
+                    'dateKeyFormat' => 'oW',
+                    'dateLabel' => 'YEARWEEK([[dateOrdered]], 3)',
+                    'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
+                    'orderBy' => 'YEARWEEK([[dateOrdered]], 3) ASC',
+                ];
+
+                if (Craft::$app->getDb()->getIsPgsql()) {
+                    $return['dateLabel'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
+                    $return['groupBy'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
+                    $return['orderBy'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
+                }
+
+                return $return;
+                break;
+            }
+            case 'day':
+            {
+                return [
+                    'interval' => 'P1D',
+                    'dateKeyFormat' => 'Y-m-d',
+                    'dateLabel' => 'DATE([[dateOrdered]])',
+                    'groupBy' => 'DATE([[dateOrdered]])',
+                    'orderBy' => 'DATE([[dateOrdered]])',
+                ];
+                break;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Generate base stat query
      *
      * @return \yii\db\Query
@@ -373,7 +426,8 @@ abstract class Stat implements StatInterface
         $query = $query ?: $this->_createStatQuery();
 
         $defaults = [];
-        $options = self::CHART_QUERY_OPTIONS[$this->dateRange] ?? null;
+        $dateRangeInterval = self::DATE_RANGE_INTERVAL[$this->dateRange] ?? null;
+        $options = $this->getChartQueryOptionsByInterval($dateRangeInterval);
 
         if ($this->dateRange != self::DATE_RANGE_CUSTOM && !$options) {
             return null;
@@ -402,7 +456,7 @@ abstract class Stat implements StatInterface
         $results = $query
             ->select($select)
             ->groupBy(new Expression($options['groupBy']))
-            ->orderBy('dateOrdered ASC')
+            ->orderBy(new Expression($options['orderBy']))
             ->indexBy('date')
             ->all();
 
@@ -415,13 +469,13 @@ abstract class Stat implements StatInterface
      */
     private function _getCustomDateChartQueryOptions(int $days) {
         if ($days > 90) {
-            return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_PASTYEAR];
+            return $this->getChartQueryOptionsByInterval('month');
         }
 
         if ($days > 27) {
-            return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_PAST90DAYS];
+            return $this->getChartQueryOptionsByInterval('week');
         }
 
-        return self::CHART_QUERY_OPTIONS[self::DATE_RANGE_TODAY];
+        return $this->getChartQueryOptionsByInterval('day');
     }
 }

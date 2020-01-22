@@ -106,8 +106,8 @@ class TotalOrders extends Widget
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
-        $labels = array_values(ArrayHelper::getColumn($chart, 'date'));
-        $data = array_values(ArrayHelper::getColumn($chart, 'totalOrders'));
+        $labels = ArrayHelper::getColumn($chart, 'date', false);
+        $data = ArrayHelper::getColumn($chart, 'total', false);
 
         $timeFrame = $this->_stat->getDateRangeWording();
         $number = Craft::$app->getFormatter()->asInteger($number);

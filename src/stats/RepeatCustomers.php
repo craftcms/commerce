@@ -12,12 +12,12 @@ use craft\helpers\ArrayHelper;
 use yii\db\Expression;
 
 /**
- * Repeating Customers Stat
+ * Repeat Customers Stat
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-class RepeatingCustomers extends Stat
+class RepeatCustomers extends Stat
 {
     /**
      * @inheritdoc

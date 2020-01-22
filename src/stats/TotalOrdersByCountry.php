@@ -31,10 +31,8 @@ class TotalOrdersByCountry extends Stat
      */
     public $type = 'shipping';
 
-    /**
-     * @var int
-     */
-    public $limit = 3;
+    public $limit = 5;
+
     /**
      * @inheritDoc
      */
@@ -54,46 +52,43 @@ class TotalOrdersByCountry extends Stat
     {
         $query = $this->_createStatQuery();
         $query->select([
-            new Expression('COUNT([[orders.id]]) as totalOrders'),
-            '[[sc.id]] as shippingCountryId',
-            '[[bc.id]] as billingCountryId',
+            new Expression('COUNT([[orders.id]]) as total'),
+            ($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') . ' as id',
             ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]' ) . ' as name',
         ]);
         $query->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
         $query->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');
         $query->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]');
         $query->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]');
-        $query->andWhere(['not', ['[[bc.id]]' => null]]);
-        $query->andWhere(['not', ['[[sc.id]]' => null]]);
 
         if ($this->type == 'billing') {
+            $query->andWhere(['not', ['[[bc.id]]' => null]]);
             $query->groupBy('[[bc.id]]');
         } else {
+            $query->andWhere(['not', ['[[sc.id]]' => null]]);
             $query->groupBy('[[sc.id]]');
         }
 
         $query->orderBy(new Expression('COUNT([[orders.id]]) DESC'));
         $query->limit($this->limit);
-
         $rows = $query->all();
 
         if (count($rows) < $this->limit) {
             return $rows;
         }
 
-        $countryIds = ArrayHelper::getColumn($rows, ($this->type == 'billing' ? 'billingCountryId' : 'shippingCountryId'));
+        $countryIds = ArrayHelper::getColumn($rows, 'id', false);
 
         $otherCountries = $this->_createStatQuery()
             ->select([
-                new Expression('COUNT([[orders.id]]) as totalOrders'),
-                new Expression('NULL as shippingCountryId'),
-                new Expression('NULL as billingCountryId'),
+                new Expression('COUNT([[orders.id]]) as total'),
+                new Expression('NULL as id'),
             ])
             ->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')
             ->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]')
             ->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]')
-            ->andWhere(['not', [($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') => array_values($countryIds)]])
+            ->andWhere(['not', [($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') => $countryIds]])
             ->one();
 
         if (!$otherCountries || empty($otherCountries)) {
@@ -121,15 +116,10 @@ class TotalOrdersByCountry extends Stat
     {
         if (!empty($data)) {
             foreach ($data as &$row) {
-                $row['billingCountry'] = null;
-                $row['shippingCountry'] = null;
+                $row['country'] = null;
 
-                if ($row['billingCountryId']) {
-                    $row['billingCountry'] = Plugin::getInstance()->getCountries()->getCountryById($row['billingCountryId']);
-                }
-
-                if ($row['shippingCountryId']) {
-                    $row['shippingCountry'] = Plugin::getInstance()->getCountries()->getCountryById($row['shippingCountryId']);
+                if ($row['id']) {
+                    $row['country'] = Plugin::getInstance()->getCountries()->getCountryById($row['id']);
                 }
             }
         }

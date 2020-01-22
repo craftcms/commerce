@@ -45,61 +45,16 @@ interface StatInterface
         6 => 'Friday',
     ];
 
-    public const CHART_QUERY_OPTIONS = [
-        self::DATE_RANGE_TODAY => [
-            'interval' => 'P1D',
-            'dateKeyFormat' => 'Y-m-d',
-            'dateLabel' => 'DATE([[dateOrdered]])',
-            'groupBy' => 'DATE([[dateOrdered]])',
-        ],
-        self::DATE_RANGE_THISWEEK => [
-            'interval' => 'P1D',
-            'dateKeyFormat' => 'Y-m-d',
-            'dateLabel' => 'DATE([[dateOrdered]])',
-            'groupBy' => 'DATE([[dateOrdered]])',
-        ],
-        self::DATE_RANGE_THISMONTH => [
-            'interval' => 'P1W',
-            'dateKeyFormat' => 'oW',
-            'dateLabel' => 'YEARWEEK([[dateOrdered]], 3)',
-            'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
-        ],
-        self::DATE_RANGE_THISYEAR => [
-            'interval' => 'P1M',
-            'dateKeyFormat' => 'n Y',
-            'dateLabel' => 'CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]]))',
-            'groupBy' => 'YEAR([[dateOrdered]]), MONTH([[dateOrdered]])',
-        ],
-        self::DATE_RANGE_PAST7DAYS => [
-            'interval' => 'P1D',
-            'dateKeyFormat' => 'Y-m-d',
-            'dateLabel' => 'DATE([[dateOrdered]])',
-            'groupBy' => 'DATE([[dateOrdered]])',
-        ],
-        self::DATE_RANGE_PAST30DAYS => [
-            'interval' => 'P1W',
-            'dateKeyFormat' => 'oW',
-            'dateLabel' => 'YEARWEEK([[dateOrdered]], 3)',
-            'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
-        ],
-        self::DATE_RANGE_PAST90DAYS => [
-            'interval' => 'P1W',
-            'dateKeyFormat' => 'oW',
-            'dateLabel' => 'YEARWEEK([[dateOrdered]], 3)',
-            'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
-            ],
-        self::DATE_RANGE_PASTYEAR => [
-            'interval' => 'P1M',
-            'dateKeyFormat' => 'n Y',
-            'dateLabel' => 'CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]]))',
-            'groupBy' => 'YEAR([[dateOrdered]]), MONTH([[dateOrdered]])',
-        ],
-        self::DATE_RANGE_ALL => [
-            'interval' => 'P1M',
-            'dateKeyFormat' => 'n Y',
-            'dateLabel' => 'CONCAT(MONTH([[dateOrdered]]), " ", YEAR([[dateOrdered]]))',
-            'groupBy' => 'YEAR([[dateOrdered]]), MONTH([[dateOrdered]])',
-        ],
+    public const DATE_RANGE_INTERVAL = [
+        self::DATE_RANGE_TODAY => 'day',
+        self::DATE_RANGE_THISWEEK => 'day',
+        self::DATE_RANGE_THISMONTH => 'week',
+        self::DATE_RANGE_THISYEAR => 'month',
+        self::DATE_RANGE_PAST7DAYS => 'day',
+        self::DATE_RANGE_PAST30DAYS => 'week',
+        self::DATE_RANGE_PAST90DAYS => 'week',
+        self::DATE_RANGE_PASTYEAR => 'month',
+        self::DATE_RANGE_ALL => 'month',
     ];
 
     /**

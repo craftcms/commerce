@@ -43,9 +43,24 @@ class TotalOrdersByCountry extends Widget
     public $dateRange;
 
     /**
+     * @var string Options 'billing', 'shippinh'.
+     */
+    public $type;
+
+    /**
      * @var TotalOrdersByCountryStat
      */
     private $_stat;
+
+    /**
+     * @var string
+     */
+    private $_title;
+
+    /**
+     * @var array
+     */
+    private $_typeOptions;
 
     /**
      * @inheritDoc
@@ -53,15 +68,40 @@ class TotalOrdersByCountry extends Widget
     public function init()
     {
         parent::init();
+
+        $this->_typeOptions = [
+            'billing' => Plugin::t('Billing'),
+            'shipping' => Plugin::t('Shipping'),
+        ];
+
+        if ($this->type == 'billing') {
+            $this->_title = Plugin::t('Total Orders by Billing Country');
+        } else {
+            $this->_title = Plugin::t('Total Order by Shipping Country');
+            $this->type = 'shipping';
+        }
+
         $this->dateRange = !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersByCountryStat(
             $this->dateRange,
+            $this->type,
             DateTimeHelper::toDateTime($this->startDate),
             DateTimeHelper::toDateTime($this->endDate)
         );
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getTitle(): string
+    {
+        return $this->_title;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getSubtitle()
     {
         return $this->_stat->getDateRangeWording();
@@ -109,8 +149,8 @@ class TotalOrdersByCountry extends Widget
             return '';
         }
 
-        $labels = array_values(ArrayHelper::getColumn($stats, 'name'));
-        $totalOrders = array_values(ArrayHelper::getColumn($stats, 'totalOrders'));
+        $labels = ArrayHelper::getColumn($stats, 'name', false);
+        $totalOrders = ArrayHelper::getColumn($stats, 'total', false);
 
         return $view->renderTemplate('commerce/_components/widgets/Orders/country/body',
             compact(
@@ -134,6 +174,7 @@ class TotalOrdersByCountry extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
+            'typeOptions' => $this->_typeOptions
         ]);
     }
 }
