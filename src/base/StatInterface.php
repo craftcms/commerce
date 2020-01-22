@@ -98,7 +98,7 @@ interface StatInterface
      * @param $data
      * @return mixed
      */
-    public function processData($data);
+    public function prepareData($data);
 
     /**
      * @return string

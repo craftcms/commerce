@@ -88,7 +88,7 @@ class TopProductTypes extends Stat
     /**
      * @inheritDoc
      */
-    public function processData($data)
+    public function prepareData($data)
     {
         if (!empty($data)) {
             foreach ($data as &$row) {

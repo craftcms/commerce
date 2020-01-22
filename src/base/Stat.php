@@ -68,7 +68,7 @@ abstract class Stat implements StatInterface
 
         if (!$this->cache) {
             $data = $this->getData();
-            return $this->processData($data);
+            return $this->prepareData($data);
         }
 
         $this->_cacheKey = $this->_getCacheKey();
@@ -84,13 +84,13 @@ abstract class Stat implements StatInterface
             Craft::$app->getCache()->set($this->_cacheKey, $data, $this->cacheDuration);
         }
 
-        return $this->processData($data);
+        return $this->prepareData($data);
     }
 
     /**
      * @inheritDoc
      */
-    public function processData($data)
+    public function prepareData($data)
     {
         return $data;
     }

@@ -82,7 +82,7 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function processData($data)
+    public function prepareData($data)
     {
         foreach ($data as &$topCustomer) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
