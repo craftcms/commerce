@@ -30,6 +30,7 @@ class RepeatingCustomers extends Stat
     public function getData()
     {
         $total = (int)$this->_createStatQuery()
+            ->select(['customerId'])
             ->groupBy('customerId')
             ->count();
 
@@ -38,9 +39,12 @@ class RepeatingCustomers extends Stat
             ->groupBy('customerId')
             ->column();
 
-        $repeat = (int)count(ArrayHelper::removeValue($repeatRows, '1'));
 
-        $percentage = $total ? ($repeat / $total) * 100 : 0;
+        $repeat = (int)count(array_filter($repeatRows, static function($row) {
+            return $row > 1;
+        }));
+
+        $percentage = round($total ? ($repeat / $total) * 100 : 0, 0);
 
         return compact('total', 'repeat', 'percentage');
     }
