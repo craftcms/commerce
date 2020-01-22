@@ -10,7 +10,7 @@ var assetsPath = './src/web/assets/';
 var libPath = './lib/';
 
 var jsDeps = [
-    { srcGlob: 'node_modules/chart.js/dist/Chart.js', dest: libPath + 'chart-js' },
+    { srcGlob: 'node_modules/chart.js/dist/Chart.bundle.min.js', dest: libPath + 'chart-js' },
     { srcGlob: 'node_modules/deepmerge/dist/umd.js', dest: libPath + 'deepmerge' },
 ];
 
@@ -43,7 +43,7 @@ function libDeps() {
             gulp.src(dep.srcGlob)
                 //.pipe(gulp.dest(dest))
                 .pipe(sourcemaps.init())
-                .pipe(uglify())
+                // .pipe(uglify())
                 //.pipe(rename({ suffix: '.min' }))
                 .pipe(sourcemaps.write('./'))
                 .pipe(gulp.dest(dep.dest))

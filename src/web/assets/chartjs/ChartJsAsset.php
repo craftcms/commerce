@@ -25,9 +25,9 @@ class ChartJsAsset extends AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = '@commerceLib/chart-js';
+        $this->sourcePath = '@commerceLib';
 
-        $this->js[] = 'Chart.js';
+        $this->js[] = 'chart-js/Chart.bundle.min.js';
 
         parent::init();
     }
