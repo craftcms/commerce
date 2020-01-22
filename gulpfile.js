@@ -14,6 +14,13 @@ var jsDeps = [
     { srcGlob: 'node_modules/deepmerge/dist/umd.js', dest: libPath + 'deepmerge' },
 ];
 
+function commerceStatsSass () {
+    return gulp.src(assetsPath+'statwidgets/src/scss/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(concat('statwidgets.css'))
+        .pipe(gulp.dest(assetsPath+'statwidgets/dist/css'));
+};
+
 function commerceSass () {
     return gulp.src(assetsPath+'commercecp/src/scss/**/*.scss')
         .pipe(sass().on('error', sass.logError))
@@ -49,10 +56,11 @@ function libDeps() {
 
 exports.default = function(done) {
     libDeps();
-    gulp.series(commerceJs, commerceSass)(done);
+    gulp.series(commerceJs, commerceSass, commerceStatsSass)(done);
 }
 
 exports.watch = function() {
     gulp.watch(assetsPath+'commercecp/src/scss/**/*.scss', commerceSass);
+    gulp.watch(assetsPath+'statwidgets/src/scss/**/*.scss', commerceStatsSass);
     gulp.watch(assetsPath+'commercecp/src/**/*.js', commerceJs);
 }
