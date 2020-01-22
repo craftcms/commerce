@@ -128,10 +128,10 @@ Craft.Commerce.Chart = Garnish.Base.extend({
             borderWidth: 0
         },
         line: {
-            borderWidth: 2,
-            pointRadius: 0,
+            borderWidth: 3,
+            pointRadius: 2,
             pointHitRadius: 4,
-            lineTension: 0.3
+            lineTension: 0
         }
     },
 
