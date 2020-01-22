@@ -14,12 +14,12 @@
                 labels: {{ labels|json_encode|raw }},
                 datasets: [
                     {
-                        label: Craft.t('commerce', 'Order count'),
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
                         yAxisID: 'count',
                         data: {{ orderCount|json_encode|raw }}
                     },
                     {
-                        label: Craft.t('commerce', 'Revenue'),
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Revenue')),
                         yAxisID: 'revenue',
                         data: {{ revenue|json_encode|raw }}
                     }

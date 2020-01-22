@@ -1,4 +1,6 @@
-{% do view.registerTranslations('commerce', []) %}
+{% do view.registerTranslations('commerce', [
+    'Order count'
+]) %}
 <div>
     <canvas id="{{ namespaceId }}" height="250"></canvas>
 </div>
@@ -10,7 +12,7 @@
                 labels: {{ labels|json_encode|raw }},
                 datasets: [
                     {
-                        label: Craft.t('commerce', 'Order count'),
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
                         data: {{ totalOrders|json_encode|raw }}
                     }
                 ]

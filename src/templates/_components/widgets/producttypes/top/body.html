@@ -5,7 +5,7 @@
 {% set tableData = [] %}
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
-    title: stat.productType ? stat.productType.name : stat.name,
+    title: (stat.productType ? stat.productType.name : stat.name)|e,
     qty: stat.qty,
     revenue: stat.revenue|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}
@@ -13,8 +13,8 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
-    { name: '{{ type }}', title: '{{ typeLabel }}' }
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Name')) },
+    { name: '{{ type }}', title: Craft.escapeHtml('{{ typeLabel }}') }
 ];
 
 new Craft.VueAdminTable({

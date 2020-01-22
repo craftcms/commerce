@@ -5,7 +5,7 @@
 {% set tableData = [] %}
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
-    title: stat.email,
+    title: stat.email|e,
     url: cpUrl('commerce/customers/' ~ stat.customerId),
     total: stat.total|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
     average: stat.average|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
@@ -14,8 +14,8 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Email') },
-    { name: '{{ type }}', title: '{{ typeLabel }}' }
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Email')) },
+    { name: '{{ type }}', title: Craft.escapeHtml('{{ typeLabel }}') }
 ];
 
 new Craft.VueAdminTable({

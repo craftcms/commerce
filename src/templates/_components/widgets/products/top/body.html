@@ -5,7 +5,7 @@
 {% set tableData = [] %}
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
-    title: stat.product ? stat.product.title : stat.title,
+    title: (stat.product ? stat.product.title : stat.title)|e,
     url: stat.product ? stat.product.cpEditUrl : null,
     qty: stat.qty,
     status: stat.product ? stat.product.enabled : null,
@@ -15,8 +15,8 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
-    { name: '{{ type }}', title: '{{ typeLabel }}' }
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Name')) },
+    { name: '{{ type }}', title: Craft.escapeHtml('{{ typeLabel }}') }
 ];
 
 new Craft.VueAdminTable({
