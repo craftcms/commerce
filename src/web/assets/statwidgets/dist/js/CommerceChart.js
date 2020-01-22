@@ -31,6 +31,10 @@ Craft.Commerce.ChartColors = {
         bg: 'rgba(128, 90, 213, 0.1)',
         border: '#805AD5'
     },
+    grey: {
+        bg: 'rgb(160, 174, 192, 0.1)',
+        border: '#A0AEC0'
+    },
 
     gridLines: 'rgba(155, 155, 155, 0.1)',
     text: 'hsl(209, 18%, 30%)',
@@ -54,6 +58,17 @@ Craft.Commerce.ChartColors = {
             this.green.border,
             this.purple.border,
             this.cyan.border
+        ];
+    },
+
+    doughnutColors: function() {
+        return [
+            this.blue.border,
+            this.red.border,
+            this.orange.border,
+            this.green.border,
+            this.purple.border,
+            this.grey.border
         ];
     }
 };
@@ -108,8 +123,8 @@ Craft.Commerce.Chart = Garnish.Base.extend({
 
         },
         doughnut: {
-            backgroundColor: Craft.Commerce.ChartColors.borderColors(),
-            borderColor: Craft.Commerce.ChartColors.borderColors(),
+            backgroundColor: Craft.Commerce.ChartColors.doughnutColors(),
+            borderColor: Craft.Commerce.ChartColors.doughnutColors(),
             borderWidth: 0
         },
         line: {
