@@ -95,7 +95,88 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                     backgroundColor: '#fff',
                     borderColor: Craft.Commerce.ChartColors.gridLines,
                     borderWidth: 1,
-                    titleFontColor: Craft.Commerce.ChartColors.text
+                    caretPadding: 6,
+                    caretSize: 0,
+                    mode: 'index',
+                    titleFontColor: Craft.Commerce.ChartColors.text,
+
+                    enabled: false,
+                    custom: function(tooltipModel) {
+                        // Tooltip Element
+                        var tooltipEl = document.getElementById('chartjs-tooltip');
+
+                        // Create element on first render
+                        if (!tooltipEl) {
+                            tooltipEl = document.createElement('div');
+                            tooltipEl.id = 'chartjs-tooltip';
+                            tooltipEl.innerHTML = '<div class="chartjs-tooltip-container"></div>';
+                            document.body.appendChild(tooltipEl);
+                        }
+
+                        tooltipEl.classList.add('commerce-widget-chart-tooltip');
+
+                        // Hide if no tooltip
+                        if (tooltipModel.opacity === 0) {
+                            tooltipEl.style.opacity = 0;
+                            return;
+                        }
+
+                        // Set caret Position
+                        tooltipEl.classList.remove('above', 'below', 'no-transform');
+                        if (tooltipModel.yAlign) {
+                            tooltipEl.classList.add(tooltipModel.yAlign);
+                        } else {
+                            tooltipEl.classList.add('no-transform');
+                        }
+
+                        function getBody(bodyItem) {
+                            return bodyItem.lines;
+                        }
+
+                        // Set Text
+                        if (tooltipModel.body) {
+                            var titleLines = tooltipModel.title || [];
+                            var bodyLines = tooltipModel.body.map(getBody);
+
+                            var innerHtml = '<div>';
+
+                            titleLines.forEach(function(title) {
+                                innerHtml += '<h3>' + title + '</h3>';
+                            });
+
+                            bodyLines.forEach(function(body, i) {
+                                if (body.length) {
+                                    var bodyParts = body[0].split(': ');
+                                    if (bodyParts.length) {
+                                        body = bodyParts[(bodyParts.length - 1)];
+                                    }
+                                }
+
+                                var colors = tooltipModel.labelColors[i];
+                                var style = 'background:' + colors.backgroundColor;
+                                style += '; border-color:' + colors.borderColor;
+                                var span = '<span class="legend-dot" style="' + style + '"></span>';
+                                innerHtml += '<div class="commerce-widget-chart-tooltip-items">' + span + '<span>' + body + '</span>' + '</div>';
+                            });
+                            innerHtml += '</div>';
+
+                            var tableRoot = tooltipEl.querySelector('.chartjs-tooltip-container');
+                            tableRoot.innerHTML = innerHtml;
+                        }
+
+                        // `this` will be the overall tooltip
+                        var position = this._chart.canvas.getBoundingClientRect();
+
+                        // Display, position, and set styles for font
+                        tooltipEl.style.opacity = 1;
+                        tooltipEl.style.position = 'absolute';
+                        tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
+                        tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
+                        tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+                        tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+                        tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+                        tooltipEl.style.pointerEvents = 'none';
+                    }
                 }
             }
         },

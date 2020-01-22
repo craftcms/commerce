@@ -36,7 +36,7 @@ class StatWidgetsAsset extends AssetBundle
         ];
 
         $this->js[] = 'js/CommerceChart.js';
-        $this->css[] = 'css/stat-widgets.css';
+        $this->css[] = 'css/statwidgets.css';
 
         parent::init();
     }
