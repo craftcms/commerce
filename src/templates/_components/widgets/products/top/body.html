@@ -9,7 +9,7 @@
     url: stat.product ? stat.product.cpEditUrl : null,
     qty: stat.qty,
     status: stat.product ? stat.product.enabled : null,
-    revenue: stat.revenue|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
+    revenue: stat.revenue|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}
 {% endfor %}
 

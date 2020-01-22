@@ -7,8 +7,8 @@
   {% set tableData = tableData|merge([{
     title: stat.email,
     url: cpUrl('commerce/customers/' ~ stat.customerId),
-    total: stat.total|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
-    average: stat.average|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
+    total: stat.total|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
+    average: stat.average|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}
 {% endfor %}
 

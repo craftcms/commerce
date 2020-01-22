@@ -7,7 +7,7 @@
   {% set tableData = tableData|merge([{
     title: stat.description,
     qty: stat.qty,
-    revenue: stat.revenue|commerceCurrency(craft.commerce.settings.getPaymentCurrency()),
+    revenue: stat.revenue|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}
 {% endfor %}
 
