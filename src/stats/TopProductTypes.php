@@ -59,7 +59,7 @@ class TopProductTypes extends Stat
 
         $results = $this->_createStatQuery()
             ->select([
-                '[[pr.id]] as id',
+                '[[pt.id]] as id',
                 '[[pt.name]]',
                 $selectTotalQty,
                 $selectTotalRevenue
