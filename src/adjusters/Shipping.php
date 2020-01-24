@@ -68,15 +68,13 @@ class Shipping extends Component implements AdjusterInterface
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if($purchasable && !$purchasable->getIsShippable())
-            {
+            if ($purchasable && !$purchasable->getIsShippable()) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
 
         // Are all line items non shippable items? No shipping cost.
-        if(count($lineItems) == count($nonShippableItems))
-        {
+        if (count($lineItems) == count($nonShippableItems)) {
             return [];
         }
 
@@ -104,13 +102,13 @@ class Shipping extends Component implements AdjusterInterface
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                     $hasFreeShippingFromDiscount = false;
                     foreach ($discounts as $discount) {
-                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
+                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, true)) {
                             $hasFreeShippingFromDiscount = true;
                         }
                     }
 
                     $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                    $shippable =  $item->purchasable->getIsShippable();
+                    $shippable = $item->purchasable->getIsShippable();
                     if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                         $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
