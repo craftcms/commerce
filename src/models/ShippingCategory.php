@@ -107,9 +107,9 @@ class ShippingCategory extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules [] = [['name', 'handle'], 'required'];
 

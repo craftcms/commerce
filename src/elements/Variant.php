@@ -117,7 +117,6 @@ class Variant extends Purchasable
     const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
 
-
     /**
      * @var int $productId
      */
@@ -255,21 +254,21 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required'];
         $rules[] = [['price'], 'number'];
         $rules[] = [
-            ['stock'], 'required', 'when' => function($model) {
+            ['stock'], 'required', 'when' => static function($model) {
                 /** @var Variant $model */
                 return !$model->hasUnlimitedStock;
             }
         ];
         $rules[] = [
-            ['stock'], 'number', 'when' => function($model) {
+            ['stock'], 'number', 'when' => static function($model) {
                 /** @var Variant $model */
                 return !$model->hasUnlimitedStock;
             }
@@ -984,7 +983,6 @@ class Variant extends Purchasable
 
         return parent::getSearchKeywords($attribute);
     }
-
 
 
     /**

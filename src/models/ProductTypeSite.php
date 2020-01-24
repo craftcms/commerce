@@ -126,9 +126,9 @@ class ProductTypeSite extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         if ($this->uriFormatIsRequired) {
             $rules[] = ['uriFormat', 'required'];

@@ -92,9 +92,9 @@ class Email extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['name'], 'required'];
         $rules[] = [['subject'], 'required'];

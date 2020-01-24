@@ -89,9 +89,9 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
         $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
