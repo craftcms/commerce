@@ -145,8 +145,8 @@ class ProductType extends Model
         $rules = parent::rules();
 
         $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle', 'titleFormat', 'titleLabel', 'variantTitleLabel'], 'required'];
-        $rules[] = [['name', 'handle', 'descriptionFormat', 'titleLabel', 'variantTitleLabel'], 'string', 'max' => 255];
+        $rules[] = [['name', 'handle', 'titleFormat'], 'required'];
+        $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
         $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
 
