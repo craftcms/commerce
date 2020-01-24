@@ -133,8 +133,10 @@ class TaxCategory extends Model
      */
     public function rules()
     {
-        return [
-            [['handle'], 'required']
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['handle'], 'required'];
+
+        return $rules;
     }
 }

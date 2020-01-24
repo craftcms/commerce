@@ -114,8 +114,10 @@ class ShippingCategory extends Model
      */
     public function rules()
     {
-        return [
-            [['name', 'handle'], 'required']
-        ];
+        $rules = parent::rules();
+
+        $rules [] = [['name', 'handle'], 'required'];
+
+        return $rules;
     }
 }

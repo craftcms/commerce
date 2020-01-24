@@ -94,16 +94,17 @@ class Email extends Model
      */
     public function rules()
     {
-        return [
-            [['name'], 'required'],
-            [['subject'], 'required'],
-            [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
-            [
-                ['to'], 'required', 'when' => function($model) {
+        $rules = parent::rules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['subject'], 'required'];
+        $rules[] = [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]];
+        $rules[] = [
+            ['to'], 'required', 'when' => static function($model) {
                 return $model->recipientType == EmailRecord::TYPE_CUSTOM;
             }
-            ],
-            [['templatePath'], 'required']
         ];
+        $rules[] = [['templatePath'], 'required'];
+        return $rules;
     }
 }

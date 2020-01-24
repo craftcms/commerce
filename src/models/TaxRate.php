@@ -99,12 +99,16 @@ class TaxRate extends Model
      */
     public function rules()
     {
-        return [
-            [['name'], 'required'],
-            [['taxCategoryId'], 'required', 'when' => function($model): bool {
+        $rules = parent::rules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
+            ['taxCategoryId'], 'required', 'when' => function($model): bool {
                 return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-            }]
+            }
         ];
+
+        return $rules;
     }
 
     /**

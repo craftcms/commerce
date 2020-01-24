@@ -234,26 +234,28 @@ class LineItem extends Model
      */
     public function rules()
     {
-        $rules = [
+        $rules = parent::rules();
+
+        $rules[] = [
             [
-                [
-                    'optionsSignature',
-                    'price',
-                    'salePrice',
-                    'saleAmount',
-                    'weight',
-                    'length',
-                    'height',
-                    'width',
-                    'total',
-                    'qty',
-                    'snapshot',
-                    'taxCategoryId',
-                    'shippingCategoryId'
-                ], 'required'
-            ],
-            [['note'], StringValidator::class, 'disallowMb4' => true],
+                'optionsSignature',
+                'price',
+                'salePrice',
+                'saleAmount',
+                'weight',
+                'length',
+                'height',
+                'width',
+                'qty',
+                'snapshot',
+                'taxCategoryId',
+                'shippingCategoryId'
+            ], 'required'
         ];
+        $rules[] = [['qty'], 'integer', 'min' => 1];
+        $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
+        $rules[] = [['price', 'salePrice', 'saleAmount'], 'number'];
+        $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
@@ -567,7 +569,7 @@ class LineItem extends Model
     }
 
     /**
-     * @param string  $type
+     * @param string $type
      * @param bool $included
      * @return float|int
      */

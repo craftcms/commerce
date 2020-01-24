@@ -95,16 +95,18 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public function rules()
     {
-        return [
-            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
-            [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
-            [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12],
-            [['cvv'], 'integer', 'integerOnly' => true],
-            [['cvv'], 'string', 'length' => [3, 4]],
-            [['number'], 'integer', 'integerOnly' => true],
-            [['number'], 'string', 'max' => 19],
-            [['number'], 'creditCardLuhn']
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
+        $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
+        $rules[] = [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12];
+        $rules[] = [['cvv'], 'integer', 'integerOnly' => true];
+        $rules[] = [['cvv'], 'string', 'length' => [3, 4]];
+        $rules[] = [['number'], 'integer', 'integerOnly' => true];
+        $rules[] = [['number'], 'string', 'max' => 19];
+        $rules[] = [['number'], 'creditCardLuhn'];
+
+        return $rules;
     }
 
     /**

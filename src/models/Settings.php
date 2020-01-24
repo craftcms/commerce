@@ -282,11 +282,10 @@ class Settings extends Model
      */
     public function rules(): array
     {
-        return [
-            [
-                ['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'],
-                'required'
-            ]
-        ];
+        $rules = parent::rules();
+
+        $rules [] = [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'], 'required'];
+
+        return $rules;
     }
 }
