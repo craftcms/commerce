@@ -346,8 +346,8 @@ class Discount extends Model
                 'purchaseTotal',
                 'perUserLimit',
                 'perEmailLimit',
-                'totalDiscountUseLimit',
-                'totalDiscountUses',
+                'totalUseLimit',
+                'totalUses',
                 'purchaseTotal',
                 'purchaseQty',
                 'maxPurchaseQty',
@@ -364,14 +364,6 @@ class Discount extends Model
             }
         ];
         $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' =>
-                [
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-                ]
-        ];
 
         return $rules;
     }

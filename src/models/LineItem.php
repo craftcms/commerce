@@ -255,7 +255,7 @@ class LineItem extends Model
         $rules[] = [['qty'], 'integer', 'min' => 1];
         $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
         $rules[] = [['price', 'salePrice', 'saleAmount'], 'number'];
-        $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
+        $rules[] = [['note'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
