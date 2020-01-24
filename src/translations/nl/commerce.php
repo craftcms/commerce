@@ -191,6 +191,7 @@ return [
     'Discount is out of date' => 'Korting is verouderd',
     'Discount saved.' => 'Korting is opgeslagen.',
     'Discounts' => 'Kortingen',
+    'Donation can not be zero.' => 'Donatie mag niet nul zijn.',
     'Don’t apply subsequent discounts if this discount is applied' => 'Pas geen opvolgende kortingen toe als deze korting wordt toegepast',
     'Download PDF' => 'PDF downloaden',
     'Duration' => 'Duur',
