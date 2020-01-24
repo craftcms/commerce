@@ -29,8 +29,10 @@ class SubscriptionForm extends Model
      */
     public function rules()
     {
-        return [
-            [['trialDays'], 'integer', 'integerOnly' => true, 'min' => 0]
-        ];
+        $rules[] = parent::rules();
+
+        $rules[] = [['trialDays'], 'integer', 'integerOnly' => true, 'min' => 0];
+
+        return $rules;
     }
 }

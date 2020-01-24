@@ -61,7 +61,9 @@ class ShippingRuleCategory extends Model
      */
     public function rules()
     {
-        return [
+        $rules = parent::rules();
+
+        $rules[] =
             [
                 ['condition'],
                 'in',
@@ -70,8 +72,10 @@ class ShippingRuleCategory extends Model
                     'disallow',
                     'require'
                 ],
-            ],
-        ];
+
+            ];
+
+        return $rules;
     }
 
     /**

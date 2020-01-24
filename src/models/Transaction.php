@@ -299,8 +299,10 @@ class Transaction extends Model
      */
     public function rules()
     {
-        return [
-            [['type', 'status', 'orderId'], 'required']
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['type', 'status', 'orderId'], 'required'];
+
+        return $rules;
     }
 }

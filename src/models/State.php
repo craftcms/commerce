@@ -53,9 +53,11 @@ class State extends Model
      */
     public function rules()
     {
-        return [
-            [['countryId', 'name', 'abbreviation'], 'required']
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
+        
+        return $rules;
     }
 
     /**
