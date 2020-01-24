@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a validation error that occurred when saving an order status.
+- All models now extend base model rules correctly.
 
 ## 2.2.14 - 2020-01-14
 
