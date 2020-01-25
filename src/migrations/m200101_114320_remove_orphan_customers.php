@@ -23,13 +23,18 @@ class m200101_114320_remove_orphan_customers extends Migration
     {
         // Delete all customer records (and their addresses) which aren't related to any orders
         // and don't have a user ID.
-        $this->delete('{{%commerce_customers}} c', [
-            'id' => (new Query())
-                ->select(['c2.id'])
-                ->from('{{%commerce_customers}} c2')
-                ->leftJoin('{{%commerce_orders}} o', '[[c2.id]] = [[o.customerId]]')
-                ->where(['o.id' => null, 'c2.userId' => null])
-        ]);
+        $subSubQuery = (new Query())
+            ->select(['[[cc.id]]'])
+            ->from('{{%commerce_customers}} cc')
+            ->leftJoin('{{%commerce_orders}} o', '[[cc.id]] = [[o.customerId]]')
+            ->where(['o.id' => null, 'cc.userId' => null]);
+
+        $subQuery = (new Query())
+            ->select(['sqid.id'])
+            ->from(['sqid' => $subSubQuery]);
+
+        // https://stackoverflow.com/a/14302701/167827
+        $this->delete('{{%commerce_customers}}', ['in', 'id', $subQuery]);
     }
 
     /**
