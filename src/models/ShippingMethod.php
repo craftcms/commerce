@@ -90,10 +90,12 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function rules()
     {
-        return [
-            [['name', 'handle'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
-            [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class]
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
+
+        return $rules;
     }
 }

@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Sale as SaleRecord;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -123,20 +124,22 @@ class Sale extends Model
      */
     public function rules()
     {
-        return [
-            [
-                ['apply'],
-                'in',
-                'range' => [
-                    'toPercent',
-                    'toFlat',
-                    'byPercent',
-                    'byFlat'
-                ],
+        $rules = parent::rules();
+
+        $rules[] = [
+            ['apply'],
+            'in',
+            'range' => [
+                'toPercent',
+                'toFlat',
+                'byPercent',
+                'byFlat'
             ],
-            [['enabled'], 'boolean'],
-            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
+        $rules[] = [['enabled'], 'boolean'];
+        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
+
+        return $rules;
     }
 
     /**

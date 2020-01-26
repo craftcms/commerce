@@ -114,9 +114,11 @@ class PaymentSource extends Model
      */
     public function rules()
     {
-        return [
-            [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
-            [['gatewayId', 'userId', 'token', 'description'], 'required'],
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class];
+        $rules[] = [['gatewayId', 'userId', 'token', 'description'], 'required'];
+
+        return $rules;
     }
 }

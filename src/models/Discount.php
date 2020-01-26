@@ -338,32 +338,34 @@ class Discount extends Model
      */
     public function rules()
     {
-        return [
-            [['name'], 'required'],
+        $rules = parent::rules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
             [
-                [
-                    'purchaseTotal',
-                    'perUserLimit',
-                    'perEmailLimit',
-                    'totalUseLimit',
-                    'totalUses',
-                    'purchaseTotal',
-                    'purchaseQty',
-                    'maxPurchaseQty',
-                    'baseDiscount',
-                    'perItemDiscount',
-                    'percentDiscount'
-                ], 'number', 'skipOnEmpty' => false
-            ],
-            [
-                'hasFreeShippingForOrder', function($attribute, $params, $validator) {
+                'purchaseTotal',
+                'perUserLimit',
+                'perEmailLimit',
+                'totalUseLimit',
+                'totalUses',
+                'purchaseTotal',
+                'purchaseQty',
+                'maxPurchaseQty',
+                'baseDiscount',
+                'perItemDiscount',
+                'percentDiscount'
+            ], 'number', 'skipOnEmpty' => false
+        ];
+        $rules[] = [
+            'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                     $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
                 }
             }
-            ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
+
+        return $rules;
     }
 
     // Private Methods

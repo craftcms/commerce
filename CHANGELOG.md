@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## 2.2.15 - 2020-01-25
+
+### Fixed
+- Fixed a bug where sales were not being applied to the cart in some cases. ([#1206](https://github.com/craftcms/commerce/issues/1206))
+- Fixed a validation error that occurred when saving an order status.
+- All models now extend base model rules correctly.
+
 ## 2.2.14 - 2020-01-14
 
 ### Added

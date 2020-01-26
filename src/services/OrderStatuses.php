@@ -193,7 +193,7 @@ class OrderStatuses extends Component
         // Make sure no statuses that are not archived share the handle
         $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
 
-        if ($existingStatus && (!$orderStatus->id || $orderStatus->id !== $existingStatus->id)) {
+        if ($existingStatus && (!$orderStatus->id || $orderStatus->id != $existingStatus->id)) {
             $orderStatus->addError('handle', Plugin::t( 'That handle is already in use'));
             return false;
         }

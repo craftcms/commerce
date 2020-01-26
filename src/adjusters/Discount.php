@@ -141,7 +141,7 @@ class Discount extends Component implements AdjusterInterface
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
-            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount, false)) {
                 if (!$this->_discount->allGroups) {
                     $customer = $this->_order->getCustomer();
                     $user = $customer ? $customer->getUser() : null;

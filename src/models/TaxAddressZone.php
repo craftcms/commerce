@@ -236,19 +236,21 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     public function rules()
     {
-        return [
-            [['name'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
-            [
-                ['states'], 'required', 'when' => function($model) {
+        $rules = parent::rules();
+        
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']];
+        $rules[] = [
+            ['states'], 'required', 'when' => static function($model) {
                 return !$model->isCountryBased;
             }
-            ],
-            [
-                ['countries'], 'required', 'when' => function($model) {
+        ];
+        $rules[] = [
+            ['countries'], 'required', 'when' => static function($model) {
                 return $model->isCountryBased;
             }
-            ],
         ];
+
+        return $rules;
     }
 }

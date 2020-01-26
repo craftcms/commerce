@@ -105,9 +105,11 @@ class OrderHistory extends Model
      */
     public function rules()
     {
-        return [
-            [['orderId', 'customerId'], 'required'],
-        ];
+        $rules = parent::rules();
+
+        $rules[] = [['orderId', 'customerId'], 'required'];
+
+        return $rules;
     }
 }
 
