@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where sales were not being applied to the cart in some cases. ([#1206](https://github.com/craftcms/commerce/issues/1206))
 - Fixed a validation error that occurred when saving an order status.
 - All models now extend base model rules correctly.
 
