@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.15 - 2020-01-25
 
 ### Fixed
 - Fixed a bug where sales were not being applied to the cart in some cases. ([#1206](https://github.com/craftcms/commerce/issues/1206))
