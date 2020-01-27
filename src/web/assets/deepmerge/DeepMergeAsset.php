@@ -17,9 +17,6 @@ use craft\web\AssetBundle;
  */
 class DeepMergeAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
