@@ -20,7 +20,7 @@
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` config setting, which determines whether Edit User pages should show a “Customer Info” tab. ([#1037](https://github.com/craftcms/commerce/issues/1037))
 - Added the ability to add products existing sales from Edit Product pages. ([#594](https://github.com/craftcms/commerce/issues/594))
-- Added the ability to create discounts based on the order total. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to create a percentage-based discount on the order total. ([#438](https://github.com/craftcms/commerce/issues/438))
 - Added the ability to sort by customer attributes on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
 - Added the ability to set the title label for products and variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries and states. ([#213](https://github.com/craftcms/commerce/issues/213))
@@ -64,13 +64,16 @@
 - Customer records that are anonymous and orphaned are now deleted during garbage collection.
 - Changed the default category relationship type on promotions from `sourceElement` to `element`. ([#984](https://github.com/craftcms/commerce/issues/984))
 - The `purgeInactiveCartsDuration` and `activeCartDuration` config settings now support all value formats supported by `craft\cms\helpers\ConfigHelper::durationInSeconds()`. ([#1071](https://github.com/craftcms/commerce/issues/1071))
-- The `commerce/customer-addresses/save` action no long forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
+- The `commerce/customer-addresses/save` action no longer forces primary shipping and billing addresses if they do not exist. ([#1069](https://github.com/craftcms/commerce/issues/1069))
 - Moved `craft\commerce\services\States::getAllStatesAsList()` logic to `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId()` to be consistent with other service methods.
 - The `allowEmptyCartOnCheckout` config setting is now set to `false` by default.
 - Discount usage conditions now apply to the discount as a whole, rather than just the coupon code.
 - Discounts’ user and email usage counters can be cleared individually.
 - Addresses no longer require a first and last name.
 - Guest orders are now consolidated with other orders from the same customer immediately after an order is completed, rather than when a user logs in. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- The `commerce/carts/*` actions possible to merge previous carts automatically using the `mergeCarts` param.
+- Removed the `mergeCarts` paremeter from `craft\commerce\services\Carts::getCart()`.
+- Removed the `mergeCarts` parameter from `craft\commerce\services\Carts::getCart()`.
 
 ### Deprecated
 - Deprecated `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`. `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()` should be used instead.

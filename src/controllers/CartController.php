@@ -60,18 +60,6 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Returns the cart combined with any other carts belonging to the current user as JSON
-     */
-    public function actionGetMergedCart()
-    {
-        $this->requireAcceptsJson();
-
-        $this->_cart = Plugin::getInstance()->getCarts()->getCart(true, true);
-
-        return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
-    }
-
-    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      */
     public function actionUpdateCart()
@@ -315,12 +303,11 @@ class CartController extends BaseFrontEndController
 
             return $cart;
         }
-        
-        $requestMerge = (bool)$request->getBodyParam('mergeCarts');
+
         $requestForceSave = (bool)$request->getBodyParam('forceSave');
         $doForceSave = ($requestForceSave || $forceSave);
 
-        return Plugin::getInstance()->getCarts()->getCart($doForceSave, $requestMerge);
+        return Plugin::getInstance()->getCarts()->getCart($doForceSave);
     }
 
     /**
