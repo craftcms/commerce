@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ConfigHelper;
@@ -91,12 +90,12 @@ class Carts extends Component
 
         // Has the customer in session changed?
         if ($changedCustomerId) {
-            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the orders new customer
+            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
             if ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
                 $billingAddress->id = null;
                 $this->_cart->setBillingAddress($billingAddress);
             }
-            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the orders new customer
+            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
             if ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
                 $shippingAddress->id = null;
                 $this->_cart->setShippingAddress($shippingAddress);
@@ -122,7 +121,7 @@ class Carts extends Component
     private function _getCart()
     {
         $cart = null;
-        $currentUser = $this->_getCurrentUser();
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $isNumberCartInSession = $this->getHasSessionCartNumber();
 
         // Load the current cart if there is a cart number in the session
@@ -152,14 +151,6 @@ class Carts extends Component
     }
 
     /**
-     * @return User|null|false
-     */
-    private function _getCurrentUser()
-    {
-        return Craft::$app->getUser()->getIdentity();
-    }
-
-    /**
      * Forgets the cart in the current session.
      *
      * @return void
@@ -172,8 +163,9 @@ class Carts extends Component
     }
 
     /**
-     * Generate a cart number and return it.
+     * Generate a new random cart number and returns it.
      *
+     * @since 2.0
      * @return string
      */
     public function generateCartNumber(): string
@@ -182,6 +174,8 @@ class Carts extends Component
     }
 
     /**
+     * Calculates the date of the active cart duration edge.
+     *
      * @return string
      * @throws \Exception
      * @since 2.2
