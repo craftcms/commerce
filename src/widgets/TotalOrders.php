@@ -106,7 +106,7 @@ class TotalOrders extends Widget
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
-        $labels = ArrayHelper::getColumn($chart, 'date', false);
+        $labels = ArrayHelper::getColumn($chart, 'datekey', false);
         $data = ArrayHelper::getColumn($chart, 'total', false);
 
         $timeFrame = $this->_stat->getDateRangeWording();
