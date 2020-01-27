@@ -22,7 +22,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use function count;
-
+w
 /**
  * Cart service. This manages the cart currently in the session.
  *
@@ -35,7 +35,6 @@ use function count;
  */
 class Carts extends Component
 {
-
     /**
      * @var string Session key for storing the cart number
      */
@@ -165,8 +164,8 @@ class Carts extends Component
     /**
      * Generate a new random cart number and returns it.
      *
-     * @since 2.0
      * @return string
+     * @since 2.0
      */
     public function generateCartNumber(): string
     {
