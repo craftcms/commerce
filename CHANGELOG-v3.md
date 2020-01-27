@@ -75,6 +75,8 @@
 - Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
 
 ## Changed
+- When a customer logs in, and their current guest cart is empty, their most recent cart that had items in it will be restored as the new current cart.
+
 - The date range picker on the Orders index page has been moved to the page toolbar, and now affects which orders are shown in the order listing and which orders are included in order exports, rather than just affecting the chart.
 - The Edit Order page is now a Vue app.
 - Order status change emails are triggered by a queue job for faster checkout.
@@ -117,10 +119,6 @@
 - Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedAfter()`.
 - Removed `craft\commerce\elements\db\SubscriptionQuery::subscribedBefore()`.
 - Removed `craft\commerce\elements\Order::getOrderLocale()`.
-- Removed `craft\commerce\elements\Order::getTotalDiscount()`.
-- Removed `craft\commerce\elements\Order::getTotalShippingCost()`.
-- Removed `craft\commerce\elements\Order::getTotalTax()`.
-- Removed `craft\commerce\elements\Order::getTotalTaxIncluded()`.
 - Removed `craft\commerce\elements\Order::updateOrderPaidTotal()`.
 - Removed `craft\commerce\elements\Product::getSnapshot()`.
 - Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
@@ -141,6 +139,6 @@
 - Removed `craft\commerce\services\Gateways::getAllFrontEndGateways()`.
 - Removed `craft\commerce\services\ShippingMethods::getOrderedAvailableShippingMethods()`.
 - Removed `craft\commerce\services\Reports::getOrdersExportFile()`.
-- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event use `craft\base\Model::EVENT_DEFINE_RULES` instead.
+- Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event. Use `craft\base\Model::EVENT_DEFINE_RULES` instead.
 - Removed `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT` event. Use `craft\base\Element::EVENT_REGISTER_EXPORTERS` to create your own exports.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
