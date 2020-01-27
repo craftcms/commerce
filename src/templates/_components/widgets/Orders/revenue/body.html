@@ -36,7 +36,7 @@
                         },
                         ticks: {
                             beginAtZero: true,
-                            padding: 8
+                            callback: Craft.Commerce.ChartCurrencyTicks
                         },
                         position: 'left'
                     },
@@ -49,7 +49,10 @@
                         }
                     }],
                     xAxes: [{
-                        autoSkipPadding: 4,
+                        type: 'time',
+                        time: {
+                            unit: '{{ chartInterval }}'
+                        },
                         gridLines: {
                             display: false
                         },

@@ -1,4 +1,4 @@
-/* globals Craft, Garnish, Chart, deepmerge, $ */
+/* globals Craft, Garnish, Chart, deepmerge, $, moment */
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
 }
@@ -74,6 +74,13 @@ Craft.Commerce.ChartColors = {
 };
 
 /**
+ * Class Craft.Commerce.ChartCurrencyTicks
+ */
+Craft.Commerce.ChartCurrencyTicks = function(value, index, values) {
+    return new Intl.NumberFormat(window.commerceCurrentLocale, {style: 'currency', currency: window.commerceCurrency}).format(value);
+};
+
+/**
  * Class Craft.Commerce.Chart
  */
 Craft.Commerce.Chart = Garnish.Base.extend({
@@ -88,6 +95,9 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                     labels: {
                         boxWidth: 8,
                         usePointStyle: true
+                    },
+                    onClick: function(event, label) {
+                        return false;
                     }
                 },
                 tooltips: {
@@ -101,6 +111,47 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                     titleFontColor: Craft.Commerce.ChartColors.text,
 
                     enabled: false,
+                    callbacks: {
+                        title: function(tooltipItems, data) {
+                            var title = '';
+
+                            if (tooltipItems[0].xLabel) {
+                                title = tooltipItems[0].xLabel;
+                                var format = 'MMM D';
+                                var allFirstOfMonth = true;
+
+                                data.labels.forEach(function(label) {
+                                   if (!label.match(/^\d{4}\-\d{2}\-01$/g)) {
+                                       allFirstOfMonth = false;
+                                   }
+                                });
+
+                                if (allFirstOfMonth) {
+                                    format = 'MMM YYYY';
+                                }
+
+                                title = moment(title).format(format);
+                            }
+
+                            return title;
+                        },
+                        label: function(tooltipItem, data) {
+                            var label;
+                            if (tooltipItem.yLabel == '') {
+                                label = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                            } else {
+                                label = tooltipItem.yLabel;
+                            }
+
+                            if (data.datasets[tooltipItem.datasetIndex].yAxisID && data.datasets[tooltipItem.datasetIndex].yAxisID == 'revenue') {
+                                label = Craft.Commerce.ChartCurrencyTicks(label, 0, []);
+                            } else {
+                                label = Craft.formatNumber(label);
+                            }
+
+                            return label;
+                        }
+                    },
                     custom: function(tooltipModel) {
                         // Tooltip Element
                         var tooltipEl = document.getElementById('chartjs-tooltip');
@@ -137,21 +188,17 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                         if (tooltipModel.body) {
                             var titleLines = tooltipModel.title || [];
                             var bodyLines = tooltipModel.body.map(getBody);
+                            var dataPoints = tooltipModel.dataPoints;
 
                             var innerHtml = '<div>';
 
                             titleLines.forEach(function(title) {
-                                innerHtml += '<h3>' + title + '</h3>';
+                                if (title && title != 'null') {
+                                    innerHtml += '<h3>' + title + '</h3>';
+                                }
                             });
 
                             bodyLines.forEach(function(body, i) {
-                                if (body.length) {
-                                    var bodyParts = body[0].split(': ');
-                                    if (bodyParts.length) {
-                                        body = bodyParts[(bodyParts.length - 1)];
-                                    }
-                                }
-
                                 var colors = tooltipModel.labelColors[i];
                                 var style = 'background:' + colors.backgroundColor;
                                 style += '; border-color:' + colors.borderColor;
@@ -242,6 +289,8 @@ Craft.Commerce.Chart = Garnish.Base.extend({
     chart: null,
 
     init: function(id, settings) {
+        moment.locale(window.commerceCurrentLocale);
+
         this.$container = $('#' + id);
         this.rtl = $('body').hasClass('rtl');
 

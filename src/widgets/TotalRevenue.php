@@ -15,6 +15,7 @@ use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use craft\web\assets\d3\D3Asset;
 
 /**
  * Total Revenue widget
@@ -102,6 +103,7 @@ class TotalRevenue extends Widget
     {
         $stats = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
+        $chartInterval = $this->_stat->getDateRangeInterval();
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
@@ -114,7 +116,21 @@ class TotalRevenue extends Widget
             return '';
         }
 
-        $labels = array_keys($stats);
+        $labels = ArrayHelper::getColumn($stats, 'datekey', false);
+        if ($this->_stat->getDateRangeInterval() == 'month') {
+            $labels = array_map(static function($label) {
+                [$year, $month] = explode('-', $label);
+                $month = $month < 10 ? '0'.$month : $month;
+                return implode('-', [$year, $month, '01']);
+            }, $labels);
+        } else if ($this->_stat->getDateRangeInterval() == 'week') {
+            $labels = array_map(static function($label) {
+                $year = substr($label, 0, 4);
+                $week = substr($label, -2);
+                return $year . 'W' . $week;
+            }, $labels);
+        }
+
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
         $orderCount = ArrayHelper::getColumn($stats, 'count', false);
 
@@ -125,7 +141,8 @@ class TotalRevenue extends Widget
                 'namespaceId',
                 'labels',
                 'revenue',
-                'orderCount'
+                'orderCount',
+                'chartInterval'
             )
         );
     }
