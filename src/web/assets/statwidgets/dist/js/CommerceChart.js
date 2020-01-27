@@ -235,6 +235,9 @@ Craft.Commerce.Chart = Garnish.Base.extend({
                         boxWidth: 6,
                     }
                 },
+                tooltips: {
+                    intersect: false
+                }
             },
         },
         doughnut: {
