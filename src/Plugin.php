@@ -37,8 +37,18 @@ use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
+use craft\commerce\widgets\AverageOrderTotal;
+use craft\commerce\widgets\NewCustomers;
 use craft\commerce\widgets\Orders;
+use craft\commerce\widgets\RepeatCustomers;
 use craft\commerce\widgets\Revenue;
+use craft\commerce\widgets\TopCustomers;
+use craft\commerce\widgets\TopProducts;
+use craft\commerce\widgets\TopProductTypes;
+use craft\commerce\widgets\TopPurchasables;
+use craft\commerce\widgets\TotalOrders;
+use craft\commerce\widgets\TotalOrdersByCountry;
+use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
@@ -165,6 +175,9 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerElementExports();
         $this->_defineResaveCommand();
+
+        $libPath = str_replace('/cms/', '/commerce/', Craft::getAlias('@lib'));
+        Craft::setAlias('@commerceLib', $libPath);
     }
 
     /**
@@ -461,8 +474,18 @@ class Plugin extends BasePlugin
     private function _registerWidgets()
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = AverageOrderTotal::class;
+            $event->types[] = NewCustomers::class;
             $event->types[] = Orders::class;
+            $event->types[] = RepeatCustomers::class;
             $event->types[] = Revenue::class;
+            $event->types[] = TotalOrders::class;
+            $event->types[] = TotalOrdersByCountry::class;
+            $event->types[] = TopCustomers::class;
+            $event->types[] = TopProducts::class;
+            $event->types[] = TopProductTypes::class;
+            $event->types[] = TopPurchasables::class;
+            $event->types[] = TotalRevenue::class;
         });
     }
 

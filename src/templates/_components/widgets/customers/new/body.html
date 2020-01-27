@@ -1,0 +1,7 @@
+<div class="commerce-widget-numberstat">
+{% spaceless %}
+    <strong class="commerce-widget-numberstat-number">{{ number ? number : 0 }}</strong><br>
+    <span>{{ 'new customers'|t('commerce')|e }}</span><br>
+    <span class="extralight">{{ timeFrame|e }}</span>
+{% endspaceless %}
+</div>

@@ -1,0 +1,13 @@
+{% import "_includes/forms" as forms %}
+
+<div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+
+  {{ forms.selectField({
+    label: 'Type'|t('commerce'),
+    id: 'type',
+    name: 'type',
+    value: widget.type,
+    options: typeOptions
+  }) }}
+</div>

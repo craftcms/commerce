@@ -1,0 +1,66 @@
+{% do view.registerTranslations('commerce', [
+    'Revenue',
+    'Order count',
+]) %}
+<div class="commerce-widget-linechart-wrapper">
+    <canvas id="{{ namespaceId }}"></canvas>
+</div>
+{% js %}
+    var revChart = new Craft.Commerce.Chart('{{ namespaceId }}', {
+        chart: {
+
+            type: 'line',
+            data: {
+                labels: {{ labels|json_encode|raw }},
+                datasets: [
+                    {
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
+                        yAxisID: 'count',
+                        data: {{ orderCount|json_encode|raw }}
+                    },
+                    {
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Revenue')),
+                        yAxisID: 'revenue',
+                        data: {{ revenue|json_encode|raw }}
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        id: 'revenue',
+                        gridLines: {
+                            color: Craft.Commerce.ChartColors.gridLines,
+                            drawBorder: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            callback: Craft.Commerce.ChartCurrencyTicks
+                        },
+                        position: 'left'
+                    },
+                    {
+                        id: 'count',
+                        display: false,
+                        position: 'right',
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: '{{ chartInterval }}'
+                        },
+                        gridLines: {
+                            display: false
+                        },
+                        offset: false
+                    }]
+                }
+            }
+        }
+    });
+
+{% endjs %}

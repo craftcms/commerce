@@ -29,13 +29,11 @@ class Revenue extends Widget
      */
     public $dateRange;
 
-
     /**
      * @inheritdoc
      */
     public static function isSelectable(): bool
     {
-        // This widget is only available to users that can manage orders
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
@@ -50,7 +48,7 @@ class Revenue extends Widget
     /**
      * @inheritdoc
      */
-    public static function iconPath(): string
+    public static function icon(): string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }

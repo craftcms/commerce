@@ -35,13 +35,11 @@ class Orders extends Widget
      */
     public $limit = 10;
 
-
     /**
      * @inheritdoc
      */
     public static function isSelectable(): bool
     {
-        // This widget is only available to users that can manage orders
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
@@ -56,7 +54,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public static function iconPath(): string
+    public static function icon(): string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
