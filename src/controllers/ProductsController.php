@@ -97,10 +97,10 @@ class ProductsController extends BaseCpController
         /** @var Product $product */
         $product = $variables['product'];
 
-        if (!empty($product->id)) {
-            $variables['title'] = $product->title;
-        } else {
+        if ($product->id === null) {
             $variables['title'] = Plugin::t('Create a new product');
+        } else {
+            $variables['title'] = $product->title;
         }
 
         // Can't just use the entry's getCpEditUrl() because that might include the site handle when we don't want it
@@ -135,7 +135,7 @@ class ProductsController extends BaseCpController
             $variables['showPreviewBtn'] = true;
 
             // Should we show the Share button too?
-            if ($product->id) {
+            if ($product->id !== null) {
                 // If the product is enabled, use its main URL as its share URL.
                 if ($product->getStatus() == Product::STATUS_LIVE) {
                     $variables['shareUrl'] = $product->getUrl();

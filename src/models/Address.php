@@ -254,11 +254,12 @@ class Address extends Model
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
+
         $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
         $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 

@@ -51,11 +51,13 @@ class State extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['countryId', 'name', 'abbreviation'], 'required']
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
+        
+        return $rules;
     }
 
     /**

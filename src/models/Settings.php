@@ -283,13 +283,12 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function defineRules(): array
     {
-        return [
-            [
-                ['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'],
-                'required'
-            ]
-        ];
+        $rules = parent::defineRules();
+
+        $rules [] = [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'], 'required'];
+
+        return $rules;
     }
 }

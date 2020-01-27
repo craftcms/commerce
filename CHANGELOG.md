@@ -6,6 +6,8 @@
 - Fixed a validation error that occurred when saving an order status.
 - Added the `hasLineItems` order query param.
 - Added `craft\commerce\elements\Order::hasLineItems()`.
+- Fixed a SQL error that could occur when updating to Commerce 3 if there were a large number of orphaned customers in the database.
+- Fixed a PostgreSQL error that occurred when retrieving customers to consolidate.
 
 ## 3.0.0-RC1 - 2020-01-14
  
@@ -157,6 +159,7 @@
 
 ### Fixed
 - Fixed a validation error that occurred when saving an order status.
+- All models now extend base model rules correctly.
 
 ## 2.2.14 - 2020-01-14
 

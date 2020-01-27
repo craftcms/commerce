@@ -219,21 +219,23 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
-            [
-                ['states'], 'required', 'when' => function($model) {
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
+        $rules[] = [
+            ['states'], 'required', 'when' => static function($model) {
                 return !$model->isCountryBased;
             }
-            ],
-            [
-                ['countries'], 'required', 'when' => function($model) {
+        ];
+        $rules[] = [
+            ['countries'], 'required', 'when' => static function($model) {
                 return $model->isCountryBased;
             }
-            ],
         ];
+
+        return $rules;
     }
 }

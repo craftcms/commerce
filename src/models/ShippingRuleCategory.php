@@ -59,9 +59,11 @@ class ShippingRuleCategory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
+        $rules = parent::defineRules();
+
+        $rules[] =
             [
                 ['condition'],
                 'in',
@@ -70,8 +72,10 @@ class ShippingRuleCategory extends Model
                     'disallow',
                     'require'
                 ],
-            ],
-        ];
+
+            ];
+
+        return $rules;
     }
 
     /**

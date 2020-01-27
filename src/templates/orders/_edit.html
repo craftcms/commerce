@@ -163,50 +163,6 @@
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });
-{#
-        var $editBtn = $('#order-edit-btn');
-        var $cancelBtn = $('#order-cancel-btn');
-        var $save = $('#order-save');
-        var $saveBtn = $('#order-save-btn');
-        var $saveSpinner = $('#order-save-spinner');
-
-        if (OrderStore.state.editing) {
-            $editBtn.addClass('hidden')
-            $cancelBtn.removeClass('hidden')
-            $save.removeClass('hidden')
-        }
-
-        $editBtn.on('click', function() {
-            OrderStore.dispatch('edit')
-        });
-
-        $cancelBtn.on('click', function() {
-            OrderStore.dispatch('cancel')
-        });
-
-        $saveBtn.on('click', function() {
-            OrderStore.dispatch('save')
-        });#}
-
-{#        OrderDetailsApp.$on('onEditingChange', function(editing) {#}
-{#            if (editing) {#}
-{#                $editBtn.addClass('hidden')#}
-{#                $cancelBtn.removeClass('hidden')#}
-{#                $save.removeClass('hidden')#}
-{#            } else {#}
-{#                $editBtn.removeClass('hidden')#}
-{#                $cancelBtn.addClass('hidden')#}
-{#                $save.addClass('hidden')#}
-{#            }#}
-{#        })#}
-
-{#        OrderDetailsApp.$on('onSaveLoadingChange', function(loading) {#}
-{#            if (loading) {#}
-{#                $saveSpinner.removeClass('hidden')#}
-{#            } else {#}
-{#                $saveSpinner.addClass('hidden')#}
-{#            }#}
-{#        })#}
     });
 {% endjs %}
 
