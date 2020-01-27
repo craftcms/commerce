@@ -49,6 +49,7 @@
       options['endDate'] = new Date({{ widget.endDate|date('Y') }}, {{ widget.endDate|date('m') - 1 }}, {{ widget.endDate|date('d') }});
     {% endif %}
 
-    var $picker = Craft.ui.createDateRangePicker(options).appendTo($('#{{ id }} [data-date-range-picker]'));
+    var $container = $('#{{ id }} [data-date-range-picker]');
+    var $picker = Craft.ui.createDateRangePicker(options).appendTo($container);
   {% endjs %}
 {% endif %}
