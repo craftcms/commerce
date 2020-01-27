@@ -2,7 +2,7 @@
     'Revenue',
     'Order count',
 ]) %}
-<div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-revenue-wrapper--no-x-axis">
+<div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-wrapper--no-x-axis">
     <canvas id="{{ namespaceId }}"></canvas>
 </div>
 {% js %}
@@ -55,15 +55,14 @@
                         }
                     }],
                     xAxes: [{
+                        display: false,
                         type: 'time',
-                        ticks: {
-                            display: false
-                        },
                         time: {
                             unit: '{{ chartInterval }}'
                         },
-                        gridLines: {
-                            display: false
+                            gridLines: {
+                            display: false,
+                            drawBorder: false
                         },
                         offset: false
                     }]
