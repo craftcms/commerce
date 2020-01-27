@@ -48,11 +48,11 @@ interface StatInterface
     public const DATE_RANGE_INTERVAL = [
         self::DATE_RANGE_TODAY => 'day',
         self::DATE_RANGE_THISWEEK => 'day',
-        self::DATE_RANGE_THISMONTH => 'week',
+        self::DATE_RANGE_THISMONTH => 'day',
         self::DATE_RANGE_THISYEAR => 'month',
         self::DATE_RANGE_PAST7DAYS => 'day',
-        self::DATE_RANGE_PAST30DAYS => 'week',
-        self::DATE_RANGE_PAST90DAYS => 'week',
+        self::DATE_RANGE_PAST30DAYS => 'day',
+        self::DATE_RANGE_PAST90DAYS => 'day',
         self::DATE_RANGE_PASTYEAR => 'month',
         self::DATE_RANGE_ALL => 'month',
     ];
