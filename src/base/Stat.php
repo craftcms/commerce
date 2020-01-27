@@ -10,6 +10,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\errors\AssetDisallowedExtensionException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
@@ -268,9 +270,11 @@ abstract class Stat implements StatInterface
             case self::DATE_RANGE_PAST30DAYS:
             case self::DATE_RANGE_PAST90DAYS:
             {
-                $numDays = str_replace(['past', 'Days'], ['P','D'], $dateRange);
+                $number = str_replace(['past', 'Days'], '', $dateRange);
+                // Minus one so we include today as a "past day"
+                $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval($numDays);
+                $interval = new \DateInterval('P'.$number.'D');
                 $date->sub($interval);
                 break;
             }
@@ -279,7 +283,7 @@ abstract class Stat implements StatInterface
                 $date = $this->_getEndDate($dateRange);
                 $interval = new \DateInterval('P1Y');
                 $date->sub($interval);
-                $date->add(new \DateInterval('P1D'));
+                $date->add(new \DateInterval('P1M'));
                 break;
 
             }
@@ -357,30 +361,11 @@ abstract class Stat implements StatInterface
             {
                 return [
                     'interval' => 'P1M',
-                    'dateKeyFormat' => 'nY',
-                    'dateLabel' => 'CONCAT(EXTRACT(MONTH FROM [[dateOrdered]]), EXTRACT(YEAR FROM [[dateOrdered]]))',
+                    'dateKeyFormat' => 'Y-n',
+                    'dateKey' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]]))',
                     'groupBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]), EXTRACT(MONTH FROM [[dateOrdered]])',
                     'orderBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]) ASC, EXTRACT(MONTH FROM [[dateOrdered]]) ASC',
                 ];
-                break;
-            }
-            case 'week':
-            {
-                $return = [
-                    'interval' => 'P1W',
-                    'dateKeyFormat' => 'oW',
-                    'dateLabel' => 'YEARWEEK([[dateOrdered]], 3)',
-                    'groupBy' => 'YEARWEEK([[dateOrdered]], 3)',
-                    'orderBy' => 'YEARWEEK([[dateOrdered]], 3) ASC',
-                ];
-
-                if (Craft::$app->getDb()->getIsPgsql()) {
-                    $return['dateLabel'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
-                    $return['groupBy'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
-                    $return['orderBy'] = 'TO_CHAR(DATE_TRUNC(\'week\', [[dateOrdered]]), \'YYYYWW\')';
-                }
-
-                return $return;
                 break;
             }
             case 'day':
@@ -388,7 +373,7 @@ abstract class Stat implements StatInterface
                 return [
                     'interval' => 'P1D',
                     'dateKeyFormat' => 'Y-m-d',
-                    'dateLabel' => 'DATE([[dateOrdered]])',
+                    'dateKey' => 'DATE([[dateOrdered]])',
                     'groupBy' => 'DATE([[dateOrdered]])',
                     'orderBy' => 'DATE([[dateOrdered]])',
                 ];
@@ -397,6 +382,19 @@ abstract class Stat implements StatInterface
         }
 
         return null;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getDateRangeInterval()
+    {
+        if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
+            $interval = date_diff($this->_startDate, $this->_endDate);
+            return ($interval->days > 90) ? 'month' : 'day';
+        }
+
+        return self::DATE_RANGE_INTERVAL[$this->dateRange] ?? 'day';
     }
 
     /**
@@ -426,38 +424,33 @@ abstract class Stat implements StatInterface
         $query = $query ?: $this->_createStatQuery();
 
         $defaults = [];
-        $dateRangeInterval = self::DATE_RANGE_INTERVAL[$this->dateRange] ?? null;
+        $dateRangeInterval = $this->getDateRangeInterval();
         $options = $this->getChartQueryOptionsByInterval($dateRangeInterval);
 
-        if ($this->dateRange != self::DATE_RANGE_CUSTOM && !$options) {
+        if (!$options) {
             return null;
         }
 
-        if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
-            $interval = date_diff($this->_startDate, $this->_endDate);
-            $options = $this->_getCustomDateChartQueryOptions($interval->days);
-        }
-
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
-        while ($dateKeyDate->format($options['dateKeyFormat']) != $this->getEndDate()->format($options['dateKeyFormat'])) {
+        $endDate = $this->getEndDate();
+        while ($dateKeyDate <= $endDate) {
             $key = $dateKeyDate->format($options['dateKeyFormat']);
 
             // Setup default results values
             $tmp = $resultsDefaults;
-            $tmp['date'] = $key;
+            $tmp['datekey'] = $key;
 
             $defaults[$key] = $tmp;
             $dateKeyDate->add(new \DateInterval($options['interval']));
         }
 
         // Add defaults to select
-        $select[] = new Expression($options['dateLabel'] . ' as date');
-
+        $select[] = new Expression($options['dateKey'] . ' as datekey');
         $results = $query
             ->select($select)
             ->groupBy(new Expression($options['groupBy']))
             ->orderBy(new Expression($options['orderBy']))
-            ->indexBy('date')
+            ->indexBy('datekey')
             ->all();
 
         return array_replace($defaults, $results);
