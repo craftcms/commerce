@@ -103,10 +103,10 @@ class Carts extends Component
             }
         }
 
-        $somethingChanged = ($changedIp || $changedOrderLanguage || $changedCurrency || $changedCustomerId || $changedPaymentCurrency);
+        $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCurrency || $changedCustomerId || $changedPaymentCurrency);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        if (($this->_cart->id && $somethingChanged) || $forceSave) {
+        if (($this->_cart->id && $somethingChangedOnTheCart) || $forceSave) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
@@ -171,49 +171,6 @@ class Carts extends Component
     {
         $this->_cart = null;
         Craft::$app->getSession()->remove($this->cartName);
-    }
-
-    /**
-     * Removes all carts that are incomplete and older than the config setting.
-     *
-     * @return int The number of carts purged from the database
-     * @throws \Exception
-     * @throws Throwable
-     */
-    public function purgeIncompleteCarts(): int
-    {
-        $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
-        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
-
-        if ($doPurge) {
-            $edge = new DateTime();
-            $interval = DateTimeHelper::secondsToInterval($configInterval);
-            $edge->sub($interval);
-
-            $cartIds = (new Query())
-                ->select(['orders.id'])
-                ->where(['not', ['isCompleted' => 1]])
-                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
-                ->from(['orders' => Table::ORDERS])
-                ->column();
-
-            // Taken from craft\services\Elements::deleteElement(); Using the method directly
-            // takes too much resources since it retrieves the order before deleting it.
-
-            // Delete the elements table rows, which will cascade across all other InnoDB tables
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%elements}}', ['id' => $cartIds])
-                ->execute();
-
-            // The searchindex table is probably MyISAM, though
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
-                ->execute();
-
-            return count($cartIds);
-        }
-
-        return 0;
     }
 
     /**
@@ -283,6 +240,49 @@ class Carts extends Component
     {
         $session = Craft::$app->getSession();
         $session->set($this->cartName, $cartNumber);
+    }
+
+    /**
+     * Removes all carts that are incomplete and older than the config setting.
+     *
+     * @return int The number of carts purged from the database
+     * @throws \Exception
+     * @throws Throwable
+     */
+    public function purgeIncompleteCarts(): int
+    {
+        $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
+        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
+
+        if ($doPurge) {
+            $edge = new DateTime();
+            $interval = DateTimeHelper::secondsToInterval($configInterval);
+            $edge->sub($interval);
+
+            $cartIds = (new Query())
+                ->select(['orders.id'])
+                ->where(['not', ['isCompleted' => 1]])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->from(['orders' => Table::ORDERS])
+                ->column();
+
+            // Taken from craft\services\Elements::deleteElement(); Using the method directly
+            // takes too much resources since it retrieves the order before deleting it.
+
+            // Delete the elements table rows, which will cascade across all other InnoDB tables
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%elements}}', ['id' => $cartIds])
+                ->execute();
+
+            // The searchindex table is probably MyISAM, though
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+                ->execute();
+
+            return count($cartIds);
+        }
+
+        return 0;
     }
 
     /**
