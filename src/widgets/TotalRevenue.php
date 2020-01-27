@@ -89,9 +89,9 @@ class TotalRevenue extends Widget
     {
         $stats = $this->_stat->get();
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
-        $total = array_sum($revenue);
+        $total = round(array_sum($revenue), 0, PHP_ROUND_HALF_DOWN);
 
-        $formattedTotal = Craft::$app->getFormatter()->asCurrency($total, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso());
+        $formattedTotal = Craft::$app->getFormatter()->asCurrency($total, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(), [], [], true);
 
         return Plugin::t('{total} in total revenue', ['total' => $formattedTotal]);
     }
