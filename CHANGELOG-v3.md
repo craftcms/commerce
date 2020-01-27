@@ -24,7 +24,7 @@
 - Added the ability to add products existing sales from Edit Product pages. ([#594](https://github.com/craftcms/commerce/issues/594))
 - Added the ability to set a plain text template for Commerce emails. ([#1106](https://github.com/craftcms/commerce/issues/1106))
 - Added the `showCustomerInfoTab` config setting, which determines whether Edit User pages should show a “Customer Info” tab. ([#1037](https://github.com/craftcms/commerce/issues/1037))
-- Added the ability to create discounts based on the order total. ([#438](https://github.com/craftcms/commerce/issues/438))
+- Added the ability to create a percentage-based discount on the order total. ([#438](https://github.com/craftcms/commerce/issues/438))
 - Added the ability to sort by customer attributes on the Orders index page. ([#1089](https://github.com/craftcms/commerce/issues/1089))
 - Added the ability to set the title label for products and variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries and states. ([#213](https://github.com/craftcms/commerce/issues/213))
@@ -93,7 +93,7 @@
 - Addresses no longer require a first and last name.
 - Guest orders are now consolidated with other orders from the same customer immediately after an order is completed, rather than when a user logs in. ([#1062](https://github.com/craftcms/commerce/issues/1062))
 - It is no longer possible to merge previous carts automatically using the `mergeCarts` param.
-- Removed the `mergeCarts` paremeter from `craft\commerce\services\Carts::getCart()`.
+- Removed the `mergeCarts` parameter from `craft\commerce\services\Carts::getCart()`.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
