@@ -22,7 +22,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use function count;
-w
+
 /**
  * Cart service. This manages the cart currently in the session.
  *
