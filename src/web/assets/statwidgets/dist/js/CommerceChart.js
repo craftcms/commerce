@@ -229,8 +229,13 @@ Craft.Commerce.Chart = Garnish.Base.extend({
         },
         line: {
             options: {
-                aspectRatio: 2.5
-            }
+                aspectRatio: 2.5,
+                legend: {
+                    labels: {
+                        boxWidth: 6,
+                    }
+                },
+            },
         },
         doughnut: {
             options: {
