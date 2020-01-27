@@ -143,9 +143,7 @@ class Carts extends Component
         // If the current cart is empty see if the logged in user has a previous cart
         if ($cart && $currentUser && $cart->getIsEmpty()) {
             // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-            $previousCart = Order::find()->user($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one();
-
-            if ($previousCart) {
+            if ($previousCart = Order::find()->user($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
                 $cart = $previousCart;
             }
         }
