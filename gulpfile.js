@@ -11,6 +11,8 @@ var libPath = './lib/';
 
 var jsDeps = [
     { srcGlob: 'node_modules/chart.js/dist/Chart.bundle.min.js', dest: libPath + 'chart-js' },
+    { srcGlob: 'node_modules/moment/min/moment-with-locales.min.js', dest: libPath + 'moment' },
+    { srcGlob: 'node_modules/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js', dest: libPath + 'chartjs-adapter-moment' },
     { srcGlob: 'node_modules/deepmerge/dist/umd.js', dest: libPath + 'deepmerge' },
 ];
 
