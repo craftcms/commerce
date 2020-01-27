@@ -68,6 +68,7 @@ class Carts extends Component
         // Ensure the session knows what the current cart is.
         $this->setSessionCartNumber($this->_cart->number);
 
+        // Track the things that might change on this cart
         $originalIp = $this->_cart->lastIp;
         $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalCurrency = $this->_cart->currency;
@@ -90,16 +91,15 @@ class Carts extends Component
 
         // Has the customer in session changed?
         if ($changedCustomerId) {
-            // Don't lose the data from the address, just drop the ID
-            if ($this->_cart->billingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
-                $address->id = null;
-                $this->_cart->setBillingAddress($address);
+            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the orders new customer
+            if ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
+                $billingAddress->id = null;
+                $this->_cart->setBillingAddress($billingAddress);
             }
-
-            // Don't lose the data from the address, just drop the ID
-            if ($this->_cart->shippingAddressId && $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
-                $address->id = null;
-                $this->_cart->setShippingAddress($address);
+            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the orders new customer
+            if ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
+                $shippingAddress->id = null;
+                $this->_cart->setShippingAddress($shippingAddress);
             }
         }
 
