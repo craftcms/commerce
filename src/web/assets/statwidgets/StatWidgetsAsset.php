@@ -45,7 +45,8 @@ class StatWidgetsAsset extends AssetBundle
         parent::registerAssetFiles($view);
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $language = Craft::$app->getUser()->getIdentity()->getPreferredLanguage();
+        $language = Craft::$app->getUser()->getIdentity()->getPreferredLanguage() ?? 'en';
+
         $js = <<<JS
 window.commerceCurrency = '$currency';
 window.commerceCurrentLocale = '$language';

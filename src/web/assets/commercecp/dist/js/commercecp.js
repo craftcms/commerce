@@ -290,8 +290,19 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             this.addressFields = [
                 {field: 'attention', label: Craft.t('commerce', 'Attention'), type: 'Text'},
                 {field: 'title', label: Craft.t('commerce', 'Title'), type: 'Text'},
-                {field: 'firstName', label: Craft.t('commerce', 'First Name'), autofocus: true, type: 'Text'},
-                {field: 'lastName', label: Craft.t('commerce', 'Last Name'), type: 'Text'},
+                {
+                    field: 'firstName',
+                    label: Craft.t('commerce', 'First Name'),
+                    required: true,
+                    autofocus: true,
+                    type: 'Text'
+                },
+                {
+                    field: 'lastName',
+                    label: Craft.t('commerce', 'Last Name'),
+                    required: true,
+                    type: 'Text'
+                },
                 {field: 'fullName', label: Craft.t('commerce', 'Full Name'), type: 'Text'},
                 {field: 'address1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
                 {field: 'address2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
@@ -667,7 +678,7 @@ Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
 
         this.loadChart();
     },
-    
+
     loadChart: function() {
         var requestData = this.settings.params;
 

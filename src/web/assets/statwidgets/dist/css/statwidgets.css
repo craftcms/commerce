@@ -13,14 +13,19 @@
 .commerce-widget-linechart-wrapper--no-x-axis {
   margin-bottom: -24px; }
 
+.commerce-widget-linechart-revenue-wrapper--no-x-axis {
+  margin-bottom: -33px; }
+
 .commerce-widget-linechart-wrapper canvas {
   width: 100%; }
 
 .commerce-widget-numberstat {
+  padding: 14px 0;
   text-align: center; }
 
 .commerce-widget-numberstat-number {
-  font-size: 2.5rem; }
+  font-size: 2.5rem;
+  line-height: 2.5rem; }
 
 .commerce-widget-chart-tooltip {
   box-shadow: 0 1px 5px -1px rgba(31, 41, 51, 0.2);

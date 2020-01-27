@@ -1,11 +1,13 @@
-<div class="commerce-widget-numberstat">
-{% spaceless %}
-    {% set total = number ?? 0 %}
-    <strong class="commerce-widget-numberstat-number">{{ total }}</strong><br>
-    <span>{{ (total == 1 ? 'order' : 'orders')|t('commerce')|e }}</span><br>
-    <span class="extralight">{{ timeFrame|e }}</span>
-{% endspaceless %}
-</div>
+{% if showChart is defined and not showChart %}
+    <div class="commerce-widget-numberstat">
+    {% spaceless %}
+        {% set total = number ?? 0 %}
+        <strong class="commerce-widget-numberstat-number">{{ total }}</strong><br>
+        <span>{{ (total == 1 ? 'order' : 'orders')|t('commerce')|e }}</span><br>
+        <span class="extralight">{{ timeFrame|e }}</span>
+    {% endspaceless %}
+    </div>
+{% endif %}
 
 {% if showChart is defined and showChart %}
     <div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-wrapper--no-x-axis">

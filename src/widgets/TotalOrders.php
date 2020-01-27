@@ -93,7 +93,21 @@ class TotalOrders extends Widget
      */
     public function getTitle(): string
     {
-        return '';
+        if (!$this->showChart) {
+            return '';
+        }
+
+        $stats = $this->_stat->get();
+        return Plugin::t('{total} orders', ['total' => $stats['total'] ?? 0]);
+    }
+
+    public function getSubtitle()
+    {
+        if (!$this->showChart) {
+            return '';
+        }
+
+        return $this->_stat->getDateRangeWording();
     }
 
     /**

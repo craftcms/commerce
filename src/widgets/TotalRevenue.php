@@ -45,6 +45,11 @@ class TotalRevenue extends Widget
     public $dateRange;
 
     /**
+     * @var bool
+     */
+    public $showOrderCount = false;
+
+    /**
      * @var TotalRevenueStat
      */
     private $_stat;
@@ -78,6 +83,17 @@ class TotalRevenue extends Widget
     public static function displayName(): string
     {
         return Plugin::t( 'Total Revenue');
+    }
+
+    public function getTitle(): string
+    {
+        $stats = $this->_stat->get();
+        $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
+        $total = array_sum($revenue);
+
+        $formattedTotal = Craft::$app->getFormatter()->asCurrency($total, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso());
+
+        return Plugin::t('{total} in total revenue', ['total' => $formattedTotal]);
     }
 
     /**
@@ -133,9 +149,11 @@ class TotalRevenue extends Widget
 
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
         $orderCount = ArrayHelper::getColumn($stats, 'count', false);
+        $widget = $this;
 
         return $view->renderTemplate('commerce/_components/widgets/Orders/revenue/body',
             compact(
+                'widget',
                 'stats',
                 'timeFrame',
                 'namespaceId',

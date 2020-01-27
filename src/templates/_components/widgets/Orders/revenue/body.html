@@ -2,7 +2,7 @@
     'Revenue',
     'Order count',
 ]) %}
-<div class="commerce-widget-linechart-wrapper">
+<div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-revenue-wrapper--no-x-axis">
     <canvas id="{{ namespaceId }}"></canvas>
 </div>
 {% js %}
@@ -13,11 +13,13 @@
             data: {
                 labels: {{ labels|json_encode|raw }},
                 datasets: [
-                    {
-                        label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
-                        yAxisID: 'count',
-                        data: {{ orderCount|json_encode|raw }}
-                    },
+                    {% if widget.showOrderCount %}
+                        {
+                            label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
+                            yAxisID: 'count',
+                            data: {{ orderCount|json_encode|raw }}
+                        },
+                    {% endif %}
                     {
                         label: Craft.escapeHtml(Craft.t('commerce', 'Revenue')),
                         yAxisID: 'revenue',
@@ -26,6 +28,9 @@
                 ]
             },
             options: {
+                legend: {
+                    display: {{ widget.showOrderCount|json_encode|raw }}
+                },
                 scales: {
                     yAxes: [{
                         id: 'revenue',
@@ -35,6 +40,7 @@
                             drawTicks: false
                         },
                         ticks: {
+                            display: false,
                             beginAtZero: true,
                             callback: Craft.Commerce.ChartCurrencyTicks
                         },
@@ -50,6 +56,9 @@
                     }],
                     xAxes: [{
                         type: 'time',
+                        ticks: {
+                            display: false
+                        },
                         time: {
                             unit: '{{ chartInterval }}'
                         },
