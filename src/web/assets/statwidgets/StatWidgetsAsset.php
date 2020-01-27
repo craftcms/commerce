@@ -8,9 +8,11 @@
 namespace craft\commerce\web\assets\statwidgets;
 
 use Craft;
+use craft\commerce\Plugin;
 use craft\commerce\web\assets\chartjs\ChartJsAsset;
 use craft\commerce\web\assets\deepmerge\DeepMergeAsset;
 use craft\web\AssetBundle;
+use craft\web\View;
 
 /**
  * Asset bundle for the Stat widgets
@@ -20,9 +22,6 @@ use craft\web\AssetBundle;
  */
 class StatWidgetsAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -39,5 +38,19 @@ class StatWidgetsAsset extends AssetBundle
         $this->css[] = 'css/statwidgets.css';
 
         parent::init();
+    }
+
+    public function registerAssetFiles($view)
+    {
+        parent::registerAssetFiles($view);
+
+        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $language = Craft::$app->getUser()->getIdentity()->getPreferredLanguage();
+        $js = <<<JS
+window.commerceCurrency = '$currency';
+window.commerceCurrentLocale = '$language';
+JS;
+
+        $view->registerJs($js, View::POS_HEAD);
     }
 }

@@ -17,9 +17,6 @@ use craft\web\AssetBundle;
  */
 class ChartJsAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -28,6 +25,8 @@ class ChartJsAsset extends AssetBundle
         $this->sourcePath = '@commerceLib';
 
         $this->js[] = 'chart-js/Chart.bundle.min.js';
+        $this->js[] = 'moment/moment-with-locales.min.js';
+        $this->js[] = 'chartjs-adapter-moment/chartjs-adapter-moment.min.js';
 
         parent::init();
     }
