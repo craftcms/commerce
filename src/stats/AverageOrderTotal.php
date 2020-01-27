@@ -26,7 +26,7 @@ class AverageOrderTotal extends Stat
     /**
      * @inheritdoc
      */
-    public $cache = true;
+    public $cache = false;
 
     /**
      * @inheritDoc
@@ -34,7 +34,7 @@ class AverageOrderTotal extends Stat
     public function getData()
     {
         $query = $this->_createStatQuery();
-        $query->select([new Expression('SUM([[total]]) / COUNT([[id]]) as averageOrderTotal')]);
+        $query->select([new Expression('ROUND(SUM([[total]]) / COUNT([[id]]), 4) as averageOrderTotal')]);
 
         return $query->scalar();
     }
