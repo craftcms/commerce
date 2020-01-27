@@ -76,7 +76,6 @@
 
 ## Changed
 - When a customer logs in, and their current guest cart is empty, their most recent cart that had items in it will be restored as the new current cart.
-
 - The date range picker on the Orders index page has been moved to the page toolbar, and now affects which orders are shown in the order listing and which orders are included in order exports, rather than just affecting the chart.
 - The Edit Order page is now a Vue app.
 - Order status change emails are triggered by a queue job for faster checkout.
@@ -92,7 +91,9 @@
 - Discount usage conditions now apply to the discount as a whole, rather than just the coupon code.
 - Discounts’ user and email usage counters can be cleared individually.
 - Addresses no longer require a first and last name.
-- Guest orders are now consolidated with other orders from the same customer immediately after an order is completed, rather than when a user logs in.Added consolidation of guest orders after an order is completed. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- Guest orders are now consolidated with other orders from the same customer immediately after an order is completed, rather than when a user logs in. ([#1062](https://github.com/craftcms/commerce/issues/1062))
+- It is no longer possible to merge previous carts automatically using the `mergeCarts` param.
+- Removed the `mergeCarts` paremeter from `craft\commerce\services\Carts::getCart()`.
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
@@ -123,6 +124,7 @@
 - Removed `craft\commerce\elements\Product::getSnapshot()`.
 - Removed `craft\commerce\elements\Product::getUnlimitedStock()`.
 - Removed `craft\commerce\elements\Variant::getSalesApplied()`.
+- Removed `craft\commerce\helpers\Order::mergeOrders()`.
 - Removed `craft\commerce\models\Address::getFullName()`.
 - Removed `craft\commerce\models\Discount::$totalUses`.
 - Removed `craft\commerce\models\Discount::$totalUseLimit`.
