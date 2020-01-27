@@ -101,11 +101,13 @@ class LineItemStatus extends Model
     /**
      * @return array
      */
-    public function rules(): array
+    public function defineRules(): array
     {
-        return [
-            [['name', 'handle'], 'required'],
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['name', 'handle'], 'required'];
+
+        return $rules;
     }
 
     /**

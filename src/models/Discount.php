@@ -321,35 +321,45 @@ class Discount extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
             [
+                'purchaseTotal',
+                'perUserLimit',
+                'perEmailLimit',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
+                'purchaseTotal',
+                'purchaseQty',
+                'maxPurchaseQty',
+                'baseDiscount',
+                'perItemDiscount',
+                'percentDiscount'
+            ], 'number', 'skipOnEmpty' => false
+        ];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
+        $rules[] = [
+            ['categoryRelationshipType'], 'in', 'range' =>
                 [
-                    'purchaseTotal',
-                    'perUserLimit',
-                    'perEmailLimit',
-                    'totalDiscountUseLimit',
-                    'totalDiscountUses',
-                    'purchaseTotal',
-                    'purchaseQty',
-                    'maxPurchaseQty',
-                    'baseDiscount',
-                    'perItemDiscount',
-                    'percentDiscount'
-                ], 'number', 'skipOnEmpty' => false
-            ],
-            [
-                'hasFreeShippingForOrder', function($attribute, $params, $validator) {
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
+                ]
+        ];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
+        $rules[] = [
+            'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                     $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
                 }
             }
-            ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
-            [['categoryRelationshipType'], 'in', 'range' => [DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET, DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH]],
         ];
+
+        return $rules;
     }
 
 

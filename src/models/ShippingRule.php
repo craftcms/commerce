@@ -134,8 +134,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $orderShippingCategories = [];
         foreach ($order->lineItems as $lineItem) {
             // Dont' look at the shipping category of non shippable products.
-            if($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable())
-            $orderShippingCategories[] = $lineItem->shippingCategoryId;
+            if ($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable()) {
+                $orderShippingCategories[] = $lineItem->shippingCategoryId;
+            }
         }
         $orderShippingCategories = array_unique($orderShippingCategories);
         return $orderShippingCategories;
@@ -170,30 +171,32 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
+        $rules = parent::defineRules();
+
+        $rules[] = [
             [
-                [
-                    'name',
-                    'methodId',
-                    'priority',
-                    'enabled',
-                    'minQty',
-                    'maxQty',
-                    'minTotal',
-                    'maxTotal',
-                    'minWeight',
-                    'maxWeight',
-                    'baseRate',
-                    'perItemRate',
-                    'weightRate',
-                    'percentageRate',
-                    'minRate',
-                    'maxRate',
-                ], 'required'
-            ]
+                'name',
+                'methodId',
+                'priority',
+                'enabled',
+                'minQty',
+                'maxQty',
+                'minTotal',
+                'maxTotal',
+                'minWeight',
+                'maxWeight',
+                'baseRate',
+                'perItemRate',
+                'weightRate',
+                'percentageRate',
+                'minRate',
+                'maxRate',
+            ], 'required'
         ];
+
+        return $rules;
     }
 
     /**
@@ -218,8 +221,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if($purchasable && !$purchasable->getIsShippable())
-            {
+            if ($purchasable && !$purchasable->getIsShippable()) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -227,8 +229,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $shippableItemsInOrder = count($lineItems) != count($nonShippableItems);
 
         // If we have some shippable items in the cart, lets look at their allow/disallow rules
-        if($shippableItemsInOrder)
-        {
+        if ($shippableItemsInOrder) {
             $shippingRuleCategories = $this->getShippingRuleCategories();
             $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
             list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);

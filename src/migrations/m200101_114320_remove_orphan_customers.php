@@ -21,17 +21,20 @@ class m200101_114320_remove_orphan_customers extends Migration
      */
     public function safeUp()
     {
-        $customers = (new Query())
-            ->select(['[[customers.id]] id'])
-            ->from('{{%commerce_customers}} customers')
-            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
-            ->column();
+        // Delete all customer records (and their addresses) which aren't related to any orders
+        // and don't have a user ID.
+        $subSubQuery = (new Query())
+            ->select(['[[cc.id]]'])
+            ->from('{{%commerce_customers}} cc')
+            ->leftJoin('{{%commerce_orders}} o', '[[cc.id]] = [[o.customerId]]')
+            ->where(['o.id' => null, 'cc.userId' => null]);
 
-        // This will also remove all addresses related to the customer.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_customers}}', ['id' => $customers])
-            ->execute();
+        $subQuery = (new Query())
+            ->select(['sqid.id'])
+            ->from(['sqid' => $subSubQuery]);
+
+        // https://stackoverflow.com/a/14302701/167827
+        $this->delete('{{%commerce_customers}}', ['in', 'id', $subQuery]);
     }
 
     /**

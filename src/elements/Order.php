@@ -1013,9 +1013,9 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         // Address models are valid
         $rules[] = [

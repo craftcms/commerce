@@ -126,10 +126,12 @@ class TaxCategory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['handle'], 'required']
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['handle'], 'required'];
+
+        return $rules;
     }
 }

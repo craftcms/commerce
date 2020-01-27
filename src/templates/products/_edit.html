@@ -27,7 +27,7 @@
         {% if showPreviewBtn %}
           <div id="preview-btn" class="btn livepreviewbtn">{{ 'Preview'|t('app') }}</div>
         {% endif %}
-        {% if shareUrl %}
+        {% if shareUrl is defined %}
           <a id="share-btn" href="{{ shareUrl }}" class="btn sharebtn" target="_blank">{{ 'Share'|t('app') }}</a>
         {% endif %}
       </div>

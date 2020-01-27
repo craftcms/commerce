@@ -192,11 +192,13 @@ class Discounts extends Component
                     'enabled' => 1,
                 ])
                 // Restrict by things that a definitely not in date
-                ->andWhere(['or',
+                ->andWhere([
+                    'or',
                     ['dateFrom' => null],
                     ['<=', 'dateFrom', Db::prepareDateForDb($date)]
                 ])
-                ->andWhere(['or',
+                ->andWhere([
+                    'or',
                     ['dateTo' => null],
                     ['>=', 'dateTo', Db::prepareDateForDb($date)]
                 ])
@@ -443,6 +445,7 @@ class Discounts extends Component
         if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
             $lineItemMatch = false;
             foreach ($order->getLineItems() as $lineItem) {
+                // Must mot match order as we would get an infinate recursion
                 if ($this->matchLineItem($lineItem, $discount, false)) {
                     $lineItemMatch = true;
                     break;

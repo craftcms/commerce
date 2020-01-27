@@ -122,23 +122,31 @@ class Sale extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [
-                ['apply'],
-                'in',
-                'range' => [
-                    'toPercent',
-                    'toFlat',
-                    'byPercent',
-                    'byFlat'
-                ],
-            ],
-            [['enabled'], 'boolean'],
-            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
-            [['categoryRelationshipType'], 'in', 'range' => [SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE, SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET, SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH]]
+        $rules = parent::defineRules();
+
+        $rules[] = [
+            ['apply'],
+            'in',
+            'range' => [
+                'toPercent',
+                'toFlat',
+                'byPercent',
+                'byFlat'
+            ]
         ];
+        $rules[] = [
+            ['categoryRelationshipType'], 'in', 'range' => [
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
+            ]
+        ];
+        $rules[] = [['enabled'], 'boolean'];
+        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
+
+        return $rules;
     }
 
     /**
