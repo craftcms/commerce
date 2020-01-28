@@ -90,12 +90,12 @@ class Carts extends Component
         // Has the customer in session changed?
         if ($changedCustomerId) {
             // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
-            if ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
+            if ($this->_cart->billingAddressId && $billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
                 $billingAddress->id = null;
                 $this->_cart->setBillingAddress($billingAddress);
             }
             // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
-            if ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
+            if ($this->_cart->shippingAddressId && $shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
                 $shippingAddress->id = null;
                 $this->_cart->setShippingAddress($shippingAddress);
             }
