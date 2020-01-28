@@ -41,7 +41,6 @@ use craft\commerce\widgets\AverageOrderTotal;
 use craft\commerce\widgets\NewCustomers;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\RepeatCustomers;
-use craft\commerce\widgets\Revenue;
 use craft\commerce\widgets\TopCustomers;
 use craft\commerce\widgets\TopProducts;
 use craft\commerce\widgets\TopProductTypes;
@@ -478,7 +477,6 @@ class Plugin extends BasePlugin
             $event->types[] = NewCustomers::class;
             $event->types[] = Orders::class;
             $event->types[] = RepeatCustomers::class;
-            $event->types[] = Revenue::class;
             $event->types[] = TotalOrders::class;
             $event->types[] = TotalOrdersByCountry::class;
             $event->types[] = TopCustomers::class;

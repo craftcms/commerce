@@ -29,6 +29,9 @@
 - Added the ability to set the title label for products and variants per product type. ([#244](https://github.com/craftcms/commerce/issues/244))
 - Added the ability to enable/disabled countries and states. ([#213](https://github.com/craftcms/commerce/issues/213))
 - Added the ability to show customer info on the Orders index page.
+- Added `craft\commerce\base\Stat`.
+- Added `craft\commerce\base\StatInterface`.
+- Added `craft\commerce\base\StatTrait`.
 - Added `craft\commerce\controllers\CountriesController::actionUpdateStatus()`.
 - Added `craft\commerce\controllers\DiscountsController::actionClearDiscountUses()`.
 - Added `craft\commerce\controllers\DiscountsController::actionUpdateStatus()`.
@@ -73,6 +76,19 @@
 - Added `craft\commerce\services\States::getAllEnabledStatesAsList`.
 - Added `craft\commerce\services\States::getAllEnabledStatesAsListGroupedByCountryId`.
 - Added `craft\commerce\services\States::getAllStatesAsListGroupedByCountryId`.
+- Added `craft\commerce\web\assets\chartjs\ChartJsAsset`.
+- Added `craft\commerce\web\assets\deepmerge\DeepMerge`.
+- Added `craft\commerce\web\assets\statwidgets\StatWidgets`.
+- Added `craft\commerce\widgets\AverageOrderTotal`.
+- Added `craft\commerce\widgets\NewCustomers`.
+- Added `craft\commerce\widgets\RepeatCustomers`.
+- Added `craft\commerce\widgets\TopCustomers`.
+- Added `craft\commerce\widgets\TopProducts`.
+- Added `craft\commerce\widgets\TopProductTypes`.
+- Added `craft\commerce\widgets\TopPurchasables`.
+- Added `craft\commerce\widgets\TotalOrders`.
+- Added `craft\commerce\widgets\TotalOrdersByCountry`.
+- Added `craft\commerce\widgets\TotalRevenue`.
 
 ## Changed
 - When a customer logs in, and their current guest cart is empty, their most recent cart that had items in it will be restored as the new current cart.
@@ -113,6 +129,7 @@
 - Removed the `commerce/cart/remove-line-item` action.
 - Removed the `commerce/cart/update-line-item` action.
 - Removed `craft\commerce\base\Purchasable::getPurchasableId()`.
+- Removed `craft\commerce\controllers\ChartsController`.
 - Removed `craft\commerce\controllers\DiscountsController::actionClearCouponUsageHistory()`.
 - Removed `craft\commerce\controllers\DownloadController::actionExportOrder()`.
 - Removed `craft\commerce\elements\db\OrderQuery::updatedAfter()`.
@@ -143,4 +160,6 @@
 - Removed `craft\commerce\services\Reports::getOrdersExportFile()`.
 - Removed `craft\commerce\models\Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES` event. Use `craft\base\Model::EVENT_DEFINE_RULES` instead.
 - Removed `craft\commerce\services\Reports::EVENT_BEFORE_GENERATE_EXPORT` event. Use `craft\base\Element::EVENT_REGISTER_EXPORTERS` to create your own exports.
+- Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
+- Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
