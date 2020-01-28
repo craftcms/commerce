@@ -98,7 +98,10 @@ class TotalOrders extends Widget
         }
 
         $stats = $this->_stat->get();
-        return Plugin::t('{total} orders', ['total' => $stats['total'] ?? 0]);
+        $total =  $stats['total'] ?? 0;
+        $total = Craft::$app->getFormatter()->asInteger($total);
+
+        return Plugin::t('{total} orders', ['total' => $total]);
     }
 
     public function getSubtitle()
@@ -132,7 +135,7 @@ class TotalOrders extends Widget
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
-        return $view->renderTemplate('commerce/_components/widgets/Orders/total/body', compact(
+        return $view->renderTemplate('commerce/_components/widgets/orders/total/body', compact(
             'namespaceId',
             'number',
             'timeFrame',
@@ -158,7 +161,7 @@ class TotalOrders extends Widget
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/total/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/total/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,

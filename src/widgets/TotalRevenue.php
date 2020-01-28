@@ -151,7 +151,7 @@ class TotalRevenue extends Widget
         $orderCount = ArrayHelper::getColumn($stats, 'count', false);
         $widget = $this;
 
-        return $view->renderTemplate('commerce/_components/widgets/Orders/revenue/body',
+        return $view->renderTemplate('commerce/_components/widgets/orders/revenue/body',
             compact(
                 'widget',
                 'stats',
@@ -173,7 +173,7 @@ class TotalRevenue extends Widget
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/revenue/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/revenue/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,

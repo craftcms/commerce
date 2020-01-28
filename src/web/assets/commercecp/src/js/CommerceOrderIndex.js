@@ -66,17 +66,6 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         return this.base();
     },
 
-    getViewClass: function(mode) {
-        switch (mode) {
-            case 'table':
-                return Craft.Commerce.OrderTableView;
-            case 'thumbs':
-                return Craft.Commerce.OrderTableView;
-            default:
-                throw 'View mode "' + mode + '" not supported.';
-        }
-    },
-
     getViewParams: function() {
         var params = this.base();
 

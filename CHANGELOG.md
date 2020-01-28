@@ -2,12 +2,45 @@
 
 ## Unreleased 3.x
 
+### Added
+- Added `craft\commerce\base\Stat`.
+- Added `craft\commerce\base\StatInterface`.
+- Added `craft\commerce\base\StatTrait`.
+- Added `craft\commerce\stats\AverageOrderTotal`.
+- Added `craft\commerce\stats\NewCustomers`.
+- Added `craft\commerce\stats\RepeatCustomers`.
+- Added `craft\commerce\stats\TopCustomers`.
+- Added `craft\commerce\stats\TopProducts`.
+- Added `craft\commerce\stats\TopProductTypes`.
+- Added `craft\commerce\stats\TopPurchasables`.
+- Added `craft\commerce\stats\TotalOrders`.
+- Added `craft\commerce\stats\TotalOrdersByCountry`.
+- Added `craft\commerce\stats\TotalRevenue`.
+- Added `craft\commerce\web\assets\chartjs\ChartJsAsset`.
+- Added `craft\commerce\web\assets\deepmerge\DeepMerge`.
+- Added `craft\commerce\web\assets\statwidgets\StatWidgets`.
+- Added `craft\commerce\widgets\AverageOrderTotal`.
+- Added `craft\commerce\widgets\NewCustomers`.
+- Added `craft\commerce\widgets\RepeatCustomers`.
+- Added `craft\commerce\widgets\TopCustomers`.
+- Added `craft\commerce\widgets\TopProducts`.
+- Added `craft\commerce\widgets\TopProductTypes`.
+- Added `craft\commerce\widgets\TopPurchasables`.
+- Added `craft\commerce\widgets\TotalOrders`.
+- Added `craft\commerce\widgets\TotalOrdersByCountry`.
+- Added `craft\commerce\widgets\TotalRevenue`.
+
 ### Fixed
 - Fixed a validation error that occurred when saving an order status.
 - Added the `hasLineItems` order query param.
 - Added `craft\commerce\elements\Order::hasLineItems()`.
 - Fixed a SQL error that could occur when updating to Commerce 3 if there were a large number of orphaned customers in the database.
 - Fixed a PostgreSQL error that occurred when retrieving customers to consolidate.
+
+### Removed
+- Removed `craft\commerce\controllers\ChartsController`.
+- Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
+- Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 
 ## 3.0.0-RC1 - 2020-01-14
  

@@ -126,7 +126,7 @@
         {% endif %}
 
         {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
+            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
             {{ forms.elementSelectField({
                 id: 'purchasables-'~purchasableType.elementType|id,
                 label: purchasableType.name,
@@ -363,7 +363,7 @@ Currency value: “10” for $10 off. Percent: “10” for 10% off."|t('commerc
         }, pctDiscountInput) }}
 
         {{ forms.checkboxField({
-            label: "Ignore sales when this discount is applied."|t('commerce'),
+            label: "Ignore sales when this discount is applied"|t('commerce'),
             id: 'ignoreSales',
             name: 'ignoreSales',
             value: 1,

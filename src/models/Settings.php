@@ -202,6 +202,7 @@ class Settings extends Model
 
     /**
      * @var bool
+     * @since 3.0
      */
     public $showCustomerInfoTab = true;
 
