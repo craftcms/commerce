@@ -74,7 +74,7 @@ class RepeatCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Repeating Customers');
+        return Plugin::t('Repeat Customers');
     }
 
     /**

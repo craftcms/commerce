@@ -119,7 +119,7 @@ class Orders extends Widget
     /**
      * Returns the recent entries, based on the widget settings and user permissions.
      *
-     * @return array
+     * @return Order[]
      */
     private function _getOrders(): array
     {
