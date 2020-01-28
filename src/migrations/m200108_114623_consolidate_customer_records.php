@@ -8,7 +8,7 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\queue\ConsolidateGuestOrders;
+use craft\commerce\queue\jobs\ConsolidateGuestOrders;
 use craft\db\Migration;
 use craft\db\Query;
 use yii\db\Expression;

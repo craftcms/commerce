@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\queue;
+namespace craft\commerce\queue\jobs;
 
 use Craft;
 use craft\commerce\db\Table;

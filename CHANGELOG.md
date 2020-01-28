@@ -44,7 +44,7 @@
 - Added `craft\commerce\models\ProductType::$titleLabel`.
 - Added `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Added `craft\commerce\models\State::$enabled`.
-- Added `craft\commerce\queue\ConsolidateGuestOrders`.
+- Added `craft\commerce\queue\jobs\ConsolidateGuestOrders`.
 - Added `craft\commerce\records\Country::$enabled`.
 - Added `craft\commerce\records\State::$enabled`.
 - Added `craft\commerce\services\Countries::getAllEnabledCountries`.
