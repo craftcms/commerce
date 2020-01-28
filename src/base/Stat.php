@@ -471,7 +471,7 @@ abstract class Stat implements StatInterface
             ->all();
 
         $return = array_replace($defaults, $results);
-        ksort($return);
+        ksort($return, SORT_NATURAL);
 
         return $return;
     }
