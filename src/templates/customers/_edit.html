@@ -11,12 +11,14 @@
 {% import "_includes/forms" as forms %}
 
 {% block actionButton %}
-  <form action="" id="new-order" method="post">
-    {{ csrfInput() }}
-    <input type="hidden" name="customerId" value="{{ customer.id }}">
-    <input type="hidden" name="action" value="commerce/orders/new-order">
-    <a href="javascript:$('#new-order').submit();" class="btn icon add" onclick="">{{ 'New Order'|t('commerce') }}</a>
-  </form>
+  {% if currentUser.can('commerce-editOrders') and craft.commerce.is('pro') %}
+    <form action="" id="new-order" method="post">
+      {{ csrfInput() }}
+      <input type="hidden" name="customerId" value="{{ customer.id }}">
+      <input type="hidden" name="action" value="commerce/orders/new-order">
+      <a href="javascript:$('#new-order').submit();" class="btn icon add" onclick="">{{ 'New Order'|t('commerce') }}</a>
+    </form>
+  {% endif %}
 {% endblock %}
 
 {% block details %}
