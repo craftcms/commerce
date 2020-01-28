@@ -98,7 +98,10 @@ class TotalOrders extends Widget
         }
 
         $stats = $this->_stat->get();
-        return Plugin::t('{total} orders', ['total' => $stats['total'] ?? 0]);
+        $total =  $stats['total'] ?? 0;
+        $total = Craft::$app->getFormatter()->asInteger($total);
+
+        return Plugin::t('{total} orders', ['total' => $total]);
     }
 
     public function getSubtitle()
