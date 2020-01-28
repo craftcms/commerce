@@ -133,7 +133,18 @@ class CustomersController extends BaseCpController
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
-            ->groupBy(['[[customers.id]]','[[orders.email]]'])
+            ->groupBy([
+                'customers.id',
+                'orders.email',
+                'billing.firstName',
+                'billing.lastName',
+                'billing.fullName',
+                'billing.address1',
+                'shipping.firstName',
+                'shipping.lastName',
+                'shipping.fullName',
+                'shipping.address1',
+            ])
 
             // Exclude customer records without a user or where there isn't any data
             ->where(['or',
@@ -145,7 +156,7 @@ class CustomersController extends BaseCpController
                         ['not', ['primaryShippingAddressId' => null]],
                     ]
                 ]
-            ])->andWhere('[[orders.isCompleted]] = 1');
+            ])->andWhere(['[[orders.isCompleted]]' => 1]);
 
         if ($search) {
             $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
