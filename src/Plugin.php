@@ -96,7 +96,6 @@ class Plugin extends BasePlugin
     const EDITION_LITE = 'lite';
     const EDITION_PRO = 'pro';
 
-
     public static function editions(): array
     {
         return [
@@ -119,7 +118,6 @@ class Plugin extends BasePlugin
         return Craft::t('commerce', $message, $params, $language);
     }
 
-
     /**
      * @inheritDoc
      */
@@ -139,12 +137,10 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public $minVersionRequired = '1.2.1360';
-
-
+    
     use CommerceServices;
     use Variables;
     use Routes;
-
 
     /**
      * @inheritdoc
