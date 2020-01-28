@@ -6,6 +6,16 @@
 - Added `craft\commerce\base\Stat`.
 - Added `craft\commerce\base\StatInterface`.
 - Added `craft\commerce\base\StatTrait`.
+- Added `craft\commerce\stats\AverageOrderTotal`.
+- Added `craft\commerce\stats\NewCustomers`.
+- Added `craft\commerce\stats\RepeatCustomers`.
+- Added `craft\commerce\stats\TopCustomers`.
+- Added `craft\commerce\stats\TopProducts`.
+- Added `craft\commerce\stats\TopProductTypes`.
+- Added `craft\commerce\stats\TopPurchasables`.
+- Added `craft\commerce\stats\TotalOrders`.
+- Added `craft\commerce\stats\TotalOrdersByCountry`.
+- Added `craft\commerce\stats\TotalRevenue`.
 - Added `craft\commerce\web\assets\chartjs\ChartJsAsset`.
 - Added `craft\commerce\web\assets\deepmerge\DeepMerge`.
 - Added `craft\commerce\web\assets\statwidgets\StatWidgets`.
