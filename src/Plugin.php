@@ -371,7 +371,7 @@ class Plugin extends BasePlugin
                         ],
                     ]
                 ],
-                'commerce-manageCustomers' => ['label' => self::t('Manage Customers')],
+                'commerce-manageCustomers' => ['label' => self::t('Manage customers')],
                 'commerce-managePromotions' => ['label' => self::t('Manage promotions')],
                 'commerce-manageSubscriptions' => ['label' => self::t('Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => self::t('Manage shipping (Pro edition Only)')],
