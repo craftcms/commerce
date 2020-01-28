@@ -14,7 +14,6 @@ use craft\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
-
     /**
      * @return Response
      */
@@ -83,13 +82,12 @@ class StoreLocationController extends BaseStoreSettingsController
         $address->isStoreLocation = true;
 
         if ($address->validate() && Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Store Location saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Store Location saved.'));
 
             return $this->redirectToPostedUrl();
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save Store Location.'));
+        Craft::$app->getSession()->setError(Plugin::t('Couldn’t save Store Location.'));
 
         $variables = [
             'storeLocation' => $address

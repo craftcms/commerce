@@ -6,6 +6,5 @@
 *.sass-cache/*
 *Thumbs.db
 *aspnet_client/*
-/composer.lock
 node_modules/
 /vendor

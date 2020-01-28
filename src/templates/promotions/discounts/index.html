@@ -1,89 +1,103 @@
 {% extends "commerce/_layouts/promotions" %}
 {% set selectedSidebarNavItem = 'discounts' %}
 
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Code',
+    'Duration',
+    'Times Used',
+    'Stops Processing?',
+    'Ignore Sales?',
+    'Discounts reorderd.',
+    'Couldn’t reorder discounts.',
+    'No discounts exist yet.',
+]) %}
+
 {% block actionButton %}
-    <div class="buttons">
-        <a href="{{ url('commerce/promotions/discounts/new') }}"
-           class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
-    </div>
+    <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
 {% endblock %}
 
 
 {% block content %}
-    <h2>{{ "Discounts"|t('commerce') }}</h2>
-
-    <div id="no-discounts"{% if discounts|length %} class="hidden"{% endif %}>
-        <p>{{ "No discounts exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if discounts|length %}
-        <table id="discounts" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t('commerce') }}</th>
-                <th scope="col">{{ "Code"|t('commerce') }}</th>
-                <th scope="col">{{ "Duration"|t('commerce') }}</th>
-                <th scope="col">{{ "Times Used"|t('commerce') }}</th>
-                <th scope="col">{{ "Stops Processing?"|t('commerce') }}</th>
-                <th scope="col">{{ "Ignore Sales?"|t('commerce') }}</th>
-                <td class="thin"></td>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for discount in discounts %}
-                <tr data-id="{{ discount.id }}" data-name="{{ discount.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                        {% if discount.enabled %}
-                            <div class="status enabled"></div>
-                        {% else %}
-                            <div class="status"></div>
-                        {% endif %}
-                        <a href="{{ url('commerce/promotions/discounts/'~discount.id) }}">{{ discount.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Code'|t('commerce') }}"
-                        class="code">{{ discount.code }}</td>
-                    <td data-title="{{ 'Duration'|t('commerce') }}">
-                        {{ (discount.dateFrom ? discount.dateFrom|datetime('short'): '∞') }}
-                        -
-                        {{ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') }}
-                    </td>
-                    <td data-title="{{ 'Times Coupon Used'|t('commerce') }}">{{ discount.totalUses }}</td>
-                    <td data-title="{{ 'Can Stop Processing?'|t('commerce') }}">
-                        {% if discount.stopProcessing %}
-                          <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Ignore Sales?'|t('commerce') }}">
-                        {% if discount.ignoreSales %}
-                          <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
-                        {% endif %}
-                    </td>
-                    <td class="thin">
-                        <a class="move icon disabled"
-                           title="{{ 'Delete'|t('commerce') }}"
-                           role="button"></a>
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
+    <div id="discounts-vue-admin-table"></div>
 {% endblock %}
+
+{% set tableData = [] %}
+{% for discount in discounts %}
+    {% set tableData = tableData|merge([{
+        id: discount.id,
+        title: discount.name|t('site'),
+        url: url('commerce/promotions/discounts/' ~ discount.id),
+        status: discount.enabled ? true : false,
+        duration: (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞'),
+        timesUsed: discount.totalDiscountUses,
+        handle: discount.code,
+        ignore: discount.ignoreSales ? true : false,
+        stop: discount.stopProcessing ? true : false,
+    }]) %}
+{% endfor %}
+
 
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-      tableSelector: '#discounts',
-      noObjectsSelector: '#no-discounts',
-      deleteAction: 'commerce/discounts/delete',
-      sortable: true,
-      reorderAction: 'commerce/discounts/reorder',
-      reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
-      reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.')
-    });
+    var actions = [
+        {
+            label: Craft.t('app', 'Set Status'),
+            actions: [
+                {
+                    label: Craft.t('app', 'Enabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('app', 'Disabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        }
+    ];
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
+        { name: 'duration', title: Craft.t('commerce', 'Duration') },
+        { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
+        { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Sales?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#discounts-vue-admin-table',
+        deleteAction: 'commerce/discounts/delete',
+        emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
+        padded: true,
+        reorderAction: 'commerce/discounts/reorder',
+        reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
+        tableData: {{ tableData|json_encode|raw }}
+});
 {% endjs %}

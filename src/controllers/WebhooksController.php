@@ -21,9 +21,6 @@ use yii\web\Response;
  */
 class WebhooksController extends BaseController
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -34,8 +31,6 @@ class WebhooksController extends BaseController
      */
     public $enableCsrfValidation = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Response

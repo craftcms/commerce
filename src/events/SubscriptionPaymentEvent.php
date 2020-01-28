@@ -20,9 +20,6 @@ use yii\base\Event;
  */
 class SubscriptionPaymentEvent extends Event
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Subscription Subscription
      */

@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
+use craft\commerce\queue\ConsolidateGuestOrders;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -43,21 +44,14 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-    // Constants
-    // =========================================================================
-
     const SESSION_CUSTOMER = 'commerce_customer';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Customer
      */
     private $_customer;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all customers.
@@ -258,6 +252,7 @@ class Customers extends Component
 
     /**
      * Deletes any customer record not related to a user or a cart.
+     *
      * @since 2.2
      */
     public function purgeOrphanedCustomers()
@@ -266,14 +261,15 @@ class Customers extends Component
             ->select(['[[customers.id]] id'])
             ->from('{{%commerce_customers}} customers')
             ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null])
-            ->andWhere(['[[customers.userId]]' => null])
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
             ->column();
 
-        // This will also remove all addresses related to the customer.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_customers}}', ['id' => $customers])
-            ->execute();
+        if ($customers) {
+            // This will also remove all addresses related to the customer.
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%commerce_customers}}', ['id' => $customers])
+                ->execute();
+        }
     }
 
     /**
@@ -291,12 +287,6 @@ class Customers extends Component
         if ($impersonating) {
             Plugin::getInstance()->getCarts()->forgetCart();
         }
-
-        /** @var User $user */
-        $user = $event->identity;
-
-        // Consolidates completed orders to the user
-        $this->consolidateOrdersToUser($user);
     }
 
     /**
@@ -318,6 +308,7 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
+     * @deprecated in 3.0 use ConsolidateGuestOrders job instead
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
@@ -375,7 +366,6 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-
         $row = $this->_createCustomerQuery()
             ->where(['userId' => $id])
             ->one();
@@ -431,6 +421,11 @@ class Customers extends Component
         if ($orderAddressesMutated) {
             Craft::$app->getElements()->saveElement($order, false);
         }
+
+        // Consolidate guest orders
+        Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+            'emails' => [$order->email]
+        ]));
     }
 
     /**
@@ -470,8 +465,6 @@ class Customers extends Component
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get the current customer.
@@ -688,7 +681,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Customer Info'),
+                'label' => Plugin::t('Customer Info'),
                 'url' => '#customerInfo'
             ];
         }
@@ -717,8 +710,9 @@ class Customers extends Component
         }
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
-            'customer' => $customer
+        return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
+            'customer' => $customer,
+            'addressRedirect' => $context['user']->getCpEditUrl(),
         ]);
     }
 }

@@ -18,9 +18,6 @@ use craft\events\CancelableEvent;
  */
 class SubscriptionEvent extends CancelableEvent
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Subscription Subscription
      */

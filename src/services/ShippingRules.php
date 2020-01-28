@@ -28,9 +28,6 @@ use yii\base\Exception;
  */
 class ShippingRules extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -46,8 +43,6 @@ class ShippingRules extends Component
      */
     private $_shippingRulesByMethodId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all shipping rules.
@@ -290,8 +285,6 @@ class ShippingRules extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving shipping rules.
      *

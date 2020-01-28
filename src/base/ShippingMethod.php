@@ -20,9 +20,6 @@ use craft\commerce\errors\NotImplementedException;
  */
 abstract class ShippingMethod extends Model implements ShippingMethodInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -48,8 +45,6 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
      */
     public $isLite = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -189,15 +184,5 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
         }
 
         return $amount;
-    }
-
-    /**
-     * @deprecated in 2.0
-     */
-    public function getAmount()
-    {
-        Craft::$app->getDeprecator()->log('ShippingMethod::amount', 'ShippingMethod::amount has been deprecated. Use ShippingMethod::getPriceForOrder($order) instead.');
-
-        return 0;
     }
 }

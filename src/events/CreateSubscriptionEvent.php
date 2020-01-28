@@ -20,9 +20,6 @@ use craft\events\CancelableEvent;
  */
 class CreateSubscriptionEvent extends CancelableEvent
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var User The subscribing user
      */

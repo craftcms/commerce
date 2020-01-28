@@ -31,6 +31,7 @@ use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
+use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -54,15 +55,10 @@ use yii\base\InvalidConfigException;
  */
 class Product extends Element
 {
-    // Constants
-    // =========================================================================
-
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var DateTime Post date
@@ -169,8 +165,6 @@ class Product extends Element
      */
     private $_cheapestVariant;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -180,6 +174,29 @@ class Product extends Element
         return Plugin::t('Product');
     }
 
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('product');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Plugin::t('Products');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('products');
+    }
 
     /**
      * @inheritdoc
@@ -271,17 +288,6 @@ class Product extends Element
         }
 
         return $productType;
-    }
-
-    /**
-     * Allows the variant to ask the product what data to snapshot.
-     *
-     * @return array
-     * @deprecated as of 2.1.5.3 Not needed as products are not purchasables.
-     */
-    public function getSnapshot(): array
-    {
-        return [];
     }
 
     /**
@@ -513,19 +519,6 @@ class Product extends Element
      * Returns whether at least one variant has unlimited stock.
      *
      * @return bool
-     * @deprecated as of 2.0
-     */
-    public function getUnlimitedStock()
-    {
-        Craft::$app->getDeprecator()->log('Product::getUnlimitedStock()', 'Product::getUnlimitedStock() has been deprecated. Use Product::getHasUnlimitedStock() instead');
-
-        return $this->getHasUnlimitedStock();
-    }
-
-    /**
-     * Returns whether at least one variant has unlimited stock.
-     *
-     * @return bool
      */
     public function getHasUnlimitedStock(): bool
     {
@@ -536,6 +529,35 @@ class Product extends Element
         }
 
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public function getGqlTypeName(): string
+    {
+        return static::gqlTypeNameByContext($this->getType());
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public static function gqlTypeNameByContext($context): string
+    {
+        /** @var ProductType $context */
+        return $context->handle . '_Product';
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.3.0
+     */
+    public static function gqlScopesByContext($context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
     }
 
     /**
@@ -690,7 +712,6 @@ class Product extends Element
 
         // Only save variants once (since they will propagate themselves the first time.
         if (!$this->propagating) {
-
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
@@ -700,7 +721,6 @@ class Product extends Element
 
             /** @var Variant $variant */
             foreach ($this->getVariants() as $variant) {
-
                 if ($isNew) {
                     $variant->productId = $this->id;
                     $variant->siteId = $this->siteId;
@@ -801,9 +821,9 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
@@ -891,8 +911,6 @@ class Product extends Element
         return parent::beforeSave($isNew);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

@@ -15,9 +15,6 @@ namespace craft\commerce\controllers;
  */
 class BaseShippingSettingsController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

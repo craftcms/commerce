@@ -28,8 +28,6 @@ use yii\base\Component;
  */
 class Transactions extends Component
 {
-    // Constants
-    // =========================================================================
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been saved.
      *
@@ -64,8 +62,6 @@ class Transactions extends Component
      */
     const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns true if a specific transaction can be refunded.
@@ -412,8 +408,6 @@ class Transactions extends Component
         return true;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving Transactions.
      *

@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class CustomizeProductSnapshotFieldsEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Product The product
      */

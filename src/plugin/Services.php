@@ -17,6 +17,7 @@ use craft\commerce\services\Emails;
 use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItems;
+use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
 use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Orders;
@@ -86,9 +87,6 @@ use craft\commerce\services\Variants;
  */
 trait Services
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns the address service
      *
@@ -188,6 +186,16 @@ trait Services
     public function getLineItems(): LineItems
     {
         return $this->get('lineItems');
+    }
+
+    /**
+     * Returns the lineItems statuses service
+     *
+     * @return LineItemStatuses The lineItems service
+     */
+    public function getLineItemStatuses(): LineItemStatuses
+    {
+        return $this->get('lineItemStatuses');
     }
 
     /**
@@ -308,16 +316,6 @@ trait Services
     public function getPurchasables(): Purchasables
     {
         return $this->get('purchasables');
-    }
-
-    /**
-     * Returns the reporting service
-     *
-     * @return Reports The reports service
-     */
-    public function getReports(): Reports
-    {
-        return $this->get('reports');
     }
 
     /**
@@ -450,8 +448,6 @@ trait Services
         return $this->get('variants');
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Sets the components of the commerce plugin
@@ -469,6 +465,7 @@ trait Services
             'formulas' => Formulas::class,
             'gateways' => Gateways::class,
             'lineItems' => LineItems::class,
+            'lineItemStatuses' => LineItemStatuses::class,
             'orderAdjustments' => OrderAdjustments::class,
             'orderHistories' => OrderHistories::class,
             'orders' => Orders::class,
@@ -482,7 +479,6 @@ trait Services
             'products' => Products::class,
             'productTypes' => ProductTypes::class,
             'purchasables' => Purchasables::class,
-            'reports' => Reports::class,
             'sales' => Sales::class,
             'shippingMethods' => ShippingMethods::class,
             'shippingRules' => ShippingRules::class,

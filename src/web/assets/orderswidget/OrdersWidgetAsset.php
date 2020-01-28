@@ -7,7 +7,9 @@
 
 namespace craft\commerce\web\assets\orderswidget;
 
+use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\web\AssetBundle;
+use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\assets\cp\CpAsset;
 
 /**
@@ -18,9 +20,6 @@ use craft\web\assets\cp\CpAsset;
  */
 class OrdersWidgetAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -30,8 +29,9 @@ class OrdersWidgetAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
+            StatWidgetsAsset::class,
+            AdminTableAsset::class
         ];
-
         $this->js[] = 'js/OrdersWidgetSettings.js';
 
         parent::init();

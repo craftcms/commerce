@@ -29,9 +29,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentSources extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event PaymentSourceEvent The event that is triggered when a payment source is deleted
      *
@@ -83,8 +80,6 @@ class PaymentSources extends Component
      */
     const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a user's payment sources, per the user's ID.
@@ -285,8 +280,6 @@ class PaymentSources extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving gateways.
@@ -306,5 +299,4 @@ class PaymentSources extends Component
             ])
             ->from([Table::PAYMENTSOURCES]);
     }
-
 }

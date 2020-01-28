@@ -25,22 +25,18 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
-
-    // Constants
-    // =========================================================================
     const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
 
     const VIEW_URI_ORDERS = 'commerce/orders';
     const VIEW_URI_PRODUCTS = 'commerce/products';
+    const VIEW_URI_CUSTOMERS = 'commerce/customers';
     const VIEW_URI_PROMOTIONS = 'commerce/promotions';
     const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
     const VIEW_URI_TAX = 'commerce/tax/taxrates';
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var string Weight Units
@@ -65,7 +61,7 @@ class Settings extends Model
     /**
      * @var string Order PDF Path
      */
-    public $orderPdfPath = 'shop/_pdf/order';
+    public $orderPdfPath = 'shop/receipt';
 
     /**
      * @var string Order PDF Size
@@ -118,15 +114,19 @@ class Settings extends Model
     public $purgeInactiveCarts = true;
 
     /**
-     * @var string
+     * @var int The default length of time before inactive carts are purged. Default: 90 days
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      */
-    public $purgeInactiveCartsDuration = 'P3M';
+    public $purgeInactiveCartsDuration = 7776000;
 
     /**
-     * @var string
+     * @var int The default length of time a cart is considered active since its last update
+     *
+     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
      * @since 2.2
      */
-    public $activeCartDuration = 'PT1H';
+    public $activeCartDuration = 3600;
 
     /**
      * @var string
@@ -165,10 +165,9 @@ class Settings extends Model
 
     /**
      * @var bool Allow the cart to be empty on checkout
-     * @todo Set this to false in 3.0
      * @since 2.2
      */
-    public $allowEmptyCartOnCheckout = true;
+    public $allowEmptyCartOnCheckout = false;
 
     /**
      * @var bool
@@ -201,8 +200,12 @@ class Settings extends Model
      */
     public $updateBillingDetailsUrl = '';
 
-    // Public Methods
-    // =========================================================================
+    /**
+     * @var bool
+     * @since 3.0
+     */
+    public $showCustomerInfoTab = true;
+
 
     /**
      * @return array
@@ -210,9 +213,9 @@ class Settings extends Model
     public function getWeightUnitsOptions(): array
     {
         return [
-            'g' => Craft::t('commerce', 'Grams (g)'),
-            'kg' => Craft::t('commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'Pounds (lb)')
+            'g' => Plugin::t('Grams (g)'),
+            'kg' => Plugin::t('Kilograms (kg)'),
+            'lb' => Plugin::t('Pounds (lb)')
         ];
     }
 
@@ -222,11 +225,11 @@ class Settings extends Model
     public function getDimensionUnits(): array
     {
         return [
-            'mm' => Craft::t('commerce', 'Millimeters (mm)'),
-            'cm' => Craft::t('commerce', 'Centimeters (cm)'),
-            'm' => Craft::t('commerce', 'Meters (m)'),
-            'ft' => Craft::t('commerce', 'Feet (ft)'),
-            'in' => Craft::t('commerce', 'Inches (in)'),
+            'mm' => Plugin::t('Millimeters (mm)'),
+            'cm' => Plugin::t('Centimeters (cm)'),
+            'm' => Plugin::t('Meters (m)'),
+            'ft' => Plugin::t('Feet (ft)'),
+            'in' => Plugin::t('Inches (in)'),
         ];
     }
 
@@ -236,9 +239,9 @@ class Settings extends Model
     public function getMinimumTotalPriceStrategyOptions(): array
     {
         return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 
@@ -270,6 +273,7 @@ class Settings extends Model
         return [
             self::VIEW_URI_ORDERS => Plugin::t('Orders'),
             self::VIEW_URI_PRODUCTS => Plugin::t('Products'),
+            self::VIEW_URI_CUSTOMERS => Plugin::t('Customers'),
             self::VIEW_URI_PROMOTIONS => Plugin::t('Promotions'),
             self::VIEW_URI_SHIPPING => Plugin::t('Shipping'),
             self::VIEW_URI_TAX => Plugin::t('Tax'),
@@ -280,9 +284,9 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules [] = [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'], 'required'];
 

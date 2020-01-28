@@ -19,9 +19,6 @@ use craft\helpers\UrlHelper;
  */
 class Country extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -42,8 +39,11 @@ class Country extends Model
      */
     public $isStateRequired;
 
-    // Public Methods
-    // =========================================================================
+    /**
+     * @var bool Is Enabled
+     */
+    public $enabled;
+
 
     /**
      * @return string
@@ -56,9 +56,9 @@ class Country extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['iso', 'name'], 'required'];
         $rules[] = [['iso'], 'string', 'length' => [2]];

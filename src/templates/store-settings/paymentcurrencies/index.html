@@ -1,59 +1,57 @@
 {% extends "commerce/_layouts/store-settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Base',
+    'Code',
+    'Conversion Rate',
+    'Currency',
+    'No additional payment currencies exist yet.',
+    'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?',
+]) %}
 
-
-{% block content %}
-    <h2>{{ "Payment Currencies"|t('commerce') }}</h2>
-
-    <div id="no-currencies"{% if currencies|length %} class="hidden"{% endif %}>
-        <p>{{ "No additional payment currencies exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if currencies|length %}
-        <table id="currencies" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Currency'|t('commerce') }}</th>
-                <th scope="col">{{ 'Code'|t('commerce') }}</th>
-                <th scope="col">{{ 'Conversion Rate'|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for currency in currencies %}
-                <tr data-id="{{ currency.id }}"
-                    data-name="{{ currency.currency }}">
-                    <th scope="row" data-title="{{ 'Currency'|t('commerce') }}">
-                        <a href="{{ currency.cpEditUrl }}">{{ currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name }) : currency.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Code'|t('commerce') }}">
-                        <code>{{ currency.iso }}</code></td>
-                    <td data-title="{{ 'Conversion Rate'|t('commerce') }}">{% if currency.primary %}
-                        <span class="token">{{ "Base"|t('commerce') }}{% else %}{{ currency.rate|number }}{% endif %}</span>
-                    </td>
-                    <td class="thin">{% if not currency.primary %}<a
-                            class="delete icon"
-                            title="{{ 'Delete'|t('commerce') }}"
-                            role="button"></a>{% endif %}</td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/store-settings/paymentcurrencies/new') }}"
-           class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/store-settings/paymentcurrencies/new') }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="currencies-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for currency in currencies %}
+	{% set tableData = tableData|merge([{
+        id: currency.id,
+        title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site'),
+        url: currency.cpEditUrl,
+        handle: currency.iso,
+        rate: currency.primary ? 'base' : currency.rate|number,
+        _showDelete: (not currency.primary),
+    }]) %}
+{% endfor %}
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#currencies',
-    noObjectsSelector: '#no-currencies',
-    deleteAction: 'commerce/payment-currencies/delete',
-    confirmDeleteMessage:  Craft.t('commerce', 'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?') ,
-    deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}'
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Currency') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
+        {
+            name: 'rate',
+            title: Craft.t('commerce', 'Conversion Rate'),
+            callback: function(value) {
+                if (value == 'base') {
+                    return '<span class="token">'+Craft.escapeHtml(Craft.t('commerce', 'Base'))+'</span>'
+                }
+
+                return value;
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#currencies-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No additional payment currencies exist yet.'),
+        deleteAction: 'commerce/payment-currencies/delete',
+        deleteConfirmationMessage: Craft.t('commerce', 'Warning, deleting this currency will stop all payments and refunds in this currency, are you sure you want to delete “{name}”?'),
+        tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

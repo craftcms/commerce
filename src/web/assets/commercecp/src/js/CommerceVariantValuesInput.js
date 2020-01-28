@@ -3,7 +3,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 /**
- * Class Craft.Commerce.RevenueWidget
+ * Class Craft.Commerce.VariantValuesInput
  */
 Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     startListening: function() {

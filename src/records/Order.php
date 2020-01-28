@@ -39,6 +39,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $message
  * @property string $number
  * @property string $orderLanguage
+ * @property string $origin
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId
  * @property string $paidStatus
@@ -47,12 +48,14 @@ use yii\db\ActiveQueryInterface;
  * @property string $registerUserOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
+ * @property string $recalculationMode
  * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle
  * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
+ * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
  * @property Transaction[] $transactions
@@ -61,9 +64,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Order extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

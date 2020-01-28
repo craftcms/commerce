@@ -2,61 +2,64 @@
 
 {% set selectedItem = 'subscriptions/plans' %}
 
-{% block content %}
-    <h2>{{ "Subscription plans"|t('commerce') }}</h2>
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Gateway',
+    'Active subscriptions',
+    'Enabled?',
+    'Information linked?',
+    'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.',
+    'No subscription plans exist yet.',
+    'Plans reordered.',
+    'Couldn’t reorder plans.',
+    'Yes',
+    'No',
+]) %}
 
-    <div id="no-plans"{% if plans|length %} class="hidden"{% endif %}>
-        <p>{{ "No subscription plans exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if plans|length %}
-        <table id="plans" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t('commerce') }}</th>
-                <th scope="col">{{ "Handle"|t('commerce') }}</th>
-                <th scope="col">{{ "Gateway"|t('commerce') }}</th>
-                <th scope="col">{{ "Active subscriptions"|t('commerce') }}</th>
-                <th scope="col">{{ "Enabled?"|t('commerce') }}</th>
-                <th scope="col">{{ 'Information linked?'|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for plan in plans %}
-                <tr data-id="{{ plan.id }}"
-                    data-name="{{ plan.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a href="{{ url('commerce/settings/subscriptions/plan/'~plan.id) }}">{{ plan.name }}</a></th>
-                    <td data-title="{{ 'Handle'|t('commerce') }}"  class="code">{{ plan.handle }}</td>
-                    <td data-title="{{ 'Gateway'|t('commerce') }}">{{ plan.gateway.name }}</td>
-                    <td data-title="{{ 'Active subscriptions'|t('commerce') }}">{{ plan.subscriptionCount }}</td>
-                    <td data-title="{{ 'Enabled'|t('commerce') }}">{{ plan.enabled ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
-                    <td data-title="{{ 'Information linked?'|t('commerce') }}"  class="code">{{ plan.planInformationId ? 'Yes'|t('commerce') : 'No'|t('commerce') }}</td>
-                    <td class="thin"><a class="move icon" title="{{ 'Delete'|t('commerce') }}" role="button"></a></td>
-                    <td class="thin"><a class="delete icon" title="{{ 'Archive'|t('commerce') }}" role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/subscriptions/plan/new') }}"
-           class="btn submit add icon">{{ 'New subscription plan'|t('commerce') }}</a>
-    </div>
+{% block activeButton %}
+    <a href="{{ url('commerce/settings/subscriptions/plan/new') }}" class="btn submit add icon">{{ 'New subscription plan'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="plans-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for plan in plans %}
+	{% set tableData = tableData|merge([{
+        id: plan.id,
+        title: plan.name|t('site'),
+        url: url('commerce/settings/subscriptions/plan/'~plan.id),
+        status: plan.enabled ? true : false,
+        handle: plan.handle|e,
+        gateway: plan.gateway.name|t('site')|e,
+        subscriptions: plan.subscriptionCount,
+        information: plan.planInformationId ? 'Yes'|t('commerce')|e : 'No'|t('commerce')|e,
+    }]) %}
+{% endfor %}
+
+
 {% js %}
-    var adminTable = new Craft.AdminTable({
-        tableSelector: '#plans',
-        noObjectsSelector: '#no-plans',
-        newObjectBtnSelector: '#newPlanButtonContainer',
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        { name: 'gateway', title: Craft.t('commerce', 'Gateway') },
+        { name: 'subscriptions', title: Craft.t('commerce', 'Active subscriptions') },
+        { name: 'information', title: Craft.t('commerce', 'Information linked?'),
+            callback: function(value) {
+                return '<span class="code">'+value+'</span>';
+            }
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#plans-vue-admin-table',
         deleteAction: 'commerce/plans/archive-plan',
-        confirmDeleteMessage: '{{ "Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions."|t('commerce') }}',
-        sortable: true,
+        deleteConfirmationMessage: Craft.t('commerce', 'No subscription plans exist yet.'),
         reorderAction: 'commerce/plans/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Plans reordered.') ,
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder plans.')
+        reorderSuccessMessage: Craft.t('commerce', 'Plans reordered.'),
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder plans.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}

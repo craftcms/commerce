@@ -104,6 +104,7 @@
                 <li><strong>Estimated Shipping Address ID</strong> {{ cart.estimatedShippingAddressId }}</li>
                 <li><strong>Estimated Billing Address ID</strong> {{ cart.estimatedBillingAddressId }}</li>
                 <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
+                <li><strong>Line Items Count</strong> {{ cart.lineItems|length }}</li>
                 <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
                 <li><strong>Currency</strong> {{ cart.currency }}</li>
                 <li><strong>Payment Currency</strong> {{ cart.paymentCurrency }}</li>
@@ -129,43 +130,5 @@
             </ul>
         </div>
     </footer>
-
-    {#
-        The following javascript polls the server every 10 seconds and sees if the cart has changed on another session or browser tab
-        and will refresh the page if the current page is out of date. This prevents the customer from changing the cart on another tab,
-        then submitting an update cart form action that might overwrite the changes on the other page.
-    #}
-    {% js %}
-        function doPoll(){
-            console.log('Commerce example templates : Polling to see if the order changed on another tab or session');
-            $.ajax({
-                url: '',
-                data: {
-                    '{{ craft.app.config.general.csrfTokenName|e('js') }}': '{{ craft.app.request.csrfToken|e('js') }}',
-                    'action': 'commerce/cart/get-cart'
-                },
-                success: function(data) {
-                    var orderNumberChanged = (data.cart.number != '{{ cart.number }}');
-                    var orderTotalChanged = (data.cart.totalQty != '{{ cart.totalQty }}');
-                    var orderTotalPriceChanged = (data.cart.totalPrice != '{{ cart.totalPrice }}');
-                    if(orderNumberChanged || orderTotalChanged || orderTotalPriceChanged){
-                        console.log({'orderNumberChanged' : orderNumberChanged, 'orderTotalChanged' : orderTotalChanged, 'orderTotalPriceChanged': orderTotalPriceChanged});
-                        console.log('Order changed.');
-                        var r = confirm("Your cart has been updated elsewhere, reload the page?");
-                        if (r == true) {
-                          location.reload(true);
-                        }
-                    }else{
-                        console.log('Commerce example templates : Nothing changed, checking again in 30 seconds.');
-                    }
-                    setTimeout(doPoll,120000);
-                },
-                dataType: 'json'
-            });
-        }
-
-        setTimeout(doPoll,120000);;
-    {% endjs %}
-
 </body>
 </html>

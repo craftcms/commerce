@@ -8,62 +8,137 @@
     {    label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
-{% if order.isCompleted %}
-{% set pdfUrl = order.getPdfUrl() %}
-{% endif %}
+
+{% do view.registerTranslations('commerce', [
+    "Actions",
+    "Add a line item",
+    "Add an adjustment",
+    "Add",
+    "Adjustments",
+    "Private Note",
+    "Amount",
+    "Are you sure you want to complete this order?",
+    "Are you sure you want to send email: {name}?",
+    "Cancel",
+    "Completed",
+    "Copied!",
+    "Copy",
+    "Couldn’t get order.",
+    "Couldn’t recalculate order.",
+    "Coupon Code",
+    "Create your first line item",
+    "Create “{email}”",
+    "Customer Note",
+    "Customer",
+    "Date Ordered",
+    "Date Paid",
+    "Delete",
+    "Description",
+    "Download PDF",
+    "Edit",
+    "Email sent",
+    "Enter coupon code",
+    "Enter reference",
+    "Hide snapshot",
+    "ID",
+    "Included",
+    "Invalid email.",
+    "Mark as completed",
+    "Name",
+    "No private Note.",
+    "No description",
+    "Not available",
+    "Notes",
+    "Number",
+    "Options",
+    "Order recalculated.",
+    "Original Price",
+    "Paid Amount",
+    "Paid Status",
+    "Quantity",
+    "Recalculate order",
+    "Reference",
+    "Remove",
+    "Sale Amount Off",
+    "Sale Price",
+    "Save and continue editing",
+    "Search customer…",
+    "Send Email",
+    "Shipping Method",
+    "Shipping",
+    "Short Number",
+    "Snapshot",
+    "Status",
+    "Tax",
+    "Total Price",
+    "Type",
+    "Update order",
+    "You are not allowed to add a line item.",
+    "Your order is empty",
+    "{amount} included",
+]) %}
 
 {% hook "cp.commerce.order.edit" %}
 
+{% block mainFormAttributes %}id="main-form" method="post" accept-charset="UTF-8" data-confirm-unload novalidate{% endblock %}
+
 {% block actionButton %}
-    {% if order.isCompleted %}
-    {% if pdfUrl %}
-        <a class="btn" href="{{ order.pdfUrl }}" target="_blank">{{ 'Download PDF'|t('commerce') }}</a>
-        <div class="flex-grow"></div>
-    {% endif %}
-    {% endif %}
-
-    <input type="hidden" name="action" value="commerce/orders/save-order">
+    <input type="hidden" name="action" value="commerce/orders/save">
     <input type="hidden" name="orderId" value="{{ order.id }}">
-    {{ redirectInput('commerce/orders') }}
+    {{ redirectInput('commerce/orders/'~order.id) }}
 
-    <div class="btngroup">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+    <div id="order-secondary-actions">
+        <div id="order-secondary-actions-app"></div>
+    </div>
 
-        <div class="btn submit menubtn"></div>
-        <div class="menu">
-            <ul>
-                <li><a class="formsubmit"
-                       data-redirect="{{ continueEditingUrl|hash }}">
-                        {{ forms.optionShortcutLabel('S') }}
-                        {{ "Save and continue editing"|t('app') }}
-                    </a></li>
-            </ul>
+    <div class="flex-grow"></div>
 
-            <hr>
-            <ul>
-                <li><a class="formsubmit error"
-                       data-action="commerce/orders/delete-order"
-                       data-confirm="{{ 'Are you sure you want to delete this order?'|t('app') }}"
-                       data-redirect="{{ 'commerce/orders#'|hash }}">{{ 'Delete'|t('app') }}</a>
-                </li>
-            </ul>
-
-        </div>
+    <div id="order-actions">
+        <div id="order-actions-app"></div>
     </div>
 {% endblock %}
 
 {% block details %}
+    <div id="order-meta-app"></div>
+    <div class="meta read-only">
+      <div class="address-boxes">
+        {% set address = order.shippingAddress %}
+        <div id="shippingAddressBox" class="address-box address-box--full hidden"
+             data-title='{{ "Shipping Address"|t("commerce") }}'
+             data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+          <div class="address-box-content">
+            <div class="address-box-header"></div>
+            <div class="address"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <div class="meta">
-    {% include 'commerce/orders/_orderInfo' %}
-    {% include 'commerce/orders/_addresses' %}
+    <div class="meta read-only">
+      <div class="address-boxes">
+        {% set address = order.billingAddress %}
+        <div id="billingAddressBox" class="address-box address-box--full hidden"
+             data-title='{{ "Billing Address"|t("commerce") }}'
+             data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
+          <div class="address-box-content">
+            <div class="address-box-header"></div>
+            <div class="address"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
 {% endblock %}
 
 {% block content %}
 
-    {% include 'commerce/orders/_orderDetails' %}
+    <div id="orderDetailsTab">
+      <div id="order-details-app"></div>
+
+      {% hook "cp.commerce.order.edit.main-pane" %}
+
+    </div>
+
     {% include 'commerce/orders/_customFields' %}
     {% include 'commerce/orders/_transactions' %}
     {% include 'commerce/orders/_history' %}
@@ -71,19 +146,19 @@
 {% endblock %}
 
 {% js %}
-    window.countries = {{ craft.commerce.countries.allCountries|values|json_encode|raw }};
-    window.states = {{ craft.commerce.states.allStates|values|json_encode|raw }};
+    window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
+    window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
 
     $(document).ready(function () {
-    {% if paymentForm is defined and paymentForm %}
-        new Craft.Commerce.OrderEdit({
-            orderId: {{ orderId|e('js') }},
-            paymentForm: {
-                errors: {{ paymentForm.errors|json_encode|raw }},
-                attributes: {{ paymentForm.attributes|json_encode|raw }}
-            }
-        });
-    {% endif %}
+        {% if paymentForm is defined and paymentForm %}
+            new Craft.Commerce.OrderEdit({
+                orderId: {{ orderId|e('js') }},
+                paymentForm: {
+                    errors: {{ paymentForm.errors|json_encode|raw }},
+                    attributes: {{ paymentForm.attributes|json_encode|raw }}
+                }
+            });
+        {% endif %}
 
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);

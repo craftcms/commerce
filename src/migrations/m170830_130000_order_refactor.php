@@ -90,7 +90,6 @@ class m170830_130000_order_refactor extends Migration
 
                 // Loop over the line items and create new adjustments for each major adjuster type per line item.
                 foreach ($lineItems as $lineItem) {
-
                     // line item shipping costs
                     if ($lineItem['shippingCost'] != 0) {
                         $newAdjustments[] = [

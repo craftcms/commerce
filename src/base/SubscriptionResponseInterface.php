@@ -17,9 +17,6 @@ use DateTime;
  */
 interface SubscriptionResponseInterface
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns the response data.
      *

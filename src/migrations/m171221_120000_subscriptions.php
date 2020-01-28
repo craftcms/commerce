@@ -19,7 +19,6 @@ class m171221_120000_subscriptions extends Migration
      */
     public function safeUp(): bool
     {
-
         $this->createTable('{{%commerce_plans}}', [
             'id' => $this->primaryKey(),
             'gatewayId' => $this->integer(),

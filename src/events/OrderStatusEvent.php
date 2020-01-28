@@ -19,9 +19,6 @@ use craft\events\CancelableEvent;
  */
 class OrderStatusEvent extends CancelableEvent
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var OrderHistory The order history
      */

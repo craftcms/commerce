@@ -38,9 +38,6 @@ use craft\validators\UniqueValidator;
  */
 class ProductType extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -67,6 +64,11 @@ class ProductType extends Model
     public $hasVariants;
 
     /**
+     * @var string Title label
+     */
+    public $variantTitleLabel = 'Title';
+
+    /**
      * @var bool Has variant title field
      */
     public $hasVariantTitleField = true;
@@ -75,6 +77,11 @@ class ProductType extends Model
      * @var string Title format
      */
     public $titleFormat = '{product.title}';
+
+    /**
+     * @var string Title label
+     */
+    public $titleLabel = 'Title';
 
     /**
      * @var string SKU format
@@ -126,8 +133,6 @@ class ProductType extends Model
      */
     private $_siteSettings;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return null|string
@@ -140,9 +145,9 @@ class ProductType extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
         $rules[] = [['name', 'handle', 'titleFormat'], 'required'];

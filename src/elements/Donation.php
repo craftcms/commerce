@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
+use craft\commerce\Plugin;
 use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
@@ -25,9 +26,6 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool Is the product available for purchase.
      */
@@ -38,8 +36,6 @@ class Donation extends Purchasable
      */
     private $_sku;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -54,7 +50,7 @@ class Donation extends Purchasable
      */
     public function __toString(): string
     {
-        return Craft::t('commerce', 'Donation');
+        return Plugin::t('Donation');
     }
 
     /**
@@ -62,7 +58,31 @@ class Donation extends Purchasable
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Donation');
+        return Plugin::t('Donation');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Plugin::t('donation');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Plugin::t('Donations');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Plugin::t('donations');
     }
 
     /**
@@ -89,7 +109,7 @@ class Donation extends Purchasable
      */
     public function getDescription(): string
     {
-        return Craft::t('commerce', 'Donation');
+        return Plugin::t('Donation');
     }
 
     /**
@@ -156,10 +176,9 @@ class Donation extends Purchasable
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
             $lineItem->price = $options['donationAmount'];
+            $lineItem->salePrice = $options['donationAmount'];
             $lineItem->saleAmount = 0;
         }
-
-        return $lineItem->salePrice ?? 0.0;
     }
 
     /**
@@ -173,13 +192,13 @@ class Donation extends Purchasable
                 function($attribute, $params, Validator $validator) use ($lineItem) {
                     $options = $lineItem->getOptions();
                     if (!isset($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
+                        $validator->addError($lineItem, $attribute, Plugin::t('No donation amount supplied.'));
                     }
                     if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount.'));
+                        $validator->addError($lineItem, $attribute, Plugin::t('Donation needs to be an amount.'));
                     }
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
+                        $validator->addError($lineItem, $attribute, Plugin::t('Donation can not be zero.'));
                     }
                 }
             ]

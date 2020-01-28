@@ -1,0 +1,270 @@
+{% extends "commerce/_layouts/cp" %}
+{% do view.registerTranslations('commerce', []) %}
+
+{% set crumbs = [
+  { label: 'Customers'|t('commerce'), url: url('commerce/customers') },
+] %}
+{% if customerId is defined and customerId %}
+  {% set crumbs = crumbs|merge([{ label: 'Customer #{id}'|t('commerce', { id: customerId }), url: cpUrl('commerce/customers/' ~ customerId) }]) %}
+{% endif %}
+
+{% set selectedSubnavItem = 'customers' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+  {{ forms.textField({
+    label: 'Attention'|t('commerce'),
+    name: 'attention',
+    id: 'attention',
+    value : address.attention,
+    errors: address.getErrors('attention'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Title'|t('commerce'),
+    name: 'title',
+    id: 'title',
+    value : address.title,
+    errors: address.getErrors('title'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'First Name'|t('commerce'),
+    name: 'firstName',
+    id: 'firstName',
+    value : address.firstName,
+    errors: address.getErrors('firstName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Last Name'|t('commerce'),
+    name: 'lastName',
+    id: 'lastName',
+    value : address.lastName,
+    errors: address.getErrors('lastName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Full Name'|t('commerce'),
+    name: 'fullName',
+    id: 'fullName',
+    value : address.fullName,
+    errors: address.getErrors('fullName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 1'|t('commerce'),
+    name: 'address1',
+    id: 'address1',
+    value : address.address1,
+    errors: address.getErrors('address1'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 2'|t('commerce'),
+    name: 'address2',
+    id: 'address2',
+    value : address.address2,
+    errors: address.getErrors('address2'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Address 3'|t('commerce'),
+    name: 'address3',
+    id: 'address3',
+    value : address.address3,
+    errors: address.getErrors('address3'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'City'|t('commerce'),
+    name: 'city',
+    id: 'city',
+    value : address.city,
+    errors: address.getErrors('city'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Zip Code'|t('commerce'),
+    name: 'zipCode',
+    id: 'zipCode',
+    value : address.zipCode,
+    errors: address.getErrors('zipCode'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'State'|t('commerce'),
+    name: 'stateName',
+    id: 'stateValue',
+    value : address.stateName,
+    errors: address.getErrors('stateValue'),
+  }) }}
+
+  {{ forms.selectField({
+    label: 'State'|t('commerce'),
+    id: 'stateId',
+    name: 'stateValue',
+    options: craft.commerce.states.allEnabledStatesAsList,
+    value: address.stateId,
+    errors: address.getErrors('stateValue'),
+  }) }}
+
+  {{ forms.selectField({
+    label: 'Country'|t('commerce'),
+    id: 'country',
+    name: 'countryId',
+    options: craft.commerce.countries.allEnabledCountriesAsList,
+    value: address.countryId,
+    errors: address.getErrors('countryId'),
+    class: 'selectize fullwidth',
+  }) }}
+
+  {{ forms.textField({
+    label: 'Phone'|t('commerce'),
+    name: 'phone',
+    id: 'phone',
+    value : address.phone,
+    errors: address.getErrors('phone'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Phone (Alt)'|t('commerce'),
+    name: 'alternativePhone',
+    id: 'alternativePhone',
+    value : address.alternativePhone,
+    errors: address.getErrors('alternativePhone'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Label'|t('commerce'),
+    name: 'label',
+    id: 'label',
+    value : address.label,
+    errors: address.getErrors('label'),
+  }) }}
+
+  {{ forms.textareaField({
+    label: 'Notes'|t('commerce'),
+    name: 'notes',
+    id: 'notes',
+    value : address.notes,
+    errors: address.getErrors('notes'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business Name'|t('commerce'),
+    name: 'businessName',
+    id: 'businessName',
+    value : address.businessName,
+    errors: address.getErrors('businessName'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business Tax ID'|t('commerce'),
+    name: 'businessTaxId',
+    id: 'businessTaxId',
+    value : address.businessTaxId,
+    errors: address.getErrors('businessTaxId'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Business ID'|t('commerce'),
+    name: 'businessId',
+    id: 'businessId',
+    value : address.businessId,
+    errors: address.getErrors('businessId'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 1'|t('commerce'),
+    name: 'custom1',
+    id: 'custom1',
+    value : address.custom1,
+    errors: address.getErrors('custom1'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 2'|t('commerce'),
+    name: 'custom2',
+    id: 'custom2',
+    value : address.custom2,
+    errors: address.getErrors('custom2'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 3'|t('commerce'),
+    name: 'custom3',
+    id: 'custom3',
+    value : address.custom3,
+    errors: address.getErrors('custom3'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Custom 4'|t('commerce'),
+    name: 'custom4',
+    id: 'custom4',
+    value : address.custom4,
+    errors: address.getErrors('custom4'),
+  }) }}
+
+  {# Hidden fields #}
+  <input type="hidden" name="id" value="{{ address.id }}">
+  <input type="hidden" name="action" value="commerce/addresses/save">
+  {% if redirect %}
+    {{ redirectInput(redirect) }}
+  {% endif %}
+
+{% endblock %}
+
+{% js %}
+var selectedStateId = {{ address.stateId ?: 'null' }};
+  var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+  $('#country').selectize();
+
+  $('select#country').change(function ()  {
+    // get the value of the selected country.
+    var cid = $(this).val();
+    var $states = $('#stateId');
+    var $stateName = $('#stateValue');
+    $states.find('option').remove();
+
+    if (states.hasOwnProperty(cid))
+    {
+      // We have states for this country, show the states drop down.
+      $states.parents('#stateId-field').removeClass('hidden');
+      $states.attr('name', 'stateValue');
+
+      // We have states for this country, hide the stateName input.
+      $stateName.removeAttr('name');
+      $stateName.parents('#stateValue-field').addClass('hidden');
+      $stateName.val('');
+
+      // Add all states as options to drop down.
+      for (var id in states[cid])
+      {
+        var state = states[cid][id];
+        var $option = $('<option/>');
+        $option.attr('value', id).text(state);
+        if (id == selectedStateId) {
+          $option.attr('selected', 'selected');
+        }
+        $states.append($option);
+      }
+
+    } else {
+      // hide the states dropdown, since this country has none.
+      $states.parents('#stateId-field').addClass('hidden');
+      $states.removeAttr('name');
+
+      // show the stateName
+      $stateName.parents('#stateValue-field').removeClass('hidden');
+      $stateName.attr('name', 'stateValue');
+    }
+  });
+
+  $('select#country').trigger('change');
+
+{% endjs %}

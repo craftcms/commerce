@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Shipping method model.
@@ -26,15 +27,30 @@ use craft\validators\UniqueValidator;
  */
 class ShippingMethod extends BaseShippingMethod
 {
-    // Public Methods
-    // =========================================================================
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::className(),
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'name' => AttributeTypecastBehavior::TYPE_STRING,
+                'handle' => AttributeTypecastBehavior::TYPE_STRING,
+                'enabled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN
+            ]
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * @inheritdoc
      */
     public function getType(): string
     {
-        return Craft::t('commerce', 'Custom');
+        return Plugin::t('Custom');
     }
 
     /**
@@ -88,9 +104,9 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];

@@ -31,9 +31,6 @@ use yii\base\Exception;
  */
 class OrderAdjustments extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event RegisterComponentTypesEvent This event is raised when compiling the list of adjusters for an order
      *
@@ -51,8 +48,6 @@ class OrderAdjustments extends Component
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all order adjusters.
@@ -87,6 +82,26 @@ class OrderAdjustments extends Component
     }
 
     /**
+     * @param int $id
+     * @return OrderAdjustment|null
+     */
+    public function getOrderAdjustmentById(int $id)
+    {
+        $row = $this->_createOrderAdjustmentQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$row) {
+            return null;
+        }
+
+        $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
+        $adjustment = new OrderAdjustment($row);
+        $adjustment->typecastAttributes();
+        return $adjustment;
+    }
+
+    /**
      * Get all order adjustments by order's ID.
      *
      * @param int $orderId
@@ -118,7 +133,6 @@ class OrderAdjustments extends Component
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
     {
-
         $isNewOrderAdjustment = !$orderAdjustment->id;
 
         if ($orderAdjustment->id) {
@@ -158,8 +172,6 @@ class OrderAdjustments extends Component
         return true;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Delete all adjustments belonging to an order by its ID.
@@ -189,8 +201,6 @@ class OrderAdjustments extends Component
         return $orderAdjustment->delete();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Order Adjustment.

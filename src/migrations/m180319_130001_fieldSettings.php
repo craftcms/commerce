@@ -34,7 +34,6 @@ class m180319_130001_fieldSettings extends Migration
             ->all($this->db);
 
         foreach ($fields as $field) {
-
             $settings = Json::decodeIfJson($field['settings']);
 
             if (!is_array($settings)) {

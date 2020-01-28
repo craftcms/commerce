@@ -1,0 +1,63 @@
+@import "node_modules/craftcms-sass/src/mixins";
+
+.commerce-widget-table-wrapper {
+  padding-top: 24px;
+}
+
+.commerce-widget-linechart-wrapper {
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.commerce-widget-linechart-wrapper--full {
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-bottom: -31px;
+}
+
+.commerce-widget-linechart-wrapper--no-x-axis {
+  margin-bottom: -24px;
+}
+
+.commerce-widget-linechart-revenue-wrapper--no-x-axis {
+  margin-bottom: -33px;
+}
+
+.commerce-widget-linechart-wrapper canvas {
+  width: 100%;
+}
+
+.commerce-widget-numberstat {
+  padding: 14px 0;
+  text-align: center;
+}
+
+.commerce-widget-numberstat-number {
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+}
+
+.commerce-widget-chart-tooltip {
+  @include shadow;
+  background: #fff;
+  border-radius: $mediumBorderRadius;
+  padding: 10px;
+
+  h3 {
+    margin-bottom: 3px;
+  }
+
+  &-items {
+    align-items: center;
+    display: flex;
+  }
+
+  .legend-dot {
+    border-radius: 12px;
+    border-width: 2px;
+    display: inline-block;
+    height: 12px;
+    margin-right: 3px;
+    width: 12px;
+  }
+}

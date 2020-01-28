@@ -1,65 +1,49 @@
 {% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Bcc',
+    'No emails exist yet.',
+    'Subject',
+    'Template Path',
+    'To',
+]) %}
 
-
-{% block content %}
-    <h2>{{ "Emails"|t('commerce') }}</h2>
-
-    <div id="no-emails"{% if emails|length %} class="hidden"{% endif %}>
-        <p>{{ "No emails exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if emails|length %}
-        <table id="emails" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t('commerce') }}</th>
-                <th scope="col">{{ "Subject"|t('commerce') }}</th>
-                <th scope="col">{{ "To"|t('commerce') }}</th>
-                <th scope="col">{{ "Bcc"|t('commerce') }}</th>
-                <th scope="col">{{ "Template Path"|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for email in emails %}
-                <tr data-id="{{ email.id }}" data-name="{{ email.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                        {% if email.enabled %}
-                            <span class="status green"></span>
-                        {% else %}
-                            <span class="status"></span>
-                        {% endif %}
-                        <a href="{{ url('commerce/settings/emails/'~email.id) }}">{{ email.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Subject'|t('commerce') }}">{{ email.subject }}</td>
-                    {% if email.recipientType == 'custom' %}
-                        <td data-title="{{ 'To'|t('commerce') }}">{{ email.to }}</td>
-                    {% else %}
-                        <td data-title="{{ 'To'|t('commerce') }}">{{ 'Customer' }}</td>
-                    {% endif %}
-                    <td data-title="{{ 'Bcc'|t('commerce') }}">{{ email.bcc }}</td>
-                    <td data-title="{{ 'Template Path'|t('commerce') }}">{{ email.templatePath }}</td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/emails/new') }}"
-           class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="emails-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for email in emails %}
+    {% set tableData = tableData|merge([{
+        id: email.id,
+        title: email.name|t('site'),
+        status: email.enabled ? true : false,
+        url: url('commerce/settings/emails/'~email.id),
+        subject: email.subject|t('site')|e,
+        to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
+        bcc: email.bcc|e,
+        template: email.templatePath|e,
+    }]) %}
+{% endfor %}
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#emails',
-    noObjectsSelector: '#no-emails',
-    deleteAction: 'commerce/emails/delete'
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: 'subject', title: Craft.t('commerce', 'Subject') },
+        { name: 'to', title: Craft.t('commerce', 'To') },
+        { name: 'bcc', title: Craft.t('commerce', 'Bcc') },
+        { name: 'template', title: Craft.t('commerce', 'Template Path') },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#emails-vue-admin-table',
+        deleteAction: 'commerce/emails/delete',
+        emptyMessage: Craft.t('commerce', 'No emails exist yet.'),
+        tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

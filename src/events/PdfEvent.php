@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class PdfEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Order
      */

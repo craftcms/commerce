@@ -1,91 +1,104 @@
 {% extends "commerce/_layouts/promotions" %}
 {% set selectedSidebarNavItem = 'sales' %}
 
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Duration',
+  'Effect',
+  'Overrides previous?',
+  'Stops subsequent?',
+  'No sales exist yet.',
+  'Sale reorderd.',
+  'Couldn’t reorder sale.',
+]) %}
+
 {% block actionButton %}
-    <div class="buttons">
-        <a href="{{ url('commerce/promotions/sales/new') }}"
-           class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
-    </div>
+  <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}
-    <h2>{{ "Sales"|t('commerce') }}</h2>
-
-    <div id="no-sales"{% if sales|length %} class="hidden"{% endif %}>
-        <p>{{ "No sales exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if sales|length %}
-        <table id="sales" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t('commerce') }}</th>
-                <th scope="col">{{ "Duration"|t('commerce') }}</th>
-                <th scope="col">{{ "Effect"|t('commerce') }}</th>
-                <th scope="col">{{ "Overrides previous?"|t('commerce') }}</th>
-                <th scope="col">{{ "Stops subsequent?"|t('commerce') }}</th>
-                <td class="thin"></td>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for sale in sales %}
-                <tr data-id="{{ sale.id }}" data-name="{{ sale.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                        {% if sale.enabled %}
-                            <div class="status enabled"></div>
-                        {% else %}
-                            <div class="status"></div>
-                        {% endif %}
-                        <a href="{{ url('commerce/promotions/sales/'~sale.id) }}">{{ sale.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Duration'|t('commerce') }}">
-                        {{ sale.dateFrom ? sale.dateFrom|datetime('short') : '∞' }}
-                        -
-                        {{ sale.dateTo ? sale.dateTo|date('short') : '∞' }}
-                    </td>
-                    <td data-title="{{ 'Discount Amount'|t('commerce') }}">
-                        {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
-                            {{ sale.applyAmountAsPercent }} {% if sale.apply == 'byPercent' %}{{ "off original price"|t('commerce') }}{% else %}{{ "of original price"|t('commerce') }}{% endif %}
-                        {% else %}
-                            {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }} {% if sale.apply == 'byFlat' %}{{ "off original price"|t('commerce') }}{% else %}{{ "(new price)"|t('commerce') }}{% endif %}
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Ignore Previous?'|t('commerce') }}">
-                        {% if sale.ignorePrevious %}
-                            <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Stops Processing?'|t('commerce') }}">
-                        {% if sale.stopProcessing %}
-                            <span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>
-                        {% endif %}
-                    </td>
-                    <td class="thin">
-                        <a class="move icon disabled"
-                           title="{{ 'Delete'|t('commerce') }}"
-                           role="button"></a>
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
+  <div id="sales-vue-admin-table"></div>
 {% endblock %}
+
+{% set tableData = [] %}
+{% for sale in sales %}
+  {% set effect = (sale.apply == 'byPercent' or sale.apply == 'toPercent') ?
+    sale.applyAmountAsPercent ~ ' ' ~ (sale.apply == 'byPercent' ? 'off original price'|t('commerce')|e : 'of original price'|t('commerce')|e )
+    :
+    sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) ~ ' ' ~ (sale.apply == 'byFlat' ? 'off original price'|t('commerce')|e : '(new price)'|t('commerce')|e )
+  %}
+
+  {% set tableData = tableData|merge([{
+    id: sale.id,
+    title: sale.name|t('site'),
+    url: url('commerce/promotions/sales/' ~ sale.id),
+    status: sale.enabled ? true : false,
+    duration: (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞'),
+    effect: effect,
+    ignore: sale.ignorePrevious ? true : false,
+    stop: sale.stopProcessing ? true : false,
+  }]) %}
+{% endfor %}
 
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-      tableSelector: '#sales',
-      noObjectsSelector: '#no-sales',
-      deleteAction: 'commerce/sales/delete',
-      sortable: true,
-      reorderAction: 'commerce/sales/reorder',
-      reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
-      reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.')
-    });
+var actions = [
+    {
+        label: Craft.t('app', 'Set Status'),
+        actions: [
+            {
+                label: Craft.t('app', 'Enabled'),
+                action: 'commerce/sales/update-status',
+                param: 'status',
+                value: 'enabled',
+                status: 'enabled'
+            },
+            {
+                label: Craft.t('app', 'Disabled'),
+                action: 'commerce/sales/update-status',
+                param: 'status',
+                value: 'disabled',
+                status: 'disabled'
+            }
+        ]
+    }
+];
+
+var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Name') },
+    { name: 'duration', title: Craft.t('commerce', 'Duration') },
+    { name: 'effect', title: Craft.t('commerce', 'Effect') },
+    { name: 'ignore', title: Craft.t('commerce', 'Overrides previous?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+            }
+
+            return '';
+        }
+    },
+    { name: 'stop', title: Craft.t('commerce', 'Stops subsequent?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+            }
+
+            return '';
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+  actions: actions,
+  checkboxes: true,
+  columns: columns,
+  container: '#sales-vue-admin-table',
+  deleteAction: 'commerce/sales/delete',
+  emptyMessage: Craft.t('commerce', 'No sales exist yet.'),
+  padded: true,
+  reorderAction: 'commerce/sales/reorder',
+  reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
+  reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.'),
+  tableData: {{ tableData|json_encode|raw }}
+});
 {% endjs %}

@@ -23,9 +23,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeShippingCategory extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

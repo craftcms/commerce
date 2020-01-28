@@ -32,9 +32,6 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxRate extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const TAXABLE_PRICE = 'price';
     const TAXABLE_SHIPPING = 'shipping';
     const TAXABLE_PRICE_SHIPPING = 'price_shipping';
@@ -46,8 +43,6 @@ class TaxRate extends ActiveRecord
         self::TAXABLE_ORDER_TOTAL_SHIPPING
     ];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

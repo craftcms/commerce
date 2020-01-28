@@ -2,7 +2,7 @@
     {%- import "_includes/forms" as forms -%}
 
     {{ forms.textField({
-        label: "Title"|t('commerce'),
+        label: product.type.titleLabel|t('site')|e ?: 'Title'|t('app'),
         site: product.site,
         id: 'title',
         name: 'title',
@@ -120,7 +120,7 @@
 
     {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
         {{ forms.textField({
-            label: "Title"|t('commerce'),
+            label: product.type.variantTitleLabel|t('site')|e ?: 'Title'|t('app'),
             site: variant.site,
             id: 'title',
             name: 'title',
@@ -282,4 +282,28 @@
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')
     }) }}
+{% endmacro %}
+
+{% macro relatedSales(id, showAddAll) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        {% if not showAddAll %}
+            <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
+            <div class="commerce-sales-buttons">
+                {# Add to existing sale #}
+                <a class="btn small add icon product-add-to-sale" href="#" data-id="{{ id }}">{{ 'Add to Sale'|t('commerce') }}</a>
+            </div>
+        {% else %}
+            <div class="commerce-sales-buttons">
+                {# Add to existing sale #}
+                <a class="btn small add icon product-add-to-sale" href="#" data-id="all">{{ 'Add all to Sale'|t('commerce') }}</a>
+            </div>
+        {% endif %}
+
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Sales'|t('commerce'),
+        id: 'related-sales',
+    }, output) }}
 {% endmacro %}

@@ -11,6 +11,7 @@
     'general': { title: "General Settings"|t('commerce'), minEdition: 'lite' },
     'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: 'lite' },
     'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: 'lite' },
+    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce'), minEdition: 'lite' },
     'emails': { title: "Emails"|t('commerce'), minEdition: 'lite' },
     'gateways': { title: "Gateways"|t('commerce'), minEdition: 'lite' },
     'products-heading': { heading: "Products"|t('commerce'), minEdition: 'lite' },
@@ -26,6 +27,21 @@
 {% endif %}
 
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
+
+
+{% macro configWarning(setting, file) -%}
+    {%- spaceless %}
+        {% set config = craft.app.config.getConfigFromFile(file) %}
+        {% if config[setting] is defined %}
+            {{ "This is being overridden by the {setting} config setting in `config/{file}.php`."|t('commerce', {
+                setting: setting,
+                file: file,
+            })|raw }}
+        {% else %}
+            {{ false }}
+        {% endif %}
+    {% endspaceless -%}
+{%- endmacro %}
 
 {% block sidebar %}
     <nav>

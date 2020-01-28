@@ -8,8 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
+use craft\commerce\records\Country as CountryRecord;
+use craft\db\Query;
+use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use Exception;
 use yii\web\BadRequestHttpException;
@@ -24,9 +28,6 @@ use yii\web\Response;
  */
 class CountriesController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @throws HttpException
      */
@@ -63,7 +64,40 @@ class CountriesController extends BaseStoreSettingsController
         if ($variables['country']->id) {
             $variables['title'] = $variables['country']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new country');
+            $variables['title'] = Plugin::t('Create a new country');
+        }
+
+        // Check to see if we should show the disable warning
+        $variables['showDisableWarning'] = false;
+
+        if ($variables['id'] && $variables['country']->id == $variables['id'] && $variables['country']->enabled) {
+            $relatedAddressCount = (new Query())
+                ->select(['addresses.id',])
+                ->from([Table::ADDRESSES . ' addresses'])
+                ->where(['countryId' => $variables['id']])
+                ->count();
+
+            $variables['showDisableWarning'] = $relatedAddressCount ? true : $variables['showDisableWarning'];
+
+            if (!$variables['showDisableWarning']) {
+                $relatedShippingZoneCount = (new Query())
+                    ->select(['zone_countries.id',])
+                    ->from([Table::SHIPPINGZONE_COUNTRIES . ' zone_countries'])
+                    ->where(['countryId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedShippingZoneCount ? true : $variables['showDisableWarning'];
+            }
+
+            if (!$variables['showDisableWarning']) {
+                $relatedTaxZoneCount = (new Query())
+                    ->select(['zone_countries.id',])
+                    ->from([Table::TAXZONE_COUNTRIES . ' zone_countries'])
+                    ->where(['countryId' => $variables['id']])
+                    ->count();
+
+                $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
+            }
         }
 
         return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
@@ -83,13 +117,14 @@ class CountriesController extends BaseStoreSettingsController
         $country->name = Craft::$app->getRequest()->getBodyParam('name');
         $country->iso = Craft::$app->getRequest()->getBodyParam('iso');
         $country->isStateRequired = (bool)Craft::$app->getRequest()->getBodyParam('isStateRequired');
+        $country->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Country saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Country saved.'));
             $this->redirectToPostedUrl($country);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save country.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save country.'));
         }
 
         // Send the model back to the template
@@ -130,7 +165,37 @@ class CountriesController extends BaseStoreSettingsController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
+    }
 
+    /**
+     * @throws BadRequestHttpException
+     * @throws MissingComponentException
+     * @throws \yii\db\Exception
+     * @since 3.0
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update countries status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $countries = CountryRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var CountryRecord $country */
+        foreach ($countries as $country) {
+            $country->enabled = ($status == 'enabled');
+            $country->save();
+        }
+        $transaction->commit();
+
+        Craft::$app->getSession()->setNotice(Plugin::t('Countries updated.'));
     }
 }
