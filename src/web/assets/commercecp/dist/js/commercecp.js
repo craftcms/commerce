@@ -603,17 +603,6 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         return this.base();
     },
 
-    getViewClass: function(mode) {
-        switch (mode) {
-            case 'table':
-                return Craft.Commerce.OrderTableView;
-            case 'thumbs':
-                return Craft.Commerce.OrderTableView;
-            default:
-                throw 'View mode "' + mode + '" not supported.';
-        }
-    },
-
     getViewParams: function() {
         var params = this.base();
 
@@ -636,20 +625,6 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
 // Register the Commerce order index class
 Craft.registerElementIndexClass('craft\\commerce\\elements\\Order', Craft.Commerce.OrderIndex);
-
-if (typeof Craft.Commerce === typeof undefined) {
-    Craft.Commerce = {};
-}
-
-/**
- * Class Craft.Commerce.OrderTableView
- */
-Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
-
-    afterInit: function() {
-        this.base();
-    }
-});
 
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
