@@ -102,7 +102,11 @@ abstract class Stat implements StatInterface
      */
     public function setStartDate($date)
     {
-        $this->_startDate = $date;
+        if (!$date) {
+            $this->_startDate = $this->_getFirstCompletedOrderDate();
+        } else {
+            $this->_startDate = $date;
+        }
     }
 
     /**
@@ -110,7 +114,11 @@ abstract class Stat implements StatInterface
      */
     public function setEndDate($date)
     {
-        $this->_endDate = $date;
+        if (!$date) {
+            $this->_endDate = new \DateTime();
+        } else {
+            $this->_endDate = $date;
+        }
     }
 
     /**
@@ -239,14 +247,7 @@ abstract class Stat implements StatInterface
         switch ($dateRange) {
             case self::DATE_RANGE_ALL:
             {
-                $firstCompletedOrder = (new Query())
-                    ->select(['dateOrdered'])
-                    ->from(Table::ORDERS)
-                    ->where(['isCompleted' => 1])
-                    ->orderBy('dateOrdered ASC')
-                    ->scalar();
-
-                $date = $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new \DateTime();
+                $date = $this->_getFirstCompletedOrderDate();
                 break;
             }
             case self::DATE_RANGE_THISMONTH:
@@ -291,6 +292,22 @@ abstract class Stat implements StatInterface
 
         $date->setTime(0, 0, 0);
         return $date;
+    }
+
+    /**
+     * @return \DateTime|false
+     * @throws \Exception
+     */
+    private function _getFirstCompletedOrderDate()
+    {
+        $firstCompletedOrder = (new Query())
+            ->select(['dateOrdered'])
+            ->from(Table::ORDERS)
+            ->where(['isCompleted' => 1])
+            ->orderBy('dateOrdered ASC')
+            ->scalar();
+
+        return $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new \DateTime();
     }
 
     /**
@@ -453,7 +470,10 @@ abstract class Stat implements StatInterface
             ->indexBy('datekey')
             ->all();
 
-        return array_replace($defaults, $results);
+        $return = array_replace($defaults, $results);
+        ksort($return);
+
+        return $return;
     }
 
     /**
