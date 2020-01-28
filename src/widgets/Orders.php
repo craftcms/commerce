@@ -82,9 +82,15 @@ class Orders extends Widget
     {
         $orders = $this->_getOrders();
 
+        $id = 'recent-orders-settings-' . StringHelper::randomString();
+        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,
             'showStatuses' => $this->orderStatusId === null,
+            'id' => $id,
+            'namespaceId' => $namespaceId,
         ]);
     }
 
@@ -97,7 +103,7 @@ class Orders extends Widget
 
         Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
 
-        $id = 'analytics-settings-' . StringHelper::randomString();
+        $id = 'recent-orders-settings-' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('" . $namespaceId . "');");
