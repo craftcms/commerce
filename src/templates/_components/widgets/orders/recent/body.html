@@ -1,5 +1,5 @@
 {% do view.registerTranslations('commerce', [
-    'Number',
+    'Reference',
     'Status',
     'Total Paid',
     'Date Ordered',
@@ -22,7 +22,7 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('commerce', 'Number')) },
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('commerce', 'Reference')) },
     {% if showStatuses %}
     { name: 'orderStatus', title: Craft.escapeHtml(Craft.t('commerce', 'Status')) },
     {% endif %}
