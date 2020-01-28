@@ -26,9 +26,6 @@ use DateTime;
  */
 class Discount extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
-
     /**
      * The discount adjustment type.
      */
@@ -51,8 +48,6 @@ class Discount extends Component implements AdjusterInterface
     const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Order
@@ -64,8 +59,11 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discount;
 
-    // Public Methods
-    // =========================================================================
+    /*
+     * @var
+     */
+    private $_discountTotal = 0;
+
 
     /**
      * @inheritdoc
@@ -98,8 +96,6 @@ class Discount extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param DiscountModel $discount
@@ -198,6 +194,7 @@ class Discount extends Component implements AdjusterInterface
                 $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
+                    $this->_discountTotal += $adjustment->amount;
                     $adjustments[] = $adjustment;
                 }
             }
@@ -205,7 +202,8 @@ class Discount extends Component implements AdjusterInterface
 
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->amount = $discount->baseDiscount;
+            $baseDiscountAdjustment->amount = $this->_getBaseDiscountAmount($discount);
+
             $adjustments[] = $baseDiscountAdjustment;
         }
 
@@ -228,5 +226,28 @@ class Discount extends Component implements AdjusterInterface
         }
 
         return $event->adjustments;
+    }
+
+    /**
+     * @param DiscountModel $discount
+     * @return float|int
+     */
+    private function _getBaseDiscountAmount(DiscountModel $discount)
+    {
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
+            return $discount->baseDiscount;
+        }
+
+        $total = $this->_order->getItemSubtotal();
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
+            $total += $this->_discountTotal;
+        }
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
+            $total += $this->_order->getTotalShippingCost();
+        }
+
+        return ($total / 100) * $discount->baseDiscount;
     }
 }

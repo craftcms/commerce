@@ -27,9 +27,6 @@ use yii\base\Exception;
  */
 class TaxRates extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -40,8 +37,6 @@ class TaxRates extends Component
      */
     private $_allTaxRates = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an array of all of the existing tax rates.
@@ -232,8 +227,6 @@ class TaxRates extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving tax rates
      *

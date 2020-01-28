@@ -21,9 +21,6 @@ use yii\web\Response;
  */
 class EmailsController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -58,7 +55,7 @@ class EmailsController extends BaseAdminController
         if ($variables['email']->id) {
             $variables['title'] = $variables['email']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new email');
+            $variables['title'] = Plugin::t('Create a new email');
         }
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
@@ -85,16 +82,17 @@ class EmailsController extends BaseAdminController
         $email->replyTo = Craft::$app->getRequest()->getBodyParam('replyTo');
         $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
+        $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
         $email->attachPdf = Craft::$app->getRequest()->getBodyParam('attachPdf');
         // Only set pdfTemplatePath if attachments are turned on
         $email->pdfTemplatePath = $email->attachPdf ? Craft::$app->getRequest()->getBodyParam('pdfTemplatePath') : '';
 
         // Save it
         if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Email saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save email.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save email.'));
         }
 
         // Send the model back to the template

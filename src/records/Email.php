@@ -22,6 +22,7 @@ use craft\db\ActiveRecord;
  * @property string $recipientType
  * @property string $subject
  * @property string $templatePath
+ * @property string $plainTextTemplatePath
  * @property bool $attachPdf
  * @property string $pdfTemplatePath
  * @property string $to
@@ -30,14 +31,9 @@ use craft\db\ActiveRecord;
  */
 class Email extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const TYPE_CUSTOMER = 'customer';
     const TYPE_CUSTOM = 'custom';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

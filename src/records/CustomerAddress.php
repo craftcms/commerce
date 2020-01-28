@@ -20,9 +20,6 @@ use craft\db\ActiveRecord;
  */
 class CustomerAddress extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

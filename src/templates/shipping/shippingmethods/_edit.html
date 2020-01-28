@@ -1,4 +1,5 @@
 {% extends "commerce/_layouts/cp" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 
 {% set crumbs = [
     { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
@@ -69,52 +70,7 @@
     </div>
 
     <div id="rules" class="hidden">
-
-        <h2>{{ "Shipping Rules"|t('commerce') }}</h2>
-
-        <div id="no-shipping-rules"{% if shippingRules|length %} class="hidden"{% endif %}>
-            <p>{{ "No shipping rules exist yet."|t('commerce') }}</p>
-        </div>
-
-        {% if shippingRules|length %}
-            <table id="shipping-rules" class="data fullwidth collapsible">
-                <thead>
-                <tr>
-                    <th>{{ 'Name'|t('commerce') }}</th>
-                    <th>{{ 'Description'|t('commerce') }}</th>
-                    <td class="thin"></td>
-                    <td class="thin"></td>
-                </tr>
-                </thead>
-                <tbody>
-                {% for shippingRule in shippingRules %}
-                    <tr data-id="{{ shippingRule.id }}"
-                        data-name="{{ shippingRule.name }}">
-                        <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                            {% if shippingRule.enabled %}
-                                <span class="status green"></span>
-                            {% else %}
-                                <span class="status"></span>
-                            {% endif %}
-                            <a href="{{ url('commerce/shipping/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id) }}">{{ shippingRule.name }}</a>
-                        </th>
-                        <td>{{ shippingRule.description }}</td>
-                        <td class="thin">
-                            <a class="move icon disabled"
-                               title="{{ 'Delete'|t('commerce') }}"
-                               role="button"></a>
-                        </td>
-                        <td class="thin">
-                            <a class="delete icon"
-                               title="{{ 'Delete'|t('commerce') }}"
-                               role="button"></a>
-                        </td>
-                    </tr>
-                {% endfor %}
-
-                </tbody>
-            </table>
-        {% endif %}
+        <div id="rules-vue-admin-table"></div>
 
         <div class="buttons">
             <a href="{{ url('commerce/shipping/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}"
@@ -124,18 +80,30 @@
     </div>
 {% endblock %}
 
+{% set tableData = [] %}
+{% for shippingRule in shippingRules %}
+	{% set tableData = tableData|merge([{
+        id: shippingRule.id,
+        title: shippingRule.name|t('site')|e,
+        url: url('commerce/shipping/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id),
+        status: shippingRule.enabled ? true : false,
+        description: shippingRule.description|t('site')|e,
+    }]) %}
+{% endfor %}
+
 {% js %}
     {% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
-    var adminTable = new Craft.AdminTable({
-        tableSelector: '#shipping-rules',
-        noObjectsSelector: '#no-shipping-rules',
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: 'description', title: Craft.t('app', 'Description') },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#rules-vue-admin-table',
         deleteAction: 'commerce/shipping-rules/delete',
-        sortable: true,
-        reorderAction: 'commerce/shipping-rules/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Rules reordered.') ,
-        reorderFailMessage: Craft.t('commerce', 'Couldn’t reorder rules..') ,
-        confirmDeleteMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}”?') ,
-        deleteSuccessMessage: Craft.t('commerce', '“{name}” deleted.') ,
-        deleteFailMessage: Craft.t('commerce', 'Couldn’t delete “{name}”.') ,
+        emptyMessage: Craft.t('commerce', 'No shipping rules exist yet.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}

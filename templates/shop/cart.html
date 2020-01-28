@@ -128,8 +128,8 @@
                         <h5 class="mt-0">{{ 'Shipping Estimate'|t('commerce') }}</h5>
 
                         <div class="estimate-fields text-sm">
-                          {% set countries = craft.commerce.countries.allCountriesAsList %}
-                          {% set states = craft.commerce.states.allStatesAsList %}
+                          {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
+                          {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
                           <label class="m-0" for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
                           <select class="address-country w-full estimate-country" name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
                             {% for key, option in countries %}
@@ -261,7 +261,7 @@
         <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
     {% endif %}
   {% js %}
-    var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
+    var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   {% endjs %}
   {% js %}
     var $estimateShippingMethodsContainer = $('.estimate-shipping-methods');

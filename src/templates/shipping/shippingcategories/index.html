@@ -1,52 +1,47 @@
 {% extends "commerce/_layouts/shipping" %}
 
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 
-{% block content %}
-    <h2>{{ "Shipping Categories"|t('commerce') }}</h2>
-
-    <table id="shippingcategories" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th scope="col">{{ "Name"|t('commerce') }}</th>
-            <th scope="col">{{ "Handle"|t('commerce') }}</th>
-            <th scope="col">{{ "Description"|t('commerce') }}</th>
-            <th scope="col">{{ "Default?"|t('commerce') }}</th>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for shippingCategory in shippingCategories %}
-            <tr data-id="{{ shippingCategory.id }}"
-                data-name="{{ shippingCategory.name }}">
-                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                            href="{{ url('commerce/shipping/shippingcategories/'~shippingCategory.id) }}">{{ shippingCategory.name }}</a>
-                </th>
-                <td data-title="{{ 'Handle'|t('commerce') }}"
-                    class="code">{{ shippingCategory.handle }}</td>
-                <td data-title="{{ 'Description'|t('commerce') }}">{{ shippingCategory.description }}</td>
-                <td data-title="{{ 'Default?'|t('commerce') }}">{% if shippingCategory.default %}
-                    <span data-icon="check"
-                          title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                </td>
-                <td class="thin"><a class="delete icon"
-                                    title="{{ 'Delete'|t('commerce') }}"
-                                    role="button"></a></td>
-            </tr>
-        {% endfor %}
-
-        </tbody>
-    </table>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/shipping/shippingcategories/new') }}"
-           class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="shipping-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for shippingCategory in shippingCategories %}
+    {% set tableData = tableData|merge([{
+        id: shippingCategory.id,
+        title: shippingCategory.name|t('site'),
+        url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
+        handle: shippingCategory.handle|e,
+        description: shippingCategory.description|t('site')|e,
+        default: shippingCategory.default,
+    }]) %}
+{% endfor %}
+
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#shippingcategories',
-    deleteAction: 'commerce/shipping-categories/delete',
-    minObjects: 1
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        { name: 'description', title: Craft.t('app', 'Description') },
+        {
+            name: 'default',
+            title: Craft.t('app', 'Default'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app','Yes'))+'"></div>';
+                }
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-categories/delete',
+        tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

@@ -8,6 +8,7 @@
 namespace craft\commerce\models\payments;
 
 use Craft;
+use craft\commerce\Plugin;
 
 /**
  * Credit Card Payment form model.
@@ -17,9 +18,6 @@ use Craft;
  */
 class CreditCardPaymentForm extends BasePaymentForm
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string First name
      */
@@ -65,8 +63,6 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public $threeDSecure = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -93,9 +89,9 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
         $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
@@ -121,7 +117,7 @@ class CreditCardPaymentForm extends BasePaymentForm
         }
 
         if (array_sum(str_split($str)) % 10 !== 0) {
-            $this->addError($attribute, Craft::t('commerce', 'Not a valid credit card number.'));
+            $this->addError($attribute, Plugin::t('Not a valid credit card number.'));
         }
     }
 }

@@ -23,9 +23,6 @@ use yii\web\HttpException;
  */
 class Product
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Populates all Variant Models from HUD or POST data
      *
@@ -86,7 +83,7 @@ class Product
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new HttpException(404, Craft::t('commerce', 'No product with the ID “{id}”', ['id' => $productId]));
+                throw new HttpException(404, Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new ProductModel();

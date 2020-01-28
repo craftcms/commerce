@@ -30,9 +30,6 @@ use yii\db\Exception;
  */
 class Addresses extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event AddressEvent The event that is raised before an address is saved.
      *
@@ -84,16 +81,12 @@ class Addresses extends Component
      */
     const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Address[]
      */
     private $_addressesById = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an address by its ID.
@@ -347,8 +340,6 @@ class Addresses extends Component
         return true;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving addresses.

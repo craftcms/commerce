@@ -30,7 +30,6 @@ class m170616_154500_productTypeSites_upgrade extends Migration
             ->all();
 
         foreach ($productTypes as $productType) {
-
             $productTypeSites = (new Query())
                 ->select('*')
                 ->from(['{{%commerce_producttypes_i18n}}'])

@@ -18,9 +18,6 @@ use craft\events\CancelableEvent;
  */
 class LineItemEvent extends CancelableEvent
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var LineItem The line item model.
      */

@@ -1,0 +1,29 @@
+{% do view.registerTranslations('commerce', [
+  'Email',
+]) %}
+<div class="commerce-widget-table-wrapper">
+  <div id="{{ id }}"></div>
+</div>
+
+{% set tableData = [] %}
+{% for stat in stats %}
+  {% set tableData = tableData|merge([{
+    title: stat.email|e,
+    url: cpUrl('commerce/customers/' ~ stat.customerId),
+    total: stat.total|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
+    average: stat.average|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
+  }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('commerce', 'Email')) },
+    { name: '{{ type }}', title: '{{ typeLabel|e }}' }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#{{ id }}',
+    tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

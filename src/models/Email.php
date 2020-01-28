@@ -18,9 +18,6 @@ use craft\commerce\records\Email as EmailRecord;
  */
 class Email extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -72,6 +69,11 @@ class Email extends Model
     public $templatePath;
 
     /**
+     * @var string Plain Text Template path
+     */
+    public $plainTextTemplatePath;
+
+    /**
      * @var bool Whether the email should attach a pdf template
      */
     public $attachPdf;
@@ -86,15 +88,13 @@ class Email extends Model
      */
     public $uid;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['name'], 'required'];
         $rules[] = [['subject'], 'required'];

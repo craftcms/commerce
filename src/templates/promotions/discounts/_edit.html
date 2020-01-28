@@ -90,55 +90,6 @@
             errors: discount.getErrors('code'),
         }) }}
 
-        <div id="coupon-fields"
-             class="{% if not discount.code|length %}hidden{% endif %}">
-            {{ commerceForms.numberField({
-                label: "Per User Coupon Limit"|t('commerce'),
-                instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
-                id: 'perUserLimit',
-                name: 'perUserLimit',
-                value: discount.perUserLimit,
-                min: '0',
-                errors: discount.getErrors('perUserLimit'),
-            }) }}
-
-            {{ commerceForms.numberField({
-                label: "Per Email Address Coupon Limit"|t('commerce'),
-                instructions: "How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users."|t('commerce'),
-                id: 'perEmailLimit',
-                name: 'perEmailLimit',
-                value: discount.perEmailLimit,
-                min: '0',
-                errors: discount.getErrors('perEmailLimit'),
-            }) }}
-
-            {{ commerceForms.numberField({
-                label: "Total Coupon Use Limit"|t('commerce'),
-                instructions: "How many times this coupon can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
-                id: 'totalUseLimit',
-                name: 'totalUseLimit',
-                value: discount.totalUseLimit,
-                min: '0',
-                errors: discount.getErrors('totalUseLimit'),
-            }) }}
-
-            {{ forms.field({
-                'label': 'Times Coupon Used'|t('commerce'),
-                'id': 'total-coupon-use-counter',
-                'instructions': "How many times this discount has been used with a coupon code."|t('commerce'),
-            }, '<input disabled class="text disabled fullwidth" value="' ~ discount.totalUses ~ ' times">') }}
-
-            {% if discount.id and discount.code|length %}
-                <div id="clear-coupon-history">
-                    {{ forms.field({
-                        'label': 'Clear all coupon usage history for this discount'|t('commerce'),
-                        'id': 'clear-coupon',
-                        'instructions': "This will clear all “Per User Coupon Limit” and “Total Use Limit” counters. It will not clear any “Per Email Address Coupon Limit” counters."|t('commerce'),
-                    }, '<div id="clear-coupon-btn" class="btn">' ~ "Clear counters"|t('commerce') ~'</div><div id="clear-coupon-history-spinner" class="spinner hidden"></div>') }}
-                </div>
-            {% endif %}
-
-        </div>
     </div>
 
     <div id="conditions" class="hidden">
@@ -175,7 +126,7 @@
         {% endif %}
 
         {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
+            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
             {{ forms.elementSelectField({
                 id: 'purchasables-'~purchasableType.elementType|id,
                 label: purchasableType.name,
@@ -197,6 +148,16 @@
             limit: null,
             instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
             errors: discount.getErrors('categories'),
+        }) }}
+
+        {{ forms.selectField({
+            id: 'categoryRelationshipType',
+            name: 'categoryRelationshipType',
+            label: 'Categories Relationship Type'|t('commerce'),
+            instructions: "This determines how the Products and Categories are related to match the discount. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
+            options: categoryRelationshipType,
+            value: discount.categoryRelationshipType,
+            errors: discount.getErrors('categoryRelationshipType')
         }) }}
 
         {{ commerceForms.numberField({
@@ -230,6 +191,88 @@
             errors: discount.getErrors('maxPurchaseQty'),
         }) }}
 
+        {% set customerUsage = customerUsage and customerUsage|length ? customerUsage : {uses: 0, customers: 0} %}
+        {% set customerCounterMarkup %}
+            <div class="flex">
+                <div>
+                    {{ forms.text({
+                        id: 'perUserLimit',
+                        name: 'perUserLimit',
+                        value: discount.perUserLimit,
+                        min: '0',
+                        size: 10,
+                        errors: discount.getErrors('perUserLimit'),
+                    }) }}
+                </div>
+                <div>
+                    <input id="customer-usage-counter" disabled class="text disabled fullwidth" size="30" value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
+                </div>
+                <div>
+                    <div class="btn clear-btn" data-spinner="#clear-customer-usage-spinner" data-field="#customer-usage-counter" data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div id="clear-customer-usage-spinner" class="spinner hidden"></div>
+                </div>
+            </div>
+        {% endset %}
+        {{ forms.field({
+            label: "Per User Discount Limit"|t('commerce'),
+            instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+        }, customerCounterMarkup) }}
+
+        {% set emailUsage = emailUsage and emailUsage|length ? emailUsage : {uses: 0, emails: 0} %}
+        {% set emailCounterMarkup %}
+            <div class="flex">
+                <div>
+                    {{ forms.text({
+                        id: 'perEmailLimit',
+                        name: 'perEmailLimit',
+                        value: discount.perEmailLimit,
+                        min: '0',
+                        size: 10,
+                        errors: discount.getErrors('perEmailLimit'),
+                    }) }}
+                </div>
+                <div>
+                    <input id="email-usage-counter" disabled class="text disabled fullwidth" size="30" value="{{ '{uses} uses across {emails} email addresses'|t('commerce', emailUsage) }}">
+                </div>
+                <div>
+                    <div class="btn clear-btn" data-spinner="#clear-email-usage-spinner" data-field="#email-usage-counter" data-type="{{ counterTypeEmail }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div id="clear-email-usage-spinner" class="spinner hidden"></div>
+                </div>
+            </div>
+        {% endset %}
+        {{ forms.field({
+            label: 'Per Email Address Discount Limit'|t('commerce'),
+            instructions: 'How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users.'|t('commerce'),
+        }, emailCounterMarkup) }}
+
+        {% set totalDiscountUsesWording = discount.totalDiscountUses != 1 ? '{count} times' : '{count} time' %}
+        {% set totalDiscountLimitMarkup %}
+            <div class="flex">
+                <div>
+                    {{ forms.text({
+                        id: 'totalDiscountUseLimit',
+                        name: 'totalDiscountUseLimit',
+                        value: discount.totalDiscountUseLimit,
+                        min: '0',
+                        size: 10,
+                        errors: discount.getErrors('totalDiscountUseLimit'),
+                    }) }}
+                </div>
+                <div>
+                    <input id="total-discount-use-counter" disabled class="text disabled fullwidth" size="10" value="{{ totalDiscountUsesWording|t('commerce', {count: discount.totalDiscountUses}) }}">
+                </div>
+                <div>
+                    <div class="btn clear-btn" data-spinner="#clear-discount-use-spinner" data-field="#total-discount-use-counter" data-type="{{ counterTypeTotal }}">{{ "Clear counter"|t('commerce') }}</div>
+                    <div id="clear-discount-use-spinner" class="spinner hidden"></div>
+                </div>
+            </div>
+        {% endset %}
+        {{ forms.field({
+            'label': 'Total Discount Use Limit'|t('commerce'),
+            'instructions': "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+        }, totalDiscountLimitMarkup) }}
+
+
         {{ forms.checkboxField({
             label: "Exclude this discount for products that are already on sale"|t('commerce'),
             id: 'excludeOnSale',
@@ -242,16 +285,38 @@
 
     </div>
     <div id="amounts" class="hidden">
-        {{ commerceForms.numberField({
+        {% set baseDiscountInput %}
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.text({
+                            id: 'baseDiscount',
+                            name: 'baseDiscount',
+                            type: 'number',
+                            step: 'any',
+                            size: 10,
+                            value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
+                        }) }}
+                    </td>
+                    <td style="padding-left: 14px;">
+                        {{ forms.select({
+                            id: 'baseDiscountType',
+                            name: 'baseDiscountType',
+                            options: baseDiscountTypes,
+                            value: discount.baseDiscountType
+                        }) }}
+                    </td>
+                </tr>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
             label: "Base Discount"|t('commerce'),
-            instructions: "The flat value which should discount the order’s total price. i.e “10” for $10 off."|t('commerce'),
+            instructions: "The amount of discount that is applied to the order’s total price.
+Currency value: “10” for $10 off. Percent: “10” for 10% off."|t('commerce'),
             id: 'baseDiscount',
-            name: 'baseDiscount',
-            value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
-            type: 'number',
-            step: 'any',
             errors: discount.getErrors('baseDiscount'),
-        }) }}
+        }, baseDiscountInput) }}
 
         {{ commerceForms.numberField({
             label: "Per Item Discount"|t('commerce'),
@@ -298,7 +363,7 @@
         }, pctDiscountInput) }}
 
         {{ forms.checkboxField({
-            label: "Ignore sales when this discount is applied."|t('commerce'),
+            label: "Ignore sales when this discount is applied"|t('commerce'),
             id: 'ignoreSales',
             name: 'ignoreSales',
             value: 1,
@@ -358,11 +423,15 @@
                 }
             });
 
-            $('#clear-coupon-btn').click(function(event) {
-                var r = confirm("Are you sure you want to clear all usage history for this discount?");
+            $('.clear-btn').click(function(event) {
+                var $this = $(this);
+                var $spinner = $($this.data('spinner'));
+                var $field = $($this.data('field'));
+                var type = $this.data('type');
+                var r = confirm(Craft.t('commerce', 'Are you sure you want to clear this discount usage counter?'));
 
                 if (r == true) {
-                    $('#clear-coupon-history-spinner').toggleClass('hidden');
+                    $spinner.toggleClass('hidden');
                     $.ajax({
                         type: "POST",
                         dataType: 'json',
@@ -371,14 +440,15 @@
                         },
                         url: '',
                         data: {
-                            'action' : 'commerce/discounts/clear-coupon-usage-history',
-                            'id': '{{ discount.id ?? '' }}'
+                            'action' : 'commerce/discounts/clear-discount-uses',
+                            'id': '{{ discount.id ?? '' }}',
+                            'type': type
                         },
                         success: function(data){
-                            $('#clear-coupon-history-spinner').toggleClass('hidden');
-                            $('#total-coupon-use-counter').val(0);
-                            alert(Craft.t('commerce', 'All coupon usage counters have been cleared'));
-                            $('#clear-coupon-history').hide();
+                            $spinner.toggleClass('hidden');
+                            $field.val('');
+                            Craft.cp.displayNotice(Craft.t('commerce', 'Counter has been cleared.'));
+                            $this.attr('disabled', 'disabled').prop('disabled', 'disabled');
                         }
                     });
                 }

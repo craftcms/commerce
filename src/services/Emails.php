@@ -41,9 +41,6 @@ use yii\web\ServerErrorHttpException;
  */
 class Emails extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event MailEvent The event that is raised before an email is sent.
      * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
@@ -101,8 +98,6 @@ class Emails extends Component
 
     const CONFIG_EMAILS_KEY = 'commerce.emails';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get an email by its ID.
@@ -127,6 +122,23 @@ class Emails extends Component
     public function getAllEmails(): array
     {
         $rows = $this->_createEmailQuery()->all();
+
+        $emails = [];
+        foreach ($rows as $row) {
+            $emails[] = new Email($row);
+        }
+
+        return $emails;
+    }
+
+    /**
+     * Get all emails that are enabled.
+     *
+     * @return Email[]
+     */
+    public function getAllEnabledEmails(): array
+    {
+        $rows = $this->_createEmailQuery()->andWhere(['enabled' => true])->all();
 
         $emails = [];
         foreach ($rows as $row) {
@@ -181,6 +193,7 @@ class Emails extends Component
             'replyTo' => $email->replyTo,
             'enabled' => (bool)$email->enabled,
             'templatePath' => $email->templatePath,
+            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
             'attachPdf' => (bool)$email->attachPdf,
             'pdfTemplatePath' => $email->pdfTemplatePath,
         ];
@@ -222,6 +235,7 @@ class Emails extends Component
             $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
             $emailRecord->templatePath = $data['templatePath'];
+            $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->attachPdf = $data['attachPdf'];
             $emailRecord->pdfTemplatePath = $data['pdfTemplatePath'];
             $emailRecord->uid = $emailUid;
@@ -298,9 +312,13 @@ class Emails extends Component
      * @param Email $email
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @param array $orderData Since the order may have changed by the time the email sends.
      * @return bool $result
+     * @throws Exception
+     * @throws Throwable
+     * @throws \yii\base\InvalidConfigException
      */
-    public function sendEmail($email, $order, $orderHistory): bool
+    public function sendEmail($email, $order, $orderHistory = null, $orderData = null): bool
     {
         if (!$email->enabled) {
             return false;
@@ -321,7 +339,7 @@ class Emails extends Component
         }
 
         //sending emails
-        $renderVariables = compact('order', 'orderHistory', 'option');
+        $renderVariables = compact('order', 'orderHistory', 'option', 'orderData');
 
         $mailer = Craft::$app->getMailer();
         /** @var Message $newEmail */
@@ -516,6 +534,41 @@ class Emails extends Component
 
             return false;
         }
+        // Plain Text Template Path
+        $plainTextTemplatePath = null;
+        try {
+            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+        } catch (\Exception $e) {
+            $error = Plugin::t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                'email' => $email->name,
+                'order' => $order->getShortNumber(),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            Craft::error($error, __METHOD__);
+
+            Craft::$app->language = $originalLanguage;
+            $view->setTemplateMode($oldTemplateMode);
+
+            return false;
+        }
+
+        // Plain Text Body
+        if ($plainTextTemplatePath && !$view->doesTemplateExist($templatePath)) {
+            $error = Plugin::t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
+                'templatePath' => $email->plainTextTemplatePath,
+                'templateParsedPath' => $plainTextTemplatePath,
+                'email' => $email->name,
+                'order' => $order->getShortNumber()
+            ]);
+            Craft::error($error, __METHOD__);
+
+            Craft::$app->language = $originalLanguage;
+            $view->setTemplateMode($oldTemplateMode);
+
+            return false;
+        }
 
         if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
             // Email Body
@@ -567,6 +620,7 @@ class Emails extends Component
             }
         }
 
+        // Render HTML body
         try {
             $body = $view->renderTemplate($templatePath, $renderVariables);
             $newEmail->setHtmlBody($body);
@@ -586,13 +640,36 @@ class Emails extends Component
             return false;
         }
 
+        // Render Plain Text body
+        if ($plainTextTemplatePath) {
+            try {
+                $plainTextBody = $view->renderTemplate($plainTextTemplatePath, $renderVariables);
+                $newEmail->setTextBody($plainTextBody);
+            } catch (\Exception $e) {
+                $error = Plugin::t('Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                Craft::error($error, __METHOD__);
+
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
+
+                return false;
+            }
+        }
+
         try {
             //raising event
             $event = new MailEvent([
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
                 'order' => $order,
-                'orderHistory' => $orderHistory
+                'orderHistory' => $orderHistory,
+                'orderData' => $orderData
             ]);
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
@@ -646,7 +723,8 @@ class Emails extends Component
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
                 'order' => $order,
-                'orderHistory' => $orderHistory
+                'orderHistory' => $orderHistory,
+                'orderData' => $orderData
             ]));
         }
 
@@ -684,8 +762,6 @@ class Emails extends Component
         return $emails;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Emails.
@@ -706,6 +782,7 @@ class Emails extends Component
                 'emails.replyTo',
                 'emails.enabled',
                 'emails.templatePath',
+                'emails.plainTextTemplatePath',
                 'emails.attachPdf',
                 'emails.pdfTemplatePath',
                 'emails.uid',
@@ -729,5 +806,4 @@ class Emails extends Component
 
         return new EmailRecord();
     }
-
 }

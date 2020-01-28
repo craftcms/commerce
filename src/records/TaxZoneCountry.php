@@ -24,9 +24,6 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxZoneCountry extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

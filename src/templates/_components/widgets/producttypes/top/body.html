@@ -1,0 +1,25 @@
+<div class="commerce-widget-table-wrapper">
+  <div id="{{ id }}"></div>
+</div>
+
+{% set tableData = [] %}
+{% for stat in stats %}
+  {% set tableData = tableData|merge([{
+    title: (stat.productType ? stat.productType.name : stat.name)|e,
+    qty: stat.qty,
+    revenue: stat.revenue|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
+  }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Name')) },
+    { name: '{{ type }}', title: '{{ typeLabel|e }}' }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#{{ id }}',
+    tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

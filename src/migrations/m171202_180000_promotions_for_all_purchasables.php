@@ -86,7 +86,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
         // Create a category for each product type
         foreach ($productTypes as $productType) {
-
             $category = new Category();
             $category->groupId = $group->id;
             $category->slug = $productType['handle'];
@@ -102,7 +101,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         }
 
         if ($productTypes) {
-
             $field = $this->_createCategoryFieldsOnProducts($group, $productTypes);
             $db = Craft::$app->getDb();
 
@@ -127,7 +125,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         // Replace discount_producttypes with discount_categories
         $newDiscountsCategories = [];
         foreach ($discountsProductTypes as $discountsProductType) {
-
             $discountExists = (new Query())
                 ->select(['id'])
                 ->from(['{{%commerce_discounts}}'])
@@ -166,7 +163,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         // Replace sale_producttype with sale_categories
         $newSalesCategories = [];
         foreach ($salesProductTypes as $salesProductType) {
-
             $saleExists = (new Query())
                 ->select(['id'])
                 ->from(['{{%commerce_sales}}'])
@@ -324,7 +320,6 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $allSiteSettings = [];
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-
             $siteSettings = new CategoryGroup_SiteSettings();
             $siteSettings->siteId = $site->id;
             $siteSettings->hasUrls = false;
@@ -361,7 +356,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $group->name = 'Commerce Promotion Categories';
         $fieldsService->saveGroup($group);
 
-        $settings = ['source' => 'group:' . $categoryGroup->id, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
+        $settings = ['source' => 'group:' . $categoryGroup->uid, 'branchLimit' => '', 'selectionLabel' => 'Add a promotion category'];
 
         /** @var Categories $field */
         $field = $fieldsService->createField([

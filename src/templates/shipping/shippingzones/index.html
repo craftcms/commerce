@@ -2,65 +2,54 @@
 
 {% from "commerce/_includes/settings" import indexInlineList %}
 
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Countries/States',
+  'Has Zip Condition?',
+]) %}
 
-{% block content %}
-    <h2>{{ "Shipping Zones"|t('commerce') }}</h2>
-
-    <div id="no-shipping-zones"{% if shippingZones|length %} class="hidden"{% endif %}>
-        <p>{{ "No shipping zones exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if shippingZones|length %}
-        <table id="shipping-zones" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Name'|t('commerce') }}</th>
-                <th scope="col">{{ 'Description'|t('commerce') }}</th>
-                <th scope="col">{{ 'Type'|t('commerce') }}</th>
-                <th scope="col">{{ 'Countries/States'|t('commerce') }}</th>
-                <th scope="col">{{ 'Has Zip Condition?'|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for shippingZone in shippingZones %}
-                <tr data-id="{{ shippingZone.id }}"
-                    data-name="{{ shippingZone.name }}">
-                    <td scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/shipping/shippingzones/'~shippingZone.id) }}">{{ shippingZone.name }}</a>
-                    </td>
-                    <td data-title="{{ 'Description'|t('commerce') }}">{{ shippingZone.description }}</td>
-                    <td data-title="{{ 'Type'|t('commerce') }}">{{ shippingZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce') }}</td>
-                    <td data-title="{{ 'Countries/States'|t('commerce') }}">
-                        {% if shippingZone.isCountryBased %}
-                            {{ indexInlineList(shippingZone.getCountriesNames()) }}
-                        {% else %}
-                            {{ indexInlineList(shippingZone.getStatesNames()) }}
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Has Zip Condition?'|t('commerce') }}">
-                        {% if shippingZone.zipCodeConditionFormula %}<span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/shipping/shippingzones/new') }}"
-           class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingzones/new') }}" class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="shipping-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for shippingZone in shippingZones %}
+	{% set tableData = tableData|merge([{
+        id: shippingZone.id,
+        title: shippingZone.name|t('site'),
+        url: url('commerce/shipping/shippingzones/'~shippingZone.id),
+        description: shippingZone.description|t('site')|e,
+        type: shippingZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
+        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ')|e : shippingZone.getStatesNames()|join(', ')|e,
+        zipCondition: shippingZone.zipCodeConditionFormula ? true : false,
+    }]) %}
+{% endfor %}
+
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#shipping-zones',
-    noObjectsSelector: '#no-shipping-zones',
-    deleteAction: 'commerce/shipping-zones/delete'
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: 'type', title: Craft.t('app', 'Type') },
+        { name: 'countryState', title: Craft.t('commerce', 'Countries/States') },
+        {
+            name: 'zipCondition',
+            title: Craft.t('commerce', 'Has Zip Condition?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-zones/delete',
+        tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

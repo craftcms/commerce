@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
@@ -27,9 +26,6 @@ use yii\base\Exception;
  */
 class Pdf extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event PdfEvent The event that is triggered before a PDF is rendered
      * Event handlers can override Commerce's PDF generation by setting [[PdfEvent::pdf]] to a custom-rendered PDF.
@@ -41,8 +37,6 @@ class Pdf extends Component
      */
     const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a rendered PDF object for the order.

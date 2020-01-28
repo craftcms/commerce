@@ -3,6 +3,7 @@
 {% set selectedTab = 'settings' %}
 
 {% import "_includes/forms" as forms %}
+{% from _self import configWarning %}
 
 {% block content %}
 
@@ -48,6 +49,7 @@
             options: settings.getWeightUnitsOptions(),
             errors: settings.getErrors('weightUnits'),
             required: true,
+            warning: configWarning('weightUnits', 'commerce'),
         }) }}
 
         {{ forms.selectField({
@@ -58,6 +60,7 @@
             options: settings.getDimensionUnits(),
             errors: settings.getErrors('dimensionUnits'),
             required: true,
+            warning: configWarning('dimensionUnits', 'commerce'),
         }) }}
 
         {{ forms.selectField({
@@ -68,6 +71,7 @@
             options: settings.getMinimumTotalPriceStrategyOptions(),
             errors: settings.getErrors('minimumTotalPriceStrategy'),
             required: true,
+            warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
         }) }}
 
         <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
@@ -79,6 +83,7 @@
             value: settings.orderPdfPath,
             errors: settings.getErrors('orderPdfPath'),
             required: true,
+            warning: configWarning('orderPdfPath', 'commerce'),
         }) }}
 
         {{ forms.textField({
@@ -93,6 +98,7 @@
             class: 'code ltr',
             errors: settings.getErrors('orderPdfFilenameFormat'),
             required: true,
+            warning: configWarning('orderPdfFilenameFormat', 'commerce'),
         }) }}
 
         {{ forms.textField({
@@ -107,6 +113,7 @@
             class: 'code ltr',
             errors: settings.getErrors('orderReferenceFormat'),
             required: true,
+            warning: configWarning('orderReferenceFormat', 'commerce'),
         }) }}
 
 
@@ -121,7 +128,8 @@
             required: false,
             suggestEnvVars: true,
             suggestAliases: true,
-            placeholder: "//example.com/subscriptions/udpateBillingDetails",
+            placeholder: "//example.com/subscriptions/updateBillingDetails",
+            warning: configWarning('updateBillingDetailsUrl', 'commerce'),
         }) }}
 
         <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
@@ -133,6 +141,7 @@
             options: settings.getDefaultViewOptions(),
             errors: settings.getErrors('defaultView'),
             required: true,
+            warning: configWarning('defaultView', 'commerce'),
         }) }}
 
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">

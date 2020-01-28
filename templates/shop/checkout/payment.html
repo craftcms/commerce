@@ -5,27 +5,46 @@
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
             <h1>Payment</h1>
-            {#
-            Using the update cart action you could allow the user to select the payment method here.
-            We recommend using ajax to set this, so no page refresh is needed. This would also allow you to dynamically show or hide the credit card form
-            on method change.
-            #}
 
+{#
+            ╔══════════════════════════════════════════════════╗
+            ║  ┌───────────────────────────────────────────┐   ║
+            ║  │ Set up variables and check if we have any │   ║
+            ║  │             gateways set up.              │   ║
+            ║  └───────────────────────────────────────────┘   ║
+            ╚══════════════════════════════════════════════════╝
+#}
+
+            {# Get the available payment sources the user has to be used later in this page. #}
             {% set storedCards = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
 
-            {% if not craft.commerce.gateways.allCustomerEnabledGateways|length %}
+            {# Get the available gateways to be used later in this page #}
+            {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
+
+            {# If there are no gateway then payment sources wont work either, so lets #}
+            {% if availableGateways is empty %}
                 <p>No payment methods available.</p>
             {% endif %}
 
-            {% if craft.commerce.gateways.allCustomerEnabledGateways|length %}
-                <form method="POST" id="gateway" class="form-inline">
+{#
+            ╔══════════════════════════════════════════════════╗
+            ║  ┌───────────────────────────────────────────┐   ║
+            ║  │   This form updates the order with the    │   ║
+            ║  │  preferred payment source or gateway, as  │   ║
+            ║  │well as allowing the selection of a payment│   ║
+            ║  │   currency if more than one is set up.    │   ║
+            ║  └───────────────────────────────────────────┘   ║
+            ╚══════════════════════════════════════════════════╝
+#}
 
+            {% if availableGateways|length %}
+                <form method="POST" id="paymentPreferenceForm" class="form-inline">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
                     <label for="paymentMethod">Select a payment method:</label>
-                    <select id="paymentMethod" name="paymentMethod" class="form-control">
+                    <select id="paymentMethod" class="form-control">
                         {% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
 
                         {% for storedCard in storedCards %}
@@ -48,6 +67,32 @@
                     {% endif %}
                 </form>
             {% endif %}
+
+            {% js %}
+                // If the payment currency changes, submit the form immediately
+                $('#paymentCurrency').change(function(){
+                    $('form#paymentPreferenceForm').submit();
+                });
+
+                $('#paymentMethod').change(function(ev){
+                    $select = $(ev.currentTarget);
+
+                    if ($select.val().length === 0) {
+                        return;
+                    }
+
+                    var parts = $select.val().split(':');
+                    var name = 'gatewayId';
+
+                    if (parts[0] === 'card') {
+                        name = 'paymentSourceId';
+                    }
+
+                    $select.prop('disabled', 'disabled');
+
+                    $('form#paymentPreferenceForm').append('<input type="hidden" name="' + name + '" value="' + parts[1] + '" />').submit();
+                });
+            {% endjs %}
 
             {% if cart.gatewayId or cart.paymentSourceId %}
                 <form method="POST" class="form-horizontal paymentSource-form max-w-md" id="paymentForm">
@@ -91,31 +136,7 @@
         </div>
     </div>
 
-    {% js %}
-        $('#paymentCurrency').change(function(){
-            $('form#gateway').submit();
-        });
 
-        $('#paymentMethod').change(function(ev){
-            $select = $(ev.currentTarget);
-
-            if ($select.val().length === 0) {
-                return;
-            }
-
-            var parts = $select.val().split(':');
-
-            var name = 'gatewayId';
-
-            if (parts[0] === 'card') {
-                name = 'paymentSourceId';
-            }
-
-            $select.prop('disabled', 'disabled');
-
-            $('form#gateway').append('<input type="hidden" name="' + name + '" value="' + parts[1] + '" />').submit();
-        });
-    {% endjs %}
 
     {% js %}
         $('#paymentForm').on('submit', function (ev) {

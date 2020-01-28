@@ -1,5 +1,11 @@
 <p align="center"><img src="./src/icon.svg" width="100" height="100" alt="Craft Commerce icon"></p>
 
+<p align="center">
+<a href="https://travis-ci.com/craftcms/commerce"><img src="https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=build" alt="Build Status"></a>
+<a href="https://packagist.org/packages/craftcms/commerce"><img src="https://img.shields.io/packagist/dt/craftcms/commerce.svg?label=downloads" alt="Total Packagist Downloads"></a>
+<a href="https://github.com/craftcms/commerce/releases"><img src="https://img.shields.io/github/tag/craftcms/commerce.svg?label=stable" alt="Latest Stable Version"></a>
+</p>
+
 <h1 align="center">Craft Commerce</h1>
 
 Craft Commerce is an amazingly powerful and flexible e-commerce platform for [Craft CMS](https://craftcms.com).
@@ -8,7 +14,7 @@ You can learn all about it at [craftcms.com/commerce](https://craftcms.com/comme
 
 ## Requirements
 
-This plugin requires Craft CMS 3.3.0 or later.
+This plugin requires Craft CMS 3.4.0 or later.
 
 ## Installation
 

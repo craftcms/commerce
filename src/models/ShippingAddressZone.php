@@ -30,9 +30,6 @@ use craft\validators\UniqueValidator;
  */
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -74,8 +71,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     private $_states;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -224,9 +219,9 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [['name'], 'required'];
         $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];

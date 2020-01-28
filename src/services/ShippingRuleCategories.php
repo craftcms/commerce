@@ -22,16 +22,11 @@ use yii\base\Component;
  */
 class ShippingRuleCategories extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var ShippingRuleCategory[][]
      */
     private $_shippingRuleCategoriesByRuleId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an array of shipping rules categories per the rule's ID.
@@ -111,8 +106,6 @@ class ShippingRuleCategories extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving shipping rule categories.

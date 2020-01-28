@@ -9,44 +9,64 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\base\Field;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\OrderStatusException;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\models\Customer;
+use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\commerce\web\assets\commerceui\CommerceUiAsset;
+use craft\db\Query;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\StringHelper;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
-use DateTime;
+use craft\web\Controller;
+use craft\web\View;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Orders Controller
+ * Class Order Editor Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 2.2
  */
-class OrdersController extends BaseCpController
+class OrdersController extends Controller
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function init()
     {
         $this->requirePermission('commerce-manageOrders');
+
         parent::init();
     }
 
@@ -59,7 +79,44 @@ class OrdersController extends BaseCpController
      */
     public function actionOrderIndex(string $orderStatusHandle = ''): Response
     {
+        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
+
+        Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+        $permissions = [
+            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
+
         return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
+    }
+
+    /**
+     * Create an order
+     */
+    public function actionNewOrder(): Response
+    {
+        $this->requirePermission('commerce-editOrders');
+
+        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+
+        $order = new Order();
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+
+        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $customer = new Customer();
+            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        }
+
+        $order->customerId = $customer->id;
+        $order->origin = Order::ORIGIN_CP;
+
+        if (!Craft::$app->getElements()->saveElement($order)) {
+            throw new Exception(Plugin::t('Can not create a new order'));
+        }
+
+        return $this->redirect('commerce/orders/' . $order->id);
     }
 
     /**
@@ -67,68 +124,489 @@ class OrdersController extends BaseCpController
      * @param Order $order
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEditOrder($orderId, Order $order = null): Response
     {
+        $this->requirePermission('commerce-editOrders');
+
         $plugin = Plugin::getInstance();
-        $variables = [
-            'orderId' => $orderId,
-            'order' => $order,
-            'fieldLayout' => Craft::$app->getFields()->getLayoutByType(Order::class)
-        ];
+        $variables = [];
 
-        if (empty($variables['order']) && !empty($variables['orderId'])) {
-            $variables['order'] = $plugin->getOrders()->getOrderById($variables['orderId']);
+        if ($order === null && $orderId) {
+            $order = $plugin->getOrders()->getOrderById($orderId);
 
-            if (!$variables['order']) {
-                throw new HttpException(404);
+            if (!$order) {
+                throw new HttpException(404, Plugin::t('Can not find order.'));
             }
         }
 
-        if (!empty($variables['orderId'])) {
-            $variables['title'] = $variables['order']->reference ? 'Order ' . $variables['order']->reference : 'Cart ' . $variables['order']->number;
-        } else {
-            throw new HttpException(404);
-        }
+        $variables['order'] = $order;
+        $variables['orderId'] = $order->id;
+        $variables['fieldLayout'] = Craft::$app->getFields()->getLayoutByType(Order::class);
 
-        $this->_prepVariables($variables);
+        $transactions = $order->getTransactions();
 
-        $variables['paymentMethodsAvailable'] = false;
+        $variables['orderTransactions'] = $this->_getTransactionsWIthLevelsTableArray($transactions);
 
-        if (empty($variables['paymentForm'])) {
-            /** @var Gateway $gateway */
-            $gateway = $variables['order']->getGateway();
-
-            if ($gateway && !$gateway instanceof MissingGateway) {
-                $variables['paymentForm'] = $gateway->getPaymentFormModel();
-            } else {
-                $gateway = ArrayHelper::firstValue($plugin->getGateways()->getAllGateways());
-
-                if ($gateway && !$gateway instanceof MissingGateway) {
-                    $variables['paymentForm'] = $gateway->getPaymentFormModel();
-                }
-            }
-
-            if ($gateway instanceof MissingGateway) {
-                $variables['paymentMethodsAvailable'] = false;
-            }
-        }
-
-
-        $variables['continueEditingUrl'] = 'commerce/orders/{id}';
-
-        $allStatuses = array_values($plugin->getOrderStatuses()->getAllOrderStatuses());
-        $variables['orderStatusesJson'] = Json::encode($allStatuses);
+        $this->_updateTemplateVariables($variables);
+        $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
 
     /**
-     * Returns Payment Modal
+     * @throws Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
+     */
+    public function actionSave()
+    {
+        $this->requirePermission('commerce-editOrders');
+        $this->requirePostRequest();
+
+        $data = Craft::$app->getRequest()->getBodyParam('orderData');
+
+        $orderRequestData = Json::decodeIfJson($data);
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
+
+        if (!$order) {
+            throw new HttpException(400, Plugin::t('Invalid Order ID'));
+        }
+
+        // Set custom field values
+        $order->setFieldValuesFromRequest('fields');
+
+        $alreadyCompleted = $order->isCompleted;
+        // Set data from request to the order
+        $this->_updateOrder($order, $orderRequestData);
+        $markAsComplete = !$alreadyCompleted && $order->isCompleted;
+
+        // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
+        if ($markAsComplete) {
+            $order->isCompleted = false;
+            $order->dateOrdered = null;
+            $order->orderStatusId = null;
+        }
+
+        $order->setScenario(Element::SCENARIO_LIVE);
+        $valid = $order->validate(null, false);
+
+        if (!$valid || !Craft::$app->getElements()->saveElement($order, false)) {
+            // Recalculation mode should always return to none, unless it is still a cart
+            $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+            if (!$order->isCompleted) {
+                $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+            }
+
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save order.'));
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'order' => $order
+            ]);
+
+            return null;
+        }
+
+        // This request is marking the order as complete
+        if ($markAsComplete) {
+            $order->markAsComplete();
+        }
+
+        $this->redirectToPostedUrl();
+    }
+
+    /**
+     * Deletes an order.
+     *
+     * @return Response|null
+     * @throws Exception if you try to edit a non existing Id.
+     * @throws Throwable
+     */
+    public function actionDeleteOrder()
+    {
+        $this->requirePostRequest();
+        $this->requirePermission('commerce-deleteOrders');
+
+        $orderId = (int)Craft::$app->getRequest()->getRequiredBodyParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            throw new HttpException(404, Plugin::t('Can not find order.'));
+        }
+
+        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
+            return $this->asJson(['success' => false]);
+        }
+
+        Craft::$app->getSession()->setNotice(Plugin::t('Order deleted.'));
+
+        return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * The refresh action accepts a json representation of an order, recalculates it depending on the mode submitted,
+     * and returns the order as json with any validation errors.
      *
      * @return Response
      * @throws Exception
+     */
+    public function actionRefresh()
+    {
+        $this->requirePermission('commerce-editOrders');
+
+        $data = Craft::$app->getRequest()->getRawBody();
+        $orderRequestData = Json::decodeIfJson($data);
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
+
+        if (!$order) {
+            return $this->asErrorJson(Plugin::t('Invalid Order ID'));
+        }
+
+        $this->_updateOrder($order, $orderRequestData);
+
+        if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+            $order->recalculate(); // dont save, just recalculate
+        }
+
+        // Recalculation mode should always return to none, unless it is still a cart
+        $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+        if (!$order->isCompleted) {
+            $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
+        }
+
+        $response = [];
+        $response['order'] = $this->_orderToArray($order);
+
+        if ($order->hasErrors()) {
+            $response['order']['errors'] = $order->getErrors();
+            $response['error'] = Plugin::t('The order is not valid.');
+        }
+
+        return $this->asJson($response);
+    }
+
+    /**
+     * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
+     */
+    public function actionUserOrdersTable(): Response
+    {
+        $this->requirePermission('commerce-manageOrders');
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        $customerId = $request->getQueryParam('customerId', null);
+
+        if (!$customerId) {
+            return $this->asErrorJson(Plugin::t('Customer ID is required.'));
+        }
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+
+        if (!$customer) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
+        }
+
+        $orderQuery = Order::find()
+         ->customer($customer)
+         ->isCompleted();
+
+        if ($search) {
+            $orderQuery->search($search);
+        }
+
+        if ($sort) {
+            [$field, $direction] = explode('|', $sort);
+
+            if ($field && $direction) {
+                $orderQuery->orderBy($field . ' ' . $direction);
+            }
+        }
+
+        $total = $orderQuery->count();
+
+        $orderQuery->offset($offset);
+        $orderQuery->limit($limit);
+        $orderQuery->orderBy('dateOrdered DESC');
+        $orders = $orderQuery->all();
+
+        $rows = [];
+        foreach ($orders as $order) {
+            $rows[] = [
+                'id' => $order->id,
+                'title' => $order->reference,
+                'url' => $order->getCpEditUrl(),
+                'date' => $order->dateOrdered->format('D jS M Y'),
+                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'orderStatus' => $order->getOrderStatusHtml(),
+            ];
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
+    }
+
+
+    /**
+     * @param Order $order
+     * @return array
+     */
+    private function _orderToArray($order)
+    {
+        // Remove custom fields
+        $orderFields = array_keys($order->fields());
+
+        sort($orderFields);
+
+        // Remove unneeded fields
+        ArrayHelper::removeValue($orderFields, 'hasDescendants');
+        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
+        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
+        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
+        ArrayHelper::removeValue($orderFields, 'tempId');
+        ArrayHelper::removeValue($orderFields, 'resaving');
+        ArrayHelper::removeValue($orderFields, 'duplicateOf');
+        ArrayHelper::removeValue($orderFields, 'totalDescendants');
+        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
+        ArrayHelper::removeValue($orderFields, 'contentId');
+        ArrayHelper::removeValue($orderFields, 'trashed');
+        ArrayHelper::removeValue($orderFields, 'structureId');
+        ArrayHelper::removeValue($orderFields, 'url');
+        ArrayHelper::removeValue($orderFields, 'ref');
+        ArrayHelper::removeValue($orderFields, 'title');
+        ArrayHelper::removeValue($orderFields, 'slug');
+
+        if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
+            foreach ($fieldLayout->getFields() as $field) {
+                /** @var Field $field */
+                ArrayHelper::removeValue($orderFields, $field->handle);
+            }
+        }
+
+        // Typecast order attributes
+        $order->typeCastAttributes();
+
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        return $order->toArray($orderFields, $extraFields);
+    }
+
+    /**
+     * @param null $query
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionPurchasableSearch($query = null)
+    {
+        // Prepare purchasables query
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select(['id', 'price', 'description', 'sku'])
+            ->from('{{%commerce_purchasables}}');
+
+        // Are they searching for a purchasable ID?
+        if (is_numeric($query)) {
+            $result = $sqlQuery->where(['id' => $query])->all();
+            if (!$result) {
+                return $this->asJson([]);
+            }
+            return $this->asJson($result);
+        }
+
+        // Are they searching for a SKU or purchasable description?
+        if ($query) {
+            $sqlQuery->where([
+                'or',
+                [$likeOperator, 'description', $query],
+                [$likeOperator, 'SKU', $query]
+            ]);
+        }
+
+        $result = $sqlQuery->limit(30)->all();
+
+        if (!$result) {
+            return $this->asJson([]);
+        }
+
+        $purchasables = [];
+
+        // Add the currency formatted price
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        foreach ($result as $row) {
+            /** @var PurchasableInterface $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $purchasables[] = $row;
+            }
+        }
+
+        return $this->asJson($purchasables);
+    }
+
+    /**
+     * @param null $query
+     * @return Response
+     */
+    public function actionCustomerSearch($query = null)
+    {
+        $limit = 30;
+
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select([
+                '[[customers.id]] as customerId',
+                '[[orders.email]] as email',
+                '[[users.id]] as userId',
+                'count([[orders.id]]) as totalOrders',
+            ])
+            ->from('{{%commerce_customers}} customers')
+            ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+            ->groupBy(['customerId', 'email', 'userId'])
+            ->where(['not', ['customerId' => null]])
+            ->andWhere(['isCompleted' => 1]);
+
+        // Are they searching for a customer ID?
+        $results = [];
+        if (is_numeric($query)) {
+            $result = $sqlQuery->andWhere(['[[customers.id]]' => $query])->one();
+            if ($result) {
+                $results[] = $result;
+            }
+        }
+
+        // Are they searching for an email address?
+        if (!is_numeric($query)) {
+            if ($query) {
+                $sqlQuery->andWhere(
+                    [$likeOperator, '[[orders.email]]', $query]
+                );
+            }
+            $results = $sqlQuery->limit($limit)->all();
+        }
+
+        foreach ($results as $key => $row) {
+            if (!isset($row['customerId']) || $row['customerId'] === null || $row['email'] === null) {
+                unset($results[$key]);
+            }
+        }
+
+        return $this->asJson($results);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionSendEmail()
+    {
+        $this->requireAcceptsJson();
+
+        $id = Craft::$app->getRequest()->getParam('id');
+        $orderId = Craft::$app->getRequest()->getParam('orderId');
+
+        if ($id === null || $orderId === null) {
+            return $this->asErrorJson(Plugin::t('Bad Request'));
+        }
+
+        $email = Plugin::getInstance()->getEmails()->getEmailById($id);
+        $order = Order::find()->id($orderId)->one();
+
+        if ($email === null) {
+            return $this->asErrorJson(Plugin::t('Can not find email'));
+        }
+
+        if ($order === null) {
+            return $this->asErrorJson(Plugin::t('Can not find order'));
+        }
+
+        $success = true;
+        try {
+            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
+                $success = false;
+            }
+        } catch (\Exception $exception) {
+            $success = false;
+        }
+
+        if (!$success) {
+            return $this->asErrorJson(Plugin::t('Could not send email'));
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * Updates an order address
+     *
+     * @return Response
+     * @throws Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws BadRequestHttpException
+     */
+    public function actionUpdateOrderAddress()
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $addressId = Craft::$app->getRequest()->getParam('addressId');
+        $type = Craft::$app->getRequest()->getParam('addressType');
+
+        // Validate Address Type
+        if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
+            $this->asErrorJson(Plugin::t('Not a valid address type'));
+        }
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        if (!$order) {
+            $this->asErrorJson(Plugin::t('Bad order ID.'));
+        }
+
+        // Return early if the address is already set.
+        if ($order->{$type . 'Id'} == $addressId) {
+            return $this->asJson(['success' => true]);
+        }
+
+        // Validate Address Id
+        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
+        if (!$address) {
+            return $this->asErrorJson(Plugin::t('Bad address ID.'));
+        }
+
+        $order->{$type . 'Id'} = $address->id;
+
+        if (Craft::$app->getElements()->saveElement($order)) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->asErrorJson(Plugin::t('Could not update orders address.'));
+    }
+
+
+    /**
+     * Returns Payment Modal
+     *
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function actionGetPaymentModal(): Response
     {
@@ -223,16 +701,16 @@ class OrdersController extends BaseCpController
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                 $child->order->updateOrderPaidInformation();
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction captured successfully: {message}', [
+                Craft::$app->getSession()->setNotice(Plugin::t('Transaction captured successfully: {message}', [
                     'message' => $message
                 ]));
             } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction: {message}', [
+                Craft::$app->getSession()->setError(Plugin::t('Couldn’t capture transaction: {message}', [
                     'message' => $message
                 ]));
             }
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction.', ['id' => $id]));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t capture transaction.', ['id' => $id]));
         }
 
         return $this->redirectToPostedUrl();
@@ -258,9 +736,8 @@ class OrdersController extends BaseCpController
         $note = Craft::$app->getRequest()->getRequiredBodyParam('note');
 
         if (!$transaction) {
-            $error = Craft::t('commerce', 'Can not find the transaction to refund');
+            $error = Plugin::t('Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-
                 return $this->asErrorJson($error);
             } else {
                 Craft::$app->getSession()->setError($error);
@@ -273,7 +750,7 @@ class OrdersController extends BaseCpController
         }
 
         if ($amount > $transaction->paymentAmount) {
-            $error = Craft::t('commerce', 'Can not refund amount greater than the original transaction');
+            $error = Plugin::t('Can not refund amount greater than the original transaction');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             } else {
@@ -291,11 +768,11 @@ class OrdersController extends BaseCpController
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                     $child->order->updateOrderPaidInformation();
-                    Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
+                    Craft::$app->getSession()->setNotice(Plugin::t('Transaction refunded successfully: {message}', [
                         'message' => $message
                     ]));
                 } else {
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
+                    Craft::$app->getSession()->setError(Plugin::t('Couldn’t refund transaction: {message}', [
                         'message' => $message
                     ]));
                 }
@@ -303,205 +780,37 @@ class OrdersController extends BaseCpController
                 Craft::$app->getSession()->setError($exception->getMessage());
             }
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t refund transaction.'));
         }
 
         return $this->redirectToPostedUrl();
     }
 
     /**
-     * Completes Order
-     *
-     * @return Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws OrderStatusException
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionCompleteOrder(): Response
-    {
-        $this->requireAcceptsJson();
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-
-        if ($order && !$order->isCompleted && $order->markAsComplete()) {
-            $date = ($order->dateOrdered instanceof DateTime) ? $order->dateOrdered : new DateTime($order->dateOrdered) ;
-            return $this->asJson(['success' => true, 'dateOrdered' => $date]);
-        }
-
-        return $this->asErrorJson(Craft::t('commerce', 'Could not mark the order as completed.'));
-    }
-
-    /**
-     * Updates an order address
-     *
-     * @return Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionUpdateOrderAddress()
-    {
-        $this->requireAcceptsJson();
-
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $addressId = Craft::$app->getRequest()->getParam('addressId');
-        $type = Craft::$app->getRequest()->getParam('addressType');
-
-        // Validate Address Type
-        if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
-        }
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        if (!$order) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad order ID.'));
-        }
-
-        // Return early if the address is already set.
-        if ($order->{$type . 'Id'} == $addressId) {
-            return $this->asJson(['success' => true]);
-        }
-
-        // Validate Address Id
-        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
-        if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
-        }
-
-        $order->{$type . 'Id'} = $address->id;
-
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
-        }
-
-        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
-    }
-
-    /**
-     * Updates the order status
-     *
-     * @return null|Response
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
-     */
-    public function actionUpdateStatus()
-    {
-        $this->requireAcceptsJson();
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $orderStatusId = Craft::$app->getRequest()->getParam('orderStatusId');
-        $message = Craft::$app->getRequest()->getParam('message');
-
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
-
-        if (!$order || !$orderStatus) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad Order or Status'));
-        }
-
-        $order->orderStatusId = $orderStatus->id;
-        $order->message = $message;
-
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
-        }
-
-        return null;
-    }
-
-    /**
-     * Saves the Order
-     *
-     * @return null
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
-     * @throws BadRequestHttpException
-     */
-    public function actionSaveOrder()
-    {
-        $this->requirePostRequest();
-
-        $order = $this->_setOrderFromPost();
-
-        $order->setScenario(Element::SCENARIO_LIVE);
-
-        if (!Craft::$app->getElements()->saveElement($order)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
-            Craft::$app->getUrlManager()->setRouteParams([
-                'order' => $order
-            ]);
-            return null;
-        }
-
-        return $this->redirectToPostedUrl($order);
-    }
-
-    /**
-     * Deletes an order.
-     *
-     * @return Response|null
-     * @throws Exception if you try to edit a non existing Id.
-     */
-    public function actionDeleteOrder()
-    {
-        $this->requirePostRequest();
-
-        $orderId = Craft::$app->getRequest()->getRequiredBodyParam('orderId');
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-
-        if (!$order) {
-            throw new Exception(Craft::t('commerce', 'No order exists with the ID “{id}”.',
-                ['id' => $orderId]));
-        }
-
-        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => false]);
-            }
-
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete order.'));
-            Craft::$app->getUrlManager()->setRouteParams(['order' => $order]);
-
-            return null;
-        }
-
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
-        }
-
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
-        return $this->redirect('commerce/orders');
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
      * Modifies the variables of the request.
      *
      * @param $variables
+     * @throws InvalidConfigException
      */
-    private function _prepVariables(&$variables)
+    private function _updateTemplateVariables(&$variables)
     {
         /** @var Order $order */
         $order = $variables['order'];
-        // Can't just use the order's getCpEditUrl() because that might include the site handle when we don't want it
-        $variables['baseCpEditUrl'] = 'commerce/orders/' . $order->id;
-        // Set the "Continue Editing" URL
-        $variables['continueEditingUrl'] = $variables['baseCpEditUrl'];
 
+        $variables['title'] = Plugin::t('Order') . ' ' . $order->reference;
+
+        if (!$order->isCompleted && $order->origin == Order::ORIGIN_CP) {
+            $variables['title'] = Plugin::t('New Order');
+        }
+
+        if (!$order->isCompleted && $order->origin == Order::ORIGIN_WEB) {
+            $variables['title'] = Plugin::t('Cart') . ' ' . $order->getShortNumber();
+        }
 
         $variables['tabs'] = [];
 
         $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'Order Details'),
+            'label' => Plugin::t('Order Details'),
             'url' => '#orderDetailsTab',
             'class' => null
         ];
@@ -521,44 +830,350 @@ class OrdersController extends BaseCpController
                 }
             }
 
+            $classes = ['custom-tab'];
+
+            if ($hasErrors) {
+                $classes[] = 'errors';
+            }
+
             $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
+                'label' => Plugin::t($tab->name),
                 'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null
+                'class' => implode(' ', $classes)
+            ];
+
+            // Add the static version of the custom fields.
+            $classes[] = 'static';
+            $variables['tabs'][] = [
+                'label' => Plugin::t($tab->name),
+                'url' => '#tab' . ($index + 1) . 'Static',
+                'class' => implode(' ', $classes)
             ];
         }
 
         $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'Transactions'),
+            'label' => Plugin::t('Transactions'),
             'url' => '#transactionsTab',
             'class' => null
         ];
 
         $variables['tabs'][] = [
-            'label' => Craft::t('commerce', 'Status History'),
+            'label' => Plugin::t('Status History'),
             'url' => '#orderHistoryTab',
             'class' => null
         ];
 
         $variables['fullPageForm'] = true;
-        $variables['saveShortcutRedirect'] = $variables['continueEditingUrl'];
+
+
+        $variables['paymentMethodsAvailable'] = false;
+
+        if (empty($variables['paymentForm'])) {
+            /** @var Gateway $gateway */
+            $gateway = $order->getGateway();
+
+            if ($gateway && !$gateway instanceof MissingGateway) {
+                $variables['paymentForm'] = $gateway->getPaymentFormModel();
+            } else {
+                $gateway = ArrayHelper::firstValue(Plugin::getInstance()->getGateways()->getAllGateways());
+
+                if ($gateway && !$gateway instanceof MissingGateway) {
+                    $variables['paymentForm'] = $gateway->getPaymentFormModel();
+                }
+            }
+
+            if ($gateway instanceof MissingGateway) {
+                $variables['paymentMethodsAvailable'] = false;
+            }
+        }
     }
 
     /**
-     * @return Order
-     * @throws Exception
+     * @param array $variables
+     * @throws InvalidConfigException
      */
-    private function _setOrderFromPost(): Order
+    private function _registerJavascript(array $variables)
     {
-        $orderId = Craft::$app->getRequest()->getBodyParam('orderId');
-        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
 
-        if (!$order) {
-            throw new Exception(Craft::t('commerce', 'No order with the ID “{id}”', ['id' => $orderId]));
+        Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
+
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
+
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
+
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
+        Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
+
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
+        Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
+
+        $permissions = [
+            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+
+        // TODO when we support multiple PDF templates, retrieve them all from a service
+        $pdfUrls = [
+            [
+                'name' => 'Download PDF',
+                'url' => $variables['order']->getPdfUrl()
+            ]
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
+
+        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
+        Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
+
+        $response = [];
+        $response['order'] = $this->_orderToArray($variables['order']);
+
+        if ($variables['order']->hasErrors()) {
+            $response['order']['errors'] = $variables['order']->getErrors();
+            $response['error'] = Plugin::t('The order is not valid.');
         }
 
-        $order->setFieldValuesFromRequest('fields');
+        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response) . ';', View::POS_BEGIN);
 
-        return $order;
+        $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
+    }
+
+    /**
+     * @param Order $order
+     * @param $orderRequestData
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    private function _updateOrder(Order $order, $orderRequestData)
+    {
+        $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
+        $order->reference = $orderRequestData['order']['reference'];
+        $order->email = $orderRequestData['order']['email'] ?? '';
+        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
+        $order->couponCode = $orderRequestData['order']['couponCode'];
+        $order->isCompleted = $orderRequestData['order']['isCompleted'];
+        $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
+        $order->message = $orderRequestData['order']['message'];
+        $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        if (($dateOrdered = $orderRequestData['order']['dateOrdered']) !== null) {
+            $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
+        }
+
+        // Only email set on the order
+        if ($order->customerId == null && $order->email) {
+            // See if there is a user with that email
+            $user = User::find()->email($order->email)->one();
+            $customer = null;
+            if ($user) {
+                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
+            }
+            // If no user or customer
+            if ($customer == null) {
+                $customer = new Customer();
+                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+            }
+
+            $order->customerId = $customer->id;
+        }
+
+        // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
+        try {
+            $order->getPaymentSource();
+            $order->getGateway();
+        } catch (\Exception $e) {
+            $order->paymentSourceId = null;
+            $order->gatewayId = null;
+        }
+
+        $lineItems = [];
+        $adjustments = [];
+
+        foreach ($orderRequestData['order']['lineItems'] as $lineItemData) {
+            // Normalize data
+            $lineItemId = $lineItemData['id'] ?? null;
+            $note = $lineItemData['note'] ?? '';
+            $privateNote = $lineItemData['privateNote'] ?? '';
+            $purchasableId = $lineItemData['purchasableId'];
+            $lineItemStatusId = $lineItemData['lineItemStatusId'];
+            $options = $lineItemData['options'] ?? [];
+            $qty = $lineItemData['qty'] ?? 1;
+
+            $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+
+            if (!$lineItem) {
+                try {
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                } catch (\Exception $exception) {
+                    $order->addError('lineItems', $exception->getMessage());
+                    continue;
+                }
+            }
+
+            $lineItem->purchasableId = $purchasableId;
+            $lineItem->qty = $qty;
+            $lineItem->note = $note;
+            $lineItem->privateNote = $privateNote;
+            $lineItem->lineItemStatusId = $lineItemStatusId;
+            $lineItem->setOptions($options);
+
+            /** @var Purchasable $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
+                $lineItem->setPurchasable($purchasable);
+                if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+                    $lineItem->refreshFromPurchasable();
+                }
+            }
+
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+                $lineItem->salePrice = $lineItemData['salePrice'];
+            }
+
+            if ($qty !== null && $qty > 0) {
+                $lineItems[] = $lineItem;
+            }
+
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+                foreach ($lineItemData['adjustments'] as $adjustmentData) {
+                    $id = $adjustmentData['id'];
+
+                    $adjustment = null;
+                    if ($id) {
+                        $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
+                    }
+                    if ($adjustment === null) {
+                        $adjustment = new OrderAdjustment();
+                    }
+
+                    $adjustment->setOrder($order);
+                    $adjustment->setLineItem($lineItem);
+                    $adjustment->amount = $adjustmentData['amount'];
+                    $adjustment->type = $adjustmentData['type'];
+                    $adjustment->name = $adjustmentData['name'];
+                    $adjustment->description = $adjustmentData['description'];
+                    $adjustment->included = $adjustmentData['included'];
+
+                    $adjustments[] = $adjustment;
+                }
+            }
+        }
+
+        $order->setLineItems($lineItems);
+
+        // Only update the adjustments if the recalculation mode is none (manually updating adjustments)
+        if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+            foreach ($orderRequestData['order']['orderAdjustments'] as $adjustmentData) {
+                $id = $adjustmentData['id'];
+
+                $adjustment = null;
+                if ($id) {
+                    $adjustment = Plugin::getInstance()->getOrderAdjustments()->getOrderAdjustmentById($id);
+                }
+                if ($adjustment === null) {
+                    $adjustment = new OrderAdjustment();
+                }
+
+                $adjustment->setOrder($order);
+                $adjustment->amount = $adjustmentData['amount'];
+                $adjustment->type = $adjustmentData['type'];
+                $adjustment->name = $adjustmentData['name'];
+                $adjustment->description = $adjustmentData['description'];
+                $adjustment->included = $adjustmentData['included'];
+
+                $adjustments[] = $adjustment;
+            }
+
+            // add all the updated adjustments to the order
+            $order->setAdjustments($adjustments);
+        }
+    }
+
+    /**
+     * @param Transaction[] $transactions
+     * @param int $level
+     * @return array
+     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws CurrencyException
+     * @since 3.0
+     */
+    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0): array
+    {
+        $return = [];
+        $user = Craft::$app->getUser()->getIdentity();
+        foreach ($transactions as $transaction) {
+            if (!ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
+                $refundCapture = '';
+                if ($user->can('commerce-capturePayment') && $transaction->canCapture()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_capture',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                } else if ($user->can('commerceRefundPayment') && $transaction->canRefund()) {
+                    $refundCapture = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_refund',
+                        [
+                            'currentUser' => $user,
+                            'transaction' => $transaction,
+                        ]
+                    );
+                }
+
+                $return[] = [
+                    'id' => $transaction->id,
+                    'level' => $level,
+                    'type' => [
+                        'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->type))),
+                        'level' => $level,
+                    ],
+                    'status' => [
+                        'key' => $transaction->status,
+                        'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
+                    ],
+                    'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
+                    'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
+                    'info' => [
+                        ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id ],
+                        ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash ],
+                        ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference ],
+                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message ],
+                        ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? '' ],
+                        ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code ],
+                        ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
+                        ['label' => Html::encode (Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transaction->response ],
+                    ],
+                    'actions' => $refundCapture,
+                ];
+
+                if (!empty($transaction->childTransactions)) {
+                    $childTransactions = $this->_getTransactionsWIthLevelsTableArray($transaction->childTransactions, $level + 1);
+
+                    foreach ($childTransactions as $childTransaction) {
+                        $return[] = $childTransaction;
+                    }
+                }
+            }
+        }
+
+        return $return;
     }
 }

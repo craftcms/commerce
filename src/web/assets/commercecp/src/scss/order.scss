@@ -1,67 +1,69 @@
 
 .order-details {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .order-details .paidLogo {
-    font-weight: bold;
-    position: absolute;
-    top: 40px;
-    right: 60px;
-    font-family: 'Helvetica', serif;
-    color: rgba(211, 65, 50, 0.5);
-    font-size: 48px;
-    -ms-transform: rotate(-20deg); /* IE 9 */
-    -webkit-transform: rotate(-20deg); /* Safari */
-    transform: rotate(-20deg);
+  font-weight: bold;
+  position: absolute;
+  top: 40px;
+  right: 60px;
+  font-family: 'Helvetica', serif;
+  color: rgba(211, 65, 50, 0.5);
+  font-size: 48px;
+  -ms-transform: rotate(-20deg); /* IE 9 */
+  -webkit-transform: rotate(-20deg); /* Safari */
+  transform: rotate(-20deg);
 }
 
 #paymentmodal.loading {
-    min-width: 300px;
-    min-height: 300px;
+  min-width: 300px;
+  min-height: 300px;
 }
 
 #paymentmodal.loading {
-    background: url(../images/spinner_big.gif) no-repeat 50% 50%;
+  background: url(../images/spinner_big.gif) no-repeat 50% 50%;
 }
 
 #paymentmodal fieldset {
-    margin: 24px 0;
+  margin: 24px 0;
 }
 
 #paymentmodal fieldset legend {
-    margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .order-info table.borderless td {
-    border: none !important;
+  border: none !important;
 }
 
 .transaction-status.transaction-status-failed {
-    color: #D0021B;
+  color: #D0021B;
 }
 
 .transaction-status.transaction-status-success {
-    color: #27AE60;
+  color: #27AE60;
 }
 
 .gateway-response {
-    display: block;
-    min-width: 250px;
-    max-width: 400px;
-    min-height: 50px;
-    max-height: 400px;
-    font-family: Menlo, monospace;
-    font-size: 0.9em !important;
-    overflow: auto;
-    outline: 1px solid #ccc; padding: 5px; margin: 5px;
+  display: block;
+  min-width: 250px;
+  max-width: 400px;
+  min-height: 50px;
+  max-height: 400px;
+  font-family: Menlo, monospace;
+  font-size: 0.9em !important;
+  overflow: auto;
+  outline: 1px solid #ccc;
+  padding: 5px;
+  margin: 5px;
 }
 
-.detailHud code{
-    font-family: Menlo, monospace;
+.detailHud code {
+  font-family: Menlo, monospace;
 }
 
-.transaction-refund input[type="text"]{
+.transaction-refund input[type="text"] {
   width: 100%;
   margin-bottom: 10px;
 }

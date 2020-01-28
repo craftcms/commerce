@@ -23,9 +23,6 @@ use yii\base\InvalidConfigException;
  */
 class ProductTypeSite extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -71,8 +68,6 @@ class ProductTypeSite extends Model
      */
     public $uriFormatIsRequired = true;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the Product Type.
@@ -131,9 +126,9 @@ class ProductTypeSite extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         if ($this->uriFormatIsRequired) {
             $rules[] = ['uriFormat', 'required'];

@@ -1,115 +1,67 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Amount',
+    'Date',
+    'Gateway',
+    'info',
+    'No transactions exist.',
+    'Payment Amount',
+    'Status',
+    'Type',
+]) %}
 
-<div id="transactionsTab" class="pane hidden">
-    {% macro transactionRow(transaction, level) %}
-        {% set info = [
-            { label: "Transaction ID", type:'code', value: transaction.id },
-            { label: "Transaction Hash", type:'code', value: transaction.hash },
-            { label: "Gateway Reference", type:'code', value: transaction.reference },
-            { label: "Gateway Message", type:'text', value: transaction.message },
-            { label: "Note", type:'text', value: transaction.note ?? '' },
-            { label: "Gateway Code", type:'code', value: transaction.code },
-            { label: "Converted Price", type:'text', value: transaction.paymentAmount|currency(transaction.paymentCurrency)~" <small class=\"light\">(1 "~transaction.currency~" = "~transaction.paymentRate|number~" "~transaction.paymentCurrency~")</small>" },
-            { label: "Gateway Response", type:'response', value: transaction.response|raw }
-        ] %}
+<div id="transactionsTab" class="hidden">
 
-        <tr class="infoRow" data-info="{{ info|json_encode }}">
-            <td style="padding-{{ craft.app.locale.orientation == 'ltr' ? 'left' : 'right' }}: {{ level }}em;" data-title="{{ transaction.type|title }}">{% if level > 0 %}<span class="extralight">{{ craft.app.locale.orientation == 'ltr' ? '&#8627;'|raw : '&#8629;'|raw }}</span> {% endif %}{{ transaction.type|title }}</td>
-            <td class="transaction-status transaction-status-{{ transaction.status }}" data-title="{{ 'Status'|t('commerce') }}">
-                {{ transaction.status|title|t('commerce') }}
-            </td>
-            <td data-title="{{ 'Amount'|t('commerce') }}">{{ transaction.amount|currency(transaction.currency) }}
-                <small class="light">({{ transaction.currency }})</small>
-            </td>
-            <td data-title="{{ 'Payment Amount'|t('commerce') }}">{{ transaction.paymentAmount|currency(transaction.paymentCurrency) }}
-                <small class="light">
-                    ({{ transaction.paymentCurrency }})
-                </small>
-            </td>
-            <td data-title="{{ 'Gateway'|t('commerce') }}">{{ transaction.gateway.name ?? 'Missing Gateway'|t }}</td>
-            <td data-title="{{ 'Date'|t('commerce') }}">{{ transaction.dateUpdated|date('H:i:s (jS M Y)') }}</td>
-            <td><span class="tableRowInfo" data-icon="info"
-                      href="#"></span></td>
-            <td class="transaction-refund" data-title="{{ 'Info'|t('commerce') }}">
-                {% if currentUser.can('commerce-capturePayment') and transaction.canCapture() %}
-                    <form method="post">
-                        {{ csrfInput() }}
-                        <a class="small btn submit formsubmit"
-                           data-action="commerce/orders/transaction-capture"
-                           data-confirm="{{ 'Are you sure you want to capture this transaction?'|t('commerce') }}"
-                           data-redirect="{{ transaction.order.cpEditUrl|hash }}"
-                           data-param="id"
-                           data-value="{{ transaction.id }}">{{ 'Capture'|t('commerce') }}</a>
-                    </form>
-                {% endif %}
-                {% if currentUser.can('commerce-refundPayment') and transaction.canRefund() %}
-                    <form method="post">
-                        {{ csrfInput() }}
-                        {% import "_includes/forms" as forms %}
-                        {{ forms.text({
-                            id: 'amount',
-                            size: 10,
-                            name: 'amount',
-                            placeholder: transaction.paymentCurrency~' '~transaction.refundableAmount
-                        }) }}
-                        {{ forms.text({
-                            id: 'note',
-                            size: 20,
-                            name: 'note',
-                            value: transaction.note,
-                            placeholder: 'Refund Note'
-                        }) }}
-                        <a class="small btn submit formsubmit"
-                           data-action="commerce/orders/transaction-refund"
-                           data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
-                           data-redirect="{{ transaction.order.cpEditUrl|hash }}"
-                           data-param="id"
-                           data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
-                    </form>
-                {% endif %}
-            </td>
-        </tr>
-
-        {% set transactions = transaction.childTransactions %}
-        {% if transactions|length %}
-            {% import _self as self %}
-            {% for childTransaction in transactions %}
-                {{ self.transactionRow(childTransaction, level +1) }}
-            {% endfor %}
-        {% endif %}
-    {% endmacro %}
-
-    <h3>{{ "Transactions"|t('commerce') }}</h3>
-
-    {% if order.nestedTransactions|length %}
-        {% from _self import transactionRow %}
-        <table class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Type'|t('commerce') }}</th>
-                <th scope="col">{{ 'Status'|t('commerce') }}</th>
-                <th scope="col">{{ 'Amount'|t('commerce') }}</th>
-                <th scope="col">{{ 'Payment Amount'|t('commerce') }}</th>
-                <th scope="col">{{ 'Gateway'|t('commerce') }}</th>
-                <th scope="col">{{ 'Date'|t('commerce') }}</th>
-                <th scope="col">{{ 'Info'|t('commerce') }}</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for transaction in order.nestedTransactions %}
-                {{ transactionRow(transaction, 0) }}
-            {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="light">{{ 'No transactions.'|t('commerce') }}</p>
-    {% endif %}
-
+    <div id="transactions-vue-admin-table"></div>
 
     {% if not order.isPaid() %}
         <div class="footer">
             <a class="btn" id="make-payment" data-order-id="{{ order.id }}">{{ 'Make Payment'|t('commerce') }}</a>
         </div>
     {% endif %}
-
 </div>
+
+
+{% js %}
+var columns = [
+    { name: 'type', title: Craft.t('commerce', 'Type'),
+        callback: function(value) {
+            return '<span style="padding-left: '+value.level+'em;">'+
+                ((value.level) ? '<span class="extralight">&#8627;</span> ' : '') +
+                value.label+'</span>';
+        }
+    },
+    { name: 'status', title: Craft.t('commerce', 'Status'),
+        callback: function(value) {
+            return '<span class="transaction-status transaction-status-'+value.key+'">'+value.label+'</span>';
+        }
+    },
+    { name: 'amount', title: Craft.t('commerce', 'Amount'),
+        callback: function(value) {
+            return value;
+        }
+    },
+    { name: 'paymentAmount', title: Craft.t('commerce', 'Payment Amount') },
+    { name: 'gateway', title: Craft.t('commerce', 'Gateway') },
+    { name: 'date', title: Craft.t('commerce', 'Date') },
+    { name: 'info', title: Craft.t('commerce', 'info'),
+        callback: function(value) {
+            return '<span class="infoRow" data-info=\''+JSON.stringify(value)+'\'>' +
+                '<span class="tableRowInfo" data-icon="info"></span></span>';
+        }
+    },
+    { name: 'actions', title: '',
+        callback: function(value) {
+            return value;
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#transactions-vue-admin-table',
+    emptyMessage: Craft.t('commerce', 'No transactions exist.'),
+    padded: true,
+    tableData: {{ orderTransactions|json_encode|raw }}
+});
+{% endjs %}

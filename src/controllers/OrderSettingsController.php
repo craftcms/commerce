@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\commerce\services\Orders;
 use craft\helpers\StringHelper;
 use yii\web\Response;
@@ -21,9 +22,6 @@ use yii\web\Response;
  */
 class OrderSettingsController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @param array $variables
      * @return Response
@@ -33,7 +31,7 @@ class OrderSettingsController extends BaseAdminController
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
 
         $variables['fieldLayout'] = $fieldLayout;
-        $variables['title'] = Craft::t('commerce', 'Order Settings');
+        $variables['title'] = Plugin::t('Order Settings');
 
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
@@ -47,7 +45,7 @@ class OrderSettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order fields saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Order fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

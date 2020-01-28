@@ -9,16 +9,12 @@ namespace craft\commerce\adjusters;
 
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
-use craft\commerce\models\Discount;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
-use craft\db\Query;
-use craft\elements\Category;
 
 /**
  * Tax Adjustments
@@ -28,13 +24,8 @@ use craft\elements\Category;
  */
 class Shipping extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
-
     const ADJUSTMENT_TYPE = 'shipping';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var
@@ -46,8 +37,6 @@ class Shipping extends Component implements AdjusterInterface
      */
     private $_isEstimated = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -98,7 +87,6 @@ class Shipping extends Component implements AdjusterInterface
             if (!$hasDiscountRemoveShippingCosts) {
                 //checking items shipping categories
                 foreach ($order->getLineItems() as $item) {
-
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                     $hasFreeShippingFromDiscount = false;
                     foreach ($discounts as $discount) {
@@ -159,8 +147,6 @@ class Shipping extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param ShippingMethod $shippingMethod

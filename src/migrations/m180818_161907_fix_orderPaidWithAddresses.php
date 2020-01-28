@@ -29,7 +29,6 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
             ->column();
 
         foreach ($orderIds as $id) {
-
             $recentSuccessfulTransactionDate = (new Query())
                 ->select(['dateUpdated'])
                 ->from(['{{%commerce_transactions}}'])

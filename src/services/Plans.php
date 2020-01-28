@@ -31,9 +31,6 @@ use yii\base\InvalidConfigException;
  */
 class Plans extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event PlanEvent The event that is triggered when a plan is archived.
      *
@@ -86,8 +83,6 @@ class Plans extends Component
      */
     const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all subscription plans
@@ -316,8 +311,6 @@ class Plans extends Component
     }
 
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving gateways.

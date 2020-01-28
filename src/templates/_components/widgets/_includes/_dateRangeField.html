@@ -1,0 +1,55 @@
+{# Date Range picker JS field #}
+{% import "_includes/forms" as forms %}
+{% set id = id is not defined ? null : id %}
+{% set widget = widget is not defined ? null : widget %}
+
+{% if not id %}
+  <p>{{ 'An ID must be provided'|t('commerce') }}</p>
+{% else %}
+  <input type="hidden" name="startDate" value="{{ widget.startDate ?? '' }}" data-start-date>
+  <input type="hidden" name="endDate" value="{{ widget.endDate ?? '' }}" data-end-date>
+  <input type="hidden" name="dateRange" value="{{ widget.dateRange ?? '' }}" data-date-range>
+
+  {% set dateRangeHtml %}<div data-date-range-picker></div>{% endset %}
+
+  {{ forms.field({
+    label: 'Date Range'|t('app'),
+  }, dateRangeHtml) }}
+
+  {% js %}
+    var options = {
+        selected: '{{ widget.dateRange ?? '' }}',
+        onChange: function(start, end, handle) {
+            var $startDate = $('#{{ id }} [data-start-date]');
+            var $endDate = $('#{{ id }} [data-end-date]');
+            var $dateRange = $('#{{ id }} [data-date-range]');
+            $startDate.val('');
+            $endDate.val('');
+            $dateRange.val('');
+
+            if (start) {
+                $startDate.val(start.getTime() / 1000);
+            }
+
+           if (end) {
+                $endDate.val(end.getTime() / 1000);
+            }
+
+           if (handle) {
+                $dateRange.val(handle);
+            }
+        }
+    };
+
+    {% if widget.dateRange == 'custom' and widget.startDate %}
+      options['startDate'] = new Date({{ widget.startDate|date('Y') }}, {{ widget.startDate|date('m') - 1 }}, {{ widget.startDate|date('d') }});
+    {% endif %}
+
+    {% if widget.dateRange == 'custom' and widget.endDate %}
+      options['endDate'] = new Date({{ widget.endDate|date('Y') }}, {{ widget.endDate|date('m') - 1 }}, {{ widget.endDate|date('d') }});
+    {% endif %}
+
+    var $container = $('#{{ id }} [data-date-range-picker]');
+    var $picker = Craft.ui.createDateRangePicker(options).appendTo($container);
+  {% endjs %}
+{% endif %}

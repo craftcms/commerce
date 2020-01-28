@@ -21,9 +21,6 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -62,7 +59,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         if ($variables['taxCategory']->id) {
             $variables['title'] = $variables['taxCategory']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new tax category');
+            $variables['title'] = Plugin::t('Create a new tax category');
         }
 
         return $this->renderTemplate('commerce/tax/taxcategories/_edit', $variables);
@@ -104,7 +101,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Tax category saved.'));
             $this->redirectToPostedUrl($taxCategory);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -113,7 +110,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax category.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax category.'));
         }
 
         // Send the tax category back to the template
@@ -138,6 +135,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
+        return $this->asErrorJson(Plugin::t('Could not delete tax category'));
     }
 }

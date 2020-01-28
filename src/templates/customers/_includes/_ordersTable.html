@@ -1,0 +1,33 @@
+{% do view.registerTranslations('commerce', [
+  'No orders exist.',
+  'Order Date',
+  'Order',
+  'Search orders',
+  'Total Paid',
+]) %}
+
+<div id="orders-vue-admin-table"></div>
+
+{% js %}
+var orderColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Order'), sortField: 'reference' },
+    { name: 'date', title: Craft.t('commerce', 'Order Date'), sortField: 'dateOrdered' },
+    { name: 'total', title: Craft.t('commerce', 'Total Paid'), sortField: 'totalPaid' },
+    { name: 'orderStatus', title: Craft.t('commerce', 'Status'),
+        callback: function(value) {
+            return value;
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+    columns: orderColumns,
+    container: '#orders-vue-admin-table',
+    emptyMessage: Craft.t('commerce', 'No orders exist.'),
+    padded: true,
+    perPage: 10,
+    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?customerId={{ customer.id }}'),
+    search: true,
+    searchPlaceholder: Craft.t('commerce', 'Search orders')
+  });
+{% endjs %}

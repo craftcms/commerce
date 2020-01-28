@@ -20,9 +20,6 @@ use craft\commerce\Plugin;
  */
 class ShippingRuleCategory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -58,15 +55,13 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] =
             [

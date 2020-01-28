@@ -25,9 +25,6 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
  */
 class ShippingRule extends Model implements ShippingRuleInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -170,15 +167,13 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     private $_shippingRuleCategories;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [
             [
@@ -390,8 +385,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
         return $this->description;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param $attribute

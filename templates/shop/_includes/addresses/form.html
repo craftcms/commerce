@@ -1,5 +1,5 @@
-{% set countries = craft.commerce.countries.allCountriesAsList %}
-{% set states = craft.commerce.states.allStatesAsList %}
+{% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
+{% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
 
 {% set modelName = modelName is defined ? modelName : 'address' %}
 {% set model = address is defined ? address : null %}
@@ -20,13 +20,13 @@
                 <span class="flash">{{ model.getErrors('title')|join }}</span>
             {% endif %}
 
-            <label for="{{ modelName }}-firstName">First Name *</label>
+            <label for="{{ modelName }}-firstName">First Name</label>
             <input type="text" id="{{ modelName }}-firstName" class="w-full" name="{{ modelName }}[firstName]" value="{{ model ? model.firstName : '' }}">
             {% if model and model.getErrors('firstName') %}
                 <span class="flash">{{ model.getErrors('firstName')|join }}</span>
             {% endif %}
 
-            <label for="{{ modelName }}-lastName">Last Name *</label>
+            <label for="{{ modelName }}-lastName">Last Name</label>
             <input type="text" id="{{ modelName }}-lastName" class="w-full" name="{{ modelName }}[lastName]" value="{{ model ? model.lastName : '' }}">
             {% if model and model.getErrors('lastName') %}
                 <span class="flash">{{ model.getErrors('lastName')|join }}</span>
@@ -192,7 +192,7 @@
 </div>
 
 {% js %}
-var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
+var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
 
     $('select.address-country').change(function ()
     {

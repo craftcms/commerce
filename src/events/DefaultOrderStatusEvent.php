@@ -19,9 +19,6 @@ use yii\base\Event;
  */
 class DefaultOrderStatusEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var OrderStatus The default order status based on the order
      */

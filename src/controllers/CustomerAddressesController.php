@@ -25,9 +25,6 @@ use yii\web\Response;
  */
 class CustomerAddressesController extends BaseFrontEndController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Add New Address
      *
@@ -48,7 +45,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
-            $error = Craft::t('commerce', 'Not allowed to edit that address.');
+            $error = Plugin::t('Not allowed to edit that address.');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['error' => $error]);
             }
@@ -100,18 +97,18 @@ class CustomerAddressesController extends BaseFrontEndController
             $request = Craft::$app->getRequest();
             $updatedCustomer = false;
 
-            if ($request->getBodyParam('makePrimaryBillingAddress') || !$customer->primaryBillingAddressId) {
+            if ($request->getBodyParam('makePrimaryBillingAddress')) {
                 $customer->primaryBillingAddressId = $address->id;
                 $updatedCustomer = true;
             }
 
-            if ($request->getBodyParam('makePrimaryShippingAddress') || !$customer->primaryShippingAddressId) {
+            if ($request->getBodyParam('makePrimaryShippingAddress')) {
                 $customer->primaryShippingAddressId = $address->id;
                 $updatedCustomer = true;
             }
 
             if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
-                $error = Craft::t('commerce', 'Unable to update primary address.');
+                $error = Plugin::t('Unable to update primary address.');
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     return $this->asJson(['error' => $error]);
                 }
@@ -131,11 +128,11 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
 
             $this->redirectToPostedUrl();
         } else {
-            $errorMsg = Craft::t('commerce', 'Could not save address.');
+            $errorMsg = Plugin::t('Could not save address.');
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
@@ -194,10 +191,10 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Address removed.'));
             return $this->redirectToPostedUrl();
         } else {
-            $error = Craft::t('commerce', 'Could not delete address.');
+            $error = Plugin::t('Could not delete address.');
         }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {

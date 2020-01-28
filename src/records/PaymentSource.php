@@ -27,9 +27,6 @@ use yii\db\ActiveQueryInterface;
  */
 class PaymentSource extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

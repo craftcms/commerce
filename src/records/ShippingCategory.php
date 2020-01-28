@@ -23,9 +23,6 @@ use craft\db\ActiveRecord;
  */
 class ShippingCategory extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
