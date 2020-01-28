@@ -82,7 +82,7 @@ class Orders extends Widget
     {
         $orders = $this->_getOrders();
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/body', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,
             'showStatuses' => $this->orderStatusId === null,
         ]);
@@ -102,7 +102,7 @@ class Orders extends Widget
 
         Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('" . $namespaceId . "');");
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/settings', [
             'id' => $id,
             'widget' => $this,
             'orderStatuses' => $orderStatuses,

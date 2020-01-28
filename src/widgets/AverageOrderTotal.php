@@ -105,7 +105,7 @@ class AverageOrderTotal extends Widget
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
-        return $view->renderTemplate('commerce/_components/widgets/Orders/average/body', compact('number', 'timeFrame'));
+        return $view->renderTemplate('commerce/_components/widgets/orders/average/body', compact('number', 'timeFrame'));
     }
 
     /**
@@ -124,7 +124,7 @@ class AverageOrderTotal extends Widget
         $id = 'average-order-total' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/average/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/average/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,

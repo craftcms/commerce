@@ -152,7 +152,7 @@ class TotalOrdersByCountry extends Widget
         $labels = ArrayHelper::getColumn($stats, 'name', false);
         $totalOrders = ArrayHelper::getColumn($stats, 'total', false);
 
-        return $view->renderTemplate('commerce/_components/widgets/Orders/country/body',
+        return $view->renderTemplate('commerce/_components/widgets/orders/country/body',
             compact(
                 'stats',
                 'namespaceId',
@@ -170,7 +170,7 @@ class TotalOrdersByCountry extends Widget
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/country/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/country/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
