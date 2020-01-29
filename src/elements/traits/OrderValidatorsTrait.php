@@ -104,19 +104,20 @@ trait OrderValidatorsTrait
             $anotherCustomerAddress = (new Query())
                 ->select('id')
                 ->from([Table::CUSTOMERS_ADDRESSES])
-                ->where(['not', 'customerId' => $customer->id])
+                ->where(['not', ['customerId' => $customer->id]])
                 ->andWhere(['addressId' => $address->id])
-                ->exists();
+                ->all();
+
 
             // Don't do an additional query if we already have an invalid address
-            if (!$anotherCustomerAddress) {
+            if ($anotherCustomerAddress) {
                 // Is another order using this address?
                 $anotherOrdersAddress = (new Query())
                     ->select('id')
                     ->from([Table::ORDERS])
-                    ->where(['not', 'orderId' => $this->id])
-                    ->andWhere(['or', 'shippingAddress' => $address->id, 'billingAddress' => $address->id])
-                    ->exists();
+                    ->where(['not', ['orderId' => $this->id]])
+                    ->andWhere(['or', ['shippingAddress' => $address->id], ['billingAddress' => $address->id]])
+                    ->all();
             }
 
             if ($anotherCustomerAddress || $anotherOrdersAddress) {
