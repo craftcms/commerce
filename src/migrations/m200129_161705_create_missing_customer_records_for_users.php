@@ -24,7 +24,11 @@ class m200129_161705_create_missing_customer_records_for_users extends Migration
             ->where(['userId' => null]);
 
         foreach ($noCustomerUsers->batch(500) as $i => $users) {
-            $this->batchInsert('{{%commerce_customers}}', ['userId'], $users);
+            $rows = [];
+            foreach ($users as $user) {
+                $rows[] = [$user['userId']];
+            }
+            $this->batchInsert('{{%commerce_customers}}', ['userId'], $rows);
         }
     }
 
