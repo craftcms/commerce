@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Ajax requests to `commerce/cart/get-cart` now include `totalTax`, `totalTaxIncluded`, `totalDiscount`, and `totalShipping` fields it the JSON response.
+
 ## Fixed
 - Fixed PostgreSQL error that occurred on the Edit Order page.
 

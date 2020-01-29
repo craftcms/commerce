@@ -945,6 +945,10 @@ class Order extends Element
         $attributes[] = 'totalPrice';
         $attributes[] = 'totalSaleAmount';
         $attributes[] = 'totalTaxablePrice';
+        $attributes[] = 'totalTax';
+        $attributes[] = 'totalTaxIncluded';
+        $attributes[] = 'totalShippingCost';
+        $attributes[] = 'totalDiscount';
         return $attributes;
     }
 
@@ -1007,6 +1011,10 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
+        $names[] = 'totalTax';
+        $names[] = 'totalTaxIncluded';
+        $names[] = 'totalShippingCost';
+        $names[] = 'totalDiscount';
         return $names;
     }
 

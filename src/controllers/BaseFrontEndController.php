@@ -53,8 +53,14 @@ class BaseFrontEndController extends BaseController
         // Typecast order attributes
         $cart->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
-
+        $extraFields = [
+            'lineItems.snapshot',
+            'availableShippingMethods',
+            'totalTax',
+            'totalTaxIncluded',
+            'totalShippingCost',
+            'totalDiscount'
+        ];
         $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
