@@ -121,7 +121,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.3';
+    public $schemaVersion = '3.0.4';
 
     /**
      * @inheritdoc
@@ -137,7 +137,7 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public $minVersionRequired = '1.2.1360';
-    
+
     use CommerceServices;
     use Variables;
     use Routes;
@@ -448,6 +448,7 @@ class Plugin extends BasePlugin
     {
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }
