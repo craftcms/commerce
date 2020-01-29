@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.1 - 2020-01-29
 
 ### Changed
 - A customer record is now created when saving a user. ([#1237](https://github.com/craftcms/commerce/issues/1237))
