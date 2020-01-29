@@ -1024,10 +1024,7 @@ class Order extends Element
 
         // Do addresses  belong to the customer of the order (only checked if the order is a cart)
         $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressBelongsToOrdersCustomer', 'when' => function($model) {
-                /** @var Order $model */
-                return !$model->isCompleted;
-            }
+            ['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'
         ]; // from OrderValidatorTrait
 
         // Are the addresses both being set to each other.
@@ -1854,7 +1851,7 @@ class Order extends Element
      */
     public function hasLineItems(): bool
     {
-        return (bool) $this->getLineItems();
+        return (bool)$this->getLineItems();
     }
 
     /**
