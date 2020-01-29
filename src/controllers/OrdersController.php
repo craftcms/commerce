@@ -412,6 +412,10 @@ class OrdersController extends Controller
      */
     public function actionPurchasableSearch($query = null)
     {
+        if($query === null)
+        {
+            return $this->asJson([]);
+        }
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
@@ -432,7 +436,7 @@ class OrdersController extends Controller
             $sqlQuery->where([
                 'or',
                 [$likeOperator, 'description', $query],
-                [$likeOperator, 'SKU', $query]
+                [$likeOperator, 'sku', $query]
             ]);
         }
 

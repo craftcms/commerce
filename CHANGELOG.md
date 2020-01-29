@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+## Fixed
+- Fixed PostgreSQL error that occurred on the Edit Order page.
+
 ## 3.0.1 - 2020-01-29
 
 ### Changed
