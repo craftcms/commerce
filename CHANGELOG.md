@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Changed
-- When saving a user create a customer record if one does not exist. ([#1237](https://github.com/craftcms/commerce/issues/1237))
+- A customer is now created when saving a user. ([#1237](https://github.com/craftcms/commerce/issues/1237))
 
 ### Fixed
 - Fixed an error that occurred on order complete. ([#1239](https://github.com/craftcms/commerce/issues/1239)) 
