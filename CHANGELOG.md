@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred on order complete. ([#1239](https://github.com/craftcms/commerce/issues/1239)) 
+
 ## 3.0.0 - 2020-01-28
 
 > {warning} Order notification emails are now sent via a queue job, so running a queue worker as a daemon is highly recommended to avoid notification delays.
