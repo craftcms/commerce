@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 3.0.2 - 2020-01-29
+
+### Added
+- Ajax requests to `commerce/cart/*` now include `totalTax`, `totalTaxIncluded`, `totalDiscount`, and `totalShippingCost` fields in the JSON response.
+
+## Fixed
+- Fixed a PostgreSQL error that occurred on the Edit Order page.
+
 ## 3.0.1 - 2020-01-29
 
 ### Changed
