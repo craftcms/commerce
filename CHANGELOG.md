@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed the styling of the address’s “Edit” button on the Edit Order page. 
+
 ## 3.0.2 - 2020-01-29
 
 ### Added

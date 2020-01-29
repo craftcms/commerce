@@ -47,11 +47,11 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         if (this.address.id) {
             var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
             var addressStr = address.join(' ');
-            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
+            $("<a class='small btn right' style='margin:2px' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
         }
 
         // Edit button
-        $("<a class='small btn right edit' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
+        $("<a class='small btn right edit' style='margin:2px' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
 
         this.$address.html("");
 
