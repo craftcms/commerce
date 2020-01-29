@@ -321,8 +321,8 @@ class OrdersController extends Controller
         }
 
         $orderQuery = Order::find()
-         ->customer($customer)
-         ->isCompleted();
+            ->customer($customer)
+            ->isCompleted();
 
         if ($search) {
             $orderQuery->search($search);
@@ -465,48 +465,46 @@ class OrdersController extends Controller
     public function actionCustomerSearch($query = null)
     {
         $limit = 30;
+        $customers = [];
+
+        if ($query === null) {
+            return $this->asJson($customers);
+        }
 
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+
+        // First look for a user
+        $sqlQuery = (new Query())
+            ->select([
+                '[[customers.id]] customerId',
+                '[[customers.id]] userId',
+                '[[users.email]] email'
+            ])
+            ->from('{{%commerce_customers}} customers')
+            ->innerJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+            ->andWhere([$likeOperator, '[[users.email]]', $query]);
+
+        $results = $sqlQuery->limit($limit)->all();
+
+        foreach ($results as $result) {
+            $customers[$result['customerId']] = $result;
+        }
+
         $sqlQuery = (new Query())
             ->select([
                 '[[customers.id]] as customerId',
                 '[[orders.email]] as email',
-                '[[users.id]] as userId',
-                'count([[orders.id]]) as totalOrders',
             ])
             ->from('{{%commerce_customers}} customers')
             ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->leftJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
-            ->groupBy(['customerId', 'email', 'userId'])
-            ->where(['not', ['customerId' => null]])
-            ->andWhere(['isCompleted' => 1]);
+            ->andWhere(['[[orders.isCompleted]]' => 1])
+            ->andWhere([$likeOperator, '[[orders.email]]', $query]);
 
-        // Are they searching for a customer ID?
-        $results = [];
-        if (is_numeric($query)) {
-            $result = $sqlQuery->andWhere(['[[customers.id]]' => $query])->one();
-            if ($result) {
-                $results[] = $result;
-            }
+        foreach ($sqlQuery->limit($limit)->all() as $result) {
+            $customers[$result['customerId']] = $result;
         }
 
-        // Are they searching for an email address?
-        if (!is_numeric($query)) {
-            if ($query) {
-                $sqlQuery->andWhere(
-                    [$likeOperator, '[[orders.email]]', $query]
-                );
-            }
-            $results = $sqlQuery->limit($limit)->all();
-        }
-
-        foreach ($results as $key => $row) {
-            if (!isset($row['customerId']) || $row['customerId'] === null || $row['email'] === null) {
-                unset($results[$key]);
-            }
-        }
-
-        return $this->asJson($results);
+        return $this->asJson(array_values($customers));
     }
 
     /**
@@ -1152,14 +1150,14 @@ class OrdersController extends Controller
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
-                        ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id ],
-                        ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash ],
-                        ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference ],
-                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message ],
-                        ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? '' ],
-                        ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code ],
-                        ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>' ],
-                        ['label' => Html::encode (Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transaction->response ],
+                        ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id],
+                        ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
+                        ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
+                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message],
+                        ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? ''],
+                        ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
+                        ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
+                        ['label' => Html::encode(Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transaction->response],
                     ],
                     'actions' => $refundCapture,
                 ];

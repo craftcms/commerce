@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 3.0.1 - 2020-01-29
+
+### Changed
+- A customer record is now created when saving a user. ([#1237](https://github.com/craftcms/commerce/issues/1237))
+
+### Fixed
+- Fixed an error that occurred on order complete. ([#1239](https://github.com/craftcms/commerce/issues/1239)) 
+
 ## 3.0.0 - 2020-01-28
 
 > {warning} Order notification emails are now sent via a queue job, so running a queue worker as a daemon is highly recommended to avoid notification delays.
