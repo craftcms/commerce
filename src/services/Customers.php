@@ -14,7 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
-use craft\commerce\queue\ConsolidateGuestOrders;
+use craft\commerce\queue\jobs\ConsolidateGuestOrders;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
