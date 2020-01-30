@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Commerce would cause Craft to crash when hosted on Windows machines. ([#1247](https://github.com/craftcms/commerce/issues/1247))
+
 ## 3.0.3 - 2020-01-29
 
 ### Fixed

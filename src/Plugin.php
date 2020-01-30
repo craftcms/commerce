@@ -171,8 +171,7 @@ class Plugin extends BasePlugin
         $this->_registerElementExports();
         $this->_defineResaveCommand();
 
-        $libPath = str_replace('/cms/', '/commerce/', Craft::getAlias('@lib'));
-        Craft::setAlias('@commerceLib', $libPath);
+        Craft::setAlias('@commerceLib',  Craft::getAlias('@craft/commerce/../lib'));
     }
 
     /**
