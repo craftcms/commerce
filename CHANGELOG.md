@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added purging of orphaned addresses to garbage collection.
+- Added `craft\commerce\services\Addresses::purgeOrphanedAddresses`.
+
+### Fixed
+- Fixed an error that could occur when trying to change the customer while editing an order in the CP. ([#1238](https://github.com/craftcms/commerce/issues/1238))
+- Fixed a bug where Commerce would cause Craft to crash when hosted on Windows machines. ([#1247](https://github.com/craftcms/commerce/issues/1247))
+- Fixed a bug that could occur when editing a completed order causing the Date Ordered date to shift. ([#1246](https://github.com/craftcms/commerce/issues/1246))
+
 ## 3.0.3 - 2020-01-29
 
 ### Fixed

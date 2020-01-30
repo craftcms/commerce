@@ -260,15 +260,15 @@ class Customers extends Component
     {
         $customers = (new Query())
             ->select(['[[customers.id]] id'])
-            ->from('{{%commerce_customers}} customers')
-            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->from(Table::CUSTOMERS . ' customers')
+            ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
             ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
             ->column();
 
         if ($customers) {
             // This will also remove all addresses related to the customer.
             Craft::$app->getDb()->createCommand()
-                ->delete('{{%commerce_customers}}', ['id' => $customers])
+                ->delete(Table::CUSTOMERS, ['id' => $customers])
                 ->execute();
         }
     }
