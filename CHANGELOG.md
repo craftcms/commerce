@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a PostgreSQL error that occurred when saving a discount.
+
 ## 3.0.3 - 2020-01-29
 
 ### Fixed
