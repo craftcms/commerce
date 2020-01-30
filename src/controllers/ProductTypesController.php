@@ -84,6 +84,7 @@ class ProductTypesController extends BaseAdminController
             'variantFields' => [
                 'label' => Plugin::t('Variant Fields'),
                 'url' => '#variant-fields',
+                'class' => ($variables['productType']->hasVariants ? '' : 'hidden')
             ]
         ];
 
