@@ -28,12 +28,16 @@
     sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) ~ ' ' ~ (sale.apply == 'byFlat' ? 'off original price'|t('commerce')|e : '(new price)'|t('commerce')|e )
   %}
 
+  {% set dateRange = (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞') %}
+  {% if not sale.dateFrom and not sale.dateTo %}
+    {% set dateRange = '∞' %}
+  {% endif %}
   {% set tableData = tableData|merge([{
     id: sale.id,
     title: sale.name|t('site'),
     url: url('commerce/promotions/sales/' ~ sale.id),
     status: sale.enabled ? true : false,
-    duration: (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞'),
+    duration: dateRange,
     effect: effect,
     ignore: sale.ignorePrevious ? true : false,
     stop: sale.stopProcessing ? true : false,
