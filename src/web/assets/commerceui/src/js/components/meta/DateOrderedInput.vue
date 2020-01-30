@@ -57,6 +57,7 @@
                 this.$emit('update', {
                     date: this.dateValue,
                     time: this.timeValue,
+                    timezone: Craft.timezone,
                 })
             },
 

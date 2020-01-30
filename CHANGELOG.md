@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where Commerce would cause Craft to crash when hosted on Windows machines. ([#1247](https://github.com/craftcms/commerce/issues/1247))
+- Fixed a bug that could occur when editing a completed order causing the Date Ordered date to shift. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 
 ## 3.0.3 - 2020-01-29
 

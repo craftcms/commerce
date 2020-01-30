@@ -20,6 +20,10 @@ export default {
             }
         }
 
+        if (draftData.order.dateOrdered && !draftData.order.dateOrdered.hasOwnProperty('timezone')) {
+            draftData.order.dateOrdered['timezone'] = Craft.timezone
+        }
+
         draftData.order.id = this.parseInputValue('int', draft.order.id)
 
         draft.order.lineItems.forEach((lineItem, lineItemKey) => {
